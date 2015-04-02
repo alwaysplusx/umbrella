@@ -21,12 +21,12 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.harmony.modules.invoker.InvokException;
+import com.harmony.modules.invoker.Invoker;
 import com.harmony.modules.jaxws.JaxWsContext;
 import com.harmony.modules.jaxws.JaxWsException;
 import com.harmony.modules.jaxws.JaxWsPhaseExecutor;
-import com.harmony.modules.jaxws.invoker.InvokException;
-import com.harmony.modules.jaxws.invoker.Invoker;
-import com.harmony.modules.jaxws.invoker.JaxWsInvoker;
+import com.harmony.modules.jaxws.util.JaxWsInvoker;
 
 public class JaxWsCXFExecutor extends JaxWsPhaseExecutor {
 

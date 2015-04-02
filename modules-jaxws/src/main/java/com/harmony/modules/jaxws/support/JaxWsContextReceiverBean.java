@@ -28,13 +28,13 @@ import javax.ejb.Stateless;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.harmony.modules.bean.BeanLoader;
+import com.harmony.modules.bean.ClassBeanLoader;
 import com.harmony.modules.jaxws.JaxWsContext;
 import com.harmony.modules.jaxws.JaxWsContextHandler;
 import com.harmony.modules.jaxws.JaxWsExecutor;
 import com.harmony.modules.jaxws.MetadataLoader;
 import com.harmony.modules.jaxws.SimpleJaxWsContext;
-import com.harmony.modules.jaxws.bean.BeanLoader;
-import com.harmony.modules.jaxws.bean.ClassBeanLoader;
 import com.harmony.modules.jaxws.impl.JaxWsCXFExecutor;
 
 @Remote(JaxWsContextReceiver.class)

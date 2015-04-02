@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.modules.jaxws.invoker;
+package com.harmony.modules.invoker;
 
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
@@ -25,15 +25,16 @@ public class DefaultInvoker implements Invoker, Serializable {
 
     @Override
     public Object invok(Object obj, Method method, Object[] args) throws InvokException {
+        Exception ex = null;
         try {
             return method.invoke(obj, args);
-        } catch (IllegalArgumentException e) {
-            throw new InvokException(e.getCause());
         } catch (IllegalAccessException e) {
-            throw new InvokException(e.getCause());
+            ex = e;
         } catch (InvocationTargetException e) {
-            throw new InvokException(e.getCause());
+            ex = e;
         }
+        Throwable cause = ex.getCause() == null ? ex : ex.getCause();
+        throw new InvokException(cause.getMessage(), cause);
     }
 
 }

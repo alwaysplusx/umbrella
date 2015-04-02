@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.modules.jaxws.invoker;
+package com.harmony.modules.jaxws.util;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -23,9 +23,15 @@ import java.util.List;
 import javax.jws.WebParam;
 import javax.jws.WebParam.Mode;
 
+import com.harmony.modules.invoker.DefaultInvoker;
+import com.harmony.modules.invoker.InvokException;
+import com.harmony.modules.invoker.Invoker;
+
 public class JaxWsInvoker extends DefaultInvoker implements Invoker {
 
     private static final long serialVersionUID = 8613526886152167871L;
+
+    private boolean extractValueFromSingleResult = true;
 
     @Override
     public Object invok(Object target, Method method, Object[] parameters) throws InvokException {
@@ -46,11 +52,22 @@ public class JaxWsInvoker extends DefaultInvoker implements Invoker {
                     Mode mode = ((WebParam) ann).mode();
                     if (mode.equals(Mode.INOUT) || mode.equals(Mode.OUT)) {
                         list.add(parameters[i]);
-                        // break;
+                        break;
                     }
                 }
             }
         }
-        return list.isEmpty() ? null : list.size() == 1 ? list.get(0) : list;
+        if (extractValueFromSingleResult && list.size() == 1) {
+            return list.get(0);
+        }
+        return list;
+    }
+
+    public boolean isExtractValueFromSingleResult() {
+        return extractValueFromSingleResult;
+    }
+
+    public void setExtractValueFromSingleResult(boolean extractValueFromSingleResult) {
+        this.extractValueFromSingleResult = extractValueFromSingleResult;
     }
 }

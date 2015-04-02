@@ -13,26 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.modules.jaxws.invoker;
+package com.harmony.modules.invoker;
 
-public class InvokException extends Exception {
+import java.lang.reflect.Method;
 
-    private static final long serialVersionUID = -4338894263088635172L;
+public interface Invoker {
 
-    public InvokException() {
-        super();
-    }
-
-    public InvokException(String message, Throwable cause) {
-        super(message, cause);
-    }
-
-    public InvokException(String message) {
-        super(message);
-    }
-
-    public InvokException(Throwable cause) {
-        super(cause);
-    }
+    Object invok(Object target, Method method, Object[] args) throws InvokException;
 
 }

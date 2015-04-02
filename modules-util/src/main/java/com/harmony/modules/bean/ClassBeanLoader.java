@@ -1,4 +1,4 @@
-package com.harmony.modules.jaxws.bean;
+package com.harmony.modules.bean;
 
 import java.io.Serializable;
 import java.util.HashMap;
