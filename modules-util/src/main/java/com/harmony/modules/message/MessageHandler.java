@@ -13,16 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.modules.bean;
+package com.harmony.modules.message;
 
-public interface BeanLoader {
-
-    String SINGLETON = "singleton";
-
-    String PROTOTYPE = "prototype";
-
-    <T> T loadBean(Class<T> beanClass);
-
-    <T> T loadBean(Class<T> beanClass, String scope);
+public interface MessageHandler {
 
 }

@@ -19,6 +19,8 @@ import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+import com.harmony.modules.utils.Exceptions;
+
 public class DefaultInvoker implements Invoker, Serializable {
 
     private static final long serialVersionUID = 5408528044216944899L;
@@ -33,7 +35,7 @@ public class DefaultInvoker implements Invoker, Serializable {
         } catch (InvocationTargetException e) {
             ex = e;
         }
-        Throwable cause = ex.getCause() == null ? ex : ex.getCause();
+        Throwable cause = Exceptions.getRootCause(ex);
         throw new InvokException(cause.getMessage(), cause);
     }
 
