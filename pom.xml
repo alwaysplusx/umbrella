@@ -10,4 +10,137 @@
 		<module>modules-jaxws</module>
 		<module>modules-util</module>
 	</modules>
+	<properties>
+		<slf4j.version>1.7.7</slf4j.version>
+		<asm.version>5.0.1</asm.version>
+		<cxf.version>3.0.2</cxf.version>
+		<javax.ejb.version>3.2</javax.ejb.version>
+		<junit.version>4.11</junit.version>
+	</properties>
+	<dependencyManagement>
+		<dependencies>
+			<!-- modules START -->
+			<dependency>
+				<groupId>com.harmony.modules</groupId>
+				<artifactId>modules-util</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.harmony.modules</groupId>
+				<artifactId>modules-io</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<!-- modules END -->
+
+			<!-- slf4j START -->
+			<dependency>
+				<groupId>org.slf4j</groupId>
+				<artifactId>slf4j-api</artifactId>
+				<version>${slf4j.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.slf4j</groupId>
+				<artifactId>slf4j-log4j12</artifactId>
+				<version>${slf4j.version}</version>
+			</dependency>
+			<!-- slf4j END -->
+
+			<dependency>
+				<groupId>org.ow2.asm</groupId>
+				<artifactId>asm</artifactId>
+				<version>${asm.version}</version>
+			</dependency>
+
+			<!-- cxf START -->
+			<dependency>
+				<groupId>org.apache.cxf</groupId>
+				<artifactId>cxf-rt-frontend-jaxws</artifactId>
+				<version>${cxf.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.cxf</groupId>
+				<artifactId>cxf-rt-transports-http-jetty</artifactId>
+				<version>${cxf.version}</version>
+			</dependency>
+			<!-- cxf END -->
+
+			<!-- javax START -->
+			<dependency>
+				<groupId>javax.ejb</groupId>
+				<artifactId>javax.ejb-api</artifactId>
+				<version>${javax.ejb.version}</version>
+			</dependency>
+			<!-- javax END -->
+
+			<!-- test START -->
+			<dependency>
+				<groupId>junit</groupId>
+				<artifactId>junit</artifactId>
+				<version>${junit.version}</version>
+			</dependency>
+			<!-- test END -->
+
+		</dependencies>
+	</dependencyManagement>
+	<repositories>
+		<repository>
+			<id>company-groups</id>
+			<name>company-groups</name>
+			<url>http://192.168.1.22:8081/nexus/content/groups/public/</url>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</repository>
+	</repositories>
+	<pluginRepositories>
+		<pluginRepository>
+			<id>company-groups</id>
+			<name>company-groups</name>
+			<url>http://192.168.1.22:8081/nexus/content/groups/public/</url>
+		</pluginRepository>
+	</pluginRepositories>
+	<distributionManagement>
+		<repository>
+			<id>company-releases</id>
+			<name>Company Nexus Release Repository</name>
+			<url>http://192.168.1.22:8081/nexus/content/repositories/releases/
+			</url>
+			<layout>default</layout>
+		</repository>
+		<snapshotRepository>
+			<id>company-snapshots</id>
+			<name>Company Nexus Snapshot Repository</name>
+			<url>http://192.168.1.22:8081/nexus/content/repositories/snapshots/
+			</url>
+			<layout>default</layout>
+		</snapshotRepository>
+	</distributionManagement>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.3</version>
+				<configuration>
+					<source>1.6</source>
+					<target>1.6</target>
+					<encoding>UTF-8</encoding>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+				<version>2.4</version>
+				<executions>
+					<execution>
+						<id>attach-sources</id>
+						<phase>verify</phase>
+						<goals>
+							<goal>jar-no-fork</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
 </project>
