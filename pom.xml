@@ -32,6 +32,16 @@
 				<artifactId>modules-io</artifactId>
 				<version>${project.version}</version>
 			</dependency>
+			<dependency>
+				<groupId>com.harmony.modules</groupId>
+				<artifactId>modules-message</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.harmony.modules</groupId>
+				<artifactId>modules-jaxws</artifactId>
+				<version>${project.version}</version>
+			</dependency>
 			<!-- modules END -->
 
 			<!-- slf4j START -->
