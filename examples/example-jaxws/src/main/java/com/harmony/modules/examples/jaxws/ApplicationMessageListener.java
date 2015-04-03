@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.modules.message;
+package com.harmony.modules.examples.jaxws;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -21,17 +21,26 @@ import java.lang.reflect.Modifier;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
+import javax.ejb.ActivationConfigProperty;
+import javax.ejb.MessageDriven;
 import javax.jms.JMSException;
 import javax.jms.ObjectMessage;
 
 import com.harmony.modules.bean.BeanLoader;
 import com.harmony.modules.bean.ClassBeanLoader;
 import com.harmony.modules.io.utils.ResourceScaner;
+import com.harmony.modules.message.AbstractMessageListener;
+import com.harmony.modules.message.MessageResolver;
 import com.harmony.modules.utils.ClassFilter;
 
 /**
  * @author wuxii
  */
+@MessageDriven(mappedName = "jms/queue", 
+    activationConfig = { 
+        @ActivationConfigProperty(propertyName = "acknowledgeMode", propertyValue = "Auto-acknowledge"),
+        @ActivationConfigProperty(propertyName = "destinationType", propertyValue = "javax.jms.Queue") 
+})
 public class ApplicationMessageListener extends AbstractMessageListener implements javax.jms.MessageListener {
 
     private static final String basePackage = "com.harmony";
@@ -78,7 +87,7 @@ public class ApplicationMessageListener extends AbstractMessageListener implemen
             try {
                 Serializable object = ((ObjectMessage) message).getObject();
                 if (object instanceof com.harmony.modules.message.Message) {
-                    onMessage((com.harmony.modules.message.Message) message);
+                    onMessage((com.harmony.modules.message.Message) object);
                     return;
                 }
                 log.warn("接受的消息{}不能转化为目标类型[{}], 忽略该消息", message, com.harmony.modules.message.Message.class);

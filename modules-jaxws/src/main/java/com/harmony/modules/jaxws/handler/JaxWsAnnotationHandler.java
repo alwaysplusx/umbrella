@@ -90,6 +90,7 @@ public class JaxWsAnnotationHandler implements JaxWsContextHandler {
             Method[] methods = finder.findHandlerMethod(context.getMethod(), Phase.POST_INVOKE);
             for (Method method : methods) {
                 Object bean = beanLoader.loadBean(method.getDeclaringClass());
+                // FIXME 参数错误
                 invoker.invok(bean, method, context.getParameters());
             }
         } catch (NoSuchMethodException e) {
@@ -105,6 +106,7 @@ public class JaxWsAnnotationHandler implements JaxWsContextHandler {
             Method[] methods = finder.findHandlerMethod(context.getMethod(), Phase.THROWING);
             for (Method method : methods) {
                 Object bean = beanLoader.loadBean(method.getDeclaringClass());
+                // FIXME 参数错误
                 invoker.invok(bean, method, context.getParameters());
             }
         } catch (NoSuchMethodException e) {
@@ -120,6 +122,7 @@ public class JaxWsAnnotationHandler implements JaxWsContextHandler {
             Method[] methods = finder.findHandlerMethod(context.getMethod(), Phase.FINALLY);
             for (Method method : methods) {
                 Object bean = beanLoader.loadBean(method.getDeclaringClass());
+                // FIXME 参数错误
                 invoker.invok(bean, method, context.getParameters());
             }
         } catch (NoSuchMethodException e1) {

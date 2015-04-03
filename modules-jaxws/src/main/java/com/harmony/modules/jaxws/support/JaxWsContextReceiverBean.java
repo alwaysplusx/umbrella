@@ -22,8 +22,6 @@ import java.util.Properties;
 import java.util.Set;
 
 import javax.ejb.EJB;
-import javax.ejb.Remote;
-import javax.ejb.Stateless;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,8 +35,6 @@ import com.harmony.modules.jaxws.MetadataLoader;
 import com.harmony.modules.jaxws.SimpleJaxWsContext;
 import com.harmony.modules.jaxws.impl.JaxWsCXFExecutor;
 
-@Remote(JaxWsContextReceiver.class)
-@Stateless(mappedName = "JaxWsContextReceiverBean")
 public class JaxWsContextReceiverBean implements JaxWsContextReceiver {
 
     protected final static String JAXWS_HANDLERS = "META-INF/jaxws/jaxws-receiver.txt";
