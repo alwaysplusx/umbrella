@@ -22,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * 消息监听抽象类
  * @author wuxii
  */
 public class AbstractMessageListener implements MessageListener {
@@ -42,6 +43,13 @@ public class AbstractMessageListener implements MessageListener {
     public void init() {
     }
 
+    /**
+     * 接受到的消息, 使用{@linkplain MessageResolver#support(Message)}判定当前有哪些是符合条件的
+     * {@linkplain MessageResolver}. 再经由{@linkplain MessageResolver#handle(Message)}处理该消息.
+     * 
+     * <p>消息是可以被多个{@linkplain MessageResolver}按顺序处理的
+     * @see MessageResolver
+     */
     @Override
     public void onMessage(Message message) {
         for (MessageResolver mr : messageResolvers) {

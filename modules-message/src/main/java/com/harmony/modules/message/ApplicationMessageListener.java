@@ -22,7 +22,6 @@ import java.lang.reflect.Modifier;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.jms.JMSException;
-import javax.jms.MessageListener;
 import javax.jms.ObjectMessage;
 
 import com.harmony.modules.bean.BeanLoader;
@@ -33,7 +32,7 @@ import com.harmony.modules.utils.ClassFilter;
 /**
  * @author wuxii
  */
-public class ApplicationMessageListener extends AbstractMessageListener implements MessageListener {
+public class ApplicationMessageListener extends AbstractMessageListener implements javax.jms.MessageListener {
 
     private static final String basePackage = "com.harmony";
     private BeanLoader beanLoader = new ClassBeanLoader();

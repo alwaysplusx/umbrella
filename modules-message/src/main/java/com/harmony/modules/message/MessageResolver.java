@@ -16,12 +16,22 @@
 package com.harmony.modules.message;
 
 /**
+ * 消息解析
  * @author wuxii
  */
 public interface MessageResolver {
 
+    /**
+     * 验证Message是否支持解析
+     * @param message
+     * @return
+     */
     boolean support(Message message);
 
+    /**
+     * 处理外部的消息
+     * @param message
+     */
     void handle(Message message);
 
 }

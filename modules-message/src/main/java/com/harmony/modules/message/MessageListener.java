@@ -16,13 +16,22 @@
 package com.harmony.modules.message;
 
 /**
+ * 监听消息
  * @author wuxii
+ * @see javax.jms.MessageListener
  */
 public interface MessageListener {
 
     void init();
 
+    /**
+     * 由消息中心{@linkplain MessageCenter}传入，调用{@link #onMessage(Message)}方法.
+     * @param message
+     * @see javax.jms.MessageListener#onMessage(javax.jms.Message)
+     * @see ApplicationMessageListener#onMessage(javax.jms.Message)
+     */
     void onMessage(Message message);
 
     void destory();
+    
 }
