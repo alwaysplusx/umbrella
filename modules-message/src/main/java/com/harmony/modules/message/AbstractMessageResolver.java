@@ -15,13 +15,19 @@
  */
 package com.harmony.modules.message;
 
-import javax.jms.Message;
-import javax.jms.MessageListener;
-
-public class ApplicationMessageListener implements MessageListener {
+/**
+ * @author wuxii
+ */
+public abstract class AbstractMessageResolver<T> implements MessageResolver {
 
     @Override
-    public void onMessage(Message message) {
+    public void handle(Message message) {
+        T object = resolver(message);
+        process(object);
     }
+
+    public abstract void process(T message);
+
+    protected abstract T resolver(Message message);
 
 }

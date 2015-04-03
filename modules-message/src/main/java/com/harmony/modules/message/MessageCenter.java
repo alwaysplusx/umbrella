@@ -15,6 +15,9 @@
  */
 package com.harmony.modules.message;
 
-public interface MessageHandler {
+/**
+ * @author wuxii
+ */
+public interface MessageCenter {
 
 }

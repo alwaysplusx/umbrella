@@ -7,15 +7,4 @@
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
 	<artifactId>modules-util</artifactId>
-	<dependencies>
-		<dependency>
-			<groupId>javax.ejb</groupId>
-			<artifactId>javax.ejb-api</artifactId>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>javax.jms</groupId>
-			<artifactId>jms</artifactId>
-		</dependency>
-	</dependencies>
 </project>

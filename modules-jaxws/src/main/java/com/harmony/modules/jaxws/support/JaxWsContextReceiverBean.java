@@ -41,7 +41,7 @@ import com.harmony.modules.jaxws.impl.JaxWsCXFExecutor;
 @Stateless(mappedName = "JaxWsContextReceiverBean")
 public class JaxWsContextReceiverBean implements JaxWsContextReceiver {
 
-    protected final static String JAXWS_HANDLERS = "META-INF/jaxws-receiver.txt";
+    protected final static String JAXWS_HANDLERS = "META-INF/jaxws/jaxws-receiver.txt";
 
     private Logger log = LoggerFactory.getLogger(JaxWsContextReceiverBean.class);
     @EJB

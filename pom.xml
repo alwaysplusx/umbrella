@@ -9,6 +9,7 @@
 		<module>modules-io</module>
 		<module>modules-jaxws</module>
 		<module>modules-util</module>
+		<module>modules-message</module>
 	</modules>
 	<properties>
 		<slf4j.version>1.7.7</slf4j.version>
