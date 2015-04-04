@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2014 the original author or authors.
+ * Copyright 2013-2015 wuxii@foxmail.com.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,41 +16,33 @@
 package com.harmony.modules.jaxws.support;
 
 import com.harmony.modules.jaxws.JaxWsContext;
+import com.harmony.modules.message.AbstractJmsMessageSender;
+import com.harmony.modules.message.Message;
+import com.harmony.modules.message.MessageSender;
 
 /**
- * 执行信号发送者
- * 
- * @author wuxii
- *
+ * @author wuxii@foxmail.com
  */
-public interface JaxWsContextSender {
+public abstract class AbstractJmsContextSend extends AbstractJmsMessageSender implements JaxWsContextSender, MessageSender {
 
-    /**
-     * 发送执行信号
-     * 
-     * @param context
-     *            执行上下文
-     * @return true发送成功, false发送失败
-     */
-    boolean send(JaxWsContext context);
+	@Override
+	public boolean send(JaxWsContext context) {
+		return send(createMessage(context));
+	}
 
-    /**
-     * 打开发送资源
-     */
-    void open();
+	public abstract Message createMessage(JaxWsContext context);
 
-    /**
-     * 关闭资源
-     * 
-     * @throws Exception
-     */
-    void close() throws Exception;
+	@Override
+	public void open() {
+	}
 
-    /**
-     * 查看是否关闭
-     * 
-     * @return true已关闭,false未关闭
-     */
-    boolean isClosed();
+	@Override
+	public void close() throws Exception {
+	}
+
+	@Override
+	public boolean isClosed() {
+		return false;
+	}
 
 }

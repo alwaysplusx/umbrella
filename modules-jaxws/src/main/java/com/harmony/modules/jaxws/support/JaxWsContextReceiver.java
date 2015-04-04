@@ -16,7 +16,6 @@
 package com.harmony.modules.jaxws.support;
 
 import com.harmony.modules.jaxws.JaxWsContext;
-import com.harmony.modules.jaxws.JaxWsExecutor;
 
 /**
  * 执行信号接收者
@@ -26,40 +25,33 @@ import com.harmony.modules.jaxws.JaxWsExecutor;
  */
 public interface JaxWsContextReceiver {
 
-    /**
-     * 接收执行信号
-     * 
-     * @param context
-     *            执行上下文
-     */
-    void receive(JaxWsContext context);
+	/**
+	 * 接收执行信号
+	 * 
+	 * @param context
+	 *            执行上下文
+	 */
+	void receive(JaxWsContext context);
 
-    /**
-     * 获得关联的执行者
-     * 
-     * @return 执行者
-     */
-    JaxWsExecutor getJaxWsExecutor();
+	/**
+	 * 打开Receiver所需要的资源
+	 * 
+	 * @throws Exception
+	 */
+	void open() throws Exception;
 
-    /**
-     * 打开Receiver所需要的资源
-     * 
-     * @throws Exception
-     */
-    void open() throws Exception;
+	/**
+	 * 关闭资源
+	 * 
+	 * @throws Exception
+	 */
+	void close() throws Exception;
 
-    /**
-     * 关闭资源
-     * 
-     * @throws Exception
-     */
-    void close() throws Exception;
-
-    /**
-     * 查看Receicer是否关闭
-     * 
-     * @return true已关闭, false未关闭
-     */
-    boolean isClosed();
+	/**
+	 * 查看Receicer是否关闭
+	 * 
+	 * @return true已关闭, false未关闭
+	 */
+	boolean isClosed();
 
 }

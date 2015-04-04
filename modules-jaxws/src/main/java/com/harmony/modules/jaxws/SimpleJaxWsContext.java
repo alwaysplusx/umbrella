@@ -111,6 +111,10 @@ public class SimpleJaxWsContext implements JaxWsContext, Serializable {
 		return headers.containsKey(name);
 	}
 
+	public void putAll(Map<String, String> m) {
+		this.headers.putAll(m);
+	}
+
 	@Override
 	public Method getMethod() throws NoSuchMethodException {
 		try {

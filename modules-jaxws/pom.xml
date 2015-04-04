@@ -32,8 +32,18 @@
 			<artifactId>modules-io</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>com.harmony.modules</groupId>
+			<artifactId>modules-message</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
 			<groupId>javax.ejb</groupId>
 			<artifactId>javax.ejb-api</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>javax.jms</groupId>
+			<artifactId>jms</artifactId>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>

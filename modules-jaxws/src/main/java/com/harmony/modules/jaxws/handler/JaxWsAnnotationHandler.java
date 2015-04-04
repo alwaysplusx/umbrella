@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 import com.harmony.modules.bean.BeanLoader;
 import com.harmony.modules.bean.ClassBeanLoader;
 import com.harmony.modules.invoker.InvokException;
+import com.harmony.modules.jaxws.Handler.HandleMethod;
 import com.harmony.modules.jaxws.JaxWsAbortException;
 import com.harmony.modules.jaxws.JaxWsContext;
 import com.harmony.modules.jaxws.JaxWsContextHandler;
@@ -31,7 +32,11 @@ import com.harmony.modules.jaxws.util.JaxWsHandlerMethodFinder;
 import com.harmony.modules.utils.Exceptions;
 
 /**
+ * 将{@linkplain JaxWsAnnotationHandler#defaultPackage}下带有{@linkplain Handler}
+ * annotation的类, 加载为交互各个时段的处理器
  * @author wuxii@foxmail.com
+ * @see Handler
+ * @see HandleMethod
  */
 public class JaxWsAnnotationHandler implements JaxWsContextHandler {
 
