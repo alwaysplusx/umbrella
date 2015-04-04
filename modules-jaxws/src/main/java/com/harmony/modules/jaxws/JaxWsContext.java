@@ -18,98 +18,113 @@ package com.harmony.modules.jaxws;
 import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.Enumeration;
+import java.util.Map;
 
 /**
- * 执行时候的上下文 <p> 上下文中包括: <li>待执行的web service接口 <li>待执行的方法 <li>执行时候所需要用到的参数
- * <li>调用地址 <li>用户名密码 <li>以及其他待扩展的属性
+ * 执行时候的上下文
+ * <p>
+ * 上下文中包括:
+ * <li>待执行的web service接口
+ * <li>待执行的方法
+ * <li>执行时候所需要用到的参数
+ * <li>调用地址
+ * <li>用户名密码
+ * <li>以及其他待扩展的属性
  * 
  * @author wuxii
  *
  */
 public interface JaxWsContext extends Serializable {
 
-    /**
-     * context中username的检索键
-     */
-    String USERNAME = "jaxws.username";
-    /**
-     * context中password的检索键
-     */
-    String PASSWORD = "jaxws.password";
-    
-    /**
-     * 接口类
-     * 
-     * @return 接口
-     */
-    Class<?> getServiceInterface();
+	/**
+	 * context中username的检索键
+	 */
+	String USERNAME = "jaxws.username";
+	/**
+	 * context中password的检索键
+	 */
+	String PASSWORD = "jaxws.password";
 
-    /**
-     * 方法参数
-     * 
-     * @return 参数
-     */
-    Object[] getParameters();
+	/**
+	 * 接口类
+	 * 
+	 * @return 接口
+	 */
+	Class<?> getServiceInterface();
 
-    /**
-     * 所要执行的方法
-     * 
-     * @return 方法名
-     */
-    String getMethodName();
+	/**
+	 * 方法参数
+	 * 
+	 * @return 参数
+	 */
+	Object[] getParameters();
 
-    /**
-     * 访问地址
-     * 
-     * @return 地址
-     */
-    String getAddress();
+	/**
+	 * 所要执行的方法
+	 * 
+	 * @return 方法名
+	 */
+	String getMethodName();
 
-    /**
-     * 在context上下文通过{@link JaxWsContext#USERNAME}获得
-     * 
-     * @return 用户名
-     */
-    String getUsername();
+	/**
+	 * 访问地址
+	 * 
+	 * @return 地址
+	 */
+	String getAddress();
 
-    /**
-     * 在context上下文通过{@link JaxWsContext#PASSWORD}获得
-     * 
-     * @return 密码
-     */
-    String getPassword();
+	/**
+	 * 在context上下文通过{@link JaxWsContext#USERNAME}获得
+	 * 
+	 * @return 用户名
+	 */
+	String getUsername();
 
-    /**
-     * 在上下文中获取属性值
-     * 
-     * @param contextKey
-     *            检索键
-     * @return 上下文中的值
-     */
-    String get(String contextKey);
+	/**
+	 * 在context上下文通过{@link JaxWsContext#PASSWORD}获得
+	 * 
+	 * @return 密码
+	 */
+	String getPassword();
 
-    /**
-     * 上下文中是否包含检索条件
-     * 
-     * @param contextKey
-     * @return true 包含， false 不包含
-     */
-    boolean contains(String contextKey);
+	/**
+	 * 在上下文中获取属性值
+	 * 
+	 * @param contextKey
+	 *            检索键
+	 * @return 上下文中的值
+	 */
+	String get(String contextKey);
 
-    /**
-     * 所要执行的接口方法
-     * 
-     * @return 接口方法
-     * @throws NoSuchMethodException
-     *             该接口中不存在该方法
-     */
-    Method getMethod() throws NoSuchMethodException;
+	/**
+	 * 上下文中是否包含检索条件
+	 * 
+	 * @param contextKey
+	 * @return true 包含， false 不包含
+	 */
+	boolean contains(String contextKey);
 
-    /**
-     * 上下文中的head名称
-     * 
-     * @return
-     */
-    Enumeration<String> getContextHeaderNames();
+	/**
+	 * 所要执行的接口方法
+	 * 
+	 * @return 接口方法
+	 * @throws NoSuchMethodException
+	 *             该接口中不存在该方法
+	 */
+	Method getMethod() throws NoSuchMethodException;
+
+	/**
+	 * 上下文中的head名称
+	 * 
+	 * @return
+	 */
+	Enumeration<String> getContextHeaderNames();
+
+	/**
+	 * 当前执行环境的Context, 返回的ContextMap与原有脱离. 修改作为返回值的Map不会对当前context照成影响
+	 * 
+	 * @return Map
+	 */
+	Map<String, String> getContextMap();
 
 }

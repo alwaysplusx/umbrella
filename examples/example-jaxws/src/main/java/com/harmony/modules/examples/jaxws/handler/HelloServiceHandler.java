@@ -23,18 +23,18 @@ import com.harmony.modules.jaxws.Phase;
 /**
  * @author wuxii
  */
-@Handler(serviceClass = HelloService.class)
+@Handler(HelloService.class)
 public class HelloServiceHandler {
 
-    @HandleMethod(phase = Phase.PRE_INVOKE)
-    public boolean sayHi(String name) {
-        System.err.println("hello service pre invoke name " + name);
-        return true;
-    }
+	@HandleMethod(phase = Phase.PRE_INVOKE)
+	public boolean sayHi(String name) {
+		System.err.println("hello service pre invoke name " + name);
+		return true;
+	}
 
-    @HandleMethod(phase = Phase.POST_INVOKE)
-    public void sayHi(String result, String name) {
-        System.err.println("hello service post invok result " + result);
-    }
+	@HandleMethod(phase = Phase.POST_INVOKE)
+	public void sayHi(String result, String name) {
+		System.err.println("hello service post invok result " + result);
+	}
 
 }

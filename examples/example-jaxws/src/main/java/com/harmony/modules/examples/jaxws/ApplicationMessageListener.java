@@ -49,6 +49,7 @@ public class ApplicationMessageListener extends AbstractMessageListener implemen
     @PostConstruct
     public void postConstruct() {
         init();
+        System.err.println("ApplicationMessageListener post construct");
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })

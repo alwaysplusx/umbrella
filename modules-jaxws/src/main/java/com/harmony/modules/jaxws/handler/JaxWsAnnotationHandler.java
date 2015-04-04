@@ -15,129 +15,157 @@
  */
 package com.harmony.modules.jaxws.handler;
 
-import java.lang.reflect.Method;
+import static com.harmony.modules.jaxws.Phase.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.harmony.modules.bean.BeanLoader;
 import com.harmony.modules.bean.ClassBeanLoader;
-import com.harmony.modules.invoker.DefaultInvoker;
 import com.harmony.modules.invoker.InvokException;
-import com.harmony.modules.invoker.Invoker;
 import com.harmony.modules.jaxws.JaxWsAbortException;
 import com.harmony.modules.jaxws.JaxWsContext;
 import com.harmony.modules.jaxws.JaxWsContextHandler;
-import com.harmony.modules.jaxws.Phase;
-import com.harmony.modules.jaxws.util.JaxWsHandlerFinder;
+import com.harmony.modules.jaxws.util.HandleMethodInvoker;
+import com.harmony.modules.jaxws.util.JaxWsHandlerMethodFinder;
+import com.harmony.modules.utils.Exceptions;
 
+/**
+ * @author wuxii@foxmail.com
+ */
 public class JaxWsAnnotationHandler implements JaxWsContextHandler {
 
-    private static final long serialVersionUID = -2065293420059388476L;
-    private static Logger log = LoggerFactory.getLogger(JaxWsAnnotationHandler.class);
-    private static final String defaultPackage = "com.harmony";
-    private Invoker invoker = new DefaultInvoker();
-    private BeanLoader beanLoader = new ClassBeanLoader();
-    private JaxWsHandlerFinder finder;
+	private static final long serialVersionUID = -2065293420059388476L;
+	protected static final String defaultPackage = "com.harmony";
 
-    public JaxWsAnnotationHandler() {
-        this(defaultPackage);
-    }
+	private final static Logger log = LoggerFactory.getLogger(JaxWsAnnotationHandler.class);
 
-    public JaxWsAnnotationHandler(String basePackage) {
-        this.finder = JaxWsHandlerFinder.newInstance(basePackage);
-    }
+	private BeanLoader beanLoader = new ClassBeanLoader();
+	private JaxWsHandlerMethodFinder finder;
 
-    @Override
-    public boolean preExecute(JaxWsContext context) throws JaxWsAbortException {
-        try {
-            Method[] methods = finder.findHandlerMethod(context.getMethod(), Phase.PRE_INVOKE);
-            for (Method method : methods) {
-                Object bean = beanLoader.loadBean(method.getDeclaringClass());
-                try {
-                    Object result = invoker.invok(bean, method, context.getParameters());
-                    if (result instanceof Boolean && !Boolean.valueOf((Boolean) result)) {
-                        return false;
-                    }
-                } catch (InvokException e) {
-                    throw new JaxWsAbortException(e);
-                }
-            }
-        } catch (NoSuchMethodException e) {
-            throw new JaxWsAbortException(e);
-        }
-        return true;
-    }
+	public JaxWsAnnotationHandler() {
+		this(defaultPackage);
+	}
 
-    @Override
-    public void abortExecute(JaxWsContext context, JaxWsAbortException exception) {
-        try {
-            Method[] methods = finder.findHandlerMethod(context.getMethod(), Phase.ABORT);
-            for (Method method : methods) {
-                Object bean = beanLoader.loadBean(method.getDeclaringClass());
-                invoker.invok(bean, method, context.getParameters());
-            }
-        } catch (NoSuchMethodException e) {
-            log.error("", e);
-        } catch (InvokException e) {
-            log.error("", e);
-        }
-    }
+	public JaxWsAnnotationHandler(String basePackage) {
+		this.finder = new JaxWsHandlerMethodFinder(basePackage);
+	}
 
-    @Override
-    public void postExecute(JaxWsContext context, Object result) {
-        try {
-            Method[] methods = finder.findHandlerMethod(context.getMethod(), Phase.POST_INVOKE);
-            for (Method method : methods) {
-                Object bean = beanLoader.loadBean(method.getDeclaringClass());
-                // FIXME 参数错误
-                invoker.invok(bean, method, context.getParameters());
-            }
-        } catch (NoSuchMethodException e) {
-            log.error("", e);
-        } catch (InvokException e) {
-            log.error("", e);
-        }
-    }
+	@Override
+	public boolean preExecute(JaxWsContext context) throws JaxWsAbortException {
+		try {
+			HandleMethodInvoker[] invokers = finder.findHandleMethods(context.getMethod(), PRE_INVOKE);
+			for (HandleMethodInvoker invoker : invokers) {
+				try {
+					if (invoker.isEndWithMap()) {
+						invoker.setContextMap(context.getContextMap());
+					}
+					Object bean = beanLoader.loadBean(invoker.getHandlerClass());
+					Object result = invoker.invokeHandleMethod(bean, context.getParameters());
+					if (result instanceof Boolean && !Boolean.valueOf((Boolean) result)) {
+						return false;
+					}
+				} catch (InvokException e) {
+					throw new JaxWsAbortException("执行handleMethodInvoker[" + invoker + "]方法失败", Exceptions.getRootCause(e));
+				}
+			}
+		} catch (NoSuchMethodException e) {
+			throw new JaxWsAbortException(context + "对应的方法不存在", e);
+		}
+		return true;
+	}
 
-    @Override
-    public void throwing(JaxWsContext context, Throwable throwable) {
-        try {
-            Method[] methods = finder.findHandlerMethod(context.getMethod(), Phase.THROWING);
-            for (Method method : methods) {
-                Object bean = beanLoader.loadBean(method.getDeclaringClass());
-                // FIXME 参数错误
-                invoker.invok(bean, method, context.getParameters());
-            }
-        } catch (NoSuchMethodException e) {
-            log.error("", e);
-        } catch (InvokException e) {
-            log.error("", e);
-        }
-    }
+	@Override
+	public void abortExecute(JaxWsContext context, JaxWsAbortException exception) {
+		try {
+			HandleMethodInvoker[] invokers = finder.findHandleMethods(context.getMethod(), ABORT);
+			for (HandleMethodInvoker invoker : invokers) {
+				try {
+					if (invoker.isEndWithMap()) {
+						invoker.setContextMap(context.getContextMap());
+					}
+					invoker.setThrowable(exception);
+					Object bean = beanLoader.loadBean(invoker.getHandlerClass());
+					invoker.invokeHandleMethod(bean, context.getParameters());
+				} catch (InvokException e) {
+					log.error("执行handleMethodInvoker[{}]方法失败", invoker, e);
+					return;
+				}
+			}
+		} catch (NoSuchMethodException e) {
+			log.error("{}方法不存在", context, e);
+		}
+	}
 
-    @Override
-    public void finallyExecute(JaxWsContext context, Object result, Exception e) {
-        try {
-            Method[] methods = finder.findHandlerMethod(context.getMethod(), Phase.FINALLY);
-            for (Method method : methods) {
-                Object bean = beanLoader.loadBean(method.getDeclaringClass());
-                // FIXME 参数错误
-                invoker.invok(bean, method, context.getParameters());
-            }
-        } catch (NoSuchMethodException e1) {
-            log.error("", e1);
-        } catch (InvokException e1) {
-            log.error("", e);
-        }
-    }
+	@Override
+	public void postExecute(JaxWsContext context, Object result) {
+		try {
+			HandleMethodInvoker[] invokers = finder.findHandleMethods(context.getMethod(), POST_INVOKE);
+			for (HandleMethodInvoker invoker : invokers) {
+				try {
+					if (invoker.isEndWithMap()) {
+						invoker.setContextMap(context.getContextMap());
+					}
+					invoker.setResult(result);
+					Object bean = beanLoader.loadBean(invoker.getHandlerClass());
+					invoker.invokeHandleMethod(bean, context.getParameters());
+				} catch (InvokException e) {
+					log.error("执行handleMethodInvoker[{}]方法失败", invoker, e);
+					return;
+				}
+			}
+		} catch (NoSuchMethodException e) {
+			log.error("{}方法不存在", context, e);
+		}
+	}
 
-    public void setInvoker(Invoker invoker) {
-        this.invoker = invoker;
-    }
+	@Override
+	public void throwing(JaxWsContext context, Throwable throwable) {
+		try {
+			HandleMethodInvoker[] invokers = finder.findHandleMethods(context.getMethod(), POST_INVOKE);
+			for (HandleMethodInvoker invoker : invokers) {
+				try {
+					if (invoker.isEndWithMap()) {
+						invoker.setContextMap(context.getContextMap());
+					}
+					invoker.setThrowable(throwable);
+					Object bean = beanLoader.loadBean(invoker.getHandlerClass());
+					invoker.invokeHandleMethod(bean, context.getParameters());
+				} catch (InvokException e) {
+					log.error("执行handleMethodInvoker[{}]方法失败", invoker, e);
+					return;
+				}
+			}
+		} catch (NoSuchMethodException e) {
+			log.error("{}方法不存在", context, e);
+		}
+	}
 
-    public void setBeanLoader(BeanLoader beanLoader) {
-        this.beanLoader = beanLoader;
-    }
+	@Override
+	public void finallyExecute(JaxWsContext context, Object result, Exception exception) {
+		try {
+			HandleMethodInvoker[] invokers = finder.findHandleMethods(context.getMethod(), POST_INVOKE);
+			for (HandleMethodInvoker invoker : invokers) {
+				try {
+					if (invoker.isEndWithMap()) {
+						invoker.setContextMap(context.getContextMap());
+					}
+					invoker.setResult(result);
+					invoker.setThrowable(exception);
+					Object bean = beanLoader.loadBean(invoker.getHandlerClass());
+					invoker.invokeHandleMethod(bean, context.getParameters());
+				} catch (InvokException e) {
+					log.error("执行handleMethodInvoker[{}]方法失败", invoker, e);
+					return;
+				}
+			}
+		} catch (NoSuchMethodException e) {
+			log.error("{}方法不存在", context, e);
+		}
+	}
+
+	public void setBeanLoader(BeanLoader beanLoader) {
+		this.beanLoader = beanLoader;
+	}
 
 }

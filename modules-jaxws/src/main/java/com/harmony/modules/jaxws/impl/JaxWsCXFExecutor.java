@@ -41,7 +41,7 @@ public class JaxWsCXFExecutor extends JaxWsPhaseExecutor {
         try {
             Method method = context.getMethod();
             Object proxy = loadProxy(context);
-            result = (T) invoker.invok(proxy, method, context.getParameters());
+            result = (T) invoker.invoke(proxy, method, context.getParameters());
         } catch (NoSuchMethodException e) {
             throw new JaxWsException("未找到接口方法", e);
         } catch (InvokException e) {

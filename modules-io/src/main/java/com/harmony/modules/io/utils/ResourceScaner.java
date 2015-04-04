@@ -90,8 +90,7 @@ public class ResourceScaner {
                 }
             }
             scanCache.put(key, classes);
-            log.info("put classes into cache, cache key {}, cache size {}", key, classes.size());
-            log.debug("cache classes {}", classes);
+            log.debug("cache classes, cache key {}, classes {}", key, classes);
         }
         return classes.toArray(new Class[classes.size()]);
     }
@@ -142,8 +141,7 @@ public class ResourceScaner {
                 resources = new LinkedHashSet<Resource>();
                 Collections.addAll(resources, resourcePatternResolver.getResources(pathExpression));
                 scanCache.put(pathExpression, resources);
-                log.info("put resources into cache, cache key {}, cache size {}", pathExpression, resources.size());
-                log.debug("cache resources {}", resources);
+                log.debug("cache resources key {} resource {}", pathExpression, resources);
             }
         } catch (IOException e) {
         }

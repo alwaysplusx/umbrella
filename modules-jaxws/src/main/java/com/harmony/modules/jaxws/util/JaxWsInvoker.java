@@ -34,8 +34,8 @@ public class JaxWsInvoker extends DefaultInvoker implements Invoker {
     private boolean extractValueFromSingleResult = true;
 
     @Override
-    public Object invok(Object target, Method method, Object[] parameters) throws InvokException {
-        Object result = super.invok(target, method, parameters);
+    public Object invoke(Object target, Method method, Object[] parameters) throws InvokException {
+        Object result = super.invoke(target, method, parameters);
         if (result == null && method.getReturnType().equals(void.class)) {
             result = getParamOut(method, parameters);
         }

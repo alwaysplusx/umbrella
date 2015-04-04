@@ -7,6 +7,6 @@
     </wls:application-param>
     <wls:prefer-application-packages>
         <wls:package-name>com.ctc.wstx.*</wls:package-name>
-        <wls:package-name>org.slf4j</wls:package-name>
+        <wls:package-name>org.slf4j.*</wls:package-name>
     </wls:prefer-application-packages>
 </wls:weblogic-application>

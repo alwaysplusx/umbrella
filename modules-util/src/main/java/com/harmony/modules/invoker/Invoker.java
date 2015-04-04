@@ -19,6 +19,6 @@ import java.lang.reflect.Method;
 
 public interface Invoker {
 
-    Object invok(Object target, Method method, Object[] args) throws InvokException;
+    Object invoke(Object target, Method method, Object[] args) throws InvokException;
 
 }

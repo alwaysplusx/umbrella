@@ -24,6 +24,7 @@
 				<version>2.8</version>
 				<configuration>
 					<defaultLibBundleDir>APP-INF/lib</defaultLibBundleDir>
+					<generateApplicationXml>true</generateApplicationXml>
 					<version>6</version>
 					<modules>
 						<ejbModule>

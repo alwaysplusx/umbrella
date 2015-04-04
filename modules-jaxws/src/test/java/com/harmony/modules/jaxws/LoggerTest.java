@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2014 the original author or authors.
+ * Copyright 2013-2015 wuxii@foxmail.com.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,30 +15,17 @@
  */
 package com.harmony.modules.jaxws;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-@Documented
-@Target({ ElementType.TYPE })
-@Retention(RetentionPolicy.RUNTIME)
-public @interface Handler {
+/**
+ * @author wuxii@foxmail.com
+ */
+public class LoggerTest {
 
-	Class<?>[] value() default {};
-
-	String[] handles() default {};
-
-	@Documented
-	@Target({ ElementType.METHOD })
-	@Retention(RetentionPolicy.RUNTIME)
-	public @interface HandleMethod {
-
-		String methodName() default "";
-
-		Phase phase();
-
+	public static void main(String[] args) {
+		Logger log = LoggerFactory.getLogger(LoggerTest.class);
+		log.error("aaa {}", "hi", new Exception("bbbb"));
 	}
 
 }

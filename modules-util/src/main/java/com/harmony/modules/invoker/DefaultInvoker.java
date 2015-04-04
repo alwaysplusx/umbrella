@@ -15,6 +15,8 @@
  */
 package com.harmony.modules.invoker;
 
+import static com.harmony.modules.utils.ClassUtils.*;
+
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -23,20 +25,39 @@ import com.harmony.modules.utils.Exceptions;
 
 public class DefaultInvoker implements Invoker, Serializable {
 
-    private static final long serialVersionUID = 5408528044216944899L;
+	private static final long serialVersionUID = 5408528044216944899L;
+	private boolean validate = false;
 
-    @Override
-    public Object invok(Object obj, Method method, Object[] args) throws InvokException {
-        Exception ex = null;
-        try {
-            return method.invoke(obj, args);
-        } catch (IllegalAccessException e) {
-            ex = e;
-        } catch (InvocationTargetException e) {
-            ex = e;
-        }
-        Throwable cause = Exceptions.getRootCause(ex);
-        throw new InvokException(cause.getMessage(), cause);
-    }
+	@Override
+	public Object invoke(Object obj, Method method, Object[] args) throws InvokException {
+		if (validate) {
+			Class<?>[] pts = method.getParameterTypes();
+			if (args.length != method.getParameterTypes().length) {
+				throw new InvokException();
+			}
+			for (int i = 0, max = args.length; i < max; i++) {
+				if (!isAssignableIgnoreClassLoader(args[i].getClass(), pts[i])) {
+					throw new InvokException();
+				}
+			}
+		}
+		Exception ex = null;
+		try {
+			return method.invoke(obj, args);
+		} catch (IllegalAccessException e) {
+			ex = e;
+		} catch (InvocationTargetException e) {
+			ex = e;
+		}
+		Throwable cause = Exceptions.getRootCause(ex);
+		throw new InvokException(cause.getMessage(), cause);
+	}
 
+	public boolean isValidate() {
+		return validate;
+	}
+
+	public void setValidate(boolean validate) {
+		this.validate = validate;
+	}
 }

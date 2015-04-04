@@ -22,6 +22,11 @@
 			<artifactId>javax.ejb-api</artifactId>
 			<scope>provided</scope>
 		</dependency>
+		<dependency>
+			<groupId>javax.jms</groupId>
+			<artifactId>jms</artifactId>
+			<scope>provided</scope>
+		</dependency>
 	</dependencies>
 	<build>
 		<plugins>
