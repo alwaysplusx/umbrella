@@ -20,7 +20,7 @@ import com.harmony.modules.jaxws.JaxWsContext;
 /**
  * 执行信号接收者
  * 
- * @author wuxii
+ * @author wuxii@foxmail.com
  *
  */
 public interface JaxWsContextReceiver {

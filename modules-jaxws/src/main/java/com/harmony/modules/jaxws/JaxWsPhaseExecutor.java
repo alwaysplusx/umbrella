@@ -25,6 +25,10 @@ import java.util.concurrent.FutureTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * 将{@linkplain JaxWsExecutor}的执行分为各个周期的抽象类
+ * @author wuxii@foxmail.com
+ */
 public abstract class JaxWsPhaseExecutor implements JaxWsExecutor {
 
     protected static final Logger LOG = LoggerFactory.getLogger(JaxWsPhaseExecutor.class);

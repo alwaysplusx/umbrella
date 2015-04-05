@@ -34,14 +34,13 @@ import com.harmony.modules.utils.ClassFilter;
 import com.harmony.modules.utils.ClassUtils;
 
 /**
- * @author wuxii
- *
+ * @author wuxii@foxmail.com
  */
 public class ResourceScaner {
 
-    static final String resourcePattern = "**/*";
-    static final String classPattern = "**/*.class";
-    private final static Logger log = LoggerFactory.getLogger(ResourceScaner.class);
+	private final static Logger log = LoggerFactory.getLogger(ResourceScaner.class);
+    static final String resourcePattern = ResourcePatternResolver.ALL_RESOURCE_PATTERN;
+    static final String classPattern = ResourcePatternResolver.ALL_CLASS_PATTERN;
     @SuppressWarnings("rawtypes")
     private static Map<String, Set> scanCache = new HashMap<String, Set>();
     private static ResourcePatternResolver resourcePatternResolver = new PathMatchingResourcePatternResolver();
@@ -61,6 +60,12 @@ public class ResourceScaner {
         return instance;
     }
 
+    /**
+     * 扫描basePackage下的类
+     * @param basePackage 包
+     * @return
+     * @throws IOException
+     */
     @SuppressWarnings("unchecked")
     public Class<?>[] scanPackage(String basePackage) throws IOException {
         String key = antPackage(basePackage) + ".CLASS";
@@ -78,14 +83,14 @@ public class ResourceScaner {
                         classes.add(clazz);
                     }
                 } catch (IOException e) {
-                    log.warn("can't open resource {} ", resource);
-                    log.warn("", e);
+                    log.warn("can't open resource {} ", resource, e);
                 } finally {
                     try {
                         if (inStream != null) {
                             inStream.close();
                         }
                     } catch (IOException e) {
+						log.debug("", e);
                     }
                 }
             }
@@ -95,6 +100,13 @@ public class ResourceScaner {
         return classes.toArray(new Class[classes.size()]);
     }
 
+    /**
+     * 加载包basePackage下符合{@linkplain ClassFilter}的所有类
+     * @param basePackage 包
+     * @param filter class过滤
+     * @return
+     * @throws IOException
+     */
     public Class<?>[] scanPackage(String basePackage, ClassFilter filter) throws IOException {
         Set<Class<?>> classes = new LinkedHashSet<Class<?>>();
         for (Class<?> clazz : scanPackage(basePackage)) {
@@ -109,7 +121,14 @@ public class ResourceScaner {
         return classes.toArray(new Class[classes.size()]);
     }
 
-    public static Resource[] scanPath(String... paths) throws IOException {
+    /**
+     * 扫描paths下的资源
+     * @param paths
+     * @return
+     * @throws IOException
+     * @see AntPathMatcher
+     */
+	public static Resource[] scanPath(String... paths) throws IOException {
         Set<Resource> resources = new LinkedHashSet<Resource>();
         for (String path : paths) {
             Collections.addAll(resources, scanPath(path));
@@ -117,6 +136,13 @@ public class ResourceScaner {
         return resources.toArray(new Resource[resources.size()]);
     }
 
+    /**
+     * 扫描paths下的资源
+     * @param path
+     * @return
+     * @throws IOException
+     * @see AntPathMatcher
+     */
     public static Resource[] scanPath(String path) throws IOException {
         String searchPath = antPath(path);
         return scan(searchPath);
@@ -148,9 +174,19 @@ public class ResourceScaner {
         return resources.toArray(new Resource[resources.size()]);
     }
 
-    protected static String resolveBasePackage(String basePackage) {
-        return basePackage.replace(".", "/");
+    /**
+     * 清除已经缓冲的资源
+     * @param cacheKey
+     */
+    protected static void removeCache(String cacheKey) {
+        scanCache.remove(cacheKey);
     }
+
+	protected static String resolveBasePackage(String basePackage) {
+		if (basePackage == null)
+			return "";
+		return basePackage.replace(".", "/");
+	}
 
     protected static Class<?> checkClassAccess(String className) {
         ClassLoader loader = ClassUtils.getDefaultClassLoader();
@@ -161,11 +197,11 @@ public class ResourceScaner {
         return null;
     }
 
-    private static String antPath(String path) {
+    protected static String antPath(String path) {
         return ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX + resolveBasePackage(path) + "/" + resourcePattern;
     }
 
-    private static String antPackage(String pkg) {
+    protected static String antPackage(String pkg) {
         return ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX + resolveBasePackage(pkg) + "/" + classPattern;
     }
 

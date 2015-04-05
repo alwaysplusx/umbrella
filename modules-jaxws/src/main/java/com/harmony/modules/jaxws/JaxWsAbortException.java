@@ -15,6 +15,9 @@
  */
 package com.harmony.modules.jaxws;
 
+/**
+ * @author wuxii@foxmail.com
+ */
 public class JaxWsAbortException extends Exception {
 
     private static final long serialVersionUID = 1L;

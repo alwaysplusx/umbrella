@@ -31,7 +31,7 @@ import java.util.Map;
  * <li>用户名密码
  * <li>以及其他待扩展的属性
  * 
- * @author wuxii
+ * @author wuxii@foxmail.com
  *
  */
 public interface JaxWsContext extends Serializable {

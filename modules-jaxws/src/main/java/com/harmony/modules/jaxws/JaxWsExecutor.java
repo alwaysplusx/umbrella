@@ -21,7 +21,7 @@ import java.util.concurrent.Future;
 /**
  * 执行者,真正的调用发生在这个类中
  * 
- * @author wuxii
+ * @author wuxii@foxmail.com
  *
  */
 public interface JaxWsExecutor {

@@ -20,7 +20,7 @@ import java.io.Serializable;
 /**
  * 执行内容处理器
  * 
- * @author wuxii
+ * @author wuxii@foxmail.com
  *
  */
 public interface JaxWsContextHandler extends Serializable {

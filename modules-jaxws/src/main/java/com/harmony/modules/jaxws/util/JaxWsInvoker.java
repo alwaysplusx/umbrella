@@ -27,6 +27,9 @@ import com.harmony.modules.invoker.DefaultInvoker;
 import com.harmony.modules.invoker.InvokException;
 import com.harmony.modules.invoker.Invoker;
 
+/**
+ * @author wuxii@foxmail.com
+ */
 public class JaxWsInvoker extends DefaultInvoker implements Invoker {
 
     private static final long serialVersionUID = 8613526886152167871L;
