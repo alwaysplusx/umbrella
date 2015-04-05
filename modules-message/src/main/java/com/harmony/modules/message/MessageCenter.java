@@ -21,4 +21,23 @@ package com.harmony.modules.message;
  */
 public interface MessageCenter {
 
+	/**
+	 * 将{@linkplain MessageSender}发送出来的消息处理给{@linkplain MessageListener}
+	 * @param message
+	 * @return
+	 */
+	boolean handle(Message message);
+	
+	/**
+	 * 队列的消息中小
+	 * @return
+	 */
+	boolean isQueue();
+	
+	/**
+	 * 广播的消息中小
+	 * @return
+	 */
+	boolean isTopic();
+	
 }

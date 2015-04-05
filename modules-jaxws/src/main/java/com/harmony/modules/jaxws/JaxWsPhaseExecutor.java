@@ -31,12 +31,32 @@ public abstract class JaxWsPhaseExecutor implements JaxWsExecutor {
     private List<JaxWsContextHandler> handlers = new LinkedList<JaxWsContextHandler>();
     private boolean hideTrowable = false;
 
+    /**
+     * 安静的执行{@linkplain #execute(JaxWsContext)}，不触发内部的handler
+     * @param context
+     * @param resultType
+     * @return
+     * @see #execute(JaxWsContext, Class)
+     */
     public abstract <T> T executeQuite(JaxWsContext context, Class<T> resultType);
 
+    /**
+     * 安静的执行{@linkplain #execute(JaxWsContext)}，不触发内部的handler
+     * @param context
+     * @return
+     * @see #execute(JaxWsContext, Class)
+     */
     public Object executeQuite(JaxWsContext context) {
         return executeQuite(context, Object.class);
     }
 
+    /**
+     * 安静的异步执行{@linkplain #executeAsync(JaxWsContext)}
+     * @param context
+     * @param resultType
+     * @return
+     * @see #executeAsync(JaxWsContext)
+     */
     public <T> Future<T> executeAsyncQuite(final JaxWsContext context, final Class<T> resultType) {
         FutureTask<T> task = new FutureTask<T>(new Callable<T>() {
             @Override
@@ -48,10 +68,16 @@ public abstract class JaxWsPhaseExecutor implements JaxWsExecutor {
         return task;
     }
 
+    /**
+     * 安静的异步执行{@linkplain #executeAsync(JaxWsContext)}
+     * @param context
+     * @return
+     */
     public Future<?> executeAsyncQuite(JaxWsContext context) {
         return executeAsyncQuite(context, Object.class);
     }
 
+    @Override
     public <T> T execute(JaxWsContext context, Class<T> resultType) {
         Exception exception = null;
         T result = null;
@@ -123,7 +149,7 @@ public abstract class JaxWsPhaseExecutor implements JaxWsExecutor {
         return this.handlers.remove(handler);
     }
 
-    protected Method getServiceMethod(JaxWsContext context) throws NoSuchMethodException, SecurityException {
+    protected Method getServiceMethod(JaxWsContext context) throws NoSuchMethodException {
         return context.getMethod();
     }
 

@@ -135,6 +135,13 @@ public class JaxWsHandlerMethodFinder {
 		return false;
 	}
 
+	/**
+	 * {@linkplain #basePackage}下符合serviceMethod周期为Phase的处理方法
+	 * 
+	 * @param serviceMethod 当前执行的方法
+	 * @param phase 执行周期
+	 * @return
+	 */
 	public HandleMethodInvoker[] findHandleMethods(Method serviceMethod, Phase phase) {
 		List<HandleMethodInvoker> result = new LinkedList<HandleMethodInvoker>();
 		for (Class<?> clazz : getAllHandlerClass()) {

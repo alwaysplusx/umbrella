@@ -15,14 +15,35 @@
  */
 package com.harmony.modules.bean;
 
+/**
+ * bean加载
+ * @author wuxii@foxmail.com
+ */
 public interface BeanLoader {
 
+    /**
+     * 单例
+     */
     String SINGLETON = "singleton";
 
+    /**
+     * 原型
+     */
     String PROTOTYPE = "prototype";
 
+    /**
+     * 默认加载一个单例的bean
+     * @param beanClass
+     * @return
+     */
     <T> T loadBean(Class<T> beanClass);
 
+    /**
+     * 加载一个指定类型的bean
+     * @param beanClass
+     * @param scope
+     * @return
+     */
     <T> T loadBean(Class<T> beanClass, String scope);
 
 }

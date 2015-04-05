@@ -19,39 +19,43 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * 通过类的反射{@linkplain Class#newInstance()}来创建Bean
+ * @author wuxii@foxmail.com
+ */
 public class ClassBeanLoader implements BeanLoader, Serializable {
 
-    private static final long serialVersionUID = 1L;
-    private Map<Class<?>, Object> beans = new HashMap<Class<?>, Object>();
+	private static final long serialVersionUID = 1L;
+	private Map<Class<?>, Object> beans = new HashMap<Class<?>, Object>();
 
-    @SuppressWarnings("unchecked")
-    @Override
-    public <T> T loadBean(Class<T> beanClass) {
-        if (!beans.containsKey(beanClass)) {
-            beans.put(beanClass, newBean(beanClass, null));
-        }
-        return (T) beans.get(beanClass);
-    }
+	@SuppressWarnings("unchecked")
+	@Override
+	public <T> T loadBean(Class<T> beanClass) {
+		if (!beans.containsKey(beanClass)) {
+			beans.put(beanClass, newBean(beanClass, null));
+		}
+		return (T) beans.get(beanClass);
+	}
 
-    @SuppressWarnings("unchecked")
-    @Override
-    public <T> T loadBean(Class<T> beanClass, String scope) {
-        if (SINGLETON.equals(scope)) {
-            return loadBean(beanClass);
-        } else if (PROTOTYPE.equals(scope)) {
-            return (T) newBean(beanClass, null);
-        } else {
-            throw new IllegalArgumentException("unsupport scope " + scope);
-        }
-    }
+	@SuppressWarnings("unchecked")
+	@Override
+	public <T> T loadBean(Class<T> beanClass, String scope) {
+		if (SINGLETON.equals(scope)) {
+			return loadBean(beanClass);
+		} else if (PROTOTYPE.equals(scope)) {
+			return (T) newBean(beanClass, null);
+		} else {
+			throw new IllegalArgumentException("unsupport scope " + scope);
+		}
+	}
 
-    private Object newBean(Class<?> beanClass, Map<String, Object> properties) {
-        try {
-            return beanClass.newInstance();
-        } catch (InstantiationException e) {
-            throw new IllegalArgumentException(e);
-        } catch (IllegalAccessException e) {
-            throw new IllegalArgumentException(e);
-        }
-    }
+	private Object newBean(Class<?> beanClass, Map<String, Object> properties) {
+		try {
+			return beanClass.newInstance();
+		} catch (InstantiationException e) {
+			throw new IllegalArgumentException(e);
+		} catch (IllegalAccessException e) {
+			throw new IllegalArgumentException(e);
+		}
+	}
 }

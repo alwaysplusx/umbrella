@@ -23,6 +23,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+/**
+ * @author wuxii@foxmail.com
+ */
 public class SimpleJaxWsContext implements JaxWsContext, Serializable {
 
 	private static final long serialVersionUID = -7702092080209756058L;

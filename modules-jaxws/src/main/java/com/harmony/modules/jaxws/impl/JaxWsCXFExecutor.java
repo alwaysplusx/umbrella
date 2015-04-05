@@ -29,6 +29,9 @@ import com.harmony.modules.jaxws.JaxWsPhaseExecutor;
 import com.harmony.modules.jaxws.util.JaxWsInvoker;
 import com.harmony.modules.utils.Exceptions;
 
+/**
+ * @author wuxii@foxmail.com
+ */
 public class JaxWsCXFExecutor extends JaxWsPhaseExecutor {
 
 	private Map<JaxWsContextKey, Object> proxyCache = new HashMap<JaxWsContextKey, Object>();

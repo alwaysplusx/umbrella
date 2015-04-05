@@ -28,22 +28,63 @@ import com.harmony.modules.jaxws.Phase;
  */
 public interface HandleMethodInvoker extends Invoker {
 
+	/**
+	 * 执行handleMethod
+	 * 
+	 * @param target 目标实例
+	 * @param args 参数
+	 * @return
+	 * @throws InvokException
+	 */
 	Object invokeHandleMethod(Object target, Object[] args) throws InvokException;
 
+	/**
+	 * 执行handleMethod
+	 * 
+	 * @param target 目标实例
+	 * @param args 参数
+	 * @param contextMap
+	 * @return
+	 * @throws InvokException
+	 */
 	Object invokeHandleMethod(Object target, Object[] args, Map<String, String> contextMap) throws InvokException;
 
+	/**
+	 * handler class
+	 */
 	Class<?> getHandlerClass();
 
+	/**
+	 * handleMethod
+	 */
 	Method getHandleMethod();
 
+	/**
+	 * 对应的执行周期
+	 */
 	Phase getPhase();
 
+	/**
+	 * 最后的参数是否要带上ContextMap
+	 */
 	boolean isEndWithMap();
 
+	/**
+	 * 设置异常
+	 * @param throwable
+	 */
 	void setThrowable(Throwable throwable);
 
+	/**
+	 * 设置结果
+	 * @param result
+	 */
 	void setResult(Object result);
 
+	/**
+	 * 设置contextMap
+	 * @param contextMap
+	 */
 	void setContextMap(Map<String, String> contextMap);
 
 }

@@ -15,6 +15,9 @@
  */
 package com.harmony.modules.jaxws;
 
+/**
+ * @author wuxii@foxmail.com
+ */
 public enum Phase {
 
     PRE_INVOKE {

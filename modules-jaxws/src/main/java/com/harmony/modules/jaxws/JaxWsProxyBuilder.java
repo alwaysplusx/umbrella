@@ -31,6 +31,10 @@ import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Proxy Builder 创建代理实例
+ * @author wuxii@foxmail.com
+ */
 public class JaxWsProxyBuilder {
 
     private static final ThreadLocal<JaxWsProxyFactoryBean> factoryBeans = new ThreadLocal<JaxWsProxyFactoryBean>();
@@ -38,12 +42,15 @@ public class JaxWsProxyBuilder {
     private String address;
     private String username;
     private String password;
-    private MetadataLoader loader;
+    private MetadataLoader metadataLoader;
     private Object target;
 
     private boolean loadUsername;
     private boolean loadPassword;
     private boolean loadAddress;
+    
+    private long receiveTimeout = 1000 * 60 * 3;
+    private long connectionTimeout = 1000 * 60 * 3;
 
     public static JaxWsProxyBuilder newProxyBuilder() {
         refush();
@@ -65,40 +72,93 @@ public class JaxWsProxyBuilder {
         }
     }
 
+    /**
+     * @see JaxWsProxyFactoryBean#getInInterceptors()
+     */
     public List<Interceptor<? extends Message>> getInInterceptors() {
         return factoryBeans.get().getInInterceptors();
     }
 
+    /**
+     * @see JaxWsProxyFactoryBean#getInFaultInterceptors()
+     */
     public List<Interceptor<? extends Message>> getInFaultInterceptors() {
         return factoryBeans.get().getInFaultInterceptors();
     }
 
+    /**
+     * @see JaxWsProxyFactoryBean#getOutFaultInterceptors()
+     */
     public List<Interceptor<? extends Message>> getOutFaultInterceptors() {
         return factoryBeans.get().getOutFaultInterceptors();
     }
 
+    /**
+     * @see JaxWsProxyFactoryBean#getOutInterceptors()
+     */
     public List<Interceptor<? extends Message>> getOutInterceptors() {
         return factoryBeans.get().getOutInterceptors();
     }
 
+    /**
+     * 设置代理服务的地址，该操作发生在{@link #setMetadataLoader(MetadataLoader)}之后则不在加载该属性
+     * @param address
+     * @return
+     */
     public JaxWsProxyBuilder setAddress(String address) {
         this.address = address;
         this.loadAddress = address == null;
         return this;
     }
 
+    /**
+     * 设置代理服务的用户密码，该操作发生在{@link #setMetadataLoader(MetadataLoader)}之后则不在加载该属性
+     * @param username
+     * @return
+     */
     public JaxWsProxyBuilder setUsername(String username) {
         this.username = username;
         this.loadUsername = false;
         return this;
     }
 
+    /**
+     * 设置代理服务的密码，该操作发生在{@link #setMetadataLoader(MetadataLoader)}之后则不在加载该属性
+     * @param password
+     * @return
+     */
     public JaxWsProxyBuilder setPassword(String password) {
         this.password = password;
         this.loadPassword = false;
         return this;
     }
 
+	/**
+	 * 设置接收超时时间，单位毫秒
+	 * @param receiveTimeout
+	 * @return
+	 */
+	public JaxWsProxyBuilder setReceiveTimeout(long receiveTimeout) {
+		this.receiveTimeout = receiveTimeout;
+		return this;
+	}
+
+	/**
+	 * 设置连接超时时间，单位毫秒
+	 * @param connectionTimeout
+	 * @return
+	 */
+	public JaxWsProxyBuilder setConnectionTimeout(long connectionTimeout) {
+		this.connectionTimeout = connectionTimeout;
+		return this;
+	}
+
+	/**
+     * 创建代理服务，并创建前提供{@linkplain JaxWsProxyFactoryConfig}配置工厂属性
+     * @param serviceClass
+     * @param proxyConfig
+     * @return
+     */
     public <T> T build(Class<T> serviceClass, JaxWsProxyFactoryConfig proxyConfig) {
         JaxWsProxyFactoryBean factoryBean = factoryBeans.get();
         String address = getAddress(serviceClass);
@@ -110,20 +170,39 @@ public class JaxWsProxyBuilder {
         factoryBean.setUsername(getUsername(serviceClass));
         factoryBean.setPassword(getPassword(serviceClass));
         target = factoryBean.create(serviceClass);
+        setConnectionTimeout(target, connectionTimeout);
+        setReceiveTimeout(target, receiveTimeout);
         log.debug("build proxy[{}] successfully", serviceClass.getName());
         return serviceClass.cast(target);
     }
 
+    /**
+     * 创建代理服务
+     * @param serviceClass
+     * @return
+     */
     public <T> T build(Class<T> serviceClass) {
         return build(serviceClass, null);
     }
 
+    /**
+     * 创建代理服务
+     * @param serviceClass
+     * @param connectionTimeout
+     * @param factoryConfig
+     * @return
+     */
     public <T> T build(Class<T> serviceClass, long connectionTimeout, JaxWsProxyFactoryConfig factoryConfig) {
+    	this.connectionTimeout = connectionTimeout;
         T proxy = build(serviceClass, null);
-        setProxyTimeOut(proxy, connectionTimeout);
         return proxy;
     }
 
+    /**
+     * 获取代理工厂中的内容
+     * @param cls
+     * @return
+     */
     @SuppressWarnings("unchecked")
     public <T> T unwrap(Class<T> cls) {
         if (ClientProxyFactoryBean.class.isAssignableFrom(cls)) {
@@ -143,41 +222,48 @@ public class JaxWsProxyBuilder {
     }
 
     public JaxWsProxyBuilder setMetadataLoader(MetadataLoader loader) {
-        this.loader = loader;
+        this.metadataLoader = loader;
         this.loadAddress = this.loadPassword = this.loadUsername = loader != null;
         return this;
     }
 
     public <T> T build(Class<T> serviceClass, long connectionTimeout) {
         T target = build(serviceClass);
-        setProxyTimeOut(target, connectionTimeout);
+        setConnectionTimeout(target, connectionTimeout);
         return target;
     }
 
-    public static void setProxyTimeOut(Object target, long connectionTimeout) {
+	public static void setReceiveTimeout(Object target, long receiveTimeout) {
+		Client proxy = ClientProxy.getClient(target);
+		HTTPConduit conduit = (HTTPConduit) proxy.getConduit();
+		HTTPClientPolicy policy = new HTTPClientPolicy();
+		policy.setReceiveTimeout(receiveTimeout);
+		conduit.setClient(policy);
+	}
+    
+    public static void setConnectionTimeout(Object target, long connectionTimeout) {
         Client proxy = ClientProxy.getClient(target);
         HTTPConduit conduit = (HTTPConduit) proxy.getConduit();
         HTTPClientPolicy policy = new HTTPClientPolicy();
         policy.setConnectionTimeout(connectionTimeout);
-        // policy.setReceiveTimeout(receiveTimeout);
         conduit.setClient(policy);
     }
 
     protected String getAddress(Class<?> serviceClass) {
         if (loadAddress)
-            return loader.getAddress(serviceClass);
+            return metadataLoader.getAddress(serviceClass);
         return address;
     }
 
     protected String getUsername(Class<?> serviceClass) {
         if (loadUsername)
-            return loader.getUsername(serviceClass);
+            return metadataLoader.getUsername(serviceClass);
         return username;
     }
 
     protected String getPassword(Class<?> serviceClass) {
         if (loadPassword)
-            return loader.getUsername(serviceClass);
+            return metadataLoader.getUsername(serviceClass);
         return password;
     }
 

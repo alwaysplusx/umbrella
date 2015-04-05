@@ -15,6 +15,10 @@
  */
 package com.harmony.modules.utils;
 
+/**
+ * 类过滤
+ * @author wuxii@foxmail.com
+ */
 public interface ClassFilter {
 
     boolean accept(Class<?> clazz);

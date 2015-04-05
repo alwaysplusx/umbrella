@@ -20,10 +20,17 @@ import java.io.InputStream;
 import java.util.Properties;
 
 /**
- * @author wuxii
+ * 属性加载工具
+ * @author wuxii@foxmail.com
  */
 public class PropUtils {
 
+    /**
+     * 加载指定文件下的资源文件
+     * @param filePath
+     * @return
+     * @throws IOException
+     */
     public static Properties loadProperties(String filePath) throws IOException {
         Properties props = new Properties();
         InputStream resourceStream = null;
@@ -39,16 +46,24 @@ public class PropUtils {
         return props;
     }
 
+    /**
+     * 系统{@linkplain System#getProperties(String)}
+     * @param key
+     * @return
+     */
     public static String getSystemProperty(String key) {
         String value = System.getProperty(key);
         return value;
     }
 
+    /**
+     * 系统{@linkplain System#getProperties(String)}
+     * @param key
+     * @param defaultValue
+     * @return
+     */
     public static String getSystemProperty(String key, String defaultValue) {
-        String value = getSystemProperty(key);
-        if (value == null) {
-            return defaultValue;
-        }
+        String value = getSystemProperty(key, defaultValue);
         return value;
     }
 }

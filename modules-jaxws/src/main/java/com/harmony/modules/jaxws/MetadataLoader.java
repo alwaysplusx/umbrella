@@ -15,12 +15,30 @@
  */
 package com.harmony.modules.jaxws;
 
+/**
+ * @author wuxii@foxmail.com
+ */
 public interface MetadataLoader {
 
+    /**
+     * 获取指定serviceClass的用户名
+     * @param serviceClass
+     * @return
+     */
     String getUsername(Class<?> serviceClass);
 
+    /**
+     * 获取指定serviceClass的密码
+     * @param serviceClass
+     * @return
+     */
     String getPassword(Class<?> serviceClass);
 
+    /**
+     * 获取指定serviceClass的地址
+     * @param serviceClass
+     * @return
+     */
     String getAddress(Class<?> serviceClass);
 
 }

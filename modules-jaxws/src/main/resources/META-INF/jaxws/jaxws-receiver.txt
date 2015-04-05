@@ -1,1 +1,2 @@
+#com.harmony.modules.jaxws.support.JaxWsContextReceiverImpl default handlerLocation
 com.harmony.modules.jaxws.handler.JaxWsAnnotationHandler:true

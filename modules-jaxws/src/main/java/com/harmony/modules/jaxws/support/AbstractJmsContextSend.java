@@ -30,6 +30,11 @@ public abstract class AbstractJmsContextSend extends AbstractJmsMessageSender im
 		return send(createMessage(context));
 	}
 
+	/**
+	 * 将{@linkplain JaxWsContext}转化为可以传递到消息服务中的消息
+	 * @param context
+	 * @return
+	 */
 	public abstract Message createMessage(JaxWsContext context);
 
 	@Override

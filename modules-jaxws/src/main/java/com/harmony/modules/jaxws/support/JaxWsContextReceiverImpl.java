@@ -81,6 +81,9 @@ public class JaxWsContextReceiverImpl implements JaxWsContextReceiver {
 		this.handlersLocation = handlersLocation;
 	}
 
+	/**
+	 * 初始化加载{@linkplain #handlersLocation}文件中的{@linkplain JaxWsContextHandler}
+	 */
 	protected void init() {
 		InputStream inStream = null;
 		try {
@@ -149,6 +152,11 @@ public class JaxWsContextReceiverImpl implements JaxWsContextReceiver {
 		// do nothing
 	}
 
+	/**
+	 * 重新加载{@linkplain JaxWsContext}中的元数据
+	 * @param context
+	 * @return
+	 */
 	protected JaxWsContext reloadContext(JaxWsContext context) {
 		if (!reload && context.getAddress() != null)
 			return context;

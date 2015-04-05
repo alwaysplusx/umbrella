@@ -17,6 +17,9 @@ package com.harmony.modules.jaxws.support;
 
 import com.harmony.modules.jaxws.JaxWsContext;
 
+/**
+ * @author wuxii@foxmail.com
+ */
 public abstract class JaxWsContextValidator {
 
     public static void validation(JaxWsContext context) throws IllegalArgumentException {
