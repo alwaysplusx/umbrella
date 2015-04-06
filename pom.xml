@@ -12,6 +12,7 @@
 		<module>modules-message</module>
 		<module>examples</module>
 		<module>modlues-monitor</module>
+		<module>modules-scheduler</module>
 	</modules>
 	<properties>
 		<slf4j.version>1.7.7</slf4j.version>
