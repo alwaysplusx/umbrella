@@ -13,6 +13,9 @@
 		<module>examples</module>
 		<module>modlues-monitor</module>
 		<module>modules-scheduler</module>
+		<module>modules-context</module>
+		<module>modules-security</module>
+		<module>modules-query</module>
 	</modules>
 	<properties>
 		<slf4j.version>1.7.7</slf4j.version>
