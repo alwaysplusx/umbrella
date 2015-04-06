@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<beans>
+	<!-- Container Dependency Inject(CDI) Feature -->
+	<interceptors>
+		<class>com.harmony.modules.monitor.support.MethodMonitorInterceptor</class>
+	</interceptors>
+</beans>

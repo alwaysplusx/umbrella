@@ -15,7 +15,7 @@ import java.io.StringWriter;
  * 
  * @author calvin
  */
-public class Exceptions {
+public abstract class Exceptions {
 
 	/**
 	 * 将CheckedException转换为UncheckedException.
@@ -25,6 +25,14 @@ public class Exceptions {
 			return (RuntimeException) ex;
 		} else {
 			return new RuntimeException(ex);
+		}
+	}
+
+	public static RuntimeException unchecked(String message, Throwable ex) {
+		if (ex instanceof RuntimeException) {
+			return (RuntimeException) ex;
+		} else {
+			return new RuntimeException(message, ex);
 		}
 	}
 
