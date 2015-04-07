@@ -19,7 +19,7 @@ public class ResourceScanerTest {
 
     @Test
     public void testClass() throws IOException {
-        Class<?>[] classes = ResourceScaner.getInstance().scanPackage("");
+        Class<?>[] classes = ResourceScaner.getInstance().scanPackage("com.harmony");
         for (Class<?> clazz : classes) {
             System.out.println(clazz);
         }
