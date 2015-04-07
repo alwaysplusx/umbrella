@@ -6,20 +6,22 @@
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<modules>
-		<module>modules-io</module>
+		<module>modules-core</module>
+		<!-- <module>modules-io</module> -->
+		<!-- <module>modules-context</module> -->
+		<!-- <module>modules-util</module> -->
 		<module>modules-jaxws</module>
-		<module>modules-util</module>
 		<module>modules-message</module>
-		<module>examples</module>
 		<module>modlues-monitor</module>
 		<module>modules-scheduler</module>
-		<module>modules-context</module>
 		<module>modules-security</module>
 		<module>modules-query</module>
+		<module>modules-data</module>
+		<!-- <module>examples</module> -->
 	</modules>
 	<properties>
 		<slf4j.version>1.7.7</slf4j.version>
-		<asm.version>5.0.1</asm.version>
+		<asm.version>5.0.3</asm.version>
 		<cxf.version>3.0.2</cxf.version>
 		<javax.ejb.version>3.2</javax.ejb.version>
 		<javax.jms.version>1.1</javax.jms.version>
@@ -33,12 +35,7 @@
 			<!-- modules START -->
 			<dependency>
 				<groupId>com.harmony.modules</groupId>
-				<artifactId>modules-util</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>com.harmony.modules</groupId>
-				<artifactId>modules-io</artifactId>
+				<artifactId>modules-core</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>

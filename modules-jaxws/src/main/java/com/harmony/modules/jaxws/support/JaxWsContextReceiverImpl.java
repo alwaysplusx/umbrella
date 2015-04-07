@@ -24,8 +24,8 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.harmony.modules.bean.BeanLoader;
-import com.harmony.modules.bean.ClassBeanLoader;
+import com.harmony.modules.core.BeanLoader;
+import com.harmony.modules.core.ClassBeanLoader;
 import com.harmony.modules.jaxws.JaxWsContext;
 import com.harmony.modules.jaxws.JaxWsContextHandler;
 import com.harmony.modules.jaxws.JaxWsExecutor;

@@ -29,7 +29,7 @@
 		</dependency>
 		<dependency>
 			<groupId>com.harmony.modules</groupId>
-			<artifactId>modules-io</artifactId>
+			<artifactId>modules-core</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.harmony.modules</groupId>

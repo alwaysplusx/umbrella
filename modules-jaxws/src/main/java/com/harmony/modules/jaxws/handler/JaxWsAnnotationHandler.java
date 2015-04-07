@@ -20,9 +20,9 @@ import static com.harmony.modules.jaxws.Phase.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.harmony.modules.bean.BeanLoader;
-import com.harmony.modules.bean.ClassBeanLoader;
-import com.harmony.modules.invoker.InvokException;
+import com.harmony.modules.core.BeanLoader;
+import com.harmony.modules.core.ClassBeanLoader;
+import com.harmony.modules.core.InvokException;
 import com.harmony.modules.jaxws.Handler.HandleMethod;
 import com.harmony.modules.jaxws.JaxWsAbortException;
 import com.harmony.modules.jaxws.JaxWsContext;
