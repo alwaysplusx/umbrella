@@ -6,7 +6,7 @@
 		<artifactId>harmony-modules</artifactId>
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
-	<artifactId>modlues-monitor</artifactId>
+	<artifactId>modules-monitor</artifactId>
 	<dependencies>
 		<dependency>
 			<groupId>com.harmony.modules</groupId>
