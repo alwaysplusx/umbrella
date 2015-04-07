@@ -27,7 +27,7 @@ import javax.jms.ObjectMessage;
 import com.harmony.modules.bean.BeanLoader;
 import com.harmony.modules.bean.ClassBeanLoader;
 import com.harmony.modules.io.utils.ResourceScaner;
-import com.harmony.modules.utils.ClassFilter;
+import com.harmony.modules.core.ClassFilter;
 
 /**
  * @author wuxii

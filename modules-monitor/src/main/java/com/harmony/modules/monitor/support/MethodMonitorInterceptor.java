@@ -56,7 +56,7 @@ public class MethodMonitorInterceptor implements MethodMonitor {
 	/**
 	 * 是否开启白名单策略，开启后只拦截在监视名单中的资源
 	 */
-	private boolean whiteList;
+	private boolean useWhiteList;
 
 	@AroundInvoke
 	public Object monitor(InvocationContext ctx) throws Exception {
@@ -74,7 +74,7 @@ public class MethodMonitorInterceptor implements MethodMonitor {
 			} finally {
 				graph.setResponseTime(Calendar.getInstance());
 				try {
-					doPersist(graph);
+					persistGraph(graph);
 				} catch (Exception e) {
 					log.debug("", e);
 				}
@@ -84,7 +84,8 @@ public class MethodMonitorInterceptor implements MethodMonitor {
 		return ctx.proceed();
 	}
 
-	protected void doPersist(MethodGraph graph) {
+	protected void persistGraph(MethodGraph graph) {
+		// TODO 保存监视结果
 	}
 
 	/**
@@ -123,22 +124,22 @@ public class MethodMonitorInterceptor implements MethodMonitor {
 	}
 
 	@Override
-	public boolean isWhiteList() {
-		return whiteList;
+	public boolean isUseWhiteList() {
+		return useWhiteList;
 	}
 
 	@Override
 	public void useWhiteList(boolean use) {
-		this.whiteList = use;
+		this.useWhiteList = use;
 	}
 
 	public void setWhiteList(boolean whiteList) {
-		this.whiteList = whiteList;
+		this.useWhiteList = whiteList;
 	}
 
 	@Override
 	public boolean isMonitored(String resource) {
-		if (whiteList) {
+		if (useWhiteList) {
 			return monitorList.containsKey(resource);
 		}
 		return true;
@@ -161,6 +162,12 @@ public class MethodMonitorInterceptor implements MethodMonitor {
 		String module() default "";
 
 		String operator() default "";
+
+	}
+
+	public interface MethodGraphDao {
+
+		void persist(MethodGraph graph);
 
 	}
 
@@ -277,32 +284,32 @@ public class MethodMonitorInterceptor implements MethodMonitor {
 			this.result = result;
 		}
 
-        @Override
-        public String getModule() {
-            Monitored ann = method.getAnnotation(Monitored.class);
-            if (ann != null) {
-                return ann.module(); 
-            }
-            return null;
-        }
+		@Override
+		public String getModule() {
+			Monitored ann = method.getAnnotation(Monitored.class);
+			if (ann != null) {
+				return ann.module();
+			}
+			return null;
+		}
 
-        @Override
-        public String getOperator() {
-            Monitored ann = method.getAnnotation(Monitored.class);
-            if (ann != null) {
-                return ann.operator(); 
-            }
-            return null;
-        }
-        
-        @Override
-        public long use() {
-            if (requestTime != null && responseTime != null) {
-                return responseTime.getTimeInMillis() - requestTime.getTimeInMillis();
-            }
-            return -1;
-        }
-        
+		@Override
+		public String getOperator() {
+			Monitored ann = method.getAnnotation(Monitored.class);
+			if (ann != null) {
+				return ann.operator();
+			}
+			return null;
+		}
+
+		@Override
+		public long use() {
+			if (requestTime != null && responseTime != null) {
+				return responseTime.getTimeInMillis() - requestTime.getTimeInMillis();
+			}
+			return -1;
+		}
+
 		@Override
 		public String toString() {
 			return "{target:" + target + ", method:" + method + ", result:" + result + ", requestTime:" + DateFormat.FULL_DATEFORMAT.format(requestTime) + ", responseTime:"

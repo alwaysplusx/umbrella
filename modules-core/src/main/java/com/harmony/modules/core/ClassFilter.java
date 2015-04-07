@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 wuxii@foxmail.com.
+ * Copyright 2002-2014 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,35 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.modules.scheduling.jmx;
+package com.harmony.modules.core;
 
 /**
- * 发布JMS MBean接口
- * 
+ * 类过滤
  * @author wuxii@foxmail.com
  */
-public interface JMXScheduleMBean {
+public interface ClassFilter {
 
-	void restartAll();
-
-	void startAll();
-
-	void stopAll();
-
-	void resumeAll();
-
-	void pauseAll();
-
-	void restart(String jobName);
-
-	void start(String jobName);
-
-	void stop(String jobName);
-
-	void pause(String jobName);
-
-	void resume(String jobName);
-
-	String status(String jobName);
+    boolean accept(Class<?> clazz);
 
 }

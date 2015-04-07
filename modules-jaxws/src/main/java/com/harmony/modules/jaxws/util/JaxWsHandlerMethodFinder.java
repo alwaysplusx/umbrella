@@ -28,12 +28,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.harmony.modules.core.ClassFilter;
 import com.harmony.modules.io.utils.ResourceScaner;
 import com.harmony.modules.jaxws.Handler;
 import com.harmony.modules.jaxws.Handler.HandleMethod;
 import com.harmony.modules.jaxws.JaxWsAbortException;
 import com.harmony.modules.jaxws.Phase;
-import com.harmony.modules.utils.ClassFilter;
 
 /**
  * @author wuxii@foxmail.com

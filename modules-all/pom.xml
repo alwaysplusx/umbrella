@@ -11,10 +11,6 @@
 	<dependencies>
 		<dependency>
 			<groupId>com.harmony.modules</groupId>
-			<artifactId>modules-monitor</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.harmony.modules</groupId>
 			<artifactId>modules-core</artifactId>
 		</dependency>
 		<dependency>
@@ -28,6 +24,10 @@
 		<dependency>
 			<groupId>com.harmony.modules</groupId>
 			<artifactId>modules-message</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.harmony.modules</groupId>
+			<artifactId>modules-monitor</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.harmony.modules</groupId>
@@ -57,11 +57,11 @@
 						<configuration>
 							<artifactSet>
 								<includes>
-									<include>com.harmony.modules:modules-monitor</include>
 									<include>com.harmony.modules:modules-core</include>
 									<include>com.harmony.modules:modules-data</include>
 									<include>com.harmony.modules:modules-jaxws</include>
 									<include>com.harmony.modules:modules-message</include>
+									<include>com.harmony.modules:modules-monitor</include>
 									<include>com.harmony.modules:modules-query</include>
 									<include>com.harmony.modules:modules-scheduler</include>
 									<include>com.harmony.modules:modules-security</include>

@@ -23,7 +23,7 @@ package com.harmony.modules.scheduling;
  */
 public class SchedulerException extends RuntimeException {
 
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = -726485722525497476L;
 
 	public SchedulerException() {
 		super();

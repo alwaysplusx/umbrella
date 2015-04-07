@@ -27,10 +27,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.harmony.modules.asm.ClassReader;
+import com.harmony.modules.core.ClassFilter;
 import com.harmony.modules.io.PathMatchingResourcePatternResolver;
 import com.harmony.modules.io.Resource;
 import com.harmony.modules.io.ResourcePatternResolver;
-import com.harmony.modules.utils.ClassFilter;
 import com.harmony.modules.utils.ClassUtils;
 
 /**

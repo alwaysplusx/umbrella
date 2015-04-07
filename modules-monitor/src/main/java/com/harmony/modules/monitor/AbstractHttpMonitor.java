@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.modules.monitor.support;
+package com.harmony.modules.monitor;
 
 import static com.harmony.modules.utils.ObjectUtils.*;
 
@@ -33,15 +33,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import com.harmony.modules.monitor.Graph;
-import com.harmony.modules.monitor.HttpMonitor;
 import com.harmony.modules.monitor.util.MonitorUtils;
 import com.harmony.modules.utils.Exceptions;
 
 /**
  * @author wuxii@foxmail.com
  */
-public class HttpMonitorFilter implements HttpMonitor {
+public abstract class AbstractHttpMonitor implements HttpMonitor {
 
 	/**
 	 * 受到监视的资源
@@ -50,7 +48,7 @@ public class HttpMonitorFilter implements HttpMonitor {
 	/**
 	 * 是否开启白名单策略，开启后只拦截在监视名单中的资源
 	 */
-	private boolean whiteList;
+	private boolean useWhiteList;
 
 	@Override
 	public void exclude(String resource) {
@@ -64,30 +62,26 @@ public class HttpMonitorFilter implements HttpMonitor {
 
 	@Override
 	public boolean isMonitored(String resource) {
-		if (whiteList) {
+		if (useWhiteList) {
 			return monitorList.containsKey(resource);
 		}
 		return true;
 	}
 
 	@Override
-	public boolean isWhiteList() {
-		return whiteList;
+	public boolean isUseWhiteList() {
+		return useWhiteList;
 	}
 
 	@Override
 	public void useWhiteList(boolean use) {
-		this.whiteList = use;
+		this.useWhiteList = use;
 	}
 
 	@Override
 	public String[] getMonitorList() {
 		Set<String> set = monitorList.keySet();
 		return set.toArray(new String[set.size()]);
-	}
-
-	@Override
-	public void init(FilterConfig filterConfig) throws ServletException {
 	}
 
 	@Override
@@ -112,21 +106,24 @@ public class HttpMonitorFilter implements HttpMonitor {
 				throw Exceptions.unchecked(e);
 			} finally {
 				graph.setResponseTime(Calendar.getInstance());
-				doPersist(graph);
+				persistGraph(graph);
 			}
 			return;
 		}
 		chain.doFilter(request, response);
 	}
 
-	protected void doPersist(Graph graph) {
+	@Override
+	public void init(FilterConfig filterConfig) throws ServletException {
 	}
 
 	@Override
 	public void destroy() {
 	}
 
-	public class HttpGraph implements Graph {
+	protected abstract void persistGraph(HttpGraph graph);
+
+	protected class HttpGraph implements Graph {
 
 		private String identifie;
 		private Calendar requestTime = Calendar.getInstance();
@@ -263,14 +260,13 @@ public class HttpMonitorFilter implements HttpMonitor {
 			return (Map<String, Object>) arguments.get("sessionAttribute");
 		}
 
-        @Override
-        public long use() {
-            if (requestTime != null && responseTime != null) {
-                return responseTime.getTimeInMillis() - requestTime.getTimeInMillis();
-            }
-            return -1;
-        }
+		@Override
+		public long use() {
+			if (requestTime != null && responseTime != null) {
+				return responseTime.getTimeInMillis() - requestTime.getTimeInMillis();
+			}
+			return -1;
+		}
 
 	}
-
 }

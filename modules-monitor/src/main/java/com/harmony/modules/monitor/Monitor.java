@@ -51,7 +51,7 @@ public interface Monitor {
 	 * <p>是否开启白名单策略，开启后只拦截在监视名单中的资源
 	 * @return
 	 */
-	boolean isWhiteList();
+	boolean isUseWhiteList();
 
 	/**
 	 * 设置开启或关闭白名单策略

@@ -38,7 +38,7 @@ public interface Scheduler {
 	/**
 	 * 关闭并移除所有定时任务
 	 */
-	void removeAll();
+	void stopAll();
 
 	/**
 	 * 恢复所有挂起的定时任务
@@ -72,7 +72,7 @@ public interface Scheduler {
 	 * @param jobName
 	 *            任务的job名称
 	 */
-	void remove(String jobName);
+	void stop(String jobName);
 
 	/**
 	 * 挂起定时任务
@@ -98,6 +98,20 @@ public interface Scheduler {
 	 * @return true启动,false未启动
 	 */
 	boolean isStarted(String jobName);
+
+	/**
+	 * 查看当前任务是否停止
+	 * @param jobName
+	 * @return
+	 */
+	boolean isStopped(String jobName);
+
+	/**
+	 * 查看当前任务是否被挂起
+	 * @param jobName
+	 * @return
+	 */
+	boolean isPaused(String jobName);
 
 	/**
 	 * 是否存在改任务

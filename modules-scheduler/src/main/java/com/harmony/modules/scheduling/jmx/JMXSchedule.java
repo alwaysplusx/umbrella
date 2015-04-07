@@ -26,10 +26,7 @@ import com.harmony.modules.scheduling.Scheduler;
  */
 public class JMXSchedule implements JMXScheduleMBean {
 
-	Scheduler schedule;
-
-	public JMXSchedule() {
-	}
+	private Scheduler schedule;
 
 	public JMXSchedule(Scheduler schedule) {
 		this.schedule = schedule;
@@ -46,8 +43,8 @@ public class JMXSchedule implements JMXScheduleMBean {
 	}
 
 	@Override
-	public void removeAll() {
-		schedule.removeAll();
+	public void stopAll() {
+		schedule.stopAll();
 	}
 
 	@Override
@@ -71,8 +68,8 @@ public class JMXSchedule implements JMXScheduleMBean {
 	}
 
 	@Override
-	public void remove(String jobName) {
-		this.schedule.remove(jobName);
+	public void stop(String jobName) {
+		this.schedule.stop(jobName);
 	}
 
 	@Override

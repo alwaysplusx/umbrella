@@ -74,7 +74,7 @@ public interface Graph {
 	
 	/**
 	 * 请求耗时 单位毫秒(ms)
-	 * @return
+	 * @return -1 无法计算耗时
 	 */
 	long use();
 
