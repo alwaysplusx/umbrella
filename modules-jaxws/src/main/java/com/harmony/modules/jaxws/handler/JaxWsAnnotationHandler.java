@@ -32,7 +32,7 @@ import com.harmony.modules.jaxws.util.JaxWsHandlerMethodFinder;
 import com.harmony.modules.utils.Exceptions;
 
 /**
- * 将{@linkplain JaxWsAnnotationHandler#defaultPackage}下带有{@linkplain Handler}
+ * 将{@linkplain JaxWsAnnotationHandler#defaultPackage}下带有{@linkplain com.harmony.modules.jaxws.Handler}
  * annotation的类, 加载为交互各个时段的处理器
  * @author wuxii@foxmail.com
  * @see Handler

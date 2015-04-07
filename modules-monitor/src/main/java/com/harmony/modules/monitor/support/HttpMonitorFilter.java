@@ -263,6 +263,14 @@ public class HttpMonitorFilter implements HttpMonitor {
 			return (Map<String, Object>) arguments.get("sessionAttribute");
 		}
 
+        @Override
+        public long use() {
+            if (requestTime != null && responseTime != null) {
+                return responseTime.getTimeInMillis() - requestTime.getTimeInMillis();
+            }
+            return -1;
+        }
+
 	}
 
 }

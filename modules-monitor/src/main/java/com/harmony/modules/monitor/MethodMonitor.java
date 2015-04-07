@@ -35,6 +35,10 @@ public interface MethodMonitor extends Monitor {
 		Object[] getArgs();
 
 		Exception getException();
+		
+		String getModule();
+		
+		String getOperator();
 
 	}
 }

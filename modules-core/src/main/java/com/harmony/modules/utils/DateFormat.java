@@ -73,6 +73,11 @@ public abstract class DateFormat {
 			}
 		}
 
+		/**
+		 * 格式化时间
+		 * @param c
+		 * @return
+		 */
 		public String format(Calendar c) {
 			if (c == null)
 				return null;

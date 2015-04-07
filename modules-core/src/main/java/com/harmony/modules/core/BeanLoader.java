@@ -32,6 +32,21 @@ public interface BeanLoader {
     String PROTOTYPE = "prototype";
 
     /**
+     * 根据bean的名称加载指定bean，默认获取单例的bean
+     * @param beanName
+     * @return
+     */
+    <T> T loadBean(String beanName);
+
+    /**
+     * 加载一个指定类型的bean
+     * @param beanName
+     * @param scope
+     * @return
+     */
+    <T> T loadBean(String beanName, String scope);
+
+    /**
      * 默认加载一个单例的bean
      * @param beanClass
      * @return

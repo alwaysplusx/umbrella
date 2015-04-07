@@ -37,6 +37,7 @@ import org.slf4j.LoggerFactory;
  */
 public class JaxWsProxyBuilder {
 
+    public static final long defaultTimeout = 1000 * 60 * 3;
     private static final ThreadLocal<JaxWsProxyFactoryBean> factoryBeans = new ThreadLocal<JaxWsProxyFactoryBean>();
     private static final Logger log = LoggerFactory.getLogger(JaxWsProxyBuilder.class);
     private String address;
@@ -48,9 +49,9 @@ public class JaxWsProxyBuilder {
     private boolean loadUsername;
     private boolean loadPassword;
     private boolean loadAddress;
-    
-    private long receiveTimeout = 1000 * 60 * 3;
-    private long connectionTimeout = 1000 * 60 * 3;
+
+    private long receiveTimeout = -1;
+    private long connectionTimeout = -1;
 
     public static JaxWsProxyBuilder newProxyBuilder() {
         refush();
@@ -133,27 +134,27 @@ public class JaxWsProxyBuilder {
         return this;
     }
 
-	/**
-	 * 设置接收超时时间，单位毫秒
-	 * @param receiveTimeout
-	 * @return
-	 */
-	public JaxWsProxyBuilder setReceiveTimeout(long receiveTimeout) {
-		this.receiveTimeout = receiveTimeout;
-		return this;
-	}
+    /**
+     * 设置接收超时时间，单位毫秒
+     * @param receiveTimeout
+     * @return
+     */
+    public JaxWsProxyBuilder setReceiveTimeout(long receiveTimeout) {
+        this.receiveTimeout = receiveTimeout;
+        return this;
+    }
 
-	/**
-	 * 设置连接超时时间，单位毫秒
-	 * @param connectionTimeout
-	 * @return
-	 */
-	public JaxWsProxyBuilder setConnectionTimeout(long connectionTimeout) {
-		this.connectionTimeout = connectionTimeout;
-		return this;
-	}
+    /**
+     * 设置连接超时时间，单位毫秒
+     * @param connectionTimeout
+     * @return
+     */
+    public JaxWsProxyBuilder setConnectionTimeout(long connectionTimeout) {
+        this.connectionTimeout = connectionTimeout;
+        return this;
+    }
 
-	/**
+    /**
      * 创建代理服务，并创建前提供{@linkplain JaxWsProxyFactoryConfig}配置工厂属性
      * @param serviceClass
      * @param proxyConfig
@@ -170,8 +171,12 @@ public class JaxWsProxyBuilder {
         factoryBean.setUsername(getUsername(serviceClass));
         factoryBean.setPassword(getPassword(serviceClass));
         target = factoryBean.create(serviceClass);
-        setConnectionTimeout(target, connectionTimeout);
-        setReceiveTimeout(target, receiveTimeout);
+        if (connectionTimeout > -1) {
+            setConnectionTimeout(target, connectionTimeout);
+        }
+        if (receiveTimeout > -1) {
+            setReceiveTimeout(target, receiveTimeout);
+        }
         log.debug("build proxy[{}] successfully", serviceClass.getName());
         return serviceClass.cast(target);
     }
@@ -193,7 +198,7 @@ public class JaxWsProxyBuilder {
      * @return
      */
     public <T> T build(Class<T> serviceClass, long connectionTimeout, JaxWsProxyFactoryConfig factoryConfig) {
-    	this.connectionTimeout = connectionTimeout;
+        this.connectionTimeout = connectionTimeout;
         T proxy = build(serviceClass, null);
         return proxy;
     }
@@ -233,14 +238,14 @@ public class JaxWsProxyBuilder {
         return target;
     }
 
-	public static void setReceiveTimeout(Object target, long receiveTimeout) {
-		Client proxy = ClientProxy.getClient(target);
-		HTTPConduit conduit = (HTTPConduit) proxy.getConduit();
-		HTTPClientPolicy policy = new HTTPClientPolicy();
-		policy.setReceiveTimeout(receiveTimeout);
-		conduit.setClient(policy);
-	}
-    
+    public static void setReceiveTimeout(Object target, long receiveTimeout) {
+        Client proxy = ClientProxy.getClient(target);
+        HTTPConduit conduit = (HTTPConduit) proxy.getConduit();
+        HTTPClientPolicy policy = new HTTPClientPolicy();
+        policy.setReceiveTimeout(receiveTimeout);
+        conduit.setClient(policy);
+    }
+
     public static void setConnectionTimeout(Object target, long connectionTimeout) {
         Client proxy = ClientProxy.getClient(target);
         HTTPConduit conduit = (HTTPConduit) proxy.getConduit();

@@ -25,7 +25,7 @@ import javax.servlet.http.HttpServletRequest;
 public abstract class MonitorUtils {
 
 	/**
-	 * 将方转化为唯一的资源限定表示
+	 * 将方转化为唯一的资源限定标识
 	 * @param method
 	 * @return
 	 */
@@ -35,6 +35,11 @@ public abstract class MonitorUtils {
 		return method.toGenericString();
 	}
 
+	/**
+	 * 将request转为唯一的资源限定标识
+	 * @param request
+	 * @return
+	 */
 	public static String requestIdentifie(HttpServletRequest request) {
 		if (request == null)
 			return null;

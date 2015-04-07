@@ -277,10 +277,37 @@ public class MethodMonitorInterceptor implements MethodMonitor {
 			this.result = result;
 		}
 
+        @Override
+        public String getModule() {
+            Monitored ann = method.getAnnotation(Monitored.class);
+            if (ann != null) {
+                return ann.module(); 
+            }
+            return null;
+        }
+
+        @Override
+        public String getOperator() {
+            Monitored ann = method.getAnnotation(Monitored.class);
+            if (ann != null) {
+                return ann.operator(); 
+            }
+            return null;
+        }
+        
+        @Override
+        public long use() {
+            if (requestTime != null && responseTime != null) {
+                return responseTime.getTimeInMillis() - requestTime.getTimeInMillis();
+            }
+            return -1;
+        }
+        
 		@Override
 		public String toString() {
 			return "{target:" + target + ", method:" + method + ", result:" + result + ", requestTime:" + DateFormat.FULL_DATEFORMAT.format(requestTime) + ", responseTime:"
 					+ DateFormat.FULL_DATEFORMAT.format(responseTime) + ", isException:" + isException() + ", exceptionMessage:" + getExceptionMessage() + "}";
 		}
+
 	}
 }

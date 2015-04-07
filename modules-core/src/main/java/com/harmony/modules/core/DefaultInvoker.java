@@ -33,11 +33,11 @@ public class DefaultInvoker implements Invoker, Serializable {
 		if (validate) {
 			Class<?>[] pts = method.getParameterTypes();
 			if (args.length != method.getParameterTypes().length) {
-				throw new InvokException();
+				throw new InvokException("parameter length mismatch");
 			}
 			for (int i = 0, max = args.length; i < max; i++) {
 				if (!isAssignableIgnoreClassLoader(args[i].getClass(), pts[i])) {
-					throw new InvokException();
+					throw new InvokException("parameter type mismatch");
 				}
 			}
 		}
