@@ -18,12 +18,11 @@ package com.harmony.modules.jaxws.support;
 import com.harmony.modules.jaxws.JaxWsContext;
 import com.harmony.modules.message.AbstractJmsMessageSender;
 import com.harmony.modules.message.Message;
-import com.harmony.modules.message.MessageSender;
 
 /**
  * @author wuxii@foxmail.com
  */
-public abstract class AbstractJmsContextSend extends AbstractJmsMessageSender implements JaxWsContextSender, MessageSender {
+public abstract class AbstractJmsContextSend extends AbstractJmsMessageSender implements JaxWsContextSender {
 
 	@Override
 	public boolean send(JaxWsContext context) {

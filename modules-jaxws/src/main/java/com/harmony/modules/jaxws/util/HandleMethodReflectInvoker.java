@@ -38,7 +38,7 @@ public class HandleMethodReflectInvoker extends DefaultInvoker implements Handle
 	private Phase phase;
 	private Throwable throwable;
 	private Object result;
-	private Map<String, String> contextMap;
+	private Map<String, Object> contextMap;
 
 	public HandleMethodReflectInvoker() {
 		super();
@@ -152,11 +152,11 @@ public class HandleMethodReflectInvoker extends DefaultInvoker implements Handle
 	}
 
 	@Override
-	public void setContextMap(Map<String, String> contextMap) {
+	public void setContextMap(Map<String, Object> contextMap) {
 		this.contextMap = contextMap;
 	}
 
-	public Map<String, String> getContextMap() {
+	public Map<String, Object> getContextMap() {
 		return contextMap;
 	}
 

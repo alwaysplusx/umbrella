@@ -15,7 +15,11 @@
  */
 package com.harmony.modules.scheduling.jmx;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.harmony.modules.scheduling.Scheduler;
+import com.harmony.modules.scheduling.SchedulerException;
 
 /**
  * 发布JMX的辅助类
@@ -26,76 +30,97 @@ import com.harmony.modules.scheduling.Scheduler;
  */
 public class JMXSchedule implements JMXScheduleMBean {
 
-	private Scheduler schedule;
+    private final static Logger log = LoggerFactory.getLogger(JMXSchedule.class);
+    private Scheduler scheduler;
 
-	public JMXSchedule(Scheduler schedule) {
-		this.schedule = schedule;
-	}
+    @Override
+    public void restartAll() {
+        try {
+            scheduler.restartAll();
+        } catch (SchedulerException e) {
+            log.error("", e);
+        }
+    }
 
-	@Override
-	public void restartAll() {
-		schedule.restartAll();
-	}
+    @Override
+    public void startAll() {
+        try {
+            scheduler.startAll();
+        } catch (SchedulerException e) {
+            log.error("", e);
+        }
+    }
 
-	@Override
-	public void startAll() {
-		schedule.startAll();
-	}
+    @Override
+    public void stopAll() {
+        try {
+            scheduler.stopAll();
+        } catch (SchedulerException e) {
+            log.error("", e);
+        }
+    }
 
-	@Override
-	public void stopAll() {
-		schedule.stopAll();
-	}
+    @Override
+    public void resumeAll() {
+        try {
+            scheduler.resumeAll();
+        } catch (SchedulerException e) {
+            log.error("", e);
+        }
+    }
 
-	@Override
-	public void resumeAll() {
-		schedule.resumeAll();
-	}
+    @Override
+    public void pauseAll() {
+        try {
+            scheduler.pauseAll();
+        } catch (SchedulerException e) {
+            log.error("", e);
+        }
+    }
 
-	@Override
-	public void pauseAll() {
-		schedule.pauseAll();
-	}
+    @Override
+    public void restart(String jobName) {
+        try {
+            scheduler.restart(jobName);
+        } catch (SchedulerException e) {
+            log.error("", e);
+        }
+    }
 
-	@Override
-	public void restart(String jobName) {
-		this.schedule.restart(jobName);
-	}
+    @Override
+    public void start(String jobName) {
+        try {
+            scheduler.start(jobName);
+        } catch (SchedulerException e) {
+            log.error("", e);
+        }
+    }
 
-	@Override
-	public void start(String jobName) {
-		this.schedule.start(jobName);
-	}
+    @Override
+    public void stop(String jobName) {
+        try {
+            scheduler.stop(jobName);
+        } catch (SchedulerException e) {
+            log.error("", e);
+        }
+    }
 
-	@Override
-	public void stop(String jobName) {
-		this.schedule.stop(jobName);
-	}
+    @Override
+    public void pause(String jobName) {
+        try {
+            scheduler.pause(jobName);
+        } catch (SchedulerException e) {
+            log.error("", e);
+        }
+    }
 
-	@Override
-	public void pause(String jobName) {
-		this.schedule.pause(jobName);
-	}
-
-	@Override
-	public void resume(String jobName) {
-		this.schedule.resume(jobName);
-	}
-
-	@Override
-	public String status(String jobName) {
-		if (schedule.isStarted(jobName)) {
-			return "job " + jobName + " is started";
-		}
-		return "not such job " + jobName;
-	}
-
-	public Scheduler getSchedule() {
-		return schedule;
-	}
-
-	public void setSchedule(Scheduler schedule) {
-		this.schedule = schedule;
-	}
+    @Override
+    public void resume(String jobName) {
+        try {
+            scheduler.resume(jobName);
+        } catch (SchedulerException e) {
+            log.error("", e);
+        }
+    }
 
 }

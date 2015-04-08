@@ -22,26 +22,68 @@ package com.harmony.modules.scheduling.jmx;
  */
 public interface JMXScheduleMBean {
 
-	void restartAll();
+    /**
+     * 重新启动所有定时任务
+     */
+    void restartAll();
 
-	void startAll();
+    /**
+     * 启动所有定时任务
+     */
+    void startAll();
 
-	void stopAll();
+    /**
+     * 关闭并移除所有定时任务
+     */
+    void stopAll();
 
-	void resumeAll();
+    /**
+     * 恢复所有挂起的定时任务
+     */
+    void resumeAll();
 
-	void pauseAll();
+    /**
+     * 挂起所有的定时任务
+     */
+    void pauseAll();
 
-	void restart(String jobName);
+    /**
+     * 重启定时任务
+     * 
+     * @param jobName
+     *            任务的job名称
+     */
+    void restart(String jobName);
 
-	void start(String jobName);
+    /**
+     * 启动定时任务
+     * 
+     * @param jobName
+     *            任务的job名称
+     */
+    void start(String jobName);
 
-	void stop(String jobName);
+    /**
+     * 关闭并移除定时任务
+     * 
+     * @param jobName
+     *            任务的job名称
+     */
+    void stop(String jobName);
 
-	void pause(String jobName);
+    /**
+     * 挂起定时任务，定时器空跑不执行job
+     * 
+     * @param jobName
+     *            任务的job名称
+     */
+    void pause(String jobName);
 
-	void resume(String jobName);
-
-	String status(String jobName);
-
+    /**
+     * 恢复定时任务
+     * 
+     * @param jobName
+     *            任务的job名称
+     */
+    void resume(String jobName);
 }

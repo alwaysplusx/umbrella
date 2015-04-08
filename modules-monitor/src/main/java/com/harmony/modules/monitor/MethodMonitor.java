@@ -22,23 +22,25 @@ import java.lang.reflect.Method;
  */
 public interface MethodMonitor extends Monitor {
 
-	void exclude(Method method);
+    void exclude(Method method);
 
-	void include(Method method);
+    void include(Method method);
 
-	boolean isMonitored(Method method);
+    boolean isMonitored(Method method);
 
-	public interface MethodGraph extends Graph {
+    public interface MethodGraph extends Graph {
 
-		Object getTarget();
+        Object getTarget();
 
-		Object[] getArgs();
+        Object[] getArgs();
 
-		Exception getException();
-		
-		String getModule();
-		
-		String getOperator();
+        Method getMethod();
 
-	}
+        Exception getException();
+
+        String getModule();
+
+        String getOperator();
+
+    }
 }

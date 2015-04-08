@@ -85,6 +85,6 @@ public interface HandleMethodInvoker extends Invoker {
 	 * 设置contextMap
 	 * @param contextMap
 	 */
-	void setContextMap(Map<String, String> contextMap);
+	void setContextMap(Map<String, Object> contextMap);
 
 }

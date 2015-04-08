@@ -22,4 +22,18 @@ import javax.servlet.Filter;
  */
 public interface HttpMonitor extends Monitor, Filter {
 
+    public interface HttpGraph extends Graph {
+
+        String getMethod();
+
+        String getRemoteAddr();
+
+        String getLocalAddr();
+
+        String getQueryString();
+
+        int getStatus();
+
+    }
+
 }

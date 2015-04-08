@@ -15,7 +15,6 @@
  */
 package com.harmony.modules.jaxws;
 
-import java.lang.reflect.Method;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -87,34 +86,44 @@ public abstract class JaxWsPhaseExecutor implements JaxWsExecutor {
         T result = null;
         try {
             doBefore(context);
-            LOG.info("执行交互{}", context);
+            LOG.debug("执行交互{}", context);
             long start = System.currentTimeMillis();
             result = executeQuite(context, resultType);
-            LOG.info("交互成功{}, 返回结果[{}], 交互耗时:{}ms", context, result, System.currentTimeMillis() - start);
+            LOG.debug("交互成功{}, 返回结果[{}], 交互耗时:{}ms", context, result, System.currentTimeMillis() - start);
             doCompletion(context, result);
         } catch (Exception e) {
-            LOG.warn("交互失败{}", context);
-            LOG.warn("交互失败原因" + context, e);
+            LOG.warn("交互失败{}", context, e);
             try {
                 doThrowing(context, exception = e);
             } catch (Exception e1) {
                 // ignore
             }
-            if (!hideTrowable) {
-                if (e instanceof RuntimeException) {
-                    throw (RuntimeException) e;
-                }
-                throw new JaxWsException(e);
-            }
+            throwOrHide(e);
         } finally {
             try {
                 doFinally(context, result, exception);
             } catch (Exception e) {
                 // ignore
             }
+            if (context.contains(JaxWsGraph.JAXWS_CONTEXT_GRAPH)) {
+                Object graph = context.get(JaxWsGraph.JAXWS_CONTEXT_GRAPH);
+                LOG.info("执行情况概要如下:{}", graph);
+                try {
+                    persistJaxWsGraph((JaxWsGraph) graph);
+                } catch (Exception e) {
+                    LOG.info("保存失败, JaxWs执行情况无法正常保存", e);
+                }
+            }
         }
         return result;
     }
+
+    /**
+     * {@linkplain JaxWsPhaseExecutor}中没有在{@linkplain JaxWsContext}中设置{@linkplain JaxWsGraph}.
+     * <p>所以子类必须在{@linkplain JaxWsContext}设置{@linkplain JaxWsGraph}.才会进入保存流程.
+     * @param graph
+     */
+    protected abstract void persistJaxWsGraph(JaxWsGraph graph);
 
     @Override
     public Object execute(JaxWsContext context) {
@@ -153,8 +162,13 @@ public abstract class JaxWsPhaseExecutor implements JaxWsExecutor {
         return this.handlers.remove(handler);
     }
 
-    protected Method getServiceMethod(JaxWsContext context) throws NoSuchMethodException {
-        return context.getMethod();
+    protected void throwOrHide(Exception e) {
+        if (!hideTrowable) {
+            if (e instanceof RuntimeException) {
+                throw (RuntimeException) e;
+            }
+            throw new JaxWsException(e);
+        }
     }
 
     private boolean doBefore(JaxWsContext context) {

@@ -41,232 +41,207 @@ import com.harmony.modules.utils.Exceptions;
  */
 public abstract class AbstractHttpMonitor implements HttpMonitor {
 
-	/**
-	 * 受到监视的资源
-	 */
-	private Map<String, Object> monitorList = new HashMap<String, Object>();
-	/**
-	 * 是否开启白名单策略，开启后只拦截在监视名单中的资源
-	 */
-	private boolean useWhiteList;
+    /**
+     * 受到监视的资源
+     */
+    private Map<String, Object> monitorList = new HashMap<String, Object>();
+    /**
+     * 是否开启白名单策略，开启后只拦截在监视名单中的资源
+     */
+    private boolean useWhiteList;
 
-	@Override
-	public void exclude(String resource) {
-		monitorList.remove(resource);
-	}
+    @Override
+    public void exclude(String resource) {
+        monitorList.remove(resource);
+    }
 
-	@Override
-	public void include(String resource) {
-		monitorList.put(resource, null);
-	}
+    @Override
+    public void include(String resource) {
+        monitorList.put(resource, null);
+    }
 
-	@Override
-	public boolean isMonitored(String resource) {
-		if (useWhiteList) {
-			return monitorList.containsKey(resource);
-		}
-		return true;
-	}
+    @Override
+    public boolean isMonitored(String resource) {
+        if (useWhiteList) {
+            return monitorList.containsKey(resource);
+        }
+        return true;
+    }
 
-	@Override
-	public boolean isUseWhiteList() {
-		return useWhiteList;
-	}
+    @Override
+    public boolean isUseWhiteList() {
+        return useWhiteList;
+    }
 
-	@Override
-	public void useWhiteList(boolean use) {
-		this.useWhiteList = use;
-	}
+    @Override
+    public void useWhiteList(boolean use) {
+        this.useWhiteList = use;
+    }
 
-	@Override
-	public String[] getMonitorList() {
-		Set<String> set = monitorList.keySet();
-		return set.toArray(new String[set.size()]);
-	}
+    @Override
+    public String[] getMonitorList() {
+        Set<String> set = monitorList.keySet();
+        return set.toArray(new String[set.size()]);
+    }
 
-	@Override
-	public void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain) throws IOException, ServletException {
-		HttpServletRequest request = (HttpServletRequest) req;
-		HttpServletResponse response = (HttpServletResponse) resp;
-		String resource = MonitorUtils.requestIdentifie(request);
-		if (isMonitored(resource)) {
-			HttpGraph graph = new HttpGraph(resource);
-			graph.setRequestArguments(request);
-			try {
-				chain.doFilter(request, response);
-				graph.setResponseResult(request);
-			} catch (Exception e) {
-				graph.setException(e);
-				if (e instanceof IOException) {
-					throw (IOException) e;
-				}
-				if (e instanceof ServletException) {
-					throw (ServletException) e;
-				}
-				throw Exceptions.unchecked(e);
-			} finally {
-				graph.setResponseTime(Calendar.getInstance());
-				persistGraph(graph);
-			}
-			return;
-		}
-		chain.doFilter(request, response);
-	}
+    @Override
+    public void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain) throws IOException, ServletException {
+        HttpServletRequest request = (HttpServletRequest) req;
+        HttpServletResponse response = (HttpServletResponse) resp;
+        String resource = MonitorUtils.requestIdentifie(request);
+        if (isMonitored(resource)) {
+            HttpGraphImpl graph = new HttpGraphImpl(resource);
+            graph.setRequestArguments(request);
+            try {
+                chain.doFilter(request, response);
+                graph.setResponseResult(request, response);
+            } catch (Exception e) {
+                graph.setException(e);
+                if (e instanceof IOException) {
+                    throw (IOException) e;
+                }
+                if (e instanceof ServletException) {
+                    throw (ServletException) e;
+                }
+                throw Exceptions.unchecked(e);
+            } finally {
+                graph.setResponseTime(Calendar.getInstance());
+                persistGraph(graph);
+            }
+            return;
+        }
+        chain.doFilter(request, response);
+    }
 
-	@Override
-	public void init(FilterConfig filterConfig) throws ServletException {
-	}
+    @Override
+    public void init(FilterConfig filterConfig) throws ServletException {
+    }
 
-	@Override
-	public void destroy() {
-	}
+    @Override
+    public void destroy() {
+    }
 
-	protected abstract void persistGraph(HttpGraph graph);
+    protected abstract void persistGraph(HttpGraph graph);
 
-	protected class HttpGraph implements Graph {
+    protected class HttpGraphImpl extends AbstractGraph implements HttpGraph {
 
-		private String identifie;
-		private Calendar requestTime = Calendar.getInstance();
-		private Calendar responseTime;
-		private Map<String, Object> result;
-		private Map<String, Object> arguments;
-		private Exception exception;
+        private String method;
+        private String remoteAddr;
+        private String localAddr;
+        private String queryString;
+        private int status;
 
-		public HttpGraph() {
-			super();
-		}
+        public HttpGraphImpl(String resource) {
+            this.identifie = resource;
+            this.result = new HashMap<String, Object>();
+        }
 
-		public HttpGraph(String identifie) {
-			super();
-			this.identifie = identifie;
-		}
+        @Override
+        public String getMethod() {
+            return method;
+        }
 
-		@Override
-		public String getIdentifie() {
-			return identifie;
-		}
+        @Override
+        public String getRemoteAddr() {
+            return remoteAddr;
+        }
 
-		@Override
-		public Calendar getRequestTime() {
-			return requestTime;
-		}
+        @Override
+        public String getLocalAddr() {
+            return localAddr;
+        }
 
-		@Override
-		public Calendar getResponseTime() {
-			return responseTime;
-		}
+        @Override
+        public String getQueryString() {
+            return queryString;
+        }
 
-		@Override
-		public Object getResult() {
-			return result;
-		}
+        @Override
+        public int getStatus() {
+            return status;
+        }
 
-		@Override
-		public Map<String, Object> getArguments() {
-			return arguments;
-		}
+        public void setMethod(String method) {
+            this.method = method;
+        }
 
-		@Override
-		public boolean isException() {
-			return exception != null;
-		}
+        public void setRemoteAddr(String remoteAddr) {
+            this.remoteAddr = remoteAddr;
+        }
 
-		@Override
-		public String getExceptionMessage() {
-			return isException() ? exception.getMessage() : null;
-		}
+        public void setLocalAddr(String localAddr) {
+            this.localAddr = localAddr;
+        }
 
-		@Override
-		public String getCause() {
-			return isException() ? Exceptions.getRootCause(exception).getMessage() : null;
-		}
+        public void setQueryString(String queryString) {
+            this.queryString = queryString;
+        }
 
-		public Exception getException() {
-			return exception;
-		}
+        public void setStatus(int status) {
+            this.status = status;
+        }
 
-		public void setException(Exception exception) {
-			this.exception = exception;
-		}
+        @Override
+        @Deprecated
+        public void setArguments(Map<String, Object> arguments) {
+            super.setArguments(arguments);
+        }
+        
+        @Override
+        @Deprecated
+        public void setResult(Object result) {
+            super.setResult(result);
+        }
+        
+        public void setRequestArguments(HttpServletRequest request) {
+            this.remoteAddr = request.getRemoteAddr();
+            this.localAddr = request.getLocalAddr();
+            this.method = request.getMethod();
+            this.queryString = request.getQueryString();
+            Map<String, Object> sessionAttrMap = new HashMap<String, Object>();
+            Map<String, Object> reqAttrMap = new HashMap<String, Object>();
+            arguments.put("parameter", request.getParameterMap());
+            arguments.put("sessionAttribute", sessionAttrMap);
+            arguments.put("requestAttribute", reqAttrMap);
+            for (Enumeration<String> names = request.getAttributeNames(); names.hasMoreElements();) {
+                String name = names.nextElement();
+                reqAttrMap.put(name, request.getAttribute(name));
+            }
+            HttpSession session = request.getSession();
+            for (Enumeration<String> names = session.getAttributeNames(); names.hasMoreElements();) {
+                String name = names.nextElement();
+                sessionAttrMap.put(name, session.getAttribute(name));
+            }
+        }
 
-		public void setIdentifie(String identifie) {
-			this.identifie = identifie;
-		}
+        @SuppressWarnings("unchecked")
+        public void setResponseResult(HttpServletRequest request, HttpServletResponse response) {
+            this.status = response.getStatus();
+            Map<String, Object> sessionAttrMap = new HashMap<String, Object>();
+            Map<String, Object> reqAttrMap = new HashMap<String, Object>();
+            ((Map<String, Object>) result).put("sessionAttribute", sessionAttrMap);
+            ((Map<String, Object>) result).put("requestAttribute", reqAttrMap);
+            // 请求时候request中的attribute
+            Map<String, Object> requestAttrMap = (Map<String, Object>) arguments.get("requestAttribute");
+            for (Enumeration<String> names = request.getAttributeNames(); names.hasMoreElements();) {
+                String name = names.nextElement();
+                if (requestAttrMap.containsKey(name) && nullSafeEquals(request.getAttribute(name), requestAttrMap.get(name))) {
+                    continue;
+                }
+                reqAttrMap.put(name, request.getAttribute(name));
+            }
+            // 请求时候的session中的attribute
+            Map<String, Object> requestSessionAttrMap = (Map<String, Object>) arguments.get("sessionAttribute");
+            HttpSession session = request.getSession();
+            for (Enumeration<String> names = session.getAttributeNames(); names.hasMoreElements();) {
+                String name = names.nextElement();
+                if (requestSessionAttrMap.containsKey(name) && nullSafeEquals(session.getAttribute(name), requestSessionAttrMap.get(name))) {
+                    continue;
+                }
+                sessionAttrMap.put(name, session.getAttribute(name));
+            }
+        }
 
-		public void setRequestTime(Calendar requestTime) {
-			this.requestTime = requestTime;
-		}
+    }
 
-		public void setResponseTime(Calendar responseTime) {
-			this.responseTime = responseTime;
-		}
-
-		public void setRequestArguments(HttpServletRequest request) {
-			Map<String, Object> sessionAttrMap = new HashMap<String, Object>();
-			Map<String, Object> reqAttrMap = new HashMap<String, Object>();
-			arguments.put("parameter", request.getParameterMap());
-			arguments.put("sessionAttribute", sessionAttrMap);
-			arguments.put("requestAttribute", reqAttrMap);
-
-			for (Enumeration<String> names = request.getAttributeNames(); names.hasMoreElements();) {
-				String name = names.nextElement();
-				reqAttrMap.put(name, request.getAttribute(name));
-			}
-
-			HttpSession session = request.getSession();
-			for (Enumeration<String> names = session.getAttributeNames(); names.hasMoreElements();) {
-				String name = names.nextElement();
-				sessionAttrMap.put(name, session.getAttribute(name));
-			}
-
-		}
-
-		public void setResponseResult(HttpServletRequest request) {
-			Map<String, Object> sessionAttrMap = new HashMap<String, Object>();
-			Map<String, Object> reqAttrMap = new HashMap<String, Object>();
-			result.put("sessionAttribute", sessionAttrMap);
-			result.put("requestAttribute", reqAttrMap);
-			{
-				Map<String, Object> requestAttrMap = getRequestAttrMap();
-				for (Enumeration<String> names = request.getAttributeNames(); names.hasMoreElements();) {
-					String name = names.nextElement();
-					if (requestAttrMap.containsKey(name) && nullSafeEquals(request.getAttribute(name), requestAttrMap.get(name))) {
-						continue;
-					}
-					reqAttrMap.put(name, request.getAttribute(name));
-				}
-			}
-			{
-				Map<String, Object> requestSessionAttrMap = getRequestSessionAttrMap();
-				HttpSession session = request.getSession();
-				for (Enumeration<String> names = session.getAttributeNames(); names.hasMoreElements();) {
-					String name = names.nextElement();
-					if (requestSessionAttrMap.containsKey(name) && nullSafeEquals(session.getAttribute(name), requestSessionAttrMap.get(name))) {
-						continue;
-					}
-					sessionAttrMap.put(name, session.getAttribute(name));
-				}
-			}
-
-		}
-
-		@SuppressWarnings("unchecked")
-		private Map<String, Object> getRequestAttrMap() {
-			return (Map<String, Object>) arguments.get("requestAttribute");
-		}
-
-		@SuppressWarnings("unchecked")
-		private Map<String, Object> getRequestSessionAttrMap() {
-			return (Map<String, Object>) arguments.get("sessionAttribute");
-		}
-
-		@Override
-		public long use() {
-			if (requestTime != null && responseTime != null) {
-				return responseTime.getTimeInMillis() - requestTime.getTimeInMillis();
-			}
-			return -1;
-		}
-
-	}
 }

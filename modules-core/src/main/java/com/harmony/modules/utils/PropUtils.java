@@ -23,7 +23,7 @@ import java.util.Properties;
  * 属性加载工具
  * @author wuxii@foxmail.com
  */
-public class PropUtils {
+public abstract class PropUtils {
 
     /**
      * 加载指定文件下的资源文件

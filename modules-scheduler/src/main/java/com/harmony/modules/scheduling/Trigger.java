@@ -23,20 +23,20 @@ package com.harmony.modules.scheduling;
  */
 public interface Trigger {
 
-	public String getSeconds();
+    public String getYears();
 
-	public String getMinutes();
+    public String getMonths();
 
-	public String getHours();
+    public String getDayOfMonth();
 
-	public String getDayOfMonth();
+    public String getDayOfWeek();
 
-	public String getMonths();
+    public String getHours();
 
-	public String getDayOfWeek();
+    public String getMinutes();
 
-	public String getYears();
+    public String getSeconds();
 
-	public long getDelay();
+    public long getDelay();
 
 }

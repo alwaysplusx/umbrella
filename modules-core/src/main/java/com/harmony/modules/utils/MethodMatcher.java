@@ -26,7 +26,7 @@ import java.util.List;
  * 
  * @author wuxii@foxmail.com
  */
-public class MethodMatcher {
+public abstract class MethodMatcher {
 
 	/**
 	 * 根据方法名过滤出source中符合方法名的方法

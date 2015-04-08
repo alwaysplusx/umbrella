@@ -29,7 +29,7 @@ import java.util.Map;
 public class SimpleJaxWsContext implements JaxWsContext, Serializable {
 
 	private static final long serialVersionUID = -7702092080209756058L;
-	private Map<String, String> headers = new HashMap<String, String>();
+	private Map<String, Object> contextMap = new HashMap<String, Object>();
 	private Class<?> serviceInterface;
 	private String methodName;
 	private Object[] parameters;
@@ -74,7 +74,7 @@ public class SimpleJaxWsContext implements JaxWsContext, Serializable {
 	}
 
 	public void put(String name, String value) {
-		headers.put(name, value);
+		contextMap.put(name, value);
 	}
 
 	@Override
@@ -105,17 +105,17 @@ public class SimpleJaxWsContext implements JaxWsContext, Serializable {
 	}
 
 	@Override
-	public String get(String name) {
-		return headers.get(name);
+	public Object get(String name) {
+		return contextMap.get(name);
 	}
 
 	@Override
 	public boolean contains(String name) {
-		return headers.containsKey(name);
+		return contextMap.containsKey(name);
 	}
 
-	public void putAll(Map<String, String> m) {
-		this.headers.putAll(m);
+	public void putAll(Map<String, Object> m) {
+		this.contextMap.putAll(m);
 	}
 
 	@Override
@@ -143,12 +143,18 @@ public class SimpleJaxWsContext implements JaxWsContext, Serializable {
 		}
 	}
 
-	@Override
-	public Map<String, String> getContextMap() {
-		HashMap<String, String> contextMap = new HashMap<String, String>();
-		contextMap.putAll(headers);
-		return contextMap;
-	}
+    @Override
+    public Map<String, Object> getContextMap() {
+        HashMap<String, Object> result = new HashMap<String, Object>();
+        result.putAll(contextMap);
+        return result;
+    }
+
+    @Override
+    public void put(String key, Object value) {
+        contextMap.put(key, value);
+    }
+
 
 	protected Class<?>[] toParameterTypes(Object[] args) {
 		Class<?>[] parameterTypes = new Class<?>[0];
@@ -167,7 +173,7 @@ public class SimpleJaxWsContext implements JaxWsContext, Serializable {
 	@Override
 	public Enumeration<String> getContextHeaderNames() {
 		return new Enumeration<String>() {
-			Iterator<String> it = headers.keySet().iterator();
+			Iterator<String> it = contextMap.keySet().iterator();
 
 			@Override
 			public boolean hasMoreElements() {

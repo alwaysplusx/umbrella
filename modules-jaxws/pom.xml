@@ -9,17 +9,24 @@
 	</parent>
 	<dependencies>
 		<dependency>
-			<groupId>org.apache.cxf</groupId>
-			<artifactId>cxf-rt-frontend-jaxws</artifactId>
+			<groupId>com.harmony.modules</groupId>
+			<artifactId>modules-core</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>asm</groupId>
-			<artifactId>asm</artifactId>
-			<scope>provided</scope>
+			<groupId>org.apache.cxf</groupId>
+			<artifactId>cxf-rt-frontend-jaxws</artifactId>
+			<exclusions>
+				<exclusion>
+					<artifactId>asm</artifactId>
+					<groupId>asm</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.cxf</groupId>
 			<artifactId>cxf-rt-transports-http</artifactId>
+			<scope>compile</scope>
+			<optional>true</optional>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.cxf</groupId>
@@ -27,22 +34,16 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-api</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.harmony.modules</groupId>
-			<artifactId>modules-core</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>com.harmony.modules</groupId>
 			<artifactId>modules-message</artifactId>
-			<scope>provided</scope>
+			<scope>compile</scope>
+			<optional>true</optional>
 		</dependency>
 		<dependency>
 			<groupId>com.harmony.modules</groupId>
 			<artifactId>modules-monitor</artifactId>
-			<scope>provided</scope>
+			<scope>compile</scope>
+			<optional>true</optional>
 		</dependency>
 		<dependency>
 			<groupId>javax.ejb</groupId>

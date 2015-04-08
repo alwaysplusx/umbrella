@@ -13,19 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.modules.jaxws.jpa.entity;
+package com.harmony.modules.jaxws;
+
+import com.harmony.modules.monitor.MethodMonitor.MethodGraph;
 
 /**
- * @author wuxii
+ * 监视扩展，将jaxws的运行情况保存到数据库或者其他方式存储起来
+ * @author wuxii@foxmail.com
  */
-public interface JaxWsMetadata {
+public interface JaxWsGraph extends MethodGraph {
 
-    Class<?> getServiceInterface();
-
-    String getAddress();
-
-    String getUsername();
-
-    String getPassword();
+    String JAXWS_CONTEXT_GRAPH = JaxWsGraph.class.getName() + ".graph";
 
 }

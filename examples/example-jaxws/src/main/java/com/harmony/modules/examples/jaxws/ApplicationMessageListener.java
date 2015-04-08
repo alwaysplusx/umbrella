@@ -26,12 +26,12 @@ import javax.ejb.MessageDriven;
 import javax.jms.JMSException;
 import javax.jms.ObjectMessage;
 
-import com.harmony.modules.bean.BeanLoader;
-import com.harmony.modules.bean.ClassBeanLoader;
+import com.harmony.modules.core.BeanLoader;
+import com.harmony.modules.core.ClassBeanLoader;
+import com.harmony.modules.core.ClassFilter;
 import com.harmony.modules.io.utils.ResourceScaner;
 import com.harmony.modules.message.AbstractMessageListener;
 import com.harmony.modules.message.MessageResolver;
-import com.harmony.modules.utils.ClassFilter;
 
 /**
  * @author wuxii
