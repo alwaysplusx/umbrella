@@ -7,29 +7,31 @@
 	<packaging>pom</packaging>
 	<modules>
 		<module>modules-core</module>
-		<!-- <module>modules-io</module> -->
-		<!-- <module>modules-context</module> -->
-		<!-- <module>modules-util</module> -->
 		<module>modules-jaxws</module>
 		<module>modules-message</module>
 		<module>modules-monitor</module>
 		<module>modules-scheduler</module>
 		<module>modules-security</module>
-		<module>modules-query</module>
 		<module>modules-data</module>
 		<!-- <module>examples</module> -->
 		<module>modules-all</module>
 	</modules>
 	<properties>
-	    <jdk.version>1.6</jdk.version>
+		<jdk.version>1.6</jdk.version>
 		<slf4j.version>1.7.7</slf4j.version>
-		<asm.version>3.3.1</asm.version>
+		<asm.version>5.0.3</asm.version>
+		<h2.version>1.4.181</h2.version>
 		<javax.ejb.version>3.2</javax.ejb.version>
+		<javax.persistence.version>2.1.0</javax.persistence.version>
 		<javax.jms.version>1.1</javax.jms.version>
 		<javax.servlet.version>3.1.0</javax.servlet.version>
 		<javax.interceptor.version>1.2</javax.interceptor.version>
 		<apache.cxf.version>3.0.2</apache.cxf.version>
 		<apache.openejb.version>4.7.1</apache.openejb.version>
+		<springframework.version>4.1.6.RELEASE</springframework.version>
+		<springframework.data.version>1.10.0.RELEASE</springframework.data.version>
+		<springframework.data.jpa.version>1.8.0.RELEASE</springframework.data.jpa.version>
+		<hibernate.version>4.3.8.Final</hibernate.version>
 		<junit.version>4.11</junit.version>
 	</properties>
 	<dependencyManagement>
@@ -90,13 +92,100 @@
 			</dependency>
 			<!-- slf4j END -->
 
+			<!-- h2 START -->
+			<dependency>
+				<groupId>com.h2database</groupId>
+				<artifactId>h2</artifactId>
+				<version>${h2.version}</version>
+			</dependency>
+			<!-- h2 END -->
+
 			<!-- asm START -->
 			<dependency>
-				<groupId>asm</groupId>
+				<groupId>org.ow2.asm</groupId>
 				<artifactId>asm</artifactId>
 				<version>${asm.version}</version>
 			</dependency>
 			<!-- asm START -->
+
+			<!-- springframework START -->
+			<dependency>
+				<groupId>org.springframework</groupId>
+				<artifactId>spring-aop</artifactId>
+				<version>${springframework.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework</groupId>
+				<artifactId>spring-beans</artifactId>
+				<version>${springframework.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework</groupId>
+				<artifactId>spring-core</artifactId>
+				<version>${springframework.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework</groupId>
+				<artifactId>spring-context</artifactId>
+				<version>${springframework.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework</groupId>
+				<artifactId>spring-expression</artifactId>
+				<version>${springframework.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework</groupId>
+				<artifactId>spring-jdbc</artifactId>
+				<version>${springframework.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework</groupId>
+				<artifactId>spring-orm</artifactId>
+				<version>${springframework.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework</groupId>
+				<artifactId>spring-tx</artifactId>
+				<version>${springframework.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework</groupId>
+				<artifactId>spring-test</artifactId>
+				<version>${springframework.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework</groupId>
+				<artifactId>spring-web</artifactId>
+				<version>${springframework.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework</groupId>
+				<artifactId>spring-wevmvc</artifactId>
+				<version>${springframework.version}</version>
+			</dependency>
+			<!-- springframework END -->
+
+			<!-- springframework data START -->
+			<dependency>
+				<groupId>org.springframework.data</groupId>
+				<artifactId>spring-data-jpa</artifactId>
+				<version>${springframework.data.jpa.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework.data</groupId>
+				<artifactId>spring-data-commons</artifactId>
+				<version>${springframework.data.version}</version>
+			</dependency>
+			<!-- springframework data END -->
+
+			<!-- hibernate START -->
+			<dependency>
+				<groupId>org.hibernate</groupId>
+				<artifactId>hibernate-entitymanager</artifactId>
+				<version>${hibernate.version}</version>
+			</dependency>
+			<!-- hibernate END -->
 
 			<!-- cxf START -->
 			<dependency>
@@ -129,6 +218,11 @@
 				<groupId>javax.ejb</groupId>
 				<artifactId>javax.ejb-api</artifactId>
 				<version>${javax.ejb.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.eclipse.persistence</groupId>
+				<artifactId>javax.persistence</artifactId>
+				<version>${javax.persistence.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>javax.jms</groupId>

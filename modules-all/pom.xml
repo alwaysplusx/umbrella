@@ -31,10 +31,6 @@
 		</dependency>
 		<dependency>
 			<groupId>com.harmony.modules</groupId>
-			<artifactId>modules-query</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.harmony.modules</groupId>
 			<artifactId>modules-scheduler</artifactId>
 		</dependency>
 		<dependency>
@@ -62,7 +58,6 @@
 									<include>com.harmony.modules:modules-jaxws</include>
 									<include>com.harmony.modules:modules-message</include>
 									<include>com.harmony.modules:modules-monitor</include>
-									<include>com.harmony.modules:modules-query</include>
 									<include>com.harmony.modules:modules-scheduler</include>
 									<include>com.harmony.modules:modules-security</include>
 								</includes>
