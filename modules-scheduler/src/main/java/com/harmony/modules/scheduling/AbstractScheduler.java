@@ -23,23 +23,60 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * Scheduler基础抽象类
  * @author wuxii@foxmail.com
  */
 public abstract class AbstractScheduler<T extends Scheduler.JobInfo> implements Scheduler {
 
     protected static final Logger log = LoggerFactory.getLogger(AbstractScheduler.class);
+    
     protected Map<String, T> jobInfoMap = new HashMap<String, T>();
-
+    
+    /**
+     * 初始化方法，用于加载job
+     * @throws SchedulerException
+     */
+    protected abstract void init() throws SchedulerException;
+    
+    /**
+     * 根据jobName启动对应的任务
+     * @param jobName
+     * @param jobInfo
+     */
     protected abstract void doStart(String jobName, T jobInfo);
 
+    /**
+     * 根据jobName关闭对应的任务
+     * @param jobName
+     * @param jobInfo
+     */
     protected abstract void doStop(String jobName, T jobInfo);
 
+    /**
+     * 根据jobName挂起对应的任务
+     * @param jobName
+     * @param jobInfo
+     */
     protected abstract void doPause(String jobName, T jobInfo);
 
+    /**
+     * 根据jobName将挂起的任务重新启动
+     * @param jobName
+     * @param jobInfo
+     */
     protected void doResume(String jobName, T jobInfo) {
         // empty implement
     }
-
+    
+    /**
+     * 在销毁Scheduler时候调用
+     */
+    protected void destory() {
+        for (JobInfo jobInfo : jobInfoMap.values()) {
+            jobInfo.dump();
+        }
+    }
+    
     @Override
     public void start(String jobName) {
         if (hasJob(jobName) && !isStarted(jobName)) {
@@ -124,6 +161,10 @@ public abstract class AbstractScheduler<T extends Scheduler.JobInfo> implements 
         }
     }
 
+    /**
+     * 给出所有在启动的时{@linkplain #init()}加载job名称
+     * @return
+     */
     public String[] getJobNames() {
         Set<String> names = jobInfoMap.keySet();
         return names.toArray(new String[names.size()]);

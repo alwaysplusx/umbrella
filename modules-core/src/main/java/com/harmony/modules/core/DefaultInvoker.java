@@ -23,6 +23,9 @@ import java.lang.reflect.Method;
 
 import com.harmony.modules.utils.Exceptions;
 
+/**
+ * @author wuxii@foxmail.com
+ */
 public class DefaultInvoker implements Invoker, Serializable {
 
 	private static final long serialVersionUID = 5408528044216944899L;

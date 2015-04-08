@@ -53,6 +53,7 @@ public class PropertiesFileEJBScheduler extends AbstractEJBScheduler {
 
     @Resource
     private TimerService timerService;
+    
     private BeanLoader beanLoader = new ClassBeanLoader();
 
     @PostConstruct

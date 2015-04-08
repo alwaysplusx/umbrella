@@ -31,6 +31,7 @@ import com.harmony.modules.jaxws.JaxWsException;
 import com.harmony.modules.jaxws.JaxWsGraph;
 import com.harmony.modules.jaxws.JaxWsPhaseExecutor;
 import com.harmony.modules.jaxws.util.JaxWsInvoker;
+import com.harmony.modules.monitor.AbstractGraph;
 import com.harmony.modules.monitor.support.MethodMonitorInterceptor.Monitored;
 import com.harmony.modules.monitor.util.MonitorUtils;
 import com.harmony.modules.utils.Exceptions;
@@ -55,9 +56,9 @@ public class JaxWsCXFExecutor extends JaxWsPhaseExecutor {
             Method method = context.getMethod();
             Object proxy = loadProxy(context);
             Object[] parameters = context.getParameters();
-            graph.setMethod(method);
-            graph.setTarget(proxy);
-            graph.setArgs(parameters);
+            graph.method = method;
+            graph.target = proxy;
+            graph.args = parameters;
             result = (T) invoker.invoke(proxy, method, parameters);
             graph.setResult(result);
         } catch (NoSuchMethodException e) {
@@ -103,6 +104,11 @@ public class JaxWsCXFExecutor extends JaxWsPhaseExecutor {
         this.cacheable = cacheable;
     }
 
+    /**
+     * 设置执行交互的{@linkplain Invoker}
+     * <p>默认是{@linkplain JaxWsInvoker}
+     * @param invoker
+     */
     public void setInvoker(Invoker invoker) {
         this.invoker = invoker;
     }
@@ -113,8 +119,7 @@ public class JaxWsCXFExecutor extends JaxWsPhaseExecutor {
      * @return
      */
     protected Object createProxy(JaxWsContext context) {
-        return newProxyBuilder()
-                .setAddress(context.getAddress())
+        return newProxyBuilder().setAddress(context.getAddress())
                 .setUsername(context.getUsername())
                 .setPassword(context.getPassword())
                 .build(context.getServiceInterface());
@@ -138,6 +143,7 @@ public class JaxWsCXFExecutor extends JaxWsPhaseExecutor {
     }
 
     private static class JaxWsContextKey {
+        
         private String serviceName;
         private String address;
         private String username;
@@ -194,15 +200,11 @@ public class JaxWsCXFExecutor extends JaxWsPhaseExecutor {
         }
     }
 
-    protected class JaxWsGraphImpl implements JaxWsGraph {
+    protected class JaxWsGraphImpl extends AbstractGraph implements JaxWsGraph {
 
         private Object target;
         private Method method;
         private Object[] args;
-        private Object result;
-        private Calendar requestTime = Calendar.getInstance();
-        private Calendar responseTime;
-        private Exception exception;
 
         public JaxWsGraphImpl() {
             super();
@@ -225,21 +227,6 @@ public class JaxWsCXFExecutor extends JaxWsPhaseExecutor {
         }
 
         @Override
-        public Calendar getRequestTime() {
-            return requestTime;
-        }
-
-        @Override
-        public Calendar getResponseTime() {
-            return responseTime;
-        }
-
-        @Override
-        public Object getResult() {
-            return result;
-        }
-
-        @Override
         public Map<String, Object> getArguments() {
             Map<String, Object> arguments = new HashMap<String, Object>();
             if (args != null) {
@@ -251,58 +238,17 @@ public class JaxWsCXFExecutor extends JaxWsPhaseExecutor {
         }
 
         @Override
-        public boolean isException() {
-            return exception != null;
-        }
-
-        @Override
-        public String getExceptionMessage() {
-            return isException() ? exception.getMessage() : null;
-        }
-
-        @Override
-        public String getCause() {
-            return isException() ? Exceptions.getRootCause(exception).getMessage() : null;
+        @Deprecated
+        public void setArguments(Map<String, Object> arguments) {
+            super.setArguments(arguments);
         }
 
         public Method getMethod() {
             return method;
         }
 
-        public void setMethod(Method method) {
-            this.method = method;
-        }
-
         public Object[] getArgs() {
             return args;
-        }
-
-        public void setArgs(Object[] args) {
-            this.args = args;
-        }
-
-        public Exception getException() {
-            return exception;
-        }
-
-        public void setException(Exception exception) {
-            this.exception = exception;
-        }
-
-        public void setRequestTime(Calendar requestTime) {
-            this.requestTime = requestTime;
-        }
-
-        public void setResponseTime(Calendar responseTime) {
-            this.responseTime = responseTime;
-        }
-
-        public void setTarget(Object target) {
-            this.target = target;
-        }
-
-        public void setResult(Object result) {
-            this.result = result;
         }
 
         @Override
@@ -321,14 +267,6 @@ public class JaxWsCXFExecutor extends JaxWsPhaseExecutor {
                 return ann.operator();
             }
             return null;
-        }
-
-        @Override
-        public long use() {
-            if (requestTime != null && responseTime != null) {
-                return responseTime.getTimeInMillis() - requestTime.getTimeInMillis();
-            }
-            return -1;
         }
 
         @Override

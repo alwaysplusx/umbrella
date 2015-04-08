@@ -29,6 +29,7 @@ import com.harmony.modules.scheduling.SchedulerException;
 import com.harmony.modules.scheduling.Trigger;
 
 /**
+ * TODO 未完成
  * @author wuxii@foxmail.com
  */
 @Stateless
@@ -51,7 +52,6 @@ public class JpaEntityEJBScheduler extends AbstractEJBScheduler {
 
     @Override
     protected void init() throws SchedulerException {
-        // TODO 加载job
     }
 
     @Override
@@ -62,7 +62,6 @@ public class JpaEntityEJBScheduler extends AbstractEJBScheduler {
 
     @Override
     protected Trigger getJobTrigger(String jobName) {
-        // TODO 获取表达式
         return null;
     }
 

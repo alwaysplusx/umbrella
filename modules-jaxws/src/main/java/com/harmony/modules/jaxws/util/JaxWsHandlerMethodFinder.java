@@ -178,13 +178,6 @@ public class JaxWsHandlerMethodFinder {
 	/**
 	 * 主要检查handleMethod对应的方法参数是否符合serviceMethod的方法参数要求.
 	 * <p>handlerMethod可以在最后添加一个Map参数(非必要)
-	 *   <p>各个Phase的方法参数要求说明：
-	 *   <pre>
-	 *  {@linkplain Phase#PRE_INVOKE}:可以为serviceMethod的方法参数，各个参数类型可以为serviceMethod参数的父类. 
-	 *  在所有参数最后可以添加Map表示Context，但这个参数是非必要的。
-	 *  
-	 *  {@linkplain Phase#ABORT}:
-	 *  </pre>
 	 * @param serviceMethod
 	 * @param handleMethod
 	 * @param phase

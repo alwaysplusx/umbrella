@@ -74,22 +74,21 @@ public interface JaxWsContext extends Serializable {
     String getAddress();
 
     /**
-     * 在context上下文通过{@link JaxWsContext#USERNAME}获得
-     * 
+     * 用户名<p>
+     * 可在context上下文通过{@link JaxWsContext#USERNAME}获得
      * @return 用户名
      */
     String getUsername();
 
     /**
-     * 在context上下文通过{@link JaxWsContext#PASSWORD}获得
-     * 
+     * 用户密码<p>
+     * 可在context上下文通过{@link JaxWsContext#PASSWORD}获得
      * @return 密码
      */
     String getPassword();
 
     /**
      * 在上下文中获取属性值
-     * 
      * @param contextKey
      *            检索键
      * @return 上下文中的值
@@ -100,7 +99,7 @@ public interface JaxWsContext extends Serializable {
      * 上下文中是否包含检索条件
      * 
      * @param contextKey
-     * @return true 包含， false 不包含
+     * @return 
      */
     boolean contains(String contextKey);
 
@@ -114,11 +113,10 @@ public interface JaxWsContext extends Serializable {
     Method getMethod() throws NoSuchMethodException;
 
     /**
-     * 上下文中的head名称
-     * 
+     * 上下文中的其他属性
      * @return
      */
-    Enumeration<String> getContextHeaderNames();
+    Enumeration<String> getContextNames();
 
     /**
      * 当前执行环境的Context, 返回的ContextMap与原有脱离. 修改作为返回值的Map不会对当前context照成影响

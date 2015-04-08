@@ -20,6 +20,7 @@ import java.util.StringTokenizer;
 import com.harmony.modules.scheduling.Trigger;
 
 /**
+ * 基础的trigger表达式
  * @author wuxii@foxmail.com
  */
 public class ExpressionTrigger implements Trigger {
@@ -33,6 +34,12 @@ public class ExpressionTrigger implements Trigger {
         StringTokenizer token = new StringTokenizer(expression, " ");
         for (int i = 0, max = expressions.length; i < max && token.hasMoreTokens(); i++) {
             expressions[i] = token.nextToken();
+        }
+    }
+
+    public ExpressionTrigger(String... exp) {
+        for (int i = 0, max = expressions.length; i < max && i < exp.length; i++) {
+            expressions[i] = exp[i];
         }
     }
 

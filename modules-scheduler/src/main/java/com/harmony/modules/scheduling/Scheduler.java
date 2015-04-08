@@ -146,6 +146,9 @@ public interface Scheduler {
      */
     JobInfo getJobInfo(String jobName);
 
+    /**
+     * 定时任务Job所处在的状态
+     */
     public enum Status {
         READY, START, PAUSE, STOP;
     }

@@ -15,10 +15,11 @@
  */
 package com.harmony.modules.monitor;
 
+import static com.harmony.modules.utils.DateFormat.*;
+
 import java.util.Calendar;
 import java.util.Map;
 
-import com.harmony.modules.utils.DateFormat;
 import com.harmony.modules.utils.Exceptions;
 
 /**
@@ -27,10 +28,10 @@ import com.harmony.modules.utils.Exceptions;
 public class AbstractGraph implements Graph {
 
     protected String identifie;
+    protected Map<String, Object> arguments;
+    protected Object result;
     protected Calendar requestTime;
     protected Calendar responseTime;
-    protected Object result;
-    protected Map<String, Object> arguments;
     protected Exception exception;
 
     @Override
@@ -111,8 +112,9 @@ public class AbstractGraph implements Graph {
 
     @Override
     public String toString() {
-        return "{identifie:" + getIdentifie() + ", result:" + result + ", use:" + use() + " requestTime:" + DateFormat.FULL_DATEFORMAT.format(requestTime)
-                + ", responseTime:" + DateFormat.FULL_DATEFORMAT.format(responseTime) + ", exception:" + isException() + ", exceptionMessage:"
-                + getExceptionMessage() + "}";
+        return "{\"identifie\":\"" + identifie + "\", \"arguments\":\"" + arguments + "\", \"result\":\"" + result + "\", \"requestTime\":\""
+                + FULL_DATEFORMAT.format(requestTime) + "\", \"responseTime\":\"" + FULL_DATEFORMAT.format(responseTime) + "\", \"exception\":\""
+                + isException() + "\"}";
     }
+
 }

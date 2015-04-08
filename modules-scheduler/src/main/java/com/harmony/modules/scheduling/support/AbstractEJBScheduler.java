@@ -27,30 +27,39 @@ import com.harmony.modules.core.BeanLoader;
 import com.harmony.modules.scheduling.AbstractScheduler;
 import com.harmony.modules.scheduling.Job;
 import com.harmony.modules.scheduling.Scheduler;
-import com.harmony.modules.scheduling.SchedulerException;
 import com.harmony.modules.scheduling.Trigger;
 import com.harmony.modules.utils.Exceptions;
 
 /**
+ * 基于EJB定时任务的抽象类
  * @author wuxii@foxmail.com
  */
 public abstract class AbstractEJBScheduler extends AbstractScheduler<AbstractEJBScheduler.EJBJobInfo> {
 
+    /**
+     * 获取JavaEE环境中的定时服务
+     * @return
+     */
     protected abstract TimerService getTimerService();
 
+    /**
+     * bean的加载策略
+     * @return
+     */
     protected abstract BeanLoader getBeanLoader();
 
+    /**
+     * 根据jobName加载对应的{@linkplain Trigger}
+     * @param jobName
+     * @return
+     */
     protected abstract Trigger getJobTrigger(String jobName);
 
+    /**
+     * 指定的JavaEE定时任务的入口，一般给该方法添加{@linkplain javax.ejb.Timeout}注释
+     * @param timer
+     */
     protected abstract void monitorTask(Timer timer);
-
-    protected abstract void init() throws SchedulerException;
-
-    protected void destory() {
-        for (JobInfo jobInfo : jobInfoMap.values()) {
-            jobInfo.dump();
-        }
-    }
 
     @Override
     protected void doStart(String jobName, EJBJobInfo jobInfo) {
@@ -96,14 +105,8 @@ public abstract class AbstractEJBScheduler extends AbstractScheduler<AbstractEJB
     }
 
     protected ScheduleExpression toScheduleExpression(Trigger trigger) {
-        return new ScheduleExpression()
-                .year(trigger.getYears())
-                .month(trigger.getMonths())
-                .dayOfMonth(trigger.getDayOfMonth())
-                .dayOfWeek(trigger.getDayOfWeek())
-                .hour(trigger.getHours())
-                .minute(trigger.getMinutes())
-                .second(trigger.getSeconds());
+        return new ScheduleExpression().year(trigger.getYears()).month(trigger.getMonths()).dayOfMonth(trigger.getDayOfMonth())
+                .dayOfWeek(trigger.getDayOfWeek()).hour(trigger.getHours()).minute(trigger.getMinutes()).second(trigger.getSeconds());
     }
 
     protected class EJBJobInfo extends TimerConfig implements Scheduler.JobInfo, Serializable {

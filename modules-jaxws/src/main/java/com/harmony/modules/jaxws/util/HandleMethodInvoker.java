@@ -23,7 +23,7 @@ import com.harmony.modules.core.Invoker;
 import com.harmony.modules.jaxws.Phase;
 
 /**
- * 为{@linkplain com.harmony.modules.jaxws.Handler.HandleMethod}提供的invoker
+ * 专为{@linkplain com.harmony.modules.jaxws.Handler.HandleMethod}提供的invoker
  * @author wuxii@foxmail.com
  */
 public interface HandleMethodInvoker extends Invoker {

@@ -20,7 +20,7 @@ import java.io.Serializable;
 /**
  * @author wuxii@foxmail.com
  */
-public class DefaultTrigger implements Serializable {
+public class DefaultTrigger implements Trigger, Serializable {
 
     private static final long serialVersionUID = 1106913448650629166L;
     protected String seconds;
@@ -32,6 +32,7 @@ public class DefaultTrigger implements Serializable {
     protected String years;
     protected long delay;
 
+    @Override
     public String getSeconds() {
         return seconds;
     }
@@ -40,6 +41,7 @@ public class DefaultTrigger implements Serializable {
         this.seconds = seconds;
     }
 
+    @Override
     public String getMinutes() {
         return minutes;
     }
@@ -48,6 +50,7 @@ public class DefaultTrigger implements Serializable {
         this.minutes = minutes;
     }
 
+    @Override
     public String getHours() {
         return hours;
     }
@@ -56,6 +59,7 @@ public class DefaultTrigger implements Serializable {
         this.hours = hours;
     }
 
+    @Override
     public String getDayOfMonth() {
         return dayOfMonth;
     }
@@ -64,6 +68,7 @@ public class DefaultTrigger implements Serializable {
         this.dayOfMonth = dayOfMonth;
     }
 
+    @Override
     public String getMonths() {
         return months;
     }
@@ -72,6 +77,7 @@ public class DefaultTrigger implements Serializable {
         this.months = months;
     }
 
+    @Override
     public String getDayOfWeek() {
         return dayOfWeek;
     }
@@ -80,6 +86,7 @@ public class DefaultTrigger implements Serializable {
         this.dayOfWeek = dayOfWeek;
     }
 
+    @Override
     public String getYears() {
         return years;
     }
@@ -88,6 +95,7 @@ public class DefaultTrigger implements Serializable {
         this.years = years;
     }
 
+    @Override
     public long getDelay() {
         return delay;
     }

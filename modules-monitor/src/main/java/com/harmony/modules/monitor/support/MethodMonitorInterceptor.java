@@ -57,6 +57,12 @@ public class MethodMonitorInterceptor implements MethodMonitor {
      */
     private boolean useWhiteList;
 
+    /**
+     * 监听入口
+     * @param ctx 执行的环境上下文
+     * @return 调用ctx.process()返回
+     * @throws Exception
+     */
     @AroundInvoke
     public Object monitor(InvocationContext ctx) throws Exception {
         Method method = ctx.getMethod();
@@ -83,6 +89,10 @@ public class MethodMonitorInterceptor implements MethodMonitor {
         return ctx.proceed();
     }
 
+    /**
+     * 保存方法监视结果
+     * @param graph
+     */
     protected void persistGraph(MethodGraph graph) {
         // TODO 保存监视结果
     }

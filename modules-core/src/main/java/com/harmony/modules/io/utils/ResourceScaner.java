@@ -42,7 +42,7 @@ public class ResourceScaner {
     static final String resourcePattern = ResourcePatternResolver.ALL_RESOURCE_PATTERN;
     static final String classPattern = ResourcePatternResolver.ALL_CLASS_PATTERN;
     @SuppressWarnings("rawtypes")
-    private static Map<String, Set> scanCache = new HashMap<String, Set>();
+    private Map<String, Set> scanCache = new HashMap<String, Set>();
     private static ResourcePatternResolver resourcePatternResolver = new PathMatchingResourcePatternResolver();
     private static ResourceScaner instance;
 
@@ -128,7 +128,7 @@ public class ResourceScaner {
      * @throws IOException
      * @see AntPathMatcher
      */
-	public static Resource[] scanPath(String... paths) throws IOException {
+	public Resource[] scanPath(String... paths) throws IOException {
         Set<Resource> resources = new LinkedHashSet<Resource>();
         for (String path : paths) {
             Collections.addAll(resources, scanPath(path));
@@ -143,7 +143,7 @@ public class ResourceScaner {
      * @throws IOException
      * @see AntPathMatcher
      */
-    public static Resource[] scanPath(String path) throws IOException {
+    public Resource[] scanPath(String path) throws IOException {
         String searchPath = antPath(path);
         return scan(searchPath);
     }
@@ -160,7 +160,7 @@ public class ResourceScaner {
      * @see AntPathMatcher
      */
     @SuppressWarnings("unchecked")
-    public static Resource[] scan(String pathExpression) {
+    public Resource[] scan(String pathExpression) {
         Set<Resource> resources = scanCache.get(pathExpression);
         try {
             if (resources == null) {
@@ -178,7 +178,7 @@ public class ResourceScaner {
      * 清除已经缓冲的资源
      * @param cacheKey
      */
-    protected static void removeCache(String cacheKey) {
+    public void removeCache(String cacheKey) {
         scanCache.remove(cacheKey);
     }
 

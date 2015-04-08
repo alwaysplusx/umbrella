@@ -11,7 +11,7 @@ public class ResourceScanerTest {
 
     @Test
     public void test() throws IOException {
-        Resource[] resources = ResourceScaner.scanPath("com.harmony");
+        Resource[] resources = ResourceScaner.getInstance().scanPath("com.harmony");
         for (Resource res : resources) {
             System.out.println(res);
         }

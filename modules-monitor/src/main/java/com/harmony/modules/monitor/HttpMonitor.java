@@ -18,20 +18,50 @@ package com.harmony.modules.monitor;
 import javax.servlet.Filter;
 
 /**
+ * http请求监视
  * @author wuxii@foxmail.com
+ * @see Filter
  */
 public interface HttpMonitor extends Monitor, Filter {
 
+    /**
+     * http监视结果
+     */
     public interface HttpGraph extends Graph {
 
+        /**
+         * 对应请求的http方法 GET, POST, PUT, DELETE, HEAD, OPTIONS, TRACE
+         * @return
+         * @see javax.servlet.http.HttpServletRequest#getMethod()
+         */
         String getMethod();
 
+        /**
+         * 发起请求的地址
+         * @return
+         * @see javax.servlet.http.HttpServletRequest#getRemoteAddr()
+         */
         String getRemoteAddr();
 
+        /**
+         * 相应的地址
+         * @return
+         * @see javax.servlet.http.HttpServletRequest#getLocalAddr()
+         */
         String getLocalAddr();
 
+        /**
+         * 请求时候带的查询字符串
+         * @return
+         * @see javax.servlet.http.HttpServletRequest#getQueryString()
+         */
         String getQueryString();
 
+        /**
+         * 应答的状态码
+         * @return
+         * @see javax.servlet.http.HttpServletResponse#getStatus()
+         */
         int getStatus();
 
     }

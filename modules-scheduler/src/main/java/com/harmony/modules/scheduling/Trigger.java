@@ -23,18 +23,39 @@ package com.harmony.modules.scheduling;
  */
 public interface Trigger {
 
+    /**
+     * 年
+     */
     public String getYears();
 
+    /**
+     * 月
+     */
     public String getMonths();
 
+    /**
+     * 一个月中的第几天
+     */
     public String getDayOfMonth();
 
+    /**
+     * 一周中的第几天
+     */
     public String getDayOfWeek();
 
+    /**
+     * 时间
+     */
     public String getHours();
 
+    /**
+     * 分钟
+     */
     public String getMinutes();
 
+    /**
+     * 秒
+     */
     public String getSeconds();
 
     public long getDelay();

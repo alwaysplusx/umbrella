@@ -17,9 +17,7 @@ package com.harmony.modules.scheduling;
 
 /**
  * 定时任务自定义异常
- * 
  * @author wuxii@foxmail.com
- *
  */
 public class SchedulerException extends Exception {
 

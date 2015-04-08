@@ -272,6 +272,11 @@ public class JaxWsProxyBuilder {
         return password;
     }
 
+    /**
+     * 创建时候的回调方法，负责创建前配置{@linkplain JaxWsProxyFactoryBean}
+     * <p>不允许在{@link #config(JaxWsProxyFactoryBean)}中调用{@linkplain JaxWsProxyFactoryBean#create()}方法
+     * <p>否则调用异常
+     */
     public interface JaxWsProxyFactoryConfig {
 
         void config(JaxWsProxyFactoryBean factoryBean);

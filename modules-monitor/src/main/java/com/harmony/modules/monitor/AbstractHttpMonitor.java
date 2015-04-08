@@ -121,6 +121,10 @@ public abstract class AbstractHttpMonitor implements HttpMonitor {
     public void destroy() {
     }
 
+    /**
+     * 保存http监视结果
+     * @param graph
+     */
     protected abstract void persistGraph(HttpGraph graph);
 
     protected class HttpGraphImpl extends AbstractGraph implements HttpGraph {

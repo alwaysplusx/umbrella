@@ -171,7 +171,7 @@ public class SimpleJaxWsContext implements JaxWsContext, Serializable {
 	}
 
 	@Override
-	public Enumeration<String> getContextHeaderNames() {
+	public Enumeration<String> getContextNames() {
 		return new Enumeration<String>() {
 			Iterator<String> it = contextMap.keySet().iterator();
 
