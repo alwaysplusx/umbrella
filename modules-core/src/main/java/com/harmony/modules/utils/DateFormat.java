@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
+ * 时间格式化工具
  * @author wuxii@foxmail.com
  */
 public abstract class DateFormat {

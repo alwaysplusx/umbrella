@@ -66,17 +66,14 @@ public class ClassBeanLoader implements BeanLoader, Serializable {
             return loadBean(beanClass);
         } else if (PROTOTYPE.equals(scope)) {
             return (T) newBean(beanClass, null);
-        } else {
-            throw new IllegalArgumentException("unsupport scope " + scope);
         }
+        throw new IllegalArgumentException("unsupport scope " + scope);
     }
 
     private Object newBean(Class<?> beanClass, Map<String, Object> properties) {
         try {
             return beanClass.newInstance();
-        } catch (InstantiationException e) {
-            throw new IllegalArgumentException(e);
-        } catch (IllegalAccessException e) {
+        } catch (Exception e) {
             throw new IllegalArgumentException(e);
         }
     }

@@ -24,6 +24,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
+ * 反射调用方法
  * @author wuxii@foxmail.com
  */
 public abstract class MethodCaller {
@@ -32,17 +33,45 @@ public abstract class MethodCaller {
     @SuppressWarnings("unused")
     private final static Class<?>[] EMPTY_PARAMETER_TYPES = new Class[0];
 
+    /**
+     * 指定方法名称以及参数，反射调用对应target的该方法
+     * @param target
+     * @param methodName
+     * @param args
+     * @return
+     * @throws NoSuchMethodException 指定方法名并参数类型与方法不匹配
+     * @throws IllegalArgumentException 参数不匹配
+     * @throws IllegalAccessException 
+     * @throws InvocationTargetException
+     */
     public static Object invokeMethod(Object target, String methodName, Object... args) throws NoSuchMethodException, IllegalArgumentException,
             IllegalAccessException, InvocationTargetException {
         Method method = getRelativeMethod(target.getClass(), methodName, args);
         return method.invoke(target, args);
     }
 
+    /**
+     * 反射执行指定方法
+     * @param target
+     * @param method
+     * @param args
+     * @return
+     * @throws IllegalArgumentException
+     * @throws IllegalAccessException
+     * @throws InvocationTargetException
+     */
     public static Object invokeMethod(Object target, Method method, Object... args) throws IllegalArgumentException, IllegalAccessException,
             InvocationTargetException {
         return method.invoke(target, args);
     }
 
+    /**
+     * 执行方法，如果有异常则将检查异常转为非检查异常抛出
+     * @param target
+     * @param method
+     * @param args
+     * @return
+     */
     public static Object invokeMethodWithUncheckException(Object target, Method method, Object... args) {
         try {
             return method.invoke(target, args);
@@ -51,6 +80,16 @@ public abstract class MethodCaller {
         }
     }
 
+    /**
+     * 使用反射获取字段值，只尝试使用字段的getter方法
+     * @param target
+     * @param field
+     * @return
+     * @throws NoSuchMethodException
+     * @throws IllegalArgumentException
+     * @throws IllegalAccessException
+     * @throws InvocationTargetException
+     */
     public static Object invokeFieldGetMethod(Object target, Field field) throws NoSuchMethodException, IllegalArgumentException, IllegalAccessException,
             InvocationTargetException {
         if (field == null) {
@@ -61,6 +100,12 @@ public abstract class MethodCaller {
         return method.invoke(target);
     }
 
+    /**
+     * 使用反射回去字段的值，只调用的是getter方法
+     * @param target
+     * @param fieldName
+     * @return
+     */
     public static Object invokeGetMethodWithUncheckException(Object target, String fieldName) {
         String getMethodName = toGetMethodName(fieldName);
         try {
@@ -71,6 +116,12 @@ public abstract class MethodCaller {
         }
     }
 
+    /**
+     * 使用反射设置字段的值，只调用setter方法
+     * @param target
+     * @param fieldName
+     * @param value
+     */
     public static void invokeSetMethodWithUncheckExeption(Object target, String fieldName, Object value) {
         String setMethodName = toSetMethodName(fieldName);
         try {
@@ -86,6 +137,11 @@ public abstract class MethodCaller {
         return MethodMatcher.filterMethod(clazz, methodName, MethodMatcher.toParameterTypes(args));
     }
 
+    /**
+     * 将字段名转为getter的方法名
+     * @param fieldName
+     * @return
+     */
     public static String toGetMethodName(String fieldName) {
         if (StringUtils.isEmpty(fieldName)) {
             throw new IllegalArgumentException("field name is empty");
@@ -93,6 +149,11 @@ public abstract class MethodCaller {
         return "get" + Character.toUpperCase(fieldName.charAt(0)) + fieldName.substring(1);
     }
 
+    /**
+     * 将字段名转为setter的方法名
+     * @param fieldName
+     * @return
+     */
     public static String toSetMethodName(String fieldName) {
         if (StringUtils.isEmpty(fieldName)) {
             throw new IllegalArgumentException("field name is empty");
@@ -261,6 +322,9 @@ public abstract class MethodCaller {
 
     }
 
+    /**
+     * 方法过滤
+     */
     public interface MethodFilter {
 
         boolean accept(Method method);

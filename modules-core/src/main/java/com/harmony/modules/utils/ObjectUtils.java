@@ -18,10 +18,31 @@ package com.harmony.modules.utils;
 import java.util.Arrays;
 
 /**
- * @author copy from springframework
+ * Miscellaneous object utility methods.
+ * Mainly for internal use within the framework.
+ *
+ * <p>Thanks to Alex Ruiz for contributing several enhancements to this class!
+ *
+ * @author Juergen Hoeller
+ * @author Keith Donald
+ * @author Rod Johnson
+ * @author Rob Harrop
+ * @author Chris Beams
+ * @since 19.03.2004
  */
 public abstract class ObjectUtils {
 
+    /**
+     * Determine if the given objects are equal, returning {@code true}
+     * if both are {@code null} or {@code false} if only one is
+     * {@code null}.
+     * <p>Compares arrays with {@code Arrays.equals}, performing an equality
+     * check based on the array elements rather than the array reference.
+     * @param o1 first Object to compare
+     * @param o2 second Object to compare
+     * @return whether the given objects are equal
+     * @see java.util.Arrays#equals
+     */
     public static boolean nullSafeEquals(Object o1, Object o2) {
         if (o1 == o2) {
             return true;

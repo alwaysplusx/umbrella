@@ -15,6 +15,18 @@
  */
 package com.harmony.modules.utils;
 
+/**
+ * Miscellaneous class utility methods.
+ * Mainly for internal use within the framework.
+ *
+ * @author Juergen Hoeller
+ * @author Keith Donald
+ * @author Rob Harrop
+ * @author Sam Brannen
+ * @since 1.1
+ * @see TypeUtils
+ * @see ReflectionUtils
+ */
 public abstract class ClassUtils {
 
 	/** The package separator character '.' */

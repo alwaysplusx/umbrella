@@ -22,6 +22,27 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.StringTokenizer;
 
+/**
+ * Miscellaneous {@link String} utility methods.
+ *
+ * <p>Mainly for internal use within the framework; consider
+ * <a href="http://jakarta.apache.org/commons/lang/">Apache's Commons Lang</a>
+ * for a more comprehensive suite of String utilities.
+ *
+ * <p>This class delivers some simple functionality that should really
+ * be provided by the core Java {@code String} and {@link StringBuilder}
+ * classes, such as the ability to {@link #replace} all occurrences of a given
+ * substring in a target string. It also provides easy-to-use methods to convert
+ * between delimited strings, such as CSV strings, and collections and arrays.
+ *
+ * @author Rod Johnson
+ * @author Juergen Hoeller
+ * @author Keith Donald
+ * @author Rob Harrop
+ * @author Rick Evans
+ * @author Arjen Poutsma
+ * @since 16 April 2001
+ */
 public abstract class StringUtils {
 
     private static final String FOLDER_SEPARATOR = "/";
