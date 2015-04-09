@@ -37,6 +37,7 @@ import com.harmony.modules.utils.PropUtils;
 import com.harmony.modules.utils.StringUtils;
 
 /**
+ * 基于配置文件的定时任务管理
  * @author wuxii@foxmail.com
  */
 @Stateless

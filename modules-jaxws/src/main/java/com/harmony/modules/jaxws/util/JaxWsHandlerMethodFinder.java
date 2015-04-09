@@ -40,7 +40,7 @@ import com.harmony.modules.jaxws.Phase;
  */
 public class JaxWsHandlerMethodFinder {
 
-	private static final String ALL_HANDLER_CLASS = Handler.class.getName();
+	private static final String ALL_HANDLER_CLASS = Handler.class.getName() + ".CLASS";
 	@SuppressWarnings("rawtypes")
 	private Map<String, Set> handlerCache = new HashMap<String, Set>();
 	private final String basePackage;
@@ -236,9 +236,9 @@ public class JaxWsHandlerMethodFinder {
 			return ((Method) obj).toGenericString() + "." + phase;
 		}
 		if (obj instanceof Class) {
-			return ((Class<?>) obj).getName();
+			return ((Class<?>) obj).getName() + ".CLASS";
 		}
-		return obj.toString() + phase;
+		return obj.toString() + "." + phase;
 	}
 
 }

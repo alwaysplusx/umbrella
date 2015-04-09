@@ -58,6 +58,10 @@ public interface Trigger {
      */
     public String getSeconds();
 
+    /**
+     * 启动延时
+     * @return
+     */
     public long getDelay();
 
 }

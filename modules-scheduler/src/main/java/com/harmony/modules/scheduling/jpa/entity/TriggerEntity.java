@@ -18,10 +18,9 @@ package com.harmony.modules.scheduling.jpa.entity;
 import com.harmony.modules.scheduling.Trigger;
 
 /**
+ * // TODO jpa Trigger 补充
  * @author wuxii@foxmail.com
  */
 public abstract class TriggerEntity implements Trigger {
-
-    // TODO jpa Trigger 补充
 
 }

@@ -20,6 +20,7 @@ import java.lang.reflect.Method;
 import javax.servlet.http.HttpServletRequest;
 
 /**
+ * 监听工具类
  * @author wuxii@foxmail.com
  */
 public abstract class MonitorUtils {

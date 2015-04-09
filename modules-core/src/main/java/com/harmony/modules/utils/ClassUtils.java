@@ -15,7 +15,6 @@
  */
 package com.harmony.modules.utils;
 
-
 public abstract class ClassUtils {
 
 	/** The package separator character '.' */
@@ -166,6 +165,7 @@ public abstract class ClassUtils {
      * @return
      */
     public static Class<?> getRealClass(Class<?> clazz) {
+        // TODO CGLIB & asm
         return clazz;
     }
     

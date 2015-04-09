@@ -37,6 +37,7 @@ import com.harmony.modules.monitor.util.MonitorUtils;
 import com.harmony.modules.utils.Exceptions;
 
 /**
+ * Http监视抽象类
  * @author wuxii@foxmail.com
  */
 public abstract class AbstractHttpMonitor implements HttpMonitor {
@@ -190,13 +191,13 @@ public abstract class AbstractHttpMonitor implements HttpMonitor {
         public void setArguments(Map<String, Object> arguments) {
             super.setArguments(arguments);
         }
-        
+
         @Override
         @Deprecated
         public void setResult(Object result) {
             super.setResult(result);
         }
-        
+
         public void setRequestArguments(HttpServletRequest request) {
             this.remoteAddr = request.getRemoteAddr();
             this.localAddr = request.getLocalAddr();

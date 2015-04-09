@@ -20,9 +20,13 @@ import static org.junit.Assert.*;
 import java.util.Collection;
 
 import javax.annotation.Resource;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.data.jpa.provider.PersistenceProvider;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -38,6 +42,8 @@ public class SpringTestTest {
 
     @Resource
     private UserRepository userRepository;
+    @PersistenceContext(unitName = "moon")
+    private EntityManager em;
 
     @Test
     public void test() {
@@ -62,6 +68,16 @@ public class SpringTestTest {
     public void testFindListBy() {
         Collection<User> users = userRepository.findListByUsername("wuxii");
         System.out.println(users);
+    }
+
+    @Test
+    public void testExtractQueryString() {
+        PersistenceProvider provider = PersistenceProvider.HIBERNATE;
+        assertTrue(provider.canExtractQuery());
+        Query query = em.createQuery("select o from User o");
+        query.getResultList();
+        String queryString = provider.extractQueryString(query);
+        System.err.println(queryString);
     }
 
 }

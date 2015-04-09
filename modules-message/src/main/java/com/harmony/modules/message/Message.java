@@ -18,7 +18,7 @@ package com.harmony.modules.message;
 import java.io.Serializable;
 
 /**
- * mark interface
+ * marker interface
  * @author wuxii
  */
 public interface Message extends Serializable {

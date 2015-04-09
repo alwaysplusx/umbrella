@@ -16,6 +16,7 @@
 package com.harmony.modules.jaxws;
 
 /**
+ * 将被{@linkplain JaxWsMetadata}取代
  * @author wuxii@foxmail.com
  */
 public interface MetadataLoader {

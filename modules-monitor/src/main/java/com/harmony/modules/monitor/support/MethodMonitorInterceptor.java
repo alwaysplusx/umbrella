@@ -41,6 +41,7 @@ import com.harmony.modules.monitor.MethodMonitor;
 import com.harmony.modules.monitor.util.MonitorUtils;
 
 /**
+ * TODO 将监控方法抽象，带入泛型指定具体的Invocation
  * @author wuxii@foxmail.com
  */
 @Interceptor

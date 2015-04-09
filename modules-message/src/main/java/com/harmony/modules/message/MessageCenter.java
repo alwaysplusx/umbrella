@@ -29,13 +29,13 @@ public interface MessageCenter {
 	boolean handle(Message message);
 	
 	/**
-	 * 队列的消息中小
+	 * 队列的消息中心
 	 * @return
 	 */
 	boolean isQueue();
 	
 	/**
-	 * 广播的消息中小
+	 * 广播的消息中心
 	 * @return
 	 */
 	boolean isTopic();

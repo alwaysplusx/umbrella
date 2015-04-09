@@ -27,6 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * 基于JMS的消息发送基础抽象类
  * @author wuxii@foxmail.com
  */
 public abstract class AbstractJmsMessageSender implements MessageSender {
@@ -64,8 +65,16 @@ public abstract class AbstractJmsMessageSender implements MessageSender {
 		return true;
 	}
 
+	/**
+	 * JMS连接工厂
+	 * @return
+	 */
 	public abstract ConnectionFactory getConnectionFactory();
 
+	/**
+	 * JMS的目的地
+	 * @return
+	 */
 	public abstract Destination getDestination();
 
 }

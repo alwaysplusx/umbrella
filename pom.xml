@@ -32,6 +32,7 @@
 		<springframework.data.version>1.10.0.RELEASE</springframework.data.version>
 		<springframework.data.jpa.version>1.8.0.RELEASE</springframework.data.jpa.version>
 		<hibernate.version>4.3.8.Final</hibernate.version>
+		<joda.time.version>2.7</joda.time.version>
 		<junit.version>4.11</junit.version>
 	</properties>
 	<dependencyManagement>
@@ -92,22 +93,6 @@
 			</dependency>
 			<!-- slf4j END -->
 
-			<!-- h2 START -->
-			<dependency>
-				<groupId>com.h2database</groupId>
-				<artifactId>h2</artifactId>
-				<version>${h2.version}</version>
-			</dependency>
-			<!-- h2 END -->
-
-			<!-- asm START -->
-			<dependency>
-				<groupId>org.ow2.asm</groupId>
-				<artifactId>asm</artifactId>
-				<version>${asm.version}</version>
-			</dependency>
-			<!-- asm START -->
-
 			<!-- springframework START -->
 			<dependency>
 				<groupId>org.springframework</groupId>
@@ -164,9 +149,7 @@
 				<artifactId>spring-wevmvc</artifactId>
 				<version>${springframework.version}</version>
 			</dependency>
-			<!-- springframework END -->
-
-			<!-- springframework data START -->
+			<!-- spring data -->
 			<dependency>
 				<groupId>org.springframework.data</groupId>
 				<artifactId>spring-data-jpa</artifactId>
@@ -177,7 +160,7 @@
 				<artifactId>spring-data-commons</artifactId>
 				<version>${springframework.data.version}</version>
 			</dependency>
-			<!-- springframework data END -->
+			<!-- springframework END -->
 
 			<!-- hibernate START -->
 			<dependency>
@@ -187,7 +170,8 @@
 			</dependency>
 			<!-- hibernate END -->
 
-			<!-- cxf START -->
+			<!-- apache START -->
+			<!-- cxf -->
 			<dependency>
 				<groupId>org.apache.cxf</groupId>
 				<artifactId>cxf-rt-frontend-jaxws</artifactId>
@@ -203,15 +187,13 @@
 				<artifactId>cxf-rt-transports-http</artifactId>
 				<version>${apache.cxf.version}</version>
 			</dependency>
-			<!-- cxf END -->
-
-			<!-- openejb START -->
+			<!-- openejb -->
 			<dependency>
 				<groupId>org.apache.openejb</groupId>
 				<artifactId>openejb-core</artifactId>
 				<version>${apache.openejb.version}</version>
 			</dependency>
-			<!-- openejb END -->
+			<!-- apache END -->
 
 			<!-- javax START -->
 			<dependency>
@@ -240,6 +222,24 @@
 				<version>${javax.interceptor.version}</version>
 			</dependency>
 			<!-- javax END -->
+
+			<!-- other START -->
+			<dependency>
+				<groupId>org.ow2.asm</groupId>
+				<artifactId>asm</artifactId>
+				<version>${asm.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.h2database</groupId>
+				<artifactId>h2</artifactId>
+				<version>${h2.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>joda-time</groupId>
+				<artifactId>joda-time</artifactId>
+				<version>${joda.time.version}</version>
+			</dependency>
+			<!-- other END -->
 
 			<!-- test START -->
 			<dependency>
