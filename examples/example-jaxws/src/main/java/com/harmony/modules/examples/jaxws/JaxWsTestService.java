@@ -21,7 +21,7 @@ import javax.jws.WebParam;
 import javax.jws.WebService;
 
 import com.harmony.modules.jaxws.JaxWsProxyBuilder;
-import com.harmony.modules.jaxws.SimpleJaxWsContext;
+import com.harmony.modules.jaxws.impl.SimpleJaxWsContext;
 import com.harmony.modules.jaxws.support.JaxWsContextSender;
 
 /**

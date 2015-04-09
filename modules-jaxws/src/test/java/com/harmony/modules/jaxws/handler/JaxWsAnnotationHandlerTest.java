@@ -6,7 +6,7 @@ import org.junit.Test;
 
 import com.harmony.modules.jaxws.HelloService;
 import com.harmony.modules.jaxws.JaxWsContextHandler;
-import com.harmony.modules.jaxws.SimpleJaxWsContext;
+import com.harmony.modules.jaxws.impl.SimpleJaxWsContext;
 
 public class JaxWsAnnotationHandlerTest {
 

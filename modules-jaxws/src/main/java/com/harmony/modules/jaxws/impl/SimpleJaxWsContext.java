@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.modules.jaxws;
+package com.harmony.modules.jaxws.impl;
 
 import java.io.Serializable;
 import java.lang.reflect.Method;
@@ -23,8 +23,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import com.harmony.modules.jaxws.JaxWsContext;
 import com.harmony.modules.utils.ClassUtils;
-import com.harmony.modules.utils.MethodCaller.MethodMatcher;
 
 /**
  * @author wuxii@foxmail.com
@@ -123,13 +123,13 @@ public class SimpleJaxWsContext implements JaxWsContext, Serializable {
 
 	@Override
 	public Method getMethod() throws NoSuchMethodException {
+		Class<?>[] types = ClassUtils.toTypeArray(parameters);
 		try {
-			return serviceInterface.getMethod(methodName, MethodMatcher.toParameterTypes(parameters));
+			return serviceInterface.getMethod(methodName, types);
 		} catch (NoSuchMethodException e) {
             for (Method method : serviceInterface.getMethods()) {
                 if (method.getName().equals(methodName)) {
                     Class<?>[] pattern = method.getParameterTypes();
-                    Class<?>[] types = MethodMatcher.toParameterTypes(parameters);
                     if (ClassUtils.typeEquals(pattern, types)) {
                         return method;
                     }

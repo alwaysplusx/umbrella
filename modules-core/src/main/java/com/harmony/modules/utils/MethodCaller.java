@@ -134,7 +134,7 @@ public abstract class MethodCaller {
 
     private static Method getRelativeMethod(Class<?> targetClass, String methodName, Object[] args) throws NoSuchMethodException {
         Class<?> clazz = ClassUtils.getRealClass(targetClass);
-        return MethodMatcher.filterMethod(clazz, methodName, MethodMatcher.toParameterTypes(args));
+        return MethodMatcher.filterMethod(clazz, methodName, toTypeArray(args));
     }
 
     /**
@@ -201,7 +201,7 @@ public abstract class MethodCaller {
                 if (types.length == parameterTypes.length) {
                     int i, max;
                     for (i = 0, max = types.length; i < max; i++) {
-                        if (!isAssignableIgnoreClassLoader(types[i], parameterTypes[i]))
+                        if (!isAssignable(types[i], parameterTypes[i]))
                             continue;
                     }
                     if (i == max)
@@ -228,7 +228,7 @@ public abstract class MethodCaller {
                     if (types.length == parameterTypes.length) {
                         int i, max;
                         for (i = 0, max = types.length; i < max; i++) {
-                            if (!isAssignableIgnoreClassLoader(types[i], parameterTypes[i]))
+                            if (!isAssignable(types[i], parameterTypes[i]))
                                 continue;
                         }
                         if (i == max) {
@@ -260,10 +260,10 @@ public abstract class MethodCaller {
                     if (types.length == parameterTypes.length) {
                         int i, max;
                         for (i = 0, max = types.length; i < max; i++) {
-                            if (!isAssignableIgnoreClassLoader(types[i], parameterTypes[i]))
+                            if (!isAssignable(types[i], parameterTypes[i]))
                                 continue;
                         }
-                        if (i == max && isAssignableIgnoreClassLoader(returnType, method.getReturnType())) {
+                        if (i == max && isAssignable(returnType, method.getReturnType())) {
                             result = method;
                             break;
                         }
@@ -298,26 +298,6 @@ public abstract class MethodCaller {
             if (m1 == m2)
                 return true;
             return typeEquals(m1.getParameterTypes(), m2.getParameterTypes());
-        }
-
-        /**
-         * 将请求参数转化为Class类型数组，对应于{@linkplain Method#getParameterTypes()}
-         * @param args
-         * @return
-         * @see Method#getParameterTypes()
-         */
-        public static Class<?>[] toParameterTypes(Object[] args) {
-            Class<?>[] parameterTypes = new Class<?>[0];
-            if (args != null && args.length > 0) {
-                parameterTypes = new Class[args.length];
-                for (int i = 0, max = args.length; i < max; i++) {
-                    if (args[i] != null)
-                        parameterTypes[i] = getRealClass(args[i].getClass());
-                    else
-                        parameterTypes[i] = Object.class;
-                }
-            }
-            return parameterTypes;
         }
 
     }

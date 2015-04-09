@@ -27,35 +27,33 @@ import com.harmony.modules.utils.Exceptions;
  */
 public class DefaultInvoker implements Invoker, Serializable {
 
-    private static final long serialVersionUID = 5408528044216944899L;
-    private boolean validate = false;
+	private static final long serialVersionUID = 5408528044216944899L;
+	private boolean validate = false;
 
-    @Override
-    public Object invoke(Object obj, Method method, Object[] args) throws InvokException {
-        if (validate) {
-            Class<?>[] pts = method.getParameterTypes();
-            if (args.length != method.getParameterTypes().length) {
-                throw new InvokException("parameter length mismatch");
-            }
-            for (int i = 0, max = args.length; i < max; i++) {
-                if (!isAssignableIgnoreClassLoader(args[i].getClass(), pts[i])) {
-                    throw new InvokException("parameter type mismatch");
-                }
-            }
-        }
-        try {
-            return method.invoke(obj, args);
-        } catch (Exception e) {
-            Throwable cause = Exceptions.getRootCause(e);
-            throw new InvokException(cause.getMessage(), cause);
-        }
-    }
+	@Override
+	public Object invoke(Object obj, Method method, Object[] args) throws InvokException {
+		if (validate) {
+			Class<?>[] pattern = method.getParameterTypes();
+			if (args.length != pattern.length) {
+				throw new InvokException("parameter length mismatch");
+			}
+			if (!typeEquals(pattern, args)) {
+				throw new InvokException("parameter type mismatch");
+			}
+		}
+		try {
+			return method.invoke(obj, args);
+		} catch (Exception e) {
+			Throwable cause = Exceptions.getRootCause(e);
+			throw new InvokException(cause.getMessage(), cause);
+		}
+	}
 
-    public boolean isValidate() {
-        return validate;
-    }
+	public boolean isValidate() {
+		return validate;
+	}
 
-    public void setValidate(boolean validate) {
-        this.validate = validate;
-    }
+	public void setValidate(boolean validate) {
+		this.validate = validate;
+	}
 }
