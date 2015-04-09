@@ -15,7 +15,6 @@
  */
 package com.harmony.modules.utils;
 
-import java.util.List;
 
 public abstract class ClassUtils {
 
@@ -161,10 +160,13 @@ public abstract class ClassUtils {
 		return true;
 	}
 
-	/**
-	 * @see #typeEquals(Class[], Class[])
-	 */
-	public static boolean typeEquals(List<Class<?>> pattern, List<Class<?>> inputTypes) {
-		return typeEquals(pattern.toArray(new Class[pattern.size()]), inputTypes.toArray(new Class[inputTypes.size()]));
-	}
+    /**
+     * 获得clazz的真实类型
+     * @param clazz
+     * @return
+     */
+    public static Class<?> getRealClass(Class<?> clazz) {
+        return clazz;
+    }
+    
 }

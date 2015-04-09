@@ -17,13 +17,17 @@ package com.harmony.modules.data;
 
 import static org.junit.Assert.*;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
+import java.util.Collection;
+
+import javax.annotation.Resource;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import com.harmony.modules.data.persistence.User;
+import com.harmony.modules.data.repository.UserRepository;
 
 /**
  * @author wuxii@foxmail.com
@@ -32,11 +36,32 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @ContextConfiguration(locations = { "classpath:/applicationContext.xml" })
 public class SpringTestTest {
 
-	@PersistenceContext(unitName = "moon")
-	private EntityManager em;
+    @Resource
+    private UserRepository userRepository;
 
-	@Test
-	public void test() {
-		assertNotNull(em);
-	}
+    @Test
+    public void test() {
+        assertNotNull(userRepository);
+        userRepository.save(new User("wuxii"));
+    }
+
+    @Test
+    public void testGetOne() {
+        User user = userRepository.findOne(1l);
+        System.out.println(user);
+    }
+
+    @Test
+    public void testFindOneBy() {
+        User user = userRepository.findOneByUserId(1l);
+        // User user = userRepository.findOneByUsername("wuxii");
+        System.out.println(user);
+    }
+
+    @Test
+    public void testFindListBy() {
+        Collection<User> users = userRepository.findListByUsername("wuxii");
+        System.out.println(users);
+    }
+
 }

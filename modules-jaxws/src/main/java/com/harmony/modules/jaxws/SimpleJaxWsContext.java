@@ -23,6 +23,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import com.harmony.modules.utils.ClassUtils;
+import com.harmony.modules.utils.MethodCaller.MethodMatcher;
+
 /**
  * @author wuxii@foxmail.com
  */
@@ -121,24 +124,17 @@ public class SimpleJaxWsContext implements JaxWsContext, Serializable {
 	@Override
 	public Method getMethod() throws NoSuchMethodException {
 		try {
-			return serviceInterface.getMethod(methodName, toParameterTypes(parameters));
+			return serviceInterface.getMethod(methodName, MethodMatcher.toParameterTypes(parameters));
 		} catch (NoSuchMethodException e) {
-			for (Method method : serviceInterface.getMethods()) {
-				if (method.getName().equals(methodName)) {
-					Class<?>[] types = method.getParameterTypes();
-					if (types.length != parameters.length)
-						continue;
-					int i = 0;
-					for (; i < types.length; i++) {
-						if (parameters[i] != null && !types[i].getName().equals(parameters[i].getClass().getName())) {
-							break;
-						}
-					}
-					if (i == types.length) {
-						return method;
-					}
-				}
-			}
+            for (Method method : serviceInterface.getMethods()) {
+                if (method.getName().equals(methodName)) {
+                    Class<?>[] pattern = method.getParameterTypes();
+                    Class<?>[] types = MethodMatcher.toParameterTypes(parameters);
+                    if (ClassUtils.typeEquals(pattern, types)) {
+                        return method;
+                    }
+                }
+            }
 			throw e;
 		}
 	}
@@ -154,21 +150,6 @@ public class SimpleJaxWsContext implements JaxWsContext, Serializable {
     public void put(String key, Object value) {
         contextMap.put(key, value);
     }
-
-
-	protected Class<?>[] toParameterTypes(Object[] args) {
-		Class<?>[] parameterTypes = new Class<?>[0];
-		if (args != null) {
-			parameterTypes = new Class[args.length];
-			for (int i = 0; i < args.length; i++) {
-				if (args[i] != null)
-					parameterTypes[i] = args[i].getClass();
-				else
-					parameterTypes[i] = Object.class;
-			}
-		}
-		return parameterTypes;
-	}
 
 	@Override
 	public Enumeration<String> getContextNames() {
