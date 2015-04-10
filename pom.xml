@@ -1,20 +1,20 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>com.harmony.modules</groupId>
-	<artifactId>harmony-modules</artifactId>
+	<groupId>com.harmony.umbrella</groupId>
+	<artifactId>harmony-umbrella</artifactId>
 	<version>0.0.1</version>
 	<packaging>pom</packaging>
 	<modules>
-		<module>modules-core</module>
-		<module>modules-jaxws</module>
-		<module>modules-message</module>
-		<module>modules-monitor</module>
-		<module>modules-scheduler</module>
-		<module>modules-security</module>
-		<module>modules-data</module>
+		<module>umbrella-core</module>
+		<module>umbrella-jaxws</module>
+		<module>umbrella-message</module>
+		<module>umbrella-monitor</module>
+		<module>umbrella-scheduler</module>
+		<module>umbrella-security</module>
+		<module>umbrella-data</module>
 		<!-- <module>examples</module> -->
-		<module>modules-all</module>
+		<module>umbrella-all</module>
 	</modules>
 	<properties>
 		<jdk.version>1.6</jdk.version>
@@ -44,43 +44,43 @@
 	</properties>
 	<dependencyManagement>
 		<dependencies>
-			<!-- modules START -->
+			<!-- umbrella START -->
 			<dependency>
-				<groupId>com.harmony.modules</groupId>
-				<artifactId>modules-monitor</artifactId>
+				<groupId>com.harmony.umbrella</groupId>
+				<artifactId>umbrella-monitor</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>com.harmony.modules</groupId>
-				<artifactId>modules-core</artifactId>
+				<groupId>com.harmony.umbrella</groupId>
+				<artifactId>umbrella-core</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>com.harmony.modules</groupId>
-				<artifactId>modules-data</artifactId>
+				<groupId>com.harmony.umbrella</groupId>
+				<artifactId>umbrella-data</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>com.harmony.modules</groupId>
-				<artifactId>modules-jaxws</artifactId>
+				<groupId>com.harmony.umbrella</groupId>
+				<artifactId>umbrella-jaxws</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>com.harmony.modules</groupId>
-				<artifactId>modules-message</artifactId>
+				<groupId>com.harmony.umbrella</groupId>
+				<artifactId>umbrella-message</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>com.harmony.modules</groupId>
-				<artifactId>modules-scheduler</artifactId>
+				<groupId>com.harmony.umbrella</groupId>
+				<artifactId>umbrella-scheduler</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>com.harmony.modules</groupId>
-				<artifactId>modules-security</artifactId>
+				<groupId>com.harmony.umbrella</groupId>
+				<artifactId>umbrella-security</artifactId>
 				<version>${project.version}</version>
 			</dependency>
-			<!-- modules END -->
+			<!-- umbrella END -->
 
 			<!-- slf4j START -->
 			<dependency>

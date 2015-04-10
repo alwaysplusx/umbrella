@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project basedir=".">
+	
+    <property name="classes.dir" value="${basedir}/target" />
+	
+    <target name="test">
+    	<echo message="classes dir: ${classes.dir}"/>
+        <echo message="compile classpath: ${compile_classpath}" />
+        <echo message="runtime classpath: ${runtime_classpath}" />
+        <echo message="test classpath:    ${test_classpath}" />
+        <echo message="plugin classpath:  ${plugin_classpath}" />
+    </target>
+	
+</project>
