@@ -25,6 +25,7 @@ import java.util.List;
 
 /**
  * 反射调用方法
+ * 
  * @author wuxii@foxmail.com
  */
 public abstract class MethodCaller {
@@ -35,13 +36,16 @@ public abstract class MethodCaller {
 
     /**
      * 指定方法名称以及参数，反射调用对应target的该方法
+     * 
      * @param target
      * @param methodName
      * @param args
      * @return
-     * @throws NoSuchMethodException 指定方法名并参数类型与方法不匹配
-     * @throws IllegalArgumentException 参数不匹配
-     * @throws IllegalAccessException 
+     * @throws NoSuchMethodException
+     *             指定方法名并参数类型与方法不匹配
+     * @throws IllegalArgumentException
+     *             参数不匹配
+     * @throws IllegalAccessException
      * @throws InvocationTargetException
      */
     public static Object invokeMethod(Object target, String methodName, Object... args) throws NoSuchMethodException, IllegalArgumentException,
@@ -52,6 +56,7 @@ public abstract class MethodCaller {
 
     /**
      * 反射执行指定方法
+     * 
      * @param target
      * @param method
      * @param args
@@ -67,6 +72,7 @@ public abstract class MethodCaller {
 
     /**
      * 执行方法，如果有异常则将检查异常转为非检查异常抛出
+     * 
      * @param target
      * @param method
      * @param args
@@ -82,6 +88,7 @@ public abstract class MethodCaller {
 
     /**
      * 使用反射获取字段值，只尝试使用字段的getter方法
+     * 
      * @param target
      * @param field
      * @return
@@ -102,6 +109,7 @@ public abstract class MethodCaller {
 
     /**
      * 使用反射回去字段的值，只调用的是getter方法
+     * 
      * @param target
      * @param fieldName
      * @return
@@ -118,6 +126,7 @@ public abstract class MethodCaller {
 
     /**
      * 使用反射设置字段的值，只调用setter方法
+     * 
      * @param target
      * @param fieldName
      * @param value
@@ -134,11 +143,16 @@ public abstract class MethodCaller {
 
     private static Method getRelativeMethod(Class<?> targetClass, String methodName, Object[] args) throws NoSuchMethodException {
         Class<?> clazz = ClassUtils.getRealClass(targetClass);
-        return MethodMatcher.filterMethod(clazz, methodName, toTypeArray(args));
+        Method method = MethodMatcher.filterMethod(clazz, methodName, toTypeArray(args));
+        if (method == null) {
+            throw new NoSuchMethodException(clazz.getName() + "#" + methodName);
+        }
+        return method;
     }
 
     /**
      * 将字段名转为getter的方法名
+     * 
      * @param fieldName
      * @return
      */
@@ -151,6 +165,7 @@ public abstract class MethodCaller {
 
     /**
      * 将字段名转为setter的方法名
+     * 
      * @param fieldName
      * @return
      */
@@ -162,15 +177,18 @@ public abstract class MethodCaller {
     }
 
     /**
-     * 方法匹配过滤. 匹配{@linkplain java.lang.Class#getMethods()}
+     * 方法匹配过滤. 匹配{@linkplain java.lang.Class#getMethods()}. <p>
+     * 默认都将过滤掉Object.class中的方法
      */
     public static abstract class MethodMatcher {
 
         /**
          * 根据方法名过滤出source中符合方法名的方法
          * 
-         * @param source 目表类
-         * @param methodName 方法名
+         * @param source
+         *            目标类
+         * @param methodName
+         *            方法名
          * @return 如果没有符合条件的方法则返回null
          */
         public static Method[] filterMethod(Class<?> source, String methodName) {
@@ -189,7 +207,8 @@ public abstract class MethodCaller {
          * 根据参数类型过滤出source中符合参数类型的方法<p>过滤出的方法参数可能为期待的参数类型的父类，但绝不能为子类
          * 
          * @param source
-         * @param parameterTypes 期待的参数类型
+         * @param parameterTypes
+         *            期待的参数类型
          * @return
          */
         public static Method[] filterMethod(Class<?> source, Class<?>[] parameterTypes) {
@@ -198,14 +217,8 @@ public abstract class MethodCaller {
                 if (Object.class == method.getDeclaringClass())
                     continue;
                 Class<?>[] types = method.getParameterTypes();
-                if (types.length == parameterTypes.length) {
-                    int i, max;
-                    for (i = 0, max = types.length; i < max; i++) {
-                        if (!isAssignable(types[i], parameterTypes[i]))
-                            continue;
-                    }
-                    if (i == max)
-                        result.add(method);
+                if (typeEquals(types, parameterTypes)) {
+                    result.add(method);
                 }
             }
             return result.toArray(new Method[result.size()]);
@@ -213,9 +226,12 @@ public abstract class MethodCaller {
 
         /**
          * 过滤符合方法名称和参数类型的方法<p>过滤出的方法参数可能为期待的参数类型的父类，但绝不能为子类
+         * 
          * @param source
-         * @param methodName 期待方法名
-         * @param parameterTypes 期待参数类型
+         * @param methodName
+         *            期待方法名
+         * @param parameterTypes
+         *            期待参数类型
          * @return
          */
         public static Method filterMethod(Class<?> source, String methodName, Class<?>[] parameterTypes) {
@@ -223,63 +239,37 @@ public abstract class MethodCaller {
             for (Method method : source.getMethods()) {
                 if (Object.class == method.getDeclaringClass())
                     continue;
-                if (method.getName().equals(methodName)) {
-                    Class<?>[] types = method.getParameterTypes();
-                    if (types.length == parameterTypes.length) {
-                        int i, max;
-                        for (i = 0, max = types.length; i < max; i++) {
-                            if (!isAssignable(types[i], parameterTypes[i]))
-                                continue;
-                        }
-                        if (i == max) {
-                            result = method;
-                            break;
-                        }
-                    }
+                if (method.getName().equals(methodName) && typeEquals(method.getParameterTypes(), parameterTypes)) {
+                    return method;
                 }
             }
             return result;
         }
 
         /**
-         * 过滤符合方法名，参数类型，返回类型相同的方法.
-         * <p>过滤出的方法参数可能为期待的参数类型的父类，但绝不能为子类
+         * 过滤符合方法名，参数类型，返回类型相同的方法. <p>过滤出的方法参数可能为期待的参数类型的父类，但绝不能为子类
+         * 
          * @param source
-         * @param methodName 期待的方法名
-         * @param parameterTypes 期待的参数类型
-         * @param returnType 期待的返回类型
+         * @param methodName
+         *            期待的方法名
+         * @param parameterTypes
+         *            期待的参数类型
+         * @param returnType
+         *            期待的返回类型
          * @return
          */
         public static Method filterMethod(Class<?> source, String methodName, Class<?>[] parameterTypes, Class<?> returnType) {
-            Method result = null;
-            for (Method method : source.getMethods()) {
-                if (Object.class == method.getDeclaringClass())
-                    continue;
-                if (method.getName().equals(methodName)) {
-                    Class<?>[] types = method.getParameterTypes();
-                    if (types.length == parameterTypes.length) {
-                        int i, max;
-                        for (i = 0, max = types.length; i < max; i++) {
-                            if (!isAssignable(types[i], parameterTypes[i]))
-                                continue;
-                        }
-                        if (i == max && isAssignable(returnType, method.getReturnType())) {
-                            result = method;
-                            break;
-                        }
-                    }
-                }
+            Method method = filterMethod(source, methodName, parameterTypes);
+            if (method != null && isAssignable(returnType, method.getReturnType())) {
+                return method;
             }
-            return result;
+            return null;
         }
 
         /**
-         * 过滤目标类中符合期待方法的方法
-         * <p>符合的方法主要为：
-         * <ul>
-         *  <li>参数相同</li>
-         *  <li>参数相同并且方法名相同</li>
+         * 过滤目标类中符合期待方法的方法 <p>符合的方法主要为： <ul> <li>参数相同</li> <li>参数相同并且方法名相同</li>
          * </ul>
+         * 
          * @param source
          * @param exceptMethod
          * @return
@@ -290,6 +280,7 @@ public abstract class MethodCaller {
 
         /**
          * 检测m2的参数是否符合m1
+         * 
          * @param m1
          * @param m2
          * @return
