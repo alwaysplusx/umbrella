@@ -13,6 +13,14 @@
 			<artifactId>modules-core</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>com.harmony.modules</groupId>
+			<artifactId>modules-monitor</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.harmony.modules</groupId>
+			<artifactId>modules-message</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>org.apache.cxf</groupId>
 			<artifactId>cxf-rt-frontend-jaxws</artifactId>
 			<exclusions>
@@ -25,25 +33,6 @@
 		<dependency>
 			<groupId>org.apache.cxf</groupId>
 			<artifactId>cxf-rt-transports-http</artifactId>
-			<scope>compile</scope>
-			<optional>true</optional>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.cxf</groupId>
-			<artifactId>cxf-rt-transports-http-jetty</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>com.harmony.modules</groupId>
-			<artifactId>modules-message</artifactId>
-			<scope>compile</scope>
-			<optional>true</optional>
-		</dependency>
-		<dependency>
-			<groupId>com.harmony.modules</groupId>
-			<artifactId>modules-monitor</artifactId>
-			<scope>compile</scope>
-			<optional>true</optional>
 		</dependency>
 		<dependency>
 			<groupId>javax.ejb</groupId>
@@ -54,6 +43,11 @@
 			<groupId>javax.jms</groupId>
 			<artifactId>jms</artifactId>
 			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.cxf</groupId>
+			<artifactId>cxf-rt-transports-http-jetty</artifactId>
+			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>

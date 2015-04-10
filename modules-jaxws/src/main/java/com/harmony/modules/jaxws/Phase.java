@@ -51,8 +51,6 @@ public enum Phase {
         }
     };
 
-    private static final Phase[] phases = new Phase[] { PRE_INVOKE, ABORT, POST_INVOKE, THROWING, FINALLY };
-
     /**
      * for CXF {@linkplain org.apache.cxf.phase.Phase}
      * 
@@ -61,7 +59,7 @@ public enum Phase {
     public abstract String render();
 
     public static Phase value(String phase) {
-        for (Phase p : phases) {
+        for (Phase p : values()) {
             if (p.render() != null && p.render().equals(phase)) {
                 return p;
             }

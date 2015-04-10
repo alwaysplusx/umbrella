@@ -56,8 +56,8 @@
 			<scope>provided</scope>
 			<exclusions>
 				<exclusion>
-					<artifactId>jcl-over-slf4j</artifactId>
 					<groupId>org.slf4j</groupId>
+					<artifactId>jcl-over-slf4j</artifactId>
 				</exclusion>
 			</exclusions>
 		</dependency>

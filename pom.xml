@@ -19,8 +19,6 @@
 	<properties>
 		<jdk.version>1.6</jdk.version>
 		<slf4j.version>1.7.7</slf4j.version>
-		<asm.version>5.0.3</asm.version>
-		<h2.version>1.4.181</h2.version>
 		<javax.ejb.version>3.2</javax.ejb.version>
 		<javax.persistence.version>2.1.0</javax.persistence.version>
 		<javax.jms.version>1.1</javax.jms.version>
@@ -28,11 +26,19 @@
 		<javax.interceptor.version>1.2</javax.interceptor.version>
 		<apache.cxf.version>3.0.2</apache.cxf.version>
 		<apache.openejb.version>4.7.1</apache.openejb.version>
+		<apache.log4j2.version>2.2</apache.log4j2.version>
+		<apache.shiro.version>1.2.3</apache.shiro.version>
 		<springframework.version>4.1.6.RELEASE</springframework.version>
 		<springframework.data.version>1.10.0.RELEASE</springframework.data.version>
 		<springframework.data.jpa.version>1.8.0.RELEASE</springframework.data.jpa.version>
+		<springframework.security.version>4.0.0.RELEASE</springframework.security.version>
 		<hibernate.version>4.3.8.Final</hibernate.version>
 		<joda.time.version>2.7</joda.time.version>
+		<log4j.version>1.2.17</log4j.version>
+		<asm.version>5.0.3</asm.version>
+        <h2.version>1.4.181</h2.version>
+		<mysql.version>5.1.35</mysql.version>
+		<oracle.version>11.2.0.1.0</oracle.version>
 		<junit.version>4.11</junit.version>
 	</properties>
 	<dependencyManagement>
@@ -61,11 +67,6 @@
 			<dependency>
 				<groupId>com.harmony.modules</groupId>
 				<artifactId>modules-message</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>com.harmony.modules</groupId>
-				<artifactId>modules-query</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
@@ -160,6 +161,12 @@
 				<artifactId>spring-data-commons</artifactId>
 				<version>${springframework.data.version}</version>
 			</dependency>
+			<!-- spring security -->
+			<dependency>
+				<groupId>org.springframework.security</groupId>
+				<artifactId>spring-security-web</artifactId>
+				<version>${springframework.security.version}</version>
+			</dependency>
 			<!-- springframework END -->
 
 			<!-- hibernate START -->
@@ -192,6 +199,23 @@
 				<groupId>org.apache.openejb</groupId>
 				<artifactId>openejb-core</artifactId>
 				<version>${apache.openejb.version}</version>
+			</dependency>
+			<!-- log4j2 -->
+			<dependency>
+				<groupId>org.apache.logging.log4j</groupId>
+				<artifactId>log4j-api</artifactId>
+				<version>${apache.log4j2.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.logging.log4j</groupId>
+				<artifactId>log4j-core</artifactId>
+				<version>${apache.log4j2.version}</version>
+			</dependency>
+			<!-- shiro -->
+			<dependency>
+				<groupId>org.apache.shiro</groupId>
+				<artifactId>shiro-core</artifactId>
+				<version>${apache.shiro.version}</version>
 			</dependency>
 			<!-- apache END -->
 
@@ -238,6 +262,21 @@
 				<groupId>joda-time</groupId>
 				<artifactId>joda-time</artifactId>
 				<version>${joda.time.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>log4j</groupId>
+				<artifactId>log4j</artifactId>
+				<version>${log4j.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>mysql</groupId>
+				<artifactId>mysql-connector-java</artifactId>
+				<version>${mysql.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.oracle</groupId>
+				<artifactId>ojdbc6</artifactId>
+				<version>${oracle.version}</version>
 			</dependency>
 			<!-- other END -->
 

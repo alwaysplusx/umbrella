@@ -18,6 +18,7 @@ package com.harmony.modules.jaxws.impl;
 import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -141,9 +142,7 @@ public class SimpleJaxWsContext implements JaxWsContext, Serializable {
 
     @Override
     public Map<String, Object> getContextMap() {
-        HashMap<String, Object> result = new HashMap<String, Object>();
-        result.putAll(contextMap);
-        return result;
+        return Collections.unmodifiableMap(contextMap);
     }
 
     @Override

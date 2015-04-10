@@ -9,13 +9,13 @@
 	<artifactId>modules-message</artifactId>
 	<dependencies>
 		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>javax.jms</groupId>
 			<artifactId>jms</artifactId>
 			<scope>provided</scope>
-		</dependency>
-		<dependency>
-		  <groupId>org.slf4j</groupId>
-		  <artifactId>slf4j-api</artifactId>
 		</dependency>
 	</dependencies>
 </project>
