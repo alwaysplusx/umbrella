@@ -22,7 +22,7 @@ import javax.jms.Destination;
 
 import com.harmony.modules.examples.jaxws.JaxWsMessage;
 import com.harmony.modules.jaxws.JaxWsContext;
-import com.harmony.modules.jaxws.support.AbstractJmsContextSend;
+import com.harmony.modules.jaxws.support.AbstractJmsContextSender;
 import com.harmony.modules.jaxws.support.JaxWsContextSender;
 import com.harmony.modules.message.Message;
 
@@ -30,26 +30,26 @@ import com.harmony.modules.message.Message;
  * @author wuxii
  */
 @Stateless
-public class JaxWsContextSenderBean extends AbstractJmsContextSend implements JaxWsContextSender {
+public class JaxWsContextSenderBean extends AbstractJmsContextSender implements JaxWsContextSender {
 
-	@Resource(name = "jms/connectionFactory")
-	private ConnectionFactory connectionFactory;
-	@Resource(name = "jms/queue")
-	private Destination destination;
+    @Resource(name = "jms/connectionFactory")
+    private ConnectionFactory connectionFactory;
+    @Resource(name = "jms/queue")
+    private Destination destination;
 
-	@Override
-	public Message createMessage(JaxWsContext context) {
-		return new JaxWsMessage(context);
-	}
+    @Override
+    public Message createMessage(JaxWsContext context) {
+        return new JaxWsMessage(context);
+    }
 
-	@Override
-	public ConnectionFactory getConnectionFactory() {
-		return connectionFactory;
-	}
+    @Override
+    public ConnectionFactory getConnectionFactory() {
+        return connectionFactory;
+    }
 
-	@Override
-	public Destination getDestination() {
-		return destination;
-	}
+    @Override
+    public Destination getDestination() {
+        return destination;
+    }
 
 }

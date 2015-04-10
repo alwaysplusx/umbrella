@@ -20,7 +20,7 @@ import javax.ejb.Stateless;
 import com.harmony.modules.examples.jaxws.JaxWsMessage;
 import com.harmony.modules.jaxws.JaxWsContext;
 import com.harmony.modules.jaxws.support.JaxWsContextReceiver;
-import com.harmony.modules.jaxws.support.JaxWsContextReceiverImpl;
+import com.harmony.modules.jaxws.support.PropertiesFileJaxWsContextReceiver;
 import com.harmony.modules.message.AbstractMessageResolver;
 import com.harmony.modules.message.Message;
 
@@ -30,44 +30,44 @@ import com.harmony.modules.message.Message;
 @Stateless
 public class JaxWsContextReceiverBean extends AbstractMessageResolver<JaxWsContext> implements JaxWsContextReceiver {
 
-	private JaxWsContextReceiver receiver = new JaxWsContextReceiverImpl();
+    private JaxWsContextReceiver receiver = new PropertiesFileJaxWsContextReceiver();
 
-	@Override
-	public boolean support(Message message) {
-		return message instanceof JaxWsMessage;
-	}
+    @Override
+    public boolean support(Message message) {
+        return message instanceof JaxWsMessage;
+    }
 
-	@Override
-	public void process(JaxWsContext message) {
-		receive(message);
-	}
+    @Override
+    public void process(JaxWsContext message) {
+        receive(message);
+    }
 
-	@Override
-	protected JaxWsContext resolver(Message message) {
-		return ((JaxWsMessage) message).getMessage();
-	}
+    @Override
+    protected JaxWsContext resolver(Message message) {
+        return ((JaxWsMessage) message).getMessage();
+    }
 
-	@Override
-	public void receive(JaxWsContext context) {
-		receiver.receive(context);
-	}
+    @Override
+    public void receive(JaxWsContext context) {
+        receiver.receive(context);
+    }
 
-	@Override
-	public void open() throws Exception {
-		receiver.open();
-	}
+    @Override
+    public void open() throws Exception {
+        receiver.open();
+    }
 
-	@Override
-	public void close() throws Exception {
-		receiver.close();
-	}
+    @Override
+    public void close() throws Exception {
+        receiver.close();
+    }
 
-	@Override
-	public boolean isClosed() {
-		return receiver.isClosed();
-	}
+    @Override
+    public boolean isClosed() {
+        return receiver.isClosed();
+    }
 
-	public void setJaxWsContextReceiver(JaxWsContextReceiver receiver) {
-		this.receiver = receiver;
-	}
+    public void setJaxWsContextReceiver(JaxWsContextReceiver receiver) {
+        this.receiver = receiver;
+    }
 }

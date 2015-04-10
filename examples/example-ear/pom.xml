@@ -12,7 +12,7 @@
 		<dependency>
 			<groupId>com.harmony.modules.examples</groupId>
 			<artifactId>example-jaxws</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<version>${project.version}</version>
 			<type>ejb</type>
 		</dependency>
 	</dependencies>
@@ -27,6 +27,11 @@
 					<generateApplicationXml>true</generateApplicationXml>
 					<version>6</version>
 					<modules>
+                        <!-- <webModule>
+                            <groupId>com.harmony.modules.examples</groupId>
+                            <artifactId>example-jaxws</artifactId>
+                            <contextRoot>/example-jaxws</contextRoot>
+                        </webModule> -->
 						<ejbModule>
 							<groupId>com.harmony.modules.examples</groupId>
 							<artifactId>example-jaxws</artifactId>
