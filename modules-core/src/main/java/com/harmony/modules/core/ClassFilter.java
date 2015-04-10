@@ -17,6 +17,7 @@ package com.harmony.modules.core;
 
 /**
  * 类过滤
+ * 
  * @author wuxii@foxmail.com
  */
 public interface ClassFilter {

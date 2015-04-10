@@ -38,7 +38,7 @@ import com.harmony.modules.utils.ClassUtils;
  */
 public class ResourceScaner {
 
-	private final static Logger log = LoggerFactory.getLogger(ResourceScaner.class);
+    private final static Logger log = LoggerFactory.getLogger(ResourceScaner.class);
     static final String resourcePattern = ResourcePatternResolver.ALL_RESOURCE_PATTERN;
     static final String classPattern = ResourcePatternResolver.ALL_CLASS_PATTERN;
     @SuppressWarnings("rawtypes")
@@ -62,7 +62,9 @@ public class ResourceScaner {
 
     /**
      * 扫描basePackage下的类
-     * @param basePackage 包
+     * 
+     * @param basePackage
+     *            包
      * @return
      * @throws IOException
      */
@@ -90,7 +92,7 @@ public class ResourceScaner {
                             inStream.close();
                         }
                     } catch (IOException e) {
-						log.debug("", e);
+                        log.debug("", e);
                     }
                 }
             }
@@ -102,8 +104,11 @@ public class ResourceScaner {
 
     /**
      * 加载包basePackage下符合{@linkplain ClassFilter}的所有类
-     * @param basePackage 包
-     * @param filter class过滤
+     * 
+     * @param basePackage
+     *            包
+     * @param filter
+     *            class过滤
      * @return
      * @throws IOException
      */
@@ -123,12 +128,13 @@ public class ResourceScaner {
 
     /**
      * 扫描paths下的资源
+     * 
      * @param paths
      * @return
      * @throws IOException
      * @see AntPathMatcher
      */
-	public Resource[] scanPath(String... paths) throws IOException {
+    public Resource[] scanPath(String... paths) throws IOException {
         Set<Resource> resources = new LinkedHashSet<Resource>();
         for (String path : paths) {
             Collections.addAll(resources, scanPath(path));
@@ -138,6 +144,7 @@ public class ResourceScaner {
 
     /**
      * 扫描paths下的资源
+     * 
      * @param path
      * @return
      * @throws IOException
@@ -155,6 +162,7 @@ public class ResourceScaner {
 
     /**
      * 根据路径表达式加载资源
+     * 
      * @param pathExpression
      * @return
      * @see AntPathMatcher
@@ -176,17 +184,18 @@ public class ResourceScaner {
 
     /**
      * 清除已经缓冲的资源
+     * 
      * @param cacheKey
      */
     public void removeCache(String cacheKey) {
         scanCache.remove(cacheKey);
     }
 
-	protected static String resolveBasePackage(String basePackage) {
-		if (basePackage == null)
-			return "";
-		return basePackage.replace(".", "/");
-	}
+    protected static String resolveBasePackage(String basePackage) {
+        if (basePackage == null)
+            return "";
+        return basePackage.replace(".", "/");
+    }
 
     protected static Class<?> checkClassAccess(String className) {
         ClassLoader loader = ClassUtils.getDefaultClassLoader();

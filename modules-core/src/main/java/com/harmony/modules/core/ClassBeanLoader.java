@@ -21,6 +21,7 @@ import java.util.Map;
 
 /**
  * 通过类的反射{@linkplain Class#newInstance()}来创建Bean
+ * 
  * @author wuxii@foxmail.com
  */
 public class ClassBeanLoader implements BeanLoader, Serializable {
@@ -33,10 +34,10 @@ public class ClassBeanLoader implements BeanLoader, Serializable {
     public <T> T loadBean(String beanName) {
         try {
             Class<?> clazz = Class.forName(beanName);
-            return (T) loadBean(clazz);
+            return (T) loadBean(clazz, SINGLETON);
         } catch (ClassNotFoundException e) {
+            throw new NoSuchBeanFindException(e.getMessage(), e);
         }
-        return null;
     }
 
     @SuppressWarnings("unchecked")
@@ -46,35 +47,34 @@ public class ClassBeanLoader implements BeanLoader, Serializable {
             Class<?> clazz = Class.forName(beanName);
             return (T) loadBean(clazz, scope);
         } catch (ClassNotFoundException e) {
+            throw new NoSuchBeanFindException(e.getMessage(), e);
         }
-        return null;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public <T> T loadBean(Class<T> beanClass) {
-        if (!beans.containsKey(beanClass)) {
-            beans.put(beanClass, newBean(beanClass, null));
-        }
-        return (T) beans.get(beanClass);
+        return loadBean(beanClass, SINGLETON);
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public <T> T loadBean(Class<T> beanClass, String scope) {
         if (SINGLETON.equals(scope)) {
-            return loadBean(beanClass);
+            if (!beans.containsKey(beanClass)) {
+                beans.put(beanClass, createBean(beanClass, null));
+            }
+            return (T) beans.get(beanClass);
         } else if (PROTOTYPE.equals(scope)) {
-            return (T) newBean(beanClass, null);
+            return (T) createBean(beanClass, null);
         }
         throw new IllegalArgumentException("unsupport scope " + scope);
     }
 
-    private Object newBean(Class<?> beanClass, Map<String, Object> properties) {
+    protected Object createBean(Class<?> beanClass, Map<String, Object> properties) {
         try {
             return beanClass.newInstance();
         } catch (Exception e) {
-            throw new IllegalArgumentException(e);
+            throw new NoSuchBeanFindException(e.getMessage(), e);
         }
     }
 

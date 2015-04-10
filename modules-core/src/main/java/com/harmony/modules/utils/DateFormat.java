@@ -25,6 +25,7 @@ import java.util.Map;
 
 /**
  * 时间格式化工具
+ * 
  * @author wuxii@foxmail.com
  */
 public abstract class DateFormat {
@@ -75,7 +76,9 @@ public abstract class DateFormat {
 
     /**
      * 创建一个日期格式工具
-     * @param pattern 格式
+     * 
+     * @param pattern
+     *            格式
      * @return
      */
     public static NullAbleDateFormat create(String pattern) {
@@ -89,8 +92,8 @@ public abstract class DateFormat {
     public static class NullAbleDateFormat implements Serializable {
 
         private static final long serialVersionUID = 8448875239037856747L;
-        private SimpleDateFormat sdf;
-        private String pattern;
+        private final SimpleDateFormat sdf;
+        private final String pattern;
 
         public NullAbleDateFormat(String pattern) {
             this.pattern = pattern;
@@ -114,6 +117,7 @@ public abstract class DateFormat {
 
         /**
          * 格式化时间
+         * 
          * @param c
          * @return
          */

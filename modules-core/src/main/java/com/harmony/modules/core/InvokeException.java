@@ -15,23 +15,23 @@
  */
 package com.harmony.modules.core;
 
-public class InvokException extends Exception {
+public class InvokeException extends Exception {
 
     private static final long serialVersionUID = -4338894263088635172L;
 
-    public InvokException() {
+    public InvokeException() {
         super();
     }
 
-    public InvokException(String message, Throwable cause) {
+    public InvokeException(String message, Throwable cause) {
         super(message, cause);
     }
 
-    public InvokException(String message) {
+    public InvokeException(String message) {
         super(message);
     }
 
-    public InvokException(Throwable cause) {
+    public InvokeException(Throwable cause) {
         super(cause);
     }
 

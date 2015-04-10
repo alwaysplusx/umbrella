@@ -17,6 +17,7 @@ package com.harmony.modules.core;
 
 /**
  * bean加载
+ * 
  * @author wuxii@foxmail.com
  */
 public interface BeanLoader {
@@ -33,32 +34,36 @@ public interface BeanLoader {
 
     /**
      * 根据bean的名称加载指定bean，默认获取单例的bean
+     * 
      * @param beanName
      * @return
      */
-    <T> T loadBean(String beanName);
+    <T> T loadBean(String beanName) throws NoSuchBeanFindException;
 
     /**
      * 加载一个指定类型的bean
+     * 
      * @param beanName
      * @param scope
      * @return
      */
-    <T> T loadBean(String beanName, String scope);
+    <T> T loadBean(String beanName, String scope) throws NoSuchBeanFindException;
 
     /**
      * 默认加载一个单例的bean
+     * 
      * @param beanClass
      * @return
      */
-    <T> T loadBean(Class<T> beanClass);
+    <T> T loadBean(Class<T> beanClass) throws NoSuchBeanFindException;
 
     /**
      * 加载一个指定类型的bean
+     * 
      * @param beanClass
      * @param scope
      * @return
      */
-    <T> T loadBean(Class<T> beanClass, String scope);
+    <T> T loadBean(Class<T> beanClass, String scope) throws NoSuchBeanFindException;
 
 }
