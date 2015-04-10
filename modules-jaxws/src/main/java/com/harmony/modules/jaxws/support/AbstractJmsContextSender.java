@@ -22,31 +22,31 @@ import com.harmony.modules.message.Message;
 /**
  * @author wuxii@foxmail.com
  */
-public abstract class AbstractJmsContextSend extends AbstractJmsMessageSender implements JaxWsContextSender {
+public abstract class AbstractJmsContextSender extends AbstractJmsMessageSender implements JaxWsContextSender {
 
-	@Override
-	public boolean send(JaxWsContext context) {
-		return send(createMessage(context));
-	}
+    @Override
+    public boolean send(JaxWsContext context) {
+        return send(createMessage(context));
+    }
 
-	/**
-	 * 将{@linkplain JaxWsContext}转化为可以传递到消息服务中的消息
-	 * @param context
-	 * @return
-	 */
-	public abstract Message createMessage(JaxWsContext context);
+    /**
+     * 将{@linkplain JaxWsContext}转化为可以传递到消息服务中的消息
+     * @param context
+     * @return
+     */
+    public abstract Message createMessage(JaxWsContext context);
 
-	@Override
-	public void open() {
-	}
+    @Override
+    public void open() {
+    }
 
-	@Override
-	public void close() throws Exception {
-	}
+    @Override
+    public void close() throws Exception {
+    }
 
-	@Override
-	public boolean isClosed() {
-		return false;
-	}
+    @Override
+    public boolean isClosed() {
+        return false;
+    }
 
 }

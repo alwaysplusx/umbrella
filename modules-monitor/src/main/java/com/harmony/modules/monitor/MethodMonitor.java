@@ -17,8 +17,6 @@ package com.harmony.modules.monitor;
 
 import java.lang.reflect.Method;
 
-import com.harmony.modules.monitor.support.MethodMonitorInterceptor.Monitored;
-
 /**
  * 方法监视器
  * @author wuxii@foxmail.com

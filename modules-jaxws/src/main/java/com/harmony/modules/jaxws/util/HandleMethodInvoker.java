@@ -18,7 +18,7 @@ package com.harmony.modules.jaxws.util;
 import java.lang.reflect.Method;
 import java.util.Map;
 
-import com.harmony.modules.core.InvokException;
+import com.harmony.modules.core.InvokeException;
 import com.harmony.modules.core.Invoker;
 import com.harmony.modules.jaxws.Phase;
 
@@ -34,9 +34,9 @@ public interface HandleMethodInvoker extends Invoker {
 	 * @param target 目标实例
 	 * @param args 参数
 	 * @return
-	 * @throws InvokException
+	 * @throws InvokeException
 	 */
-	Object invokeHandleMethod(Object target, Object[] args) throws InvokException;
+	Object invokeHandleMethod(Object target, Object[] args) throws InvokeException;
 
 	/**
 	 * 执行handleMethod
@@ -45,9 +45,9 @@ public interface HandleMethodInvoker extends Invoker {
 	 * @param args 参数
 	 * @param contextMap
 	 * @return
-	 * @throws InvokException
+	 * @throws InvokeException
 	 */
-	Object invokeHandleMethod(Object target, Object[] args, Map<String, String> contextMap) throws InvokException;
+	Object invokeHandleMethod(Object target, Object[] args, Map<String, String> contextMap) throws InvokeException;
 
 	/**
 	 * handler class

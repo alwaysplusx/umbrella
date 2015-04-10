@@ -18,8 +18,8 @@ package com.harmony.modules.monitor;
 import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
 
+import com.harmony.modules.monitor.annotation.Monitored;
 import com.harmony.modules.monitor.support.MethodMonitorInterceptor;
-import com.harmony.modules.monitor.support.MethodMonitorInterceptor.Monitored;
 
 /**
  * @author wuxii@foxmail.com
@@ -27,11 +27,11 @@ import com.harmony.modules.monitor.support.MethodMonitorInterceptor.Monitored;
 @Stateless
 public class TestService {
 
-	// CDI
-	@Monitored
-	@Interceptors({ MethodMonitorInterceptor.class })
-	public String doService(String serviceName) {
-		return "SUCCESS";
-	}
+    // CDI
+    @Monitored
+    @Interceptors({ MethodMonitorInterceptor.class })
+    public String doService(String serviceName) {
+        return "SUCCESS";
+    }
 
 }

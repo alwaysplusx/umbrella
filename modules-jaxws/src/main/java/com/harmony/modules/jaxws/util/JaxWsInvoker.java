@@ -24,7 +24,7 @@ import javax.jws.WebParam;
 import javax.jws.WebParam.Mode;
 
 import com.harmony.modules.core.DefaultInvoker;
-import com.harmony.modules.core.InvokException;
+import com.harmony.modules.core.InvokeException;
 import com.harmony.modules.core.Invoker;
 
 /**
@@ -37,7 +37,7 @@ public class JaxWsInvoker extends DefaultInvoker implements Invoker {
     private boolean extractValueFromSingleResult = true;
 
     @Override
-    public Object invoke(Object target, Method method, Object[] parameters) throws InvokException {
+    public Object invoke(Object target, Method method, Object[] parameters) throws InvokeException {
         Object result = super.invoke(target, method, parameters);
         if (result == null && method.getReturnType().equals(void.class)) {
             result = getParamOut(method, parameters);

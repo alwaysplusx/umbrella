@@ -16,24 +16,19 @@
 package com.harmony.modules.jaxws.impl;
 
 import static com.harmony.modules.jaxws.JaxWsProxyBuilder.*;
-import static com.harmony.modules.utils.DateFormat.*;
 
 import java.lang.reflect.Method;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.harmony.modules.core.InvokException;
+import com.harmony.modules.core.InvokeException;
 import com.harmony.modules.core.Invoker;
 import com.harmony.modules.jaxws.JaxWsContext;
 import com.harmony.modules.jaxws.JaxWsException;
 import com.harmony.modules.jaxws.JaxWsGraph;
 import com.harmony.modules.jaxws.JaxWsPhaseExecutor;
 import com.harmony.modules.jaxws.util.JaxWsInvoker;
-import com.harmony.modules.monitor.AbstractGraph;
-import com.harmony.modules.monitor.support.MethodMonitorInterceptor.Monitored;
-import com.harmony.modules.monitor.util.MonitorUtils;
 import com.harmony.modules.utils.Exceptions;
 
 /**
@@ -56,15 +51,15 @@ public class JaxWsCXFExecutor extends JaxWsPhaseExecutor {
             Method method = context.getMethod();
             Object proxy = loadProxy(context);
             Object[] parameters = context.getParameters();
-            graph.method = method;
-            graph.target = proxy;
-            graph.args = parameters;
+            graph.setMethod(method);
+            graph.setTarget(proxy);
+            graph.setArgs(parameters);
             result = (T) invoker.invoke(proxy, method, parameters);
             graph.setResult(result);
         } catch (NoSuchMethodException e) {
             graph.setException(e);
             throw new JaxWsException("未找到接口方法" + context, e);
-        } catch (InvokException e) {
+        } catch (InvokeException e) {
             graph.setException(e);
             throw new JaxWsException("执行交互失败", Exceptions.getRootCause(e));
         } finally {
@@ -74,7 +69,7 @@ public class JaxWsCXFExecutor extends JaxWsPhaseExecutor {
     }
 
     @Override
-    protected void persistJaxWsGraph(JaxWsGraph graph) {
+    protected void persistGraph(JaxWsGraph graph) {
         // empty implement
     }
 
@@ -119,7 +114,8 @@ public class JaxWsCXFExecutor extends JaxWsPhaseExecutor {
      * @return
      */
     protected Object createProxy(JaxWsContext context) {
-        return newProxyBuilder().setAddress(context.getAddress())
+        return newProxyBuilder()
+                .setAddress(context.getAddress())
                 .setUsername(context.getUsername())
                 .setPassword(context.getPassword())
                 .build(context.getServiceInterface());
@@ -143,7 +139,7 @@ public class JaxWsCXFExecutor extends JaxWsPhaseExecutor {
     }
 
     private static class JaxWsContextKey {
-        
+
         private String serviceName;
         private String address;
         private String username;
@@ -200,81 +196,4 @@ public class JaxWsCXFExecutor extends JaxWsPhaseExecutor {
         }
     }
 
-    protected class JaxWsGraphImpl extends AbstractGraph implements JaxWsGraph {
-
-        private Object target;
-        private Method method;
-        private Object[] args;
-
-        public JaxWsGraphImpl() {
-            super();
-        }
-
-        public JaxWsGraphImpl(Object target, Method method, Object[] args) {
-            super();
-            this.target = target;
-            this.method = method;
-            this.args = args;
-        }
-
-        public Object getTarget() {
-            return target;
-        }
-
-        @Override
-        public String getIdentifie() {
-            return MonitorUtils.methodIdentifie(method);
-        }
-
-        @Override
-        public Map<String, Object> getArguments() {
-            Map<String, Object> arguments = new HashMap<String, Object>();
-            if (args != null) {
-                for (int i = 0, max = args.length; i < max; i++) {
-                    arguments.put(i + 1 + "", args[i]);
-                }
-            }
-            return arguments;
-        }
-
-        @Override
-        @Deprecated
-        public void setArguments(Map<String, Object> arguments) {
-            super.setArguments(arguments);
-        }
-
-        public Method getMethod() {
-            return method;
-        }
-
-        public Object[] getArgs() {
-            return args;
-        }
-
-        @Override
-        public String getModule() {
-            Monitored ann = method.getAnnotation(Monitored.class);
-            if (ann != null) {
-                return ann.module();
-            }
-            return null;
-        }
-
-        @Override
-        public String getOperator() {
-            Monitored ann = method.getAnnotation(Monitored.class);
-            if (ann != null) {
-                return ann.operator();
-            }
-            return null;
-        }
-
-        @Override
-        public String toString() {
-            return "{\"target\":\"" + target + "\", \"method\":\"" + method + "\", \"args\":\"" + Arrays.toString(args) + "\", \"result\":\"" + result
-                    + "\", \"requestTime\":\"" + FULL_DATEFORMAT.format(requestTime) + "\", \"responseTime\":\"" + FULL_DATEFORMAT.format(responseTime)
-                    + "\", \"exception\":\"" + exception + "\"}";
-        }
-
-    }
 }

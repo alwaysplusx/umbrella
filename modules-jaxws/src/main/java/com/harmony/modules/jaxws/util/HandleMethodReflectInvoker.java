@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.harmony.modules.core.DefaultInvoker;
-import com.harmony.modules.core.InvokException;
+import com.harmony.modules.core.InvokeException;
 import com.harmony.modules.jaxws.Phase;
 
 /**
@@ -60,12 +60,12 @@ public class HandleMethodReflectInvoker extends DefaultInvoker implements Handle
 	}
 
 	@Override
-	public Object invokeHandleMethod(Object target, Object[] args) throws InvokException {
+	public Object invokeHandleMethod(Object target, Object[] args) throws InvokeException {
 		return invokeHandleMethod(target, args, null);
 	}
 
 	@Override
-	public Object invokeHandleMethod(Object target, Object[] args, Map<String, String> contextMap) throws InvokException {
+	public Object invokeHandleMethod(Object target, Object[] args, Map<String, String> contextMap) throws InvokeException {
 		List<Object> arguments = new LinkedList<Object>();
 		Collections.addAll(arguments, args);
 		if (endWithMap) {

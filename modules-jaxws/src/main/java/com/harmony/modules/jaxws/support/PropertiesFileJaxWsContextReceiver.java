@@ -37,11 +37,11 @@ import com.harmony.modules.utils.ClassUtils;
 /**
  * @author wuxii@foxmail.com
  */
-public class JaxWsContextReceiverImpl implements JaxWsContextReceiver {
+public class PropertiesFileJaxWsContextReceiver implements JaxWsContextReceiver {
 
     protected final static String JAXWS_HANDLERS_LOCATION = "META-INF/jaxws/jaxws-receiver.txt";
 
-    protected static final Logger log = LoggerFactory.getLogger(JaxWsContextReceiverImpl.class);
+    protected static final Logger log = LoggerFactory.getLogger(PropertiesFileJaxWsContextReceiver.class);
 
     /**
      * 用于加载用户名密码地址
@@ -73,11 +73,11 @@ public class JaxWsContextReceiverImpl implements JaxWsContextReceiver {
      */
     private boolean retentionHandlers;
 
-    public JaxWsContextReceiverImpl() {
+    public PropertiesFileJaxWsContextReceiver() {
         this(JAXWS_HANDLERS_LOCATION);
     }
 
-    public JaxWsContextReceiverImpl(String handlersLocation) {
+    public PropertiesFileJaxWsContextReceiver(String handlersLocation) {
         this.handlersLocation = handlersLocation;
     }
 

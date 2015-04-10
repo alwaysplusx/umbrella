@@ -16,7 +16,7 @@ public class JaxWsContextReceiverBeanTest {
 
     @Before
     public void setUp() throws Exception {
-        JaxWsContextReceiverImpl receiver = new JaxWsContextReceiverImpl();
+        PropertiesFileJaxWsContextReceiver receiver = new PropertiesFileJaxWsContextReceiver();
         receiver.setReload(false);
         this.receiver = receiver;
         Endpoint.publish("http://localhost:8080/hi", new HelloServiceImpl());

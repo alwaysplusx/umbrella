@@ -109,7 +109,7 @@ public abstract class JaxWsPhaseExecutor implements JaxWsExecutor {
                 Object graph = context.get(JaxWsGraph.JAXWS_CONTEXT_GRAPH);
                 LOG.info("执行情况概要如下:{}", graph);
                 try {
-                    persistJaxWsGraph((JaxWsGraph) graph);
+                    persistGraph((JaxWsGraph) graph);
                 } catch (Exception e) {
                     LOG.info("保存失败, JaxWs执行情况无法正常保存", e);
                 }
@@ -123,7 +123,7 @@ public abstract class JaxWsPhaseExecutor implements JaxWsExecutor {
      * <p>所以子类必须在{@linkplain JaxWsContext}设置{@linkplain JaxWsGraph}.才会进入保存流程.
      * @param graph
      */
-    protected abstract void persistJaxWsGraph(JaxWsGraph graph);
+    protected abstract void persistGraph(JaxWsGraph graph);
 
     @Override
     public Object execute(JaxWsContext context) {
