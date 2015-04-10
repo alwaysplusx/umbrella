@@ -17,6 +17,7 @@ package com.harmony.modules.jaxws;
 
 /**
  * 可将jaxws属性保存到数据库或者其他地方做的扩展
+ * 
  * @author wuxii@foxmail.com
  */
 public interface JaxWsMetadata {

@@ -109,6 +109,7 @@ public interface Scheduler {
 
     /**
      * 查看当前任务是否停止
+     * 
      * @param jobName
      * @return
      */
@@ -116,6 +117,7 @@ public interface Scheduler {
 
     /**
      * 查看当前任务是否被挂起
+     * 
      * @param jobName
      * @return
      */
@@ -132,6 +134,7 @@ public interface Scheduler {
 
     /**
      * 获取job的运行状态
+     * 
      * @param jobName
      * @return
      */
@@ -160,84 +163,98 @@ public interface Scheduler {
 
         /**
          * job的名称
+         * 
          * @return
          */
         String getJobName();
 
         /**
          * 等级时间，Job注册在Scheduler的时间
+         * 
          * @return
          */
         Calendar getRegisterTime();
 
         /**
          * scheduler中启动该job的时间
+         * 
          * @return
          */
         Calendar getStartTime();
 
         /**
          * 最近执行开始时间
+         * 
          * @return
          */
         Calendar getLastExecuteStartTime();
 
         /**
          * 最近执行完成时间
+         * 
          * @return
          */
         Calendar getLastExecuteFinishTime();
 
         /**
          * 最近执行出现异常的时间
+         * 
          * @return
          */
         Calendar getLastExceptionTime();
 
         /**
          * 被挂起的次数
+         * 
          * @return
          */
         int getPauseTimes();
 
         /**
          * 平均执行间隔
+         * 
          * @return
          */
         float getAverageInterval();
 
         /**
          * 执行成功的次数
+         * 
          * @return
          */
         int getSuccessTimes();
 
         /**
          * 执行的次数
+         * 
          * @return
          */
         int getExecuteTimes();
 
         /**
          * 执行异常的次数
+         * 
          * @return
          */
         int getExceptionTimes();
 
         /**
          * 关联的job的class
+         * 
          * @return
          */
         Class<? extends Job> getJobClass();
 
         /**
          * job的当前状态
+         * 
          * @return
          */
         Status getJobStatus();
 
         /**
          * 设置运行状态
+         * 
          * @param status
          * @return
          */
@@ -245,18 +262,21 @@ public interface Scheduler {
 
         /**
          * job触发的规则
+         * 
          * @return
          */
         Trigger getJobTrigger();
 
         /**
          * 执行job的定时器
+         * 
          * @return
          */
         Object getTimer();
 
         /**
          * 最近异常提示消息
+         * 
          * @return
          */
         String getLastExceptionMessage();

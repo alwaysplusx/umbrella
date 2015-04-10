@@ -19,6 +19,7 @@ import javax.servlet.Filter;
 
 /**
  * http请求监视
+ * 
  * @author wuxii@foxmail.com
  * @see Filter
  */
@@ -31,6 +32,7 @@ public interface HttpMonitor extends Monitor, Filter {
 
         /**
          * 对应请求的http方法 GET, POST, PUT, DELETE, HEAD, OPTIONS, TRACE
+         * 
          * @return
          * @see javax.servlet.http.HttpServletRequest#getMethod()
          */
@@ -38,6 +40,7 @@ public interface HttpMonitor extends Monitor, Filter {
 
         /**
          * 发起请求的地址
+         * 
          * @return
          * @see javax.servlet.http.HttpServletRequest#getRemoteAddr()
          */
@@ -45,6 +48,7 @@ public interface HttpMonitor extends Monitor, Filter {
 
         /**
          * 相应的地址
+         * 
          * @return
          * @see javax.servlet.http.HttpServletRequest#getLocalAddr()
          */
@@ -52,6 +56,7 @@ public interface HttpMonitor extends Monitor, Filter {
 
         /**
          * 请求时候带的查询字符串
+         * 
          * @return
          * @see javax.servlet.http.HttpServletRequest#getQueryString()
          */
@@ -59,6 +64,7 @@ public interface HttpMonitor extends Monitor, Filter {
 
         /**
          * 应答的状态码
+         * 
          * @return
          * @see javax.servlet.http.HttpServletResponse#getStatus()
          */

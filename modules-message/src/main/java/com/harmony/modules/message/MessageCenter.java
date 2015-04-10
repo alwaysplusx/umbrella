@@ -17,27 +17,31 @@ package com.harmony.modules.message;
 
 /**
  * 消息中心
+ * 
  * @author wuxii
  */
 public interface MessageCenter {
 
-	/**
-	 * 将{@linkplain MessageSender}发送出来的消息处理给{@linkplain MessageListener}
-	 * @param message
-	 * @return
-	 */
-	boolean handle(Message message);
-	
-	/**
-	 * 队列的消息中心
-	 * @return
-	 */
-	boolean isQueue();
-	
-	/**
-	 * 广播的消息中心
-	 * @return
-	 */
-	boolean isTopic();
-	
+    /**
+     * 将{@linkplain MessageSender}发送出来的消息处理给{@linkplain MessageListener}
+     * 
+     * @param message
+     * @return
+     */
+    boolean handle(Message message);
+
+    /**
+     * 队列的消息中心
+     * 
+     * @return
+     */
+    boolean isQueue();
+
+    /**
+     * 广播的消息中心
+     * 
+     * @return
+     */
+    boolean isTopic();
+
 }

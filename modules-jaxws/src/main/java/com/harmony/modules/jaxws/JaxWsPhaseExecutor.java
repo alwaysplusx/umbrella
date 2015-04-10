@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * 将{@linkplain JaxWsExecutor}的执行分为各个周期的抽象类
+ * 
  * @author wuxii@foxmail.com
  */
 public abstract class JaxWsPhaseExecutor implements JaxWsExecutor {
@@ -36,6 +37,7 @@ public abstract class JaxWsPhaseExecutor implements JaxWsExecutor {
 
     /**
      * 安静的执行{@linkplain #execute(JaxWsContext)}，不触发内部的handler
+     * 
      * @param context
      * @param resultType
      * @return
@@ -45,6 +47,7 @@ public abstract class JaxWsPhaseExecutor implements JaxWsExecutor {
 
     /**
      * 安静的执行{@linkplain #execute(JaxWsContext)}，不触发内部的handler
+     * 
      * @param context
      * @return
      * @see #execute(JaxWsContext, Class)
@@ -55,6 +58,7 @@ public abstract class JaxWsPhaseExecutor implements JaxWsExecutor {
 
     /**
      * 安静的异步执行{@linkplain #executeAsync(JaxWsContext)}
+     * 
      * @param context
      * @param resultType
      * @return
@@ -73,6 +77,7 @@ public abstract class JaxWsPhaseExecutor implements JaxWsExecutor {
 
     /**
      * 安静的异步执行{@linkplain #executeAsync(JaxWsContext)}
+     * 
      * @param context
      * @return
      */
@@ -119,8 +124,10 @@ public abstract class JaxWsPhaseExecutor implements JaxWsExecutor {
     }
 
     /**
-     * {@linkplain JaxWsPhaseExecutor}中没有在{@linkplain JaxWsContext}中设置{@linkplain JaxWsGraph}.
-     * <p>所以子类必须在{@linkplain JaxWsContext}设置{@linkplain JaxWsGraph}.才会进入保存流程.
+     * {@linkplain JaxWsPhaseExecutor}中没有在{@linkplain JaxWsContext}中设置
+     * {@linkplain JaxWsGraph}. <p>所以子类必须在{@linkplain JaxWsContext}设置
+     * {@linkplain JaxWsGraph}.才会进入保存流程.
+     * 
      * @param graph
      */
     protected abstract void persistGraph(JaxWsGraph graph);

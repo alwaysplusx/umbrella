@@ -44,6 +44,7 @@ public abstract class MethodMonitorAdapter<T> implements MethodMonitor {
 
     /**
      * 保存方法监视结果
+     * 
      * @param graph
      */
     protected abstract void persistGraph(MethodGraph graph);
@@ -84,6 +85,7 @@ public abstract class MethodMonitorAdapter<T> implements MethodMonitor {
 
     /**
      * 将方转化为唯一的资源限定表示
+     * 
      * @param method
      * @return
      */

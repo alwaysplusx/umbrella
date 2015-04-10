@@ -26,14 +26,15 @@ import java.util.concurrent.Future;
  */
 public interface JaxWsExecutor {
 
-	/**
-	 * 执行交互，并返回指定类型的返回值 <p> <em>tips:如果接口中包含不定参数一定要特别注意，将不定参数当作数组一并输入</em>
-	 * @param context
-	 * @param resultType
-	 * @return
-	 */
-	<T> T execute(JaxWsContext context, Class<T> resultType);
-	
+    /**
+     * 执行交互，并返回指定类型的返回值 <p> <em>tips:如果接口中包含不定参数一定要特别注意，将不定参数当作数组一并输入</em>
+     * 
+     * @param context
+     * @param resultType
+     * @return
+     */
+    <T> T execute(JaxWsContext context, Class<T> resultType);
+
     /**
      * 执行交互 <p> <em>tips:如果接口中包含不定参数一定要特别注意，将不定参数当作数组一并输入</em>
      * 

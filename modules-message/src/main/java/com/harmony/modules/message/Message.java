@@ -19,6 +19,7 @@ import java.io.Serializable;
 
 /**
  * marker interface
+ * 
  * @author wuxii
  */
 public interface Message extends Serializable {

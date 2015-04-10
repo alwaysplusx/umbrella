@@ -19,6 +19,7 @@ import com.harmony.modules.scheduling.Scheduler.JobInfo;
 
 /**
  * job类,所有的定时任务实现这个类
+ * 
  * @author wuxii@foxmail.com
  */
 public interface Job {

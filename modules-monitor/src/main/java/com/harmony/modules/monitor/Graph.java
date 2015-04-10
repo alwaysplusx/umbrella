@@ -20,62 +20,72 @@ import java.util.Map;
 
 /**
  * 监视记录
+ * 
  * @author wuxii@foxmail.com
  */
 public interface Graph {
 
-	/**
-	 * 监视的资源标识
-	 * @return
-	 */
-	String getIdentifie();
+    /**
+     * 监视的资源标识
+     * 
+     * @return
+     */
+    String getIdentifie();
 
-	/**
-	 * 请求时间
-	 * @return
-	 */
-	Calendar getRequestTime();
+    /**
+     * 请求时间
+     * 
+     * @return
+     */
+    Calendar getRequestTime();
 
-	/**
-	 * 系统应答时间
-	 * @return
-	 */
-	Calendar getResponseTime();
+    /**
+     * 系统应答时间
+     * 
+     * @return
+     */
+    Calendar getResponseTime();
 
-	/**
-	 * 处理结果
-	 * @return
-	 */
-	Object getResult();
+    /**
+     * 处理结果
+     * 
+     * @return
+     */
+    Object getResult();
 
-	/**
-	 * 请求参数
-	 * @return
-	 */
-	Map<String, Object> getArguments();
+    /**
+     * 请求参数
+     * 
+     * @return
+     */
+    Map<String, Object> getArguments();
 
-	/**
-	 * 请求中是否有异常
-	 * @return
-	 */
-	boolean isException();
+    /**
+     * 请求中是否有异常
+     * 
+     * @return
+     */
+    boolean isException();
 
-	/**
-	 * 异常消息
-	 * @return
-	 */
-	String getExceptionMessage();
+    /**
+     * 异常消息
+     * 
+     * @return
+     */
+    String getExceptionMessage();
 
-	/**
-	 * 异常的原因
-	 * @return
-	 */
-	String getCause();
-	
-	/**
-	 * 请求耗时 单位毫秒(ms)
-	 * @return -1 无法计算耗时
-	 */
-	long use();
+    /**
+     * 异常的原因
+     * 
+     * @return
+     */
+    String getCause();
+
+    /**
+     * 请求耗时 单位毫秒(ms)
+     * 
+     * @return -1 无法计算耗时
+     */
+    long use();
 
 }

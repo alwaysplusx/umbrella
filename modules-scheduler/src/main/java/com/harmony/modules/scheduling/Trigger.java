@@ -60,6 +60,7 @@ public interface Trigger {
 
     /**
      * 启动延时
+     * 
      * @return
      */
     public long getDelay();

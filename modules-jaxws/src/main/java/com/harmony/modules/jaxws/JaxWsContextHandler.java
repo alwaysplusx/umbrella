@@ -30,7 +30,7 @@ public interface JaxWsContextHandler extends Serializable {
      * 
      * @param context
      *            执行上下文
-     * @throws JaxWsAbortException 
+     * @throws JaxWsAbortException
      */
     boolean preExecute(JaxWsContext context) throws JaxWsAbortException;
 

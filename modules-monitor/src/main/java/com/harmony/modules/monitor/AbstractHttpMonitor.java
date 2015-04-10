@@ -34,6 +34,7 @@ import com.harmony.modules.utils.Exceptions;
 
 /**
  * Http监视抽象类
+ * 
  * @author wuxii@foxmail.com
  */
 public abstract class AbstractHttpMonitor implements HttpMonitor {
@@ -49,6 +50,7 @@ public abstract class AbstractHttpMonitor implements HttpMonitor {
 
     /**
      * 保存http监视结果
+     * 
      * @param graph
      */
     protected abstract void persistGraph(HttpGraph graph);

@@ -17,6 +17,7 @@ package com.harmony.modules.jaxws;
 
 /**
  * 在执行前如果有异常则抛出取消异常
+ * 
  * @author wuxii@foxmail.com
  */
 public class JaxWsAbortException extends Exception {

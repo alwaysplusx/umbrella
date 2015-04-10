@@ -24,6 +24,7 @@ import com.harmony.modules.utils.Exceptions;
 
 /**
  * 监视结果基础抽象类
+ * 
  * @author wuxii@foxmail.com
  */
 public class AbstractGraph implements Graph {

@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Proxy Builder 创建代理实例
+ * 
  * @author wuxii@foxmail.com
  */
 public class JaxWsProxyBuilder {
@@ -103,6 +104,7 @@ public class JaxWsProxyBuilder {
 
     /**
      * 设置代理服务的地址，该操作发生在{@link #setMetadataLoader(MetadataLoader)}之后则不在加载该属性
+     * 
      * @param address
      * @return
      */
@@ -114,6 +116,7 @@ public class JaxWsProxyBuilder {
 
     /**
      * 设置代理服务的用户密码，该操作发生在{@link #setMetadataLoader(MetadataLoader)}之后则不在加载该属性
+     * 
      * @param username
      * @return
      */
@@ -125,6 +128,7 @@ public class JaxWsProxyBuilder {
 
     /**
      * 设置代理服务的密码，该操作发生在{@link #setMetadataLoader(MetadataLoader)}之后则不在加载该属性
+     * 
      * @param password
      * @return
      */
@@ -136,6 +140,7 @@ public class JaxWsProxyBuilder {
 
     /**
      * 设置接收超时时间，单位毫秒
+     * 
      * @param receiveTimeout
      * @return
      */
@@ -146,6 +151,7 @@ public class JaxWsProxyBuilder {
 
     /**
      * 设置连接超时时间，单位毫秒
+     * 
      * @param connectionTimeout
      * @return
      */
@@ -156,6 +162,7 @@ public class JaxWsProxyBuilder {
 
     /**
      * 创建代理服务，并创建前提供{@linkplain JaxWsProxyFactoryConfig}配置工厂属性
+     * 
      * @param serviceClass
      * @param proxyConfig
      * @return
@@ -183,6 +190,7 @@ public class JaxWsProxyBuilder {
 
     /**
      * 创建代理服务
+     * 
      * @param serviceClass
      * @return
      */
@@ -192,6 +200,7 @@ public class JaxWsProxyBuilder {
 
     /**
      * 创建代理服务
+     * 
      * @param serviceClass
      * @param connectionTimeout
      * @param factoryConfig
@@ -205,6 +214,7 @@ public class JaxWsProxyBuilder {
 
     /**
      * 获取代理工厂中的内容
+     * 
      * @param cls
      * @return
      */
@@ -273,9 +283,9 @@ public class JaxWsProxyBuilder {
     }
 
     /**
-     * 创建时候的回调方法，负责创建前配置{@linkplain JaxWsProxyFactoryBean}
-     * <p>不允许在{@link #config(JaxWsProxyFactoryBean)}中调用{@linkplain JaxWsProxyFactoryBean#create()}方法
-     * <p>否则调用异常
+     * 创建时候的回调方法，负责创建前配置{@linkplain JaxWsProxyFactoryBean} <p>不允许在
+     * {@link #config(JaxWsProxyFactoryBean)}中调用
+     * {@linkplain JaxWsProxyFactoryBean#create()}方法 <p>否则调用异常
      */
     public interface JaxWsProxyFactoryConfig {
 

@@ -17,12 +17,14 @@ package com.harmony.modules.jaxws;
 
 /**
  * 将被{@linkplain JaxWsMetadata}取代
+ * 
  * @author wuxii@foxmail.com
  */
 public interface MetadataLoader {
 
     /**
      * 获取指定serviceClass的用户名
+     * 
      * @param serviceClass
      * @return
      */
@@ -30,6 +32,7 @@ public interface MetadataLoader {
 
     /**
      * 获取指定serviceClass的密码
+     * 
      * @param serviceClass
      * @return
      */
@@ -37,6 +40,7 @@ public interface MetadataLoader {
 
     /**
      * 获取指定serviceClass的地址
+     * 
      * @param serviceClass
      * @return
      */

@@ -27,6 +27,7 @@ import com.harmony.modules.monitor.annotation.Monitored;
 
 /**
  * TODO 将监控方法抽象，带入泛型指定具体的Invocation
+ * 
  * @author wuxii@foxmail.com
  */
 @Monitored

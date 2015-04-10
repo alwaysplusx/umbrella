@@ -19,6 +19,7 @@ import com.harmony.modules.monitor.MethodMonitor.MethodGraph;
 
 /**
  * 监视扩展，将jaxws的运行情况保存到数据库或者其他方式存储起来
+ * 
  * @author wuxii@foxmail.com
  */
 public interface JaxWsGraph extends MethodGraph {

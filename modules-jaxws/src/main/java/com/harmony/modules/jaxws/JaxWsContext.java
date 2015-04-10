@@ -21,15 +21,8 @@ import java.util.Enumeration;
 import java.util.Map;
 
 /**
- * 执行时候的上下文
- * <p>
- * 上下文中包括:
- * <li>待执行的web service接口
- * <li>待执行的方法
- * <li>执行时候所需要用到的参数
- * <li>调用地址
- * <li>用户名密码
- * <li>以及其他待扩展的属性
+ * 执行时候的上下文 <p> 上下文中包括: <li>待执行的web service接口 <li>待执行的方法 <li>执行时候所需要用到的参数
+ * <li>调用地址 <li>用户名密码 <li>以及其他待扩展的属性
  * 
  * @author wuxii@foxmail.com
  *
@@ -74,21 +67,22 @@ public interface JaxWsContext extends Serializable {
     String getAddress();
 
     /**
-     * 用户名<p>
-     * 可在context上下文通过{@link JaxWsContext#USERNAME}获得
+     * 用户名<p> 可在context上下文通过{@link JaxWsContext#USERNAME}获得
+     * 
      * @return 用户名
      */
     String getUsername();
 
     /**
-     * 用户密码<p>
-     * 可在context上下文通过{@link JaxWsContext#PASSWORD}获得
+     * 用户密码<p> 可在context上下文通过{@link JaxWsContext#PASSWORD}获得
+     * 
      * @return 密码
      */
     String getPassword();
 
     /**
      * 在上下文中获取属性值
+     * 
      * @param contextKey
      *            检索键
      * @return 上下文中的值
@@ -99,7 +93,7 @@ public interface JaxWsContext extends Serializable {
      * 上下文中是否包含检索条件
      * 
      * @param contextKey
-     * @return 
+     * @return
      */
     boolean contains(String contextKey);
 
@@ -114,6 +108,7 @@ public interface JaxWsContext extends Serializable {
 
     /**
      * 上下文中的其他属性
+     * 
      * @return
      */
     Enumeration<String> getContextNames();
@@ -127,6 +122,7 @@ public interface JaxWsContext extends Serializable {
 
     /**
      * 往当前环境中设置值
+     * 
      * @param key
      * @param value
      */

@@ -28,53 +28,56 @@ import org.slf4j.LoggerFactory;
 
 /**
  * 基于JMS的消息发送基础抽象类
+ * 
  * @author wuxii@foxmail.com
  */
 public abstract class AbstractJmsMessageSender implements MessageSender {
 
-	protected static final Logger log = LoggerFactory.getLogger(AbstractJmsMessageSender.class);
+    protected static final Logger log = LoggerFactory.getLogger(AbstractJmsMessageSender.class);
 
-	@Override
-	public boolean send(Message message) {
-		Connection connection = null;
-		Session session = null;
-		MessageProducer producer = null;
-		try {
-			connection = getConnectionFactory().createConnection();
-			connection.start();
-			session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-			producer = session.createProducer(getDestination());
-			ObjectMessage om = session.createObjectMessage();
-			om.setObject(message);
-			producer.send(om);
-		} catch (JMSException e) {
-			log.error("发送失败{}", message, e);
-			return false;
-		} finally {
-			try {
-				if (producer != null)
-					producer.close();
-				if (session != null)
-					session.close();
-				if (connection != null)
-					connection.close();
-			} catch (JMSException e) {
-				log.debug("", e);
-			}
-		}
-		return true;
-	}
+    @Override
+    public boolean send(Message message) {
+        Connection connection = null;
+        Session session = null;
+        MessageProducer producer = null;
+        try {
+            connection = getConnectionFactory().createConnection();
+            connection.start();
+            session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+            producer = session.createProducer(getDestination());
+            ObjectMessage om = session.createObjectMessage();
+            om.setObject(message);
+            producer.send(om);
+        } catch (JMSException e) {
+            log.error("发送失败{}", message, e);
+            return false;
+        } finally {
+            try {
+                if (producer != null)
+                    producer.close();
+                if (session != null)
+                    session.close();
+                if (connection != null)
+                    connection.close();
+            } catch (JMSException e) {
+                log.debug("", e);
+            }
+        }
+        return true;
+    }
 
-	/**
-	 * JMS连接工厂
-	 * @return
-	 */
-	public abstract ConnectionFactory getConnectionFactory();
+    /**
+     * JMS连接工厂
+     * 
+     * @return
+     */
+    public abstract ConnectionFactory getConnectionFactory();
 
-	/**
-	 * JMS的目的地
-	 * @return
-	 */
-	public abstract Destination getDestination();
+    /**
+     * JMS的目的地
+     * 
+     * @return
+     */
+    public abstract Destination getDestination();
 
 }
