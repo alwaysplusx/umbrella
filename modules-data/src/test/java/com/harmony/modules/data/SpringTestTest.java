@@ -26,6 +26,8 @@ import javax.persistence.Query;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.provider.PersistenceProvider;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -67,6 +69,14 @@ public class SpringTestTest {
     @Test
     public void testFindListBy() {
         Collection<User> users = userRepository.findListByUsername("wuxii");
+        System.out.println(users);
+    }
+
+    @Test
+    public void testFindPageBy() {
+        PageRequest pr = new PageRequest(0, 20);
+        Page<User> users = userRepository.findByUsernameAndUserIdOrUsername(pr, "wuxii", 1l, "a");
+        // Page<User> users = userRepository.findAll(pr);
         System.out.println(users);
     }
 

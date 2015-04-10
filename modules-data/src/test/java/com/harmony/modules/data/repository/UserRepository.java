@@ -17,6 +17,8 @@ package com.harmony.modules.data.repository;
 
 import java.util.Collection;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -29,9 +31,11 @@ import com.harmony.modules.data.persistence.User;
 public interface UserRepository extends JpaRepository<User, Long> {
 
     User findOneByUserId(Long id);
-    
+
     User findOneByUsername(String username);
 
     Collection<User> findListByUsername(String username);
+
+    Page<User> findByUsernameAndUserIdOrUsername(Pageable p, String username1, Long userId, String username2);
 
 }
