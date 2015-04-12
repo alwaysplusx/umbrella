@@ -20,9 +20,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 
-import com.harmony.umbrella.utils.ClassUtils;
-import com.harmony.umbrella.utils.ObjectUtils;
-import com.harmony.umbrella.utils.StringUtils;
+import com.harmony.umbrella.util.ClassUtils;
+import com.harmony.umbrella.util.ObjectUtils;
+import com.harmony.umbrella.util.StringUtils;
 
 /**
  * {@link Resource} implementation for class path resources. Uses either a given

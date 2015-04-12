@@ -24,7 +24,7 @@ import java.io.OutputStream;
 import java.net.URI;
 import java.net.URL;
 
-import com.harmony.umbrella.utils.StringUtils;
+import com.harmony.umbrella.util.StringUtils;
 
 /**
  * {@link Resource} implementation for {@code java.io.File} handles. Obviously

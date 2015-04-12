@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.umbrella.utils;
+package com.harmony.umbrella.util;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Miscellaneous class utility methods.
- * Mainly for internal use within the framework.
+ * Miscellaneous class utility methods. Mainly for internal use within the
+ * framework.
  *
  * @author Juergen Hoeller
  * @author Keith Donald
@@ -48,13 +48,13 @@ public abstract class ClassUtils {
 	/** The ".class" file suffix */
 	public static final String CLASS_FILE_SUFFIX = ".class";
 	/**
-	 * Map with primitive wrapper type as key and corresponding primitive
-	 * type as value, for example: Integer.class -> int.class.
+	 * Map with primitive wrapper type as key and corresponding primitive type
+	 * as value, for example: Integer.class -> int.class.
 	 */
 	private static final Map<Class<?>, Class<?>> primitiveWrapperTypeMap = new HashMap<Class<?>, Class<?>>(8);
 	/**
-	 * Map with primitive type as key and corresponding wrapper
-	 * type as value, for example: int.class -> Integer.class.
+	 * Map with primitive type as key and corresponding wrapper type as value,
+	 * for example: int.class -> Integer.class.
 	 */
 	private static final Map<Class<?>, Class<?>> primitiveTypeToWrapperMap = new HashMap<Class<?>, Class<?>>(8);
 
@@ -127,6 +127,7 @@ public abstract class ClassUtils {
 
 	/**
 	 * 比较两个类是否相同
+	 * 
 	 * @param c1
 	 * @param c2
 	 * @return
@@ -137,6 +138,7 @@ public abstract class ClassUtils {
 
 	/**
 	 * 比较两个类的全显定名称是否相同
+	 * 
 	 * @param c1
 	 * @param c2
 	 * @return
@@ -147,6 +149,7 @@ public abstract class ClassUtils {
 
 	/**
 	 * subClass是否是superClass的子类
+	 * 
 	 * @param superClass
 	 * @param subClass
 	 * @return
@@ -174,13 +177,16 @@ public abstract class ClassUtils {
 		}
 		return false;
 	}
-	
+
 	/**
-	 * Determine if the given type is assignable from the given value,
-	 * assuming setting by reflection. Considers primitive wrapper classes
-	 * as assignable to the corresponding primitive types.
-	 * @param type the target type
-	 * @param value the value that should be assigned to the type
+	 * Determine if the given type is assignable from the given value, assuming
+	 * setting by reflection. Considers primitive wrapper classes as assignable
+	 * to the corresponding primitive types.
+	 * 
+	 * @param type
+	 *            the target type
+	 * @param value
+	 *            the value that should be assigned to the type
 	 * @return if the type is assignable from the value
 	 */
 	public static boolean isAssignableValue(Class<?> type, Object value) {
@@ -189,8 +195,11 @@ public abstract class ClassUtils {
 
 	/**
 	 * 检查输入类型是否符合模版的参数
-	 * @param pattern 参数的模版
-	 * @param inputTypes 输入类型
+	 * 
+	 * @param pattern
+	 *            参数的模版
+	 * @param inputTypes
+	 *            输入类型
 	 * @return
 	 * @see ClassUtils#isAssignable(Class, Class)
 	 */
@@ -206,8 +215,11 @@ public abstract class ClassUtils {
 
 	/**
 	 * 检查输入参数是否符合模版的参数类型
-	 * @param pattern 模版参数
-	 * @param args 输入参数
+	 * 
+	 * @param pattern
+	 *            模版参数
+	 * @param args
+	 *            输入参数
 	 * @return
 	 */
 	public static boolean typeEquals(Class<?>[] pattern, Object[] args) {
@@ -216,6 +228,7 @@ public abstract class ClassUtils {
 
 	/**
 	 * 将参数转化为Class类型数组，对应于{@linkplain Method#getParameterTypes()}
+	 * 
 	 * @param args
 	 * @return
 	 * @see Method#getParameterTypes()
@@ -235,7 +248,31 @@ public abstract class ClassUtils {
 	}
 
 	/**
+	 * Replacement for {@code Class.forName()} that also returns Class instances
+	 * for primitives (e.g. "int") and array class names (e.g. "String[]").
+	 * Furthermore, it is also capable of resolving inner class names in Java
+	 * source style (e.g. "java.lang.Thread.State" instead of
+	 * "java.lang.Thread$State").
+	 * 
+	 * @param name
+	 *            the name of the Class
+	 * @param classLoader
+	 *            the class loader to use (may be {@code null}, which indicates
+	 *            the default class loader)
+	 * @return Class instance for the supplied name
+	 * @throws ClassNotFoundException
+	 *             if the class was not found
+	 * @throws LinkageError
+	 *             if the class file could not be loaded
+	 * @see Class#forName(String, boolean, ClassLoader)
+	 */
+	public static Class<?> forName(String name, ClassLoader classLoader) throws ClassNotFoundException, LinkageError {
+		return Class.forName(name);
+	}
+
+	/**
 	 * 获得clazz的真实类型
+	 * 
 	 * @param clazz
 	 * @return
 	 */
@@ -246,7 +283,9 @@ public abstract class ClassUtils {
 
 	/**
 	 * Check whether the specified class is a CGLIB-generated class.
-	 * @param clazz the class to check
+	 * 
+	 * @param clazz
+	 *            the class to check
 	 */
 	public static boolean isCglibProxyClass(Class<?> clazz) {
 		return (clazz != null && isCglibProxyClassName(clazz.getName()));
@@ -254,7 +293,9 @@ public abstract class ClassUtils {
 
 	/**
 	 * Check whether the specified class name is a CGLIB-generated class.
-	 * @param className the class name to check
+	 * 
+	 * @param className
+	 *            the class name to check
 	 */
 	public static boolean isCglibProxyClassName(String className) {
 		return (className != null && className.contains(CGLIB_CLASS_SEPARATOR));

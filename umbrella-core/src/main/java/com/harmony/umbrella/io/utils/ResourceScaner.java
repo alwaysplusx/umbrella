@@ -31,7 +31,7 @@ import com.harmony.umbrella.core.ClassFilter;
 import com.harmony.umbrella.io.PathMatchingResourcePatternResolver;
 import com.harmony.umbrella.io.Resource;
 import com.harmony.umbrella.io.ResourcePatternResolver;
-import com.harmony.umbrella.utils.ClassUtils;
+import com.harmony.umbrella.util.ClassUtils;
 
 /**
  * @author wuxii@foxmail.com

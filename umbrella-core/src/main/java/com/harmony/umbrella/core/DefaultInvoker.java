@@ -15,12 +15,12 @@
  */
 package com.harmony.umbrella.core;
 
-import static com.harmony.umbrella.utils.ClassUtils.*;
+import static com.harmony.umbrella.util.ClassUtils.*;
 
 import java.io.Serializable;
 import java.lang.reflect.Method;
 
-import com.harmony.umbrella.utils.Exceptions;
+import com.harmony.umbrella.util.Exceptions;
 
 /**
  * @author wuxii@foxmail.com

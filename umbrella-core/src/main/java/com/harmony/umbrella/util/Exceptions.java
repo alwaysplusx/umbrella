@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  *******************************************************************************/
-package com.harmony.umbrella.utils;
+package com.harmony.umbrella.util;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;

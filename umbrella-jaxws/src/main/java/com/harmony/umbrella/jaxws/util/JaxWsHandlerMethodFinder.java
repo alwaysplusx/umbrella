@@ -15,7 +15,7 @@
  */
 package com.harmony.umbrella.jaxws.util;
 
-import static com.harmony.umbrella.utils.ClassUtils.*;
+import static com.harmony.umbrella.util.ClassUtils.*;
 
 import java.io.IOException;
 import java.lang.reflect.Method;

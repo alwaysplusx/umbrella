@@ -32,7 +32,7 @@ import com.harmony.umbrella.jaxws.JaxWsExecutor;
 import com.harmony.umbrella.jaxws.MetadataLoader;
 import com.harmony.umbrella.jaxws.impl.JaxWsCXFExecutor;
 import com.harmony.umbrella.jaxws.impl.SimpleJaxWsContext;
-import com.harmony.umbrella.utils.ClassUtils;
+import com.harmony.umbrella.util.ClassUtils;
 
 /**
  * @author wuxii@foxmail.com

@@ -25,7 +25,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 import com.harmony.umbrella.jaxws.JaxWsContext;
-import com.harmony.umbrella.utils.ClassUtils;
+import com.harmony.umbrella.util.ClassUtils;
 
 /**
  * @author wuxii@foxmail.com

@@ -23,7 +23,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
 
-import com.harmony.umbrella.utils.ClassUtils;
+import com.harmony.umbrella.util.ClassUtils;
 
 /**
  * Utility methods for resolving resource locations to files in the file system.

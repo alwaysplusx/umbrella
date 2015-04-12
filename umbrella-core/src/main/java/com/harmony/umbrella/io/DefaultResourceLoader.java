@@ -18,8 +18,8 @@ package com.harmony.umbrella.io;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-import com.harmony.umbrella.utils.ClassUtils;
-import com.harmony.umbrella.utils.StringUtils;
+import com.harmony.umbrella.util.ClassUtils;
+import com.harmony.umbrella.util.StringUtils;
 
 /**
  * Default implementation of the {@link ResourceLoader} interface. Used by

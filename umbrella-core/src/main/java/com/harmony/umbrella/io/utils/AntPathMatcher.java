@@ -24,7 +24,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.harmony.umbrella.utils.StringUtils;
+import com.harmony.umbrella.util.StringUtils;
 
 /**
  * PathMatcher implementation for Ant-style path patterns. Examples are provided

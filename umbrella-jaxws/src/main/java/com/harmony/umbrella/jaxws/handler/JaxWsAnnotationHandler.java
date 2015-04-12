@@ -29,7 +29,7 @@ import com.harmony.umbrella.jaxws.JaxWsContextHandler;
 import com.harmony.umbrella.jaxws.Handler.HandleMethod;
 import com.harmony.umbrella.jaxws.util.HandleMethodInvoker;
 import com.harmony.umbrella.jaxws.util.JaxWsHandlerMethodFinder;
-import com.harmony.umbrella.utils.Exceptions;
+import com.harmony.umbrella.util.Exceptions;
 
 /**
  * 将{@linkplain JaxWsAnnotationHandler#scanPackage scanPackage}下带有{@linkplain com.harmony.umbrella.jaxws.Handler Handler}

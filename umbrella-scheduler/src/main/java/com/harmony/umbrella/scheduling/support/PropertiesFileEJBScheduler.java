@@ -33,8 +33,8 @@ import com.harmony.umbrella.scheduling.Job;
 import com.harmony.umbrella.scheduling.Scheduler;
 import com.harmony.umbrella.scheduling.SchedulerException;
 import com.harmony.umbrella.scheduling.Trigger;
-import com.harmony.umbrella.utils.PropUtils;
-import com.harmony.umbrella.utils.StringUtils;
+import com.harmony.umbrella.util.PropUtils;
+import com.harmony.umbrella.util.StringUtils;
 
 /**
  * 基于配置文件的定时任务管理

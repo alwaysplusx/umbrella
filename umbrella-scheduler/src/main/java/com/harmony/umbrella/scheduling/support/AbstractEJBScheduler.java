@@ -28,7 +28,7 @@ import com.harmony.umbrella.scheduling.AbstractScheduler;
 import com.harmony.umbrella.scheduling.Job;
 import com.harmony.umbrella.scheduling.Scheduler;
 import com.harmony.umbrella.scheduling.Trigger;
-import com.harmony.umbrella.utils.Exceptions;
+import com.harmony.umbrella.util.Exceptions;
 
 /**
  * 基于EJB定时任务的抽象类

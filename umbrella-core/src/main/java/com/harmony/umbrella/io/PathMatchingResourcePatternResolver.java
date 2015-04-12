@@ -36,7 +36,7 @@ import org.slf4j.LoggerFactory;
 import com.harmony.umbrella.io.utils.AntPathMatcher;
 import com.harmony.umbrella.io.utils.PathMatcher;
 import com.harmony.umbrella.io.utils.ResourceUtils;
-import com.harmony.umbrella.utils.StringUtils;
+import com.harmony.umbrella.util.StringUtils;
 
 /**
  * A {@link ResourcePatternResolver} implementation that is able to resolve a

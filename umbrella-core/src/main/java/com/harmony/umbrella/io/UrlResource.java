@@ -26,7 +26,7 @@ import java.net.URL;
 import java.net.URLConnection;
 
 import com.harmony.umbrella.io.utils.ResourceUtils;
-import com.harmony.umbrella.utils.StringUtils;
+import com.harmony.umbrella.util.StringUtils;
 
 /**
  * {@link Resource} implementation for {@code java.net.URL} locators.
