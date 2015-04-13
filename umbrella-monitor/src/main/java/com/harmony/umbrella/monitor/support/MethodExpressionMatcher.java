@@ -40,7 +40,7 @@ public class MethodExpressionMatcher implements ResourceMatcher<Method> {
 
     @Override
     public boolean matches(Method method) {
-        return pointcutExpression.matchesAdviceExecution(method).maybeMatches();
+        return pointcutExpression.matchesMethodExecution(method).maybeMatches();
     }
 
     public boolean matchInType(Class<?> clazz) {
