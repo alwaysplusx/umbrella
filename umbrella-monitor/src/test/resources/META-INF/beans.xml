@@ -2,6 +2,6 @@
 <beans>
 	<!-- Container Dependency Inject(CDI) Feature -->
 	<interceptors>
-		<class>com.harmony.modules.monitor.support.MethodMonitorInterceptor</class>
+		<class>com.harmony.umbrella.monitor.impl.MethodMonitorInterceptor</class>
 	</interceptors>
 </beans>

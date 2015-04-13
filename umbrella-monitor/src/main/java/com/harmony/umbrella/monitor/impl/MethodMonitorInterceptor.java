@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.umbrella.monitor.support;
+package com.harmony.umbrella.monitor.impl;
 
 import java.lang.reflect.Method;
 
@@ -21,9 +21,12 @@ import javax.interceptor.AroundInvoke;
 import javax.interceptor.Interceptor;
 import javax.interceptor.InvocationContext;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.harmony.umbrella.monitor.MethodMonitor;
-import com.harmony.umbrella.monitor.AbstractMethodMonitor;
 import com.harmony.umbrella.monitor.annotation.Monitored;
+import com.harmony.umbrella.monitor.support.AbstractMethodMonitor;
 
 /**
  * TODO 将监控方法抽象，带入泛型指定具体的Invocation
@@ -34,6 +37,16 @@ import com.harmony.umbrella.monitor.annotation.Monitored;
 @Interceptor
 public class MethodMonitorInterceptor extends AbstractMethodMonitor<InvocationContext> implements MethodMonitor {
 
+    private static final Logger log = LoggerFactory.getLogger(MethodMonitorInterceptor.class);
+
+    public MethodMonitorInterceptor() {
+        this(DEFAULT_METHOD_PATTERN);
+    }
+
+    public MethodMonitorInterceptor(String pattern) {
+        this.includePattern(pattern);
+    }
+
     @Override
     @AroundInvoke
     protected Object monitor(InvocationContext ctx) throws Exception {
@@ -42,6 +55,7 @@ public class MethodMonitorInterceptor extends AbstractMethodMonitor<InvocationCo
 
     @Override
     protected void persistGraph(MethodGraph graph) {
+        log.info("method interceptor result graph:{}", graph);
     }
 
     @Override

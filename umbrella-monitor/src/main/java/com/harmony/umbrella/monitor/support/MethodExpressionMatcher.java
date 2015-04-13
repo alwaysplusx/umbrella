@@ -23,18 +23,18 @@ import org.aspectj.weaver.tools.PointcutExpression;
 import org.aspectj.weaver.tools.PointcutParser;
 import org.aspectj.weaver.tools.PointcutPrimitive;
 
-import com.harmony.umbrella.monitor.MethodMonitor.MethodExpressionMatcher;
+import com.harmony.umbrella.monitor.ResourceMatcher;
 import com.harmony.umbrella.utils.ClassUtils;
 
 /**
  * @author wuxii@foxmail.com
  */
-public class MethodExpressionMatcherImpl implements MethodExpressionMatcher {
+public class MethodExpressionMatcher implements ResourceMatcher<Method> {
 
     protected static final PointcutExpressionFactory factoryInstance = new PointcutExpressionFactory();
     private final PointcutExpression pointcutExpression;
 
-    public MethodExpressionMatcherImpl(String expression) {
+    public MethodExpressionMatcher(String expression) {
         this.pointcutExpression = factoryInstance.create(expression);
     }
 
@@ -43,7 +43,6 @@ public class MethodExpressionMatcherImpl implements MethodExpressionMatcher {
         return pointcutExpression.matchesAdviceExecution(method).maybeMatches();
     }
 
-    @Override
     public boolean matchInType(Class<?> clazz) {
         return pointcutExpression.couldMatchJoinPointsInType(clazz);
     }
@@ -69,7 +68,7 @@ public class MethodExpressionMatcherImpl implements MethodExpressionMatcher {
             return false;
         if (getClass() != obj.getClass())
             return false;
-        MethodExpressionMatcherImpl other = (MethodExpressionMatcherImpl) obj;
+        MethodExpressionMatcher other = (MethodExpressionMatcher) obj;
         if (getExpression() == null) {
             if (other.getExpression() != null)
                 return false;

@@ -13,24 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.umbrella.monitor;
-
-import static org.junit.Assert.*;
-
-import org.junit.Test;
+package com.harmony.umbrella.monitor.support;
 
 import com.harmony.umbrella.io.utils.AntPathMatcher;
+import com.harmony.umbrella.io.utils.PathMatcher;
+import com.harmony.umbrella.monitor.ResourceMatcher;
 
 /**
  * @author wuxii@foxmail.com
  */
-public class PathMatcherTest {
+public class ResourcePathMatcher implements ResourceMatcher<String> {
 
-    @Test
-    public void testMatch() {
-        AntPathMatcher matcher = new AntPathMatcher();
-        assertTrue(matcher.match("**/**", "/static/a.js"));
-        // assertTrue(matcher.match("/static/**", "/static/sub/a.js"));
+    private final String pattern;
+    private PathMatcher matcher;
+
+    public ResourcePathMatcher(String pattern) {
+        this.pattern = pattern;
+        this.matcher = new AntPathMatcher(pattern);
     }
 
+    @Override
+    public boolean matches(String resource) {
+        return matcher.isPattern(resource);
+    }
+
+    @Override
+    public String getExpression() {
+        return pattern;
+    }
 }

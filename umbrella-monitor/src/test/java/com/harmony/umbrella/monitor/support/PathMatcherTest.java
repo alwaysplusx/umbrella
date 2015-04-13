@@ -17,24 +17,20 @@ package com.harmony.umbrella.monitor.support;
 
 import static org.junit.Assert.*;
 
-import java.lang.reflect.Method;
-
 import org.junit.Test;
 
-import com.harmony.umbrella.monitor.MethodMonitor;
+import com.harmony.umbrella.io.utils.AntPathMatcher;
 
 /**
  * @author wuxii@foxmail.com
  */
-public class MethodExpressionMatcherTest {
+public class PathMatcherTest {
 
     @Test
-    public void testGetExpression() {
-        MethodExpressionMatcherImpl mem = new MethodExpressionMatcherImpl(MethodMonitor.DEFAULT_METHOD_PATTERN);
-        assertEquals(MethodMonitor.DEFAULT_METHOD_PATTERN, mem.getExpression());
-        assertTrue(mem.matchInType(getClass()));
-        Method method = Object.class.getDeclaredMethods()[0];
-        assertFalse(mem.matches(method));
+    public void testMatch() {
+        AntPathMatcher matcher = new AntPathMatcher();
+        assertTrue(matcher.match("**/**", "/static/a.js"));
+        // assertTrue(matcher.match("/static/**", "/static/sub/a.js"));
     }
 
 }

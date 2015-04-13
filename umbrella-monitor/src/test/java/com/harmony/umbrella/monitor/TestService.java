@@ -19,7 +19,7 @@ import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
 
 import com.harmony.umbrella.monitor.annotation.Monitored;
-import com.harmony.umbrella.monitor.support.MethodMonitorInterceptor;
+import com.harmony.umbrella.monitor.impl.MethodMonitorInterceptor;
 
 /**
  * @author wuxii@foxmail.com

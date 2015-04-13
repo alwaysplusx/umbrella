@@ -14,7 +14,7 @@ he original author or authors.
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.umbrella.monitor;
+package com.harmony.umbrella.monitor.support;
 
 import static org.junit.Assert.*;
 
@@ -28,6 +28,8 @@ import org.aspectj.weaver.tools.PointcutParameter;
 import org.aspectj.weaver.tools.PointcutParser;
 import org.aspectj.weaver.tools.PointcutPrimitive;
 import org.junit.Test;
+
+import com.harmony.umbrella.monitor.MethodMonitor;
 
 /**
  * @author wuxii@foxmail.com

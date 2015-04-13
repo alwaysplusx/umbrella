@@ -15,8 +15,6 @@
  */
 package com.harmony.umbrella.monitor.util;
 
-import java.lang.reflect.Method;
-
 import javax.servlet.http.HttpServletRequest;
 
 /**
@@ -25,18 +23,6 @@ import javax.servlet.http.HttpServletRequest;
  * @author wuxii@foxmail.com
  */
 public abstract class MonitorUtils {
-
-    /**
-     * 将方转化为唯一的资源限定标识
-     * 
-     * @param method
-     * @return
-     */
-    public static String methodIdentifie(Method method) {
-        if (method == null)
-            return null;
-        return method.toGenericString();
-    }
 
     /**
      * 将request转为唯一的资源限定标识

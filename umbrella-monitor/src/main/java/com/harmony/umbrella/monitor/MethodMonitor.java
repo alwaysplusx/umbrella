@@ -26,34 +26,9 @@ import com.harmony.umbrella.monitor.annotation.Monitored;
  * @author wuxii@foxmail.com
  * 
  */
-public interface MethodMonitor extends Monitor {
+public interface MethodMonitor extends Monitor<Method> {
 
     String DEFAULT_METHOD_PATTERN = "execution(* com.harmony.*.*(..))";
-
-    /**
-     * 排除在监控名单外
-     * 
-     * @param method
-     *            方法
-     */
-    void excludeMethod(Method method);
-
-    /**
-     * 包含在监控名单内
-     * 
-     * @param method
-     *            方法
-     */
-    void includeMethod(Method method);
-
-    /**
-     * 检测方法是否受到监控
-     * 
-     * @param method
-     *            方法
-     * @return
-     */
-    boolean isMonitored(Method method);
 
     /**
      * 方法监控结果
@@ -104,21 +79,6 @@ public interface MethodMonitor extends Monitor {
          */
         String getOperator();
 
-    }
-
-    /**
-     * @author wuxii@foxmail.com
-     * @see org.aspectj.weaver.tools.PointcutExpression
-     */
-    public interface MethodExpressionMatcher {
-
-        String DEFAULT_EXPRESSION = MethodMonitor.DEFAULT_METHOD_PATTERN;
-
-        boolean matches(Method method);
-
-        boolean matchInType(Class<?> clazz);
-
-        String getExpression();
     }
 
 }

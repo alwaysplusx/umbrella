@@ -15,6 +15,7 @@
  */
 package com.harmony.umbrella.monitor;
 
+import java.util.Collections;
 import java.util.Set;
 
 /**
@@ -22,7 +23,7 @@ import java.util.Set;
  * 
  * @author wuxii@foxmail.com
  */
-public interface Monitor {
+public interface Monitor<T> {
 
     /**
      * 查看监控策略 <p> default is {@linkplain MonitorPolicy#WhiteList}
@@ -44,6 +45,39 @@ public interface Monitor {
      * @param resourcePattern
      */
     void includePattern(String pattern);
+
+    /**
+     * 资源名单中移除资源
+     * 
+     * @param resource
+     */
+    void excludeResource(T resource);
+
+    /**
+     * 资源名单中添加资源
+     * 
+     * @param resource
+     */
+    void includeResource(T resource);
+
+    /**
+     * 检测该资源是否收到监控
+     * 
+     * @param resource
+     * @return
+     */
+    boolean isMonitored(T resource);
+
+    /**
+     * 获取资源名单<p>资源的性质还要通过{@link #getPolicy()}来进一步定性 <ul> <li>
+     * {@linkplain MonitorPolicy#WhiteList}表示为白名单资源 <li>
+     * {@linkplain MonitorPolicy#BlockList}表示为黑名单资源<li>
+     * {@linkplain MonitorPolicy#All}与{@linkplain MonitorPolicy#Skip}
+     * 该资源名单无效</ul>
+     * 
+     * @return {@linkplain Collections#unmodifiableSet(Set)}
+     */
+    Set<T> getResources();
 
     /**
      * 监控模版名单

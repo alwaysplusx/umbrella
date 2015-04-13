@@ -29,24 +29,24 @@ import org.junit.Test;
  */
 public class MethodMonitorTest {
 
-	private EJBContainer container;
-	@EJB
-	private TestService service;
+    private EJBContainer container;
+    @EJB
+    private TestService service;
 
-	@Before
-	public void setUp() throws Exception {
-		Properties props = new Properties();
-		container = EJBContainer.createEJBContainer(props);
-		container.getContext().bind("inject", this);
-	}
+    @Before
+    public void setUp() throws Exception {
+        Properties props = new Properties();
+        container = EJBContainer.createEJBContainer(props);
+        container.getContext().bind("inject", this);
+    }
 
-	@Test
-	public void testInterceptor() {
-		service.doService("SayHi");
-	}
+    @Test
+    public void testInterceptor() {
+        service.doService("SayHi");
+    }
 
-	@After
-	public void tearDown() throws Exception {
-		container.close();
-	}
+    @After
+    public void tearDown() throws Exception {
+        container.close();
+    }
 }
