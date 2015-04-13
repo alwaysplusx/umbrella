@@ -26,13 +26,13 @@ import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import com.harmony.modules.data.query.EntityInformation;
-import com.harmony.modules.data.query.JpaEntityInformation;
 import com.harmony.umbrella.data.persistence.Group;
 import com.harmony.umbrella.data.persistence.Group.GroupPk;
 import com.harmony.umbrella.data.persistence.Person;
 import com.harmony.umbrella.data.persistence.Person.PersonPk;
 import com.harmony.umbrella.data.persistence.User;
+import com.harmony.umbrella.data.query.EntityInformation;
+import com.harmony.umbrella.data.query.JpaEntityInformation;
 
 /**
  * @author wuxii@foxmail.com
@@ -41,50 +41,50 @@ import com.harmony.umbrella.data.persistence.User;
 @ContextConfiguration(locations = { "classpath:/applicationContext.xml" })
 public class MetaTest {
 
-	@PersistenceContext(unitName = "moon")
-	private EntityManager em;
+    @PersistenceContext(unitName = "moon")
+    private EntityManager em;
 
-	@Test
-	public void testEmbeddableId() {
-		Metamodel metamodel = em.getMetamodel();
-		Person person = new Person();
-		person.setAddress("");
-		person.setPk(new PersonPk(1l, ""));
-		EntityInformation<Person, PersonPk> info = new JpaEntityInformation<Person, PersonPk>(Person.class, metamodel);
-		show(info, person);
-	}
+    @Test
+    public void testEmbeddableId() {
+        Metamodel metamodel = em.getMetamodel();
+        Person person = new Person();
+        person.setAddress("");
+        person.setPk(new PersonPk(1l, ""));
+        EntityInformation<Person, PersonPk> info = new JpaEntityInformation<Person, PersonPk>(Person.class, metamodel);
+        show(info, person);
+    }
 
-	@Test
-	public void testNormal() {
-		Metamodel metamodel = em.getMetamodel();
-		User user = new User();
-		user.setUserId(1l);
-		user.setUsername("wuxii");
-		EntityInformation<User, Long> info = new JpaEntityInformation<User, Long>(User.class, metamodel);
-		show(info, user);
-	}
+    @Test
+    public void testNormal() {
+        Metamodel metamodel = em.getMetamodel();
+        User user = new User();
+        user.setUserId(1l);
+        user.setUsername("wuxii");
+        EntityInformation<User, Long> info = new JpaEntityInformation<User, Long>(User.class, metamodel);
+        show(info, user);
+    }
 
-	@Test
-	public void testIdClass() {
-		Metamodel metamodel = em.getMetamodel();
-		Group group = new Group();
-		group.setId(1l);
-		group.setName("wuxii");
-		group.setAddress("a");
-		EntityInformation<Group, GroupPk> info = new JpaEntityInformation<Group, GroupPk>(Group.class, metamodel);
-		show(info, group);
-	}
+    @Test
+    public void testIdClass() {
+        Metamodel metamodel = em.getMetamodel();
+        Group group = new Group();
+        group.setId(1l);
+        group.setName("wuxii");
+        group.setAddress("a");
+        EntityInformation<Group, GroupPk> info = new JpaEntityInformation<Group, GroupPk>(Group.class, metamodel);
+        show(info, group);
+    }
 
-	public <T, ID extends Serializable> void show(EntityInformation<T, ID> info, T entity) {
-		System.err.println(info.getEntityName());
-		System.err.println(info.getId(entity));
-		System.err.println(info.getIdAttribute());
-		System.err.println(info.getIdAttributeNames());
-		System.err.println(info.getIdType());
-		System.err.println(info.getJavaType());
-		System.err.println(info.getTableName());
-		System.err.println(info.isNew(entity));
-		System.out.println(info.getId(entity));
-	}
+    public <T, ID extends Serializable> void show(EntityInformation<T, ID> info, T entity) {
+        System.err.println(info.getEntityName());
+        System.err.println(info.getId(entity));
+        System.err.println(info.getIdAttribute());
+        System.err.println(info.getIdAttributeNames());
+        System.err.println(info.getIdType());
+        System.err.println(info.getJavaType());
+        System.err.println(info.getTableName());
+        System.err.println(info.isNew(entity));
+        System.out.println(info.getId(entity));
+    }
 
 }

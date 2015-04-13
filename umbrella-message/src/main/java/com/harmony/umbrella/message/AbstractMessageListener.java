@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
 public class AbstractMessageListener implements MessageListener {
 
     protected Logger log = LoggerFactory.getLogger(AbstractMessageListener.class);
-    private List<MessageResolver> messageResolvers = new ArrayList<MessageResolver>();
+    protected List<MessageResolver> messageResolvers = new ArrayList<MessageResolver>();
 
     // private boolean initialized = false;
 
