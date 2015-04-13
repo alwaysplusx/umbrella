@@ -17,9 +17,10 @@ package com.harmony.umbrella.monitor;
 
 import java.io.IOException;
 import java.util.Calendar;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -29,6 +30,8 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.harmony.umbrella.io.utils.AntPathMatcher;
+import com.harmony.umbrella.io.utils.PathMatcher;
 import com.harmony.umbrella.monitor.util.MonitorUtils;
 import com.harmony.umbrella.utils.Exceptions;
 
@@ -40,13 +43,25 @@ import com.harmony.umbrella.utils.Exceptions;
 public abstract class AbstractHttpMonitor implements HttpMonitor {
 
     /**
-     * 受到监视的资源
+     * 受到监控的模版名单
      */
-    private Map<String, Object> monitorList = new HashMap<String, Object>();
+    private Map<String, Object> patternList = new ConcurrentHashMap<String, Object>();
+
     /**
-     * 是否开启白名单策略，开启后只拦截在监视名单中的资源
+     * 资源名单，综合{@link #getPolicy()}定性资源名单的意义
      */
-    private boolean useWhiteList;
+    private Map<String, Object> resourceList = new ConcurrentHashMap<String, Object>();
+
+    /**
+     * 监控策略
+     */
+    protected MonitorPolicy policy = MonitorPolicy.BlockList;
+    private PathMatcher pathMatcher = new AntPathMatcher();
+    protected final static Object DEFAULT_PATH_VALUE = new Object();
+
+    public AbstractHttpMonitor() {
+        patternList.put(DEFAULT_PATH_PATTERN, DEFAULT_PATH_VALUE);
+    }
 
     /**
      * 保存http监视结果
@@ -56,37 +71,63 @@ public abstract class AbstractHttpMonitor implements HttpMonitor {
     protected abstract void persistGraph(HttpGraph graph);
 
     @Override
-    public void exclude(String resource) {
-        monitorList.remove(resource);
-    }
-
-    @Override
-    public void include(String resource) {
-        monitorList.put(resource, null);
-    }
-
-    @Override
     public boolean isMonitored(String resource) {
-        if (useWhiteList) {
-            return monitorList.containsKey(resource);
+        switch (policy) {
+        case Skip:
+            return false;
+        case All:
+            return true;
+        case BlockList:
+            for (String pattern : patternList.keySet()) {
+                if (pathMatcher.match(pattern, resource) && resourceList.containsKey(resource)) {
+                    return true;
+                }
+            }
+            return false;
+        case WhiteList:
+            for (String pattern : patternList.keySet()) {
+                if (pathMatcher.match(pattern, resource) && !resourceList.containsKey(resource)) {
+                    return true;
+                }
+            }
+            return false;
         }
-        return true;
+        return false;
     }
 
     @Override
-    public boolean isUseWhiteList() {
-        return useWhiteList;
+    public Set<String> getPatterns() {
+        return Collections.unmodifiableSet(patternList.keySet());
     }
 
     @Override
-    public void useWhiteList(boolean use) {
-        this.useWhiteList = use;
+    public void excludePattern(String pattern) {
+        patternList.remove(pattern);
     }
 
     @Override
-    public String[] getMonitorList() {
-        Set<String> set = monitorList.keySet();
-        return set.toArray(new String[set.size()]);
+    public void includePattern(String pattern) {
+        patternList.put(pattern, DEFAULT_PATH_VALUE);
+    }
+
+    @Override
+    public void includeResource(String resource) {
+        resourceList.put(resource, DEFAULT_PATH_VALUE);
+    }
+
+    @Override
+    public void excludeResource(String resource) {
+        resourceList.remove(resource);
+    }
+
+    @Override
+    public Set<String> getResources() {
+        return Collections.unmodifiableSet(resourceList.keySet());
+    }
+
+    @Override
+    public MonitorPolicy getPolicy() {
+        return policy;
     }
 
     @Override
@@ -124,6 +165,20 @@ public abstract class AbstractHttpMonitor implements HttpMonitor {
 
     @Override
     public void destroy() {
+    }
+
+    public void setPolicy(MonitorPolicy policy) {
+        if (policy == null)
+            throw new IllegalArgumentException("policy must not be null");
+        this.policy = policy;
+    }
+
+    public PathMatcher getPathMatcher() {
+        return pathMatcher;
+    }
+
+    public void setPathMatcher(PathMatcher pathMatcher) {
+        this.pathMatcher = pathMatcher;
     }
 
 }

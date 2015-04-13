@@ -17,31 +17,37 @@ package com.harmony.umbrella.monitor;
 
 import java.lang.reflect.Method;
 
+import com.harmony.umbrella.monitor.annotation.Monitored;
+
 /**
- * 方法监视器
+ * 方法监控器<p> 默认监控符合表达式{@linkplain #DEFAULT_METHOD_PATTERN}的方法. <p>该表达式解析如
+ * {@linkplain MethodExpressionMatcher}
  * 
  * @author wuxii@foxmail.com
+ * 
  */
 public interface MethodMonitor extends Monitor {
 
+    String DEFAULT_METHOD_PATTERN = "execution(* com.harmony.*.*(..))";
+
     /**
-     * 排除在监视名单外
+     * 排除在监控名单外
      * 
      * @param method
      *            方法
      */
-    void exclude(Method method);
+    void excludeMethod(Method method);
 
     /**
-     * 包含在监视名单内
+     * 包含在监控名单内
      * 
      * @param method
      *            方法
      */
-    void include(Method method);
+    void includeMethod(Method method);
 
     /**
-     * 检测方法是否受到监视
+     * 检测方法是否受到监控
      * 
      * @param method
      *            方法
@@ -50,7 +56,7 @@ public interface MethodMonitor extends Monitor {
     boolean isMonitored(Method method);
 
     /**
-     * 方法监视结果
+     * 方法监控结果
      */
     public interface MethodGraph extends Graph {
 
@@ -99,4 +105,20 @@ public interface MethodMonitor extends Monitor {
         String getOperator();
 
     }
+
+    /**
+     * @author wuxii@foxmail.com
+     * @see org.aspectj.weaver.tools.PointcutExpression
+     */
+    public interface MethodExpressionMatcher {
+
+        String DEFAULT_EXPRESSION = MethodMonitor.DEFAULT_METHOD_PATTERN;
+
+        boolean matches(Method method);
+
+        boolean matchInType(Class<?> clazz);
+
+        String getExpression();
+    }
+
 }

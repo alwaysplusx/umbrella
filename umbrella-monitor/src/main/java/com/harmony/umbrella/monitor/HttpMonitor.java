@@ -15,6 +15,8 @@
  */
 package com.harmony.umbrella.monitor;
 
+import java.util.Set;
+
 import javax.servlet.Filter;
 
 /**
@@ -24,6 +26,40 @@ import javax.servlet.Filter;
  * @see Filter
  */
 public interface HttpMonitor extends Monitor, Filter {
+
+    String DEFAULT_PATHSEPARATOR = "/";
+
+    String DEFAULT_PATH_PATTERN = DEFAULT_PATHSEPARATOR + "*/**";
+
+    /**
+     * 资源名单中添加资源
+     * 
+     * @param resource
+     */
+    void includeResource(String resource);
+
+    /**
+     * 在资源名单中移除资源
+     * 
+     * @param resource
+     */
+    void excludeResource(String resource);
+
+    /**
+     * 检测资源是否受到监控
+     * 
+     * @param resource
+     *            资源名称
+     * @return
+     */
+    boolean isMonitored(String resource);
+
+    /**
+     * 资源名单，综合{@link #getPolicy()}来定性
+     * 
+     * @return
+     */
+    Set<String> getResources();
 
     /**
      * http监视结果

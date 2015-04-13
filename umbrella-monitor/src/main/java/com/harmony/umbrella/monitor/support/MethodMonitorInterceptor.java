@@ -22,7 +22,7 @@ import javax.interceptor.Interceptor;
 import javax.interceptor.InvocationContext;
 
 import com.harmony.umbrella.monitor.MethodMonitor;
-import com.harmony.umbrella.monitor.MethodMonitorAdapter;
+import com.harmony.umbrella.monitor.AbstractMethodMonitor;
 import com.harmony.umbrella.monitor.annotation.Monitored;
 
 /**
@@ -32,7 +32,7 @@ import com.harmony.umbrella.monitor.annotation.Monitored;
  */
 @Monitored
 @Interceptor
-public class MethodMonitorInterceptor extends MethodMonitorAdapter<InvocationContext> implements MethodMonitor {
+public class MethodMonitorInterceptor extends AbstractMethodMonitor<InvocationContext> implements MethodMonitor {
 
     @Override
     @AroundInvoke
