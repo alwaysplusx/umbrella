@@ -37,13 +37,13 @@ import com.harmony.umbrella.util.Assert;
  * @author Oliver Gierke
  * @author Thomas Darimont
  */
-public enum PersistenceProvider implements QueryExtractor, ProxyIdAccessor {
+public enum PersistenceProvider {
 
 	/**
-	 * Hibernate persistence provider. <p> Since Hibernate 4.3 the location of
-	 * the HibernateEntityManager moved to the org.hibernate.jpa package. In
-	 * order to support both locations we interpret both classnames as a
-	 * Hibernate {@code PersistenceProvider}.
+	 * Hibernate persistence provider. <p> Since Hibernate 4.3 the location of the
+	 * HibernateEntityManager moved to the org.hibernate.jpa package. In order to support
+	 * both locations we interpret both classnames as a Hibernate
+	 * {@code PersistenceProvider}.
 	 * 
 	 * @see DATAJPA-444
 	 */
@@ -56,8 +56,8 @@ public enum PersistenceProvider implements QueryExtractor, ProxyIdAccessor {
 		}
 
 		/**
-		 * Return custom placeholder ({@code *}) as Hibernate does create
-		 * invalid queries for count queries for objects with compound keys.
+		 * Return custom placeholder ({@code *}) as Hibernate does create invalid queries
+		 * for count queries for objects with compound keys.
 		 * 
 		 * @see HHH-4044
 		 * @see HHH-3096
@@ -67,10 +67,10 @@ public enum PersistenceProvider implements QueryExtractor, ProxyIdAccessor {
 			return "*";
 		}
 
-		@Override
-		public boolean shouldUseAccessorFor(Object entity) {
-			return entity instanceof HibernateProxy;
-		}
+		// @Override
+		// public boolean shouldUseAccessorFor(Object entity) {
+		// return entity instanceof HibernateProxy;
+		// }
 
 		@Override
 		public Object getIdentifierFrom(Object entity) {
@@ -90,10 +90,10 @@ public enum PersistenceProvider implements QueryExtractor, ProxyIdAccessor {
 			return ((JpaQuery<?>) query).getDatabaseQuery().getJPQLString();
 		}
 
-		@Override
-		public boolean shouldUseAccessorFor(Object entity) {
-			return false;
-		}
+		// @Override
+		// public boolean shouldUseAccessorFor(Object entity) {
+		// return false;
+		// }
 
 		@Override
 		public Object getIdentifierFrom(Object entity) {
@@ -119,10 +119,10 @@ public enum PersistenceProvider implements QueryExtractor, ProxyIdAccessor {
 			return false;
 		}
 
-		@Override
-		public boolean shouldUseAccessorFor(Object entity) {
-			return false;
-		}
+		// @Override
+		// public boolean shouldUseAccessorFor(Object entity) {
+		// return false;
+		// }
 
 		@Override
 		public Object getIdentifierFrom(Object entity) {
@@ -165,9 +165,8 @@ public enum PersistenceProvider implements QueryExtractor, ProxyIdAccessor {
 	}
 
 	/**
-	 * Determines the {@link PersistenceProvider} from the given
-	 * {@link EntityManager}. If no special one can be determined
-	 * {@link #GENERIC_JPA} will be returned.
+	 * Determines the {@link PersistenceProvider} from the given {@link EntityManager}. If
+	 * no special one can be determined {@link #GENERIC_JPA} will be returned.
 	 * 
 	 * @param em
 	 *            must not be {@literal null}.
@@ -197,18 +196,56 @@ public enum PersistenceProvider implements QueryExtractor, ProxyIdAccessor {
 		return GENERIC_JPA;
 	}
 
+	/**
+	 * Returns whether the extractor is able to extract the original query string from a
+	 * given {@link Query}.
+	 * 
+	 * @return
+	 */
 	public boolean canExtractQuery() {
 		return true;
 	}
 
 	/**
-	 * Returns the placeholder to be used for simple count queries. Default
-	 * implementation returns {@code *}.
+	 * Reverse engineers the query string from the {@link Query} object. This requires
+	 * provider specific API as JPA does not provide access to the underlying query string
+	 * as soon as one has created a {@link Query} instance of it.
+	 * 
+	 * @param query
+	 * @return the query string representing the query or {@literal null} if resolving is
+	 *         not possible.
+	 */
+	public abstract String extractQueryString(Query query);
+
+	/**
+	 * Returns the placeholder to be used for simple count queries. Default implementation
+	 * returns {@code *}.
 	 * 
 	 * @return
 	 */
 	public String getCountQueryPlaceholder() {
 		return "x";
 	}
+
+	/**
+	 * Returns whether the {@link ProxyIdAccessor} should be used for the given entity.
+	 * Will inspect the entity to see whether it is a proxy so that lenient id lookup can
+	 * be used.
+	 * 
+	 * @param entity
+	 *            must not be {@literal null}.
+	 * @return
+	 */
+	// public abstract boolean shouldUseAccessorFor(Object entity);
+
+	/**
+	 * Returns the identifier of the given entity by leniently inspecting it for the
+	 * identifier value.
+	 * 
+	 * @param entity
+	 *            must not be {@literal null}.
+	 * @return
+	 */
+	public abstract Object getIdentifierFrom(Object entity);
 
 }
