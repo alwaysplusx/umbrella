@@ -16,12 +16,25 @@
 package com.harmony.umbrella.monitor;
 
 /**
+ * 资源匹配器
+ * 
  * @author wuxii@foxmail.com
  */
 public interface ResourceMatcher<T> {
 
-    boolean matches(T resource);
+	/**
+	 * 匹配资源是否符合当前定义的规则
+	 * 
+	 * @param resource
+	 * @return
+	 */
+	boolean matches(T resource);
 
-    String getExpression();
+	/**
+	 * 资源匹配的模版表达式
+	 * 
+	 * @return
+	 */
+	String getExpression();
 
 }

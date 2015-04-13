@@ -29,14 +29,13 @@ import com.harmony.umbrella.monitor.MethodMonitor;
  */
 public class MethodMatcherTest {
 
-    @Test
-    public void test() throws Exception {
-        MethodExpressionMatcher matcher = new MethodExpressionMatcher(MethodMonitor.DEFAULT_METHOD_PATTERN);
-        Method method1 = Object.class.getDeclaredMethod("toString");
-        assertFalse(matcher.matches(method1));
-        Method method2 = getClass().getMethod("test");
-        assertTrue(matcher.matchInType(getClass()));
-        assertTrue(matcher.matches(method2));
-    }
+	@Test
+	public void test() throws Exception {
+		MethodExpressionMatcher matcher = new MethodExpressionMatcher(MethodMonitor.DEFAULT_METHOD_PATTERN);
+		Method method1 = Object.class.getDeclaredMethod("toString");
+		assertFalse(matcher.matches(method1));
+		Method method2 = getClass().getMethod("test");
+		assertTrue(matcher.matches(method2));
+	}
 
 }

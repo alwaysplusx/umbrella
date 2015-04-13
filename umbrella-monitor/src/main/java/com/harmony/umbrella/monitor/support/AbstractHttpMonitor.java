@@ -38,53 +38,53 @@ import com.harmony.umbrella.utils.Exceptions;
  */
 public abstract class AbstractHttpMonitor extends AbstractMonitor<String> implements HttpMonitor {
 
-    /**
-     * 保存http监视结果
-     * 
-     * @param graph
-     */
-    protected abstract void persistGraph(HttpGraph graph);
+	/**
+	 * 保存http监视结果
+	 * 
+	 * @param graph
+	 */
+	protected abstract void persistGraph(HttpGraph graph);
 
-    @Override
-    public void init(FilterConfig filterConfig) throws ServletException {
-    }
+	@Override
+	public void init(FilterConfig filterConfig) throws ServletException {
+	}
 
-    @Override
-    public void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain) throws IOException, ServletException {
-        HttpServletRequest request = (HttpServletRequest) req;
-        HttpServletResponse response = (HttpServletResponse) resp;
-        String resource = MonitorUtils.requestIdentifie(request);
-        if (isMonitored(resource)) {
-            DefaultHttpGraph graph = new DefaultHttpGraph(resource);
-            graph.setRequestArguments(request);
-            try {
-                chain.doFilter(request, response);
-                graph.setResponseResult(request, response);
-            } catch (Exception e) {
-                graph.setException(e);
-                if (e instanceof IOException) {
-                    throw (IOException) e;
-                }
-                if (e instanceof ServletException) {
-                    throw (ServletException) e;
-                }
-                throw Exceptions.unchecked(e);
-            } finally {
-                graph.setResponseTime(Calendar.getInstance());
-                persistGraph(graph);
-            }
-            return;
-        }
-        chain.doFilter(request, response);
-    }
+	@Override
+	public void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain) throws IOException, ServletException {
+		HttpServletRequest request = (HttpServletRequest) req;
+		HttpServletResponse response = (HttpServletResponse) resp;
+		String resource = MonitorUtils.requestIdentifie(request);
+		if (!isMonitored(resource)) {
+			chain.doFilter(request, response);
+			return;
+		}
+		DefaultHttpGraph graph = new DefaultHttpGraph(resource);
+		graph.setRequestArguments(request);
+		try {
+			chain.doFilter(request, response);
+			graph.setResponseResult(request, response);
+		} catch (Exception e) {
+			graph.setException(e);
+			if (e instanceof IOException) {
+				throw (IOException) e;
+			}
+			if (e instanceof ServletException) {
+				throw (ServletException) e;
+			}
+			throw Exceptions.unchecked(e);
+		} finally {
+			graph.setResponseTime(Calendar.getInstance());
+			persistGraph(graph);
+		}
+	}
 
-    @Override
-    public void destroy() {
-    }
+	@Override
+	public void destroy() {
+	}
 
-    @Override
-    protected ResourceMatcher<String> createMatcher(String pattern) {
-        return new ResourcePathMatcher(pattern);
-    }
+	@Override
+	protected ResourceMatcher<String> createMatcher(String pattern) {
+		return new ResourcePathMatcher(pattern);
+	}
 
 }

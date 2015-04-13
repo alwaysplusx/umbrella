@@ -16,10 +16,8 @@
 package com.harmony.umbrella.monitor;
 
 import javax.ejb.Stateless;
-import javax.interceptor.Interceptors;
 
 import com.harmony.umbrella.monitor.annotation.Monitored;
-import com.harmony.umbrella.monitor.impl.MethodMonitorInterceptor;
 
 /**
  * @author wuxii@foxmail.com
@@ -27,11 +25,11 @@ import com.harmony.umbrella.monitor.impl.MethodMonitorInterceptor;
 @Stateless
 public class TestService {
 
-    // CDI
-    @Monitored
-    @Interceptors({ MethodMonitorInterceptor.class })
-    public String doService(String serviceName) {
-        return "SUCCESS";
-    }
+	// CDI
+	// @Interceptors({ MethodMonitorInterceptor.class })
+	@Monitored
+	public String doService(String serviceName) {
+		return "SUCCESS";
+	}
 
 }

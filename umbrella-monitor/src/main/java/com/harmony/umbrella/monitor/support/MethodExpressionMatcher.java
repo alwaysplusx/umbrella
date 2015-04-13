@@ -31,71 +31,75 @@ import com.harmony.umbrella.utils.ClassUtils;
  */
 public class MethodExpressionMatcher implements ResourceMatcher<Method> {
 
-    protected static final PointcutExpressionFactory factoryInstance = new PointcutExpressionFactory();
-    private final PointcutExpression pointcutExpression;
+	protected static final PointcutExpressionFactory factoryInstance = new PointcutExpressionFactory();
+	private final PointcutExpression pointcutExpression;
 
-    public MethodExpressionMatcher(String expression) {
-        this.pointcutExpression = factoryInstance.create(expression);
-    }
+	public MethodExpressionMatcher(String expression) {
+		this.pointcutExpression = factoryInstance.create(expression);
+	}
 
-    @Override
-    public boolean matches(Method method) {
-        return pointcutExpression.matchesMethodExecution(method).maybeMatches();
-    }
+	@Override
+	public boolean matches(Method method) {
+		return pointcutExpression.matchesMethodExecution(method).maybeMatches();
+	}
 
-    public boolean matchInType(Class<?> clazz) {
-        return pointcutExpression.couldMatchJoinPointsInType(clazz);
-    }
+	public boolean matchInType(Class<?> clazz) {
+		return pointcutExpression.couldMatchJoinPointsInType(clazz);
+	}
 
-    @Override
-    public String getExpression() {
-        return pointcutExpression.getPointcutExpression();
-    }
+	@Override
+	public String getExpression() {
+		return pointcutExpression.getPointcutExpression();
+	}
 
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((getExpression() == null) ? 0 : getExpression().hashCode());
-        return result;
-    }
+	@Override
+	public String toString() {
+		return "method matcher of pattern:" + getExpression();
+	}
 
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        MethodExpressionMatcher other = (MethodExpressionMatcher) obj;
-        if (getExpression() == null) {
-            if (other.getExpression() != null)
-                return false;
-        } else if (!getExpression().equals(other.getExpression()))
-            return false;
-        return true;
-    }
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((getExpression() == null) ? 0 : getExpression().hashCode());
+		return result;
+	}
 
-    private static final Set<PointcutPrimitive> SUPPORTED_PRIMITIVES = new HashSet<PointcutPrimitive>();
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		MethodExpressionMatcher other = (MethodExpressionMatcher) obj;
+		if (getExpression() == null) {
+			if (other.getExpression() != null)
+				return false;
+		} else if (!getExpression().equals(other.getExpression()))
+			return false;
+		return true;
+	}
 
-    static {
-        SUPPORTED_PRIMITIVES.add(PointcutPrimitive.EXECUTION);
-    }
+	private static final Set<PointcutPrimitive> SUPPORTED_PRIMITIVES = new HashSet<PointcutPrimitive>();
 
-    private static class PointcutExpressionFactory {
+	static {
+		SUPPORTED_PRIMITIVES.add(PointcutPrimitive.EXECUTION);
+	}
 
-        public PointcutExpression create(String expression) {
-            PointcutParser parser = getDefaultPointcutParser();
-            return parser.parsePointcutExpression(expression);
-        }
+	private static class PointcutExpressionFactory {
 
-        public PointcutParser getDefaultPointcutParser() {
-            ClassLoader classLoader = ClassUtils.getDefaultClassLoader();
-            PointcutParser parser = PointcutParser.getPointcutParserSupportingSpecifiedPrimitivesAndUsingSpecifiedClassLoaderForResolution(
-                    SUPPORTED_PRIMITIVES, classLoader);
-            return parser;
-        }
-    }
+		public PointcutExpression create(String expression) {
+			PointcutParser parser = getDefaultPointcutParser();
+			return parser.parsePointcutExpression(expression);
+		}
+
+		public PointcutParser getDefaultPointcutParser() {
+			ClassLoader classLoader = ClassUtils.getDefaultClassLoader();
+			PointcutParser parser = PointcutParser.getPointcutParserSupportingSpecifiedPrimitivesAndUsingSpecifiedClassLoaderForResolution(SUPPORTED_PRIMITIVES, classLoader);
+			return parser;
+		}
+	}
 
 }

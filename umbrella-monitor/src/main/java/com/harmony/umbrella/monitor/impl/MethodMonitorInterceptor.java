@@ -29,7 +29,7 @@ import com.harmony.umbrella.monitor.annotation.Monitored;
 import com.harmony.umbrella.monitor.support.AbstractMethodMonitor;
 
 /**
- * TODO 将监控方法抽象，带入泛型指定具体的Invocation
+ * 基于拦截器的实现，默认来接{@link MethodMonitor#DEFAULT_METHOD_PATTERN}表达式的方法.<p>当然要连接器能拦截到方法
  * 
  * @author wuxii@foxmail.com
  */
@@ -37,45 +37,45 @@ import com.harmony.umbrella.monitor.support.AbstractMethodMonitor;
 @Interceptor
 public class MethodMonitorInterceptor extends AbstractMethodMonitor<InvocationContext> implements MethodMonitor {
 
-    private static final Logger log = LoggerFactory.getLogger(MethodMonitorInterceptor.class);
+	private static final Logger log = LoggerFactory.getLogger(MethodMonitorInterceptor.class);
 
-    public MethodMonitorInterceptor() {
-        this(DEFAULT_METHOD_PATTERN);
-    }
+	public MethodMonitorInterceptor() {
+		this(DEFAULT_METHOD_PATTERN);
+	}
 
-    public MethodMonitorInterceptor(String pattern) {
-        this.includePattern(pattern);
-    }
+	public MethodMonitorInterceptor(String pattern) {
+		this.includePattern(pattern);
+	}
 
-    @Override
-    @AroundInvoke
-    protected Object monitor(InvocationContext ctx) throws Exception {
-        return super.monitor(ctx);
-    }
+	@Override
+	@AroundInvoke
+	protected Object monitor(InvocationContext ctx) throws Exception {
+		return super.monitor(ctx);
+	}
 
-    @Override
-    protected void persistGraph(MethodGraph graph) {
-        log.info("method interceptor result graph:{}", graph);
-    }
+	@Override
+	protected void persistGraph(MethodGraph graph) {
+		log.info("method interceptor result graph:{}", graph);
+	}
 
-    @Override
-    protected Method getMethod(InvocationContext ctx) {
-        return ctx.getMethod();
-    }
+	@Override
+	protected Method getMethod(InvocationContext ctx) {
+		return ctx.getMethod();
+	}
 
-    @Override
-    protected Object getTarget(InvocationContext ctx) {
-        return ctx.getTarget();
-    }
+	@Override
+	protected Object getTarget(InvocationContext ctx) {
+		return ctx.getTarget();
+	}
 
-    @Override
-    protected Object process(InvocationContext ctx) throws Exception {
-        return ctx.proceed();
-    }
+	@Override
+	protected Object process(InvocationContext ctx) throws Exception {
+		return ctx.proceed();
+	}
 
-    @Override
-    protected Object[] getParameters(InvocationContext ctx) {
-        return ctx.getParameters();
-    }
+	@Override
+	protected Object[] getParameters(InvocationContext ctx) {
+		return ctx.getParameters();
+	}
 
 }

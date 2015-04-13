@@ -28,7 +28,7 @@ import com.harmony.umbrella.monitor.annotation.Monitored;
  */
 public interface MethodMonitor extends Monitor<Method> {
 
-    String DEFAULT_METHOD_PATTERN = "execution(* com.harmony.*.*(..))";
+	String DEFAULT_METHOD_PATTERN = "execution(* com.harmony..*.*(..))";
 
     /**
      * 方法监控结果

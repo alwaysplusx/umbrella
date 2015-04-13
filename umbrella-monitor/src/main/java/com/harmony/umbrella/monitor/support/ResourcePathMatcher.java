@@ -24,21 +24,26 @@ import com.harmony.umbrella.monitor.ResourceMatcher;
  */
 public class ResourcePathMatcher implements ResourceMatcher<String> {
 
-    private final String pattern;
-    private PathMatcher matcher;
+	private final String pattern;
+	private PathMatcher matcher;
 
-    public ResourcePathMatcher(String pattern) {
-        this.pattern = pattern;
-        this.matcher = new AntPathMatcher(pattern);
-    }
+	public ResourcePathMatcher(String pattern) {
+		this.pattern = pattern;
+		this.matcher = new AntPathMatcher(pattern);
+	}
 
-    @Override
-    public boolean matches(String resource) {
-        return matcher.isPattern(resource);
-    }
+	@Override
+	public boolean matches(String resource) {
+		return matcher.isPattern(resource);
+	}
 
-    @Override
-    public String getExpression() {
-        return pattern;
-    }
+	@Override
+	public String getExpression() {
+		return pattern;
+	}
+
+	@Override
+	public String toString() {
+		return "resource matcher of pattern:" + pattern;
+	}
 }
