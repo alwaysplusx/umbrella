@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 wuxii@foxmail.com.
+ * Copyright 2002-2014 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,12 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.umbrella.monitor;
+package com.harmony.umbrella.monitor.support;
 
 import java.io.IOException;
 import java.util.Calendar;
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -28,24 +26,17 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.harmony.umbrella.monitor.AbstractMonitor;
+import com.harmony.umbrella.monitor.DefaultHttpGraph;
+import com.harmony.umbrella.monitor.HttpMonitor;
+import com.harmony.umbrella.monitor.ResourceMatcher;
 import com.harmony.umbrella.monitor.util.MonitorUtils;
 import com.harmony.umbrella.util.Exceptions;
 
 /**
- * Http监视抽象类
- * 
  * @author wuxii@foxmail.com
  */
-public abstract class AbstractHttpMonitor implements HttpMonitor {
-
-	/**
-	 * 受到监视的资源
-	 */
-	private Map<String, Object> monitorList = new HashMap<String, Object>();
-	/**
-	 * 是否开启白名单策略，开启后只拦截在监视名单中的资源
-	 */
-	private boolean useWhiteList;
+public abstract class AbstractHttpMonitor extends AbstractMonitor<String> implements HttpMonitor {
 
 	/**
 	 * 保存http监视结果
@@ -55,11 +46,7 @@ public abstract class AbstractHttpMonitor implements HttpMonitor {
 	protected abstract void persistGraph(HttpGraph graph);
 
 	@Override
-	public boolean isMonitored(String resource) {
-		if (useWhiteList) {
-			return monitorList.containsKey(resource);
-		}
-		return true;
+	public void init(FilterConfig filterConfig) throws ServletException {
 	}
 
 	@Override
@@ -67,36 +54,37 @@ public abstract class AbstractHttpMonitor implements HttpMonitor {
 		HttpServletRequest request = (HttpServletRequest) req;
 		HttpServletResponse response = (HttpServletResponse) resp;
 		String resource = MonitorUtils.requestIdentifie(request);
-		if (isMonitored(resource)) {
-			DefaultHttpGraph graph = new DefaultHttpGraph(resource);
-			graph.setRequestArguments(request);
-			try {
-				chain.doFilter(request, response);
-				graph.setResponseResult(request, response);
-			} catch (Exception e) {
-				graph.setException(e);
-				if (e instanceof IOException) {
-					throw (IOException) e;
-				}
-				if (e instanceof ServletException) {
-					throw (ServletException) e;
-				}
-				throw Exceptions.unchecked(e);
-			} finally {
-				graph.setResponseTime(Calendar.getInstance());
-				persistGraph(graph);
-			}
+		if (!isMonitored(resource)) {
+			chain.doFilter(request, response);
 			return;
 		}
-		chain.doFilter(request, response);
-	}
-
-	@Override
-	public void init(FilterConfig filterConfig) throws ServletException {
+		DefaultHttpGraph graph = new DefaultHttpGraph(resource);
+		graph.setRequestArguments(request);
+		try {
+			chain.doFilter(request, response);
+			graph.setResponseResult(request, response);
+		} catch (Exception e) {
+			graph.setException(e);
+			if (e instanceof IOException) {
+				throw (IOException) e;
+			}
+			if (e instanceof ServletException) {
+				throw (ServletException) e;
+			}
+			throw Exceptions.unchecked(e);
+		} finally {
+			graph.setResponseTime(Calendar.getInstance());
+			persistGraph(graph);
+		}
 	}
 
 	@Override
 	public void destroy() {
+	}
+
+	@Override
+	protected ResourceMatcher<String> createMatcher(String pattern) {
+		return new ResourcePathMatcher(pattern);
 	}
 
 }

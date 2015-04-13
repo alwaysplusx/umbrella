@@ -29,94 +29,93 @@ import com.harmony.umbrella.util.Exceptions;
  */
 public class AbstractGraph implements Graph {
 
-    protected String identifie;
-    protected Map<String, Object> arguments;
-    protected Object result;
-    protected Calendar requestTime;
-    protected Calendar responseTime;
-    protected Exception exception;
+	protected String identifie;
+	protected Map<String, Object> arguments;
+	protected Object result;
+	protected Calendar requestTime = Calendar.getInstance();
+	protected Calendar responseTime;
+	protected Exception exception;
 
-    @Override
-    public String getIdentifie() {
-        return identifie;
-    }
+	@Override
+	public String getIdentifie() {
+		return identifie;
+	}
 
-    @Override
-    public Calendar getRequestTime() {
-        return requestTime;
-    }
+	@Override
+	public Calendar getRequestTime() {
+		return requestTime;
+	}
 
-    @Override
-    public Calendar getResponseTime() {
-        return responseTime;
-    }
+	@Override
+	public Calendar getResponseTime() {
+		return responseTime;
+	}
 
-    @Override
-    public Object getResult() {
-        return result;
-    }
+	@Override
+	public Object getResult() {
+		return result;
+	}
 
-    @Override
-    public Map<String, Object> getArguments() {
-        return arguments;
-    }
+	@Override
+	public Map<String, Object> getArguments() {
+		return arguments;
+	}
 
-    @Override
-    public boolean isException() {
-        return exception != null;
-    }
+	@Override
+	public boolean isException() {
+		return exception != null;
+	}
 
-    @Override
-    public String getExceptionMessage() {
-        return isException() ? exception.getMessage() : null;
-    }
+	@Override
+	public String getExceptionMessage() {
+		return isException() ? exception.getMessage() : null;
+	}
 
-    @Override
-    public String getCause() {
-        return isException() ? Exceptions.getRootCause(exception).getMessage() : null;
-    }
+	@Override
+	public String getCause() {
+		return isException() ? Exceptions.getRootCause(exception).getMessage() : null;
+	}
 
-    @Override
-    public long use() {
-        if (requestTime != null && responseTime != null) {
-            return responseTime.getTimeInMillis() - requestTime.getTimeInMillis();
-        }
-        return -1;
-    }
+	@Override
+	public long use() {
+		if (requestTime != null && responseTime != null) {
+			return responseTime.getTimeInMillis() - requestTime.getTimeInMillis();
+		}
+		return -1;
+	}
 
-    public Exception getException() {
-        return exception;
-    }
+	public Exception getException() {
+		return exception;
+	}
 
-    public void setException(Exception exception) {
-        this.exception = exception;
-    }
+	public void setException(Exception exception) {
+		this.exception = exception;
+	}
 
-    public void setIdentifie(String identifie) {
-        this.identifie = identifie;
-    }
+	public void setIdentifie(String identifie) {
+		this.identifie = identifie;
+	}
 
-    public void setRequestTime(Calendar requestTime) {
-        this.requestTime = requestTime;
-    }
+	public void setRequestTime(Calendar requestTime) {
+		this.requestTime = requestTime;
+	}
 
-    public void setResponseTime(Calendar responseTime) {
-        this.responseTime = responseTime;
-    }
+	public void setResponseTime(Calendar responseTime) {
+		this.responseTime = responseTime;
+	}
 
-    public void setResult(Object result) {
-        this.result = result;
-    }
+	public void setResult(Object result) {
+		this.result = result;
+	}
 
-    public void setArguments(Map<String, Object> arguments) {
-        this.arguments = arguments;
-    }
+	public void setArguments(Map<String, Object> arguments) {
+		this.arguments = arguments;
+	}
 
-    @Override
-    public String toString() {
-        return "{\"identifie\":\"" + identifie + "\", \"arguments\":\"" + arguments + "\", \"result\":\"" + result + "\", \"requestTime\":\""
-                + FULL_DATEFORMAT.format(requestTime) + "\", \"responseTime\":\"" + FULL_DATEFORMAT.format(responseTime) + "\", \"exception\":\""
-                + isException() + "\"}";
-    }
+	@Override
+	public String toString() {
+		return "{\"identifie\":\"" + getIdentifie() + "\", \"arguments\":\"" + getArguments() + "\", \"result\":\"" + getResult() + "\", \"requestTime\":\"" + FULL_DATEFORMAT.format(getRequestTime())
+				+ "\", \"responseTime\":\"" + FULL_DATEFORMAT.format(getResponseTime()) + "\", \"exception\":\"" + isException() + "\"}";
+	}
 
 }

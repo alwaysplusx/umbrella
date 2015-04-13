@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 wuxii@foxmail.com.
+ * Copyright 2002-2014 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,41 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.umbrella.monitor.util;
-
-import java.lang.reflect.Method;
-
-import javax.servlet.http.HttpServletRequest;
+package com.harmony.umbrella.monitor;
 
 /**
- * 监听工具类
+ * 资源匹配器
  * 
  * @author wuxii@foxmail.com
  */
-public abstract class MonitorUtils {
+public interface ResourceMatcher<T> {
 
 	/**
-	 * 将方转化为唯一的资源限定标识
+	 * 匹配资源是否符合当前定义的规则
 	 * 
-	 * @param method
+	 * @param resource
 	 * @return
 	 */
-	public static String methodIdentifie(Method method) {
-		if (method == null)
-			return null;
-		return method.toGenericString();
-	}
+	boolean matches(T resource);
 
 	/**
-	 * 将request转为唯一的资源限定标识
+	 * 资源匹配的模版表达式
 	 * 
-	 * @param request
 	 * @return
 	 */
-	public static String requestIdentifie(HttpServletRequest request) {
-		if (request == null)
-			return null;
-		return request.getRequestURI();
-	}
+	String getExpression();
 
 }

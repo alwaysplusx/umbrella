@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 wuxii@foxmail.com.
+ * Copyright 2002-2014 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,23 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.umbrella.monitor;
+package com.harmony.umbrella.monitor.support;
 
-import javax.ejb.Stateless;
+import static org.junit.Assert.*;
 
-import com.harmony.umbrella.monitor.annotation.Monitored;
+import org.junit.Test;
+
+import com.harmony.umbrella.io.utils.AntPathMatcher;
 
 /**
  * @author wuxii@foxmail.com
  */
-@Stateless
-public class TestService {
+public class PathMatcherTest {
 
-	// CDI
-	// @Interceptors({ MethodMonitorInterceptor.class })
-	@Monitored
-	public String doService(String serviceName) {
-		return "SUCCESS";
-	}
+    @Test
+    public void testMatch() {
+        AntPathMatcher matcher = new AntPathMatcher();
+        assertTrue(matcher.match("**/**", "/static/a.js"));
+        // assertTrue(matcher.match("/static/**", "/static/sub/a.js"));
+    }
 
 }

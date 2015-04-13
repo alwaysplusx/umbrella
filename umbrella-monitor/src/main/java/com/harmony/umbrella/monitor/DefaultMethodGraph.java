@@ -21,84 +21,93 @@ import java.util.Map;
 
 import com.harmony.umbrella.monitor.MethodMonitor.MethodGraph;
 import com.harmony.umbrella.monitor.annotation.Monitored;
+import com.harmony.umbrella.monitor.util.MonitorUtils;
 
 /**
  * @author wuxii@foxmail.com
  */
 public class DefaultMethodGraph extends AbstractGraph implements MethodGraph {
 
-    protected Object target;
-    protected Method method;
-    protected Object[] args;
+	protected Object target;
+	protected Method method;
+	protected Object[] args;
 
-    public DefaultMethodGraph() {
-    }
+	public DefaultMethodGraph() {
+	}
 
-    public DefaultMethodGraph(Object target, Method method, Object[] args) {
-        this.target = target;
-        this.method = method;
-        this.args = args;
-    }
+	@Override
+	public String getIdentifie() {
+		if (identifie == null) {
+			identifie = MonitorUtils.methodIdentifie(method);
+		}
+		return super.getIdentifie();
+	}
 
-    public Object getTarget() {
-        return target;
-    }
+	public DefaultMethodGraph(Object target, Method method, Object[] args) {
+		this.target = target;
+		this.method = method;
+		this.args = args;
+	}
 
-    @Override
-    public Map<String, Object> getArguments() {
-        Map<String, Object> arguments = new HashMap<String, Object>();
-        if (args != null) {
-            for (int i = 0, max = args.length; i < max; i++) {
-                arguments.put(i + 1 + "", args[i]);
-            }
-        }
-        return arguments;
-    }
+	public Object getTarget() {
+		return target;
+	}
 
-    @Override
-    @Deprecated
-    public void setArguments(Map<String, Object> arguments) {
-        super.setArguments(arguments);
-    }
+	@Override
+	public Map<String, Object> getArguments() {
+		Map<String, Object> arguments = new HashMap<String, Object>();
+		if (args != null) {
+			for (int i = 0, max = args.length; i < max; i++) {
+				arguments.put(i + 1 + "", args[i]);
+			}
+		}
+		return arguments;
+	}
 
-    @Override
-    public Method getMethod() {
-        return method;
-    }
+	@Override
+	@Deprecated
+	public void setArguments(Map<String, Object> arguments) {
+		super.setArguments(arguments);
+	}
 
-    @Override
-    public Object[] getArgs() {
-        return args;
-    }
+	@Override
+	public Method getMethod() {
+		return method;
+	}
 
-    @Override
-    public String getModule() {
-        Monitored ann = method.getAnnotation(Monitored.class);
-        if (ann != null) {
-            return ann.module();
-        }
-        return null;
-    }
+	@Override
+	public Object[] getArgs() {
+		return args;
+	}
 
-    @Override
-    public String getOperator() {
-        Monitored ann = method.getAnnotation(Monitored.class);
-        if (ann != null) {
-            return ann.operator();
-        }
-        return null;
-    }
+	@Override
+	public String getModule() {
+		Monitored ann = method.getAnnotation(Monitored.class);
+		if (ann != null) {
+			return ann.module();
+		}
+		return null;
+	}
 
-    public void setMethod(Method method) {
-        this.method = method;
-    }
+	@Override
+	public String getOperator() {
+		Monitored ann = method.getAnnotation(Monitored.class);
+		if (ann != null) {
+			return ann.operator();
+		}
+		return null;
+	}
 
-    public void setArgs(Object[] args) {
-        this.args = args;
-    }
+	public void setMethod(Method method) {
+		this.method = method;
+	}
 
-    public void setTarget(Object target) {
-        this.target = target;
-    }
+	public void setArgs(Object[] args) {
+		this.args = args;
+	}
+
+	public void setTarget(Object target) {
+		this.target = target;
+	}
 
 }

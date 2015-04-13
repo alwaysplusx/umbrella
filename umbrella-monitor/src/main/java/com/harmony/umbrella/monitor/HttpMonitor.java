@@ -23,7 +23,11 @@ import javax.servlet.Filter;
  * @author wuxii@foxmail.com
  * @see Filter
  */
-public interface HttpMonitor extends Monitor, Filter {
+public interface HttpMonitor extends Monitor<String>, Filter {
+
+    String DEFAULT_PATHSEPARATOR = "/";
+
+    String DEFAULT_PATH_PATTERN = DEFAULT_PATHSEPARATOR + "*/**";
 
     /**
      * http监视结果
