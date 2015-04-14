@@ -1,7 +1,7 @@
 ### Modules
 
-²ÎÓë·ÖÎöµÄÏîÄ¿
+å‚ä¸åˆ†æçš„é¡¹ç›®
 
 ```
-modules-core,modules-jaxws,modules-message,modules-monitor,modules-scheduler
+umbrella-core,umbrella-jaxws,umbrella-message,umbrella-monitor,umbrella-scheduler
 ```
