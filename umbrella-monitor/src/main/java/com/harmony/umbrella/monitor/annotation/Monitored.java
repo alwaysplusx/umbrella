@@ -18,8 +18,18 @@ import javax.interceptor.InterceptorBinding;
 @Retention(RUNTIME)
 public @interface Monitored {
 
+    /**
+     * 模块名称
+     * 
+     * @return
+     */
     String module() default "";
 
+    /**
+     * 操作类型
+     * 
+     * @return
+     */
     String operator() default "";
 
 }

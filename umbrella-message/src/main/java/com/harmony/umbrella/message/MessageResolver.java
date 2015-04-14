@@ -31,7 +31,7 @@ public interface MessageResolver {
     boolean support(Message message);
 
     /**
-     * 处理外部的消息
+     * 处理消息
      * 
      * @param message
      */

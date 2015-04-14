@@ -67,14 +67,29 @@ public class AbstractMessageListener implements MessageListener {
     public void destory() {
     }
 
+    /**
+     * 动态增加{@linkplain MessageResolver}
+     * @param messageResolver
+     * @return
+     */
     public boolean addMessageResolver(MessageResolver messageResolver) {
         return messageResolvers.add(messageResolver);
     }
 
+    /**
+     * 动态删除{@linkplain MessageResolver}
+     * @param messageResolver
+     * @return
+     */
     public boolean removeMessageResolver(MessageResolver messageResolver) {
         return messageResolvers.remove(messageResolver);
     }
 
+    /**
+     * 检测是否包含{@linkplain MessageResolver}. 重写{@linkplain Object#hashCode()} {@linkplain Object#equals()}方法
+     * @param messageResolver
+     * @return
+     */
     public boolean containsMessageResolver(MessageResolver messageResolver) {
         return messageResolvers.contains(messageResolver);
     }

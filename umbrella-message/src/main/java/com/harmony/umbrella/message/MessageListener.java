@@ -23,6 +23,9 @@ package com.harmony.umbrella.message;
  */
 public interface MessageListener {
 
+    /**
+     * 资源初始化
+     */
     void init();
 
     /**
@@ -34,6 +37,9 @@ public interface MessageListener {
      */
     void onMessage(Message message);
 
+    /**
+     * 清空占用的资源
+     */
     void destory();
 
 }

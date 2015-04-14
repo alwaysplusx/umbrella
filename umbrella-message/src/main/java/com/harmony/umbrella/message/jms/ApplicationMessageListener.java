@@ -34,6 +34,7 @@ import com.harmony.umbrella.message.AbstractMessageListener;
 import com.harmony.umbrella.message.MessageResolver;
 
 /**
+ * 系统消息JMS监听
  * @author wuxii
  */
 @MessageDriven(mappedName = "jms/queue", 
@@ -47,14 +48,9 @@ public class ApplicationMessageListener extends AbstractMessageListener implemen
     private static final String basePackage = "com.harmony";
     private BeanLoader beanLoader = new ClassBeanLoader();
 
-    @PostConstruct
-    public void postConstruct() {
-        init();
-        log.info("application message listener init success, with {}", messageResolvers);
-    }
-
     @SuppressWarnings({ "rawtypes", "unchecked" })
     @Override
+    @PostConstruct
     public void init() {
         super.init();
         try {
@@ -74,6 +70,7 @@ public class ApplicationMessageListener extends AbstractMessageListener implemen
                 MessageResolver resolver = (MessageResolver) beanLoader.loadBean(clazz);
                 addMessageResolver(resolver);
             }
+            log.info("application message listener init success, with {}", messageResolvers);
         } catch (IOException e) {
             log.error("", e);
         }
@@ -99,9 +96,11 @@ public class ApplicationMessageListener extends AbstractMessageListener implemen
             }
         }
     }
-
+    
+    @Override
     @PreDestroy
-    public void preDestroy() {
-        destory();
+    public void destory() {
+        super.destory();
     }
+    
 }

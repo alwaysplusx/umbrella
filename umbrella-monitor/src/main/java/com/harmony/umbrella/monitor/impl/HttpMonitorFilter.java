@@ -21,11 +21,21 @@ import org.slf4j.LoggerFactory;
 import com.harmony.umbrella.monitor.support.AbstractHttpMonitor;
 
 /**
+ * Http Filter 实现监控http请求
+ * 
  * @author wuxii@foxmail.com
  */
 public class HttpMonitorFilter extends AbstractHttpMonitor {
 
     private static final Logger log = LoggerFactory.getLogger(HttpMonitorFilter.class);
+
+    public HttpMonitorFilter() {
+        this(DEFAULT_PATH_PATTERN);
+    }
+
+    public HttpMonitorFilter(String pattern) {
+        this.includePattern(pattern);
+    }
 
     @Override
     protected void persistGraph(HttpGraph graph) {
