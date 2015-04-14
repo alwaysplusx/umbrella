@@ -15,6 +15,8 @@
 		<module>umbrella-data</module>
 		<!-- <module>examples</module> -->
 		<module>umbrella-all</module>
+		<module>umbrella-validator</module>
+		<module>umbrella-mapper</module>
 	</modules>
 	<properties>
 		<jdk.version>1.6</jdk.version>
@@ -25,6 +27,8 @@
 		<javax.servlet.version>3.1.0</javax.servlet.version>
 		<javax.interceptor.version>1.2</javax.interceptor.version>
 		<javax.ee.version>6.0</javax.ee.version>
+		<javax.validation.version>1.1.0.Final</javax.validation.version>
+		<javax.el.version>3.0.0</javax.el.version>
 		<apache.cxf.version>3.0.2</apache.cxf.version>
 		<apache.openejb.version>4.7.1</apache.openejb.version>
 		<apache.log4j2.version>2.2</apache.log4j2.version>
@@ -265,6 +269,16 @@
 				<groupId>javax</groupId>
 				<artifactId>javaee-api</artifactId>
 				<version>${javax.ee.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>javax.validation</groupId>
+				<artifactId>validation-api</artifactId>
+				<version>${javax.validation.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>javax.el</groupId>
+				<artifactId>javax.el-api</artifactId>
+				<version>${javax.el.version}</version>
 			</dependency>
 			<!-- javax END -->
 
