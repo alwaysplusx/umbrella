@@ -13,7 +13,7 @@
 			<artifactId>umbrella-core</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>javax</groupId>
+			<groupId>org.apache.openejb</groupId>
 			<artifactId>javaee-api</artifactId>
 			<scope>provided</scope>
 		</dependency>

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2014 the original author or authors.
+ * Copyright 2013-2015 wuxii@foxmail.com.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,24 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.umbrella.monitor.support;
+package com.harmony.umbrella.mapper;
 
-import static org.junit.Assert.*;
-
-import org.junit.Test;
-
-import com.harmony.umbrella.io.utils.AntPathMatcher;
+import java.util.Map;
 
 /**
  * @author wuxii@foxmail.com
  */
-public class PathMatcherTest {
+public interface BeanMapper {
 
-    @Test
-    public void testMatch() {
-        AntPathMatcher matcher = new AntPathMatcher();
-        assertTrue(matcher.match("/*/**", "/static/a.js"));
-        // assertTrue(matcher.match("/static/**", "/static/sub/a.js"));
-    }
+	public <T> T mapper(Object source, Class<T> requireType);
+
+	public <T> T mapper(Object source, Class<T> requireType, Map<String, String> mapping);
 
 }

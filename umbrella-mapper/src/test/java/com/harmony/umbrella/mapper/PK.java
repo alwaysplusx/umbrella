@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2014 the original author or authors.
+ * Copyright 2013-2015 wuxii@foxmail.com.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,27 +15,13 @@
  */
 package com.harmony.umbrella.mapper;
 
-import java.util.Calendar;
-
 /**
  * @author wuxii@foxmail.com
  */
-public class Foo {
+public class PK {
 
 	private String name;
-	private Integer age;
-	private Calendar birthday;
-	private String work;
-
-	public Foo() {
-		super();
-	}
-
-	public Foo(String name, Integer age) {
-		super();
-		this.name = name;
-		this.age = age;
-	}
+	private String age;
 
 	public String getName() {
 		return name;
@@ -45,33 +31,17 @@ public class Foo {
 		this.name = name;
 	}
 
-	public Integer getAge() {
+	public String getAge() {
 		return age;
 	}
 
-	public void setAge(Integer age) {
+	public void setAge(String age) {
 		this.age = age;
-	}
-
-	public Calendar getBirthday() {
-		return birthday;
-	}
-
-	public void setBirthday(Calendar birthday) {
-		this.birthday = birthday;
-	}
-
-	public String getWork() {
-		return work;
-	}
-
-	public void setWork(String work) {
-		this.work = work;
 	}
 
 	@Override
 	public String toString() {
-		return getClass().getName() + ":{\"name\":\"" + name + ", \"age\":\"" + age + ", \"birthday\":\"" + birthday + "\"}";
+		return getClass().getName() + ":{\"name\":\"" + name + ", \"age\":\"" + age + "\"}";
 	}
 
 }

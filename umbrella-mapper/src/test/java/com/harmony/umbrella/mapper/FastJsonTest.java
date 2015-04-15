@@ -26,6 +26,7 @@ public class FastJsonTest {
 
     @Test
     public void testParseObject() {
+    	JSON.DUMP_CLASS = "target";
         String text = "{\"name\":\"wuxii\", \"age\" : \"25\"}";
         Foo foo = JSON.parseObject(text, Foo.class);
         System.out.println(foo);

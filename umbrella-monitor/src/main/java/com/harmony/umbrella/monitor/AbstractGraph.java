@@ -15,7 +15,7 @@
  */
 package com.harmony.umbrella.monitor;
 
-import static com.harmony.umbrella.util.DateFormat.*;
+import static com.harmony.umbrella.util.DateFormatUtils.*;
 
 import java.util.Calendar;
 import java.util.Map;
