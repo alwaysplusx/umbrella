@@ -28,7 +28,6 @@
 		<javax.interceptor.version>1.2</javax.interceptor.version>
 		<javax.ee.version>6.0</javax.ee.version>
 		<javax.validation.version>1.1.0.Final</javax.validation.version>
-		<javax.el.version>3.0.0</javax.el.version>
 		<apache.cxf.version>3.0.2</apache.cxf.version>
 		<apache.openejb.version>4.7.1</apache.openejb.version>
 		<apache.log4j2.version>2.2</apache.log4j2.version>
@@ -48,6 +47,8 @@
 		<oracle.version>11.2.0.1.0</oracle.version>
 		<eclipselink.version>2.5.1</eclipselink.version>
 		<aspect.version>1.8.1</aspect.version>
+		<glassfish.el.version>3.0.0</glassfish.el.version>
+		<fastjson.version>1.2.4</fastjson.version>
 		<junit.version>4.11</junit.version>
 	</properties>
 	<dependencyManagement>
@@ -275,11 +276,6 @@
 				<artifactId>validation-api</artifactId>
 				<version>${javax.validation.version}</version>
 			</dependency>
-			<dependency>
-				<groupId>javax.el</groupId>
-				<artifactId>javax.el-api</artifactId>
-				<version>${javax.el.version}</version>
-			</dependency>
 			<!-- javax END -->
 
 			<!-- other START -->
@@ -322,6 +318,16 @@
 				<groupId>org.aspectj</groupId>
 				<artifactId>aspectjweaver</artifactId>
 				<version>${aspect.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.glassfish</groupId>
+				<artifactId>javax.el</artifactId>
+				<version>${glassfish.el.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.alibaba</groupId>
+				<artifactId>fastjson</artifactId>
+				<version>${fastjson.version}</version>
 			</dependency>
 			<!-- other END -->
 
