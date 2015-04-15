@@ -51,6 +51,7 @@ public class DozerTest {
 		Bar bar = new Bar("wuxii", "25");
 		bar.setBirthday(new Date());
 		Baz baz = new Baz();
+		baz.setA("a");
 		mapper.map(bar, baz);
 		System.out.println(baz);
 	}

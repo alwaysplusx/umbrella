@@ -62,7 +62,7 @@ public class Baz {
 
 	@Override
 	public String toString() {
-		return getClass().getName() + ":{\"pk\":\"" + pk + ", \"a\":\"" + a + ", \"b\":\"" + b + ", \"c\":\"" + c + "\"}";
+		return getClass().getName() + ":{\"pk\":\"" + pk + "\", \"a\":\"" + a + "\", \"b\":\"" + b + "\", \"c\":\"" + c + "\"}";
 	}
 
 }

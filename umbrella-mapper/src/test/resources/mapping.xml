@@ -5,10 +5,10 @@
 	<mapping>
 		<class-a>com.harmony.umbrella.mapper.Bar</class-a>
 		<class-b>com.harmony.umbrella.mapper.Baz</class-b>
-		<field>
+		<!-- <field>
 			<a>name</a>
 			<b>a</b>
-		</field>
+		</field> -->
 		<field>
 			<a>age</a>
 			<b>b</b>

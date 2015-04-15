@@ -62,7 +62,7 @@ public class Bar {
 
 	@Override
 	public String toString() {
-		return getClass().getName() + ":{\"name\":\"" + name + ", \"age\":\"" + age + ", \"birthday\":\"" + birthday + "\"}";
+		return getClass().getName() + ":{\"name\":\"" + name + "\", \"age\":\"" + age + "\", \"birthday\":\"" + birthday + "\"}";
 	}
 
 }
