@@ -15,45 +15,50 @@
  */
 package com.harmony.umbrella.mapper.dozer;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
+import static org.junit.Assert.*;
+
+import java.util.Arrays;
 
 import org.dozer.DozerBeanMapper;
 import org.junit.Test;
 
-import com.harmony.umbrella.mapper.Bar;
-import com.harmony.umbrella.mapper.Baz;
-import com.harmony.umbrella.mapper.Foo;
+import com.harmony.umbrella.mapper.vo.deep.Dest;
+import com.harmony.umbrella.mapper.vo.deep.Src;
+import com.harmony.umbrella.mapper.vo.deep.SubDest;
+import com.harmony.umbrella.mapper.vo.deep.SubSubDest;
 
 /**
  * @author wuxii@foxmail.com
  */
 public class DozerTest {
 
-	@Test
-	public void testCopy() {
-		DozerBeanMapper mapper = new DozerBeanMapper();
-		Foo src = new Foo("wuxii", 25);
-		src.setBirthday(Calendar.getInstance());
-		Bar dest = new Bar("a", "100");
+    @Test
+    public void testDeepCopyNormal() {
+        // 普通map无法深层复制
+        DozerBeanMapper mapper = new DozerBeanMapper();
+        Src src = new Src("wuxii");
+        Dest dest = new Dest(new SubDest(new SubSubDest()));
+        mapper.map(src, dest);
+        assertNull(dest.getSubDest().getSubSubDest().getName());
+        dest = mapper.map(src, Dest.class);
+        assertNull(dest.getSubDest());
+    }
 
-		mapper.map(src, dest);
-		System.out.println(dest);
-	}
+    @Test
+    public void testDeepCopyFromXMLFile() {
+        DozerBeanMapper mapper = new DozerBeanMapper(Arrays.asList("mapping.xml"));
+        Src src = new Src("wuxii");
+        Dest dest = new Dest();
+        mapper.map(src, dest, "deepCopy");
+        assertNotNull(dest.getSubDest());
+        assertNotNull(dest.getSubDest().getSubSubDest());
+        assertNotNull(dest.getSubDest().getSubSubDest().getName());
+        System.out.println("type one -> " + dest);
+        dest = mapper.map(src, Dest.class, "deepCopy");
+        assertNotNull(dest.getSubDest());
+        assertNotNull(dest.getSubDest().getSubSubDest());
+        assertNotNull(dest.getSubDest().getSubSubDest().getName());
 
-	@Test
-	public void testMappingFileCopy() {
-		List<String> list = new ArrayList<String>();
-		list.add("mapping.xml");
-		DozerBeanMapper mapper = new DozerBeanMapper(list);
-		Bar bar = new Bar("wuxii", "25");
-		bar.setBirthday(new Date());
-		Baz baz = new Baz();
-		baz.setA("a");
-		mapper.map(bar, baz);
-		System.out.println(baz);
-	}
-
+        System.out.println("type second -> " + dest);
+    }
 }
