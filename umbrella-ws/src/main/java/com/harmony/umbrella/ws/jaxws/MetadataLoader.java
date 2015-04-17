@@ -13,23 +13,37 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.umbrella.validator.util;
-
-import org.junit.Test;
-
-import com.harmony.umbrella.validator.Foo;
+package com.harmony.umbrella.ws.jaxws;
 
 /**
+ * 将被{@linkplain JaxWsMetadata}取代
+ * 
  * @author wuxii@foxmail.com
  */
-public class ValidatorUtilsTest {
+public interface MetadataLoader {
 
-    @Test
-    public void testGetViolationMessage() {
-        Foo foo = new Foo(null, 110l);
-        foo.setBirthday("abc");
-        String message = ValidatorUtils.getViolationMessage(foo);
-        System.out.println(message);
-    }
+    /**
+     * 获取指定serviceClass的用户名
+     * 
+     * @param serviceClass
+     * @return
+     */
+    String getUsername(Class<?> serviceClass);
+
+    /**
+     * 获取指定serviceClass的密码
+     * 
+     * @param serviceClass
+     * @return
+     */
+    String getPassword(Class<?> serviceClass);
+
+    /**
+     * 获取指定serviceClass的地址
+     * 
+     * @param serviceClass
+     * @return
+     */
+    String getAddress(Class<?> serviceClass);
 
 }

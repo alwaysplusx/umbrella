@@ -13,23 +13,45 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.umbrella.validator.util;
+package com.harmony.umbrella.ws.jaxws.support;
 
-import org.junit.Test;
-
-import com.harmony.umbrella.validator.Foo;
+import com.harmony.umbrella.ws.jaxws.JaxWsContext;
 
 /**
+ * 执行信号接收者
+ * 
  * @author wuxii@foxmail.com
+ *
  */
-public class ValidatorUtilsTest {
+public interface JaxWsContextReceiver {
 
-    @Test
-    public void testGetViolationMessage() {
-        Foo foo = new Foo(null, 110l);
-        foo.setBirthday("abc");
-        String message = ValidatorUtils.getViolationMessage(foo);
-        System.out.println(message);
-    }
+	/**
+	 * 接收执行信号
+	 * 
+	 * @param context
+	 *            执行上下文
+	 */
+	void receive(JaxWsContext context);
+
+	/**
+	 * 打开Receiver所需要的资源
+	 * 
+	 * @throws Exception
+	 */
+	void open() throws Exception;
+
+	/**
+	 * 关闭资源
+	 * 
+	 * @throws Exception
+	 */
+	void close() throws Exception;
+
+	/**
+	 * 查看Receicer是否关闭
+	 * 
+	 * @return true已关闭, false未关闭
+	 */
+	boolean isClosed();
 
 }

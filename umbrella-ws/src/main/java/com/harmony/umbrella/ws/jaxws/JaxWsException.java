@@ -13,23 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.umbrella.validator.util;
-
-import org.junit.Test;
-
-import com.harmony.umbrella.validator.Foo;
+package com.harmony.umbrella.ws.jaxws;
 
 /**
  * @author wuxii@foxmail.com
  */
-public class ValidatorUtilsTest {
+public class JaxWsException extends RuntimeException {
 
-    @Test
-    public void testGetViolationMessage() {
-        Foo foo = new Foo(null, 110l);
-        foo.setBirthday("abc");
-        String message = ValidatorUtils.getViolationMessage(foo);
-        System.out.println(message);
+    private static final long serialVersionUID = 1L;
+
+    public JaxWsException() {
+        super();
+    }
+
+    public JaxWsException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
+    public JaxWsException(String message) {
+        super(message);
+    }
+
+    public JaxWsException(Throwable cause) {
+        super(cause);
     }
 
 }

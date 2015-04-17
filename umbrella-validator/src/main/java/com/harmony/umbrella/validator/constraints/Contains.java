@@ -38,14 +38,24 @@ import com.harmony.umbrella.validator.validators.ContainsValidator;
 @Target({ METHOD, FIELD, ANNOTATION_TYPE, CONSTRUCTOR, PARAMETER })
 public @interface Contains {
 
-	String[] contents() default {};
+    /**
+     * 包含的字符
+     * 
+     * @return
+     */
+    String[] contents() default {};
 
-	boolean all() default false;
+    /**
+     * 是否全包含
+     * 
+     * @return
+     */
+    boolean all() default false;
 
-	String message() default "{com.harmony.umbrella.validator.constraints.Contains.message}";
+    String message() default "{com.harmony.umbrella.validator.constraints.Contains.message}";
 
-	Class<?>[] groups() default {};
+    Class<?>[] groups() default {};
 
-	Class<? extends Payload>[] payload() default {};
+    Class<? extends Payload>[] payload() default {};
 
 }

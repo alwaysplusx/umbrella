@@ -22,6 +22,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 import com.harmony.umbrella.validator.constraints.Contains;
+import com.harmony.umbrella.validator.constraints.FormatDate;
 
 /**
  * @author wuxii@foxmail.com
@@ -35,6 +36,8 @@ public class Foo {
     private Long age;
     @Size(max = 100, min = 2)
     private List<String> part = new ArrayList<String>();
+    @FormatDate(pattern = "yyyy/MM/dd")
+    private String birthday;
 
     public Foo() {
         super();
@@ -76,6 +79,14 @@ public class Foo {
 
     public void setPart(List<String> part) {
         this.part = part;
+    }
+
+    public String getBirthday() {
+        return birthday;
+    }
+
+    public void setBirthday(String birthday) {
+        this.birthday = birthday;
     }
 
 }

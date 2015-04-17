@@ -13,23 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.umbrella.validator.util;
+package com.harmony.umbrella.ws.jaxws.jms;
 
-import org.junit.Test;
-
-import com.harmony.umbrella.validator.Foo;
+import com.harmony.umbrella.ws.jaxws.JaxWsContext;
+import com.harmony.umbrella.ws.jaxws.JaxWsExecutor;
 
 /**
  * @author wuxii@foxmail.com
  */
-public class ValidatorUtilsTest {
+public interface JaxWsExecutorJmsSupport extends JaxWsExecutor {
 
-    @Test
-    public void testGetViolationMessage() {
-        Foo foo = new Foo(null, 110l);
-        foo.setBirthday("abc");
-        String message = ValidatorUtils.getViolationMessage(foo);
-        System.out.println(message);
-    }
+    boolean send(JaxWsContext context);
 
 }

@@ -7,7 +7,6 @@
 	<packaging>pom</packaging>
 	<modules>
 		<module>umbrella-core</module>
-		<module>umbrella-jaxws</module>
 		<module>umbrella-message</module>
 		<module>umbrella-monitor</module>
 		<module>umbrella-scheduler</module>
@@ -17,6 +16,7 @@
 		<module>umbrella-all</module>
 		<module>umbrella-validator</module>
 		<module>umbrella-mapper</module>
+		<module>umbrella-ws</module>
 	</modules>
 	<properties>
 		<jdk.version>1.6</jdk.version>
@@ -72,7 +72,7 @@
 			</dependency>
 			<dependency>
 				<groupId>com.harmony.umbrella</groupId>
-				<artifactId>umbrella-jaxws</artifactId>
+				<artifactId>umbrella-ws</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
