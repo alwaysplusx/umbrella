@@ -15,15 +15,13 @@
  */
 package com.harmony.umbrella.mapper;
 
-import java.util.Map;
-
 /**
  * @author wuxii@foxmail.com
  */
-public interface BeanMapper {
+public interface MappingBuilder {
 
-	public <T> T mapper(Object source, Class<T> requireType);
+	Object linking(Class<?> source, Class<?> target);
 
-	public <T> T mapper(Object source, Class<T> requireType, Map<String, String> mapping);
+	Object linking(Class<?> source, Class<?> target, MappingVisitor handler);
 
 }

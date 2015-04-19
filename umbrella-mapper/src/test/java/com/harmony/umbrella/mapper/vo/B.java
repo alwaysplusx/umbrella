@@ -13,28 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.umbrella.mapper.converter;
-
-import java.util.Calendar;
-import java.util.Date;
-
-import org.dozer.CustomConverter;
-
-import com.harmony.umbrella.util.DateFormatUtils;
+package com.harmony.umbrella.mapper.vo;
 
 /**
  * @author wuxii@foxmail.com
  */
-public class DateToStringConverter implements CustomConverter {
+public class B extends VoSupport {
+
+	private static final long serialVersionUID = 1L;
+
+	private C c;
+
+	public C getC() {
+		return c;
+	}
+
+	public void setC(C c) {
+		this.c = c;
+	}
 
 	@Override
-	public Object convert(Object existingDestinationFieldValue, Object sourceFieldValue, Class<?> destinationClass, Class<?> sourceClass) {
-		if (sourceFieldValue instanceof Date) {
-			return DateFormatUtils.DEFAULT_DATEFORMAT.format((Date) sourceFieldValue);
-		} else if (sourceFieldValue instanceof Calendar) {
-			return DateFormatUtils.DEFAULT_DATEFORMAT.format((Calendar) sourceFieldValue);
-		}
-		return null;
+	public String toString() {
+		return getClass().getName() + ":{\"c\":\"" + c + "\"}";
 	}
 
 }
