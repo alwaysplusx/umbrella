@@ -16,7 +16,8 @@
 		<module>umbrella-all</module>
 		<module>umbrella-validator</module>
 		<module>umbrella-mapper</module>
-		<module>umbrella-ws</module>
+		<module>umbrella-jaxws</module>
+		<module>umbrella-jaxrs</module>
 	</modules>
 	<properties>
 		<jdk.version>1.6</jdk.version>
@@ -72,7 +73,7 @@
 			</dependency>
 			<dependency>
 				<groupId>com.harmony.umbrella</groupId>
-				<artifactId>umbrella-ws</artifactId>
+				<artifactId>umbrella-jaxws</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
@@ -198,6 +199,21 @@
 			<dependency>
 				<groupId>org.apache.cxf</groupId>
 				<artifactId>cxf-rt-frontend-jaxws</artifactId>
+				<version>${apache.cxf.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.cxf</groupId>
+				<artifactId>cxf-rt-frontend-jaxrs</artifactId>
+				<version>${apache.cxf.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.cxf</groupId>
+				<artifactId>cxf-rt-rs-service-description</artifactId>
+				<version>${apache.cxf.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.cxf</groupId>
+				<artifactId>cxf-rt-rs-client</artifactId>
 				<version>${apache.cxf.version}</version>
 			</dependency>
 			<dependency>
