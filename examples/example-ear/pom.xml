@@ -15,6 +15,12 @@
 			<version>${project.version}</version>
 			<type>ejb</type>
 		</dependency>
+		<dependency>
+			<groupId>com.harmony.umbrella.plugins</groupId>
+			<artifactId>jaxws-jms-plugin</artifactId>
+			<version>${project.version}</version>
+			<type>ejb</type>
+		</dependency>
 	</dependencies>
 	<build>
 		<plugins>
@@ -27,14 +33,15 @@
 					<generateApplicationXml>true</generateApplicationXml>
 					<version>6</version>
 					<modules>
-                        <!-- <webModule>
-                            <groupId>com.harmony.umbrella.examples</groupId>
-                            <artifactId>example-jaxws</artifactId>
-                            <contextRoot>/example-jaxws</contextRoot>
-                        </webModule> -->
+						<!-- <webModule> <groupId>com.harmony.umbrella.examples</groupId> <artifactId>example-jaxws</artifactId> 
+							<contextRoot>/example-jaxws</contextRoot> </webModule> -->
 						<ejbModule>
 							<groupId>com.harmony.umbrella.examples</groupId>
 							<artifactId>example-jaxws</artifactId>
+						</ejbModule>
+						<ejbModule>
+							<groupId>com.harmony.umbrella.plugins</groupId>
+							<artifactId>jaxws-jms-plugin</artifactId>
 						</ejbModule>
 					</modules>
 				</configuration>

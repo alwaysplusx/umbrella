@@ -22,7 +22,7 @@ import javax.jws.WebService;
 
 import com.harmony.umbrella.jaxws.JaxWsProxyBuilder;
 import com.harmony.umbrella.jaxws.impl.SimpleJaxWsContext;
-import com.harmony.umbrella.jaxws.support.JaxWsContextSender;
+import com.harmony.umbrella.jaxws.support.JaxWsExecutorJmsSupport;
 
 /**
  * @author wuxii
@@ -31,19 +31,19 @@ import com.harmony.umbrella.jaxws.support.JaxWsContextSender;
 @WebService(serviceName = "JaxWsTestService")
 public class JaxWsTestService {
 
-    @EJB
-    private JaxWsContextSender sender;
+	@EJB
+	private JaxWsExecutorJmsSupport executorSupport;
 
-    public void testSync(@WebParam(name = "name") String name, @WebParam(name = "address") String address) {
-        HelloService service = JaxWsProxyBuilder.newProxyBuilder().setAddress(address).build(HelloService.class);
-        String result = service.sayHi("wuxii");
-        System.out.println(result);
-    }
+	public void testSync(@WebParam(name = "name") String name, @WebParam(name = "address") String address) {
+		HelloService service = JaxWsProxyBuilder.newProxyBuilder().setAddress(address).build(HelloService.class);
+		String result = service.sayHi("wuxii");
+		System.out.println(result);
+	}
 
-    public void testAsyn(@WebParam(name = "name") String name, @WebParam(name = "address") String address) {
-        SimpleJaxWsContext context = new SimpleJaxWsContext(HelloService.class, "sayHi", new Object[] { "wuxii" });
-        context.setAddress(address);
-        sender.send(context);
-    }
+	public void testAsyn(@WebParam(name = "name") String name, @WebParam(name = "address") String address) {
+		SimpleJaxWsContext context = new SimpleJaxWsContext(HelloService.class, "sayHi", new Object[] { "wuxii" });
+		context.setAddress(address);
+		executorSupport.send(context);
+	}
 
 }
