@@ -31,6 +31,9 @@ import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.harmony.umbrella.jaxws.impl.SimpleJaxWsMetadata;
+import com.harmony.umbrella.util.StringUtils;
+
 /**
  * Proxy Builder 创建代理实例
  * 
@@ -39,17 +42,21 @@ import org.slf4j.LoggerFactory;
 public class JaxWsProxyBuilder {
 
     public static final long defaultTimeout = 1000 * 60 * 3;
+
     private static final ThreadLocal<JaxWsProxyFactoryBean> factoryBeans = new ThreadLocal<JaxWsProxyFactoryBean>();
+
     private static final Logger log = LoggerFactory.getLogger(JaxWsProxyBuilder.class);
+
     private String address;
     private String username;
     private String password;
-    private MetadataLoader metadataLoader;
-    private Object target;
 
-    private boolean loadUsername;
-    private boolean loadPassword;
-    private boolean loadAddress;
+    private MetadataLoader metadataLoader;
+
+    /**
+     * 实际的代理服务类
+     */
+    private Object target;
 
     private long receiveTimeout = -1;
     private long connectionTimeout = -1;
@@ -110,7 +117,6 @@ public class JaxWsProxyBuilder {
      */
     public JaxWsProxyBuilder setAddress(String address) {
         this.address = address;
-        this.loadAddress = address == null;
         return this;
     }
 
@@ -122,7 +128,6 @@ public class JaxWsProxyBuilder {
      */
     public JaxWsProxyBuilder setUsername(String username) {
         this.username = username;
-        this.loadUsername = false;
         return this;
     }
 
@@ -134,7 +139,6 @@ public class JaxWsProxyBuilder {
      */
     public JaxWsProxyBuilder setPassword(String password) {
         this.password = password;
-        this.loadPassword = false;
         return this;
     }
 
@@ -169,14 +173,14 @@ public class JaxWsProxyBuilder {
      */
     public <T> T build(Class<T> serviceClass, JaxWsProxyFactoryConfig proxyConfig) {
         JaxWsProxyFactoryBean factoryBean = factoryBeans.get();
-        String address = getAddress(serviceClass);
-        if (address == null || "".equals(address))
+        JaxWsMetadata metadata = getJaxWsMetadata(serviceClass);
+        if (StringUtils.isBlank(metadata.getAddress()))
             throw new IllegalArgumentException("proxy address is null or blank");
         if (proxyConfig != null)
             proxyConfig.config(factoryBean);
-        factoryBean.setAddress(address);
-        factoryBean.setUsername(getUsername(serviceClass));
-        factoryBean.setPassword(getPassword(serviceClass));
+        factoryBean.setAddress(metadata.getAddress());
+        factoryBean.setUsername(metadata.getUsername());
+        factoryBean.setPassword(metadata.getPassword());
         target = factoryBean.create(serviceClass);
         if (connectionTimeout > -1) {
             setConnectionTimeout(target, connectionTimeout);
@@ -189,27 +193,85 @@ public class JaxWsProxyBuilder {
     }
 
     /**
-     * 创建代理服务
+     * 如果{@linkplain #metadataLoader}不为空则先从loader中加载元数据.
+     * <p>
+     * 另,如果当前{@linkplain JaxWsProxyBuilder}中:
+     * <li>{@linkplain #address}不为空则覆盖元数据中的地址
+     * <li>{@linkplain #username}不为空则覆盖元数据中的用户名
+     * <li>{@linkplain #password}不为空则覆盖元数据中的密码
      * 
      * @param serviceClass
      * @return
      */
-    public <T> T build(Class<T> serviceClass) {
-        return build(serviceClass, null);
+    protected JaxWsMetadata getJaxWsMetadata(Class<?> serviceClass) {
+        if (metadataLoader == null) {
+            return new SimpleJaxWsMetadata(serviceClass, address, username, password);
+        }
+        SimpleJaxWsMetadata result = new SimpleJaxWsMetadata(serviceClass);
+        JaxWsMetadata temp = metadataLoader.getJaxWsMetadata(serviceClass);
+        result.setAddress(StringUtils.isBlank(address) ? temp.getAddress() : address);
+        result.setUsername(StringUtils.isNotBlank(username) ? temp.getUsername() : username);
+        result.setPassword(StringUtils.isNotBlank(password) ? temp.getPassword() : password);
+        result.setServiceName(temp.getServiceName());
+        return result;
     }
 
     /**
      * 创建代理服务
      * 
      * @param serviceClass
-     * @param connectionTimeout
-     * @param factoryConfig
      * @return
      */
-    public <T> T build(Class<T> serviceClass, long connectionTimeout, JaxWsProxyFactoryConfig factoryConfig) {
+    public <T> T build(Class<T> serviceClass) {
+        return build(serviceClass, (JaxWsProxyFactoryConfig) null);
+    }
+
+    /**
+     * 创建代理服务. 并连接到指定的服务地址
+     * 
+     * @param serviceClass
+     * @param address
+     * @return
+     */
+    public <T> T build(Class<T> serviceClass, String address) {
+        this.address = address;
+        return build(serviceClass, (JaxWsProxyFactoryConfig) null);
+    }
+
+    /**
+     * 创建代理服务, 并使用指定的元数据加载工具加载元数据信息(地址/用户名/密码).
+     * 
+     * @param serviceClass
+     * @param metadataLoader
+     * @return
+     */
+    public <T> T build(Class<T> serviceClass, MetadataLoader metadataLoader) {
+        this.metadataLoader = metadataLoader;
+        return build(serviceClass, (JaxWsProxyFactoryConfig) null);
+    }
+
+    /**
+     * 创建代理服务. 并设置超时时间
+     * 
+     * @param serviceClass
+     * @param connectionTimeout
+     * @return
+     */
+    public <T> T build(Class<T> serviceClass, long connectionTimeout) {
         this.connectionTimeout = connectionTimeout;
-        T proxy = build(serviceClass, null);
-        return proxy;
+        T target = build(serviceClass);
+        return target;
+    }
+
+    /**
+     * 设置元数据加载工具
+     * 
+     * @param loader
+     * @return
+     */
+    public JaxWsProxyBuilder setMetadataLoader(MetadataLoader loader) {
+        this.metadataLoader = loader;
+        return this;
     }
 
     /**
@@ -236,18 +298,12 @@ public class JaxWsProxyBuilder {
         throw new IllegalArgumentException("Unsupported unwrap target type [" + cls.getName() + "]");
     }
 
-    public JaxWsProxyBuilder setMetadataLoader(MetadataLoader loader) {
-        this.metadataLoader = loader;
-        this.loadAddress = this.loadPassword = this.loadUsername = loader != null;
-        return this;
-    }
-
-    public <T> T build(Class<T> serviceClass, long connectionTimeout) {
-        T target = build(serviceClass);
-        setConnectionTimeout(target, connectionTimeout);
-        return target;
-    }
-
+    /**
+     * 设置接受超时时间
+     * 
+     * @param target
+     * @param receiveTimeout
+     */
     public static void setReceiveTimeout(Object target, long receiveTimeout) {
         Client proxy = ClientProxy.getClient(target);
         HTTPConduit conduit = (HTTPConduit) proxy.getConduit();
@@ -256,6 +312,12 @@ public class JaxWsProxyBuilder {
         conduit.setClient(policy);
     }
 
+    /**
+     * 设置连接超时时间
+     * 
+     * @param target
+     * @param connectionTimeout
+     */
     public static void setConnectionTimeout(Object target, long connectionTimeout) {
         Client proxy = ClientProxy.getClient(target);
         HTTPConduit conduit = (HTTPConduit) proxy.getConduit();
@@ -264,28 +326,11 @@ public class JaxWsProxyBuilder {
         conduit.setClient(policy);
     }
 
-    protected String getAddress(Class<?> serviceClass) {
-        if (loadAddress)
-            return metadataLoader.getAddress(serviceClass);
-        return address;
-    }
-
-    protected String getUsername(Class<?> serviceClass) {
-        if (loadUsername)
-            return metadataLoader.getUsername(serviceClass);
-        return username;
-    }
-
-    protected String getPassword(Class<?> serviceClass) {
-        if (loadPassword)
-            return metadataLoader.getUsername(serviceClass);
-        return password;
-    }
-
     /**
-     * 创建时候的回调方法，负责创建前配置{@linkplain JaxWsProxyFactoryBean} <p>不允许在
-     * {@link #config(JaxWsProxyFactoryBean)}中调用
-     * {@linkplain JaxWsProxyFactoryBean#create()}方法 <p>否则调用异常
+     * 创建时候的回调方法，负责创建前配置{@linkplain JaxWsProxyFactoryBean}
+     * <p>
+     * 不允许在 {@link #config(JaxWsProxyFactoryBean)}中调用
+     * {@linkplain JaxWsProxyFactoryBean#create()}方法
      */
     public interface JaxWsProxyFactoryConfig {
 

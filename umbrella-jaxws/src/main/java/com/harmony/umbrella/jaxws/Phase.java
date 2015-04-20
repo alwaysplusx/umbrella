@@ -16,34 +16,51 @@
 package com.harmony.umbrella.jaxws;
 
 /**
+ * 服务交互的执行周期
+ * 
  * @author wuxii@foxmail.com
  */
 public enum Phase {
 
+    /**
+     * 执行前
+     */
     PRE_INVOKE {
         @Override
         public String render() {
             return "post-unmarshal";
         }
     },
+    /**
+     * 有{@linkplain JaxWsAbortException} 取消执行
+     */
     ABORT {
         @Override
         public String render() {
             return null;
         }
     },
+    /**
+     * 执行成功后
+     */
     POST_INVOKE {
         @Override
         public String render() {
             return "pre-marshal";
         }
     },
+    /**
+     * 执行异常
+     */
     THROWING {
         @Override
         public String render() {
             return null;
         }
     },
+    /**
+     * 执行的finally块中
+     */
     FINALLY {
         @Override
         public String render() {

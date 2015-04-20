@@ -22,12 +22,39 @@ package com.harmony.umbrella.jaxws;
  */
 public interface JaxWsMetadata {
 
-    Class<?> getServiceInterface();
+    /**
+     * 服务名
+     * 
+     * @return
+     */
+    String getServiceName();
 
+    /**
+     * 服务接口类
+     * 
+     * @return
+     */
+    Class<?> getServiceClass();
+
+    /**
+     * 服务所在的地址
+     * 
+     * @return
+     */
     String getAddress();
 
+    /**
+     * 访问服务所需要使用的用户名. 非必须
+     * 
+     * @return
+     */
     String getUsername();
 
+    /**
+     * 范文服务所需要的密码. 非必须
+     * 
+     * @return
+     */
     String getPassword();
 
 }

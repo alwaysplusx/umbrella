@@ -23,6 +23,17 @@ package com.harmony.umbrella.jaxws;
 public interface MetadataLoader {
 
     /**
+     * 根据指定的serviceClass加载指定的元数据
+     * 
+     * @param serviceClass
+     * @return
+     * @since 0.0.2
+     */
+    JaxWsMetadata getJaxWsMetadata(Class<?> serviceClass);
+
+    // JaxWsMetadata getJaxWsMetadata(String serviceName);
+
+    /**
      * 获取指定serviceClass的用户名
      * 
      * @param serviceClass
