@@ -54,7 +54,7 @@ public class PropertiesFileEJBSchedulerTest {
         assertNotNull(scheduler);
         System.err.println(scheduler);
         scheduler.startAll();
-        Thread.sleep(1000 * 10);
+        Thread.sleep(1000 * 2);
     }
 
 }

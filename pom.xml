@@ -18,6 +18,7 @@
 		<module>umbrella-mapper</module>
 		<module>umbrella-jaxws</module>
 		<module>umbrella-jaxrs</module>
+		<module>jaxws-all</module>
 	</modules>
 	<properties>
 		<jdk.version>1.6</jdk.version>
@@ -91,6 +92,21 @@
 				<artifactId>umbrella-security</artifactId>
 				<version>${project.version}</version>
 			</dependency>
+			<dependency>
+				<groupId>com.harmony.umbrella</groupId>
+				<artifactId>umbrella-jaxrs</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+            <dependency>
+                <groupId>com.harmony.umbrella</groupId>
+                <artifactId>umbrella-mapper</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.harmony.umbrella</groupId>
+                <artifactId>umbrella-validator</artifactId>
+                <version>${project.version}</version>
+            </dependency>            			
 			<!-- umbrella END -->
 
 			<!-- slf4j START -->

@@ -33,7 +33,6 @@ public class JaxWsServerManagerTest {
 
     @Test
     public void testPublishClassOfQString() {
-
         String result = JaxWsProxyBuilder.newProxyBuilder().build(HelloService.class, "http://localhost:8080/hi").sayHi("wuxii");
         assertEquals("Hi wuxii", result);
     }
