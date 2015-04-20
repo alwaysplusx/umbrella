@@ -27,11 +27,12 @@ import com.harmony.umbrella.jaxws.JaxWsContextHandler;
 import com.harmony.umbrella.jaxws.JaxWsExecutor;
 import com.harmony.umbrella.jaxws.impl.JaxWsCXFExecutor;
 import com.harmony.umbrella.jaxws.support.JaxWsContextSender;
+import com.harmony.umbrella.jaxws.support.JaxWsExecutorJmsSupport;
 
 /**
  * @author wuxii@foxmail.com
  */
-@Stateless
+@Stateless(mappedName = "JaxWsExecutorJmsSupportImpl")
 @Remote(JaxWsExecutorJmsSupport.class)
 public class JaxWsExecutorJmsSupportImpl implements JaxWsExecutorJmsSupport {
 

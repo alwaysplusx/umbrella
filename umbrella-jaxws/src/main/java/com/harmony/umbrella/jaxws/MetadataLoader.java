@@ -27,7 +27,6 @@ public interface MetadataLoader {
      * 
      * @param serviceClass
      * @return
-     * @since 0.0.2
      */
     JaxWsMetadata getJaxWsMetadata(Class<?> serviceClass);
 

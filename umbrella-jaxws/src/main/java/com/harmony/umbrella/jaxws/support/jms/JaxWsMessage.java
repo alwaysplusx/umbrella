@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.umbrella.jaxws.jms;
+package com.harmony.umbrella.jaxws.support.jms;
 
 import com.harmony.umbrella.jaxws.JaxWsContext;
 import com.harmony.umbrella.message.Message;
@@ -23,7 +23,7 @@ import com.harmony.umbrella.message.Message;
  */
 public class JaxWsMessage implements Message {
 
-    private static final long serialVersionUID = -4818246408910464333L;
+    private static final long serialVersionUID = -7233998395118539815L;
     private JaxWsContext context;
 
     public JaxWsMessage() {

@@ -16,17 +16,22 @@
 package com.harmony.umbrella.jaxws.jms;
 
 import javax.annotation.Resource;
+import javax.ejb.Remote;
 import javax.ejb.Stateless;
 import javax.jms.ConnectionFactory;
 import javax.jms.Destination;
 
 import com.harmony.umbrella.jaxws.JaxWsContext;
+import com.harmony.umbrella.jaxws.support.JaxWsContextSender;
+import com.harmony.umbrella.jaxws.support.jms.JaxWsContextJmsSenderAdapter;
+import com.harmony.umbrella.jaxws.support.jms.JaxWsMessage;
 import com.harmony.umbrella.message.Message;
 
 /**
  * @author wuxii
  */
-@Stateless
+@Remote(JaxWsContextSender.class)
+@Stateless(mappedName = "JaxWsContextJmsSenderBean")
 public class JaxWsContextJmsSenderBean extends JaxWsContextJmsSenderAdapter {
 
     @Resource(name = "jms/connectionFactory")

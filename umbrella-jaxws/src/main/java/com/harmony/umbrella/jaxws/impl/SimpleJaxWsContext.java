@@ -169,6 +169,58 @@ public class SimpleJaxWsContext implements JaxWsContext, Serializable {
 	}
 
 	@Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((address == null) ? 0 : address.hashCode());
+        result = prime * result + ((methodName == null) ? 0 : methodName.hashCode());
+        result = prime * result + Arrays.hashCode(parameters);
+        result = prime * result + ((password == null) ? 0 : password.hashCode());
+        result = prime * result + ((serviceInterface == null) ? 0 : serviceInterface.hashCode());
+        result = prime * result + ((username == null) ? 0 : username.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        SimpleJaxWsContext other = (SimpleJaxWsContext) obj;
+        if (address == null) {
+            if (other.address != null)
+                return false;
+        } else if (!address.equals(other.address))
+            return false;
+        if (methodName == null) {
+            if (other.methodName != null)
+                return false;
+        } else if (!methodName.equals(other.methodName))
+            return false;
+        if (!Arrays.equals(parameters, other.parameters))
+            return false;
+        if (password == null) {
+            if (other.password != null)
+                return false;
+        } else if (!password.equals(other.password))
+            return false;
+        if (serviceInterface == null) {
+            if (other.serviceInterface != null)
+                return false;
+        } else if (!serviceInterface.equals(other.serviceInterface))
+            return false;
+        if (username == null) {
+            if (other.username != null)
+                return false;
+        } else if (!username.equals(other.username))
+            return false;
+        return true;
+    }
+
+    @Override
 	public String toString() {
 		String args = Arrays.toString(parameters).replace("[", "").replace("]", "");
 		return "{" + serviceInterface.getName() + "#" + methodName + "(" + args + ")}";
