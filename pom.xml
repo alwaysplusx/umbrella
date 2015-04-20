@@ -19,6 +19,8 @@
 		<!-- <module>examples</module> -->
 		<module>umbrella-resources</module>
 		<module>umbrella-plugins</module>
+		<module>umbrella-cache</module>
+		<module>umbrella-web</module>
 	</modules>
 	<properties>
 		<jdk.version>1.6</jdk.version>
