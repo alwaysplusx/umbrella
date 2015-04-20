@@ -17,8 +17,8 @@
 		<module>umbrella-jaxws</module>
 		<module>umbrella-jaxrs</module>
 		<!-- <module>examples</module> -->
-		<!-- <module>umbrella-resources</module> -->
-		<!-- <module>umbrella-plugins</module> -->
+		<module>umbrella-resources</module>
+		<module>umbrella-plugins</module>
 	</modules>
 	<properties>
 		<jdk.version>1.6</jdk.version>
