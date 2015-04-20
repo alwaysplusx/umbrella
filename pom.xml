@@ -29,7 +29,10 @@
 		<javax.servlet.version>3.1.0</javax.servlet.version>
 		<javax.interceptor.version>1.2</javax.interceptor.version>
 		<javax.ee.version>6.0</javax.ee.version>
+		<javax.el.version>2.2.5</javax.el.version>
 		<javax.validation.version>1.1.0.Final</javax.validation.version>
+		<javax.ws.rs.version>2.0</javax.ws.rs.version>
+		<javax.annotation.version>1.2</javax.annotation.version>
 		<apache.cxf.version>3.0.2</apache.cxf.version>
 		<apache.openejb.version>4.7.1</apache.openejb.version>
 		<apache.log4j2.version>2.2</apache.log4j2.version>
@@ -52,6 +55,7 @@
 		<glassfish.el.version>3.0.0</glassfish.el.version>
 		<fastjson.version>1.2.4</fastjson.version>
 		<dozer.version>5.5.1</dozer.version>
+		<glassfish.el.version>2.2.6</glassfish.el.version>
 		<junit.version>4.11</junit.version>
 	</properties>
 	<dependencyManagement>
@@ -309,6 +313,21 @@
 				<artifactId>validation-api</artifactId>
 				<version>${javax.validation.version}</version>
 			</dependency>
+			<dependency>
+				<artifactId>javax.ws.rs-api</artifactId>
+				<groupId>javax.ws.rs</groupId>
+				<version>${javax.ws.rs.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>javax.annotation</groupId>
+				<artifactId>javax.annotation-api</artifactId>
+				<version>${javax.annotation.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>javax.el</groupId>
+				<artifactId>javax.el-api</artifactId>
+				<version>${javax.el.version}</version>
+			</dependency>
 			<!-- javax END -->
 
 			<!-- other START -->
@@ -367,6 +386,11 @@
 				<artifactId>dozer</artifactId>
 				<version>${dozer.version}</version>
 			</dependency>
+			<dependency>
+				<groupId>org.glassfish.web</groupId>
+				<artifactId>javax.el</artifactId>
+				<version>${glassfish.el.version}</version>
+			</dependency>			
 			<!-- other END -->
 
 			<!-- test START -->

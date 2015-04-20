@@ -19,5 +19,6 @@
 	<modules>
 		<module>example-jaxws</module>
 		<module>example-ear</module>
+		<module>example-data</module>
 	</modules>
 </project>

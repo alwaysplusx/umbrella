@@ -12,13 +12,14 @@
 			<groupId>com.harmony.umbrella</groupId>
 			<artifactId>umbrella-core</artifactId>
 		</dependency>
-		<dependency>
+		<!-- <dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
-		</dependency>
+		</dependency> -->
 		<dependency>
 			<groupId>joda-time</groupId>
 			<artifactId>joda-time</artifactId>
+			<optional>true</optional>
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.persistence</groupId>
@@ -48,6 +49,7 @@
 		<dependency>
 			<groupId>org.eclipse.persistence</groupId>
 			<artifactId>eclipselink</artifactId>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>junit</groupId>

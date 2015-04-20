@@ -13,13 +13,12 @@
 			<artifactId>umbrella-core</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.openejb</groupId>
-			<artifactId>javaee-api</artifactId>
-			<scope>provided</scope>
+			<groupId>org.aspectj</groupId>
+			<artifactId>aspectjweaver</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>javax.interceptor</groupId>
-			<artifactId>javax.interceptor-api</artifactId>
+			<groupId>org.apache.openejb</groupId>
+			<artifactId>javaee-api</artifactId>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
@@ -42,11 +41,6 @@
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-aop</artifactId>
 			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.aspectj</groupId>
-			<artifactId>aspectjweaver</artifactId>
-			<scope>provided</scope>
 		</dependency>
 	</dependencies>
 </project>

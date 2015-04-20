@@ -9,14 +9,8 @@
 	<artifactId>umbrella-message</artifactId>
 	<dependencies>
 		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-api</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>com.harmony.umbrella</groupId>
 			<artifactId>umbrella-core</artifactId>
-			<scope>compile</scope>
-			<optional>true</optional>
 		</dependency>
 		<dependency>
 			<groupId>javax.jms</groupId>
@@ -28,5 +22,9 @@
 			<artifactId>javax.ejb-api</artifactId>
 			<scope>provided</scope>
 		</dependency>
+		<!-- <dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+		</dependency> -->
 	</dependencies>
 </project>

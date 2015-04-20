@@ -6,23 +6,12 @@
 		<artifactId>examples</artifactId>
 		<version>0.0.1</version>
 	</parent>
-	<artifactId>example-jaxws</artifactId>
+	<artifactId>example-data</artifactId>
 	<packaging>ejb</packaging>
 	<dependencies>
 		<dependency>
-			<groupId>com.harmony.umbrella.resources</groupId>
-			<artifactId>jaxws-all</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>com.harmony.umbrella.plugins</groupId>
-			<artifactId>jaxws-jms-plugin</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.openejb</groupId>
-			<artifactId>javaee-api</artifactId>
-			<scope>provided</scope>
+			<groupId>com.harmony.umbrella</groupId>
+			<artifactId>umbrella-data</artifactId>
 		</dependency>
 	</dependencies>
 	<build>
