@@ -12,14 +12,13 @@
 		<module>umbrella-scheduler</module>
 		<module>umbrella-security</module>
 		<module>umbrella-data</module>
-		<!-- <module>examples</module> -->
-		<module>umbrella-all</module>
 		<module>umbrella-validator</module>
 		<module>umbrella-mapper</module>
 		<module>umbrella-jaxws</module>
 		<module>umbrella-jaxrs</module>
-		<module>umbrella-resources</module>
-		<module>umbrella-plugins</module>
+		<!-- <module>examples</module> -->
+		<!-- <module>umbrella-resources</module> -->
+		<!-- <module>umbrella-plugins</module> -->
 	</modules>
 	<properties>
 		<jdk.version>1.6</jdk.version>

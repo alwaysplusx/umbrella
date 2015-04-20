@@ -11,5 +11,6 @@
 	<packaging>pom</packaging>
 	<modules>
 		<module>jaxws-all</module>
+		<module>umbrella-all</module>
 	</modules>
 </project>

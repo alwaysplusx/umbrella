@@ -2,8 +2,8 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
-		<groupId>com.harmony.umbrella</groupId>
-		<artifactId>harmony-umbrella</artifactId>
+		<groupId>com.harmony.umbrella.resources</groupId>
+		<artifactId>umbrella-resources</artifactId>
 		<version>0.0.1</version>
 	</parent>
 	<artifactId>umbrella-all</artifactId>
@@ -37,18 +37,18 @@
 			<groupId>com.harmony.umbrella</groupId>
 			<artifactId>umbrella-security</artifactId>
 		</dependency>
-        <dependency>
-            <groupId>com.harmony.umbrella</groupId>
-            <artifactId>umbrella-jaxrs</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.harmony.umbrella</groupId>
-            <artifactId>umbrella-mapper</artifactId>
-        </dependency>    
-        <dependency>
-            <groupId>com.harmony.umbrella</groupId>
-            <artifactId>umbrella-validator</artifactId>
-        </dependency>            		
+		<dependency>
+			<groupId>com.harmony.umbrella</groupId>
+			<artifactId>umbrella-jaxrs</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.harmony.umbrella</groupId>
+			<artifactId>umbrella-mapper</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.harmony.umbrella</groupId>
+			<artifactId>umbrella-validator</artifactId>
+		</dependency>
 	</dependencies>
 	<build>
 		<plugins>
@@ -84,29 +84,11 @@
 							<goal>shade</goal>
 						</goals>
 						<configuration>
-						    <!-- filter for jaxws package -->
-							<!-- 
-							<filters>
-								<filter>
-									<artifact>com.harmony.umbrella:umbrella-data</artifact>
-									<excludes>
-										<exclude>*/**</exclude>
-									</excludes>
-								</filter>
-								<filter>
-									<artifact>com.harmony.umbrella:umbrella-scheduler</artifact>
-									<excludes>
-										<exclude>*/**</exclude>
-									</excludes>
-								</filter>
-								<filter>
-									<artifact>com.harmony.umbrella:umbrella-security</artifact>
-									<excludes>
-										<exclude>*/**</exclude>
-									</excludes>
-								</filter>
-							</filters>
-							-->
+							<!-- filter for jaxws package -->
+							<!-- <filters> <filter> <artifact>com.harmony.umbrella:umbrella-data</artifact> 
+								<excludes> <exclude>*/**</exclude> </excludes> </filter> <filter> <artifact>com.harmony.umbrella:umbrella-scheduler</artifact> 
+								<excludes> <exclude>*/**</exclude> </excludes> </filter> <filter> <artifact>com.harmony.umbrella:umbrella-security</artifact> 
+								<excludes> <exclude>*/**</exclude> </excludes> </filter> </filters> -->
 							<artifactSet>
 								<includes>
 									<include>com.harmony.umbrella:umbrella-core</include>

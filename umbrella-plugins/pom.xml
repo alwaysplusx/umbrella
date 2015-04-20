@@ -9,4 +9,7 @@
 	<groupId>com.harmony.umbrella.plugins</groupId>
 	<artifactId>umbrella-plugins</artifactId>
 	<packaging>pom</packaging>
+	<modules>
+		<module>jaxws-jms-plugin</module>
+	</modules>
 </project>
