@@ -22,61 +22,61 @@ import javax.persistence.Id;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 
-import com.harmony.umbrella.scheduling.JobEntry;
 /**
  * @author wuxii@foxmail.com
  */
 @Entity
 @NamedQueries({ 
-    @NamedQuery(name = "JobEntity.findAll", query = "select o from JobEntity o"),
-    @NamedQuery(name = "JobEntity.findByJobName", query = "select o from JobEntity o where o.jobName=:jobName") 
+		@NamedQuery(name = "JobEntity.findAll", query = "select o from JobEntity o"),
+		@NamedQuery(name = "JobEntity.findAllJobName", query = "select o.jobName from JobEntity o"),
+		@NamedQuery(name = "JobEntity.findByJobName", query = "select o from JobEntity o where o.jobName=:jobName") 
 })
-public class JobEntity implements JobEntry, Serializable {
+public class JobEntity implements Serializable {
 
-    private static final long serialVersionUID = 6827492927148470876L;
-    @Id
-    private String jobName;
-    private String jobClassName;
+	private static final long serialVersionUID = 6827492927148470876L;
+	@Id
+	private String jobName;
+	private String jobClassName;
 
-    public String getJobName() {
-        return jobName;
-    }
+	public String getJobName() {
+		return jobName;
+	}
 
-    public void setJobName(String jobName) {
-        this.jobName = jobName;
-    }
+	public void setJobName(String jobName) {
+		this.jobName = jobName;
+	}
 
-    public String getJobClassName() {
-        return jobClassName;
-    }
+	public String getJobClassName() {
+		return jobClassName;
+	}
 
-    public void setJobClassName(String jobClassName) {
-        this.jobClassName = jobClassName;
-    }
+	public void setJobClassName(String jobClassName) {
+		this.jobClassName = jobClassName;
+	}
 
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((jobName == null) ? 0 : jobName.hashCode());
-        return result;
-    }
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((jobName == null) ? 0 : jobName.hashCode());
+		return result;
+	}
 
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        JobEntity other = (JobEntity) obj;
-        if (jobName == null) {
-            if (other.jobName != null)
-                return false;
-        } else if (!jobName.equals(other.jobName))
-            return false;
-        return true;
-    }
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		JobEntity other = (JobEntity) obj;
+		if (jobName == null) {
+			if (other.jobName != null)
+				return false;
+		} else if (!jobName.equals(other.jobName))
+			return false;
+		return true;
+	}
 
 }

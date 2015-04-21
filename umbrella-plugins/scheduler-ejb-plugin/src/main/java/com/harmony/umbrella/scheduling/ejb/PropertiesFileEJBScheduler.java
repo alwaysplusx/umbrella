@@ -15,11 +15,6 @@
  */
 package com.harmony.umbrella.scheduling.ejb;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
-
 import javax.annotation.Resource;
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
@@ -28,13 +23,10 @@ import javax.ejb.Timer;
 import javax.ejb.TimerService;
 
 import com.harmony.umbrella.core.BeanLoader;
-import com.harmony.umbrella.core.ClassBeanLoader;
-import com.harmony.umbrella.scheduling.JobEntry;
+import com.harmony.umbrella.scheduling.AbstractEJBScheduler;
+import com.harmony.umbrella.scheduling.JobFactory;
 import com.harmony.umbrella.scheduling.Scheduler;
-import com.harmony.umbrella.scheduling.Trigger;
-import com.harmony.umbrella.scheduling.support.DefaultJobEntry;
-import com.harmony.umbrella.scheduling.support.ExpressionTrigger;
-import com.harmony.umbrella.util.PropUtils;
+import com.harmony.umbrella.scheduling.support.PropertiesFileJobFactory;
 
 /**
  * 基于配置文件的定时任务管理
@@ -45,56 +37,28 @@ import com.harmony.umbrella.util.PropUtils;
 @Remote(Scheduler.class)
 public class PropertiesFileEJBScheduler extends AbstractEJBScheduler {
 
-    public static final String jobPropertiesFileLocation = "META-INF/scheduler/jobs.properties";
+	@Resource
+	private TimerService timerService;
+	private PropertiesFileJobFactory jobFactory = new PropertiesFileJobFactory();
 
-    public static final String triggerPropertiesFileLocation = "META-INF/scheduler/triggers.properties";
+	@Override
+	protected TimerService getTimerService() {
+		return timerService;
+	}
 
-    private String jobPropertiesFile = jobPropertiesFileLocation;
+	@Override
+	@Timeout
+	protected void monitorTask(Timer timer) {
+		handle(timer);
+	}
 
-    private String triggerPropertiesFile = triggerPropertiesFileLocation;
+	@Override
+	protected JobFactory getJobFactory() {
+		return jobFactory;
+	}
 
-    @Resource
-    private TimerService timerService;
+	public void setBeanLoader(BeanLoader beanLoader) {
+		jobFactory.setBeanLoader(beanLoader);
+	}
 
-    private BeanLoader beanLoader = new ClassBeanLoader();
-
-    @Override
-    protected TimerService getTimerService() {
-        return timerService;
-    }
-
-    @Override
-    protected BeanLoader getBeanLoader() {
-        return beanLoader;
-    }
-
-    @Override
-    @Timeout
-    protected void monitorTask(Timer timer) {
-        handle(timer);
-    }
-
-    @Override
-    protected Trigger getJobTrigger(String jobName) {
-        try {
-            Properties props = PropUtils.loadProperties(triggerPropertiesFile);
-            String triggerExpression = props.getProperty(jobName);
-            return triggerExpression != null ? new ExpressionTrigger(triggerExpression) : null;
-        } catch (IOException e) {
-        }
-        return null;
-    }
-
-    @Override
-    protected List<? extends JobEntry> getAllJobEntry() {
-        List<DefaultJobEntry> list = new ArrayList<DefaultJobEntry>();
-        try {
-            Properties jobProps = PropUtils.loadProperties(jobPropertiesFile);
-            for (String name : jobProps.stringPropertyNames()) {
-                list.add(new DefaultJobEntry(name, jobProps.getProperty(name)));
-            }
-        } catch (IOException e) {
-        }
-        return list;
-    }
 }

@@ -15,8 +15,6 @@
  */
 package com.harmony.umbrella.scheduling.ejb;
 
-import java.util.List;
-
 import javax.annotation.Resource;
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
@@ -24,14 +22,13 @@ import javax.ejb.Timeout;
 import javax.ejb.Timer;
 import javax.ejb.TimerService;
 import javax.persistence.EntityManager;
-import javax.persistence.TypedQuery;
+import javax.persistence.PersistenceContext;
 
 import com.harmony.umbrella.core.BeanLoader;
-import com.harmony.umbrella.core.ClassBeanLoader;
-import com.harmony.umbrella.scheduling.JobEntry;
+import com.harmony.umbrella.scheduling.AbstractEJBScheduler;
+import com.harmony.umbrella.scheduling.JobFactory;
 import com.harmony.umbrella.scheduling.Scheduler;
-import com.harmony.umbrella.scheduling.Trigger;
-import com.harmony.umbrella.scheduling.jpa.entity.JobEntity;
+import com.harmony.umbrella.scheduling.jpa.JpaJobFactory;
 
 /**
  * 
@@ -41,41 +38,32 @@ import com.harmony.umbrella.scheduling.jpa.entity.JobEntity;
 @Remote(Scheduler.class)
 public class JpaEntityEJBScheduler extends AbstractEJBScheduler {
 
-    @Resource
-    private TimerService timerService;
-    private BeanLoader beanLoader = new ClassBeanLoader();
-    private EntityManager em;
+	@Resource
+	private TimerService timerService;
+	@PersistenceContext
+	private EntityManager em;
+	private JpaJobFactory jobFactory;
 
-    public JpaEntityEJBScheduler(EntityManager em) {
-        this.em = em;
-    }
+	@Override
+	protected TimerService getTimerService() {
+		return timerService;
+	}
 
-    @Override
-    protected TimerService getTimerService() {
-        return timerService;
-    }
+	@Override
+	@Timeout
+	protected void monitorTask(Timer timer) {
+		handle(timer);
+	}
 
-    @Override
-    protected BeanLoader getBeanLoader() {
-        return beanLoader;
-    }
+	@Override
+	protected JobFactory getJobFactory() {
+		if (jobFactory == null) {
+			jobFactory = new JpaJobFactory(em);
+		}
+		return jobFactory;
+	}
 
-    @Override
-    @Timeout
-    protected void monitorTask(Timer timer) {
-        handle(timer);
-    }
-
-    @Override
-    protected Trigger getJobTrigger(String jobName) {
-        TypedQuery<Trigger> query = em.createNamedQuery("TriggerEntity.findByTriggerCode", Trigger.class);
-        query.setParameter("triggerCode", jobName);
-        return query.getSingleResult();
-    }
-
-    @Override
-    protected List<? extends JobEntry> getAllJobEntry() {
-        return em.createNamedQuery("JobEntity.findAll", JobEntity.class).getResultList();
-    }
-
+	public void setBeanLoader(BeanLoader beanLoader) {
+		((JpaJobFactory) getJobFactory()).setBeanLoader(beanLoader);
+	}
 }
