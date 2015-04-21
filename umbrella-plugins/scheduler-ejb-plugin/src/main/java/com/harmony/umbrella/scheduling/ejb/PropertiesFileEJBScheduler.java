@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.umbrella.scheduling.support;
+package com.harmony.umbrella.scheduling.ejb;
 
 import java.io.IOException;
-import java.util.Calendar;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
-import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
@@ -29,15 +29,16 @@ import javax.ejb.TimerService;
 
 import com.harmony.umbrella.core.BeanLoader;
 import com.harmony.umbrella.core.ClassBeanLoader;
-import com.harmony.umbrella.scheduling.Job;
+import com.harmony.umbrella.scheduling.JobEntry;
 import com.harmony.umbrella.scheduling.Scheduler;
-import com.harmony.umbrella.scheduling.SchedulerException;
 import com.harmony.umbrella.scheduling.Trigger;
+import com.harmony.umbrella.scheduling.support.DefaultJobEntry;
+import com.harmony.umbrella.scheduling.support.ExpressionTrigger;
 import com.harmony.umbrella.util.PropUtils;
-import com.harmony.umbrella.util.StringUtils;
 
 /**
  * 基于配置文件的定时任务管理
+ * 
  * @author wuxii@foxmail.com
  */
 @Stateless
@@ -54,48 +55,8 @@ public class PropertiesFileEJBScheduler extends AbstractEJBScheduler {
 
     @Resource
     private TimerService timerService;
-    
+
     private BeanLoader beanLoader = new ClassBeanLoader();
-
-    @PostConstruct
-    private void postConstruct() {
-        try {
-            init();
-        } catch (SchedulerException e) {
-            throw new IllegalArgumentException(e.getMessage(), e.getCause());
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    protected void init() throws SchedulerException {
-        try {
-            Properties jobProps = PropUtils.loadProperties(jobPropertiesFile);
-            for (String name : jobProps.stringPropertyNames()) {
-                String jobClassName = jobProps.getProperty(name);
-                if (StringUtils.isEmpty(jobClassName)) {
-                    throw new IllegalArgumentException("job[" + name + "] class cannot be null");
-                }
-                try {
-                    Class<?> jobClass = Class.forName(jobClassName);
-                    if (!jobClass.isInterface() && Job.class.isAssignableFrom(jobClass)) {
-                        EJBJobInfo jobInfo = new EJBJobInfo();
-                        jobInfoMap.put(name, jobInfo);
-                        jobInfo.jobName = name;
-                        jobInfo.jobClass = (Class<? extends Job>) jobClass;
-                        jobInfo.status = Status.READY;
-                        jobInfo.regiestTime = Calendar.getInstance();
-                        continue;
-                    }
-                    throw new IllegalArgumentException("job class [" + jobClass + "] not subclass of " + Job.class);
-                } catch (ClassNotFoundException e) {
-                    throw new IllegalArgumentException("job[" + name + "] class not find", e);
-                }
-            }
-        } catch (IOException e) {
-            throw new SchedulerException(e.getMessage(), e.getCause());
-        }
-    }
 
     @Override
     protected TimerService getTimerService() {
@@ -124,4 +85,16 @@ public class PropertiesFileEJBScheduler extends AbstractEJBScheduler {
         return null;
     }
 
+    @Override
+    protected List<? extends JobEntry> getAllJobEntry() {
+        List<DefaultJobEntry> list = new ArrayList<DefaultJobEntry>();
+        try {
+            Properties jobProps = PropUtils.loadProperties(jobPropertiesFile);
+            for (String name : jobProps.stringPropertyNames()) {
+                list.add(new DefaultJobEntry(name, jobProps.getProperty(name)));
+            }
+        } catch (IOException e) {
+        }
+        return list;
+    }
 }

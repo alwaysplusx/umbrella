@@ -42,6 +42,8 @@ public abstract class AbstractScheduler<T extends Scheduler.JobInfo> implements 
 
     /**
      * 根据jobName启动对应的任务
+     * <p>
+     * 只有在job存在并且还未启动才调用
      * 
      * @param jobName
      * @param jobInfo
@@ -50,6 +52,8 @@ public abstract class AbstractScheduler<T extends Scheduler.JobInfo> implements 
 
     /**
      * 根据jobName关闭对应的任务
+     * <p>
+     * 只有在job存在并且还未停止才调用
      * 
      * @param jobName
      * @param jobInfo
@@ -58,6 +62,8 @@ public abstract class AbstractScheduler<T extends Scheduler.JobInfo> implements 
 
     /**
      * 根据jobName挂起对应的任务
+     * <p>
+     * 只有在job存在并且还未挂起才调用
      * 
      * @param jobName
      * @param jobInfo
@@ -65,7 +71,9 @@ public abstract class AbstractScheduler<T extends Scheduler.JobInfo> implements 
     protected abstract void doPause(String jobName, T jobInfo);
 
     /**
-     * 根据jobName将挂起的任务重新启动
+     * 根据jobName恢复挂起的任务
+     * <p>
+     * 只有在job存在并且是挂起才调用
      * 
      * @param jobName
      * @param jobInfo
@@ -79,8 +87,13 @@ public abstract class AbstractScheduler<T extends Scheduler.JobInfo> implements 
      */
     protected void destory() {
         for (JobInfo jobInfo : jobInfoMap.values()) {
-            jobInfo.dump();
+            try {
+                jobInfo.dump();
+            } catch (Exception e) {
+                log.error("", e);
+            }
         }
+        stopAll();
     }
 
     @Override

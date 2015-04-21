@@ -13,10 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.umbrella.scheduling.support;
+package com.harmony.umbrella.scheduling.ejb;
 
 import java.io.Serializable;
+import java.lang.reflect.Modifier;
 import java.util.Calendar;
+import java.util.List;
 
 import javax.ejb.ScheduleExpression;
 import javax.ejb.Timer;
@@ -26,37 +28,68 @@ import javax.ejb.TimerService;
 import com.harmony.umbrella.core.BeanLoader;
 import com.harmony.umbrella.scheduling.AbstractScheduler;
 import com.harmony.umbrella.scheduling.Job;
+import com.harmony.umbrella.scheduling.JobEntry;
 import com.harmony.umbrella.scheduling.Scheduler;
+import com.harmony.umbrella.scheduling.SchedulerException;
 import com.harmony.umbrella.scheduling.Trigger;
 import com.harmony.umbrella.util.Exceptions;
 
 /**
  * 基于EJB定时任务的抽象类
+ * 
  * @author wuxii@foxmail.com
  */
 public abstract class AbstractEJBScheduler extends AbstractScheduler<AbstractEJBScheduler.EJBJobInfo> {
 
-    /**
-     * 获取JavaEE环境中的定时服务
-     * @return
-     */
-    protected abstract TimerService getTimerService();
+    @Override
+    protected void init() throws SchedulerException {
+        for (JobEntry entry : getAllJobEntry()) {
+            Class<? extends Job> jobClass = findJobClass(entry.getJobClassName());
+            if (jobClass != null) {
+                jobInfoMap.put(entry.getJobName(), new EJBJobInfo(entry.getJobName(), jobClass));
+            }
+        }
+    }
 
-    /**
-     * bean的加载策略
-     * @return
-     */
-    protected abstract BeanLoader getBeanLoader();
+    @SuppressWarnings("unchecked")
+    protected Class<? extends Job> findJobClass(String jobClassName) {
+        try {
+            Class<?> clazz = Class.forName(jobClassName);
+            if (Job.class.isAssignableFrom(clazz) && !clazz.isInterface() && Modifier.isPublic(clazz.getModifiers())) {
+                return (Class<? extends Job>) clazz;
+            }
+        } catch (ClassNotFoundException e) {
+        }
+        return null;
+    }
+
+    protected abstract List<? extends JobEntry> getAllJobEntry();
 
     /**
      * 根据jobName加载对应的{@linkplain Trigger}
+     * 
      * @param jobName
      * @return
      */
     protected abstract Trigger getJobTrigger(String jobName);
 
     /**
+     * 获取JavaEE环境中的定时服务
+     * 
+     * @return
+     */
+    protected abstract TimerService getTimerService();
+
+    /**
+     * bean的加载策略
+     * 
+     * @return
+     */
+    protected abstract BeanLoader getBeanLoader();
+
+    /**
      * 指定的JavaEE定时任务的入口，一般给该方法添加{@linkplain javax.ejb.Timeout}注释
+     * 
      * @param timer
      */
     protected abstract void monitorTask(Timer timer);
@@ -113,11 +146,11 @@ public abstract class AbstractEJBScheduler extends AbstractScheduler<AbstractEJB
 
         private static final long serialVersionUID = -1853696933095642375L;
         protected Timer timer;
-        protected String jobName;
-        protected Class<? extends Job> jobClass;
+        protected final String jobName;
+        protected final Class<? extends Job> jobClass;
+        protected final Calendar regiestTime;
         protected Trigger trigger;
-        protected Status status;
-        protected Calendar regiestTime;
+        protected Status status = Status.READY;
         protected Calendar startTime;
         protected Calendar lastExecuteStartTime;
         protected Calendar lastExecuteFinishTime;
@@ -126,6 +159,12 @@ public abstract class AbstractEJBScheduler extends AbstractScheduler<AbstractEJB
         protected int executeTimes;
         protected int execeptionTimes;
         protected String lastExceptionMessage;
+
+        public EJBJobInfo(String jobName, Class<? extends Job> jobClass) {
+            this.jobName = jobName;
+            this.jobClass = jobClass;
+            this.regiestTime = Calendar.getInstance();
+        }
 
         @Override
         public String getJobName() {

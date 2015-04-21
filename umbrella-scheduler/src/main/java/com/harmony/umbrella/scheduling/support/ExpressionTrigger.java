@@ -21,14 +21,19 @@ import com.harmony.umbrella.scheduling.Trigger;
 
 /**
  * 基础的trigger表达式
+ * <p>
+ * 8个字符中间哟哦那个空格隔开,如:
+ * 
+ * <pre>
+ * * * * * * * * 0 -> 表示每个一秒执行一次. 0延时启动
+ * 年 月 日 周 时 分 秒 延时
+ * </pre>
+ * 
  * @author wuxii@foxmail.com
  */
 public class ExpressionTrigger implements Trigger {
 
     private String[] expressions = new String[] { "9999", "12", "31", "*", "23", "59", "59", "0" };
-
-    public ExpressionTrigger() {
-    }
 
     public ExpressionTrigger(String expression) {
         StringTokenizer token = new StringTokenizer(expression, " ");

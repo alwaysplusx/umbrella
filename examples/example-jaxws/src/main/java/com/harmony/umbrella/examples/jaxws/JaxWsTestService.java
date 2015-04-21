@@ -22,7 +22,7 @@ import javax.jws.WebService;
 
 import com.harmony.umbrella.jaxws.JaxWsProxyBuilder;
 import com.harmony.umbrella.jaxws.impl.SimpleJaxWsContext;
-import com.harmony.umbrella.jaxws.support.JaxWsExecutorJmsSupport;
+import com.harmony.umbrella.jaxws.support.JaxWsExecutorSupport;
 
 /**
  * @author wuxii
@@ -32,7 +32,7 @@ import com.harmony.umbrella.jaxws.support.JaxWsExecutorJmsSupport;
 public class JaxWsTestService {
 
 	@EJB
-	private JaxWsExecutorJmsSupport executorSupport;
+	private JaxWsExecutorSupport executorSupport;
 
 	public void testSync(@WebParam(name = "name") String name, @WebParam(name = "address") String address) {
 		HelloService service = JaxWsProxyBuilder.newProxyBuilder().setAddress(address).build(HelloService.class);

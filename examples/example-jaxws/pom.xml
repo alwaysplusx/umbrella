@@ -10,9 +10,8 @@
 	<packaging>ejb</packaging>
 	<dependencies>
 		<dependency>
-			<groupId>com.harmony.umbrella.resources</groupId>
+			<groupId>com.harmony.umbrella</groupId>
 			<artifactId>umbrella-jaxws</artifactId>
-			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.harmony.umbrella.plugins</groupId>

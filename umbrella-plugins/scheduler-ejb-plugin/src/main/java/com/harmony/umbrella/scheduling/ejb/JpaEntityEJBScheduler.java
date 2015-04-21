@@ -13,7 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.umbrella.scheduling.support;
+package com.harmony.umbrella.scheduling.ejb;
+
+import java.util.List;
 
 import javax.annotation.Resource;
 import javax.ejb.Remote;
@@ -21,15 +23,18 @@ import javax.ejb.Stateless;
 import javax.ejb.Timeout;
 import javax.ejb.Timer;
 import javax.ejb.TimerService;
+import javax.persistence.EntityManager;
+import javax.persistence.TypedQuery;
 
 import com.harmony.umbrella.core.BeanLoader;
 import com.harmony.umbrella.core.ClassBeanLoader;
+import com.harmony.umbrella.scheduling.JobEntry;
 import com.harmony.umbrella.scheduling.Scheduler;
-import com.harmony.umbrella.scheduling.SchedulerException;
 import com.harmony.umbrella.scheduling.Trigger;
+import com.harmony.umbrella.scheduling.jpa.entity.JobEntity;
 
 /**
- * TODO 未完成
+ * 
  * @author wuxii@foxmail.com
  */
 @Stateless
@@ -39,6 +44,11 @@ public class JpaEntityEJBScheduler extends AbstractEJBScheduler {
     @Resource
     private TimerService timerService;
     private BeanLoader beanLoader = new ClassBeanLoader();
+    private EntityManager em;
+
+    public JpaEntityEJBScheduler(EntityManager em) {
+        this.em = em;
+    }
 
     @Override
     protected TimerService getTimerService() {
@@ -51,10 +61,6 @@ public class JpaEntityEJBScheduler extends AbstractEJBScheduler {
     }
 
     @Override
-    protected void init() throws SchedulerException {
-    }
-
-    @Override
     @Timeout
     protected void monitorTask(Timer timer) {
         handle(timer);
@@ -62,7 +68,14 @@ public class JpaEntityEJBScheduler extends AbstractEJBScheduler {
 
     @Override
     protected Trigger getJobTrigger(String jobName) {
-        return null;
+        TypedQuery<Trigger> query = em.createNamedQuery("TriggerEntity.findByTriggerCode", Trigger.class);
+        query.setParameter("triggerCode", jobName);
+        return query.getSingleResult();
+    }
+
+    @Override
+    protected List<? extends JobEntry> getAllJobEntry() {
+        return em.createNamedQuery("JobEntity.findAll", JobEntity.class).getResultList();
     }
 
 }
