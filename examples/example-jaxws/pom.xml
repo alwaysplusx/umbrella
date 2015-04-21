@@ -11,7 +11,7 @@
 	<dependencies>
 		<dependency>
 			<groupId>com.harmony.umbrella.resources</groupId>
-			<artifactId>jaxws-all</artifactId>
+			<artifactId>umbrella-jaxws</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
