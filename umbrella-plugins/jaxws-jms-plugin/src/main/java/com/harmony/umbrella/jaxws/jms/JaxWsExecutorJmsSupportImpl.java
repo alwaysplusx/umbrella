@@ -27,14 +27,21 @@ import com.harmony.umbrella.jaxws.JaxWsContextHandler;
 import com.harmony.umbrella.jaxws.JaxWsExecutor;
 import com.harmony.umbrella.jaxws.impl.JaxWsCXFExecutor;
 import com.harmony.umbrella.jaxws.support.JaxWsContextSender;
-import com.harmony.umbrella.jaxws.support.JaxWsExecutorJmsSupport;
+import com.harmony.umbrella.jaxws.support.JaxWsExecutorSupport;
 
 /**
+ * {@linkplain JaxWsExecutor}的JMS扩展, 便于使用JMS模块.
+ * <p>
+ * 扩展的方法 {@linkplain #send(JaxWsContext)}.
+ * 将所要执行的webservice上下文发送给jms.等待jms的消费者接收消息后执行真正的交互
+ * <p>
+ * 主要功能为:将执行web service在结构上解耦
+ * 
  * @author wuxii@foxmail.com
  */
 @Stateless(mappedName = "JaxWsExecutorJmsSupportImpl")
-@Remote(JaxWsExecutorJmsSupport.class)
-public class JaxWsExecutorJmsSupportImpl implements JaxWsExecutorJmsSupport {
+@Remote(JaxWsExecutorSupport.class)
+public class JaxWsExecutorJmsSupportImpl implements JaxWsExecutorSupport {
 
     @EJB
     private JaxWsContextSender sender;

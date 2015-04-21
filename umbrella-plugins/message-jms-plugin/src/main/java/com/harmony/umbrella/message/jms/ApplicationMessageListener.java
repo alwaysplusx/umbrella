@@ -34,7 +34,9 @@ import com.harmony.umbrella.message.AbstractMessageListener;
 import com.harmony.umbrella.message.MessageResolver;
 
 /**
- * 系统消息JMS监听
+ * 系统消息JMS监听.初始加载指定包{@linkplain ApplicationMessageListener#basePackage
+ * basePackage}下的所有{@linkplain MessageResolver} 作为消息的处理.
+ * 
  * @author wuxii
  */
 @MessageDriven(mappedName = "jms/queue", 
@@ -68,7 +70,7 @@ public class ApplicationMessageListener extends AbstractMessageListener implemen
             });
             for (Class clazz : classes) {
                 MessageResolver resolver = (MessageResolver) beanLoader.loadBean(clazz);
-                addMessageResolver(resolver);
+                this.addMessageResolver(resolver);
             }
             log.info("application message listener init success, with {}", messageResolvers);
         } catch (IOException e) {
@@ -76,8 +78,9 @@ public class ApplicationMessageListener extends AbstractMessageListener implemen
         }
     }
 
-    /*
-     * 为JMS提供
+    /**
+     * 为JMS提供. 只处理消息类型为{@linkplain com.harmony.umbrella.message.Message}的消息.
+     * 如果不为该类型的消息则忽略
      * 
      * @see javax.jms.MessageListener#onMessage(javax.jms.Message)
      */

@@ -19,10 +19,17 @@ import com.harmony.umbrella.jaxws.JaxWsContext;
 import com.harmony.umbrella.jaxws.JaxWsExecutor;
 
 /**
+ * {@linkplain JaxWsExecutor}的解耦扩展
+ * 
  * @author wuxii@foxmail.com
  */
-public interface JaxWsExecutorJmsSupport extends JaxWsExecutor {
+public interface JaxWsExecutorSupport extends JaxWsExecutor {
 
+    /**
+     * 将消息
+     * @param context
+     * @return
+     */
     boolean send(JaxWsContext context);
 
 }

@@ -20,12 +20,20 @@ import javax.ejb.Stateless;
 
 import com.harmony.umbrella.jaxws.JaxWsContext;
 import com.harmony.umbrella.jaxws.support.JaxWsContextReceiver;
+import com.harmony.umbrella.jaxws.support.JaxWsContextSender;
 import com.harmony.umbrella.jaxws.support.PropertiesFileJaxWsContextReceiver;
 import com.harmony.umbrella.jaxws.support.jms.JaxWsMessage;
 import com.harmony.umbrella.message.AbstractMessageResolver;
 import com.harmony.umbrella.message.Message;
 
 /**
+ * 消费由{@linkplain JaxWsContextSender}产生的{@linkplain JaxWsMessage}消息
+ * <p>
+ * 中间的消息扭转依赖于{@linkplain com.harmony.umbrella.message.MessageListener
+ * MessageListener}. 将监听到的消息给当前的bean消费
+ * <p>
+ * 该部分主要用与JavaEE环境中
+ * 
  * @author wuxii
  */
 @Remote(JaxWsContextReceiver.class)

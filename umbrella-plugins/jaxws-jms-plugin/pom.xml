@@ -8,6 +8,13 @@
 	</parent>
 	<artifactId>jaxws-jms-plugin</artifactId>
 	<dependencies>
+	   <dependency>
+	       <groupId>com.harmony.umbrella.plugins</groupId>
+	       <artifactId>message-jms-plugin</artifactId>
+	       <optional>true</optional>
+	       <version>${project.version}</version>
+	       <scope>runtime</scope>
+	   </dependency>
 		<dependency>
 			<groupId>com.harmony.umbrella</groupId>
 			<artifactId>umbrella-jaxws</artifactId>

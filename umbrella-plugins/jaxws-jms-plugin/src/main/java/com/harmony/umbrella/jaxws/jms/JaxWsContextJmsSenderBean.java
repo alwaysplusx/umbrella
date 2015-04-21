@@ -28,6 +28,13 @@ import com.harmony.umbrella.jaxws.support.jms.JaxWsMessage;
 import com.harmony.umbrella.message.Message;
 
 /**
+ * {@linkplain JaxWsMessage}消息的生产者, 在通过JMS方式发送出去
+ * <p>
+ * 中间的消息扭转依赖于{@linkplain com.harmony.umbrella.message.MessageListener
+ * MessageListener}. 将生产的消息给特定的消费者消费
+ * <p>
+ * 主要用于JavaEE环境中
+ * 
  * @author wuxii
  */
 @Remote(JaxWsContextSender.class)

@@ -14,5 +14,6 @@
 		<module>message-mail-plugin</module>
 		<module>message-sms-plugin</module>
 		<module>jaxws-bus-plugin</module>
+		<module>message-jms-plugin</module>
 	</modules>
 </project>
