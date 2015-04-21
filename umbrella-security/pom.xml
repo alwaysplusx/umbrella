@@ -7,4 +7,5 @@
 		<version>0.0.1</version>
 	</parent>
 	<artifactId>umbrella-security</artifactId>
+	<name>Harmony Umbrella :: Module of Security</name>
 </project>

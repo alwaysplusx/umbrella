@@ -21,4 +21,5 @@
 		<module>example-ear</module>
 		<module>example-data</module>
 	</modules>
+	<name>Harmony Example  :: Example Parent</name>
 </project>

@@ -24,4 +24,5 @@
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
+	<name>Harmony Plugin   :: Plugin of Scheduler EJB</name>
 </project>

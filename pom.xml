@@ -17,11 +17,11 @@
 		<module>umbrella-jaxws</module>
 		<module>umbrella-jaxrs</module>
 		<!-- <module>examples</module> -->
-		<module>umbrella-resources</module>
-		<module>umbrella-plugins</module>
 		<module>umbrella-cache</module>
 		<module>umbrella-web</module>
 		<module>umbrella-ee</module>
+		<module>umbrella-resources</module>
+		<module>umbrella-plugins</module>
 	</modules>
 	<properties>
 		<jdk.version>1.6</jdk.version>
@@ -484,4 +484,5 @@
 			</plugin>
 		</plugins>
 	</build>
+	<name>Harmony Umbrella :: Framework Parent</name>
 </project>

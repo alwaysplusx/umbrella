@@ -36,4 +36,5 @@
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
+	<name>Harmony Plugin   :: Plugin of JaxWs JMS</name>
 </project>

@@ -13,4 +13,5 @@
 		<module>umbrella-all</module>
 		<module>cxf-all</module>
 	</modules>
+	<name>Harmony Umbrella :: Resources</name>
 </project>

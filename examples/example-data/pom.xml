@@ -27,4 +27,5 @@
 			</plugin>
 		</plugins>
 	</build>
+	<name>Harmony Example  :: Example of Data</name>
 </project>

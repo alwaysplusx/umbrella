@@ -27,4 +27,5 @@
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
+	<name>Harmony Umbrella :: Module of Mapper</name>
 </project>

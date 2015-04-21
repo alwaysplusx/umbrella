@@ -6,4 +6,5 @@
     <version>0.0.1</version>
   </parent>
   <artifactId>message-sms-plugin</artifactId>
+  <name>Harmony Plugin   :: Plugin of Message SMS</name>
 </project>

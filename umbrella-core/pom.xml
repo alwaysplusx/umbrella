@@ -23,4 +23,5 @@
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
+	<name>Harmony Umbrella :: Module of Core</name>
 </project>

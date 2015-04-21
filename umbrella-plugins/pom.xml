@@ -17,4 +17,5 @@
 		<module>message-jms-plugin</module>
 		<module>scheduler-ejb-plugin</module>
 	</modules>
+	<name>Harmony Umbrella :: Plugins</name>
 </project>

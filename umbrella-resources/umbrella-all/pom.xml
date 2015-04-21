@@ -7,7 +7,7 @@
 		<version>0.0.1</version>
 	</parent>
 	<artifactId>umbrella-all</artifactId>
-	<name>Harmony umbrella :: All JAR bundle</name>
+	<name>Harmony Resource :: Umbrella All JAR bundle</name>
 	<dependencies>
 		<dependency>
 			<groupId>com.harmony.umbrella</groupId>

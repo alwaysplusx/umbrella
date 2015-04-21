@@ -24,4 +24,5 @@
 			<scope>provided</scope>
 		</dependency>
 	</dependencies>
+	<name>Harmony Plugin   :: Plugin of Message JMS</name>
 </project>

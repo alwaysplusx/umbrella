@@ -68,4 +68,5 @@
 			</exclusions>
 		</dependency>
 	</dependencies>
+	<name>Harmony Umbrella :: Module of Data</name>
 </project>

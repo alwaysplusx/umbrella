@@ -45,4 +45,5 @@
 			</plugin>
 		</plugins>
 	</build>
+	<name>Harmony Resource :: CXF JaxWs JAR bundle</name>
 </project>

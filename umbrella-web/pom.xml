@@ -6,4 +6,5 @@
     <version>0.0.1</version>
   </parent>
   <artifactId>umbrella-web</artifactId>
+  <name>Harmony Umbrella :: Module of Web</name>
 </project>
