@@ -21,6 +21,7 @@
 		<module>umbrella-plugins</module>
 		<module>umbrella-cache</module>
 		<module>umbrella-web</module>
+		<module>umbrella-ee</module>
 	</modules>
 	<properties>
 		<jdk.version>1.6</jdk.version>

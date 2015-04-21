@@ -2,26 +2,20 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
-		<groupId>com.harmony.umbrella.plugins</groupId>
-		<artifactId>umbrella-plugins</artifactId>
+		<groupId>com.harmony.umbrella</groupId>
+		<artifactId>harmony-umbrella</artifactId>
 		<version>0.0.1</version>
 	</parent>
-	<artifactId>scheduler-ejb-plugin</artifactId>
+	<artifactId>umbrella-ee</artifactId>
 	<dependencies>
 		<dependency>
 			<groupId>com.harmony.umbrella</groupId>
-			<artifactId>umbrella-scheduler</artifactId>
-			<scope>provided</scope>
+			<artifactId>umbrella-core</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.openejb</groupId>
-			<artifactId>javaee-api</artifactId>
+			<groupId>javax.ejb</groupId>
+			<artifactId>javax.ejb-api</artifactId>
 			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.openejb</groupId>
-			<artifactId>openejb-core</artifactId>
-			<scope>test</scope>
 		</dependency>
 	</dependencies>
 </project>
