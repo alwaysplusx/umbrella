@@ -18,8 +18,7 @@ package com.harmony.umbrella.context.ee;
 import com.harmony.umbrella.context.NameFormat;
 
 /**
- * // TODO 根据jndiFormat生成jndiName // final String jndiFormat = //
- * jndiProperties.getProperty("jee.jndi.format");
+ * // TODO 根据jndiFormat生成jndiName jndiProperties.getProperty("jee.jndi.format");
  * 
  * @author wuxii@foxmail.com
  */

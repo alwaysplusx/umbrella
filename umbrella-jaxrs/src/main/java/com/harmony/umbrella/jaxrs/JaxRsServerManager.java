@@ -71,14 +71,7 @@ public class JaxRsServerManager {
 		Object serviceBean = beanFactory.getBean(serviceClass);
 		return publish(serviceClass, serviceBean, address, factoryConfig);
 	}
-
-	// public boolean publish(Class<?> serviceClass, JaxRsMetadata loader,
-	// JaxRsFactoryConfig configFactory) {
-	// Object serviceBean = beanLoader.loadBean(serviceClass);
-	// return publish(serviceClass, serviceBean, loader.getAddress(serviceClass),
-	// configFactory);
-	// }
-
+	
 	private boolean publish(Class<?> serviceClass, Object serviceBean, String address, JaxRsFactoryConfig factoryConfig) {
 		if (inUse(address)) {
 			if (isPublished(serviceClass, address)) {
@@ -141,7 +134,7 @@ public class JaxRsServerManager {
 	private void doUpdateService(Class<?> serviceClass, Object serviceBean, String address, JaxRsFactoryConfig factoryConfig) {
 	}
 
-	public BeanFactory getBeanLoader() {
+	public BeanFactory getBeanFactory() {
 		return beanFactory;
 	}
 

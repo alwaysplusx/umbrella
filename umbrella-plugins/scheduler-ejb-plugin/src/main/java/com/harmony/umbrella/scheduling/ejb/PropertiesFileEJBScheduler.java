@@ -22,7 +22,7 @@ import javax.ejb.Timeout;
 import javax.ejb.Timer;
 import javax.ejb.TimerService;
 
-import com.harmony.umbrella.core.BeanLoader;
+import com.harmony.umbrella.core.BeanFactory;
 import com.harmony.umbrella.scheduling.AbstractEJBScheduler;
 import com.harmony.umbrella.scheduling.JobFactory;
 import com.harmony.umbrella.scheduling.Scheduler;
@@ -37,28 +37,28 @@ import com.harmony.umbrella.scheduling.support.PropertiesFileJobFactory;
 @Remote(Scheduler.class)
 public class PropertiesFileEJBScheduler extends AbstractEJBScheduler {
 
-	@Resource
-	private TimerService timerService;
-	private PropertiesFileJobFactory jobFactory = new PropertiesFileJobFactory();
+    @Resource
+    private TimerService timerService;
+    private PropertiesFileJobFactory jobFactory = new PropertiesFileJobFactory();
 
-	@Override
-	protected TimerService getTimerService() {
-		return timerService;
-	}
+    @Override
+    protected TimerService getTimerService() {
+        return timerService;
+    }
 
-	@Override
-	@Timeout
-	protected void monitorTask(Timer timer) {
-		handle(timer);
-	}
+    @Override
+    @Timeout
+    protected void monitorTask(Timer timer) {
+        handle(timer);
+    }
 
-	@Override
-	protected JobFactory getJobFactory() {
-		return jobFactory;
-	}
+    @Override
+    protected JobFactory getJobFactory() {
+        return jobFactory;
+    }
 
-	public void setBeanLoader(BeanLoader beanLoader) {
-		jobFactory.setBeanLoader(beanLoader);
-	}
+    public void setBeanFactory(BeanFactory beanFactory) {
+        jobFactory.setBeanFactory(beanFactory);
+    }
 
 }

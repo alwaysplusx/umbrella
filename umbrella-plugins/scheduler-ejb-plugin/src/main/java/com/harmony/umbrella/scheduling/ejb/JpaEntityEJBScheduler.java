@@ -24,7 +24,7 @@ import javax.ejb.TimerService;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
-import com.harmony.umbrella.core.BeanLoader;
+import com.harmony.umbrella.core.BeanFactory;
 import com.harmony.umbrella.scheduling.AbstractEJBScheduler;
 import com.harmony.umbrella.scheduling.JobFactory;
 import com.harmony.umbrella.scheduling.Scheduler;
@@ -38,32 +38,32 @@ import com.harmony.umbrella.scheduling.jpa.JpaJobFactory;
 @Remote(Scheduler.class)
 public class JpaEntityEJBScheduler extends AbstractEJBScheduler {
 
-	@Resource
-	private TimerService timerService;
-	@PersistenceContext
-	private EntityManager em;
-	private JpaJobFactory jobFactory;
+    @Resource
+    private TimerService timerService;
+    @PersistenceContext
+    private EntityManager em;
+    private JpaJobFactory jobFactory;
 
-	@Override
-	protected TimerService getTimerService() {
-		return timerService;
-	}
+    @Override
+    protected TimerService getTimerService() {
+        return timerService;
+    }
 
-	@Override
-	@Timeout
-	protected void monitorTask(Timer timer) {
-		handle(timer);
-	}
+    @Override
+    @Timeout
+    protected void monitorTask(Timer timer) {
+        handle(timer);
+    }
 
-	@Override
-	protected JobFactory getJobFactory() {
-		if (jobFactory == null) {
-			jobFactory = new JpaJobFactory(em);
-		}
-		return jobFactory;
-	}
+    @Override
+    protected JobFactory getJobFactory() {
+        if (jobFactory == null) {
+            jobFactory = new JpaJobFactory(em);
+        }
+        return jobFactory;
+    }
 
-	public void setBeanLoader(BeanLoader beanLoader) {
-		((JpaJobFactory) getJobFactory()).setBeanLoader(beanLoader);
-	}
+    public void setBeanFactory(BeanFactory beanFactory) {
+        ((JpaJobFactory) getJobFactory()).setBeanFactory(beanFactory);
+    }
 }

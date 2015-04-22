@@ -219,11 +219,11 @@ public class JaxWsServerManager {
         server.addServiceInstance(factoryBean.getAddress(), factoryBean);
     }
 
-    public BeanFactory getBeanLoader() {
+    public BeanFactory getBeanFactory() {
         return beanFactory;
     }
 
-    public void setBeanLoader(BeanFactory beanFactory) {
+    public void setBeanFactory(BeanFactory beanFactory) {
         this.beanFactory = beanFactory;
     }
 

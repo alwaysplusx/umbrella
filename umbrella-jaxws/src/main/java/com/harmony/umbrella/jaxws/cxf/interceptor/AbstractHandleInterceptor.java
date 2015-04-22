@@ -142,7 +142,7 @@ public abstract class AbstractHandleInterceptor extends AbstractValidationInterc
 		return Phase.value(getPhase());
 	}
 
-	public BeanFactory getBeanLoader() {
+	public BeanFactory getBeanFactory() {
 		return beanFactory;
 	}
 

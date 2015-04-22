@@ -33,77 +33,77 @@ import com.harmony.umbrella.util.PropUtils;
  */
 public class PropertiesFileJobFactory implements JobFactory {
 
-	public static final String jobPropertiesFileLocation = "META-INF/scheduler/jobs.properties";
+    public static final String jobPropertiesFileLocation = "META-INF/scheduler/jobs.properties";
 
-	public static final String triggerPropertiesFileLocation = "META-INF/scheduler/triggers.properties";
+    public static final String triggerPropertiesFileLocation = "META-INF/scheduler/triggers.properties";
 
-	private BeanFactory beanFactory = new SimpleBeanFactory();
-	private final String jobFileLocation;
-	private final String triggerFileLocation;
+    private BeanFactory beanFactory = new SimpleBeanFactory();
+    private final String jobFileLocation;
+    private final String triggerFileLocation;
 
-	public PropertiesFileJobFactory() {
-		this(jobPropertiesFileLocation, triggerPropertiesFileLocation);
-	}
+    public PropertiesFileJobFactory() {
+        this(jobPropertiesFileLocation, triggerPropertiesFileLocation);
+    }
 
-	public PropertiesFileJobFactory(String jobFileLocation, String triggerFileLocation) {
-		this.jobFileLocation = jobFileLocation;
-		this.triggerFileLocation = triggerFileLocation;
-	}
+    public PropertiesFileJobFactory(String jobFileLocation, String triggerFileLocation) {
+        this.jobFileLocation = jobFileLocation;
+        this.triggerFileLocation = triggerFileLocation;
+    }
 
-	@SuppressWarnings("unchecked")
-	@Override
-	public Class<? extends Job> getJobClass(String jobName) {
-		try {
-			Properties props = PropUtils.loadProperties(jobFileLocation);
-			String jobClassName = props.getProperty(jobName);
-			if (jobClassName != null) {
-				Class<?> clazz = Class.forName(jobClassName);
-				if (Job.class.isAssignableFrom(clazz) && !clazz.isInterface() && Modifier.isPublic(clazz.getModifiers())) {
-					return (Class<? extends Job>) clazz;
-				}
-			} else {
-				throw new IllegalArgumentException(jobClassName + "class not " + Job.class.getName() + " sub class");
-			}
-		} catch (IOException e) {
-		} catch (ClassNotFoundException e) {
-			throw new IllegalArgumentException("job class not find");
-		}
-		return null;
-	}
+    @SuppressWarnings("unchecked")
+    @Override
+    public Class<? extends Job> getJobClass(String jobName) {
+        try {
+            Properties props = PropUtils.loadProperties(jobFileLocation);
+            String jobClassName = props.getProperty(jobName);
+            if (jobClassName != null) {
+                Class<?> clazz = Class.forName(jobClassName);
+                if (Job.class.isAssignableFrom(clazz) && !clazz.isInterface() && Modifier.isPublic(clazz.getModifiers())) {
+                    return (Class<? extends Job>) clazz;
+                }
+            } else {
+                throw new IllegalArgumentException(jobClassName + "class not " + Job.class.getName() + " sub class");
+            }
+        } catch (IOException e) {
+        } catch (ClassNotFoundException e) {
+            throw new IllegalArgumentException("job class not find");
+        }
+        return null;
+    }
 
-	@Override
-	public Trigger getJobTrigger(String jobName) {
-		try {
-			Properties props = PropUtils.loadProperties(triggerFileLocation);
-			String expression = props.getProperty(jobName);
-			if (expression != null)
-				return new ExpressionTrigger(expression);
-		} catch (IOException e) {
-		}
-		return null;
-	}
+    @Override
+    public Trigger getJobTrigger(String jobName) {
+        try {
+            Properties props = PropUtils.loadProperties(triggerFileLocation);
+            String expression = props.getProperty(jobName);
+            if (expression != null)
+                return new ExpressionTrigger(expression);
+        } catch (IOException e) {
+        }
+        return null;
+    }
 
-	@Override
-	public Job getJob(String jobName) {
-		Class<? extends Job> jobClass = getJobClass(jobName);
-		if (jobClass != null) {
-			return beanFactory.getBean(jobClass);
-		}
-		return null;
-	}
+    @Override
+    public Job getJob(String jobName) {
+        Class<? extends Job> jobClass = getJobClass(jobName);
+        if (jobClass != null) {
+            return beanFactory.getBean(jobClass);
+        }
+        return null;
+    }
 
-	public void setBeanLoader(BeanFactory beanFactory) {
-		Assert.notNull(beanFactory, "bean loader must not be null");
-		this.beanFactory = beanFactory;
-	}
+    public void setBeanFactory(BeanFactory beanFactory) {
+        Assert.notNull(beanFactory, "bean loader must not be null");
+        this.beanFactory = beanFactory;
+    }
 
-	@Override
-	public Set<String> getAllJobNames() {
-		Properties props = null;
-		try {
-			props = PropUtils.loadProperties(jobFileLocation);
-		} catch (IOException e) {
-		}
-		return props.stringPropertyNames();
-	}
+    @Override
+    public Set<String> getAllJobNames() {
+        Properties props = null;
+        try {
+            props = PropUtils.loadProperties(jobFileLocation);
+        } catch (IOException e) {
+        }
+        return props.stringPropertyNames();
+    }
 }

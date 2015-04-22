@@ -48,7 +48,7 @@ public class JaxWsServlet extends CXFNonSpringServlet {
 	@Override
 	public void init(ServletConfig sc) throws ServletException {
 		super.init(sc);
-		BeanFactory loader = jaxWsManager.getBeanLoader();
+		BeanFactory loader = jaxWsManager.getBeanFactory();
 		try {
 			Class<?>[] classes = scaner.scanPackage(getScanPackage(sc), new ClassFilter() {
 				@Override
@@ -72,14 +72,14 @@ public class JaxWsServlet extends CXFNonSpringServlet {
 					return true;
 				}
 			});
-			jaxWsManager.setBeanLoader(beanFactory == null ? loader : beanFactory);
+			jaxWsManager.setBeanFactory(beanFactory == null ? loader : beanFactory);
 			for (Class<?> clazz : classes) {
 				jaxWsManager.publish(clazz, buildPath(sc, clazz));
 			}
 		} catch (IOException e) {
 			log.error("", e);
 		} finally {
-			jaxWsManager.setBeanLoader(loader);
+			jaxWsManager.setBeanFactory(loader);
 		}
 	}
 
@@ -107,7 +107,7 @@ public class JaxWsServlet extends CXFNonSpringServlet {
 		return sc.getInitParameter(SCAN_PACKAGE) == null ? "com.harmony" : sc.getInitParameter(SCAN_PACKAGE);
 	}
 
-	public BeanFactory getBeanLoader() {
+	public BeanFactory getBeanFactory() {
 		return beanFactory;
 	}
 

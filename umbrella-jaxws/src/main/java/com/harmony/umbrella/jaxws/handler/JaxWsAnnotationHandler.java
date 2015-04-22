@@ -180,7 +180,7 @@ public class JaxWsAnnotationHandler implements JaxWsContextHandler {
         return scanPackage;
     }
 
-    public void setBeanLoader(BeanFactory beanFactory) {
+    public void setBeanFactory(BeanFactory beanFactory) {
         this.beanFactory = beanFactory;
     }
 
