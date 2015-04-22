@@ -6,11 +6,17 @@
 		<artifactId>harmony-umbrella</artifactId>
 		<version>0.0.1</version>
 	</parent>
+	<name>Harmony Umbrella :: Module of Core</name>
 	<artifactId>umbrella-core</artifactId>
 	<dependencies>
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>javax.servlet-api</artifactId>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>
@@ -23,5 +29,4 @@
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
-	<name>Harmony Umbrella :: Module of Core</name>
 </project>

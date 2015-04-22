@@ -20,13 +20,13 @@ package com.harmony.umbrella.context.ee;
  */
 public class SessionBean {
 
-    private SessionBeanDefinition sessionBeanDefinition;
+    private BeanDefinition sessionBeanDefinition;
 
-    public SessionBean(SessionBeanDefinition sessionBeanDefinition) {
+    public SessionBean(BeanDefinition sessionBeanDefinition) {
         this.sessionBeanDefinition = sessionBeanDefinition;
     }
 
-    public SessionBeanDefinition getBeanDefinition() {
+    public BeanDefinition getBeanDefinition() {
         return sessionBeanDefinition;
     }
 

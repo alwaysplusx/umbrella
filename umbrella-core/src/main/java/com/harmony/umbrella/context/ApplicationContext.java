@@ -15,11 +15,19 @@
  */
 package com.harmony.umbrella.context;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.ServiceLoader;
+
+import javax.servlet.ServletContext;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.harmony.umbrella.context.ApplicationMetadata.DBInformation;
+import com.harmony.umbrella.context.ApplicationMetadata.JVMInformation;
+import com.harmony.umbrella.context.ApplicationMetadata.OSInformation;
+import com.harmony.umbrella.context.ApplicationMetadata.ServerInformation;
 import com.harmony.umbrella.context.spi.ApplicationContextProvider;
 import com.harmony.umbrella.core.BeanFactory;
 
@@ -28,22 +36,67 @@ import com.harmony.umbrella.core.BeanFactory;
  */
 public abstract class ApplicationContext implements BeanFactory {
 
-    protected static final Logger LOG = LoggerFactory.getLogger(ApplicationContext.class);
-    private static final ServiceLoader<ApplicationContextProvider> providers = ServiceLoader.load(ApplicationContextProvider.class);
+	protected static final Logger LOG = LoggerFactory.getLogger(ApplicationContext.class);
+	private static final ServiceLoader<ApplicationContextProvider> providers = ServiceLoader.load(ApplicationContextProvider.class);
+	private static ServerInformation serverInfo;
+	private static DBInformation dbInfo;
 
-    public static final ApplicationContext getApplicationContext() {
-        ApplicationContext context = null;
-        providers.reload();
-        for (ApplicationContextProvider provider : providers) {
-            try {
-                context = provider.createApplicationContext();
-            } catch (Exception e) {
-                LOG.error("", e);
-            }
-        }
-        if (context == null) {
-            throw new ApplicationContextException("can't find any application context privider to create context");
-        }
-        return context;
-    }
+	public abstract void init();
+
+	public abstract void destory();
+
+	public static final ApplicationContext getApplicationContext() {
+		ApplicationContext context = null;
+		providers.reload();
+		for (ApplicationContextProvider provider : providers) {
+			try {
+				context = provider.createApplicationContext();
+			} catch (Exception e) {
+				LOG.error("", e);
+			}
+		}
+		if (context == null) {
+			throw new ApplicationContextException("can't find any application context privider to create context");
+		}
+		return context;
+	}
+
+	public JVMInformation getInforamtionOfJVM() {
+		return ApplicationMetadata.jvmInfo;
+	}
+
+	public ServerInformation getInformationOfServer() {
+		return serverInfo;
+	}
+
+	public DBInformation getInformationOfDB() {
+		return dbInfo;
+	}
+
+	public void initializeServerInformation(ServletContext servletContext) {
+		if (serverInfo == null) {
+			serverInfo = ApplicationMetadata.INSTANCE.new ServerInformation(servletContext);
+		}
+	}
+
+	public void initializeDBInformation(Connection conn, boolean close) {
+		if (dbInfo == null) {
+			try {
+				dbInfo = ApplicationMetadata.INSTANCE.new DBInformation(conn);
+			} catch (SQLException e) {
+			} finally {
+				if (close) {
+					try {
+						conn.close();
+					} catch (SQLException e) {
+					}
+				}
+			}
+		}
+	}
+
+	public OSInformation getInformationOfOS() {
+		return ApplicationMetadata.osInfo;
+	}
+
 }
