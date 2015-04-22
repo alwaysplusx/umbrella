@@ -16,7 +16,6 @@
 package com.harmony.umbrella.context.ee;
 
 import java.io.IOException;
-import java.lang.annotation.Annotation;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.Collections;
@@ -25,10 +24,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import javax.ejb.Remote;
-import javax.ejb.Singleton;
-import javax.ejb.Stateful;
-import javax.ejb.Stateless;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NameClassPair;
@@ -39,32 +34,56 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.harmony.umbrella.context.ApplicationContext;
-import com.harmony.umbrella.context.ContextException;
+import com.harmony.umbrella.context.ApplicationContextException;
+import com.harmony.umbrella.context.NameFormat;
+import com.harmony.umbrella.context.ee.jmx.EJBContext;
 import com.harmony.umbrella.context.ee.jmx.EJBContextMBean;
 import com.harmony.umbrella.core.NoSuchBeanFindException;
+import com.harmony.umbrella.util.Assert;
 import com.harmony.umbrella.util.ClassUtils;
+import com.harmony.umbrella.util.JmxManager;
 import com.harmony.umbrella.util.PropUtils;
 
 /**
  * @author wuxii@foxmail.com
  */
-public class EJBApplicationContext implements ApplicationContext, EJBContextMBean {
+public class EJBApplicationContext extends ApplicationContext implements EJBContextMBean {
 
-    public static final String JNDI_PROPERTIES_FILE = "META-INF/context/jndi.properties";
+    /**
+     * jndi默认配置文件地址
+     */
+    public static final String JNDI_PROPERTIES_FILE_LOCATION = "META-INF/context/jndi.properties";
 
     private static final List<String> jndiPrefix = Collections.unmodifiableList(Arrays.asList("java:", ""));
     private static final Logger log = LoggerFactory.getLogger(EJBApplicationContext.class);
 
-    private final String jndiPropertiesFile;
-    // private JmxManager jmxManager = JmxManager.getInstance();
+    /**
+     * jndi文件地址
+     */
+    private final String jndiPropertiesFileLocation;
+    /**
+     * jndi配置属性
+     */
+    private final Properties jndiProperties = new Properties();
+
+    private JmxManager jmxManager = JmxManager.getInstance();
+    private NameFormat nameFormat = new JndiNameFormat();
+
     private Map<Class<?>, Holder> classAndBeanMap = new HashMap<Class<?>, Holder>();
 
     private static EJBApplicationContext instance;
-    private Properties jndiProperties = new Properties();
 
     private EJBApplicationContext() {
-        this.jndiPropertiesFile = PropUtils.getSystemProperty("jndi.properties.file", JNDI_PROPERTIES_FILE);
-        // TODO JMX support, register mbean
+        this.jndiPropertiesFileLocation = PropUtils.getSystemProperty("jndi.properties.file", JNDI_PROPERTIES_FILE_LOCATION);
+        init();
+    }
+
+    public void init() {
+        this.loadProperties();
+        if (jmxManager.isRegistered(EJBContext.class)) {
+            jmxManager.unregisterMBean(EJBContext.class);
+        }
+        jmxManager.registerMBean(new EJBContext(this));
     }
 
     public static EJBApplicationContext getInstance() {
@@ -79,119 +98,175 @@ public class EJBApplicationContext implements ApplicationContext, EJBContextMBea
     }
 
     /**
-     * 根据JNDI名称获取JavaEE环境中指定的对象
+     * 根据jndi名称获取JavaEE环境中指定的对象
      * 
      * @param jndiName
-     * @return
+     *            jndi名称
+     * @return 如果jndi名称指定的bean不存在返回{@code null}
      */
-    public Object lookup(String jndiName) {
-        try {
-            return getContext().lookup(jndiName);
-        } catch (NamingException e) {
-            throw new ContextException(e);
-        }
+    public Object lookup(String jndiName) throws ApplicationContextException {
+        return lookup(jndiName, Object.class);
     }
 
     /**
-     * 在JavaEE环境中查找指定的类实例
+     * 根据jndi名称获取JavaEE环境中指定类型的对象
      * 
-     * @param clazz
-     *            待查询的类
-     * @param cacheable
-     *            是否接受从缓存中获取
-     * @return
-     * @throws com.harmony.umbrella.context.moon.util.ejb.ContextException
-     *             未找到对应实例
+     * @param jndiName
+     *            jndi名称
+     * @param reqireType
+     *            指定的bean类型
+     * @return 如果jndi名称指定的bean不存在返回{@code null}
+     * @throws ClassCastException
+     *             找到的bean类型不为requireType
+     * @throws ApplicationContextException
+     *             初始化JavaEE环境失败
      */
     @SuppressWarnings("unchecked")
-    public <T> T lookup(Class<T> clazz, boolean cacheable) {
-        if (classAndBeanMap.containsKey(clazz)) {
-            Holder holder = classAndBeanMap.get(clazz);
-            if (cacheable) {
-                return (T) holder.beanInstance;
-            }
+    public <T> T lookup(String jndiName, Class<T> reqireType) throws ApplicationContextException {
+        try {
+            return (T) getContext().lookup(jndiName);
+        } catch (NamingException e) {
+            throw new ApplicationContextException(e.getMessage(), e.getCause());
         }
-        return lookup(clazz);
     }
 
     /**
      * 从JavaEE环境中获取指定类实例
+     * <p>
+     * <li>首先根据类型将解析clazz对应的jndi名称
+     * <li>如果解析的jndi名称为找到对应类型的bean则通过递归{@linkplain javax.naming.Context}中的内容查找
+     * <li>若以上方式均为找到则返回{@code null}
      * 
      * @param clazz
      *            待查找的类
-     * @return
-     * @throws com.harmony.umbrella.context.moon.util.ejb.ContextException
-     *             未找到对应实例
+     * @return 指定类型的bean, 如果为找到返回{@code null}
+     * @throws ApplicationContextException
+     *             初始化JavaEE环境失败
      */
     @SuppressWarnings("unchecked")
-    public <T> T lookup(Class<T> clazz) {
+    public <T> T lookup(Class<T> clazz) throws ApplicationContextException {
         if (classAndBeanMap.containsKey(clazz)) {
             Holder holder = classAndBeanMap.get(clazz);
-            holder.beanInstance = lookup(holder.jndiName);
+            // holder.bean = lookup(holder.jndiName);
             try {
-                return (T) holder.beanInstance;
-            } catch (ContextException e) {
+                return (T) holder.bean;
+            } catch (ApplicationContextException e) {
                 classAndBeanMap.remove(clazz);
             }
         }
         try {
-            String jndiName = toJndiName(clazz);
+            String jndiName = nameFormat.format(clazz);
             Object object = lookup(jndiName);
             classAndBeanMap.put(clazz, new Holder(jndiName, object));
             return (T) object;
-        } catch (ContextException e) {
+        } catch (ApplicationContextException e) {
             for (String prefix : jndiPrefix) {
                 try {
                     Holder holder = iterator(getContext(), prefix, clazz);
                     if (holder != null) {
                         classAndBeanMap.put(clazz, holder);
-                        return (T) holder.beanInstance;
+                        return (T) holder.bean;
                     }
                 } catch (Exception e1) {
                     log.error("", e1);
                 }
             }
         }
-        throw new ContextException("can't lookup class[" + clazz.getName() + "] ejb bean");
-    }
-
-    private Holder iterator(Context context, String root, Class<?> instanceClass) {
-        try {
-            Object obj = context.lookup(root);
-            if (obj instanceof Context) {
-                NamingEnumeration<NameClassPair> ne = ((Context) obj).list("");
-                while (ne.hasMore()) {
-                    NameClassPair nameClassPair = ne.next();
-                    String jndi = root + ("".equals(root) ? "" : "/") + nameClassPair.getName();
-                    Holder holder = iterator(context, jndi, instanceClass);
-                    if (holder != null)
-                        return holder;
-                }
-            } else if (instanceClass.isInstance(obj)) {
-                return new Holder(root, obj);
-            }
-        } catch (Exception e) {
-            log.debug("", e);
-        }
-        return null;
+        throw new ApplicationContextException("can't lookup class[" + clazz.getName() + "] ejb bean");
     }
 
     /**
-     * 获取JavaEE的JNDI上下文
+     * 初始化客户端JavaEE环境
      * <p>
-     * 默认加载指定路径下 {@link EJBContextMBean#JNDI_PROPERTIES_FILE} 的资源文件作为初始化属性
+     * 默认加载指定路径下 {@link #JNDI_PROPERTIES_FILE_LOCATION} 的资源文件作为初始化属性
      * 
      * @return
-     * @throws ContextException
+     * @throws ApplicationContextException
      *             初始化上下文失败
      */
     public Context getContext() {
-        this.loadProperties(false);
         try {
             return new InitialContext(jndiProperties);
         } catch (NamingException e) {
-            throw new ContextException(e);
+            throw new ApplicationContextException(e.getMessage(), e.getCause());
         }
+    }
+
+    public void setNameFormat(NameFormat nameFormat) {
+        Assert.notNull(nameFormat, "can't set name format to null");
+        this.nameFormat = nameFormat;
+    }
+
+    /*
+     * JMX method
+     */
+    @Override
+    public void loadProperties() {
+        try {
+            jndiProperties.putAll(PropUtils.loadProperties(jndiPropertiesFileLocation));
+        } catch (IOException e) {
+            log.warn("can't load jndi properties file", e);
+        }
+    }
+
+    /*
+     * JMX method
+     */
+    @Override
+    public void cleanProperties() {
+        jndiProperties.clear();
+        log.debug("jndi properties cleaned");
+    }
+
+    /*
+     * JMX method
+     */
+    @Override
+    public String jndiPropertiesFilePath() {
+        URL url = ClassUtils.getDefaultClassLoader().getResource(jndiPropertiesFileLocation);
+        if (url == null) {
+            return "error: not exist properties file [" + jndiPropertiesFileLocation + "] in classpath";
+        }
+        return url.getFile();
+    }
+
+    public void destory() {
+        jmxManager.unregisterMBean(EJBContext.class);
+    }
+
+    @Override
+    public <T> T getBean(String beanName) throws NoSuchBeanFindException {
+        return null;
+    }
+
+    @Override
+    public <T> T getBean(String beanName, String scope) throws NoSuchBeanFindException {
+        return null;
+    }
+
+    @Override
+    public <T> T getBean(Class<T> beanClass) throws NoSuchBeanFindException {
+        return null;
+    }
+
+    @Override
+    public <T> T getBean(Class<T> beanClass, String scope) throws NoSuchBeanFindException {
+        return null;
+    }
+
+    @Override
+    public boolean exixts(Class<?> clazz) {
+        return false;
+    }
+
+    @SuppressWarnings("unused")
+    private void addSessionBeanDefinition(Class<?> clazz, Object bean) {
+
+    }
+
+    @SuppressWarnings("unused")
+    private void removeSessionBeanDefinition(Class<?> clazz) {
+
     }
 
     /**
@@ -202,160 +277,63 @@ public class EJBApplicationContext implements ApplicationContext, EJBContextMBea
      * @param jndiProperties
      *            指定上下文属性
      * @return
-     * @throws ContextException
+     * @throws ApplicationContextException
      *             上下文初始化失败
      */
     public static Object lookup(String jndiName, Properties jndiProperties) {
         try {
             return new InitialContext(jndiProperties).lookup(jndiName);
         } catch (NamingException e) {
-            throw new ContextException(e);
+            throw new ApplicationContextException(e.getMessage(), e.getCause());
         }
     }
 
     /**
-     * 将类转为对应的jndi名称
-     * <p>
-     * 可通过{@link EJBContextMBean#jndi_Properties_File}
-     * 中moon.jndi.name.format来定制格式
+     * 遍历{@linkplain Context}来查找指定类型的bean
      * 
+     * @param context
+     *            JavaEE环境上下文
+     * @param root
+     *            context的根节点
      * @param clazz
-     * @return
+     *            指定需要的类型
+     * @return 如果为找到返回{@code null}
      */
-    protected String toJndiName(Class<?> clazz) {
-        this.loadProperties(false);
-        StringBuffer sb = new StringBuffer();
-        // TODO 根据jndiFormat生成jndiName
-        // final String jndiFormat =
-        // jndiProperties.getProperty("jee.jndi.format");
-        String beanName = getBeanName(clazz);
-        sb.append(beanName).append("#");
-        String interfaceType = clazz.getName();
-        if (!clazz.isInterface()) {
-            Remote remoteAnn = clazz.getAnnotation(Remote.class);
-            if (remoteAnn != null) {
-                Class<?>[] value = remoteAnn.value();
-                if (value.length != 0) {
-                    interfaceType = value[0].getName();
+    private Holder iterator(Context context, String root, Class<?> clazz) {
+        try {
+            Object obj = context.lookup(root);
+            if (obj instanceof Context) {
+                NamingEnumeration<NameClassPair> ne = ((Context) obj).list("");
+                while (ne.hasMore()) {
+                    NameClassPair nameClassPair = ne.next();
+                    String jndi = root + ("".equals(root) ? "" : "/") + nameClassPair.getName();
+                    Holder holder = iterator(context, jndi, clazz);
+                    if (holder != null)
+                        return holder;
                 }
-            } else {
-                Class<?>[] interfaces = clazz.getInterfaces();
-                for (Class<?> c : interfaces) {
-                    if (c.getName().endsWith("Remote") || c.getAnnotation(Remote.class) != null) {
-                        interfaceType = c.getName();
-                    }
-                }
+            } else if (clazz.isInstance(obj)) {
+                return new Holder(root, obj);
             }
+        } catch (Exception e) {
+            log.debug("", e);
         }
-        sb.append(interfaceType);
-        return sb.toString();
+        return null;
     }
 
-    private String getBeanName(Class<?> clazz) {
-        String beanName = null;
-        final String beanNameSuffix = jndiProperties.getProperty("jee.jndi.beanName.suffix", "Bean");
-        if (clazz.isInterface()) {
-            final String interfaceClassSuffix = jndiProperties.getProperty("jee.jndi.interfaceClass.suffix", "Remote");
-            String interfaceClassName = clazz.getSimpleName();
-            int suffixIndex = interfaceClassName.lastIndexOf(interfaceClassSuffix);
-            if (suffixIndex != -1) {
-                beanName = interfaceClassName.substring(0, suffixIndex) + beanNameSuffix;
-            } else {
-                beanName = interfaceClassName + beanNameSuffix;
-            }
-        } else {
-            Annotation ann = clazz.getAnnotation(Singleton.class);
-            if (ann != null) {
-                beanName = "".equals(((Singleton) ann).mappedName()) ? clazz.getSimpleName() : ((Singleton) ann).mappedName();
-            }
-            ann = clazz.getAnnotation(Stateful.class);
-            if (ann != null) {
-                beanName = "".equals(((Stateful) ann).mappedName()) ? clazz.getSimpleName() : ((Stateful) ann).mappedName();
-            }
-            ann = clazz.getAnnotation(Stateless.class);
-            if (ann != null) {
-                beanName = "".equals(((Stateless) ann).mappedName()) ? clazz.getSimpleName() : ((Stateless) ann).mappedName();
-            }
-            if (beanName == null) {
-                beanName = clazz.getSimpleName();
-            }
-        }
-        return beanName;
-    }
+    private class Holder {
 
-    /*
-     * JMX method
-     */
-    @Override
-    public void loadProperties(boolean mandatory) {
-        if (jndiProperties.isEmpty() || mandatory) {
-            try {
-                jndiProperties.putAll(PropUtils.loadProperties(jndiPropertiesFile));
-            } catch (IOException e) {
-                log.warn("can't load jndi properties file", e);
-            }
-        }
-    }
+        private final String jndiName;
+        private final Object bean;
 
-    /*
-     * JMX method
-     */
-    @Override
-    public void cleanProperties() {
-        jndiProperties = null;
-        log.debug("jndi properties cleaned");
-    }
-
-    /*
-     * JMX method
-     */
-    @Override
-    public String jndiPropertiesFilePath() {
-        URL url = ClassUtils.getDefaultClassLoader().getResource(jndiPropertiesFile);
-        if (url == null) {
-            return "error: not exist properties file [" + jndiPropertiesFile + "] in classpath";
-        }
-        return url.getFile();
-    }
-
-    public void destory() {
-        // TODO JMX support, unregister mbean
-        // jmxManager.unregisterMBean(this);
-    }
-
-    private static class Holder {
-        String jndiName;
-        Object beanInstance;
-
-        public Holder(String jndiName, Object instance) {
+        public Holder(String jndiName, Object bean) {
             this.jndiName = jndiName;
-            this.beanInstance = instance;
+            this.bean = bean;
         }
 
         @Override
         public String toString() {
-            return "Holder [jndiName=" + jndiName + ", bean=" + beanInstance + "]";
+            return "{\"jndiName\":\"" + jndiName + "\", \"bean\":\"" + bean + "\"}";
         }
-    }
 
-    @Override
-    public <T> T loadBean(String beanName) throws NoSuchBeanFindException {
-        return null;
     }
-
-    @Override
-    public <T> T loadBean(String beanName, String scope) throws NoSuchBeanFindException {
-        return null;
-    }
-
-    @Override
-    public <T> T loadBean(Class<T> beanClass) throws NoSuchBeanFindException {
-        return null;
-    }
-
-    @Override
-    public <T> T loadBean(Class<T> beanClass, String scope) throws NoSuchBeanFindException {
-        return null;
-    }
-
 }

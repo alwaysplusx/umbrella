@@ -20,25 +20,30 @@ package com.harmony.umbrella.context.ee.jmx;
  */
 public class EJBContext implements EJBContextMBean {
 
-	private final EJBContextMBean context;
+    private final EJBContextMBean context;
 
-	public EJBContext(EJBContextMBean context) {
-		this.context = context;
-	}
+    public EJBContext(EJBContextMBean context) {
+        this.context = context;
+    }
 
-	@Override
-	public void loadProperties(boolean mandatory) {
-		context.loadProperties(mandatory);
-	}
+    @Override
+    public void loadProperties() {
+        context.loadProperties();
+    }
 
-	@Override
-	public void cleanProperties() {
-		context.cleanProperties();
-	}
+    @Override
+    public void cleanProperties() {
+        context.cleanProperties();
+    }
 
-	@Override
-	public String jndiPropertiesFilePath() {
-		return context.jndiPropertiesFilePath();
-	}
+    @Override
+    public String jndiPropertiesFilePath() {
+        return context.jndiPropertiesFilePath();
+    }
+
+    @Override
+    public boolean exixts(Class<?> clazz) {
+        return context.exixts(clazz);
+    }
 
 }

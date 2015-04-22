@@ -26,7 +26,7 @@ import org.apache.cxf.transport.servlet.CXFNonSpringServlet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.harmony.umbrella.core.BeanLoader;
+import com.harmony.umbrella.core.BeanFactory;
 import com.harmony.umbrella.core.ClassFilter;
 import com.harmony.umbrella.io.utils.ResourceScaner;
 import com.harmony.umbrella.jaxws.JaxWsServerManager;
@@ -43,12 +43,12 @@ public class JaxWsServlet extends CXFNonSpringServlet {
 	private static final Logger log = LoggerFactory.getLogger(JaxWsServlet.class);
 	private JaxWsServerManager jaxWsManager = JaxWsServerManager.getInstance();
 	private ResourceScaner scaner = ResourceScaner.getInstance();
-	private BeanLoader beanLoader;
+	private BeanFactory beanFactory;
 
 	@Override
 	public void init(ServletConfig sc) throws ServletException {
 		super.init(sc);
-		BeanLoader loader = jaxWsManager.getBeanLoader();
+		BeanFactory loader = jaxWsManager.getBeanLoader();
 		try {
 			Class<?>[] classes = scaner.scanPackage(getScanPackage(sc), new ClassFilter() {
 				@Override
@@ -72,7 +72,7 @@ public class JaxWsServlet extends CXFNonSpringServlet {
 					return true;
 				}
 			});
-			jaxWsManager.setBeanLoader(beanLoader == null ? loader : beanLoader);
+			jaxWsManager.setBeanLoader(beanFactory == null ? loader : beanFactory);
 			for (Class<?> clazz : classes) {
 				jaxWsManager.publish(clazz, buildPath(sc, clazz));
 			}
@@ -107,12 +107,12 @@ public class JaxWsServlet extends CXFNonSpringServlet {
 		return sc.getInitParameter(SCAN_PACKAGE) == null ? "com.harmony" : sc.getInitParameter(SCAN_PACKAGE);
 	}
 
-	public BeanLoader getBeanLoader() {
-		return beanLoader;
+	public BeanFactory getBeanLoader() {
+		return beanFactory;
 	}
 
-	public void setBeanLoader(BeanLoader beanLoader) {
-		this.beanLoader = beanLoader;
+	public void setBeanLoader(BeanFactory beanFactory) {
+		this.beanFactory = beanFactory;
 	}
 
 }

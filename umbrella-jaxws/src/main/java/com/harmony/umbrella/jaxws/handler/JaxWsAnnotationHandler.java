@@ -20,8 +20,8 @@ import static com.harmony.umbrella.jaxws.Phase.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.harmony.umbrella.core.BeanLoader;
-import com.harmony.umbrella.core.ClassBeanLoader;
+import com.harmony.umbrella.core.BeanFactory;
+import com.harmony.umbrella.core.SimpleBeanFactory;
 import com.harmony.umbrella.core.InvokeException;
 import com.harmony.umbrella.jaxws.JaxWsAbortException;
 import com.harmony.umbrella.jaxws.JaxWsContext;
@@ -45,7 +45,7 @@ public class JaxWsAnnotationHandler implements JaxWsContextHandler {
 
     private final static Logger log = LoggerFactory.getLogger(JaxWsAnnotationHandler.class);
 
-    private BeanLoader beanLoader = new ClassBeanLoader();
+    private BeanFactory beanFactory = new SimpleBeanFactory();
     private JaxWsHandlerMethodFinder finder;
     private String scanPackage = defaultPackage;
 
@@ -67,7 +67,7 @@ public class JaxWsAnnotationHandler implements JaxWsContextHandler {
                     if (invoker.isEndWithMap()) {
                         invoker.setContextMap(context.getContextMap());
                     }
-                    Object bean = beanLoader.loadBean(invoker.getHandlerClass());
+                    Object bean = beanFactory.getBean(invoker.getHandlerClass());
                     Object result = invoker.invokeHandleMethod(bean, context.getParameters());
                     if (result instanceof Boolean && !Boolean.valueOf((Boolean) result)) {
                         return false;
@@ -92,7 +92,7 @@ public class JaxWsAnnotationHandler implements JaxWsContextHandler {
                         invoker.setContextMap(context.getContextMap());
                     }
                     invoker.setThrowable(exception);
-                    Object bean = beanLoader.loadBean(invoker.getHandlerClass());
+                    Object bean = beanFactory.getBean(invoker.getHandlerClass());
                     invoker.invokeHandleMethod(bean, context.getParameters());
                 } catch (InvokeException e) {
                     log.error("执行handleMethodInvoker[{}]方法失败", invoker, e);
@@ -114,7 +114,7 @@ public class JaxWsAnnotationHandler implements JaxWsContextHandler {
                         invoker.setContextMap(context.getContextMap());
                     }
                     invoker.setResult(result);
-                    Object bean = beanLoader.loadBean(invoker.getHandlerClass());
+                    Object bean = beanFactory.getBean(invoker.getHandlerClass());
                     invoker.invokeHandleMethod(bean, context.getParameters());
                 } catch (InvokeException e) {
                     log.error("执行handleMethodInvoker[{}]方法失败", invoker, e);
@@ -136,7 +136,7 @@ public class JaxWsAnnotationHandler implements JaxWsContextHandler {
                         invoker.setContextMap(context.getContextMap());
                     }
                     invoker.setThrowable(throwable);
-                    Object bean = beanLoader.loadBean(invoker.getHandlerClass());
+                    Object bean = beanFactory.getBean(invoker.getHandlerClass());
                     invoker.invokeHandleMethod(bean, context.getParameters());
                 } catch (InvokeException e) {
                     log.error("执行handleMethodInvoker[{}]方法失败", invoker, e);
@@ -159,7 +159,7 @@ public class JaxWsAnnotationHandler implements JaxWsContextHandler {
                     }
                     invoker.setResult(result);
                     invoker.setThrowable(exception);
-                    Object bean = beanLoader.loadBean(invoker.getHandlerClass());
+                    Object bean = beanFactory.getBean(invoker.getHandlerClass());
                     invoker.invokeHandleMethod(bean, context.getParameters());
                 } catch (InvokeException e) {
                     log.error("执行handleMethodInvoker[{}]方法失败", invoker, e);
@@ -180,8 +180,8 @@ public class JaxWsAnnotationHandler implements JaxWsContextHandler {
         return scanPackage;
     }
 
-    public void setBeanLoader(BeanLoader beanLoader) {
-        this.beanLoader = beanLoader;
+    public void setBeanLoader(BeanFactory beanFactory) {
+        this.beanFactory = beanFactory;
     }
 
 }

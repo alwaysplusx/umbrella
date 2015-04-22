@@ -20,7 +20,7 @@ package com.harmony.umbrella.core;
  * 
  * @author wuxii@foxmail.com
  */
-public interface BeanLoader {
+public interface BeanFactory {
 
     /**
      * 单例
@@ -38,7 +38,7 @@ public interface BeanLoader {
      * @param beanName
      * @return
      */
-    <T> T loadBean(String beanName) throws NoSuchBeanFindException;
+    <T> T getBean(String beanName) throws NoSuchBeanFindException;
 
     /**
      * 加载一个指定类型的bean
@@ -47,7 +47,7 @@ public interface BeanLoader {
      * @param scope
      * @return
      */
-    <T> T loadBean(String beanName, String scope) throws NoSuchBeanFindException;
+    <T> T getBean(String beanName, String scope) throws NoSuchBeanFindException;
 
     /**
      * 默认加载一个单例的bean
@@ -55,7 +55,7 @@ public interface BeanLoader {
      * @param beanClass
      * @return
      */
-    <T> T loadBean(Class<T> beanClass) throws NoSuchBeanFindException;
+    <T> T getBean(Class<T> beanClass) throws NoSuchBeanFindException;
 
     /**
      * 加载一个指定类型的bean
@@ -64,6 +64,6 @@ public interface BeanLoader {
      * @param scope
      * @return
      */
-    <T> T loadBean(Class<T> beanClass, String scope) throws NoSuchBeanFindException;
+    <T> T getBean(Class<T> beanClass, String scope) throws NoSuchBeanFindException;
 
 }

@@ -18,10 +18,24 @@ package com.harmony.umbrella.context;
 /**
  * @author wuxii@foxmail.com
  */
-public interface NameFormat {
+public class ApplicationContextException extends RuntimeException {
 
-    String format(Class<?> clazz);
+    private static final long serialVersionUID = -4440235058790777957L;
 
-    String format(String beanName);
+    public ApplicationContextException() {
+        super();
+    }
+
+    public ApplicationContextException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
+    public ApplicationContextException(String message) {
+        super(message);
+    }
+
+    public ApplicationContextException(Throwable cause) {
+        super(cause);
+    }
 
 }

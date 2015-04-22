@@ -27,8 +27,8 @@ import org.apache.cxf.jaxws.JaxWsServerFactoryBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.harmony.umbrella.core.BeanLoader;
-import com.harmony.umbrella.core.ClassBeanLoader;
+import com.harmony.umbrella.core.BeanFactory;
+import com.harmony.umbrella.core.SimpleBeanFactory;
 import com.harmony.umbrella.jaxws.impl.SimpleJaxWsMetadata;
 import com.harmony.umbrella.util.StringUtils;
 
@@ -46,7 +46,7 @@ public class JaxWsServerManager {
     private static final Map<Class<?>, JaxWsServer> servers = new HashMap<Class<?>, JaxWsServer>();
 
     private static JaxWsServerManager instance;
-    private BeanLoader beanLoader = new ClassBeanLoader();
+    private BeanFactory beanFactory = new SimpleBeanFactory();
 
     private JaxWsServerManager() {
     }
@@ -171,7 +171,7 @@ public class JaxWsServerManager {
     }
 
     protected Object createServiceBean(Class<?> serviceClass) {
-        return beanLoader.loadBean(serviceClass, BeanLoader.PROTOTYPE);
+        return beanFactory.getBean(serviceClass, BeanFactory.PROTOTYPE);
     }
 
     /**
@@ -219,12 +219,12 @@ public class JaxWsServerManager {
         server.addServiceInstance(factoryBean.getAddress(), factoryBean);
     }
 
-    public BeanLoader getBeanLoader() {
-        return beanLoader;
+    public BeanFactory getBeanLoader() {
+        return beanFactory;
     }
 
-    public void setBeanLoader(BeanLoader beanLoader) {
-        this.beanLoader = beanLoader;
+    public void setBeanLoader(BeanFactory beanFactory) {
+        this.beanFactory = beanFactory;
     }
 
     /**

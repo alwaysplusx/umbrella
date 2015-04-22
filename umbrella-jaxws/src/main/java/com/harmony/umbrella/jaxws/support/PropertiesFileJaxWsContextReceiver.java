@@ -24,8 +24,8 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.harmony.umbrella.core.BeanLoader;
-import com.harmony.umbrella.core.ClassBeanLoader;
+import com.harmony.umbrella.core.BeanFactory;
+import com.harmony.umbrella.core.SimpleBeanFactory;
 import com.harmony.umbrella.jaxws.JaxWsContext;
 import com.harmony.umbrella.jaxws.JaxWsContextHandler;
 import com.harmony.umbrella.jaxws.JaxWsExecutor;
@@ -56,7 +56,7 @@ public class PropertiesFileJaxWsContextReceiver implements JaxWsContextReceiver 
     /**
      * 实例化handler
      */
-    private BeanLoader beanLoader = new ClassBeanLoader();
+    private BeanFactory beanFactory = new SimpleBeanFactory();
 
     /**
      * 用于判断是否重新reload{@linkplain JaxWsContext}
@@ -117,7 +117,7 @@ public class PropertiesFileJaxWsContextReceiver implements JaxWsContextReceiver 
                 if (JaxWsContextHandler.class.isAssignableFrom(clazz)) {
                     Object handler;
                     try {
-                        handler = beanLoader.loadBean(clazz);
+                        handler = beanFactory.getBean(clazz);
                         this.addHandler((JaxWsContextHandler) handler);
                         continue;
                     } catch (Exception e) {
@@ -220,8 +220,8 @@ public class PropertiesFileJaxWsContextReceiver implements JaxWsContextReceiver 
         this.retentionHandlers = retentionHandlers;
     }
 
-    public void setBeanLoader(BeanLoader beanLoader) {
-        this.beanLoader = beanLoader;
+    public void setBeanLoader(BeanFactory beanFactory) {
+        this.beanFactory = beanFactory;
     }
 
 }

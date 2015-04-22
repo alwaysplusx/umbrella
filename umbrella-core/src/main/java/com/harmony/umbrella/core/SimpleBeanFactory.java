@@ -24,17 +24,17 @@ import java.util.Map;
  * 
  * @author wuxii@foxmail.com
  */
-public class ClassBeanLoader implements BeanLoader, Serializable {
+public class SimpleBeanFactory implements BeanFactory, Serializable {
 
     private static final long serialVersionUID = 1L;
     private Map<Class<?>, Object> beans = new HashMap<Class<?>, Object>();
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T> T loadBean(String beanName) {
+    public <T> T getBean(String beanName) {
         try {
             Class<?> clazz = Class.forName(beanName);
-            return (T) loadBean(clazz, SINGLETON);
+            return (T) getBean(clazz, SINGLETON);
         } catch (ClassNotFoundException e) {
             throw new NoSuchBeanFindException(e.getMessage(), e);
         }
@@ -42,23 +42,23 @@ public class ClassBeanLoader implements BeanLoader, Serializable {
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T> T loadBean(String beanName, String scope) {
+    public <T> T getBean(String beanName, String scope) {
         try {
             Class<?> clazz = Class.forName(beanName);
-            return (T) loadBean(clazz, scope);
+            return (T) getBean(clazz, scope);
         } catch (ClassNotFoundException e) {
             throw new NoSuchBeanFindException(e.getMessage(), e);
         }
     }
 
     @Override
-    public <T> T loadBean(Class<T> beanClass) {
-        return loadBean(beanClass, SINGLETON);
+    public <T> T getBean(Class<T> beanClass) {
+        return getBean(beanClass, SINGLETON);
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T> T loadBean(Class<T> beanClass, String scope) {
+    public <T> T getBean(Class<T> beanClass, String scope) {
         if (SINGLETON.equals(scope)) {
             if (!beans.containsKey(beanClass)) {
                 beans.put(beanClass, createBean(beanClass, null));

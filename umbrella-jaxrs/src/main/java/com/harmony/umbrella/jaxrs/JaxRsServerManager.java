@@ -27,8 +27,8 @@ import org.apache.cxf.jaxrs.JAXRSServerFactoryBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.harmony.umbrella.core.BeanLoader;
-import com.harmony.umbrella.core.ClassBeanLoader;
+import com.harmony.umbrella.core.BeanFactory;
+import com.harmony.umbrella.core.SimpleBeanFactory;
 
 /**
  * @author wuxii@foxmail.com
@@ -37,7 +37,7 @@ public class JaxRsServerManager {
 
 	private static final Logger log = LoggerFactory.getLogger(JaxRsServerManager.class);
 	private static JaxRsServerManager instance;
-	private BeanLoader beanLoader = new ClassBeanLoader();
+	private BeanFactory beanFactory = new SimpleBeanFactory();
 
 	private final Map<Class<?>, JaxRsServer> servers = new HashMap<Class<?>, JaxRsServer>();
 
@@ -68,7 +68,7 @@ public class JaxRsServerManager {
 	// }
 
 	public boolean publish(Class<?> serviceClass, String address, JaxRsFactoryConfig factoryConfig) {
-		Object serviceBean = beanLoader.loadBean(serviceClass);
+		Object serviceBean = beanFactory.getBean(serviceClass);
 		return publish(serviceClass, serviceBean, address, factoryConfig);
 	}
 
@@ -141,12 +141,12 @@ public class JaxRsServerManager {
 	private void doUpdateService(Class<?> serviceClass, Object serviceBean, String address, JaxRsFactoryConfig factoryConfig) {
 	}
 
-	public BeanLoader getBeanLoader() {
-		return beanLoader;
+	public BeanFactory getBeanLoader() {
+		return beanFactory;
 	}
 
-	public void setBeanLoader(BeanLoader beanLoader) {
-		this.beanLoader = beanLoader;
+	public void setBeanLoader(BeanFactory beanFactory) {
+		this.beanFactory = beanFactory;
 	}
 
 	private JaxRsServer getJaxRsServer(String address) {

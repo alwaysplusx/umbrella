@@ -20,8 +20,8 @@ import java.lang.reflect.Modifier;
 import java.util.Properties;
 import java.util.Set;
 
-import com.harmony.umbrella.core.BeanLoader;
-import com.harmony.umbrella.core.ClassBeanLoader;
+import com.harmony.umbrella.core.BeanFactory;
+import com.harmony.umbrella.core.SimpleBeanFactory;
 import com.harmony.umbrella.scheduling.Job;
 import com.harmony.umbrella.scheduling.JobFactory;
 import com.harmony.umbrella.scheduling.Trigger;
@@ -37,7 +37,7 @@ public class PropertiesFileJobFactory implements JobFactory {
 
 	public static final String triggerPropertiesFileLocation = "META-INF/scheduler/triggers.properties";
 
-	private BeanLoader beanLoader = new ClassBeanLoader();
+	private BeanFactory beanFactory = new SimpleBeanFactory();
 	private final String jobFileLocation;
 	private final String triggerFileLocation;
 
@@ -87,14 +87,14 @@ public class PropertiesFileJobFactory implements JobFactory {
 	public Job getJob(String jobName) {
 		Class<? extends Job> jobClass = getJobClass(jobName);
 		if (jobClass != null) {
-			return beanLoader.loadBean(jobClass);
+			return beanFactory.getBean(jobClass);
 		}
 		return null;
 	}
 
-	public void setBeanLoader(BeanLoader beanLoader) {
-		Assert.notNull(beanLoader, "bean loader must not be null");
-		this.beanLoader = beanLoader;
+	public void setBeanLoader(BeanFactory beanFactory) {
+		Assert.notNull(beanFactory, "bean loader must not be null");
+		this.beanFactory = beanFactory;
 	}
 
 	@Override

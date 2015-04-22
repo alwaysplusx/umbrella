@@ -26,8 +26,8 @@ import javax.ejb.MessageDriven;
 import javax.jms.JMSException;
 import javax.jms.ObjectMessage;
 
-import com.harmony.umbrella.core.BeanLoader;
-import com.harmony.umbrella.core.ClassBeanLoader;
+import com.harmony.umbrella.core.BeanFactory;
+import com.harmony.umbrella.core.SimpleBeanFactory;
 import com.harmony.umbrella.core.ClassFilter;
 import com.harmony.umbrella.io.utils.ResourceScaner;
 import com.harmony.umbrella.message.AbstractMessageListener;
@@ -44,7 +44,7 @@ import com.harmony.umbrella.message.MessageResolver;
 public class ApplicationMessageListener extends AbstractMessageListener implements javax.jms.MessageListener {
 
     private static final String basePackage = "com.harmony";
-    private BeanLoader beanLoader = new ClassBeanLoader();
+    private BeanFactory beanFactory = new SimpleBeanFactory();
 
     @PostConstruct
     public void postConstruct() {
@@ -70,7 +70,7 @@ public class ApplicationMessageListener extends AbstractMessageListener implemen
                 }
             });
             for (Class clazz : classes) {
-                MessageResolver resolver = (MessageResolver) beanLoader.loadBean(clazz);
+                MessageResolver resolver = (MessageResolver) beanFactory.getBean(clazz);
                 addMessageResolver(resolver);
             }
         } catch (IOException e) {

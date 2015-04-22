@@ -13,29 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.umbrella.context;
+package com.harmony.umbrella.context.ee;
+
+import com.harmony.umbrella.context.ApplicationContext;
+import com.harmony.umbrella.context.spi.ApplicationContextProvider;
 
 /**
  * @author wuxii@foxmail.com
  */
-public class ContextException extends RuntimeException {
+public class JeeApplicationContextProvider implements ApplicationContextProvider {
 
-    private static final long serialVersionUID = -2066323526729394858L;
-
-    public ContextException() {
-        super();
-    }
-
-    public ContextException(String message, Throwable cause) {
-        super(message, cause);
-    }
-
-    public ContextException(String message) {
-        super(message);
-    }
-
-    public ContextException(Throwable cause) {
-        super(cause);
+    @Override
+    public ApplicationContext createApplicationContext() {
+        return EJBApplicationContext.getInstance();
     }
 
 }

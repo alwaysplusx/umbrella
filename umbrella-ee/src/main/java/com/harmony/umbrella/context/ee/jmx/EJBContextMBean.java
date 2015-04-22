@@ -20,24 +20,28 @@ package com.harmony.umbrella.context.ee.jmx;
  */
 public interface EJBContextMBean {
 
-	/**
-	 * 加载属性文件地址为jndi.properties <p> 如果该配置文件已经加载则通过<code>mandatory=true</code>起到强制加载作用
-	 * 
-	 * @param mandatory
-	 *            是否强制加载标志
-	 */
-	void loadProperties(boolean mandatory);
+    /**
+     * 加载属性文件地址为jndi.properties
+     */
+    void loadProperties();
 
-	/**
-	 * 清除已经加载的属性
-	 */
-	void cleanProperties();
+    /**
+     * 清除已经加载的属性
+     */
+    void cleanProperties();
 
-	/**
-	 * 当前上下文属性文件所在位置
-	 * 
-	 * @return
-	 */
-	String jndiPropertiesFilePath();
+    /**
+     * 查看是否存在类型为clazz的会话bean
+     * 
+     * @return
+     */
+    boolean exixts(Class<?> clazz);
+
+    /**
+     * 当前上下文属性文件所在位置
+     * 
+     * @return
+     */
+    String jndiPropertiesFilePath();
 
 }

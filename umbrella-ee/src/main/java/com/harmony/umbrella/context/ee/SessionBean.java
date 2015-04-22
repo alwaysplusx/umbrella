@@ -13,15 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.umbrella.context;
+package com.harmony.umbrella.context.ee;
 
 /**
  * @author wuxii@foxmail.com
  */
-public interface NameFormat {
+public class SessionBean {
 
-    String format(Class<?> clazz);
+    private SessionBeanDefinition sessionBeanDefinition;
 
-    String format(String beanName);
+    public SessionBean(SessionBeanDefinition sessionBeanDefinition) {
+        this.sessionBeanDefinition = sessionBeanDefinition;
+    }
+
+    public SessionBeanDefinition getBeanDefinition() {
+        return sessionBeanDefinition;
+    }
 
 }

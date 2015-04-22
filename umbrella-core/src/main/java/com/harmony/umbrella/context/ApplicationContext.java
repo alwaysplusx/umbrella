@@ -15,11 +15,35 @@
  */
 package com.harmony.umbrella.context;
 
-import com.harmony.umbrella.core.BeanLoader;
+import java.util.ServiceLoader;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.harmony.umbrella.context.spi.ApplicationContextProvider;
+import com.harmony.umbrella.core.BeanFactory;
 
 /**
  * @author wuxii@foxmail.com
  */
-public interface ApplicationContext extends BeanLoader {
+public abstract class ApplicationContext implements BeanFactory {
 
+    protected static final Logger LOG = LoggerFactory.getLogger(ApplicationContext.class);
+    private static final ServiceLoader<ApplicationContextProvider> providers = ServiceLoader.load(ApplicationContextProvider.class);
+
+    public static final ApplicationContext getApplicationContext() {
+        ApplicationContext context = null;
+        providers.reload();
+        for (ApplicationContextProvider provider : providers) {
+            try {
+                context = provider.createApplicationContext();
+            } catch (Exception e) {
+                LOG.error("", e);
+            }
+        }
+        if (context == null) {
+            throw new ApplicationContextException("can't find any application context privider to create context");
+        }
+        return context;
+    }
 }

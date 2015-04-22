@@ -15,8 +15,8 @@ import org.apache.cxf.validation.AbstractValidationInterceptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.harmony.umbrella.core.BeanLoader;
-import com.harmony.umbrella.core.ClassBeanLoader;
+import com.harmony.umbrella.core.BeanFactory;
+import com.harmony.umbrella.core.SimpleBeanFactory;
 import com.harmony.umbrella.core.DefaultInvoker;
 import com.harmony.umbrella.core.Invoker;
 import com.harmony.umbrella.jaxws.Phase;
@@ -31,7 +31,7 @@ public abstract class AbstractHandleInterceptor extends AbstractValidationInterc
 
 	private static final Object[] EMPTY_ARGUMENTS = new Object[] {};
 
-	protected BeanLoader beanLoader = new ClassBeanLoader();
+	protected BeanFactory beanFactory = new SimpleBeanFactory();
 	protected Invoker invoker = new DefaultInvoker();
 	protected JaxWsHandlerMethodFinder finder;
 
@@ -142,12 +142,12 @@ public abstract class AbstractHandleInterceptor extends AbstractValidationInterc
 		return Phase.value(getPhase());
 	}
 
-	public BeanLoader getBeanLoader() {
-		return beanLoader;
+	public BeanFactory getBeanLoader() {
+		return beanFactory;
 	}
 
-	public void setBeanLoader(BeanLoader beanLoader) {
-		this.beanLoader = beanLoader;
+	public void setBeanLoader(BeanFactory beanFactory) {
+		this.beanFactory = beanFactory;
 	}
 
 }
