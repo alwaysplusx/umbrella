@@ -15,9 +15,11 @@
  */
 package com.harmony.umbrella.context;
 
+import com.harmony.umbrella.core.BeanLoader;
+
 /**
  * @author wuxii@foxmail.com
  */
-public interface ApplicationContext {
+public interface ApplicationContext extends BeanLoader {
 
 }

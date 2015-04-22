@@ -15,9 +15,11 @@
  */
 package com.harmony.umbrella.context.ee;
 
+import com.harmony.umbrella.context.NameFormat;
+
 /**
  * @author wuxii@foxmail.com
  */
-class JndiNameFormat {
+class JndiNameFormat implements NameFormat {
 
 }
