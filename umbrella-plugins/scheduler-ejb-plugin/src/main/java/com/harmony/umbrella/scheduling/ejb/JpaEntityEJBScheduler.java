@@ -15,34 +15,28 @@
  */
 package com.harmony.umbrella.scheduling.ejb;
 
-import javax.annotation.Resource;
-import javax.ejb.Remote;
-import javax.ejb.Stateless;
-import javax.ejb.Timeout;
 import javax.ejb.Timer;
 import javax.ejb.TimerService;
 import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 
 import com.harmony.umbrella.core.BeanFactory;
 import com.harmony.umbrella.scheduling.AbstractEJBScheduler;
 import com.harmony.umbrella.scheduling.JobFactory;
-import com.harmony.umbrella.scheduling.Scheduler;
 import com.harmony.umbrella.scheduling.jpa.JpaJobFactory;
 
 /**
  * 
  * @author wuxii@foxmail.com
  */
-@Stateless
-@Remote(Scheduler.class)
 public class JpaEntityEJBScheduler extends AbstractEJBScheduler {
 
-    @Resource
-    private TimerService timerService;
-    @PersistenceContext
-    private EntityManager em;
-    private JpaJobFactory jobFactory;
+    private final TimerService timerService;
+    private JobFactory jobFactory;
+
+    public JpaEntityEJBScheduler(TimerService timerService, EntityManager em) {
+        this.timerService = timerService;
+        this.jobFactory = new JpaJobFactory(em);
+    }
 
     @Override
     protected TimerService getTimerService() {
@@ -50,16 +44,12 @@ public class JpaEntityEJBScheduler extends AbstractEJBScheduler {
     }
 
     @Override
-    @Timeout
     protected void monitorTask(Timer timer) {
         handle(timer);
     }
 
     @Override
     protected JobFactory getJobFactory() {
-        if (jobFactory == null) {
-            jobFactory = new JpaJobFactory(em);
-        }
         return jobFactory;
     }
 

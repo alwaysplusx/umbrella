@@ -15,17 +15,12 @@
  */
 package com.harmony.umbrella.scheduling.ejb;
 
-import javax.annotation.Resource;
-import javax.ejb.Remote;
-import javax.ejb.Stateless;
-import javax.ejb.Timeout;
 import javax.ejb.Timer;
 import javax.ejb.TimerService;
 
 import com.harmony.umbrella.core.BeanFactory;
 import com.harmony.umbrella.scheduling.AbstractEJBScheduler;
 import com.harmony.umbrella.scheduling.JobFactory;
-import com.harmony.umbrella.scheduling.Scheduler;
 import com.harmony.umbrella.scheduling.support.PropertiesFileJobFactory;
 
 /**
@@ -33,13 +28,15 @@ import com.harmony.umbrella.scheduling.support.PropertiesFileJobFactory;
  * 
  * @author wuxii@foxmail.com
  */
-@Stateless
-@Remote(Scheduler.class)
 public class PropertiesFileEJBScheduler extends AbstractEJBScheduler {
 
-    @Resource
-    private TimerService timerService;
-    private PropertiesFileJobFactory jobFactory = new PropertiesFileJobFactory();
+    private final TimerService timerService;
+    private JobFactory jobFactory;
+
+    public PropertiesFileEJBScheduler(TimerService timerService) {
+        this.timerService = timerService;
+        this.jobFactory = new PropertiesFileJobFactory();
+    }
 
     @Override
     protected TimerService getTimerService() {
@@ -47,7 +44,6 @@ public class PropertiesFileEJBScheduler extends AbstractEJBScheduler {
     }
 
     @Override
-    @Timeout
     protected void monitorTask(Timer timer) {
         handle(timer);
     }
@@ -58,7 +54,7 @@ public class PropertiesFileEJBScheduler extends AbstractEJBScheduler {
     }
 
     public void setBeanFactory(BeanFactory beanFactory) {
-        jobFactory.setBeanFactory(beanFactory);
+        ((PropertiesFileJobFactory) getJobFactory()).setBeanFactory(beanFactory);
     }
 
 }
