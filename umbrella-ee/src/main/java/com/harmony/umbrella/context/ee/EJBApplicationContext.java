@@ -201,7 +201,8 @@ public class EJBApplicationContext extends ApplicationContext implements EJBCont
 					if (sessionBean != null)
 						return sessionBean;
 				}
-			} else if (clazz.isInstance(bean)) {
+			} else if (clazz.isInstance(bean) || bd.getSuitableRemoteClass().isInstance(bean)) {
+				// TODO 如果是类，应该使用接口类去比较 interfaceClass.isInstance(bean);
 				return new SessionBean(root, bd, bean);
 			}
 		} catch (Exception e) {

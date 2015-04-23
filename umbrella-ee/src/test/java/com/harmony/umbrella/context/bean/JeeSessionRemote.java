@@ -5,4 +5,6 @@ import javax.ejb.Remote;
 @Remote
 public interface JeeSessionRemote {
 
+	String sayHi();
+
 }
