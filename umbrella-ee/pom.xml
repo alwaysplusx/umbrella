@@ -6,6 +6,7 @@
 		<artifactId>harmony-umbrella</artifactId>
 		<version>0.0.1</version>
 	</parent>
+	<name>Harmony Umbrella :: Module of JavaEE</name>
 	<artifactId>umbrella-ee</artifactId>
 	<dependencies>
 		<dependency>
@@ -17,6 +18,10 @@
 			<artifactId>javax.ejb-api</artifactId>
 			<scope>provided</scope>
 		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
-	<name>Harmony Umbrella :: Module of JavaEE</name>
 </project>

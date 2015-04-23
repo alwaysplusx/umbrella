@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2014 the original author or authors.
+ * Copyright 2013-2015 wuxii@foxmail.com.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,14 +20,31 @@ package com.harmony.umbrella.context.ee;
  */
 public class SessionBean {
 
-    private BeanDefinition sessionBeanDefinition;
+	protected final String jndi;
+	protected final BeanDefinition beanDefinition;
+	protected final Object bean;
 
-    public SessionBean(BeanDefinition sessionBeanDefinition) {
-        this.sessionBeanDefinition = sessionBeanDefinition;
-    }
+	public SessionBean(String jndi, BeanDefinition beanDefinition, Object bean) {
+		this.jndi = jndi;
+		this.beanDefinition = beanDefinition;
+		this.bean = bean;
+	}
 
-    public BeanDefinition getBeanDefinition() {
-        return sessionBeanDefinition;
-    }
+	public BeanDefinition getBeanDefinition() {
+		return beanDefinition;
+	}
+
+	public boolean isCacheable() {
+		return beanDefinition.isSessionBean();
+	}
+
+	@SuppressWarnings("unchecked")
+	public <T> T getCachedBean() {
+		return (T) bean;
+	}
+
+	public String getJndi() {
+		return jndi;
+	}
 
 }

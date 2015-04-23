@@ -13,21 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.umbrella.context.ee;
+package com.harmony.umbrella.context.ee.metadata;
+
+import com.harmony.umbrella.context.ee.BeanDefinition;
 
 /**
  * @author wuxii@foxmail.com
  */
-public interface JndiNameFormat {
+public class BeanDefinitionManager {
 
-	String PROP_KEY_BEAN = "jndi.format.bean";
-	String PROP_KEY_REMOTE = "jndi.format.remote";
-	String PROP_KEY_LOCAL = "jndi.format.local";
-
-	String SUFFIX_BEAN = "Bean";
-	String SUFFIX_REMOTE = "Remote";
-	String SUFFIX_LOCAL = "Local";
-
-	String format(BeanDefinition beanDefinition);
+	public static BeanDefinition getBeanDefinition(Class<?> beanClass) {
+		return new BeanDefinition(beanClass);
+	}
 
 }

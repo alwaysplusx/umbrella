@@ -13,21 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.umbrella.context.ee;
+package com.harmony.umbrella.util;
+
+import com.harmony.umbrella.context.spi.ApplicationContextProvider;
 
 /**
  * @author wuxii@foxmail.com
  */
-public interface JndiNameFormat {
-
-	String PROP_KEY_BEAN = "jndi.format.bean";
-	String PROP_KEY_REMOTE = "jndi.format.remote";
-	String PROP_KEY_LOCAL = "jndi.format.local";
-
-	String SUFFIX_BEAN = "Bean";
-	String SUFFIX_REMOTE = "Remote";
-	String SUFFIX_LOCAL = "Local";
-
-	String format(BeanDefinition beanDefinition);
+public interface App extends ApplicationContextProvider {
 
 }

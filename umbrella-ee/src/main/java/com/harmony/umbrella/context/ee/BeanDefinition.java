@@ -18,7 +18,9 @@ package com.harmony.umbrella.context.ee;
 import java.lang.annotation.Annotation;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.ejb.Local;
 import javax.ejb.Remote;
@@ -26,6 +28,7 @@ import javax.ejb.Singleton;
 import javax.ejb.Stateful;
 import javax.ejb.Stateless;
 
+import com.harmony.umbrella.util.ClassUtils;
 import com.harmony.umbrella.util.reflect.MethodUtils;
 
 /**
@@ -40,6 +43,10 @@ public class BeanDefinition {
 
 	public BeanDefinition(Class<?> beanClass) {
 		this.beanClass = beanClass;
+	}
+
+	public Class<?> getBeanClass() {
+		return beanClass;
 	}
 
 	public String getDescription() {
@@ -82,26 +89,56 @@ public class BeanDefinition {
 		return beanClass.isInterface() && beanClass.getAnnotation(Local.class) != null;
 	}
 
-	public Class<?>[] getRemoteClass() {
-		// Remote ann = beanClass.getAnnotation(Remote.class);
-		// if (ann.value().length == 0) {
-		// return new Class[] { beanClass };
-		// } else {
-		// return ann.value();
-		// }
-		return null;
+	public Class<?> getSuitableRemoteClass() {
+		Class<?>[] classes = getRemoteClass();
+		return classes.length > 0 ? classes[0] : null;
 	}
 
+	public Class<?> getSuitableLocalClass() {
+		Class<?>[] classes = getLocalClass();
+		return classes.length > 0 ? classes[0] : null;
+	}
+
+	@SuppressWarnings("rawtypes")
+	public Class<?>[] getRemoteClass() {
+		Set<Class> result = new HashSet<Class>();
+		Remote ann = beanClass.getAnnotation(Remote.class);
+		if (isRemoteClass()) {
+			result.add(beanClass);
+			Collections.addAll(result, ann.value());
+			return result.toArray(new Class[result.size()]);
+		}
+		for (Class clazz : ClassUtils.getAllInterfaces(beanClass)) {
+			if (isRemoteClass(clazz)) {
+				result.add(clazz);
+			}
+		}
+		return result.toArray(new Class[result.size()]);
+	}
+
+	@SuppressWarnings("rawtypes")
 	public Class<?>[] getLocalClass() {
-		return null;
+		Set<Class> result = new HashSet<Class>();
+		Local ann = beanClass.getAnnotation(Local.class);
+		if (isLocalClass()) {
+			result.add(beanClass);
+			Collections.addAll(result, ann.value());
+			return result.toArray(new Class[result.size()]);
+		}
+		for (Class clazz : ClassUtils.getAllInterfaces(beanClass)) {
+			if (isLocalClass(clazz)) {
+				result.add(clazz);
+			}
+		}
+		return result.toArray(new Class[result.size()]);
 	}
 
 	public boolean hasRemoteClass() {
-		return getRemoteClass() == null || getRemoteClass().length == 0;
+		return getRemoteClass() != null && getRemoteClass().length > 0;
 	}
 
 	public boolean hasLocalClass() {
-		return getLocalClass() == null || getLocalClass().length == 0;
+		return getLocalClass() != null && getLocalClass().length > 0;
 	}
 
 	public boolean isStateless() {
@@ -125,4 +162,13 @@ public class BeanDefinition {
 		}
 		return null;
 	}
+
+	public static boolean isRemoteClass(Class<?> clazz) {
+		return clazz.isInterface() && clazz.getAnnotation(Remote.class) != null;
+	}
+
+	public static boolean isLocalClass(Class<?> clazz) {
+		return clazz.isInterface() && clazz.getAnnotation(Local.class) != null;
+	}
+
 }

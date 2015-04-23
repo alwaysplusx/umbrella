@@ -15,6 +15,8 @@
  */
 package com.harmony.umbrella.context.ee;
 
+import static com.harmony.umbrella.context.ee.metadata.BeanDefinitionManager.*;
+
 import java.io.IOException;
 import java.net.URL;
 import java.util.Arrays;
@@ -35,11 +37,9 @@ import org.slf4j.LoggerFactory;
 
 import com.harmony.umbrella.context.ApplicationContext;
 import com.harmony.umbrella.context.ApplicationContextException;
-import com.harmony.umbrella.context.NameFormat;
 import com.harmony.umbrella.context.ee.jmx.EJBContext;
 import com.harmony.umbrella.context.ee.jmx.EJBContextMBean;
 import com.harmony.umbrella.core.NoSuchBeanFindException;
-import com.harmony.umbrella.util.Assert;
 import com.harmony.umbrella.util.ClassUtils;
 import com.harmony.umbrella.util.JmxManager;
 import com.harmony.umbrella.util.PropUtils;
@@ -56,6 +56,7 @@ public class EJBApplicationContext extends ApplicationContext implements EJBCont
 
 	private static final List<String> jndiPrefix = Collections.unmodifiableList(Arrays.asList("java:", ""));
 	private static final Logger log = LoggerFactory.getLogger(EJBApplicationContext.class);
+	private JndiNameFormat jndiFormat = new BeanJndiNameFormat();
 
 	/**
 	 * jndi文件地址
@@ -67,9 +68,8 @@ public class EJBApplicationContext extends ApplicationContext implements EJBCont
 	private final Properties jndiProperties = new Properties();
 
 	private JmxManager jmxManager = JmxManager.getInstance();
-	private NameFormat nameFormat = new JndiNameFormat();
 
-	private Map<Class<?>, Holder> classAndBeanMap = new HashMap<Class<?>, Holder>();
+	private Map<Class<?>, SessionBean> sessionBeanMap = new HashMap<Class<?>, SessionBean>();
 
 	private static EJBApplicationContext instance;
 
@@ -130,8 +130,8 @@ public class EJBApplicationContext extends ApplicationContext implements EJBCont
 	}
 
 	/**
-	 * 从JavaEE环境中获取指定类实例 <p> <li>首先根据类型将解析clazz对应的jndi名称 <li>如果解析的jndi名称为找到对应类型的bean则通过递归
-	 * {@linkplain javax.naming.Context}中的内容查找 <li>若以上方式均为找到则返回{@code null}
+	 * 从JavaEE环境中获取指定类实例 <p> <li>首先根据类型将解析clazz对应的jndi名称 <li>如果解析的jndi名称未找到对应类型的bean，
+	 * 则通过递归 {@linkplain javax.naming.Context}中的内容查找 <li>若以上方式均为找到则返回{@code null}
 	 * 
 	 * @param clazz
 	 *            待查找的类
@@ -141,45 +141,73 @@ public class EJBApplicationContext extends ApplicationContext implements EJBCont
 	 */
 	@SuppressWarnings("unchecked")
 	public <T> T lookup(Class<T> clazz) throws ApplicationContextException {
-		// BeanDefinition sbd = new BeanDefinition(clazz);
-		if (classAndBeanMap.containsKey(clazz)) {
-			Holder holder = classAndBeanMap.get(clazz);
-			// holder.bean = lookup(holder.jndiName);
-			try {
-				return (T) holder.bean;
-			} catch (ApplicationContextException e) {
-				classAndBeanMap.remove(clazz);
+		SessionBean sessionBean = sessionBeanMap.get(clazz);
+		if (sessionBean != null) {
+			// 已经将clazz解析过，明确clazz对应的一个jndi能找到指定类型的bean
+			if (sessionBean.isCacheable()) {
+				return sessionBean.getCachedBean();
+			} else {
+				return (T) lookup(sessionBean.getJndi());
 			}
 		}
+		BeanDefinition bd = getBeanDefinition(clazz);
 		try {
-			String jndiName = nameFormat.format(clazz);
-			Object object = lookup(jndiName);
-			classAndBeanMap.put(clazz, new Holder(jndiName, object));
-			return (T) object;
-		} catch (ApplicationContextException e) {
+			sessionBean = tryLookup(bd);
+		} catch (Exception e) {
 			for (String prefix : jndiPrefix) {
-				try {
-					Holder holder = iterator(getContext(), prefix, clazz);
-					if (holder != null) {
-						classAndBeanMap.put(clazz, holder);
-						return (T) holder.bean;
-					}
-				} catch (Exception e1) {
-					log.error("", e1);
+				sessionBean = iterator(getContext(), prefix, bd);
+				if (sessionBean != null) {
+					break;
 				}
 			}
 		}
-		throw new ApplicationContextException("can't lookup class[" + clazz.getName() + "] ejb bean");
+		if (sessionBean != null) {
+			sessionBeanMap.put(clazz, sessionBean);
+			return sessionBean.getCachedBean();
+		}
+		return null;
 	}
 
-	@SuppressWarnings("unused")
-	private void addSessionBeanDefinition(Class<?> clazz, Object bean) {
-
+	private SessionBean tryLookup(BeanDefinition bd) throws Exception {
+		String jndi = jndiFormat.format(bd);
+		Object bean = getContext().lookup(jndi);
+		if (bean != null) {
+			bean = bd.getBeanClass().cast(bean);
+		}
+		return new SessionBean(jndi, bd, bean);
 	}
 
-	@SuppressWarnings("unused")
-	private void removeSessionBeanDefinition(Class<?> clazz) {
-
+	/**
+	 * 遍历{@linkplain Context}来查找指定类型的bean
+	 * 
+	 * @param context
+	 *            JavaEE环境上下文
+	 * @param root
+	 *            context的根节点
+	 * @param clazz
+	 *            指定需要的类型
+	 * @return 如果为找到返回{@code null}
+	 */
+	private SessionBean iterator(Context context, String root, BeanDefinition bd) {
+		Class<?> clazz = bd.getBeanClass();
+		try {
+			Object bean = context.lookup(root);
+			if (bean instanceof Context) {
+				NamingEnumeration<NameClassPair> ne = ((Context) bean).list("");
+				while (ne.hasMore()) {
+					NameClassPair nameClassPair = ne.next();
+					String jndi = root + ("".equals(root) ? "" : "/") + nameClassPair.getName();
+					SessionBean sessionBean = iterator(context, jndi, bd);
+					if (sessionBean != null)
+						return sessionBean;
+				}
+			} else if (clazz.isInstance(bean)) {
+				return new SessionBean(root, bd, bean);
+			}
+		} catch (Exception e) {
+			log.debug("", e);
+		}
+		return null;
 	}
 
 	/**
@@ -195,11 +223,6 @@ public class EJBApplicationContext extends ApplicationContext implements EJBCont
 		} catch (NamingException e) {
 			throw new ApplicationContextException(e.getMessage(), e.getCause());
 		}
-	}
-
-	public void setNameFormat(NameFormat nameFormat) {
-		Assert.notNull(nameFormat, "can't set name format to null");
-		this.nameFormat = nameFormat;
 	}
 
 	/**
@@ -259,80 +282,53 @@ public class EJBApplicationContext extends ApplicationContext implements EJBCont
 		this.cleanProperties();
 	}
 
-	/**
-	 * 遍历{@linkplain Context}来查找指定类型的bean
-	 * 
-	 * @param context
-	 *            JavaEE环境上下文
-	 * @param root
-	 *            context的根节点
-	 * @param clazz
-	 *            指定需要的类型
-	 * @return 如果为找到返回{@code null}
-	 */
-	private Holder iterator(Context context, String root, Class<?> clazz) {
-		try {
-			Object obj = context.lookup(root);
-			if (obj instanceof Context) {
-				NamingEnumeration<NameClassPair> ne = ((Context) obj).list("");
-				while (ne.hasMore()) {
-					NameClassPair nameClassPair = ne.next();
-					String jndi = root + ("".equals(root) ? "" : "/") + nameClassPair.getName();
-					Holder holder = iterator(context, jndi, clazz);
-					if (holder != null)
-						return holder;
-				}
-			} else if (clazz.isInstance(obj)) {
-				return new Holder(root, obj);
-			}
-		} catch (Exception e) {
-			log.debug("", e);
-		}
-		return null;
-	}
-
 	// ###################
+	@SuppressWarnings("unchecked")
 	@Override
 	public <T> T getBean(String beanName) throws NoSuchBeanFindException {
-		return null;
+		Object bean = null;
+		try {
+			bean = lookup(beanName);
+		} catch (ApplicationContextException e) {
+			try {
+				bean = getBean(Class.forName(beanName));
+			} catch (Exception e1) {
+			}
+		}
+		if (bean == null) {
+			throw new NoSuchBeanFindException(beanName + " not find!");
+		}
+		return (T) bean;
 	}
 
 	@Override
 	public <T> T getBean(String beanName, String scope) throws NoSuchBeanFindException {
-		return null;
+		return getBean(beanName);
 	}
 
 	@Override
 	public <T> T getBean(Class<T> beanClass) throws NoSuchBeanFindException {
-		return null;
+		T bean = null;
+		try {
+			bean = lookup(beanClass);
+		} catch (ApplicationContextException e) {
+			throw new NoSuchBeanFindException(beanClass + " not find!", e);
+		}
+		return bean;
 	}
 
 	@Override
 	public <T> T getBean(Class<T> beanClass, String scope) throws NoSuchBeanFindException {
-		return null;
+		return getBean(beanClass);
 	}
 
 	@Override
 	public boolean exixts(Class<?> clazz) {
-		return false;
+		return getBean(clazz) != null;
 	}
 
-	// ###################
-
-	private class Holder {
-
-		private final String jndiName;
-		private final Object bean;
-
-		public Holder(String jndiName, Object bean) {
-			this.jndiName = jndiName;
-			this.bean = bean;
-		}
-
-		@Override
-		public String toString() {
-			return "{\"jndiName\":\"" + jndiName + "\", \"bean\":\"" + bean + "\"}";
-		}
-
+	protected SessionBean createSessionBean(String jndiName, BeanDefinition bd, Object cacheObject) {
+		return new SessionBean(jndiName, bd, cacheObject);
 	}
+
 }

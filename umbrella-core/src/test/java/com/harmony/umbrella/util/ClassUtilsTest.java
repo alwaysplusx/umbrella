@@ -13,21 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.umbrella.context.ee;
+package com.harmony.umbrella.util;
+
+import java.io.Serializable;
+
+import org.junit.Test;
+
+import com.harmony.umbrella.context.ApplicationContext;
+import com.harmony.umbrella.core.SimpleBeanFactory;
 
 /**
  * @author wuxii@foxmail.com
  */
-public interface JndiNameFormat {
+public class ClassUtilsTest extends SimpleBeanFactory implements Serializable, App {
 
-	String PROP_KEY_BEAN = "jndi.format.bean";
-	String PROP_KEY_REMOTE = "jndi.format.remote";
-	String PROP_KEY_LOCAL = "jndi.format.local";
+	private static final long serialVersionUID = 3038745586834292178L;
 
-	String SUFFIX_BEAN = "Bean";
-	String SUFFIX_REMOTE = "Remote";
-	String SUFFIX_LOCAL = "Local";
+	@Test
+	public void test() {
+		for (Class<?> claz : ClassUtils.getAllInterfaces(getClass())) {
+			System.out.println(claz);
+		}
+	}
 
-	String format(BeanDefinition beanDefinition);
+	@Override
+	public ApplicationContext createApplicationContext() {
+		return null;
+	}
 
 }
