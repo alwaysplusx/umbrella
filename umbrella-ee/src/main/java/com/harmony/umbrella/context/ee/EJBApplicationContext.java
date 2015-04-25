@@ -81,6 +81,8 @@ public class EJBApplicationContext extends ApplicationContext implements EJBCont
 
 	private static EJBApplicationContext instance;
 
+	private int status = CREATE;
+
 	private EJBApplicationContext() {
 		this.jndiPropertiesFileLocation = PropUtils.getSystemProperty("jndi.properties.file", JNDI_PROPERTIES_FILE_LOCATION);
 		this.loadProperties();
@@ -105,10 +107,13 @@ public class EJBApplicationContext extends ApplicationContext implements EJBCont
 	 * @see com.harmony.umbrella.context.ApplicationContext#init()
 	 */
 	public void init() {
-		if (jmxManager.isRegistered(EJBContext.class)) {
-			jmxManager.unregisterMBean(EJBContext.class);
+		if (CREATE == status) {
+			if (jmxManager.isRegistered(EJBContext.class)) {
+				jmxManager.unregisterMBean(EJBContext.class);
+			}
+			jmxManager.registerMBean(new EJBContext(this));
+			this.status = INITIALIZED;
 		}
-		jmxManager.registerMBean(new EJBContext(this));
 	}
 
 	/**
@@ -265,8 +270,11 @@ public class EJBApplicationContext extends ApplicationContext implements EJBCont
 	}
 
 	public void destory() {
-		jmxManager.unregisterMBean(EJBContext.class);
-		this.cleanProperties();
+		if (INITIALIZED == status) {
+			jmxManager.unregisterMBean(EJBContext.class);
+			this.cleanProperties();
+			status = DESTROY;
+		}
 	}
 
 	public void setBeanContextResolver(BeanContextResolver beanContextResolver) {

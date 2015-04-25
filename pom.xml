@@ -117,6 +117,11 @@
 				<artifactId>umbrella-validator</artifactId>
 				<version>${project.version}</version>
 			</dependency>
+			<dependency>
+				<groupId>com.harmony.umbrella</groupId>
+				<artifactId>umbrella-ee</artifactId>
+				<version>${project.version}</version>
+			</dependency>			
 			<!-- umbrella END -->
 
 			<!-- slf4j START -->

@@ -20,6 +20,7 @@
 		<module>example-jaxws</module>
 		<module>example-ear</module>
 		<module>example-data</module>
+		<module>example-ee</module>
 	</modules>
 	<name>Harmony Example  :: Example Parent</name>
 </project>

@@ -41,6 +41,10 @@ public abstract class ApplicationContext implements BeanFactory {
 	private static ServerInformation serverInfo;
 	private static DBInformation dbInfo;
 
+	protected static final int CREATE = 1;
+	protected static final int INITIALIZED = 2;
+	protected static final int DESTROY = 3;
+
 	/**
 	 * 初始化应用上下文
 	 */
