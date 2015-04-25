@@ -13,17 +13,39 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.umbrella.context.ee.metadata;
+package com.harmony.umbrella.context.ee;
 
-import com.harmony.umbrella.context.ee.BeanDefinition;
+import javax.ejb.embeddable.EJBContainer;
+import javax.naming.Context;
+
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 /**
  * @author wuxii@foxmail.com
  */
-public class BeanDefinitionManager {
+public class ContextReaderTest {
 
-	public static BeanDefinition getBeanDefinition(Class<?> beanClass) {
-		return new BeanDefinition(beanClass);
+	private static EJBContainer container;
+
+	@BeforeClass
+	public static void setUp() {
+		container = EJBContainer.createEJBContainer();
+	}
+
+	@Test
+	public void test() {
+		new ContextReader(container.getContext()).accept(new ContextVisitor() {
+			@Override
+			public void visitContext(Context context, String jndi) {
+			}
+
+			@Override
+			public void visitBean(Object bean, String jndi) {
+				System.err.println(">> " + jndi);
+			}
+
+		}, "java:");
 	}
 
 }

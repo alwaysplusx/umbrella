@@ -18,33 +18,12 @@ package com.harmony.umbrella.context.ee;
 /**
  * @author wuxii@foxmail.com
  */
-public class SessionBean {
+public interface SessionBean {
 
-	protected final String jndi;
-	protected final BeanDefinition beanDefinition;
-	protected final Object bean;
+	Object getBean();
 
-	public SessionBean(String jndi, BeanDefinition beanDefinition, Object bean) {
-		this.jndi = jndi;
-		this.beanDefinition = beanDefinition;
-		this.bean = bean;
-	}
+	String getJndi();
 
-	public BeanDefinition getBeanDefinition() {
-		return beanDefinition;
-	}
-
-	public boolean isCacheable() {
-		return beanDefinition.isSessionBean();
-	}
-
-	@SuppressWarnings("unchecked")
-	public <T> T getCachedBean() {
-		return (T) bean;
-	}
-
-	public String getJndi() {
-		return jndi;
-	}
+	boolean isCacheable();
 
 }

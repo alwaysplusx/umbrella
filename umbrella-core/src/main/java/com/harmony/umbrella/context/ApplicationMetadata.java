@@ -24,6 +24,8 @@ import java.sql.SQLException;
 import javax.servlet.ServletContext;
 
 /**
+ * 应用的元信息
+ * 
  * @author wuxii@foxmail.com
  */
 class ApplicationMetadata {

@@ -41,10 +41,21 @@ public abstract class ApplicationContext implements BeanFactory {
 	private static ServerInformation serverInfo;
 	private static DBInformation dbInfo;
 
+	/**
+	 * 初始化应用上下文
+	 */
 	public abstract void init();
 
+	/**
+	 * 销毁应用上下文
+	 */
 	public abstract void destory();
 
+	/**
+	 * 获取当前应用的应用上下文
+	 * 
+	 * @return 应用上下文
+	 */
 	public static final ApplicationContext getApplicationContext() {
 		ApplicationContext context = null;
 		providers.reload();
@@ -61,29 +72,68 @@ public abstract class ApplicationContext implements BeanFactory {
 		return context;
 	}
 
+	/**
+	 * 获取应用的jvm信息
+	 * 
+	 * @return jvm信息
+	 */
 	public JVMInformation getInforamtionOfJVM() {
 		return ApplicationMetadata.jvmInfo;
 	}
 
+	/**
+	 * 获取应用的服务信息
+	 * 
+	 * @return web服务器信息， 如果未初始化泽返回{@code null}
+	 */
 	public ServerInformation getInformationOfServer() {
 		return serverInfo;
 	}
 
+	/**
+	 * 获取应用的操作系统信息
+	 * 
+	 * @return 操作系统的信息
+	 */
+	public OSInformation getInformationOfOS() {
+		return ApplicationMetadata.osInfo;
+	}
+
+	/**
+	 * 获取应用的数据库信息
+	 * 
+	 * @return 数据库信息, 未初始化返回{@code null}
+	 */
 	public DBInformation getInformationOfDB() {
 		return dbInfo;
 	}
 
+	/**
+	 * 注册应用的web服务信息 <p> 一经注册就不在更改
+	 * 
+	 * @param servletContext
+	 *            web上下文
+	 */
 	public void initializeServerInformation(ServletContext servletContext) {
 		if (serverInfo == null) {
 			serverInfo = ApplicationMetadata.INSTANCE.new ServerInformation(servletContext);
 		}
 	}
 
-	public void initializeDBInformation(Connection conn, boolean close) {
+	/**
+	 * 初始化应用的数据源信息<p>一经初始化就不在更改
+	 * 
+	 * @param conn
+	 *            数据源的一个连接
+	 * @param close
+	 *            标识是否自动关闭数据源
+	 * @throws SQLException
+	 *             获取数据源信息失败
+	 */
+	public void initializeDBInformation(Connection conn, boolean close) throws SQLException {
 		if (dbInfo == null) {
 			try {
 				dbInfo = ApplicationMetadata.INSTANCE.new DBInformation(conn);
-			} catch (SQLException e) {
 			} finally {
 				if (close) {
 					try {
@@ -93,10 +143,6 @@ public abstract class ApplicationContext implements BeanFactory {
 				}
 			}
 		}
-	}
-
-	public OSInformation getInformationOfOS() {
-		return ApplicationMetadata.osInfo;
 	}
 
 }

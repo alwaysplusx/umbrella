@@ -29,6 +29,7 @@ import javax.ejb.Stateful;
 import javax.ejb.Stateless;
 
 import com.harmony.umbrella.util.ClassUtils;
+import com.harmony.umbrella.util.StringUtils;
 import com.harmony.umbrella.util.reflect.MethodUtils;
 
 /**
@@ -40,9 +41,16 @@ public class BeanDefinition {
 	private static final List<Class<? extends Annotation>> sessionClass = Collections.unmodifiableList(Arrays.asList(Stateless.class, Stateful.class, Singleton.class));
 
 	private final Class<?> beanClass;
+	private String mappedName;
 
 	public BeanDefinition(Class<?> beanClass) {
 		this.beanClass = beanClass;
+		this.mappedName = getMappedName(beanClass);
+	}
+
+	public BeanDefinition(Class<?> beanClass, String mappedName) {
+		this.beanClass = beanClass;
+		this.mappedName = StringUtils.isEmpty(mappedName) ? getMappedName(beanClass) : mappedName;
 	}
 
 	public Class<?> getBeanClass() {
@@ -50,7 +58,7 @@ public class BeanDefinition {
 	}
 
 	public String getDescription() {
-		Annotation ann = getSessionBeanAnnotation();
+		Annotation ann = getSessionBeanAnnotation(beanClass);
 		if (ann != null) {
 			return (String) MethodUtils.invokeMethod("description", ann);
 		}
@@ -58,7 +66,7 @@ public class BeanDefinition {
 	}
 
 	public String getName() {
-		Annotation ann = getSessionBeanAnnotation();
+		Annotation ann = getSessionBeanAnnotation(beanClass);
 		if (ann != null) {
 			return (String) MethodUtils.invokeMethod("name", ann);
 		}
@@ -70,15 +78,11 @@ public class BeanDefinition {
 	 * @return
 	 */
 	public boolean isSessionBean() {
-		return getSessionBeanAnnotation() != null;
+		return getSessionBeanAnnotation(beanClass) != null;
 	}
 
 	public String getMappedName() {
-		Annotation ann = getSessionBeanAnnotation();
-		if (ann != null) {
-			return (String) MethodUtils.invokeMethod("mappedName", ann);
-		}
-		return null;
+		return mappedName;
 	}
 
 	public boolean isRemoteClass() {
@@ -153,14 +157,35 @@ public class BeanDefinition {
 		return beanClass.getAnnotation(Singleton.class) != null;
 	}
 
-	private Annotation getSessionBeanAnnotation() {
-		for (Class<? extends Annotation> clazz : sessionClass) {
-			Annotation ann = beanClass.getAnnotation(clazz);
-			if (ann != null) {
-				return ann;
-			}
-		}
-		return null;
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((beanClass == null) ? 0 : beanClass.hashCode());
+		result = prime * result + ((mappedName == null) ? 0 : mappedName.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		BeanDefinition other = (BeanDefinition) obj;
+		if (beanClass == null) {
+			if (other.beanClass != null)
+				return false;
+		} else if (!beanClass.equals(other.beanClass))
+			return false;
+		if (mappedName == null) {
+			if (other.mappedName != null)
+				return false;
+		} else if (!mappedName.equals(other.mappedName))
+			return false;
+		return true;
 	}
 
 	public static boolean isRemoteClass(Class<?> clazz) {
@@ -169,6 +194,24 @@ public class BeanDefinition {
 
 	public static boolean isLocalClass(Class<?> clazz) {
 		return clazz.isInterface() && clazz.getAnnotation(Local.class) != null;
+	}
+
+	public static final String getMappedName(Class<?> clazz) {
+		Annotation ann = getSessionBeanAnnotation(clazz);
+		if (ann != null) {
+			return (String) MethodUtils.invokeMethod("mappedName", ann);
+		}
+		return null;
+	}
+
+	private static Annotation getSessionBeanAnnotation(Class<?> clazz) {
+		for (Class<? extends Annotation> sc : sessionClass) {
+			Annotation ann = clazz.getAnnotation(sc);
+			if (ann != null) {
+				return ann;
+			}
+		}
+		return null;
 	}
 
 }

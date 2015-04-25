@@ -18,10 +18,17 @@ package com.harmony.umbrella.context.spi;
 import com.harmony.umbrella.context.ApplicationContext;
 
 /**
+ * 应用上下文的provider. 让应用可以在使用时候选择创建何种的应用环境
+ * 
  * @author wuxii@foxmail.com
  */
 public interface ApplicationContextProvider {
 
-    ApplicationContext createApplicationContext();
+	/**
+	 * 创建应用上下文
+	 * 
+	 * @return 应用上下文
+	 */
+	ApplicationContext createApplicationContext();
 
 }

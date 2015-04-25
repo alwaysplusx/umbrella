@@ -15,29 +15,19 @@
  */
 package com.harmony.umbrella.context.ee;
 
-import static org.junit.Assert.*;
-
-import org.junit.Test;
-
-import com.harmony.umbrella.context.bean.JeeSessionBean;
-import com.harmony.umbrella.context.bean.JeeSessionRemote;
-
 /**
  * @author wuxii@foxmail.com
  */
-public class BeanDefinitionTest {
+public interface BeanContextResolver {
 
-	@Test
-	public void testCreateBeanDefinition() {
-		BeanDefinition bd = new BeanDefinition(JeeSessionBean.class);
-		assertEquals("JeeBean", bd.getName());
-		assertEquals("JeeSessionBean", bd.getMappedName());
-		assertEquals("java environment bean", bd.getDescription());
-		assertTrue(bd.isSessionBean());
-		assertTrue(bd.hasRemoteClass());
-		assertFalse(bd.hasLocalClass());
-		assertTrue(bd.isStateless());
-		assertEquals(JeeSessionRemote.class, bd.getRemoteClass()[0]);
-	}
+	String BEAN_JNDI_SEPARATOR = "#";
+
+	String SUFFIX_BEAN = "Bean";
+	String SUFFIX_REMOTE = "Remote";
+	String SUFFIX_LOCAL = "Local";
+
+	String resolveBeanName(BeanDefinition beanDefinition);
+
+	boolean isDeclareBean(BeanDefinition declaer, Object bean);
 
 }

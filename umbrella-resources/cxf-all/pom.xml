@@ -6,6 +6,7 @@
 		<artifactId>umbrella-resources</artifactId>
 		<version>0.0.1</version>
 	</parent>
+	<name>Harmony Resource :: CXF JaxWs JAR bundle</name>
 	<artifactId>cxf-all</artifactId>
 	<dependencies>
 		<dependency>
@@ -30,14 +31,14 @@
 							<goal>shade</goal>
 						</goals>
 						<configuration>
-							<filters>
+							<!-- <filters>
 								<filter>
 									<artifact>wsdl4j:wsdl4j</artifact>
 									<excludes>
 										<exclude>javax/wsdl/**</exclude>
 									</excludes>
 								</filter>
-							</filters>
+							</filters> -->
 							<createSourcesJar>true</createSourcesJar>
 						</configuration>
 					</execution>
@@ -45,5 +46,4 @@
 			</plugin>
 		</plugins>
 	</build>
-	<name>Harmony Resource :: CXF JaxWs JAR bundle</name>
 </project>
