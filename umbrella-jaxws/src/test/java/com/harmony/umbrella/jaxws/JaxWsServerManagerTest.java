@@ -19,7 +19,6 @@ import static org.junit.Assert.*;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Test;
 
 /**
  * @author wuxii@foxmail.com
@@ -28,18 +27,26 @@ public class JaxWsServerManagerTest {
 
     @Before
     public void setUp() {
+    	// 发布服务在地址 http://localhost:8080/hi上
         JaxWsServerManager.getInstance().publish(HelloServiceImpl.class, "http://localhost:8080/hi");
     }
 
-    @Test
-    public void testPublishClassOfQString() {
-        String result = JaxWsProxyBuilder.newProxyBuilder().build(HelloService.class, "http://localhost:8080/hi").sayHi("wuxii");
+    public void testAccessServer() {
+        HelloService service = JaxWsProxyBuilder
+                                  .newProxyBuilder() // 新建一个代理建造工具
+                                  .build(HelloService.class, "http://localhost:8080/hi");// 新建代理服务并连接到服务地址http://localhost:8080/hi
+        String result = service.sayHi("wuxii");// 调用服务方法
         assertEquals("Hi wuxii", result);
     }
 
     @After
     public void tearDown() {
+    	// 关闭所有服务
         JaxWsServerManager.getInstance().destoryAll();
     }
+    
+    public static void main(String[] args) {
+    	JaxWsServerManager.getInstance().publish(HelloServiceImpl.class, "http://localhost:8080/hi");
+	}
 
 }

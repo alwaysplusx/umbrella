@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2014 the original author or authors.
+ * Copyright 2013-2015 wuxii@foxmail.com.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,35 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.umbrella.message;
+package com.harmony.umbrella.message.tcp;
+
+import com.harmony.umbrella.message.Message;
+import com.harmony.umbrella.message.MessageSender;
 
 /**
- * 消息中心
- * 
- * @author wuxii
+ * @author wuxii@foxmail.com
  */
-public interface MessageCenter {
+public abstract class TcpMessageSender implements MessageSender {
 
-    /**
-     * 将{@linkplain MessageSender}发送出来的消息处理给{@linkplain MessageListener}
-     * 
-     * @param message
-     * @return
-     */
-    boolean handle(Message message);
+	protected final String address;
 
-    /**
-     * 队列的消息中心
-     * 
-     * @return
-     */
-    boolean isQueue();
+	public TcpMessageSender(String address) {
+		this.address = address;
+	}
 
-    /**
-     * 广播的消息中心
-     * 
-     * @return
-     */
-    boolean isTopic();
+	@Override
+	public boolean send(Message message) {
+		return false;
+	}
+
+	public boolean keepAlive() {
+		return true;
+	}
 
 }
