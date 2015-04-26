@@ -13,13 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.umbrella.util;
+package com.harmony.umbrella.context;
 
-import com.harmony.umbrella.context.spi.ApplicationContextProvider;
+import static org.junit.Assert.*;
+
+import org.junit.Test;
 
 /**
  * @author wuxii@foxmail.com
  */
-public interface App extends ApplicationContextProvider {
+public class ApplicationContextTest {
+
+	@Test
+	public void test() {
+		ApplicationContext context = ApplicationContext.getApplicationContext();
+		assertNotNull(context);
+		System.out.println(context.getDescription());
+	}
 
 }

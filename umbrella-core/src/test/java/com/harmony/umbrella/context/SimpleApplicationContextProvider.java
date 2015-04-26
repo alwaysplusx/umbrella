@@ -13,32 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.umbrella.util;
+package com.harmony.umbrella.context;
 
-import java.io.Serializable;
-
-import org.junit.Test;
-
-import com.harmony.umbrella.context.ApplicationContext;
-import com.harmony.umbrella.core.SimpleBeanFactory;
+import com.harmony.umbrella.context.spi.ApplicationContextProvider;
 
 /**
  * @author wuxii@foxmail.com
  */
-public class ClassUtilsTest extends SimpleBeanFactory implements Serializable, App {
-
-	private static final long serialVersionUID = 3038745586834292178L;
-
-	@Test
-	public void test() {
-		for (Class<?> claz : ClassUtils.getAllInterfaces(getClass())) {
-			System.out.println(claz);
-		}
-	}
+public class SimpleApplicationContextProvider implements ApplicationContextProvider {
 
 	@Override
 	public ApplicationContext createApplicationContext() {
-		return null;
+		return new SimpleApplicationContext();
 	}
 
 }

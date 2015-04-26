@@ -88,7 +88,7 @@ public abstract class ApplicationContext implements BeanFactory {
 			try {
 				context = provider.createApplicationContext();
 				if (context != null) {
-					LOG.info("use application context as {}", context);
+					LOG.info("create context [{}] by [{}]", context, provider);
 					break;
 				}
 			} catch (Exception e) {
@@ -174,6 +174,19 @@ public abstract class ApplicationContext implements BeanFactory {
 				}
 			}
 		}
+	}
+
+	public String getDescription() {
+		StringBuilder desc = new StringBuilder();
+		desc.append("#############################\n")
+			.append("# application context        \n")
+			.append("#############################\n")
+			.append("# jvm inforamtion            \n")
+			.append(getInforamtionOfJVM()).append("\n")
+			.append("#############################\n")
+			.append("# os information             \n")
+			.append(getInformationOfOS()).append("\n");
+		return desc.toString();
 	}
 
 }
