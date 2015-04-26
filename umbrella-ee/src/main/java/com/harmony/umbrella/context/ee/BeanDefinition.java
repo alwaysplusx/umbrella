@@ -33,6 +33,9 @@ import com.harmony.umbrella.util.StringUtils;
 import com.harmony.umbrella.util.reflect.MethodUtils;
 
 /**
+ * javaEE {@linkplain Stateless}, {@linkplain Stateful}, {@linkplain Singleton}
+ * 为sessionBean<p> 将标记了这些注解的bean的基础信息定义为{@linkplain BeanDefinition}
+ * 
  * @author wuxii@foxmail.com
  */
 public class BeanDefinition {
@@ -53,10 +56,18 @@ public class BeanDefinition {
 		this.mappedName = StringUtils.isEmpty(mappedName) ? getMappedName(beanClass) : mappedName;
 	}
 
+	/**
+	 * bean 类型
+	 * 
+	 * @return 被描述的类
+	 */
 	public Class<?> getBeanClass() {
 		return beanClass;
 	}
 
+	/**
+	 * @see Stateless#description()
+	 */
 	public String getDescription() {
 		Annotation ann = getSessionBeanAnnotation(beanClass);
 		if (ann != null) {
@@ -65,6 +76,9 @@ public class BeanDefinition {
 		return null;
 	}
 
+	/**
+	 * @see Stateless#name()
+	 */
 	public String getName() {
 		Annotation ann = getSessionBeanAnnotation(beanClass);
 		if (ann != null) {
@@ -74,35 +88,53 @@ public class BeanDefinition {
 	}
 
 	/**
-	 * 
-	 * @return
+	 * 注有{@linkplain Stateless}, {@linkplain Stateful}, {@linkplain Singleton}
+	 * 三类注解中的一个则为sessionBean
 	 */
 	public boolean isSessionBean() {
 		return getSessionBeanAnnotation(beanClass) != null;
 	}
 
+	/**
+	 * @see Stateless#mappedName()
+	 */
 	public String getMappedName() {
 		return mappedName;
 	}
 
+	/**
+	 * 是接口并标记了{@linkplain Remote}注解
+	 */
 	public boolean isRemoteClass() {
 		return beanClass.isInterface() && beanClass.getAnnotation(Remote.class) != null;
 	}
 
+	/**
+	 * 是接口并标记了{@linkplain Local}注解
+	 */
 	public boolean isLocalClass() {
 		return beanClass.isInterface() && beanClass.getAnnotation(Local.class) != null;
 	}
 
+	/**
+	 * 从所有RemoteClass中获取一个最合适的
+	 */
 	public Class<?> getSuitableRemoteClass() {
 		Class<?>[] classes = getRemoteClass();
 		return classes.length > 0 ? classes[0] : null;
 	}
 
+	/**
+	 * 从所有LocalClass中获取一个最合适的
+	 */
 	public Class<?> getSuitableLocalClass() {
 		Class<?>[] classes = getLocalClass();
 		return classes.length > 0 ? classes[0] : null;
 	}
 
+	/**
+	 * 获取sessionBean中所有的remote class
+	 */
 	@SuppressWarnings("rawtypes")
 	public Class<?>[] getRemoteClass() {
 		Set<Class> result = new HashSet<Class>();
@@ -120,6 +152,9 @@ public class BeanDefinition {
 		return result.toArray(new Class[result.size()]);
 	}
 
+	/**
+	 * 获取sessionBean中所有的local class
+	 */
 	@SuppressWarnings("rawtypes")
 	public Class<?>[] getLocalClass() {
 		Set<Class> result = new HashSet<Class>();
@@ -137,22 +172,39 @@ public class BeanDefinition {
 		return result.toArray(new Class[result.size()]);
 	}
 
+	/**
+	 * session Bean 是否存在{@linkplain Remote}注解的类,或其实现的接口中
+	 */
 	public boolean hasRemoteClass() {
 		return getRemoteClass() != null && getRemoteClass().length > 0;
 	}
 
+	/**
+	 * session Bean 是否存在{@linkplain Local}注解的类,或其实现的接口中
+	 */
 	public boolean hasLocalClass() {
 		return getLocalClass() != null && getLocalClass().length > 0;
 	}
 
+	/**
+	 * 标记了{@linkplain Stateless}
+	 */
 	public boolean isStateless() {
 		return beanClass.getAnnotation(Stateless.class) != null;
 	}
 
+	/**
+	 * 标记了{@linkplain Stateful}
+	 * 
+	 */
 	public boolean isStateful() {
 		return beanClass.getAnnotation(Stateful.class) != null;
 	}
 
+	/**
+	 * 标记了{@linkplain Singleton}
+	 * 
+	 */
 	public boolean isSingleton() {
 		return beanClass.getAnnotation(Singleton.class) != null;
 	}

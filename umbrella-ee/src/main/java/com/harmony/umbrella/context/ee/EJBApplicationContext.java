@@ -38,6 +38,8 @@ import com.harmony.umbrella.util.JmxManager;
 import com.harmony.umbrella.util.PropUtils;
 
 /**
+ * JavaEE的应用上下文实现
+ * 
  * @author wuxii@foxmail.com
  */
 public class EJBApplicationContext extends ApplicationContext implements EJBContextMBean {
@@ -388,8 +390,8 @@ public class EJBApplicationContext extends ApplicationContext implements EJBCont
 	 * JMX method
 	 */
 	@Override
-	public boolean exixts(Class<?> clazz) {
-		return getBean(clazz) != null;
+	public boolean exixts(String className) {
+		return getBean(className) != null;
 	}
 
 	private class SessionBeanImpl implements SessionBean {

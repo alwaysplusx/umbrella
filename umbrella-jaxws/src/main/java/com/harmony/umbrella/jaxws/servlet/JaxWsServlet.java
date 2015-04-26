@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
 
 import com.harmony.umbrella.core.BeanFactory;
 import com.harmony.umbrella.core.ClassFilter;
+import com.harmony.umbrella.core.SimpleBeanFactory;
 import com.harmony.umbrella.io.utils.ResourceScaner;
 import com.harmony.umbrella.jaxws.JaxWsServerManager;
 
@@ -43,7 +44,7 @@ public class JaxWsServlet extends CXFNonSpringServlet {
 	private static final Logger log = LoggerFactory.getLogger(JaxWsServlet.class);
 	private JaxWsServerManager jaxWsManager = JaxWsServerManager.getInstance();
 	private ResourceScaner scaner = ResourceScaner.getInstance();
-	private BeanFactory beanFactory;
+	private BeanFactory beanFactory = new SimpleBeanFactory();
 
 	@Override
 	public void init(ServletConfig sc) throws ServletException {
@@ -105,10 +106,6 @@ public class JaxWsServlet extends CXFNonSpringServlet {
 
 	protected String getScanPackage(ServletConfig sc) {
 		return sc.getInitParameter(SCAN_PACKAGE) == null ? "com.harmony" : sc.getInitParameter(SCAN_PACKAGE);
-	}
-
-	public BeanFactory getBeanFactory() {
-		return beanFactory;
 	}
 
 	public void setBeanLoader(BeanFactory beanFactory) {

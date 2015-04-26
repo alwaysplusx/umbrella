@@ -32,17 +32,36 @@ import com.harmony.umbrella.context.spi.ApplicationContextProvider;
 import com.harmony.umbrella.core.BeanFactory;
 
 /**
+ * 运行的应用的上下文
+ * 
  * @author wuxii@foxmail.com
  */
 public abstract class ApplicationContext implements BeanFactory {
 
 	protected static final Logger LOG = LoggerFactory.getLogger(ApplicationContext.class);
+
 	private static final ServiceLoader<ApplicationContextProvider> providers = ServiceLoader.load(ApplicationContextProvider.class);
+
+	/**
+	 * 运行的web服务信息，未初始化则为null
+	 */
 	private static ServerInformation serverInfo;
+	/**
+	 * 所连接的数据库信息
+	 */
 	private static DBInformation dbInfo;
 
+	/**
+	 * 应用上下文状态：新建
+	 */
 	protected static final int CREATE = 1;
+	/**
+	 * 应用上下文状态：以初始化
+	 */
 	protected static final int INITIALIZED = 2;
+	/**
+	 * 应用上下文状态：销毁
+	 */
 	protected static final int DESTROY = 3;
 
 	/**
@@ -56,7 +75,9 @@ public abstract class ApplicationContext implements BeanFactory {
 	public abstract void destory();
 
 	/**
-	 * 获取当前应用的应用上下文
+	 * 获取当前应用的应用上下文<p>加载
+	 * {@code META-INF/services/com.harmony.umbrella.context.spi.ApplicationContextProvider}
+	 * 文件中的实际类型来创建
 	 * 
 	 * @return 应用上下文
 	 */

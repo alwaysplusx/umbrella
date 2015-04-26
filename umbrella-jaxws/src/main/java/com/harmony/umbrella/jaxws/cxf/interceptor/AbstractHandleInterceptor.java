@@ -1,3 +1,18 @@
+/*
+ * Copyright 2002-2014 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.harmony.umbrella.jaxws.cxf.interceptor;
 
 import java.lang.reflect.Field;
@@ -16,13 +31,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.harmony.umbrella.core.BeanFactory;
-import com.harmony.umbrella.core.SimpleBeanFactory;
 import com.harmony.umbrella.core.DefaultInvoker;
 import com.harmony.umbrella.core.Invoker;
+import com.harmony.umbrella.core.SimpleBeanFactory;
 import com.harmony.umbrella.jaxws.Phase;
 import com.harmony.umbrella.jaxws.cxf.CXFMessageUtils;
 import com.harmony.umbrella.jaxws.util.JaxWsHandlerMethodFinder;
 
+/**
+ * {@linkplain AbstractValidationInterceptor}扩展
+ * 
+ * @author wuxii@foxmail.com
+ */
 public abstract class AbstractHandleInterceptor extends AbstractValidationInterceptor {
 
 	private static final Logger log = LoggerFactory.getLogger(AbstractHandleInterceptor.class);
@@ -32,7 +52,9 @@ public abstract class AbstractHandleInterceptor extends AbstractValidationInterc
 	private static final Object[] EMPTY_ARGUMENTS = new Object[] {};
 
 	protected BeanFactory beanFactory = new SimpleBeanFactory();
+
 	protected Invoker invoker = new DefaultInvoker();
+
 	protected JaxWsHandlerMethodFinder finder;
 
 	public AbstractHandleInterceptor(String phase) {
@@ -44,8 +66,23 @@ public abstract class AbstractHandleInterceptor extends AbstractValidationInterc
 		finder = new JaxWsHandlerMethodFinder(scanPackage);
 	}
 
+	/**
+	 * 处理作为服务端的服务消息
+	 * 
+	 * @param message
+	 * @param resourceInstance
+	 * @param method
+	 * @param args
+	 */
 	protected abstract void handleServerValidation(Message message, Object resourceInstance, Method method, Object[] args);
 
+	/**
+	 * 处理作为客户代理端的消息
+	 * 
+	 * @param message
+	 * @param method
+	 * @param args
+	 */
 	protected abstract void handleProxyValidation(Message message, Method method, Object[] args);
 
 	@Override
@@ -138,12 +175,13 @@ public abstract class AbstractHandleInterceptor extends AbstractValidationInterc
 		return client;
 	}
 
+	/**
+	 * 执行所处的周期
+	 * 
+	 * @return
+	 */
 	public Phase getJaxWsPhase() {
 		return Phase.value(getPhase());
-	}
-
-	public BeanFactory getBeanFactory() {
-		return beanFactory;
 	}
 
 	public void setBeanLoader(BeanFactory beanFactory) {

@@ -22,6 +22,12 @@ package com.harmony.umbrella.core;
  */
 public interface ClassFilter {
 
-    boolean accept(Class<?> clazz);
+	/**
+	 * 过滤类的信息
+	 * 
+	 * @param clazz
+	 * @return
+	 */
+	boolean accept(Class<?> clazz);
 
 }

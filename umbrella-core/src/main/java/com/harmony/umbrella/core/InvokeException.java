@@ -15,6 +15,9 @@
  */
 package com.harmony.umbrella.core;
 
+/**
+ * @author wuxii@foxmail.com
+ */
 public class InvokeException extends Exception {
 
     private static final long serialVersionUID = -4338894263088635172L;

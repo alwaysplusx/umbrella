@@ -23,6 +23,8 @@ import org.slf4j.LoggerFactory;
 import com.harmony.umbrella.util.StringUtils;
 
 /**
+ * 通用的BeanContextResolver
+ * 
  * @author wuxii@foxmail.com
  */
 public class GenericBeanContextResolver implements BeanContextResolver {

@@ -42,8 +42,8 @@ public class EJBContext implements EJBContextMBean {
     }
 
     @Override
-    public boolean exixts(Class<?> clazz) {
-        return context.exixts(clazz);
+    public boolean exixts(String className) {
+        return context.exixts(className);
     }
 
 }

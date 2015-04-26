@@ -18,22 +18,25 @@ package com.harmony.umbrella.jaxws.support;
 import com.harmony.umbrella.jaxws.JaxWsContext;
 
 /**
+ * JaxWsContext校验工具
+ * 
  * @author wuxii@foxmail.com
  */
 public abstract class JaxWsContextValidator {
 
-    /**
-     * 检查context是否符合交互最低要求
-     * @param context
-     * @throws IllegalArgumentException
-     */
-    public static void validation(JaxWsContext context) throws IllegalArgumentException {
-        if (context.getServiceInterface() == null)
-            throw new IllegalArgumentException("service interface not set");
-        if (context.getAddress() == null)
-            throw new IllegalArgumentException("service address not set");
-        if (context.getMethodName() == null)
-            throw new IllegalArgumentException("service method not set");
-    }
+	/**
+	 * 检查context是否符合交互最低要求
+	 * 
+	 * @param context
+	 * @throws IllegalArgumentException
+	 */
+	public static void validation(JaxWsContext context) throws IllegalArgumentException {
+		if (context.getServiceInterface() == null)
+			throw new IllegalArgumentException("service interface not set");
+		if (context.getAddress() == null)
+			throw new IllegalArgumentException("service address not set");
+		if (context.getMethodName() == null)
+			throw new IllegalArgumentException("service method not set");
+	}
 
 }

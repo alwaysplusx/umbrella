@@ -19,36 +19,40 @@ import com.harmony.umbrella.jaxws.JaxWsContext;
 import com.harmony.umbrella.jaxws.support.JaxWsContextSender;
 import com.harmony.umbrella.message.AbstractJmsMessageSender;
 import com.harmony.umbrella.message.Message;
+import com.harmony.umbrella.message.MessageSender;
 
 /**
+ * {@linkplain JaxWsContextSender}与{@linkplain MessageSender}的适配工具类。<p>
+ * 继承该类支持将执行JaxWsContext的消息发送给消费消费实现实际的交互功能
+ * 
  * @author wuxii@foxmail.com
  */
 public abstract class JaxWsContextJmsSenderAdapter extends AbstractJmsMessageSender implements JaxWsContextSender {
 
-    @Override
-    public boolean send(JaxWsContext context) {
-        return send(createMessage(context));
-    }
+	@Override
+	public boolean send(JaxWsContext context) {
+		return send(createMessage(context));
+	}
 
-    /**
-     * 将{@linkplain JaxWsContext}转化为可以传递到消息服务中的消息
-     * 
-     * @param context
-     * @return
-     */
-    public abstract Message createMessage(JaxWsContext context);
+	/**
+	 * 将{@linkplain JaxWsContext}转化为可以传递到消息服务中的消息
+	 * 
+	 * @param context
+	 * @return
+	 */
+	public abstract Message createMessage(JaxWsContext context);
 
-    @Override
-    public void open() {
-    }
+	@Override
+	public void open() {
+	}
 
-    @Override
-    public void close() throws Exception {
-    }
+	@Override
+	public void close() throws Exception {
+	}
 
-    @Override
-    public boolean isClosed() {
-        return false;
-    }
+	@Override
+	public boolean isClosed() {
+		return false;
+	}
 
 }

@@ -16,6 +16,8 @@
 package com.harmony.umbrella.context.ee;
 
 /**
+ * JavaEE 环境中的内容解析<p>在不同的EE环境中需要不同的方式解决jndi名称问题。 以及bean与声明的{@linkplain BeanDefinition}匹配选择
+ * 
  * @author wuxii@foxmail.com
  */
 public interface BeanContextResolver {
@@ -26,8 +28,21 @@ public interface BeanContextResolver {
 	String SUFFIX_REMOTE = "Remote";
 	String SUFFIX_LOCAL = "Local";
 
+	/**
+	 * 格式化jndi名称
+	 * 
+	 * @param beanDefinition
+	 * @return
+	 */
 	String resolveBeanName(BeanDefinition beanDefinition);
 
+	/**
+	 * 查看bean是否与声明的类型匹配
+	 * 
+	 * @param declaer
+	 * @param bean
+	 * @return
+	 */
 	boolean isDeclareBean(BeanDefinition declaer, Object bean);
 
 }

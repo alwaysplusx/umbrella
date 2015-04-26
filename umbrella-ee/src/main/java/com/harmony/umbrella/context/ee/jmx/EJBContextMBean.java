@@ -35,7 +35,7 @@ public interface EJBContextMBean {
      * 
      * @return
      */
-    boolean exixts(Class<?> clazz);
+    boolean exixts(String className);
 
     /**
      * 当前上下文属性文件所在位置

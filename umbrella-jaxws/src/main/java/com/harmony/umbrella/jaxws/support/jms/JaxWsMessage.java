@@ -19,47 +19,49 @@ import com.harmony.umbrella.jaxws.JaxWsContext;
 import com.harmony.umbrella.message.Message;
 
 /**
+ * JaxWs消息模块，可被传输的消息类
+ * 
  * @author wuxii
  */
 public class JaxWsMessage implements Message {
 
-    private static final long serialVersionUID = -7233998395118539815L;
-    private JaxWsContext context;
+	private static final long serialVersionUID = -7233998395118539815L;
+	private JaxWsContext context;
 
-    public JaxWsMessage() {
-    }
+	public JaxWsMessage() {
+	}
 
-    public JaxWsMessage(JaxWsContext context) {
-        this.context = context;
-    }
+	public JaxWsMessage(JaxWsContext context) {
+		this.context = context;
+	}
 
-    public JaxWsContext getMessage() {
-        return context;
-    }
+	public JaxWsContext getMessage() {
+		return context;
+	}
 
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((context == null) ? 0 : context.hashCode());
-        return result;
-    }
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((context == null) ? 0 : context.hashCode());
+		return result;
+	}
 
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        JaxWsMessage other = (JaxWsMessage) obj;
-        if (context == null) {
-            if (other.context != null)
-                return false;
-        } else if (!context.equals(other.context))
-            return false;
-        return true;
-    }
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		JaxWsMessage other = (JaxWsMessage) obj;
+		if (context == null) {
+			if (other.context != null)
+				return false;
+		} else if (!context.equals(other.context))
+			return false;
+		return true;
+	}
 
 }
