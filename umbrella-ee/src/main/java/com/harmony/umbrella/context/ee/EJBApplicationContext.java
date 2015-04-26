@@ -112,6 +112,7 @@ public class EJBApplicationContext extends ApplicationContext implements EJBCont
 				jmxManager.unregisterMBean(EJBContext.class);
 			}
 			jmxManager.registerMBean(new EJBContext(this));
+			LOG.debug("init ejb application success");
 			this.status = INITIALIZED;
 		}
 	}
@@ -147,6 +148,7 @@ public class EJBApplicationContext extends ApplicationContext implements EJBCont
 		try {
 			return (T) getContext().lookup(jndi);
 		} catch (NamingException e) {
+			LOG.error("jndi not find {}", jndi, e);
 			throw new ApplicationContextException(e.getMessage(), e.getCause());
 		}
 	}
@@ -168,6 +170,7 @@ public class EJBApplicationContext extends ApplicationContext implements EJBCont
 	public <T> T lookup(Class<T> clazz, String mappedName) throws ApplicationContextException {
 		SessionBean sessionBean = sessionBeanMap.get(clazz);
 		if (sessionBean != null) {
+			LOG.debug("lookup bean[{}] use cached session bean {}", sessionBean.getJndi(), sessionBean);
 			// 已经将clazz解析过，明确clazz对应的一个jndi能找到指定类型的bean
 			if (sessionBean.isCacheable()) {
 				return (T) sessionBean.getBean();
@@ -176,6 +179,7 @@ public class EJBApplicationContext extends ApplicationContext implements EJBCont
 					return (T) lookup(sessionBean.getJndi());
 				} catch (Exception e) {
 					// jndi changed
+					LOG.warn("use cached session bean can't lookup bean{}, remove it {}. and try lookup bean as new one", sessionBean.getJndi(), sessionBean);
 					sessionBeanMap.remove(clazz);
 				}
 			}
@@ -184,10 +188,13 @@ public class EJBApplicationContext extends ApplicationContext implements EJBCont
 		BeanDefinition bd = new BeanDefinition(clazz, mappedName);
 		try {
 			sessionBean = tryLookup(bd);
+			LOG.info("resolve bean success, lookup bean by jndi name[{}]", sessionBean.getJndi());
 		} catch (Exception e) {
+			LOG.warn("can't resolve bean jndi name, try to iterator context find bean of {}", clazz);
 			for (String root : jndiContextRoot) {
 				sessionBean = iterator(bd, root);
 				if (sessionBean != null) {
+					LOG.info("find bean type of {} in context [{}]", clazz, sessionBean.getJndi());
 					break;
 				}
 			}
@@ -197,10 +204,12 @@ public class EJBApplicationContext extends ApplicationContext implements EJBCont
 				if (bd.getMappedName() != null) {
 					message.append(", mappend name is ").append(bd.getMappedName());
 				}
+				LOG.error(message.toString());
 				throw new ApplicationContextException(message.toString());
 			}
 		}
 		sessionBeanMap.put(clazz, sessionBean);
+		LOG.debug("put session bean[{}] in cached", sessionBean);
 		return (T) sessionBean.getBean();
 	}
 

@@ -15,6 +15,7 @@
  */
 package com.harmony.umbrella.examples.ee;
 
+import javax.ejb.Stateless;
 import javax.jws.WebService;
 
 import com.harmony.umbrella.context.ApplicationContext;
@@ -23,6 +24,7 @@ import com.harmony.umbrella.context.ApplicationContext;
  * @author wuxii@foxmail.com
  */
 @WebService
+@Stateless
 public class TestBean {
 
 	public void test(String beanName) {

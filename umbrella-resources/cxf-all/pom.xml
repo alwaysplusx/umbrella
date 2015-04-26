@@ -39,7 +39,7 @@
 									</excludes>
 								</filter>
 							</filters> -->
-							<createSourcesJar>true</createSourcesJar>
+							<!-- <createSourcesJar>true</createSourcesJar> -->
 						</configuration>
 					</execution>
 				</executions>

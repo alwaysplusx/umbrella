@@ -17,10 +17,17 @@ package com.harmony.umbrella.context.ee;
 
 import java.util.Properties;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.harmony.umbrella.util.StringUtils;
+
 /**
  * @author wuxii@foxmail.com
  */
 public class GenericBeanContextResolver implements BeanContextResolver {
+
+	protected Logger log = LoggerFactory.getLogger(GenericBeanContextResolver.class);
 
 	protected final String beanSuffix;
 	protected final String remoteSuffix;
@@ -50,25 +57,32 @@ public class GenericBeanContextResolver implements BeanContextResolver {
 	public boolean isDeclareBean(BeanDefinition declaer, Object bean) {
 		Class<?> beanClass = declaer.getBeanClass();
 		Class<?> suitableRemoteClass = declaer.getSuitableRemoteClass();
-		return beanClass.isInstance(bean) || suitableRemoteClass.isInstance(bean);
+		return beanClass.isInstance(bean) || (suitableRemoteClass != null && suitableRemoteClass.isInstance(bean));
 	}
 
 	protected String resolveSessionBeanName(String mappedName, Class<?> beanClass, Class<?> remoteClass) {
-		if (mappedName == null) {
+		if (StringUtils.isEmpty(mappedName)) {
 			mappedName = beanClass.getSimpleName();
 		}
-		return mappedName + beanSeparator + remoteClass.getName();
+		if (remoteClass == null) {
+			remoteClass = beanClass;
+		}
+		String jndi = mappedName + beanSeparator + remoteClass.getName();
+		log.info("resolve session bean {} as jndi name {}", beanClass, jndi);
+		return jndi;
 	}
 
 	protected String resolveRemoteClassBeanName(String mappedName, Class<?> remoteClass) {
-		if (mappedName == null) {
+		if (StringUtils.isEmpty(mappedName)) {
 			String remoteClassName = remoteClass.getSimpleName();
 			int remoteIndex = remoteClassName.lastIndexOf(remoteSuffix);
 			if (remoteIndex > 0) {
 				mappedName = remoteClassName.substring(0, remoteIndex) + beanSuffix;
 			}
 		}
-		return mappedName + beanSeparator + remoteClass.getName();
+		String jndi = mappedName + beanSeparator + remoteClass.getName();
+		log.info("resolve remote class {} as jndi name {}", remoteClass, jndi);
+		return jndi;
 	}
 
 	protected String resolveLocalClassBeanName(String mappedName, Class<?> localClass) {
@@ -79,7 +93,9 @@ public class GenericBeanContextResolver implements BeanContextResolver {
 				mappedName = remoteClassName.substring(0, remoteIndex) + beanSuffix;
 			}
 		}
-		return mappedName + beanSeparator + localClass.getName();
+		String jndi = mappedName + beanSeparator + localClass.getName();
+		log.info("resolve local class as jndi name {}", localClass, jndi);
+		return jndi;
 	}
 
 }

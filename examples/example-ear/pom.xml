@@ -9,15 +9,13 @@
 	<artifactId>example-ear</artifactId>
 	<packaging>ear</packaging>
 	<dependencies>
+		<!-- <dependency> <groupId>com.harmony.umbrella.examples</groupId> <artifactId>example-jaxws</artifactId> 
+			<version>${project.version}</version> <type>ejb</type> </dependency> <dependency> 
+			<groupId>com.harmony.umbrella.plugins</groupId> <artifactId>jaxws-jms-plugin</artifactId> 
+			<version>${project.version}</version> <type>ejb</type> </dependency> -->
 		<dependency>
 			<groupId>com.harmony.umbrella.examples</groupId>
-			<artifactId>example-jaxws</artifactId>
-			<version>${project.version}</version>
-			<type>ejb</type>
-		</dependency>
-		<dependency>
-			<groupId>com.harmony.umbrella.plugins</groupId>
-			<artifactId>jaxws-jms-plugin</artifactId>
+			<artifactId>example-ee</artifactId>
 			<version>${project.version}</version>
 			<type>ejb</type>
 		</dependency>
@@ -35,13 +33,12 @@
 					<modules>
 						<!-- <webModule> <groupId>com.harmony.umbrella.examples</groupId> <artifactId>example-jaxws</artifactId> 
 							<contextRoot>/example-jaxws</contextRoot> </webModule> -->
+						<!-- <ejbModule> <groupId>com.harmony.umbrella.examples</groupId> <artifactId>example-jaxws</artifactId> 
+							</ejbModule> <ejbModule> <groupId>com.harmony.umbrella.plugins</groupId> 
+							<artifactId>jaxws-jms-plugin</artifactId> </ejbModule> -->
 						<ejbModule>
 							<groupId>com.harmony.umbrella.examples</groupId>
-							<artifactId>example-jaxws</artifactId>
-						</ejbModule>
-						<ejbModule>
-							<groupId>com.harmony.umbrella.plugins</groupId>
-							<artifactId>jaxws-jms-plugin</artifactId>
+							<artifactId>example-ee</artifactId>
 						</ejbModule>
 					</modules>
 				</configuration>

@@ -66,6 +66,10 @@ public abstract class ApplicationContext implements BeanFactory {
 		for (ApplicationContextProvider provider : providers) {
 			try {
 				context = provider.createApplicationContext();
+				if (context != null) {
+					LOG.info("use application context as {}", context);
+					break;
+				}
 			} catch (Exception e) {
 				LOG.error("", e);
 			}
@@ -121,6 +125,7 @@ public abstract class ApplicationContext implements BeanFactory {
 	public void initializeServerInformation(ServletContext servletContext) {
 		if (serverInfo == null) {
 			serverInfo = ApplicationMetadata.INSTANCE.new ServerInformation(servletContext);
+			LOG.info("init server information success\n{}", serverInfo);
 		}
 	}
 
@@ -138,6 +143,7 @@ public abstract class ApplicationContext implements BeanFactory {
 		if (dbInfo == null) {
 			try {
 				dbInfo = ApplicationMetadata.INSTANCE.new DBInformation(conn);
+				LOG.info("init database information success\n{}", dbInfo);
 			} finally {
 				if (close) {
 					try {
