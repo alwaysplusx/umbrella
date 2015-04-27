@@ -5,6 +5,7 @@
 		<groupId>com.harmony.umbrella.examples</groupId>
 		<artifactId>examples</artifactId>
 		<version>0.0.1</version>
+		<relativePath>../pom.xml</relativePath>
 	</parent>
 	<artifactId>example-jaxws</artifactId>
 	<packaging>ejb</packaging>

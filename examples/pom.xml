@@ -5,6 +5,7 @@
 		<groupId>com.harmony.umbrella</groupId>
 		<artifactId>harmony-umbrella</artifactId>
 		<version>0.0.1</version>
+		<relativePath>../pom.xml</relativePath>
 	</parent>
 	<name>Harmony Example  :: Example Parent</name>
 	<groupId>com.harmony.umbrella.examples</groupId>

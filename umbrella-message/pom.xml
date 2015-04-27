@@ -5,7 +5,9 @@
 		<groupId>com.harmony.umbrella</groupId>
 		<artifactId>harmony-umbrella</artifactId>
 		<version>0.0.1</version>
+		<relativePath>../pom.xml</relativePath>
 	</parent>
+	<name>Harmony Umbrella :: Module of Message</name>
 	<artifactId>umbrella-message</artifactId>
 	<dependencies>
 		<dependency>
@@ -13,10 +15,13 @@
 			<artifactId>umbrella-core</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>io.netty</groupId>
+			<artifactId>netty-all</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>javax.jms</groupId>
 			<artifactId>jms</artifactId>
 			<scope>provided</scope>
 		</dependency>
 	</dependencies>
-	<name>Harmony Umbrella :: Module of Message</name>
 </project>

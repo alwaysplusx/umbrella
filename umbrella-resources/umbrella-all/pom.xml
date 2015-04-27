@@ -5,6 +5,7 @@
 		<groupId>com.harmony.umbrella.resources</groupId>
 		<artifactId>umbrella-resources</artifactId>
 		<version>0.0.1</version>
+		<relativePath>../pom.xml</relativePath>
 	</parent>
 	<artifactId>umbrella-all</artifactId>
 	<name>Harmony Resource :: Umbrella All JAR bundle</name>

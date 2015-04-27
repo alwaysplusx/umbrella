@@ -5,6 +5,7 @@
 		<groupId>com.harmony.umbrella.plugins</groupId>
 		<artifactId>umbrella-plugins</artifactId>
 		<version>0.0.1</version>
+		<relativePath>../pom.xml</relativePath>
 	</parent>
 	<artifactId>message-jms-plugin</artifactId>
 	<dependencies>

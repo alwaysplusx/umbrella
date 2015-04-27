@@ -5,6 +5,7 @@
 		<groupId>com.harmony.umbrella.resources</groupId>
 		<artifactId>umbrella-resources</artifactId>
 		<version>0.0.1</version>
+		<relativePath>../pom.xml</relativePath>
 	</parent>
 	<name>Harmony Resource :: CXF JaxWs JAR bundle</name>
 	<artifactId>cxf-all</artifactId>
