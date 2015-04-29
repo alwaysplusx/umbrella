@@ -152,6 +152,7 @@ public class PropertiesFileJaxWsContextReceiver implements JaxWsContextReceiver 
 
     /**
      * 重新加载{@linkplain JaxWsContext}中的元数据
+     * 
      * @param context
      * @return
      */
@@ -161,15 +162,15 @@ public class PropertiesFileJaxWsContextReceiver implements JaxWsContextReceiver 
         SimpleJaxWsContext copyContext = new SimpleJaxWsContext();
         Class<?> serviceInterface = context.getServiceInterface();
         copyContext = new SimpleJaxWsContext(serviceInterface, context.getMethodName(), context.getParameters());
-		if (metadataLoader != null) {
-			copyContext.setAddress(metadataLoader.getAddress(serviceInterface));
-			copyContext.setUsername(metadataLoader.getUsername(serviceInterface));
-			copyContext.setPassword(metadataLoader.getPassword(serviceInterface));
-		} else {
-			copyContext.setAddress(context.getAddress());
-			copyContext.setUsername(context.getUsername());
-			copyContext.setPassword(context.getPassword());
-		}
+        if (metadataLoader != null) {
+            copyContext.setAddress(metadataLoader.getAddress(serviceInterface));
+            copyContext.setUsername(metadataLoader.getUsername(serviceInterface));
+            copyContext.setPassword(metadataLoader.getPassword(serviceInterface));
+        } else {
+            copyContext.setAddress(context.getAddress());
+            copyContext.setUsername(context.getUsername());
+            copyContext.setPassword(context.getPassword());
+        }
         copyContext.putAll(context.getContextMap());
         return copyContext;
     }
@@ -200,6 +201,9 @@ public class PropertiesFileJaxWsContextReceiver implements JaxWsContextReceiver 
     }
 
     public void setJaxWsExecutor(JaxWsExecutor executor) {
+        if (executor == this.executor) {
+            return;
+        }
         if (retentionHandlers) {
             List<JaxWsContextHandler> ownHandlers = this.executor.getHandlers();
             for (JaxWsContextHandler handler : ownHandlers) {

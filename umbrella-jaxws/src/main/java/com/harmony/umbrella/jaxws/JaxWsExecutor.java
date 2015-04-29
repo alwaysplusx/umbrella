@@ -27,7 +27,9 @@ import java.util.concurrent.Future;
 public interface JaxWsExecutor {
 
     /**
-     * 执行交互，并返回指定类型的返回值 <p> <em>tips:如果接口中包含不定参数一定要特别注意，将不定参数当作数组一并输入</em>
+     * 执行交互，并返回指定类型的返回值
+     * <p>
+     * <em>tips:如果接口中包含不定参数一定要特别注意，将不定参数当作数组一并输入</em>
      * 
      * @param context
      * @param resultType
@@ -36,7 +38,9 @@ public interface JaxWsExecutor {
     <T> T execute(JaxWsContext context, Class<T> resultType);
 
     /**
-     * 执行交互 <p> <em>tips:如果接口中包含不定参数一定要特别注意，将不定参数当作数组一并输入</em>
+     * 执行交互
+     * <p>
+     * <em>tips:如果接口中包含不定参数一定要特别注意，将不定参数当作数组一并输入</em>
      * 
      * @param context
      *            执行上下文
@@ -83,7 +87,7 @@ public interface JaxWsExecutor {
     /**
      * 当前Executor所拥有的处理器
      * 
-     * @return
+     * @return {@linkplain java.util.Collections#unmodifiableList(List)}
      */
     List<JaxWsContextHandler> getHandlers();
 

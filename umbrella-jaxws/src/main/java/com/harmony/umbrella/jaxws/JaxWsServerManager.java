@@ -29,6 +29,7 @@ import org.slf4j.LoggerFactory;
 
 import com.harmony.umbrella.core.BeanFactory;
 import com.harmony.umbrella.core.SimpleBeanFactory;
+import com.harmony.umbrella.jaxws.JaxWsServerBuilder.JaxWsServerFactoryConfig;
 import com.harmony.umbrella.jaxws.impl.SimpleJaxWsMetadata;
 import com.harmony.umbrella.util.StringUtils;
 
@@ -298,17 +299,6 @@ public class JaxWsServerManager {
         public ServerFactoryBean getServerFactoryBean(String address) {
             return (ServerFactoryBean) resources.get(getServiceBean(address));
         }
-
-    }
-
-    /**
-     * 服务创建前的回调配置
-     * 
-     * @author wuxii@foxmail.com
-     */
-    public interface JaxWsServerFactoryConfig {
-
-        void config(JaxWsServerFactoryBean factoryBean);
 
     }
 
