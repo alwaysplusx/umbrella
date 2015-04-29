@@ -16,44 +16,47 @@
 package com.harmony.umbrella.jaxws;
 
 /**
- * 将被{@linkplain JaxWsMetadata}取代
+ * 
+ * 加载服务的元数据信息<p> [{@linkplain #getAddress(Class)},
+ * {@linkplain #getPassword(Class)}, {@linkplain #getUsername(Class)}]可用
+ * {@linkplain #getJaxWsMetadata(Class)}替代
  * 
  * @author wuxii@foxmail.com
  */
 public interface MetadataLoader {
 
-    /**
-     * 根据指定的serviceClass加载指定的元数据
-     * 
-     * @param serviceClass
-     * @return
-     */
-    JaxWsMetadata getJaxWsMetadata(Class<?> serviceClass);
+	/**
+	 * 根据指定的serviceClass加载指定的元数据
+	 * 
+	 * @param serviceClass
+	 * @return
+	 */
+	JaxWsMetadata getJaxWsMetadata(Class<?> serviceClass);
 
-    // JaxWsMetadata getJaxWsMetadata(String serviceName);
+	// JaxWsMetadata getJaxWsMetadata(String serviceName);
 
-    /**
-     * 获取指定serviceClass的用户名
-     * 
-     * @param serviceClass
-     * @return
-     */
-    String getUsername(Class<?> serviceClass);
+	/**
+	 * 获取指定serviceClass的用户名
+	 * 
+	 * @param serviceClass
+	 * @return
+	 */
+	String getUsername(Class<?> serviceClass);
 
-    /**
-     * 获取指定serviceClass的密码
-     * 
-     * @param serviceClass
-     * @return
-     */
-    String getPassword(Class<?> serviceClass);
+	/**
+	 * 获取指定serviceClass的密码
+	 * 
+	 * @param serviceClass
+	 * @return
+	 */
+	String getPassword(Class<?> serviceClass);
 
-    /**
-     * 获取指定serviceClass的地址
-     * 
-     * @param serviceClass
-     * @return
-     */
-    String getAddress(Class<?> serviceClass);
+	/**
+	 * 获取指定serviceClass的地址
+	 * 
+	 * @param serviceClass
+	 * @return
+	 */
+	String getAddress(Class<?> serviceClass);
 
 }

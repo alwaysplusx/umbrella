@@ -26,9 +26,7 @@ import org.apache.cxf.transport.servlet.CXFNonSpringServlet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.harmony.umbrella.core.BeanFactory;
 import com.harmony.umbrella.core.ClassFilter;
-import com.harmony.umbrella.core.SimpleBeanFactory;
 import com.harmony.umbrella.io.utils.ResourceScaner;
 import com.harmony.umbrella.jaxws.JaxWsServerManager;
 
@@ -38,19 +36,33 @@ import com.harmony.umbrella.jaxws.JaxWsServerManager;
 public class JaxWsServlet extends CXFNonSpringServlet {
 
 	private static final long serialVersionUID = 1907515077730725429L;
-	public static final String SCAN_PACKAGE = "scan-package";
-	public static final String PATH_STYLE = "path-style";
 
 	private static final Logger log = LoggerFactory.getLogger(JaxWsServlet.class);
-	private JaxWsServerManager jaxWsManager = JaxWsServerManager.getInstance();
+
+	/**
+	 * 发布时候所扫视的包：默认值{@code com.harmony}
+	 */
+	public static final String SCAN_PACKAGE = "scan-package";
+	/**
+	 * webservice的url路径类型:annotation, class(default)
+	 */
+	public static final String PATH_STYLE = "path-style";
+
+	/**
+	 * 服务管理实例
+	 */
+	private JaxWsServerManager serverManager = JaxWsServerManager.getInstance();
+
+	/**
+	 * 资源扫描实例
+	 */
 	private ResourceScaner scaner = ResourceScaner.getInstance();
-	private BeanFactory beanFactory = new SimpleBeanFactory();
 
 	@Override
 	public void init(ServletConfig sc) throws ServletException {
 		super.init(sc);
-		BeanFactory loader = jaxWsManager.getBeanFactory();
 		try {
+			// TODO 从启动参数分割多个包进行扫描
 			Class<?>[] classes = scaner.scanPackage(getScanPackage(sc), new ClassFilter() {
 				@Override
 				public boolean accept(Class<?> clazz) {
@@ -73,17 +85,29 @@ public class JaxWsServlet extends CXFNonSpringServlet {
 					return true;
 				}
 			});
-			jaxWsManager.setBeanFactory(beanFactory == null ? loader : beanFactory);
 			for (Class<?> clazz : classes) {
-				jaxWsManager.publish(clazz, buildPath(sc, clazz));
+				serverManager.publish(clazz, buildPath(sc, clazz));
 			}
 		} catch (IOException e) {
 			log.error("", e);
 		} finally {
-			jaxWsManager.setBeanFactory(loader);
 		}
 	}
 
+	/**
+	 * 根据web.xml中filter的启动参数path-style来创建webservice的访问url格式
+	 * 
+	 * <pre>
+	 * &lt;servlet&gt;
+	 *   &lt;servlet-name&gt;&lt;/servlet-name&gt;
+	 *   &lt;servlet-class&gt;&lt;/servlet-class&gt;
+	 *   &lt;init-param&gt;
+	 *     &lt;param-name&gt;path-style&lt;/param-name&gt;
+	 *     &lt;param-value&gt;annotation&lt;/param-value&gt;
+	 *   &lt;/init-param&gt;
+	 * &lt;/servlet&gt;
+	 * </pre>
+	 */
 	private String buildPath(ServletConfig sc, Class<?> c) {
 		String pathStyle = sc.getInitParameter(PATH_STYLE);
 		if (pathStyle != null && "annotation".endsWith(pathStyle)) {
@@ -104,12 +128,22 @@ public class JaxWsServlet extends CXFNonSpringServlet {
 		return getPathFromClass(cls);
 	}
 
+	/**
+	 * 根据web.xml中filter的启动参数scan-package来设置扫描路径
+	 * 
+	 * <pre>
+	 * &lt;servlet&gt;
+	 *   &lt;servlet-name&gt;&lt;/servlet-name&gt;
+	 *   &lt;servlet-class&gt;&lt;/servlet-class&gt;
+	 *   &lt;init-param&gt;
+	 *     &lt;param-name&gt;scan-package&lt;/param-name&gt;
+	 *     &lt;param-value&gt;com.harmony&lt;/param-value&gt;
+	 *   &lt;/init-param&gt;
+	 * &lt;/servlet&gt;
+	 * </pre>
+	 */
 	protected String getScanPackage(ServletConfig sc) {
 		return sc.getInitParameter(SCAN_PACKAGE) == null ? "com.harmony" : sc.getInitParameter(SCAN_PACKAGE);
-	}
-
-	public void setBeanLoader(BeanFactory beanFactory) {
-		this.beanFactory = beanFactory;
 	}
 
 }

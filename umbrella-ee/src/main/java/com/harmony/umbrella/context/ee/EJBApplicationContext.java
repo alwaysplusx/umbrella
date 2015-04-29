@@ -156,8 +156,8 @@ public class EJBApplicationContext extends ApplicationContext implements EJBCont
 	}
 
 	/**
-	 * 从JavaEE环境中获取指定类实例 <p> <li>首先根据所运行的容器不同通过 {@linkplain BeanContextResolver}将
-	 * {@code clazz}格式化为特定的{@code jndi} <li>如果格式化后的jndi名称未找到对应类型的bean， 则通过
+	 * 从JavaEE环境中获取指定类实例 <p> <li>首先根据所运行的容器不同通过 {@linkplain BeanContextResolver}
+	 * 将 {@code clazz}格式化为特定的{@code jndi} <li>如果格式化后的jndi名称未找到对应类型的bean， 则通过
 	 * {@linkplain ContextReader}递归读取上下文查找需要指定的内容 <li>若以上方式均为找到则返回{@code null}
 	 * 
 	 * @param clazz
@@ -252,8 +252,9 @@ public class EJBApplicationContext extends ApplicationContext implements EJBCont
 	}
 
 	/**
-	 * 从JavaEE环境中获取指定类实例 <p> <li>首先根据类型将解析clazz对应的jndi名称 <li>如果解析的jndi名称未找到对应类型的bean，
-	 * 则通过递归 {@linkplain javax.naming.Context}中的内容查找 <li>若以上方式均为找到则返回{@code null}
+	 * 从JavaEE环境中获取指定类实例 <p> <li>首先根据类型将解析clazz对应的jndi名称
+	 * <li>如果解析的jndi名称未找到对应类型的bean， 则通过递归 {@linkplain javax.naming.Context}
+	 * 中的内容查找 <li>若以上方式均为找到则返回{@code null}
 	 * 
 	 * @param clazz
 	 *            待查找的类
@@ -266,7 +267,8 @@ public class EJBApplicationContext extends ApplicationContext implements EJBCont
 	}
 
 	/**
-	 * 初始化客户端JavaEE环境 <p> 默认加载指定路径下 {@link #JNDI_PROPERTIES_FILE_LOCATION} 的资源文件作为初始化属性
+	 * 初始化客户端JavaEE环境 <p> 默认加载指定路径下 {@link #JNDI_PROPERTIES_FILE_LOCATION}
+	 * 的资源文件作为初始化属性
 	 * 
 	 * @return
 	 * @throws ApplicationContextException

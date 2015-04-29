@@ -1,4 +1,4 @@
-package com.harmony.umbrella.jaxws;
+package com.harmony.umbrella.jaxws.services;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

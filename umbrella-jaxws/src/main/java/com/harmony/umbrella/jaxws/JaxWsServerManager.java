@@ -15,6 +15,8 @@
  */
 package com.harmony.umbrella.jaxws;
 
+import static com.harmony.umbrella.jaxws.JaxWsServerBuilder.*;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -23,15 +25,13 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.cxf.frontend.ServerFactoryBean;
-import org.apache.cxf.jaxws.JaxWsServerFactoryBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.harmony.umbrella.core.BeanFactory;
-import com.harmony.umbrella.core.SimpleBeanFactory;
+import com.harmony.umbrella.jaxws.JaxWsServerBuilder.BeanFactoryInvoker;
 import com.harmony.umbrella.jaxws.JaxWsServerBuilder.JaxWsServerFactoryConfig;
-import com.harmony.umbrella.jaxws.impl.SimpleJaxWsMetadata;
-import com.harmony.umbrella.util.StringUtils;
+import com.harmony.umbrella.util.Assert;
+import com.harmony.umbrella.util.Exceptions;
 
 /**
  * 基于cxf的WebService服务管理
@@ -40,266 +40,288 @@ import com.harmony.umbrella.util.StringUtils;
  */
 public class JaxWsServerManager {
 
-    private static final Logger log = LoggerFactory.getLogger(JaxWsServerManager.class);
-    /**
-     * 一个服务serviceClass对应一个服务信息
-     */
-    private static final Map<Class<?>, JaxWsServer> servers = new HashMap<Class<?>, JaxWsServer>();
+	private static final Logger log = LoggerFactory.getLogger(JaxWsServerManager.class);
+	/**
+	 * 一个服务serviceClass对应一个服务信息
+	 */
+	private static final Map<Class<?>, JaxWsServer> servers = new HashMap<Class<?>, JaxWsServer>();
 
-    private static JaxWsServerManager instance;
-    private BeanFactory beanFactory = new SimpleBeanFactory();
+	/**
+	 * 管理实例
+	 */
+	private static JaxWsServerManager instance;
 
-    private JaxWsServerManager() {
-    }
+	/**
+	 * 服务元数据加载器
+	 */
+	private MetadataLoader metadataLoader;
 
-    public static final JaxWsServerManager getInstance() {
-        if (instance == null) {
-            synchronized (JaxWsServerManager.class) {
-                if (instance == null) {
-                    instance = new JaxWsServerManager();
-                }
-            }
-        }
-        return instance;
-    }
+	/**
+	 * @see org.apache.cxf.service.invoker.Invoker
+	 */
+	private BeanFactoryInvoker beanFactoryInvoker;
 
-    /**
-     * 在指定地址发布一个服务
-     * 
-     * @param serviceClass
-     * @param address
-     * @return
-     */
-    public boolean publish(Class<?> serviceClass, String address) {
-        return publish(serviceClass, address, null);
-    }
+	/**
+	 * 当遇到服务发布失败，则结束剩余的服务发布
+	 */
+	private boolean failFast = false;
 
-    /**
-     * 使用指定的服务元数据发布服务
-     * 
-     * @param serviceClass
-     * @param metadataLoader
-     * @return
-     */
-    public boolean publish(Class<?> serviceClass, MetadataLoader metadataLoader) {
-        return publish(serviceClass, metadataLoader, null);
-    }
+	private JaxWsServerManager() {
+	}
 
-    /**
-     * 在指定地址发布服务，发布前提供配置服务
-     * 
-     * @param serviceClass
-     * @param address
-     * @param factoryConfig
-     * @return
-     */
-    public boolean publish(Class<?> serviceClass, String address, JaxWsServerFactoryConfig factoryConfig) {
-        Object serviceBean = createServiceBean(serviceClass);
-        return doPublish(serviceClass, serviceBean, new SimpleJaxWsMetadata(serviceClass, address), factoryConfig);
-    }
+	public static final JaxWsServerManager getInstance() {
+		if (instance == null) {
+			synchronized (JaxWsServerManager.class) {
+				if (instance == null) {
+					instance = new JaxWsServerManager();
+				}
+			}
+		}
+		return instance;
+	}
 
-    /**
-     * 可配置的发布服务
-     * 
-     * @param serviceClass
-     * @param metadataLoader
-     * @param factoryConfig
-     * @return
-     */
-    public boolean publish(Class<?> serviceClass, MetadataLoader metadataLoader, JaxWsServerFactoryConfig factoryConfig) {
-        Object serviceBean = createServiceBean(serviceClass);
-        JaxWsMetadata metadata = metadataLoader.getJaxWsMetadata(serviceClass);
-        return doPublish(serviceClass, serviceBean, metadata, factoryConfig);
-    }
+	/**
+	 * 发布一个服务实例为{@code serviceClass}的服务，地址依赖{@link #metadataLoader}
+	 * 来加载。所以在使用这个方法时候请注意需要先设置{@link #metadataLoader}
+	 * 
+	 * @param serviceClass
+	 *            服务实例类型
+	 */
+	public boolean publish(Class<?> serviceClass) {
+		return publish(serviceClass, metadataLoader.getAddress(serviceClass), null);
+	}
 
-    private boolean doPublish(Class<?> serviceClass, Object serviceBean, JaxWsMetadata metadata, JaxWsServerFactoryConfig factoryConfig) {
-        String address = metadata.getAddress();
-        if (StringUtils.isBlank(address)) {
-            throw new IllegalArgumentException("service address is null or blank");
-        }
-        // 地址已经被使用
-        if (inUse(address)) {
-            if (isPublished(serviceClass, address)) {
-                // 发布了相同的服务 update service
-                return true;
-            }
-            // 不同的服务占用了地址
-            log.error("publish two different service in same address {}", address);
-            return false;
-        }
-        JaxWsServerFactoryBean factoryBean = new JaxWsServerFactoryBean();
-        if (factoryConfig != null) {
-            factoryConfig.config(factoryBean);
-            if (factoryBean.getServer() != null) {
-                log.error("config factory not allow to create server");
-                throw new IllegalStateException("config factory not allow to create server");
-            }
-        }
-        factoryBean.setAddress(address);
-        factoryBean.setServiceBean(serviceBean);
-        factoryBean.create();
-        registerServer(serviceClass, factoryBean);
-        log.debug("publish jax-ws service[{}] successfully", serviceClass.getName());
-        return true;
-    }
+	/**
+	 * 在指定地址发布一个服务
+	 * 
+	 * @param serviceClass
+	 *            服务类型
+	 * @param address
+	 *            服务地址
+	 */
+	public boolean publish(Class<?> serviceClass, String address) {
+		return publish(serviceClass, address, null);
+	}
 
-    /**
-     * 检测地址是否已经发布了服务
-     * 
-     * @param address
-     * @return
-     */
-    public boolean inUse(String address) {
-        for (JaxWsServer server : servers.values()) {
-            if (server.inUse(address))
-                return true;
-        }
-        return false;
-    }
+	/**
+	 * 可配置的发布服务
+	 * 
+	 * @param serviceClass
+	 *            服务类型
+	 * @param factoryConfig
+	 *            服务配置回调
+	 */
+	public boolean publish(Class<?> serviceClass, JaxWsServerFactoryConfig factoryConfig) {
+		return publish(serviceClass, metadataLoader.getAddress(serviceClass), factoryConfig);
+	}
 
-    /**
-     * 检查是否在地址上发布了指定类型的服务
-     * 
-     * @param serviceClass
-     * @param address
-     * @return
-     */
-    public boolean isPublished(Class<?> serviceClass, String address) {
-        if (servers.containsKey(serviceClass)) {
-            return servers.get(serviceClass).inUse(address);
-        }
-        return false;
-    }
+	/**
+	 * 在指定地址发布服务，发布前提供配置服务
+	 * 
+	 * @param serviceClass
+	 *            服务类型
+	 * @param address
+	 *            服务地址
+	 * @param factoryConfig
+	 *            服务配置回调
+	 */
+	public boolean publish(Class<?> serviceClass, String address, JaxWsServerFactoryConfig factoryConfig) {
+		Assert.notNull(serviceClass, "service class is null");
+		Assert.notNull(address, "address is null");
+		return doPublish(serviceClass, address, factoryConfig);
+	}
 
-    protected Object createServiceBean(Class<?> serviceClass) {
-        return beanFactory.getBean(serviceClass, BeanFactory.PROTOTYPE);
-    }
+	private boolean doPublish(Class<?> serviceClass, String address, JaxWsServerFactoryConfig factoryConfig) {
+		JaxWsServerBuilder builder;
+		try {
+			builder = newServerBuilder();
+			if (beanFactoryInvoker != null) {
+				builder.setBeanFactoryInvoker(beanFactoryInvoker);
+			}
+			if (metadataLoader != null) {
+				builder.setUsername(metadataLoader.getUsername(serviceClass));
+				builder.setPassword(metadataLoader.getPassword(serviceClass));
+			}
+			builder.publish(serviceClass, address, factoryConfig);
+			registerServerInstance(builder);
+			log.info("success publish server[serviceClass:{},address:{}]", serviceClass.getName(), address);
+		} catch (Exception e) {
+			log.error("failed publish server[serviceClass:{},address:{}]", serviceClass.getName(), address, e);
+			if (failFast) {
+				throw Exceptions.unchecked(e);
+			}
+			return false;
+		}
+		return true;
+	}
 
-    /**
-     * 销毁指定地址的服务实例
-     * 
-     * @param serviceClass
-     * @param address
-     */
-    public void destory(String address) {
-        for (JaxWsServer server : servers.values()) {
-            server.removeInstance(address);
-            if (!server.hasServiceInstance()) {
-                servers.remove(server.getServiceClass());
-            }
-        }
-    }
+	/**
+	 * 设置服务的元数据加载器
+	 */
+	public void setMetadataLoader(MetadataLoader metadataLoader) {
+		this.metadataLoader = metadataLoader;
+	}
 
-    /**
-     * 销毁所有serviceClass的服务实例
-     * 
-     * @param serviceClass
-     */
-    public void destory(Class<?> serviceClass) {
-        JaxWsServer server = servers.get(serviceClass);
-        for (String address : server.listAddress()) {
-            server.removeInstance(address);
-        }
-        servers.remove(serviceClass);
-    }
+	/**
+	 * @see org.apache.cxf.service.invoker.Invoker
+	 */
+	public void setBeanFactoryInvoker(BeanFactoryInvoker beanFactoryInvoker) {
+		this.beanFactoryInvoker = beanFactoryInvoker;
+	}
 
-    /**
-     * 销毁所有服务实例
-     */
-    public void destoryAll() {
-        for (Class<?> serviceClass : servers.keySet()) {
-            destory(serviceClass);
-        }
-    }
+	/**
+	 * 设置快速失败策略
+	 */
+	public void setFailFast(boolean failFast) {
+		this.failFast = failFast;
+	}
 
-    private void registerServer(Class<?> serviceClass, JaxWsServerFactoryBean factoryBean) {
-        JaxWsServer server = null;
-        if (!servers.containsKey(serviceClass)) {
-            servers.put(serviceClass, server = new JaxWsServer(serviceClass));
-        }
-        server.addServiceInstance(factoryBean.getAddress(), factoryBean);
-    }
+	/**
+	 * 检测地址是否已经发布了服务
+	 * 
+	 * @param address
+	 * @return
+	 */
+	public boolean inUse(String address) {
+		for (JaxWsServer server : servers.values()) {
+			if (server.inUse(address))
+				return true;
+		}
+		return false;
+	}
 
-    public BeanFactory getBeanFactory() {
-        return beanFactory;
-    }
+	/**
+	 * 检查是否在地址上发布了指定类型的服务
+	 * 
+	 * @param serviceClass
+	 * @param address
+	 * @return
+	 */
+	public boolean isPublished(Class<?> serviceClass, String address) {
+		if (servers.containsKey(serviceClass)) {
+			return servers.get(serviceClass).inUse(address);
+		}
+		return false;
+	}
 
-    public void setBeanFactory(BeanFactory beanFactory) {
-        this.beanFactory = beanFactory;
-    }
+	private void registerServerInstance(JaxWsServerBuilder builder) {
+		ServerFactoryBean factoryBean = builder.unwrap(ServerFactoryBean.class);
+		Class<?> serviceClass = factoryBean.getServiceClass();
+		JaxWsServer server = servers.get(serviceClass);
+		if (server != null) {
+			server = new JaxWsServer(serviceClass);
+			servers.put(serviceClass, server);
+		}
+		server.addServiceInstance(factoryBean.getAddress(), factoryBean);
+	}
 
-    /**
-     * 单个服务的所有信息.
-     * <p>
-     * 单个服务可以发布在多个地址.不同的地址有不同的服务实例
-     * 
-     * @author wuxii@foxmail.com
-     */
-    private class JaxWsServer {
+	/**
+	 * 销毁指定地址的服务实例
+	 * 
+	 * @param serviceClass
+	 * @param address
+	 */
+	public void destory(String address) {
+		for (JaxWsServer server : servers.values()) {
+			server.removeInstance(address);
+			if (!server.hasServiceInstance()) {
+				servers.remove(server.getServiceClass());
+			}
+		}
+	}
 
-        private final Class<?> serviceClass;
-        // 用链式的结构获取对应的资源.根元素为服务的地址
-        // address[i] -> serviceBean[i] -> JaxWsServerFactoryBean[i]
-        private Map<Object, Object> resources = new HashMap<Object, Object>();
+	/**
+	 * 销毁所有serviceClass的服务实例
+	 * 
+	 * @param serviceClass
+	 */
+	public void destory(Class<?> serviceClass) {
+		JaxWsServer server = servers.get(serviceClass);
+		for (String address : server.listAddress()) {
+			server.removeInstance(address);
+		}
+		servers.remove(serviceClass);
+	}
 
-        public JaxWsServer(Class<?> serviceClass) {
-            this.serviceClass = serviceClass;
-        }
+	/**
+	 * 销毁所有服务实例
+	 */
+	public void destoryAll() {
+		for (Class<?> serviceClass : servers.keySet()) {
+			destory(serviceClass);
+		}
+	}
 
-        public Class<?> getServiceClass() {
-            return serviceClass;
-        }
+	/**
+	 * 单个服务的所有信息. <p> 服务可以发布在多个地址
+	 * 
+	 * @author wuxii@foxmail.com
+	 */
+	private class JaxWsServer {
 
-        public void removeInstance(String address) {
-            getServerFactoryBean(address).destroy();
-            resources.remove(getServiceBean(address));
-            resources.remove(address);
-        }
+		private final Class<?> serviceClass;
+		// 用链式的结构获取对应的资源.根元素为服务的地址
+		// address[i] -> serviceBean[i] -> JaxWsServerFactoryBean[i]
+		private Map<Object, Object> resources = new HashMap<Object, Object>();
 
-        public void addServiceInstance(String address, JaxWsServerFactoryBean factoryBean) {
-            resources.put(factoryBean.getAddress(), factoryBean.getServiceBean());
-            resources.put(factoryBean.getServiceBean(), factoryBean);
-        }
+		public JaxWsServer(Class<?> serviceClass) {
+			this.serviceClass = serviceClass;
+		}
 
-        public boolean hasServiceInstance() {
-            return !resources.isEmpty();
-        }
+		public Class<?> getServiceClass() {
+			return serviceClass;
+		}
 
-        /**
-         * 检查是否在指定地址发布了服务
-         * 
-         * @param address
-         * @return
-         */
-        public boolean inUse(String address) {
-            return resources.containsKey(address);
-        }
+		public void removeInstance(String address) {
+			getServerFactoryBean(address).destroy();
+			resources.remove(getServiceBean(address));
+			resources.remove(address);
+		}
 
-        /**
-         * 该服务所有的服务地址
-         * 
-         * @return
-         */
-        public List<String> listAddress() {
-            List<String> addresses = new ArrayList<String>();
-            Iterator<Object> iterator = resources.keySet().iterator();
-            for (; iterator.hasNext();) {
-                Object obj = iterator.next();
-                if (obj instanceof String) {
-                    addresses.add((String) obj);
-                }
-            }
-            return Collections.unmodifiableList(addresses);
-        }
+		public void addServiceInstance(String address, ServerFactoryBean factoryBean) {
+			resources.put(factoryBean.getAddress(), factoryBean.getServiceBean());
+			resources.put(factoryBean.getServiceBean(), factoryBean);
+		}
 
-        public Object getServiceBean(String address) {
-            return resources.get(address);
-        }
+		public boolean hasServiceInstance() {
+			return !resources.isEmpty();
+		}
 
-        public ServerFactoryBean getServerFactoryBean(String address) {
-            return (ServerFactoryBean) resources.get(getServiceBean(address));
-        }
+		/**
+		 * 检查是否在指定地址发布了服务
+		 * 
+		 * @param address
+		 * @return
+		 */
+		public boolean inUse(String address) {
+			return resources.containsKey(address);
+		}
 
-    }
+		/**
+		 * 该服务所有的服务地址
+		 * 
+		 * @return
+		 */
+		public List<String> listAddress() {
+			List<String> addresses = new ArrayList<String>();
+			Iterator<Object> iterator = resources.keySet().iterator();
+			for (; iterator.hasNext();) {
+				Object obj = iterator.next();
+				if (obj instanceof String) {
+					addresses.add((String) obj);
+				}
+			}
+			return Collections.unmodifiableList(addresses);
+		}
+
+		public Object getServiceBean(String address) {
+			return resources.get(address);
+		}
+
+		public ServerFactoryBean getServerFactoryBean(String address) {
+			return (ServerFactoryBean) resources.get(getServiceBean(address));
+		}
+
+	}
 
 }
