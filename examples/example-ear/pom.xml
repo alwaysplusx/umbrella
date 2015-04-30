@@ -7,13 +7,14 @@
 		<version>0.0.1</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
+	<name>Harmony Example  :: Example Ear</name>
 	<artifactId>example-ear</artifactId>
 	<packaging>ear</packaging>
 	<dependencies>
-		<!-- <dependency> <groupId>com.harmony.umbrella.examples</groupId> <artifactId>example-jaxws</artifactId> 
-			<version>${project.version}</version> <type>ejb</type> </dependency> <dependency> 
-			<groupId>com.harmony.umbrella.plugins</groupId> <artifactId>jaxws-jms-plugin</artifactId> 
-			<version>${project.version}</version> <type>ejb</type> </dependency> -->
+	<!-- <dependency> <groupId>com.harmony.umbrella.examples</groupId> <artifactId>example-jaxws</artifactId> 
+		<version>${project.version}</version> <type>ejb</type> </dependency> <dependency> 
+		<groupId>com.harmony.umbrella.plugins</groupId> <artifactId>jaxws-jms-plugin</artifactId> 
+		<version>${project.version}</version> <type>ejb</type> </dependency> -->
 		<dependency>
 			<groupId>com.harmony.umbrella.examples</groupId>
 			<artifactId>example-ee</artifactId>
@@ -46,5 +47,4 @@
 			</plugin>
 		</plugins>
 	</build>
-	<name>Harmony Example  :: Example Ear</name>
 </project>

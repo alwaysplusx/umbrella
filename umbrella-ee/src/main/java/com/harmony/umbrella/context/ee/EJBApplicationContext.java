@@ -190,13 +190,12 @@ public class EJBApplicationContext extends ApplicationContext implements EJBCont
 		BeanDefinition bd = new BeanDefinition(clazz, mappedName);
 		try {
 			sessionBean = tryLookup(bd);
-			LOG.info("resolve bean success, lookup bean by jndi name[{}]", sessionBean.getJndi());
+			LOG.info("lookup bean typeof {} by jndi[{}]", clazz, sessionBean.getJndi());
 		} catch (Exception e) {
-			LOG.warn("can't resolve bean jndi name, try to iterator context find bean of {}", clazz);
 			for (String root : jndiContextRoot) {
 				sessionBean = iterator(bd, root);
 				if (sessionBean != null) {
-					LOG.info("find bean type of {} in context [{}]", clazz, sessionBean.getJndi());
+					LOG.info("find bean typeof {}, with jndi[{}]", clazz, sessionBean.getJndi());
 					break;
 				}
 			}
@@ -225,10 +224,16 @@ public class EJBApplicationContext extends ApplicationContext implements EJBCont
 	 *             如果未找到bean
 	 */
 	protected SessionBean tryLookup(BeanDefinition bd) throws Exception {
-		String jndi = beanContextResolver.resolveBeanName(bd);
-		Object bean = getContext().lookup(jndi);
-		if (beanContextResolver.isDeclareBean(bd, bean)) {
-			return new SessionBeanImpl(bd, jndi, bean);
+		String jndi = null;
+		try {
+			jndi = beanContextResolver.resolveBeanName(bd);
+			Object bean = getContext().lookup(jndi);
+			if (beanContextResolver.isDeclareBean(bd, bean)) {
+				return new SessionBeanImpl(bd, jndi, bean);
+			}
+		} catch (Exception e) {
+			LOG.warn("can't lookup jndi[{}], try to iterator context find bean of {}", jndi, bd.getBeanClass(), e);
+			throw e;
 		}
 		throw new Exception("for entry catch block");
 	}
