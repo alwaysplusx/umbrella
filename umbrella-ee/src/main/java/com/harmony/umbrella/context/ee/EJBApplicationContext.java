@@ -32,6 +32,7 @@ import com.harmony.umbrella.context.ApplicationContext;
 import com.harmony.umbrella.context.ApplicationContextException;
 import com.harmony.umbrella.context.ee.jmx.EJBContext;
 import com.harmony.umbrella.context.ee.jmx.EJBContextMBean;
+import com.harmony.umbrella.context.ee.reader.WeblogicContextReader;
 import com.harmony.umbrella.core.NoSuchBeanFindException;
 import com.harmony.umbrella.util.ClassUtils;
 import com.harmony.umbrella.util.JmxManager;
@@ -44,7 +45,7 @@ import com.harmony.umbrella.util.PropUtils;
  */
 public class EJBApplicationContext extends ApplicationContext implements EJBContextMBean {
 
-	private static final String[] JNDI_CONTEXT_ROOT_ARRAY = { "java:", "" };
+	private static final String[] JNDI_CONTEXT_ROOT_ARRAY = { "", "java:" };
 
 	/**
 	 * jndi默认配置文件地址
@@ -65,6 +66,11 @@ public class EJBApplicationContext extends ApplicationContext implements EJBCont
 	 * jndi配置属性
 	 */
 	private Properties jndiProperties = new Properties();
+
+	/**
+	 * 遍历context最大等待时间, default 30000ms
+	 */
+	private long maxWait;
 
 	/**
 	 * JMX管理
@@ -90,6 +96,7 @@ public class EJBApplicationContext extends ApplicationContext implements EJBCont
 		this.loadProperties();
 		this.beanContextResolver = new GenericBeanContextResolver(jndiProperties);
 		this.jndiContextRoot = jndiProperties.getProperty("jndi.context.root") == null ? JNDI_CONTEXT_ROOT_ARRAY : jndiProperties.getProperty("jndi.context.root").split(",");
+		this.maxWait = Long.parseLong(jndiProperties.getProperty("jndi.context.waitTime", "30000"));
 	}
 
 	public static EJBApplicationContext getInstance() {
@@ -156,9 +163,13 @@ public class EJBApplicationContext extends ApplicationContext implements EJBCont
 	}
 
 	/**
-	 * 从JavaEE环境中获取指定类实例 <p> <li>首先根据所运行的容器不同通过 {@linkplain BeanContextResolver}
-	 * 将 {@code clazz}格式化为特定的{@code jndi} <li>如果格式化后的jndi名称未找到对应类型的bean， 则通过
-	 * {@linkplain ContextReader}递归读取上下文查找需要指定的内容 <li>若以上方式均为找到则返回{@code null}
+	 * 从JavaEE环境中获取指定类实例
+	 * <p>
+	 * <li>首先根据所运行的容器不同通过 {@linkplain BeanContextResolver} 将 {@code clazz}
+	 * 格式化为特定的{@code jndi}
+	 * <li>如果格式化后的jndi名称未找到对应类型的bean， 则通过 {@linkplain ContextReader}
+	 * 递归读取上下文查找需要指定的内容
+	 * <li>若以上方式均为找到则返回{@code null}
 	 * 
 	 * @param clazz
 	 *            待查找的类
@@ -232,7 +243,7 @@ public class EJBApplicationContext extends ApplicationContext implements EJBCont
 				return new SessionBeanImpl(bd, jndi, bean);
 			}
 		} catch (Exception e) {
-			LOG.warn("can't lookup jndi[{}], try to iterator context find bean of {}", jndi, bd.getBeanClass(), e);
+			LOG.debug("can't lookup jndi[{}], try to iterator context find bean of {}", jndi, bd.getBeanClass(), e);
 			throw e;
 		}
 		throw new Exception("for entry catch block");
@@ -240,11 +251,16 @@ public class EJBApplicationContext extends ApplicationContext implements EJBCont
 
 	protected SessionBean iterator(final BeanDefinition bd, final String root) {
 		final SessionBeanImpl sessionBean = new SessionBeanImpl(bd);
-		ContextReader reader = new ContextReader(getContext());
-		reader.accept(new ContextVisitor() {
+		getContextReader().accept(new ContextVisitor() {
+
+			@Override
+			public void visitContext(Context context, String jndi) {
+				System.err.println(">>>> " + jndi);
+			}
 
 			@Override
 			public void visitBean(Object bean, String jndi) {
+				System.err.println(">>>> " + jndi);
 				if (beanContextResolver.isDeclareBean(bd, bean)) {
 					sessionBean.bean = bean;
 					sessionBean.jndi = jndi;
@@ -257,9 +273,12 @@ public class EJBApplicationContext extends ApplicationContext implements EJBCont
 	}
 
 	/**
-	 * 从JavaEE环境中获取指定类实例 <p> <li>首先根据类型将解析clazz对应的jndi名称
+	 * 从JavaEE环境中获取指定类实例
+	 * <p>
+	 * <li>首先根据类型将解析clazz对应的jndi名称
 	 * <li>如果解析的jndi名称未找到对应类型的bean， 则通过递归 {@linkplain javax.naming.Context}
-	 * 中的内容查找 <li>若以上方式均为找到则返回{@code null}
+	 * 中的内容查找
+	 * <li>若以上方式均为找到则返回{@code null}
 	 * 
 	 * @param clazz
 	 *            待查找的类
@@ -272,8 +291,9 @@ public class EJBApplicationContext extends ApplicationContext implements EJBCont
 	}
 
 	/**
-	 * 初始化客户端JavaEE环境 <p> 默认加载指定路径下 {@link #JNDI_PROPERTIES_FILE_LOCATION}
-	 * 的资源文件作为初始化属性
+	 * 初始化客户端JavaEE环境
+	 * <p>
+	 * 默认加载指定路径下 {@link #JNDI_PROPERTIES_FILE_LOCATION} 的资源文件作为初始化属性
 	 * 
 	 * @return
 	 * @throws ApplicationContextException
@@ -285,6 +305,10 @@ public class EJBApplicationContext extends ApplicationContext implements EJBCont
 		} catch (NamingException e) {
 			throw new ApplicationContextException(e.getMessage(), e.getCause());
 		}
+	}
+
+	protected ContextReader getContextReader() {
+		return new WeblogicContextReader(getContext(), maxWait);
 	}
 
 	public void destory() {

@@ -57,6 +57,7 @@ public class GenericBeanContextResolver implements BeanContextResolver {
 
 	@Override
 	public boolean isDeclareBean(BeanDefinition declaer, Object bean) {
+		bean = unwrap(bean);
 		Class<?> beanClass = declaer.getBeanClass();
 		Class<?> suitableRemoteClass = declaer.getSuitableRemoteClass();
 		return beanClass.isInstance(bean) || (suitableRemoteClass != null && suitableRemoteClass.isInstance(bean));
@@ -98,6 +99,11 @@ public class GenericBeanContextResolver implements BeanContextResolver {
 		String jndi = mappedName + beanSeparator + localClass.getName();
 		log.info("resolve local class as jndi name {}", localClass, jndi);
 		return jndi;
+	}
+
+	@Override
+	public Object unwrap(Object bean) {
+		return bean;
 	}
 
 }

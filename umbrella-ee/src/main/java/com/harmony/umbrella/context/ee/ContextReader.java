@@ -15,10 +15,13 @@
  */
 package com.harmony.umbrella.context.ee;
 
+import javax.naming.Binding;
 import javax.naming.Context;
-import javax.naming.NameClassPair;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * {@linkplain Context}循环遍历所有内容
@@ -27,7 +30,9 @@ import javax.naming.NamingException;
  */
 public class ContextReader {
 
-	private final Context context;
+	private static final Logger log = LoggerFactory.getLogger(ContextReader.class);
+	protected final Context context;
+	private int count;
 
 	public ContextReader(Context context) {
 		this.context = context;
@@ -40,19 +45,10 @@ public class ContextReader {
 	 * @param contextRoot
 	 */
 	public void accept(ContextVisitor visitor, String contextRoot) {
-		if (visitor.isVisitEnd()) {
-			return;
-		}
 		try {
 			Object obj = context.lookup(contextRoot);
 			if (obj instanceof Context) {
-				Context ctx = (Context) obj;
-				visitor.visitContext(ctx, contextRoot);
-				NamingEnumeration<NameClassPair> ncps = ctx.list("");
-				while (ncps.hasMoreElements()) {
-					String jndi = contextRoot + ("".equals(contextRoot) ? "" : "/") + ncps.next().getName();
-					accept(visitor, jndi);
-				}
+				accept0((Context) obj, visitor, contextRoot);
 			} else {
 				visitor.visitBean(obj, contextRoot);
 			}
@@ -60,4 +56,25 @@ public class ContextReader {
 		}
 	}
 
+	protected void accept0(Context context, ContextVisitor visitor, String contextRoot) {
+		count++;
+		log.debug("current stack is " + count);
+		try {
+			NamingEnumeration<Binding> bindings = context.listBindings("");
+			while (!visitor.isVisitEnd() && bindings.hasMoreElements()) {
+				Binding binding = bindings.next();
+				Object object = binding.getObject();
+				String jndi = contextRoot + ("".equals(contextRoot) ? "" : "/") + binding.getName();
+				if (object instanceof Context) {
+					visitor.visitContext((Context) object, jndi);
+					accept0((Context) object, visitor, contextRoot);
+				} else {
+					visitor.visitBean(object, jndi);
+				}
+			}
+		} catch (NamingException e) {
+		} finally {
+			count--;
+		}
+	}
 }

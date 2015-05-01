@@ -21,6 +21,8 @@ import javax.naming.Context;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.harmony.umbrella.context.ee.reader.WeblogicContextReader;
+
 /**
  * @author wuxii@foxmail.com
  */
@@ -46,6 +48,23 @@ public class ContextReaderTest {
 			}
 
 		}, "java:");
+	}
+
+	@Test
+	public void testTimeLimitedContextReader() throws Exception {
+		long startTime = System.currentTimeMillis();
+		new WeblogicContextReader(container.getContext(), 1000 * 10).accept(new ContextVisitor() {
+			@Override
+			public void visitContext(Context context, String jndi) {
+			}
+
+			@Override
+			public void visitBean(Object bean, String jndi) {
+				System.err.println(">> " + jndi);
+			}
+		}, "java:");
+		System.out.println("use time:" + (System.currentTimeMillis() - startTime));
+		// Thread.sleep(Long.MAX_VALUE);
 	}
 
 }

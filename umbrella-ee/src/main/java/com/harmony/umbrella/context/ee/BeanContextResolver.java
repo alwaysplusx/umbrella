@@ -45,4 +45,13 @@ public interface BeanContextResolver {
 	 */
 	boolean isDeclareBean(BeanDefinition declaer, Object bean);
 
+	/**
+	 * 将环境中的bean解分装为真实的bean
+	 * 
+	 * @param bean
+	 *            环境中的bean
+	 * @return 真是的bean
+	 */
+	Object unwrap(Object bean);
+
 }
