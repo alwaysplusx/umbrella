@@ -13,17 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.umbrella.context.ee;
-
-import java.util.Map;
+package com.harmony.umbrella.context.ee.util;
 
 /**
  * @author wuxii@foxmail.com
  */
-public class ContextReaderFactory {
+public interface WrappedBeanHandler {
 
-	public static ContextReader createContextReader(Map<String, Object> properties) {
-		return null;
-	}
+	boolean matches(Class<?> beanClass);
+
+	Object unwrap(Object bean);
 
 }

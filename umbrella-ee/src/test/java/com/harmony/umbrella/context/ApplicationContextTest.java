@@ -17,6 +17,8 @@ package com.harmony.umbrella.context;
 
 import static org.junit.Assert.*;
 
+import java.util.StringTokenizer;
+
 import org.junit.Test;
 
 import com.harmony.umbrella.context.ee.EJBApplicationContext;
@@ -32,4 +34,11 @@ public class ApplicationContextTest {
 		assertEquals(context.getClass(), EJBApplicationContext.class);
 	}
 
+	public static void main(String[] args) {
+		StringTokenizer token = new StringTokenizer(",java:,,", ",");
+		for (; token.hasMoreElements();) {
+			Object nextElement = token.nextElement();
+			System.out.println(">>>>" + nextElement);
+		}
+	}
 }

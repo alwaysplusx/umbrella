@@ -34,7 +34,9 @@ import com.harmony.umbrella.util.reflect.MethodUtils;
 
 /**
  * javaEE {@linkplain Stateless}, {@linkplain Stateful}, {@linkplain Singleton}
- * 为sessionBean<p> 将标记了这些注解的bean的基础信息定义为{@linkplain BeanDefinition}
+ * 为sessionBean
+ * <p>
+ * 将标记了这些注解的bean的基础信息定义为{@linkplain BeanDefinition}
  * 
  * @author wuxii@foxmail.com
  */
@@ -254,6 +256,10 @@ public class BeanDefinition {
 			return (String) MethodUtils.invokeMethod("mappedName", ann);
 		}
 		return null;
+	}
+
+	public static boolean isSessionBean(Class<?> clazz) {
+		return getSessionBeanAnnotation(clazz) != null;
 	}
 
 	private static Annotation getSessionBeanAnnotation(Class<?> clazz) {

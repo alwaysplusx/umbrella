@@ -17,10 +17,7 @@ package com.harmony.umbrella.context.ee;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -30,13 +27,16 @@ import javax.naming.NamingException;
 
 import com.harmony.umbrella.context.ApplicationContext;
 import com.harmony.umbrella.context.ApplicationContextException;
+import com.harmony.umbrella.context.ee.impl.ContextBeanImpl;
 import com.harmony.umbrella.context.ee.jmx.EJBContext;
 import com.harmony.umbrella.context.ee.jmx.EJBContextMBean;
-import com.harmony.umbrella.context.ee.reader.WeblogicContextReader;
+import com.harmony.umbrella.context.ee.util.ContextBeanResolver;
+import com.harmony.umbrella.context.ee.util.ContextManager;
 import com.harmony.umbrella.core.NoSuchBeanFindException;
 import com.harmony.umbrella.util.ClassUtils;
 import com.harmony.umbrella.util.JmxManager;
 import com.harmony.umbrella.util.PropUtils;
+import com.harmony.umbrella.util.StringUtils;
 
 /**
  * JavaEE的应用上下文实现
@@ -45,32 +45,20 @@ import com.harmony.umbrella.util.PropUtils;
  */
 public class EJBApplicationContext extends ApplicationContext implements EJBContextMBean {
 
-	private static final String[] JNDI_CONTEXT_ROOT_ARRAY = { "", "java:" };
-
 	/**
 	 * jndi默认配置文件地址
 	 */
 	public static final String JNDI_PROPERTIES_FILE_LOCATION = "META-INF/context/jndi.properties";
 
-	public static final List<String> JNDI_CONTEXT_ROOT = Collections.unmodifiableList(Arrays.asList(JNDI_CONTEXT_ROOT_ARRAY));
-
 	/**
 	 * jndi文件地址
 	 */
 	private final String jndiPropertiesFileLocation;
-	/**
-	 * jndi开始的上下文根
-	 */
-	private final String[] jndiContextRoot;
-	/**
-	 * jndi配置属性
-	 */
-	private Properties jndiProperties = new Properties();
 
 	/**
-	 * 遍历context最大等待时间, default 30000ms
+	 * 应用的配置属性
 	 */
-	private long maxWait;
+	private Properties applicationProperties = new Properties();
 
 	/**
 	 * JMX管理
@@ -80,30 +68,33 @@ public class EJBApplicationContext extends ApplicationContext implements EJBCont
 	/**
 	 * 存放与class对应的Context的bean信息，信息中包含jndi, bean definition, 和一个被缓存着的实例(可以做单例使用)
 	 */
-	private Map<Class<?>, SessionBean> sessionBeanMap = new HashMap<Class<?>, SessionBean>();
+	private Map<Class<?>, ContextBean> sessionBeanMap = new HashMap<Class<?>, ContextBean>();
 
 	/**
 	 * 根据实际环境加载不同的{@linkplain BeanContextResolver}
 	 */
-	private BeanContextResolver beanContextResolver;
+	private final ContextBeanResolver contextBeanResolver;
 
 	private static EJBApplicationContext instance;
 
 	private int status = CREATE;
 
-	private EJBApplicationContext() {
-		this.jndiPropertiesFileLocation = PropUtils.getSystemProperty("jndi.properties.file", JNDI_PROPERTIES_FILE_LOCATION);
+	private EJBApplicationContext(Properties props) {
+		this.jndiPropertiesFileLocation = props.getProperty("jndi.properties.file", JNDI_PROPERTIES_FILE_LOCATION);
 		this.loadProperties();
-		this.beanContextResolver = new GenericBeanContextResolver(jndiProperties);
-		this.jndiContextRoot = jndiProperties.getProperty("jndi.context.root") == null ? JNDI_CONTEXT_ROOT_ARRAY : jndiProperties.getProperty("jndi.context.root").split(",");
-		this.maxWait = Long.parseLong(jndiProperties.getProperty("jndi.context.waitTime", "30000"));
+		this.applicationProperties.putAll(props);
+		this.contextBeanResolver = ContextManager.getContextBeanResolver(getInformationOfServer(), applicationProperties);
 	}
 
 	public static EJBApplicationContext getInstance() {
+		return getInstance(null);
+	}
+
+	public static EJBApplicationContext getInstance(Properties props) {
 		if (instance == null) {
 			synchronized (EJBApplicationContext.class) {
 				if (instance == null) {
-					instance = new EJBApplicationContext();
+					instance = new EJBApplicationContext(props == null ? new Properties() : props);
 				}
 			}
 		}
@@ -157,7 +148,7 @@ public class EJBApplicationContext extends ApplicationContext implements EJBCont
 		try {
 			return (T) getContext().lookup(jndi);
 		} catch (NamingException e) {
-			LOG.error("jndi not find {}", jndi, e);
+			LOG.warn("jndi[{}] not find", jndi);
 			throw new ApplicationContextException(e.getMessage(), e.getCause());
 		}
 	}
@@ -181,18 +172,17 @@ public class EJBApplicationContext extends ApplicationContext implements EJBCont
 	 */
 	@SuppressWarnings("unchecked")
 	public <T> T lookup(Class<T> clazz, String mappedName) throws ApplicationContextException {
-		SessionBean sessionBean = sessionBeanMap.get(clazz);
-		if (sessionBean != null) {
-			LOG.debug("lookup bean[{}] use cached session bean {}", sessionBean.getJndi(), sessionBean);
+		ContextBean contextBean = sessionBeanMap.get(clazz);
+		if (contextBean != null) {
+			LOG.debug("lookup bean[{}] use cached session bean {}", contextBean.getJndi(), contextBean);
 			// 已经将clazz解析过，明确clazz对应的一个jndi能找到指定类型的bean
-			if (sessionBean.isCacheable()) {
-				return (T) sessionBean.getBean();
+			if (contextBean.isCacheable()) {
+				return (T) contextBean.getBean();
 			} else {
 				try {
-					return (T) lookup(sessionBean.getJndi());
+					return (T) lookup(contextBean.getJndi());
 				} catch (Exception e) {
 					// jndi changed
-					LOG.warn("use cached session bean can't lookup bean{}, remove it {}. and try lookup bean as new one", sessionBean.getJndi(), sessionBean);
 					sessionBeanMap.remove(clazz);
 				}
 			}
@@ -200,29 +190,24 @@ public class EJBApplicationContext extends ApplicationContext implements EJBCont
 		// 初次解析
 		BeanDefinition bd = new BeanDefinition(clazz, mappedName);
 		try {
-			sessionBean = tryLookup(bd);
-			LOG.info("lookup bean typeof {} by jndi[{}]", clazz, sessionBean.getJndi());
+			contextBean = tryLookup(bd);
+			LOG.info("lookup bean typeof {} by jndi[{}]", clazz, contextBean.getJndi());
 		} catch (Exception e) {
-			for (String root : jndiContextRoot) {
-				sessionBean = iterator(bd, root);
-				if (sessionBean != null) {
-					LOG.info("find bean typeof {}, with jndi[{}]", clazz, sessionBean.getJndi());
-					break;
-				}
-			}
-			if (sessionBean == null) {
+			contextBean = contextBeanResolver.search(getContext(), bd);
+			if (contextBean == null) {
 				StringBuilder message = new StringBuilder("can't find bean type of ");
-				message.append(clazz);
-				if (bd.getMappedName() != null) {
-					message.append(", mappend name is ").append(bd.getMappedName());
+				message.append(clazz).append(" ");
+				if (!StringUtils.isBlank(bd.getMappedName())) {
+					message.append("and mappend name is ").append(bd.getMappedName());
 				}
 				LOG.error(message.toString());
 				throw new ApplicationContextException(message.toString());
 			}
+			LOG.info("find bean[{}], with jndi[{}]", clazz.getName(), contextBean.getJndi());
 		}
-		sessionBeanMap.put(clazz, sessionBean);
-		LOG.debug("put session bean[{}] in cached", sessionBean);
-		return (T) sessionBean.getBean();
+		sessionBeanMap.put(clazz, contextBean);
+		LOG.debug("put session bean[{}] in cached", contextBean);
+		return (T) contextBean.getBean();
 	}
 
 	/**
@@ -234,42 +219,20 @@ public class EJBApplicationContext extends ApplicationContext implements EJBCont
 	 * @throws Exception
 	 *             如果未找到bean
 	 */
-	protected SessionBean tryLookup(BeanDefinition bd) throws Exception {
+	protected ContextBean tryLookup(BeanDefinition bd) throws Exception {
 		String jndi = null;
 		try {
-			jndi = beanContextResolver.resolveBeanName(bd);
+			jndi = contextBeanResolver.resolveBeanName(bd);
 			Object bean = getContext().lookup(jndi);
-			if (beanContextResolver.isDeclareBean(bd, bean)) {
-				return new SessionBeanImpl(bd, jndi, bean);
+			if (contextBeanResolver.isDeclareBean(bd, bean)) {
+				Object unwrapBean = contextBeanResolver.unwrap(bean);
+				return new ContextBeanImpl(bd, jndi, unwrapBean, bean == unwrapBean);
 			}
 		} catch (Exception e) {
 			LOG.debug("can't lookup jndi[{}], try to iterator context find bean of {}", jndi, bd.getBeanClass(), e);
 			throw e;
 		}
 		throw new Exception("for entry catch block");
-	}
-
-	protected SessionBean iterator(final BeanDefinition bd, final String root) {
-		final SessionBeanImpl sessionBean = new SessionBeanImpl(bd);
-		getContextReader().accept(new ContextVisitor() {
-
-			@Override
-			public void visitContext(Context context, String jndi) {
-				System.err.println(">>>> " + jndi);
-			}
-
-			@Override
-			public void visitBean(Object bean, String jndi) {
-				System.err.println(">>>> " + jndi);
-				if (beanContextResolver.isDeclareBean(bd, bean)) {
-					sessionBean.bean = bean;
-					sessionBean.jndi = jndi;
-					this.visitEnd();
-				}
-			}
-
-		}, root);
-		return (sessionBean.bean != null && sessionBean.jndi != null) ? sessionBean : null;
 	}
 
 	/**
@@ -301,14 +264,10 @@ public class EJBApplicationContext extends ApplicationContext implements EJBCont
 	 */
 	public Context getContext() {
 		try {
-			return new InitialContext(jndiProperties);
+			return new InitialContext(applicationProperties);
 		} catch (NamingException e) {
 			throw new ApplicationContextException(e.getMessage(), e.getCause());
 		}
-	}
-
-	protected ContextReader getContextReader() {
-		return new WeblogicContextReader(getContext(), maxWait);
 	}
 
 	public void destory() {
@@ -317,10 +276,6 @@ public class EJBApplicationContext extends ApplicationContext implements EJBCont
 			this.cleanProperties();
 			status = DESTROY;
 		}
-	}
-
-	public void setBeanContextResolver(BeanContextResolver beanContextResolver) {
-		this.beanContextResolver = beanContextResolver;
 	}
 
 	/**
@@ -390,7 +345,7 @@ public class EJBApplicationContext extends ApplicationContext implements EJBCont
 	@Override
 	public void loadProperties() {
 		try {
-			jndiProperties.putAll(PropUtils.loadProperties(jndiPropertiesFileLocation));
+			applicationProperties.putAll(PropUtils.loadProperties(jndiPropertiesFileLocation));
 		} catch (IOException e) {
 			LOG.warn("can't load jndi properties file", e);
 		}
@@ -401,7 +356,7 @@ public class EJBApplicationContext extends ApplicationContext implements EJBCont
 	 */
 	@Override
 	public void cleanProperties() {
-		jndiProperties.clear();
+		applicationProperties.clear();
 		LOG.debug("jndi properties cleaned");
 	}
 
@@ -425,74 +380,8 @@ public class EJBApplicationContext extends ApplicationContext implements EJBCont
 		return getBean(className) != null;
 	}
 
-	private class SessionBeanImpl implements SessionBean {
-
-		private final BeanDefinition bd;
-		private Object bean;
-		private String jndi;
-
-		public SessionBeanImpl(BeanDefinition bd) {
-			this.bd = bd;
-		}
-
-		public SessionBeanImpl(BeanDefinition bd, String jndi, Object bean) {
-			this.bd = bd;
-			this.bean = bean;
-			this.jndi = jndi;
-		}
-
-		@Override
-		public Object getBean() {
-			return bean;
-		}
-
-		@Override
-		public String getJndi() {
-			return jndi;
-		}
-
-		@Override
-		public boolean isCacheable() {
-			return bd.isSessionBean();
-		}
-
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + ((bd == null) ? 0 : bd.hashCode());
-			result = prime * result + ((bean == null) ? 0 : bean.hashCode());
-			result = prime * result + ((jndi == null) ? 0 : jndi.hashCode());
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object obj) {
-			if (this == obj)
-				return true;
-			if (obj == null)
-				return false;
-			if (getClass() != obj.getClass())
-				return false;
-			SessionBeanImpl other = (SessionBeanImpl) obj;
-			if (bd == null) {
-				if (other.bd != null)
-					return false;
-			} else if (!bd.equals(other.bd))
-				return false;
-			if (bean == null) {
-				if (other.bean != null)
-					return false;
-			} else if (!bean.equals(other.bean))
-				return false;
-			if (jndi == null) {
-				if (other.jndi != null)
-					return false;
-			} else if (!jndi.equals(other.jndi))
-				return false;
-			return true;
-		}
-
+	public void applyProperties(Properties props) {
+		this.applicationProperties.putAll(props);
 	}
 
 }

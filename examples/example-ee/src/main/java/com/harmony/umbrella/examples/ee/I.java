@@ -13,17 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.umbrella.context.ee;
+package com.harmony.umbrella.examples.ee;
 
 /**
  * @author wuxii@foxmail.com
  */
-public interface SessionBean {
+public interface I {
 
-	Object getBean();
-
-	String getJndi();
-
-	boolean isCacheable();
+	String sayHi();
 
 }

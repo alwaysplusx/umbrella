@@ -21,6 +21,11 @@ import javax.ejb.Stateless;
  * @author wuxii@foxmail.com
  */
 @Stateless
-public class C {
+public class C implements I {
+
+	@Override
+	public String sayHi() {
+		return "C";
+	}
 
 }

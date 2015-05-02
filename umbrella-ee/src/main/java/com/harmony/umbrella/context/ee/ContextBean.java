@@ -15,29 +15,17 @@
  */
 package com.harmony.umbrella.context.ee;
 
-import javax.naming.Context;
-
 /**
- * {@linkplain Context}内容的访问者
- * 
  * @author wuxii@foxmail.com
  */
-public class ContextVisitor {
+public interface ContextBean {
 
-	private boolean isVisitEnd = false;
+	Object getBean();
 
-	public void visitContext(Context context, String jndi) {
-	}
+	String getJndi();
 
-	public void visitBean(Object bean, String jndi) {
-	}
+	boolean isCacheable();
 
-	public void visitEnd() {
-		isVisitEnd = true;
-	}
-
-	public boolean isVisitEnd() {
-		return isVisitEnd;
-	}
+	boolean isWrapped();
 
 }

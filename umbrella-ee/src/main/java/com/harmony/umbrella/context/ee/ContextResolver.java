@@ -15,12 +15,16 @@
  */
 package com.harmony.umbrella.context.ee;
 
+import com.harmony.umbrella.context.ee.BeanDefinition;
+
 /**
- * JavaEE 环境中的内容解析<p>在不同的EE环境中需要不同的方式解决jndi名称问题。 以及bean与声明的{@linkplain BeanDefinition}匹配选择
+ * JavaEE 环境中的内容解析
+ * <p>
+ * 在不同的EE环境中需要不同的方式解决jndi名称问题。 以及bean与声明的{@linkplain BeanDefinition}匹配选择
  * 
  * @author wuxii@foxmail.com
  */
-public interface BeanContextResolver {
+public interface ContextResolver {
 
 	String BEAN_JNDI_SEPARATOR = "#";
 

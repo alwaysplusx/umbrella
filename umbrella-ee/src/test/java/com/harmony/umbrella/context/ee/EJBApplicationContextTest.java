@@ -86,7 +86,8 @@ public class EJBApplicationContextTest {
 // }
 // @Test
 // public void testListBindsing() throws Exception {
-// NamingEnumeration<Binding> bindings = container.getContext().listBindings("java:");
+// NamingEnumeration<Binding> bindings =
+// container.getContext().listBindings("java:");
 // while (bindings.hasMoreElements()) {
 // Binding binding = (Binding) bindings.nextElement();
 // System.err.println("class Name = " + binding.getClassName());

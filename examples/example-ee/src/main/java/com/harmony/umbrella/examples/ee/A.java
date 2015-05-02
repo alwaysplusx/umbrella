@@ -21,6 +21,11 @@ import javax.ejb.Singleton;
  * @author wuxii@foxmail.com
  */
 @Singleton
-public class A {
+public class A implements I {
+
+	@Override
+	public String sayHi() {
+		return "A";
+	}
 
 }

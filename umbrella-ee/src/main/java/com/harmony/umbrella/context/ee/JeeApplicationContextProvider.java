@@ -15,6 +15,8 @@
  */
 package com.harmony.umbrella.context.ee;
 
+import java.util.Properties;
+
 import com.harmony.umbrella.context.ApplicationContext;
 import com.harmony.umbrella.context.spi.ApplicationContextProvider;
 
@@ -23,9 +25,9 @@ import com.harmony.umbrella.context.spi.ApplicationContextProvider;
  */
 public class JeeApplicationContextProvider implements ApplicationContextProvider {
 
-    @Override
-    public ApplicationContext createApplicationContext() {
-        return EJBApplicationContext.getInstance();
-    }
+	@Override
+	public ApplicationContext createApplicationContext() {
+		return EJBApplicationContext.getInstance(new Properties());
+	}
 
 }

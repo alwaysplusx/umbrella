@@ -28,7 +28,10 @@ import javax.servlet.ServletContext;
  * 
  * @author wuxii@foxmail.com
  */
-class ApplicationMetadata {
+public class ApplicationMetadata {
+
+	private ApplicationMetadata() {
+	}
 
 	static final ApplicationMetadata INSTANCE = new ApplicationMetadata();
 	static final JVMInformation jvmInfo = INSTANCE.new JVMInformation();
@@ -36,40 +39,39 @@ class ApplicationMetadata {
 
 	static final DBInformation EMPTY_DATABASEINFO = INSTANCE.new DBInformation();
 
-	class ServerInformation {
+	public class ServerInformation {
 
 		public final String servletVersion;
 		public final String serverName;
 		public final int serverType;
 
-		public ServerInformation(ServletContext context) {
+		ServerInformation(ServletContext context) {
 			this.serverName = context.getServerInfo();
 			this.servletVersion = context.getMajorVersion() + "." + context.getMinorVersion();
 			this.serverType = serverType(serverName);
 		}
 
-		public static final int UNKNOW = -1;
-		public static final int OTHERS = 0;
-		public static final int WEBLOGIC = 1;
-		public static final int WEBSPHERE = 2;
-		public static final int GLASSFISH = 3;
-		public static final int JBOSS = 4;
-		public static final int TOMCAT = 5;
+		public static final int Unknow = 0;
+		public static final int WebLogic = 1;
+		public static final int WebSphere = 2;
+		public static final int Glassfish = 3;
+		public static final int JBoss = 4;
+		public static final int Tomcat = 5;
 
 		private int serverType(String serverName) {
 			serverName = serverName.toLowerCase();
 			if (serverName.indexOf("weblogic") != -1) {
-				return WEBLOGIC;
+				return WebLogic;
 			} else if (serverName.indexOf("websphere") != -1) {
-				return WEBSPHERE;
+				return WebSphere;
 			} else if (serverName.indexOf("glassfish") != -1) {
-				return GLASSFISH;
+				return Glassfish;
 			} else if (serverName.indexOf("jboss") != -1) {
-				return JBOSS;
+				return JBoss;
 			} else if (serverName.indexOf("tomcat") != -1) {
-				return TOMCAT;
+				return Tomcat;
 			}
-			return OTHERS;
+			return Unknow;
 		}
 
 		@Override
@@ -81,7 +83,7 @@ class ApplicationMetadata {
 
 	}
 
-	class DBInformation {
+	public class DBInformation {
 
 		public final String productName;
 		public final String productVersion;
@@ -106,7 +108,7 @@ class ApplicationMetadata {
 			databaseType = -1;
 		}
 
-		public DBInformation(Connection connection) throws SQLException {
+		DBInformation(Connection connection) throws SQLException {
 			DatabaseMetaData dbmd = connection.getMetaData();
 			this.productName = dbmd.getDatabaseProductName();
 			this.productVersion = dbmd.getDatabaseProductVersion();
@@ -148,7 +150,7 @@ class ApplicationMetadata {
 
 	}
 
-	class JVMInformation {
+	public class JVMInformation {
 
 		public final String specificationName;
 		public final String specificationVersion;
@@ -190,7 +192,7 @@ class ApplicationMetadata {
 
 	}
 
-	class OSInformation {
+	public class OSInformation {
 
 		public final String osName;
 		public final String osVersion;

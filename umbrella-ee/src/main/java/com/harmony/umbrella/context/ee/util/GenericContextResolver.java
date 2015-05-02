@@ -13,13 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.umbrella.context.ee;
+package com.harmony.umbrella.context.ee.util;
 
 import java.util.Properties;
+
+import javax.naming.Context;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.harmony.umbrella.context.ee.BeanDefinition;
+import com.harmony.umbrella.context.ee.ContextResolver;
 import com.harmony.umbrella.util.StringUtils;
 
 /**
@@ -27,16 +31,16 @@ import com.harmony.umbrella.util.StringUtils;
  * 
  * @author wuxii@foxmail.com
  */
-public class GenericBeanContextResolver implements BeanContextResolver {
+public class GenericContextResolver implements ContextResolver {
 
-	protected Logger log = LoggerFactory.getLogger(GenericBeanContextResolver.class);
+	protected static final Logger log = LoggerFactory.getLogger(GenericContextResolver.class);
 
 	protected final String beanSuffix;
 	protected final String remoteSuffix;
 	protected final String localSuffix;
 	protected final String beanSeparator;
 
-	public GenericBeanContextResolver(Properties props) {
+	public GenericContextResolver(Properties props) {
 		this.beanSuffix = props.getProperty("jndi.format.bean", SUFFIX_BEAN);
 		this.remoteSuffix = props.getProperty("jndi.format.remote", SUFFIX_REMOTE);
 		this.localSuffix = props.getProperty("jndi.format.local", SUFFIX_LOCAL);
@@ -57,10 +61,21 @@ public class GenericBeanContextResolver implements BeanContextResolver {
 
 	@Override
 	public boolean isDeclareBean(BeanDefinition declaer, Object bean) {
-		bean = unwrap(bean);
+		if (isWrappedBean(bean)) {
+			bean = unwrap(bean);
+		}
+		if (StringUtils.isNotBlank(declaer.getMappedName())) {
+			if (!isSameMappedName(declaer, bean.getClass())) {
+				return false;
+			}
+		}
 		Class<?> beanClass = declaer.getBeanClass();
 		Class<?> suitableRemoteClass = declaer.getSuitableRemoteClass();
 		return beanClass.isInstance(bean) || (suitableRemoteClass != null && suitableRemoteClass.isInstance(bean));
+	}
+
+	private boolean isSameMappedName(BeanDefinition declaer, Class<?> beanClass) {
+		return true;
 	}
 
 	protected String resolveSessionBeanName(String mappedName, Class<?> beanClass, Class<?> remoteClass) {
@@ -71,7 +86,7 @@ public class GenericBeanContextResolver implements BeanContextResolver {
 			remoteClass = beanClass;
 		}
 		String jndi = mappedName + beanSeparator + remoteClass.getName();
-		log.info("resolve session bean {} as jndi name {}", beanClass, jndi);
+		log.info("resolve [{{}} -> {{}}]", beanClass.getName(), jndi);
 		return jndi;
 	}
 
@@ -84,7 +99,7 @@ public class GenericBeanContextResolver implements BeanContextResolver {
 			}
 		}
 		String jndi = mappedName + beanSeparator + remoteClass.getName();
-		log.info("resolve remote class {} as jndi name {}", remoteClass, jndi);
+		log.info("resolve [{{}} -> {{}}]", remoteClass.getName(), jndi);
 		return jndi;
 	}
 
@@ -97,8 +112,16 @@ public class GenericBeanContextResolver implements BeanContextResolver {
 			}
 		}
 		String jndi = mappedName + beanSeparator + localClass.getName();
-		log.info("resolve local class as jndi name {}", localClass, jndi);
+		log.info("resolve [{{}} -> {{}}]", localClass.getName(), jndi);
 		return jndi;
+	}
+
+	protected boolean isWrappedBean(Object object) {
+		return false;
+	}
+
+	protected boolean isContext(Object object) {
+		return object instanceof Context;
 	}
 
 	@Override
