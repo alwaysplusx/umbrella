@@ -130,7 +130,7 @@ public class JaxWsAnnotationHandler implements JaxWsContextHandler {
 	@Override
 	public void throwing(JaxWsContext context, Throwable throwable) {
 		try {
-			HandleMethodInvoker[] invokers = finder.findHandleMethods(context.getMethod(), POST_INVOKE);
+			HandleMethodInvoker[] invokers = finder.findHandleMethods(context.getMethod(), THROWING);
 			for (HandleMethodInvoker invoker : invokers) {
 				try {
 					if (invoker.isEndWithMap()) {
@@ -152,7 +152,7 @@ public class JaxWsAnnotationHandler implements JaxWsContextHandler {
 	@Override
 	public void finallyExecute(JaxWsContext context, Object result, Exception exception) {
 		try {
-			HandleMethodInvoker[] invokers = finder.findHandleMethods(context.getMethod(), POST_INVOKE);
+			HandleMethodInvoker[] invokers = finder.findHandleMethods(context.getMethod(), FINALLY);
 			for (HandleMethodInvoker invoker : invokers) {
 				try {
 					if (invoker.isEndWithMap()) {

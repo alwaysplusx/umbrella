@@ -59,13 +59,13 @@ public class HandleMethodReflectInvoker extends DefaultInvoker implements Handle
 		this.phase = phase;
 	}
 
-	@Override
-	public Object invokeHandleMethod(Object target, Object[] args) throws InvokeException {
-		return invokeHandleMethod(target, args, null);
-	}
+    @Override
+    public Object invokeHandleMethod(Object target, Object[] args) throws InvokeException {
+        return invokeHandleMethod(target, args, endWithMap ? contextMap : null);
+    }
 
 	@Override
-	public Object invokeHandleMethod(Object target, Object[] args, Map<String, String> contextMap) throws InvokeException {
+	public Object invokeHandleMethod(Object target, Object[] args, Map<String, Object> contextMap) throws InvokeException {
 		List<Object> arguments = new LinkedList<Object>();
 		Collections.addAll(arguments, args);
 		if (endWithMap) {

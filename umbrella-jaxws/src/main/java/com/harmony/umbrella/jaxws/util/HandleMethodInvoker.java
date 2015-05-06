@@ -47,7 +47,7 @@ public interface HandleMethodInvoker extends Invoker {
 	 * @return
 	 * @throws InvokeException
 	 */
-	Object invokeHandleMethod(Object target, Object[] args, Map<String, String> contextMap) throws InvokeException;
+	Object invokeHandleMethod(Object target, Object[] args, Map<String, Object> contextMap) throws InvokeException;
 
 	/**
 	 * handler class
