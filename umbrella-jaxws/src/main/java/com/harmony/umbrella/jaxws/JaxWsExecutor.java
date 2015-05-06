@@ -69,6 +69,16 @@ public interface JaxWsExecutor {
     Future<?> executeAsync(JaxWsContext context);
 
     /**
+     * 异步调用,并提供对于结果的回调
+     * 
+     * @param context
+     *            执行上下文
+     * @param callback
+     *            结果回调
+     */
+    <V> void executeAsync(JaxWsContext context, JaxWsAsyncCallback<V> callback);
+
+    /**
      * 增加一个处理器
      * 
      * @param handler

@@ -17,9 +17,13 @@ package com.harmony.umbrella.jaxws;
 
 import static org.junit.Assert.*;
 
+import java.util.Map;
+
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.harmony.umbrella.jaxws.impl.JaxWsCXFExecutor;
+import com.harmony.umbrella.jaxws.impl.SimpleJaxWsContext;
 import com.harmony.umbrella.jaxws.services.HelloService;
 import com.harmony.umbrella.jaxws.services.HelloServiceImpl;
 
@@ -28,22 +32,36 @@ import com.harmony.umbrella.jaxws.services.HelloServiceImpl;
  */
 public class JaxWsServerAndProxyTest {
 
-	private static final String address = "http://localhost:8080/hi";
+    private static final String address = "http://localhost:8080/hello";
+    private static final JaxWsExecutor executor = new JaxWsCXFExecutor();
 
-	@BeforeClass
-	public static void setUp() {
-		JaxWsServerBuilder.newServerBuilder().publish(HelloServiceImpl.class, address);
-	}
+    @BeforeClass
+    public static void setUp() {
+        JaxWsServerBuilder.newServerBuilder().publish(HelloServiceImpl.class, address);
+    }
 
-	@Test
-	public void testProxyBuilder() {
-		HelloService service = JaxWsProxyBuilder.newProxyBuilder().build(HelloService.class, address);
-		assertEquals("Hi wuxii", service.sayHi("wuxii"));
-	}
+    @Test
+    public void testProxyBuilder() {
+        HelloService service = JaxWsProxyBuilder.newProxyBuilder().build(HelloService.class, address);
+        assertEquals("Hi wuxii", service.sayHi("wuxii"));
+    }
 
-	public static void main(String[] args) {
-		// 最好是给实现类也添加上与接口一样的annotation配置信息
-		JaxWsServerBuilder.newServerBuilder().setServiceInterface(HelloService.class).publish(HelloServiceImpl.class, address);
-	}
+    @Test
+    public void testAsyncAndCallback() {
+        SimpleJaxWsContext context = new SimpleJaxWsContext(HelloService.class, "sayHi", new Object[] { "wuxii" });
+        context.setAddress(address);
+        executor.executeAsync(context, new JaxWsAsyncCallback<String>() {
+            @Override
+            public void handle(String result, Map<String, Object> content) {
+                assertEquals("Hi wuxii", result);
+                System.out.println("jaxws content is " + content);
+            }
+        });
+    }
+
+    public static void main(String[] args) {
+        // 最好是给实现类也添加上与接口一样的annotation配置信息
+        JaxWsServerBuilder.newServerBuilder().setServiceInterface(HelloService.class).publish(HelloServiceImpl.class, address);
+    }
 
 }

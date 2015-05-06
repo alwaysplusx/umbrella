@@ -24,6 +24,8 @@ import java.util.concurrent.FutureTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.harmony.umbrella.util.Exceptions;
+
 /**
  * 将{@linkplain JaxWsExecutor}的执行分为各个周期的抽象类
  * 
@@ -31,205 +33,224 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class JaxWsPhaseExecutor implements JaxWsExecutor {
 
-	protected static final Logger LOG = LoggerFactory.getLogger(JaxWsPhaseExecutor.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(JaxWsPhaseExecutor.class);
 
-	private List<JaxWsContextHandler> handlers = new LinkedList<JaxWsContextHandler>();
+    private List<JaxWsContextHandler> handlers = new LinkedList<JaxWsContextHandler>();
 
-	/**
-	 * 标记执行出现错误是抛出还是隐藏
-	 */
-	private boolean hideTrowable = false;
+    /**
+     * 标记执行出现错误是抛出还是隐藏
+     */
+    private boolean hideTrowable = false;
 
-	/**
-	 * 安静的执行{@linkplain #execute(JaxWsContext)}，不触发内部的handler
-	 * 
-	 * @param context
-	 * @param resultType
-	 * @return
-	 * @see #execute(JaxWsContext, Class)
-	 */
-	public abstract <T> T executeQuite(JaxWsContext context, Class<T> resultType);
+    /**
+     * 安静的执行{@linkplain #execute(JaxWsContext)}，不触发内部的handler
+     * 
+     * @param context
+     * @param resultType
+     * @return
+     * @see #execute(JaxWsContext, Class)
+     */
+    public abstract <T> T executeQuite(JaxWsContext context, Class<T> resultType);
 
-	/**
-	 * 安静的执行{@linkplain #execute(JaxWsContext)}，不触发内部的handler
-	 * 
-	 * @param context
-	 * @return
-	 * @see #execute(JaxWsContext, Class)
-	 */
-	public Object executeQuite(JaxWsContext context) {
-		return executeQuite(context, Object.class);
-	}
+    /**
+     * 安静的执行{@linkplain #execute(JaxWsContext)}，不触发内部的handler
+     * 
+     * @param context
+     * @return
+     * @see #execute(JaxWsContext, Class)
+     */
+    public Object executeQuite(JaxWsContext context) {
+        return executeQuite(context, Object.class);
+    }
 
-	/**
-	 * 安静的异步执行{@linkplain #executeAsync(JaxWsContext)}
-	 * 
-	 * @param context
-	 * @param resultType
-	 * @return
-	 * @see #executeAsync(JaxWsContext)
-	 */
-	public <T> Future<T> executeAsyncQuite(final JaxWsContext context, final Class<T> resultType) {
-		FutureTask<T> task = new FutureTask<T>(new Callable<T>() {
-			@Override
-			public T call() throws Exception {
-				return executeQuite(context, resultType);
-			}
-		});
-		new Thread(task).start();
-		return task;
-	}
+    /**
+     * 安静的异步执行{@linkplain #executeAsync(JaxWsContext)}
+     * 
+     * @param context
+     * @param resultType
+     * @return
+     * @see #executeAsync(JaxWsContext)
+     */
+    public <T> Future<T> executeAsyncQuite(final JaxWsContext context, final Class<T> resultType) {
+        FutureTask<T> task = new FutureTask<T>(new Callable<T>() {
+            @Override
+            public T call() throws Exception {
+                return executeQuite(context, resultType);
+            }
+        });
+        new Thread(task).start();
+        return task;
+    }
 
-	/**
-	 * 安静的异步执行{@linkplain #executeAsync(JaxWsContext)}
-	 * 
-	 * @param context
-	 * @return
-	 */
-	public Future<?> executeAsyncQuite(JaxWsContext context) {
-		return executeAsyncQuite(context, Object.class);
-	}
+    /**
+     * 安静的异步执行{@linkplain #executeAsync(JaxWsContext)}
+     * 
+     * @param context
+     * @return
+     */
+    public Future<?> executeAsyncQuite(JaxWsContext context) {
+        return executeAsyncQuite(context, Object.class);
+    }
 
-	@Override
-	public <T> T execute(JaxWsContext context, Class<T> resultType) {
-		Exception exception = null;
-		T result = null;
-		try {
-			doBefore(context);
-			LOG.debug("执行交互{}", context);
-			long start = System.currentTimeMillis();
-			result = executeQuite(context, resultType);
-			LOG.debug("交互成功{}, 返回结果[{}], 交互耗时:{}ms", context, result, System.currentTimeMillis() - start);
-			doCompletion(context, result);
-		} catch (Exception e) {
-			LOG.warn("交互失败{}", context, e);
-			try {
-				doThrowing(context, exception = e);
-			} catch (Exception e1) {
-				// ignore
-			}
-			throwOrHide(e);
-		} finally {
-			try {
-				doFinally(context, result, exception);
-			} catch (Exception e) {
-				// ignore
-			}
-			if (context.contains(JaxWsGraph.JAXWS_CONTEXT_GRAPH)) {
-				Object graph = context.get(JaxWsGraph.JAXWS_CONTEXT_GRAPH);
-				LOG.info("执行情况概要如下:{}", graph);
-				try {
-					persistGraph((JaxWsGraph) graph);
-				} catch (Exception e) {
-					LOG.info("保存失败, JaxWs执行情况无法正常保存", e);
-				}
-			}
-		}
-		return result;
-	}
+    @Override
+    public <T> T execute(JaxWsContext context, Class<T> resultType) {
+        Exception exception = null;
+        T result = null;
+        try {
+            doBefore(context);
+            LOG.debug("执行交互{}", context);
+            long start = System.currentTimeMillis();
+            result = executeQuite(context, resultType);
+            LOG.debug("交互成功{}, 返回结果[{}], 交互耗时:{}ms", context, result, System.currentTimeMillis() - start);
+            doCompletion(context, result);
+        } catch (Exception e) {
+            LOG.warn("交互失败{}", context, e);
+            try {
+                doThrowing(context, exception = e);
+            } catch (Exception e1) {
+                // ignore
+            }
+            throwOrHide(e);
+        } finally {
+            try {
+                doFinally(context, result, exception);
+            } catch (Exception e) {
+                // ignore
+            }
+            if (context.contains(JaxWsGraph.JAXWS_CONTEXT_GRAPH)) {
+                Object graph = context.get(JaxWsGraph.JAXWS_CONTEXT_GRAPH);
+                LOG.info("执行情况概要如下:{}", graph);
+                try {
+                    persistGraph((JaxWsGraph) graph);
+                } catch (Exception e) {
+                    LOG.info("保存失败, JaxWs执行情况无法正常保存", e);
+                }
+            }
+        }
+        return result;
+    }
 
-	/**
-	 * {@linkplain JaxWsPhaseExecutor}中没有在{@linkplain JaxWsContext}中设置
-	 * {@linkplain JaxWsGraph}. <p>所以子类必须在{@linkplain JaxWsContext}设置
-	 * {@linkplain JaxWsGraph}.才会进入保存流程.
-	 * 
-	 * @param graph
-	 */
-	protected abstract void persistGraph(JaxWsGraph graph);
+    /**
+     * {@linkplain JaxWsPhaseExecutor}中没有在{@linkplain JaxWsContext}中设置
+     * {@linkplain JaxWsGraph}.
+     * <p>
+     * 所以子类必须在{@linkplain JaxWsContext}设置 {@linkplain JaxWsGraph}.才会进入保存流程.
+     * 
+     * @param graph
+     */
+    protected abstract void persistGraph(JaxWsGraph graph);
 
-	@Override
-	public Object execute(JaxWsContext context) {
-		return execute(context, Object.class);
-	}
+    @Override
+    public Object execute(JaxWsContext context) {
+        return execute(context, Object.class);
+    }
 
-	@Override
-	public <T> Future<T> executeAsync(final JaxWsContext context, final Class<T> resultType) {
-		FutureTask<T> task = new FutureTask<T>(new Callable<T>() {
-			@Override
-			public T call() throws Exception {
-				return execute(context, resultType);
-			}
-		});
-		new Thread(task).start();
-		return task;
-	}
+    @Override
+    public <T> Future<T> executeAsync(final JaxWsContext context, final Class<T> resultType) {
+        FutureTask<T> task = new FutureTask<T>(new Callable<T>() {
+            @Override
+            public T call() throws Exception {
+                return execute(context, resultType);
+            }
+        });
+        new Thread(task).start();
+        return task;
+    }
 
-	@Override
-	public Future<?> executeAsync(JaxWsContext context) {
-		return (Future<?>) execute(context, Object.class);
-	}
+    @Override
+    public Future<?> executeAsync(JaxWsContext context) {
+        return (Future<?>) executeAsync(context, Object.class);
+    }
 
-	@Override
-	public List<JaxWsContextHandler> getHandlers() {
-		return this.handlers;
-	}
+    @SuppressWarnings("unchecked")
+    @Override
+    public <V> void executeAsync(final JaxWsContext context, JaxWsAsyncCallback<V> callback) throws JaxWsException {
+        Future<V> future = (Future<V>) executeAsync(context);
+        while (!future.isCancelled()) {
+            if (future.isDone()) {
+                try {
+                    V result = future.get();
+                    if (callback != null)
+                        callback.handle(result, context.getContextMap());
+                    break;
+                } catch (Exception e) {
+                    throw Exceptions.unchecked(e);
+                }
+            }
+        }
+    }
 
-	@Override
-	public boolean addHandler(JaxWsContextHandler handler) {
-		return this.handlers.add(handler);
-	}
+    @Override
+    public List<JaxWsContextHandler> getHandlers() {
+        return this.handlers;
+    }
 
-	@Override
-	public boolean removeHandler(JaxWsContextHandler handler) {
-		return this.handlers.remove(handler);
-	}
+    @Override
+    public boolean addHandler(JaxWsContextHandler handler) {
+        return this.handlers.add(handler);
+    }
 
-	protected void throwOrHide(Exception e) {
-		if (!hideTrowable) {
-			if (e instanceof RuntimeException) {
-				throw (RuntimeException) e;
-			}
-			throw new JaxWsException(e);
-		}
-	}
+    @Override
+    public boolean removeHandler(JaxWsContextHandler handler) {
+        return this.handlers.remove(handler);
+    }
 
-	private boolean doBefore(JaxWsContext context) {
-		try {
-			return doPrepare(context);
-		} catch (JaxWsAbortException e) {
-			doAbort(context, e);
-			return false;
-		}
-	}
+    protected void throwOrHide(Exception e) {
+        if (!hideTrowable) {
+            if (e instanceof RuntimeException) {
+                throw (RuntimeException) e;
+            }
+            throw new JaxWsException(e);
+        }
+    }
 
-	protected boolean doPrepare(JaxWsContext context) throws JaxWsAbortException {
-		for (JaxWsContextHandler handler : handlers) {
-			if (!handler.preExecute(context))
-				return false;
-		}
-		return true;
-	}
+    private boolean doBefore(JaxWsContext context) {
+        try {
+            return doPrepare(context);
+        } catch (JaxWsAbortException e) {
+            doAbort(context, e);
+            return false;
+        }
+    }
 
-	protected void doCompletion(JaxWsContext context, Object result) {
-		for (JaxWsContextHandler handler : handlers) {
-			handler.postExecute(context, result);
-		}
-	}
+    protected boolean doPrepare(JaxWsContext context) throws JaxWsAbortException {
+        for (JaxWsContextHandler handler : handlers) {
+            if (!handler.preExecute(context))
+                return false;
+        }
+        return true;
+    }
 
-	protected void doThrowing(JaxWsContext context, Exception e) {
-		for (JaxWsContextHandler handler : handlers) {
-			handler.throwing(context, e);
-		}
-	}
+    protected void doCompletion(JaxWsContext context, Object result) {
+        for (JaxWsContextHandler handler : handlers) {
+            handler.postExecute(context, result);
+        }
+    }
 
-	protected void doAbort(JaxWsContext context, JaxWsAbortException e) {
-		for (JaxWsContextHandler handler : handlers) {
-			handler.abortExecute(context, e);
-		}
-	}
+    protected void doThrowing(JaxWsContext context, Exception e) {
+        for (JaxWsContextHandler handler : handlers) {
+            handler.throwing(context, e);
+        }
+    }
 
-	protected void doFinally(JaxWsContext context, Object result, Exception e) {
-		for (JaxWsContextHandler handler : handlers) {
-			handler.finallyExecute(context, result, e);
-		}
-	}
+    protected void doAbort(JaxWsContext context, JaxWsAbortException e) {
+        for (JaxWsContextHandler handler : handlers) {
+            handler.abortExecute(context, e);
+        }
+    }
 
-	public boolean isHideTrowable() {
-		return hideTrowable;
-	}
+    protected void doFinally(JaxWsContext context, Object result, Exception e) {
+        for (JaxWsContextHandler handler : handlers) {
+            handler.finallyExecute(context, result, e);
+        }
+    }
 
-	public void setHideTrowable(boolean hideTrowable) {
-		this.hideTrowable = hideTrowable;
-	}
+    public boolean isHideTrowable() {
+        return hideTrowable;
+    }
+
+    public void setHideTrowable(boolean hideTrowable) {
+        this.hideTrowable = hideTrowable;
+    }
 
 }
