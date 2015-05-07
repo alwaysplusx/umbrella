@@ -22,7 +22,7 @@ import java.util.Properties;
 
 import com.harmony.umbrella.context.ApplicationMetadata.ServerInformation;
 import com.harmony.umbrella.context.ee.ContextResolver;
-import com.harmony.umbrella.context.ee.resolver.wls.WebLogicContextBeanResolver;
+import com.harmony.umbrella.context.ee.resolver.GenericContextBeanResolver;
 import com.harmony.umbrella.util.ReflectionUtils;
 
 /**
@@ -30,56 +30,57 @@ import com.harmony.umbrella.util.ReflectionUtils;
  */
 public class ContextManager {
 
-	public static ContextResolver getContextResolver(ServerInformation serverInfo, Properties props) {
-		String resolverClassName = props.getProperty("jndi.context.resolver");
-		if (resolverClassName != null) {
-			return createResolverFromClassName(resolverClassName, serverInfo, props, ContextResolver.class);
-		}
-		int serverType = serverInfo == null ? Unknow : serverInfo.serverType;
-		switch (serverType) {
-		case WebLogic:
-		case WebSphere:
-		case Glassfish:
-		case JBoss:
-		case Tomcat:
-		default:
-			return new GenericContextResolver(props);
-		}
-	}
+    public static ContextResolver getContextResolver(ServerInformation serverInfo, Properties props) {
+        String resolverClassName = props.getProperty("jndi.context.resolver");
+        if (resolverClassName != null) {
+            return createResolverFromClassName(resolverClassName, serverInfo, props, ContextResolver.class);
+        }
+        int serverType = serverInfo == null ? Unknow : serverInfo.serverType;
+        switch (serverType) {
+        case WebLogic:
+        case WebSphere:
+        case Glassfish:
+        case JBoss:
+        case Tomcat:
+        default:
+            return new GenericContextResolver(props);
+        }
+    }
 
-	public static ContextBeanResolver getContextBeanResolver(ServerInformation serverInfo, Properties props) {
-		String resolverClassName = props.getProperty("jndi.context.resolver");
-		if (resolverClassName != null) {
-			return createResolverFromClassName(resolverClassName, serverInfo, props, ContextBeanResolver.class);
-		}
-		int serverType = serverInfo == null ? Unknow : serverInfo.serverType;
-		switch (serverType) {
-		case WebLogic:
-			return new WebLogicContextBeanResolver(props);
-		case WebSphere:
-		case Glassfish:
-		case JBoss:
-		case Tomcat:
-		default:
-			return new GenericContextBeanResolver(props);
-		}
-	}
+    public static ContextBeanResolver getContextBeanResolver(ServerInformation serverInfo, Properties props) {
+        String resolverClassName = props.getProperty("jndi.context.resolver");
+        if (resolverClassName != null) {
+            return createResolverFromClassName(resolverClassName, serverInfo, props, ContextBeanResolver.class);
+        }
+        int serverType = serverInfo == null ? Unknow : serverInfo.serverType;
+        switch (serverType) {
+        case WebLogic:
+            // return new WebLogicContextBeanResolver(props);
+        case WebSphere:
+        case Glassfish:
+        case JBoss:
+        case Tomcat:
+        default:
+            return new GenericContextBeanResolver(props);
+        }
+    }
 
-	@SuppressWarnings("unchecked")
-	private static <T extends ContextResolver> T createResolverFromClassName(String resolverClassName, ServerInformation serverInfo, Properties props, Class<T> targetClass) {
-		try {
-			Class<?> resolverClass = Class.forName(resolverClassName);
-			if (targetClass.isAssignableFrom(resolverClass)) {
-				Constructor<?> constructor = resolverClass.getConstructor(Properties.class);
-				if (constructor != null) {
-					return (T) constructor.newInstance(props);
-				} else {
-					return (T) ReflectionUtils.instantiateClass(resolverClass);
-				}
-			}
-			throw new IllegalArgumentException("class " + resolverClassName + " not assignable from " + targetClass.getName());
-		} catch (Exception e) {
-			throw new IllegalArgumentException("class " + resolverClassName + " cant't resolver", e);
-		}
-	}
+    @SuppressWarnings("unchecked")
+    private static <T extends ContextResolver> T createResolverFromClassName(String resolverClassName, ServerInformation serverInfo, Properties props,
+            Class<T> targetClass) {
+        try {
+            Class<?> resolverClass = Class.forName(resolverClassName);
+            if (targetClass.isAssignableFrom(resolverClass)) {
+                Constructor<?> constructor = resolverClass.getConstructor(Properties.class);
+                if (constructor != null) {
+                    return (T) constructor.newInstance(props);
+                } else {
+                    return (T) ReflectionUtils.instantiateClass(resolverClass);
+                }
+            }
+            throw new IllegalArgumentException("class " + resolverClassName + " not assignable from " + targetClass.getName());
+        } catch (Exception e) {
+            throw new IllegalArgumentException("class " + resolverClassName + " cant't resolver", e);
+        }
+    }
 }

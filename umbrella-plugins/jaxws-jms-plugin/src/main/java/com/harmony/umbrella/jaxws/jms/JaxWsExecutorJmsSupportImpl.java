@@ -22,6 +22,7 @@ import javax.ejb.EJB;
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
 
+import com.harmony.umbrella.jaxws.JaxWsAsyncCallback;
 import com.harmony.umbrella.jaxws.JaxWsContext;
 import com.harmony.umbrella.jaxws.JaxWsContextHandler;
 import com.harmony.umbrella.jaxws.JaxWsExecutor;
@@ -74,6 +75,11 @@ public class JaxWsExecutorJmsSupportImpl implements JaxWsExecutorSupport {
     @Override
     public Future<?> executeAsync(JaxWsContext context) {
         return executor.executeAsync(context);
+    }
+
+    @Override
+    public <V> void executeAsync(JaxWsContext context, JaxWsAsyncCallback<V> callback) {
+        this.executor.executeAsync(context, callback);
     }
 
     @Override
