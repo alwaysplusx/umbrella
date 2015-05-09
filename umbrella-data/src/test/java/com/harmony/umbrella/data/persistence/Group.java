@@ -21,12 +21,14 @@ import javax.persistence.Embeddable;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.IdClass;
+import javax.persistence.Table;
 
 /**
  * @author wuxii@foxmail.com
  */
 @IdClass(Group.GroupPk.class)
 @Entity
+@Table(name = "t_group")
 public class Group {
 
 	@Id

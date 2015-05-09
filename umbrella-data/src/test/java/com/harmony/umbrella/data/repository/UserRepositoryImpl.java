@@ -15,12 +15,30 @@
  */
 package com.harmony.umbrella.data.repository;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+
+import org.springframework.stereotype.Repository;
+
 import com.harmony.umbrella.data.persistence.User;
-import com.harmony.umbrella.data.repository.JpaRepository;
+import com.harmony.umbrella.data.repository.support.AbstractJpaRepository;
 
 /**
  * @author wuxii@foxmail.com
  */
-public interface UserRepository extends JpaRepository<User, Long> {
+@Repository
+public class UserRepositoryImpl extends AbstractJpaRepository<User, Long> implements UserRepository {
+
+	private EntityManager em;
+
+	@Override
+	protected EntityManager getEntityManager() {
+		return em;
+	}
+
+	@PersistenceContext
+	public void setEntityManager(EntityManager em) {
+		this.em = em;
+	}
 
 }

@@ -22,11 +22,13 @@ import javax.persistence.Embeddable;
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 import javax.persistence.OneToMany;
+import javax.persistence.Table;
 
 /**
  * @author wuxii@foxmail.com
  */
 @Entity
+@Table(name = "t_person")
 public class Person implements Serializable {
 
 	private static final long serialVersionUID = 2572355056919087037L;

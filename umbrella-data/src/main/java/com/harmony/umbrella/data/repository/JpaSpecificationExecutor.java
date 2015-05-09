@@ -3,6 +3,7 @@ package com.harmony.umbrella.data.repository;
 import java.util.List;
 
 import com.harmony.umbrella.data.domain.Page;
+import com.harmony.umbrella.data.domain.Pageable;
 import com.harmony.umbrella.data.domain.Sort;
 import com.harmony.umbrella.data.domain.Specification;
 
@@ -32,7 +33,7 @@ public interface JpaSpecificationExecutor<T> {
 	 * @param pageable
 	 * @return
 	 */
-	Page<T> findAll(Specification<T> spec, Page<T> pageable);
+	Page<T> findAll(Specification<T> spec, Pageable pageable);
 
 	/**
 	 * Returns all entities matching the given {@link Specification} and

@@ -5,8 +5,10 @@ import java.io.Serializable;
 import javax.persistence.metamodel.SingularAttribute;
 
 /**
- * Extension of {@link EntityMetadata} to add functionality to query information of entity
- * instances.
+ * Entity的基础信息<li>是否新建的<li>获取entityid属性<li>获取id的java类型
+ * <p>
+ * Extension of {@link EntityMetadata} to add functionality to query information
+ * of entity instances.
  * 
  * @author Oliver Gierke
  */
@@ -52,9 +54,9 @@ public interface EntityInformation<T, ID extends Serializable> extends EntityMet
 	boolean hasCompositeId();
 
 	/**
-	 * Returns the attribute names of the id attributes. If the entity has a composite id,
-	 * then all id attribute names are returned. If the entity has a single id attribute
-	 * then this single attribute name is returned.
+	 * Returns the attribute names of the id attributes. If the entity has a
+	 * composite id, then all id attribute names are returned. If the entity has
+	 * a single id attribute then this single attribute name is returned.
 	 * 
 	 * @return
 	 */

@@ -18,11 +18,7 @@ public interface Repository<T, ID extends Serializable> {
 
 	boolean exists(ID id);
 
-	Iterable<T> findAll();
-
 	Iterable<T> findAll(Iterable<ID> ids);
-
-	long count();
 
 	T delete(ID id);
 
@@ -30,5 +26,4 @@ public interface Repository<T, ID extends Serializable> {
 
 	void delete(Iterable<? extends T> entities);
 
-	void deleteAll();
 }

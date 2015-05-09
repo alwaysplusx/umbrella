@@ -16,125 +16,30 @@
 package com.harmony.umbrella.data.repository.support;
 
 import java.io.Serializable;
-import java.util.List;
 
-import com.harmony.umbrella.data.domain.Page;
-import com.harmony.umbrella.data.domain.Sort;
-import com.harmony.umbrella.data.domain.Specification;
-import com.harmony.umbrella.data.repository.JpaRepository;
-import com.harmony.umbrella.data.repository.JpaSpecificationExecutor;
+import javax.persistence.EntityManager;
 
 /**
  * @author wuxii@foxmail.com
  */
-public class SimpleJpaRepository<T, ID extends Serializable> implements JpaRepository<T, ID>, JpaSpecificationExecutor<T> {
+public class SimpleJpaRepository<T, ID extends Serializable> extends AbstractJpaRepository<T, ID> {
 
-	@Override
-	public Page<T> findAll(Page<T> pageable) {
-		return null;
+	private EntityManager em;
+	private Class<T> domainClass;
+
+	public SimpleJpaRepository(EntityManager em, Class<T> domainClass) {
+		this.em = em;
+		this.domainClass = domainClass;
 	}
 
 	@Override
-	public <S extends T> S save(S entity) {
-		return null;
+	protected EntityManager getEntityManager() {
+		return em;
 	}
 
 	@Override
-	public T findOne(ID id) {
-		return null;
+	protected Class<T> getDomainClass() {
+		return domainClass;
 	}
 
-	@Override
-	public boolean exists(ID id) {
-		return false;
-	}
-
-	@Override
-	public long count() {
-		return 0;
-	}
-
-	@Override
-	public T delete(ID id) {
-		return null;
-	}
-
-	@Override
-	public void delete(T entity) {
-	}
-
-	@Override
-	public void delete(Iterable<? extends T> entities) {
-	}
-
-	@Override
-	public void deleteAll() {
-	}
-
-	@Override
-	public T findOne(Specification<T> spec) {
-		return null;
-	}
-
-	@Override
-	public List<T> findAll(Specification<T> spec) {
-		return null;
-	}
-
-	@Override
-	public Page<T> findAll(Specification<T> spec, Page<T> pageable) {
-		return null;
-	}
-
-	@Override
-	public List<T> findAll(Specification<T> spec, Sort sort) {
-		return null;
-	}
-
-	@Override
-	public long count(Specification<T> spec) {
-		return 0;
-	}
-
-	@Override
-	public List<T> findAll() {
-		return null;
-	}
-
-	@Override
-	public List<T> findAll(Sort sort) {
-		return null;
-	}
-
-	@Override
-	public List<T> findAll(Iterable<ID> ids) {
-		return null;
-	}
-
-	@Override
-	public <S extends T> List<S> save(Iterable<S> entities) {
-		return null;
-	}
-
-	@Override
-	public void flush() {
-	}
-
-	@Override
-	public <S extends T> S saveAndFlush(S entity) {
-		return null;
-	}
-
-	@Override
-	public void deleteInBatch(Iterable<T> entities) {
-	}
-
-	@Override
-	public void deleteAllInBatch() {
-	}
-
-	@Override
-	public T getOne(ID id) {
-		return null;
-	}
 }

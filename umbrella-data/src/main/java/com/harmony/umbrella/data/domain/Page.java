@@ -17,8 +17,6 @@ package com.harmony.umbrella.data.domain;
 
 import java.util.List;
 
-import org.springframework.data.domain.Slice;
-
 public interface Page<T> extends Iterable<T> {
 
     /**

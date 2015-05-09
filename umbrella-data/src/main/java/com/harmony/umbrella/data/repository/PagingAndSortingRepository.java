@@ -18,6 +18,7 @@ package com.harmony.umbrella.data.repository;
 import java.io.Serializable;
 
 import com.harmony.umbrella.data.domain.Page;
+import com.harmony.umbrella.data.domain.Pageable;
 import com.harmony.umbrella.data.domain.Sort;
 
 /**
@@ -40,6 +41,6 @@ public interface PagingAndSortingRepository<T, ID extends Serializable> extends 
 	 * @param pageable
 	 * @return a page of entities
 	 */
-	Page<T> findAll(Page<T> pageable);
+	Page<T> findAll(Pageable pageable);
 
 }

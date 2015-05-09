@@ -1,35 +1,46 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<beans xmlns="http://www.springframework.org/schema/beans"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xmlns:context="http://www.springframework.org/schema/context"
-	xmlns:tx="http://www.springframework.org/schema/tx"
-	xmlns:jpa="http://www.springframework.org/schema/data/jpa"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
-		http://www.springframework.org/schema/data/jpa http://www.springframework.org/schema/data/jpa/spring-jpa-1.8.xsd
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+  xmlns:context="http://www.springframework.org/schema/context" xmlns:tx="http://www.springframework.org/schema/tx" 
+  xmlns:aop="http://www.springframework.org/schema/aop"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
-		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
 
-	<context:component-scan base-package="com.harmony"/>
-	
-	<jpa:repositories base-package="com.harmony"/>
-	
-	<tx:annotation-driven transaction-manager="transactionManager" />
+  <context:component-scan base-package="com.harmony" />
 
-	<bean name="jdbc/moon" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
-		<property name="driverClassName" value="org.h2.Driver" />
-		<property name="url" value="jdbc:h2:file:~/.h2/harmony/data" />
-		<property name="username" value="sa" />
-		<property name="password" value="" />
-	</bean>
+  <!-- <bean name="userRepository" class="com.harmony.umbrella.data.repository.UserRepositoryImpl"/> -->
 
-	<bean name="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
-		<property name="dataSource" ref="jdbc/moon" />
-		<property name="persistenceUnitName" value="moon" />
-		<property name="persistenceXmlLocation" value="META-INF/persistence.xml" />
-	</bean>
+  <tx:annotation-driven transaction-manager="transactionManager" />
 
-	<bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
-		<property name="entityManagerFactory" ref="entityManagerFactory" />
-	</bean>
-	
+  <bean name="jdbc/moon" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+    <property name="driverClassName" value="org.h2.Driver" />
+    <property name="url" value="jdbc:h2:file:~/.h2/harmony/data" />
+    <property name="username" value="sa" />
+    <property name="password" value="" />
+  </bean>
+
+  <bean name="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+    <property name="dataSource" ref="jdbc/moon" />
+    <property name="persistenceUnitName" value="moon" />
+    <property name="persistenceXmlLocation" value="META-INF/persistence.xml" />
+  </bean>
+
+  <bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
+    <property name="entityManagerFactory" ref="entityManagerFactory" />
+  </bean>
+
+  <tx:advice id="repositoryAdvice">
+    <tx:attributes>
+      <tx:method name="save*" propagation="REQUIRED" rollback-for="Exception" />
+      <tx:method name="delete*" propagation="REQUIRED" rollback-for="Exception" />
+      <tx:method name="execute*" propagation="REQUIRED" rollback-for="Exception" />
+    </tx:attributes>
+  </tx:advice>
+
+  <aop:config>
+    <aop:pointcut id="repositoryPointcut" expression="execution(* com.harmony.umbrella..*.*Repository*.*(..))" />
+    <aop:advisor advice-ref="repositoryAdvice" pointcut-ref="repositoryPointcut" />
+  </aop:config>
+  
 </beans>

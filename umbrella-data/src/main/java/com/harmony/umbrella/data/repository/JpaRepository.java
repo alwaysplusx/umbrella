@@ -8,6 +8,10 @@ import javax.persistence.EntityManager;
 import com.harmony.umbrella.data.domain.Sort;
 
 public interface JpaRepository<T, ID extends Serializable> extends PagingAndSortingRepository<T, ID> {
+	
+	long count();
+
+	void deleteAll();
 
 	List<T> findAll();
 
