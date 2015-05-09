@@ -13,25 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.umbrella.context;
+package com.harmony.umbrella.context.spring;
 
 import java.util.Properties;
 
+import com.harmony.umbrella.context.ApplicationContext;
 import com.harmony.umbrella.context.spi.ApplicationContextProvider;
 
 /**
  * @author wuxii@foxmail.com
  */
-public class SimpleApplicationContextProvider implements ApplicationContextProvider {
+public class SpringApplicationContextProvider implements ApplicationContextProvider {
 
 	@Override
 	public ApplicationContext createApplicationContext() {
-		return createApplicationContext(null);
+		return null;
 	}
 
 	@Override
 	public ApplicationContext createApplicationContext(Properties props) {
-		return new SimpleApplicationContext();
+		return null;
 	}
 
 }

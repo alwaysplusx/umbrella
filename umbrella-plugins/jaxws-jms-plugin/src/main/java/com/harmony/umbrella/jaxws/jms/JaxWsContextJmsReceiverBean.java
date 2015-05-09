@@ -22,7 +22,6 @@ import com.harmony.umbrella.jaxws.JaxWsContext;
 import com.harmony.umbrella.jaxws.support.JaxWsContextReceiver;
 import com.harmony.umbrella.jaxws.support.JaxWsContextSender;
 import com.harmony.umbrella.jaxws.support.PropertiesFileJaxWsContextReceiver;
-import com.harmony.umbrella.jaxws.support.jms.JaxWsMessage;
 import com.harmony.umbrella.message.AbstractMessageResolver;
 import com.harmony.umbrella.message.Message;
 

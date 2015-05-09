@@ -15,6 +15,8 @@
  */
 package com.harmony.umbrella.context.spi;
 
+import java.util.Properties;
+
 import com.harmony.umbrella.context.ApplicationContext;
 
 /**
@@ -24,11 +26,13 @@ import com.harmony.umbrella.context.ApplicationContext;
  */
 public interface ApplicationContextProvider {
 
+	ApplicationContext createApplicationContext();
+
 	/**
 	 * 创建应用上下文
 	 * 
 	 * @return 应用上下文
 	 */
-	ApplicationContext createApplicationContext();
+	ApplicationContext createApplicationContext(Properties props);
 
 }

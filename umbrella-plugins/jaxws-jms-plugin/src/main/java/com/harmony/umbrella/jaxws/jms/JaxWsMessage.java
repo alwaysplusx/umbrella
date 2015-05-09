@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.umbrella.jaxws.support.jms;
+package com.harmony.umbrella.jaxws.jms;
 
 import com.harmony.umbrella.jaxws.JaxWsContext;
 import com.harmony.umbrella.message.Message;

@@ -27,7 +27,12 @@ public class JeeApplicationContextProvider implements ApplicationContextProvider
 
 	@Override
 	public ApplicationContext createApplicationContext() {
-		return EJBApplicationContext.getInstance(new Properties());
+		return createApplicationContext(new Properties());
+	}
+
+	@Override
+	public ApplicationContext createApplicationContext(Properties props) {
+		return EJBApplicationContext.getInstance(props);
 	}
 
 }

@@ -23,8 +23,6 @@ import javax.jms.Destination;
 
 import com.harmony.umbrella.jaxws.JaxWsContext;
 import com.harmony.umbrella.jaxws.support.JaxWsContextSender;
-import com.harmony.umbrella.jaxws.support.jms.JaxWsContextJmsSenderAdapter;
-import com.harmony.umbrella.jaxws.support.jms.JaxWsMessage;
 import com.harmony.umbrella.message.Message;
 
 /**

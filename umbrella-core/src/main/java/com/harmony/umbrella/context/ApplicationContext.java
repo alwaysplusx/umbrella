@@ -17,6 +17,7 @@ package com.harmony.umbrella.context;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Properties;
 import java.util.ServiceLoader;
 
 import javax.servlet.ServletContext;
@@ -75,18 +76,24 @@ public abstract class ApplicationContext implements BeanFactory {
 	public abstract void destory();
 
 	/**
-	 * 获取当前应用的应用上下文<p>加载
+	 * 获取当前应用的应用上下文
+	 * <p>
+	 * 加载
 	 * {@code META-INF/services/com.harmony.umbrella.context.spi.ApplicationContextProvider}
 	 * 文件中的实际类型来创建
 	 * 
 	 * @return 应用上下文
 	 */
 	public static final ApplicationContext getApplicationContext() {
+		return getApplicationContext(new Properties());
+	}
+
+	public static final ApplicationContext getApplicationContext(Properties props) {
 		ApplicationContext context = null;
 		providers.reload();
 		for (ApplicationContextProvider provider : providers) {
 			try {
-				context = provider.createApplicationContext();
+				context = provider.createApplicationContext(props);
 				if (context != null) {
 					LOG.info("create context [{}] by [{}]", context, provider);
 					break;
@@ -138,7 +145,9 @@ public abstract class ApplicationContext implements BeanFactory {
 	}
 
 	/**
-	 * 注册应用的web服务信息 <p> 一经注册就不在更改
+	 * 注册应用的web服务信息
+	 * <p>
+	 * 一经注册就不在更改
 	 * 
 	 * @param servletContext
 	 *            web上下文
@@ -151,7 +160,9 @@ public abstract class ApplicationContext implements BeanFactory {
 	}
 
 	/**
-	 * 初始化应用的数据源信息<p>一经初始化就不在更改
+	 * 初始化应用的数据源信息
+	 * <p>
+	 * 一经初始化就不在更改
 	 * 
 	 * @param conn
 	 *            数据源的一个连接
@@ -178,14 +189,8 @@ public abstract class ApplicationContext implements BeanFactory {
 
 	public String getDescription() {
 		StringBuilder desc = new StringBuilder();
-		desc.append("#############################\n")
-			.append("# application context        \n")
-			.append("#############################\n")
-			.append("# jvm inforamtion            \n")
-			.append(getInforamtionOfJVM()).append("\n")
-			.append("#############################\n")
-			.append("# os information             \n")
-			.append(getInformationOfOS()).append("\n");
+		desc.append("#############################\n").append("# application context        \n").append("#############################\n").append("# jvm inforamtion            \n")
+				.append(getInforamtionOfJVM()).append("\n").append("#############################\n").append("# os information             \n").append(getInformationOfOS()).append("\n");
 		return desc.toString();
 	}
 
