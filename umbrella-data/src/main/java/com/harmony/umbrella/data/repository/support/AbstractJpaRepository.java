@@ -26,12 +26,9 @@ import java.util.List;
 
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
-import javax.persistence.Parameter;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.ParameterExpression;
-import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
@@ -45,6 +42,7 @@ import com.harmony.umbrella.data.query.EntityInformation;
 import com.harmony.umbrella.data.query.JpaEntityInformation;
 import com.harmony.umbrella.data.repository.JpaRepository;
 import com.harmony.umbrella.data.repository.JpaSpecificationExecutor;
+import com.harmony.umbrella.data.repository.support.GenericBaseRepository.ByIdsSpecification;
 import com.harmony.umbrella.util.Assert;
 
 /**
@@ -503,37 +501,4 @@ public abstract class AbstractJpaRepository<T, ID extends Serializable> implemen
 		return orders;
 	}
 
-	/**
-	 * Specification that gives access to the {@link Parameter} instance used to
-	 * bind the ids for {@link SimpleJpaRepository#findAll(Iterable)}.
-	 * Workaround for OpenJPA not binding collections to in-clauses correctly
-	 * when using by-name binding.
-	 * 
-	 * @see https
-	 *      ://issues.apache.org/jira/browse/OPENJPA-2018?focusedCommentId=
-	 *      13924055
-	 * @author Oliver Gierke
-	 */
-	@SuppressWarnings("rawtypes")
-	private static final class ByIdsSpecification<T> implements Specification<T> {
-
-		private final EntityInformation<T, ?> entityInformation;
-
-		ParameterExpression<Iterable> parameter;
-
-		public ByIdsSpecification(EntityInformation<T, ?> entityInformation) {
-			this.entityInformation = entityInformation;
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * @see org.springframework.data.jpa.domain.Specification#toPredicate(javax.persistence.criteria.Root, javax.persistence.criteria.CriteriaQuery, javax.persistence.criteria.CriteriaBuilder)
-		 */
-		public Predicate toPredicate(Root<T> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
-
-			Path<?> path = root.get(entityInformation.getIdAttribute());
-			parameter = cb.parameter(Iterable.class);
-			return path.in(parameter);
-		}
-	}
 }
