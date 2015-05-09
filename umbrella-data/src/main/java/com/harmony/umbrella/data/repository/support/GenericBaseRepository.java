@@ -30,6 +30,8 @@ import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
 
 import com.harmony.umbrella.data.domain.Specification;
@@ -42,11 +44,15 @@ import com.harmony.umbrella.data.repository.BaseRepository;
  */
 public class GenericBaseRepository<ID extends Serializable> implements BaseRepository<ID> {
 
+	private static final String DOMAIN_CLASS_NOT_NULL = "domain class can't be null";
+
+	private static final Logger log = LoggerFactory.getLogger(GenericBaseRepository.class);
 	private EntityManager entityManager;
 
 	@Override
 	public <S> S save(S entity) {
 		entityManager.persist(entity);
+		log.info("save entity {}", entity);
 		return entity;
 	}
 
@@ -73,9 +79,12 @@ public class GenericBaseRepository<ID extends Serializable> implements BaseRepos
 
 	@Override
 	public void delete(Object entity) {
-		if (entity == null)
+		if (entity == null) {
+			log.warn("delete entity is null");
 			return;
+		}
 		entityManager.remove(entityManager.contains(entity) ? entity : entityManager.merge(entity));
+		log.info("delete entity {}", entity);
 	}
 
 	@Override
@@ -87,6 +96,7 @@ public class GenericBaseRepository<ID extends Serializable> implements BaseRepos
 
 	@Override
 	public void deleteAll(Class<?> domainClass) {
+		Assert.notNull(domainClass, DOMAIN_CLASS_NOT_NULL);
 		for (Object element : findAll(domainClass)) {
 			delete(element);
 		}
@@ -94,33 +104,39 @@ public class GenericBaseRepository<ID extends Serializable> implements BaseRepos
 
 	@Override
 	public <S> List<S> findAll(Class<S> domainClass) {
+		log.debug("find all {}", domainClass.getSimpleName());
 		return getQuery(domainClass, null).getResultList();
 	}
 
 	@Override
 	public <S> Iterable<S> findAll(Class<S> domainClass, Iterable<ID> ids) {
 		if (ids == null || !ids.iterator().hasNext()) {
+			log.warn("find all {}, ids is empty", domainClass);
 			return Collections.emptyList();
 		}
 		ByIdsSpecification<S> specification = new ByIdsSpecification<S>(new JpaEntityInformation<S, Serializable>(domainClass, entityManager.getMetamodel()));
 		TypedQuery<S> query = getQuery(domainClass, specification);
+		log.debug("find alll {}, ids is {}", domainClass, ids);
 		return query.setParameter(specification.parameter, ids).getResultList();
 	}
 
 	@Override
 	public <S> List<S> findAll(Class<S> domainClass, Specification<S> spec) {
+		log.debug("find all {}, specification is {}", domainClass, spec);
 		return getQuery(domainClass, spec).getResultList();
 	}
 
 	@Override
 	public <S> S findOne(Class<S> domainClass, ID id) {
-		Assert.notNull(domainClass, "entity class can't be null");
+		Assert.notNull(domainClass, DOMAIN_CLASS_NOT_NULL);
 		Assert.notNull(id, "primaryKey can't be null");
+		log.debug("find one {}, id {}", domainClass, id);
 		return entityManager.find(domainClass, id);
 	}
 
 	@Override
 	public <S> S findOne(Class<S> domainClass, Specification<S> spec) {
+		log.debug("find one {}, specification is {}", domainClass, spec);
 		return getQuery(domainClass, spec).getSingleResult();
 	}
 
@@ -136,16 +152,21 @@ public class GenericBaseRepository<ID extends Serializable> implements BaseRepos
 
 	@Override
 	public long count(Class<?> domainClass) {
+		Assert.notNull(domainClass, DOMAIN_CLASS_NOT_NULL);
+		log.debug("count all {}", domainClass);
 		return getCountQuery(domainClass, null).getSingleResult();
 	}
 
 	@Override
 	public <S> long count(Class<S> domainClass, Specification<S> spec) {
+		Assert.notNull(domainClass, DOMAIN_CLASS_NOT_NULL);
+		log.debug("count {}, {}", domainClass, spec);
 		return executeCountQuery(getCountQuery(domainClass, spec));
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	protected <S> TypedQuery<Long> getCountQuery(Class<?> domainClass, Specification<S> spec) {
+		Assert.notNull(domainClass, DOMAIN_CLASS_NOT_NULL);
 		CriteriaBuilder builder = entityManager.getCriteriaBuilder();
 		CriteriaQuery<Long> query = builder.createQuery(Long.class);
 		Root root = query.from(domainClass);
@@ -164,6 +185,7 @@ public class GenericBaseRepository<ID extends Serializable> implements BaseRepos
 	}
 
 	protected <S> TypedQuery<S> getQuery(Class<S> domainClass, Specification<S> spec) {
+		Assert.notNull(domainClass, DOMAIN_CLASS_NOT_NULL);
 		CriteriaBuilder builder = entityManager.getCriteriaBuilder();
 		CriteriaQuery<S> query = builder.createQuery(domainClass);
 		Root<S> root = query.from(domainClass);
