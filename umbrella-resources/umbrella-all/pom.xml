@@ -1,113 +1,121 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
-	<parent>
-		<groupId>com.harmony.umbrella.resources</groupId>
-		<artifactId>umbrella-resources</artifactId>
-		<version>0.0.2-SNAPSHOT</version>
-		<relativePath>../pom.xml</relativePath>
-	</parent>
-	<artifactId>umbrella-all</artifactId>
-	<name>Harmony Resource :: Umbrella All JAR bundle</name>
-	<dependencies>
-		<dependency>
-			<groupId>com.harmony.umbrella</groupId>
-			<artifactId>umbrella-core</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.harmony.umbrella</groupId>
-			<artifactId>umbrella-data</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.harmony.umbrella</groupId>
-			<artifactId>umbrella-jaxws</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.harmony.umbrella</groupId>
-			<artifactId>umbrella-message</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.harmony.umbrella</groupId>
-			<artifactId>umbrella-monitor</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.harmony.umbrella</groupId>
-			<artifactId>umbrella-scheduler</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.harmony.umbrella</groupId>
-			<artifactId>umbrella-security</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.harmony.umbrella</groupId>
-			<artifactId>umbrella-jaxrs</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.harmony.umbrella</groupId>
-			<artifactId>umbrella-mapper</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.harmony.umbrella</groupId>
-			<artifactId>umbrella-validator</artifactId>
-		</dependency>
-	</dependencies>
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-antrun-plugin</artifactId>
-				<version>1.8</version>
-				<executions>
-					<execution>
-						<id>package</id>
-						<phase>package</phase>
-						<goals>
-							<goal>run</goal>
-						</goals>
-						<configuration>
-							<!-- <target> <property name="compile_classpath" refid="maven.compile.classpath" 
-								/> <property name="runtime_classpath" refid="maven.runtime.classpath" /> 
-								<property name="test_classpath" refid="maven.test.classpath" /> <property 
-								name="plugin_classpath" refid="maven.plugin.classpath" /> <ant antfile="${basedir}/build.xml"> 
-								<target name="test" /> </ant> </target> -->
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-shade-plugin</artifactId>
-				<version>2.3</version>
-				<executions>
-					<execution>
-						<phase>package</phase>
-						<goals>
-							<goal>shade</goal>
-						</goals>
-						<configuration>
-							<!-- filter for jaxws package -->
-							<!-- <filters> <filter> <artifact>com.harmony.umbrella:umbrella-data</artifact> 
-								<excludes> <exclude>*/**</exclude> </excludes> </filter> <filter> <artifact>com.harmony.umbrella:umbrella-scheduler</artifact> 
-								<excludes> <exclude>*/**</exclude> </excludes> </filter> <filter> <artifact>com.harmony.umbrella:umbrella-security</artifact> 
-								<excludes> <exclude>*/**</exclude> </excludes> </filter> </filters> -->
-							<artifactSet>
-								<includes>
-									<include>com.harmony.umbrella:umbrella-core</include>
-									<include>com.harmony.umbrella:umbrella-data</include>
-									<include>com.harmony.umbrella:umbrella-jaxws</include>
-									<include>com.harmony.umbrella:umbrella-message</include>
-									<include>com.harmony.umbrella:umbrella-monitor</include>
-									<include>com.harmony.umbrella:umbrella-scheduler</include>
-									<include>com.harmony.umbrella:umbrella-security</include>
-									<include>com.harmony.umbrella:umbrella-jaxrs</include>
-									<include>com.harmony.umbrella:umbrella-mapper</include>
-									<include>com.harmony.umbrella:umbrella-validator</include>
-								</includes>
-							</artifactSet>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-		</plugins>
-	</build>
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>com.harmony.umbrella.resources</groupId>
+    <artifactId>umbrella-resources</artifactId>
+    <version>0.0.2-SNAPSHOT</version>
+    <relativePath>../pom.xml</relativePath>
+  </parent>
+  <name>Harmony Resource :: Umbrella All JAR bundle</name>
+  <artifactId>umbrella-all</artifactId>
+  <dependencies>
+    <dependency>
+      <groupId>com.harmony.umbrella</groupId>
+      <artifactId>umbrella-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.harmony.umbrella</groupId>
+      <artifactId>umbrella-data</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.harmony.umbrella</groupId>
+      <artifactId>umbrella-jaxws</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.harmony.umbrella</groupId>
+      <artifactId>umbrella-message</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.harmony.umbrella</groupId>
+      <artifactId>umbrella-monitor</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.harmony.umbrella</groupId>
+      <artifactId>umbrella-scheduler</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.harmony.umbrella</groupId>
+      <artifactId>umbrella-security</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.harmony.umbrella</groupId>
+      <artifactId>umbrella-jaxrs</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.harmony.umbrella</groupId>
+      <artifactId>umbrella-mapper</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.harmony.umbrella</groupId>
+      <artifactId>umbrella-validator</artifactId>
+    </dependency>
+  </dependencies>
+  <build>
+    <plugins>
+      <!-- <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <version>1.8</version>
+        <executions>
+          <execution>
+            <id>package</id>
+            <phase>package</phase>
+            <goals>
+              <goal>run</goal>
+            </goals>
+            <configuration>
+              <target>
+                <property name="compile_classpath" refid="maven.compile.classpath" />
+                <property name="runtime_classpath" refid="maven.runtime.classpath" />
+                <property name="test_classpath" refid="maven.test.classpath" />
+                <property name="plugin_classpath" refid="maven.plugin.classpath" />
+                <ant antfile="${basedir}/build.xml">
+                  <target name="test" />
+                </ant>
+              </target>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin> -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
+        <version>2.3</version>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+            <configuration>
+              <!-- filter for jaxws package -->
+              <!-- <filters>
+                <filter>
+                  <artifact>com.harmony.umbrella:umbrella-data</artifact>
+                  <excludes>
+                    <exclude>*/**</exclude>
+                  </excludes>
+                </filter>
+              </filters> -->
+              <artifactSet>
+                <includes>
+                  <include>com.harmony.umbrella:umbrella-core</include>
+                  <include>com.harmony.umbrella:umbrella-data</include>
+                  <include>com.harmony.umbrella:umbrella-jaxws</include>
+                  <include>com.harmony.umbrella:umbrella-message</include>
+                  <include>com.harmony.umbrella:umbrella-monitor</include>
+                  <include>com.harmony.umbrella:umbrella-scheduler</include>
+                  <include>com.harmony.umbrella:umbrella-security</include>
+                  <include>com.harmony.umbrella:umbrella-jaxrs</include>
+                  <include>com.harmony.umbrella:umbrella-mapper</include>
+                  <include>com.harmony.umbrella:umbrella-validator</include>
+                </includes>
+              </artifactSet>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
 </project>

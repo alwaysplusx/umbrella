@@ -7,6 +7,7 @@
     <version>0.0.2-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
+  <name>Harmony Plugin :: Plugin of JaxWs JMS</name>
   <artifactId>jaxws-jms-plugin</artifactId>
   <dependencies>
     <dependency>
@@ -41,5 +42,4 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
-  <name>Harmony Plugin   :: Plugin of JaxWs JMS</name>
 </project>

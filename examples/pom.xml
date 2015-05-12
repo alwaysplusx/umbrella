@@ -1,45 +1,45 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
-	<parent>
-		<groupId>com.harmony.umbrella</groupId>
-		<artifactId>harmony-umbrella</artifactId>
-		<version>0.0.2-SNAPSHOT</version>
-		<relativePath>../pom.xml</relativePath>
-	</parent>
-	<name>Harmony Example  :: Example Parent</name>
-	<groupId>com.harmony.umbrella.examples</groupId>
-	<artifactId>examples</artifactId>
-	<packaging>pom</packaging>
-	<dependencies>
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-log4j12</artifactId>
-		</dependency>
-	</dependencies>
-	<modules>
-		<module>example-jaxws</module>
-		<module>example-ear</module>
-		<module>example-data</module>
-		<module>example-ee</module>
-	</modules>
-	<build>
-		<!-- To define the plugin version in your parent POM -->
-		<pluginManagement>
-			<plugins>
-				<plugin>
-					<groupId>org.codehaus.mojo</groupId>
-					<artifactId>weblogic-maven-plugin</artifactId>
-					<version>2.9.5</version>
-				</plugin>
-			</plugins>
-		</pluginManagement>
-		<!-- To use the plugin goals in your POM or parent POM -->
-		<plugins>
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>weblogic-maven-plugin</artifactId>
-			</plugin>
-		</plugins>
-	</build>
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>com.harmony.umbrella</groupId>
+    <artifactId>harmony-umbrella</artifactId>
+    <version>0.0.2-SNAPSHOT</version>
+    <relativePath>../pom.xml</relativePath>
+  </parent>
+  <name>Harmony Example :: Example Parent</name>
+  <groupId>com.harmony.umbrella.examples</groupId>
+  <artifactId>examples</artifactId>
+  <packaging>pom</packaging>
+  <dependencies>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-log4j12</artifactId>
+    </dependency>
+  </dependencies>
+  <modules>
+    <module>example-jaxws</module>
+    <module>example-ear</module>
+    <module>example-data</module>
+    <module>example-ee</module>
+  </modules>
+  <build>
+    <!-- To define the plugin version in your parent POM -->
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>weblogic-maven-plugin</artifactId>
+          <version>2.9.5</version>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+    <!-- To use the plugin goals in your POM or parent POM -->
+    <plugins>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>weblogic-maven-plugin</artifactId>
+      </plugin>
+    </plugins>
+  </build>
 </project>

@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>com.harmony.umbrella</groupId>
@@ -13,8 +14,15 @@
       <groupId>com.harmony.umbrella</groupId>
       <artifactId>umbrella-core</artifactId>
     </dependency>
-    <!-- <dependency> <groupId>org.slf4j</groupId> <artifactId>slf4j-api</artifactId> </dependency> -->
-    <!-- <dependency> <groupId>joda-time</groupId> <artifactId>joda-time</artifactId> <optional>true</optional> </dependency> -->
+    <!-- <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>joda-time</groupId>
+      <artifactId>joda-time</artifactId>
+      <optional>true</optional>
+    </dependency> -->
     <dependency>
       <groupId>org.eclipse.persistence</groupId>
       <artifactId>javax.persistence</artifactId>
@@ -85,7 +93,16 @@
       <artifactId>spring-test</artifactId>
       <scope>test</scope>
     </dependency>
-    <!-- <dependency> <groupId>org.springframework.data</groupId> <artifactId>spring-data-jpa</artifactId> <scope>provided</scope> <exclusions> <exclusion> <groupId>org.slf4j</groupId> 
-      <artifactId>jcl-over-slf4j</artifactId> </exclusion> </exclusions> </dependency> -->
+    <!-- <dependency>
+      <groupId>org.springframework.data</groupId>
+      <artifactId>spring-data-jpa</artifactId>
+      <scope>provided</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>org.slf4j</groupId>
+          <artifactId>jcl-over-slf4j</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency> -->
   </dependencies>
 </project>
