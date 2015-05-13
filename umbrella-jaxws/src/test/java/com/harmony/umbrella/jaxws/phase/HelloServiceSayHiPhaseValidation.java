@@ -37,33 +37,28 @@ public class HelloServiceSayHiPhaseValidation {
     private static final Logger log = LoggerFactory.getLogger(HelloServiceSayHiPhaseValidation.class);
 
     @HandleMethod(phase = Phase.PRE_INVOKE)
-    public boolean getNews(String message, Map<String, Object> content) {
-        log.info("hello phase[{}] validation, message {}", PRE_INVOKE, message);
-        log.info("phase[{}] content is {}", PRE_INVOKE, content);
+    public boolean sayHi(String message, Map<String, Object> content) {
+        log.info("hello phase[{}] validation, message {}, content {}", PRE_INVOKE, message, content);
         return true;
     }
 
     @HandleMethod(phase = Phase.ABORT)
-    public void getNews(JaxWsAbortException exception, String message, Map<String, Object> content) {
-        log.info("hello phase[{}] validation, message {}", ABORT, message);
-        log.info("phase[{}] content is {}", ABORT, content);
+    public void sayHi(JaxWsAbortException exception, String message, Map<String, Object> content) {
+        log.info("hello phase[{}] validation, message {}, content {}", ABORT, message, content);
     }
 
     @HandleMethod(phase = Phase.POST_INVOKE)
-    public void getNews(String result, String message, Map<String, Object> content) {
-        log.info("hello phase[{}] validation, message {}", POST_INVOKE, message);
-        log.info("phase[{}] content is {}", POST_INVOKE, content);
+    public void sayHi(String result, String message, Map<String, Object> content) {
+        log.info("hello phase[{}] validation, message {}, content {}", POST_INVOKE, message, content);
     }
 
     @HandleMethod(phase = Phase.THROWING)
-    public void getNews(Throwable e, String message, Map<String, Object> content) {
-        log.info("hello phase[{}] validation, message {}", THROWING, message);
-        log.info("phase[{}] content is {}", THROWING, content);
+    public void sayHi(Throwable e, String message, Map<String, Object> content) {
+        log.info("hello phase[{}] validation, message {}, content {}", THROWING, message, content);
     }
 
     @HandleMethod(phase = Phase.FINALLY)
-    public void getNews(Throwable e, String result, String message, Map<String, Object> content) {
-        log.info("hello phase[{}] validation, message {}", FINALLY, message);
-        log.info("phase[{}] content is {}", FINALLY, content);
+    public void sayHi(Throwable e, String result, String message, Map<String, Object> content) {
+        log.info("hello phase[{}] validation, message {}, content {}", FINALLY, message, content);
     }
 }

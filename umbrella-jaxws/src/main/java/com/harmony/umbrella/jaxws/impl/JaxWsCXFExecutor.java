@@ -126,8 +126,11 @@ public class JaxWsCXFExecutor extends JaxWsPhaseExecutor {
      * @return
      */
     protected Object createProxy(JaxWsContext context) {
-        log.info("创建{}的代理服务", context);
-        return newProxyBuilder().setAddress(context.getAddress()).setUsername(context.getUsername()).setPassword(context.getPassword())
+        log.info("创建代理服务, {}", context);
+        return newProxyBuilder()
+                .setAddress(context.getAddress())
+                .setUsername(context.getUsername())
+                .setPassword(context.getPassword())
                 .build(context.getServiceInterface());
     }
 

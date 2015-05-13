@@ -560,7 +560,7 @@ public abstract class StringUtils {
             for (Class<?> type : types) {
                 sb.append(type.getName()).append(", ");
             }
-            sb.substring(0, sb.length() - 2);
+            sb.delete(sb.length() - 2, sb.length());
         }
         sb.append(")");
         return sb.toString();
