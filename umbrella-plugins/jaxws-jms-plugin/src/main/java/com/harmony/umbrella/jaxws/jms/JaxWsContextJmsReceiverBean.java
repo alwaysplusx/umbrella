@@ -15,9 +15,6 @@
  */
 package com.harmony.umbrella.jaxws.jms;
 
-import javax.ejb.Remote;
-import javax.ejb.Stateless;
-
 import com.harmony.umbrella.jaxws.JaxWsContext;
 import com.harmony.umbrella.jaxws.support.JaxWsContextReceiver;
 import com.harmony.umbrella.jaxws.support.JaxWsContextSender;
@@ -35,8 +32,6 @@ import com.harmony.umbrella.message.Message;
  * 
  * @author wuxii
  */
-@Remote(JaxWsContextReceiver.class)
-@Stateless(mappedName = "JaxWsContextJmsReceiverBean")
 public class JaxWsContextJmsReceiverBean extends AbstractMessageResolver<JaxWsContext> implements JaxWsContextReceiver {
 
     private JaxWsContextReceiver receiver = new PropertiesFileJaxWsContextReceiver();

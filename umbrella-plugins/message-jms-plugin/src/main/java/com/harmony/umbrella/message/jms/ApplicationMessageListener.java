@@ -26,8 +26,9 @@ import javax.ejb.MessageDriven;
 import javax.jms.JMSException;
 import javax.jms.ObjectMessage;
 
+import com.harmony.umbrella.context.ApplicationContext;
 import com.harmony.umbrella.core.BeanFactory;
-import com.harmony.umbrella.core.SimpleBeanFactory;
+import com.harmony.umbrella.core.NoSuchBeanFindException;
 import com.harmony.umbrella.core.ClassFilter;
 import com.harmony.umbrella.io.utils.ResourceScaner;
 import com.harmony.umbrella.message.AbstractMessageListener;
@@ -48,7 +49,7 @@ import com.harmony.umbrella.message.MessageResolver;
 public class ApplicationMessageListener extends AbstractMessageListener implements javax.jms.MessageListener {
 
     private static final String basePackage = "com.harmony";
-    private BeanFactory beanFactory = new SimpleBeanFactory();
+    private BeanFactory beanFactory = ApplicationContext.getApplicationContext();
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
     @Override
@@ -61,7 +62,9 @@ public class ApplicationMessageListener extends AbstractMessageListener implemen
                 public boolean accept(Class<?> clazz) {
                     if (clazz.isInterface())
                         return false;
-                    if (clazz.getModifiers() != Modifier.PUBLIC)
+                    if (Modifier.isAbstract(clazz.getModifiers()))
+                        return false;
+                    if (!Modifier.isPublic(clazz.getModifiers()))
                         return false;
                     if (!MessageResolver.class.isAssignableFrom(clazz))
                         return false;
@@ -69,8 +72,12 @@ public class ApplicationMessageListener extends AbstractMessageListener implemen
                 }
             });
             for (Class clazz : classes) {
-                MessageResolver resolver = (MessageResolver) beanFactory.getBean(clazz);
-                this.addMessageResolver(resolver);
+                try {
+                    MessageResolver resolver = (MessageResolver) beanFactory.getBean(clazz);
+                    this.addMessageResolver(resolver);
+                } catch (NoSuchBeanFindException e) {
+                    log.error("{} can't resolver", clazz, e);
+                }
             }
             log.info("application message listener init success, with {}", messageResolvers);
         } catch (IOException e) {

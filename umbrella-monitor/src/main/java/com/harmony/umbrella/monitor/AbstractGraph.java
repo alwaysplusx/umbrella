@@ -15,12 +15,13 @@
  */
 package com.harmony.umbrella.monitor;
 
-import static com.harmony.umbrella.util.DateFormatUtils.*;
+import static com.harmony.umbrella.util.FormatUtils.*;
 
 import java.util.Calendar;
 import java.util.Map;
 
 import com.harmony.umbrella.util.Exceptions;
+import com.harmony.umbrella.util.FormatUtils;
 
 /**
  * 监视结果基础抽象类
@@ -29,6 +30,7 @@ import com.harmony.umbrella.util.Exceptions;
  */
 public class AbstractGraph implements Graph {
 
+    protected NullableDateFormat ndf = FormatUtils.createDateFormat(FormatUtils.FULL_DATE_PATTERN);
     protected String identifie;
     protected Map<String, Object> arguments;
     protected Object result;
@@ -115,6 +117,6 @@ public class AbstractGraph implements Graph {
     @Override
     public String toString() {
         return "{\"identifie\":\"" + getIdentifie() + "\", \"arguments\":\"" + getArguments() + "\", \"result\":\"" + getResult() + "\", \"use\":\"" + use()
-                + "\", \"requestTime\":\"" + FULL_DATEFORMAT.format(getRequestTime()) + "\", \"exception\":\"" + isException() + "\"}";
+                + "\", \"requestTime\":\"" + ndf.format(getRequestTime()) + "\", \"exception\":\"" + isException() + "\"}";
     }
 }
