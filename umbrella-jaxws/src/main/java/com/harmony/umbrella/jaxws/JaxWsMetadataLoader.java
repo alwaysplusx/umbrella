@@ -23,7 +23,7 @@ package com.harmony.umbrella.jaxws;
  * 
  * @author wuxii@foxmail.com
  */
-public interface MetadataLoader {
+public interface JaxWsMetadataLoader {
 
 	/**
 	 * 根据指定的serviceClass加载指定的元数据

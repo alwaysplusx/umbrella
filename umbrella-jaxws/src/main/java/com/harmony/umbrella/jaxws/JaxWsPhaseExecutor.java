@@ -123,7 +123,7 @@ public abstract class JaxWsPhaseExecutor implements JaxWsExecutor {
                 try {
                     persistGraph((JaxWsGraph) graph);
                 } catch (Exception e) {
-                    LOG.info("保存失败, JaxWs执行情况无法正常保存", e);
+                    LOG.debug("保存失败, JaxWs执行概要无法正常保存", e);
                 }
             }
         }
@@ -195,6 +195,11 @@ public abstract class JaxWsPhaseExecutor implements JaxWsExecutor {
         return this.handlers.remove(handler);
     }
 
+    /**
+     * 将执行中抛出的异常在方法中通过判断是否抛出
+     * 
+     * @param e
+     */
     protected void throwOrHide(Exception e) {
         if (!hideTrowable) {
             if (e instanceof RuntimeException) {
@@ -208,6 +213,7 @@ public abstract class JaxWsPhaseExecutor implements JaxWsExecutor {
         try {
             return doPrepare(context);
         } catch (JaxWsAbortException e) {
+            LOG.warn("jaxws executor throw {}, abort execut", e);
             doAbort(context, e);
             return false;
         }
@@ -215,32 +221,38 @@ public abstract class JaxWsPhaseExecutor implements JaxWsExecutor {
 
     protected boolean doPrepare(JaxWsContext context) throws JaxWsAbortException {
         for (JaxWsContextHandler handler : handlers) {
+            LOG.debug("{} do prepare", handler);
             if (!handler.preExecute(context))
-                return false;
+                LOG.debug("{} PERPARE return false", handler);
+            return false;
         }
         return true;
     }
 
     protected void doCompletion(JaxWsContext context, Object result) {
         for (JaxWsContextHandler handler : handlers) {
+            LOG.debug("{} do completion", handler);
             handler.postExecute(context, result);
         }
     }
 
     protected void doThrowing(JaxWsContext context, Exception e) {
         for (JaxWsContextHandler handler : handlers) {
+            LOG.debug("{} do throwing", handler);
             handler.throwing(context, e);
         }
     }
 
     protected void doAbort(JaxWsContext context, JaxWsAbortException e) {
         for (JaxWsContextHandler handler : handlers) {
+            LOG.debug("{} do abort", handler);
             handler.abortExecute(context, e);
         }
     }
 
     protected void doFinally(JaxWsContext context, Object result, Exception e) {
         for (JaxWsContextHandler handler : handlers) {
+            LOG.debug("{} do finally", handler);
             handler.finallyExecute(context, result, e);
         }
     }

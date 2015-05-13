@@ -29,7 +29,7 @@ import com.harmony.umbrella.core.SimpleBeanFactory;
 import com.harmony.umbrella.jaxws.JaxWsContext;
 import com.harmony.umbrella.jaxws.JaxWsContextHandler;
 import com.harmony.umbrella.jaxws.JaxWsExecutor;
-import com.harmony.umbrella.jaxws.MetadataLoader;
+import com.harmony.umbrella.jaxws.JaxWsMetadataLoader;
 import com.harmony.umbrella.jaxws.impl.JaxWsCXFExecutor;
 import com.harmony.umbrella.jaxws.impl.SimpleJaxWsContext;
 import com.harmony.umbrella.util.ClassUtils;
@@ -46,7 +46,7 @@ public class PropertiesFileJaxWsContextReceiver implements JaxWsContextReceiver 
     /**
      * 用于加载用户名密码地址
      */
-    private MetadataLoader metadataLoader;
+    private JaxWsMetadataLoader jaxWsMetadataLoader;
 
     /**
      * 单独实例，莫要与ejb环境中的共用
@@ -162,10 +162,10 @@ public class PropertiesFileJaxWsContextReceiver implements JaxWsContextReceiver 
         SimpleJaxWsContext copyContext = new SimpleJaxWsContext();
         Class<?> serviceInterface = context.getServiceInterface();
         copyContext = new SimpleJaxWsContext(serviceInterface, context.getMethodName(), context.getParameters());
-        if (metadataLoader != null) {
-            copyContext.setAddress(metadataLoader.getAddress(serviceInterface));
-            copyContext.setUsername(metadataLoader.getUsername(serviceInterface));
-            copyContext.setPassword(metadataLoader.getPassword(serviceInterface));
+        if (jaxWsMetadataLoader != null) {
+            copyContext.setAddress(jaxWsMetadataLoader.getAddress(serviceInterface));
+            copyContext.setUsername(jaxWsMetadataLoader.getUsername(serviceInterface));
+            copyContext.setPassword(jaxWsMetadataLoader.getPassword(serviceInterface));
         } else {
             copyContext.setAddress(context.getAddress());
             copyContext.setUsername(context.getUsername());
@@ -196,8 +196,8 @@ public class PropertiesFileJaxWsContextReceiver implements JaxWsContextReceiver 
         this.reload = reload;
     }
 
-    public void setMetadataLoader(MetadataLoader metadataLoader) {
-        this.metadataLoader = metadataLoader;
+    public void setJaxWsMetadataLoader(JaxWsMetadataLoader jaxWsMetadataLoader) {
+        this.jaxWsMetadataLoader = jaxWsMetadataLoader;
     }
 
     public void setJaxWsExecutor(JaxWsExecutor executor) {

@@ -29,87 +29,87 @@ import com.harmony.umbrella.monitor.util.MonitorUtils;
  */
 public class DefaultMethodGraph extends AbstractGraph implements MethodGraph {
 
-	protected Object target;
-	protected Method method;
-	protected Object[] args;
+    protected Object target;
+    protected Method method;
+    protected Object[] args;
 
-	public DefaultMethodGraph() {
-	}
+    public DefaultMethodGraph() {
+    }
 
-	@Override
-	public String getIdentifie() {
-		if (identifie == null) {
-			identifie = MonitorUtils.methodIdentifie(method);
-		}
-		return super.getIdentifie();
-	}
+    @Override
+    public String getIdentifie() {
+        if (identifie == null) {
+            identifie = MonitorUtils.methodIdentifie(method);
+        }
+        return super.getIdentifie();
+    }
 
-	public DefaultMethodGraph(Object target, Method method, Object[] args) {
-		this.target = target;
-		this.method = method;
-		this.args = args;
-	}
+    public DefaultMethodGraph(Object target, Method method, Object[] args) {
+        this.target = target;
+        this.method = method;
+        this.args = args;
+    }
 
-	public Object getTarget() {
-		return target;
-	}
+    public Object getTarget() {
+        return target;
+    }
 
-	@Override
-	public Map<String, Object> getArguments() {
-		Map<String, Object> arguments = new HashMap<String, Object>();
-		if (args != null) {
-			for (int i = 0, max = args.length; i < max; i++) {
-				arguments.put(i + 1 + "", args[i]);
-			}
-		}
-		return arguments;
-	}
+    @Override
+    public Map<String, Object> getArguments() {
+        Map<String, Object> arguments = new HashMap<String, Object>();
+        if (args != null) {
+            for (int i = 0, max = args.length; i < max; i++) {
+                arguments.put(args[i].getClass().getName(), args[i]);
+            }
+        }
+        return arguments;
+    }
 
-	@Override
-	@Deprecated
-	public void setArguments(Map<String, Object> arguments) {
-		super.setArguments(arguments);
-	}
+    @Override
+    @Deprecated
+    public void setArguments(Map<String, Object> arguments) {
+        super.setArguments(arguments);
+    }
 
-	@Override
-	public Method getMethod() {
-		return method;
-	}
+    @Override
+    public Method getMethod() {
+        return method;
+    }
 
-	@Override
-	public Object[] getArgs() {
-		return args;
-	}
+    @Override
+    public Object[] getArgs() {
+        return args;
+    }
 
-	@Override
-	public String getModule() {
-		Monitored ann = method.getAnnotation(Monitored.class);
-		if (ann != null) {
-			return ann.module();
-		}
-		return null;
-	}
+    @Override
+    public String getModule() {
+        Monitored ann = method.getAnnotation(Monitored.class);
+        if (ann != null) {
+            return ann.module();
+        }
+        return null;
+    }
 
-	@Override
-	public String getOperator() {
-		Monitored ann = method.getAnnotation(Monitored.class);
-		if (ann != null) {
-			return ann.operator();
-		}
-		return null;
-	}
+    @Override
+    public String getOperator() {
+        Monitored ann = method.getAnnotation(Monitored.class);
+        if (ann != null) {
+            return ann.operator();
+        }
+        return null;
+    }
 
-	public void setMethod(Method method) {
-		this.method = method;
-	}
+    public void setMethod(Method method) {
+        this.method = method;
+    }
 
-	public void setArgs(Object[] args) {
-		this.args = args;
-	}
+    public void setArgs(Object[] args) {
+        this.args = args;
+    }
 
-	public void setTarget(Object target) {
-		this.target = target;
-	}
+    public void setTarget(Object target) {
+        this.target = target;
+    }
 
     @Override
     public int hashCode() {

@@ -54,7 +54,7 @@ public class JaxWsServerManager {
 	/**
 	 * 服务元数据加载器
 	 */
-	private MetadataLoader metadataLoader;
+	private JaxWsMetadataLoader jaxWsMetadataLoader;
 
 	/**
 	 * @see org.apache.cxf.service.invoker.Invoker
@@ -81,14 +81,14 @@ public class JaxWsServerManager {
 	}
 
 	/**
-	 * 发布一个服务实例为{@code serviceClass}的服务，地址依赖{@link #metadataLoader}
-	 * 来加载。所以在使用这个方法时候请注意需要先设置{@link #metadataLoader}
+	 * 发布一个服务实例为{@code serviceClass}的服务，地址依赖{@link #jaxWsMetadataLoader}
+	 * 来加载。所以在使用这个方法时候请注意需要先设置{@link #jaxWsMetadataLoader}
 	 * 
 	 * @param serviceClass
 	 *            服务实例类型
 	 */
 	public boolean publish(Class<?> serviceClass) {
-		return publish(serviceClass, metadataLoader.getAddress(serviceClass), null);
+		return publish(serviceClass, jaxWsMetadataLoader.getAddress(serviceClass), null);
 	}
 
 	/**
@@ -112,7 +112,7 @@ public class JaxWsServerManager {
 	 *            服务配置回调
 	 */
 	public boolean publish(Class<?> serviceClass, JaxWsServerFactoryConfig factoryConfig) {
-		return publish(serviceClass, metadataLoader.getAddress(serviceClass), factoryConfig);
+		return publish(serviceClass, jaxWsMetadataLoader.getAddress(serviceClass), factoryConfig);
 	}
 
 	/**
@@ -138,9 +138,9 @@ public class JaxWsServerManager {
 			if (beanFactoryInvoker != null) {
 				builder.setBeanFactoryInvoker(beanFactoryInvoker);
 			}
-			if (metadataLoader != null) {
-				builder.setUsername(metadataLoader.getUsername(serviceClass));
-				builder.setPassword(metadataLoader.getPassword(serviceClass));
+			if (jaxWsMetadataLoader != null) {
+				builder.setUsername(jaxWsMetadataLoader.getUsername(serviceClass));
+				builder.setPassword(jaxWsMetadataLoader.getPassword(serviceClass));
 			}
 			builder.publish(serviceClass, address, factoryConfig);
 			registerServerInstance(builder);
@@ -158,8 +158,8 @@ public class JaxWsServerManager {
 	/**
 	 * 设置服务的元数据加载器
 	 */
-	public void setMetadataLoader(MetadataLoader metadataLoader) {
-		this.metadataLoader = metadataLoader;
+	public void setJaxWsMetadataLoader(JaxWsMetadataLoader jaxWsMetadataLoader) {
+		this.jaxWsMetadataLoader = jaxWsMetadataLoader;
 	}
 
 	/**

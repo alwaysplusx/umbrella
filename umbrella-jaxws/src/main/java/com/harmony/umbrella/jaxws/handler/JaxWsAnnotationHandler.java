@@ -173,7 +173,7 @@ public class JaxWsAnnotationHandler implements JaxWsContextHandler {
 	}
 
 	public void changeScanPackage(String scanPackage) {
-		log.info("修改JaxWSHandlerFinder的扫描路径{} -> {}", this.scanPackage, scanPackage);
+		log.info("修改JaxWSHandlerFinder的扫描路径[{} -> {}]", this.scanPackage, scanPackage);
 		this.scanPackage = scanPackage;
 		this.finder = new JaxWsHandlerMethodFinder(scanPackage);
 	}

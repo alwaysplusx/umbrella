@@ -26,28 +26,35 @@ import javax.servlet.http.HttpServletRequest;
  */
 public abstract class MonitorUtils {
 
-	/**
-	 * 将方转化为唯一的资源限定标识
-	 * 
-	 * @param method
-	 * @return
-	 */
-	public static String methodIdentifie(Method method) {
-		if (method == null)
-			return null;
-		return method.toGenericString();
-	}
+    /**
+     * 将方转化为唯一的资源限定标识
+     * 
+     * @param method
+     * @return
+     */
+    public static String methodIdentifie(Method method) {
+        if (method == null)
+            return "";
+        StringBuilder sb = new StringBuilder();
+        for (Class<?> clazz : method.getParameterTypes()) {
+            sb.append(", ").append(clazz.getName());
+        }
+        if (sb.length() > 0) {
+            sb.delete(0, 2);
+        }
+        return method.getDeclaringClass().getName() + "#(" + sb.toString() + ")";
+    }
 
-	/**
-	 * 将request转为唯一的资源限定标识
-	 * 
-	 * @param request
-	 * @return
-	 */
-	public static String requestIdentifie(HttpServletRequest request) {
-		if (request == null)
-			return null;
-		return request.getRequestURI();
-	}
+    /**
+     * 将request转为唯一的资源限定标识
+     * 
+     * @param request
+     * @return
+     */
+    public static String requestIdentifie(HttpServletRequest request) {
+        if (request == null)
+            return "";
+        return request.getRequestURI();
+    }
 
 }

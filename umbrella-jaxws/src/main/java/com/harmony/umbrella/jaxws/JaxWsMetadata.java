@@ -57,4 +57,18 @@ public interface JaxWsMetadata {
      */
     String getPassword();
 
+    /**
+     * 代理服务的连接超时时间
+     * 
+     * @return
+     */
+    long getConnectionTimeout();
+
+    /**
+     * 代理服务的接收超时时间
+     * 
+     * @return
+     */
+    long getReceiveTimeout();
+
 }

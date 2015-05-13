@@ -15,6 +15,7 @@
  */
 package com.harmony.umbrella.util;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -547,6 +548,22 @@ public abstract class StringUtils {
      */
     public static boolean isNotEmpty(String str) {
         return hasLength(str);
+    }
+
+    public static String getMethodIdentifiteName(Method method) {
+        if (method == null)
+            return "";
+        StringBuilder sb = new StringBuilder(method.getDeclaringClass().getName());
+        sb.append("#").append("(");
+        Class<?>[] types = method.getParameterTypes();
+        if (types.length > 0) {
+            for (Class<?> type : types) {
+                sb.append(type.getName()).append(", ");
+            }
+            sb.substring(0, sb.length() - 2);
+        }
+        sb.append(")");
+        return sb.toString();
     }
 
 }

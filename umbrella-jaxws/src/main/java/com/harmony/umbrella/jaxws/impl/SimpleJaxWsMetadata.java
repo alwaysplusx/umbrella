@@ -29,6 +29,8 @@ public class SimpleJaxWsMetadata implements JaxWsMetadata {
     private String address;
     private String username;
     private String password;
+    private long connectionTimeout;
+    private long receiveTimeout;
 
     public SimpleJaxWsMetadata(Class<?> serviceClass) {
         this.serviceClass = serviceClass;
@@ -88,6 +90,24 @@ public class SimpleJaxWsMetadata implements JaxWsMetadata {
 
     public void setServiceName(String serviceName) {
         this.serviceName = serviceName;
+    }
+
+    @Override
+    public long getConnectionTimeout() {
+        return connectionTimeout;
+    }
+
+    public void setConnectionTimeout(long connectionTimeout) {
+        this.connectionTimeout = connectionTimeout;
+    }
+
+    @Override
+    public long getReceiveTimeout() {
+        return receiveTimeout;
+    }
+
+    public void setReceiveTimeout(long receiveTimeout) {
+        this.receiveTimeout = receiveTimeout;
     }
 
     @Override
