@@ -23,7 +23,7 @@ import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
 
-import com.harmony.umbrella.io.utils.ResourceUtils;
+import com.harmony.umbrella.io.util.ResourceUtils;
 
 /**
  * Abstract base class for resources which resolve URLs into File references,

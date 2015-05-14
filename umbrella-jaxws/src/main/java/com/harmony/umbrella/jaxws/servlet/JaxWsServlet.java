@@ -27,7 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.harmony.umbrella.core.ClassFilter;
-import com.harmony.umbrella.io.utils.ResourceScaner;
+import com.harmony.umbrella.io.util.ResourceScaner;
 import com.harmony.umbrella.jaxws.JaxWsServerManager;
 
 /**
@@ -35,69 +35,69 @@ import com.harmony.umbrella.jaxws.JaxWsServerManager;
  */
 public class JaxWsServlet extends CXFNonSpringServlet {
 
-	private static final long serialVersionUID = 1907515077730725429L;
+    private static final long serialVersionUID = 1907515077730725429L;
 
-	private static final Logger log = LoggerFactory.getLogger(JaxWsServlet.class);
+    private static final Logger log = LoggerFactory.getLogger(JaxWsServlet.class);
 
-	/**
-	 * 发布时候所扫视的包：默认值{@code com.harmony}
-	 */
-	public static final String SCAN_PACKAGE = "scan-package";
-	/**
-	 * webservice的url路径类型:annotation, class(default)
-	 */
-	public static final String PATH_STYLE = "path-style";
+    /**
+     * 发布时候所扫视的包：默认值{@code com.harmony}
+     */
+    public static final String SCAN_PACKAGE = "scan-package";
+    /**
+     * webservice的url路径类型:annotation, class(default)
+     */
+    public static final String PATH_STYLE = "path-style";
 
-	/**
-	 * 服务管理实例
-	 */
-	private JaxWsServerManager serverManager = JaxWsServerManager.getInstance();
+    /**
+     * 服务管理实例
+     */
+    private JaxWsServerManager serverManager = JaxWsServerManager.getInstance();
 
-	/**
-	 * 资源扫描实例
-	 */
-	private ResourceScaner scaner = ResourceScaner.getInstance();
+    /**
+     * 资源扫描实例
+     */
+    private ResourceScaner scaner = ResourceScaner.getInstance();
 
-	@Override
-	public void init(ServletConfig sc) throws ServletException {
-		super.init(sc);
-		try {
-			// TODO 从启动参数分割多个包进行扫描
-			Class<?>[] classes = scaner.scanPackage(getScanPackage(sc), new ClassFilter() {
-				@Override
-				public boolean accept(Class<?> clazz) {
-					if (clazz.isInterface())
-						return false;
-					if (clazz.getModifiers() != Modifier.PUBLIC)
-						return false;
-					if (clazz.getModifiers() == Modifier.ABSTRACT)
-						return false;
-					if (clazz.isMemberClass())
-						return false;
-					if (clazz.isEnum())
-						return false;
-					if (clazz.isAnnotation())
-						return false;
-					if (clazz.isAnonymousClass())
-						return false;
-					if (clazz.getAnnotation(WebService.class) == null)
-						return false;
-					return true;
-				}
-			});
-			for (Class<?> clazz : classes) {
-				serverManager.publish(clazz, buildPath(sc, clazz));
-			}
-		} catch (IOException e) {
-			log.error("", e);
-		} finally {
-		}
-	}
+    @Override
+    public void init(ServletConfig sc) throws ServletException {
+        super.init(sc);
+        try {
+            // TODO 从启动参数分割多个包进行扫描
+            Class<?>[] classes = scaner.scanPackage(getScanPackage(sc), new ClassFilter() {
+                @Override
+                public boolean accept(Class<?> clazz) {
+                    if (clazz.isInterface())
+                        return false;
+                    if (!Modifier.isPublic(clazz.getModifiers()))
+                        return false;
+                    if (Modifier.isAbstract(clazz.getModifiers()))
+                        return false;
+                    if (clazz.isMemberClass())
+                        return false;
+                    if (clazz.isEnum())
+                        return false;
+                    if (clazz.isAnnotation())
+                        return false;
+                    if (clazz.isAnonymousClass())
+                        return false;
+                    if (clazz.getAnnotation(WebService.class) == null)
+                        return false;
+                    return true;
+                }
+            });
+            for (Class<?> clazz : classes) {
+                serverManager.publish(clazz, buildPath(sc, clazz));
+            }
+        } catch (IOException e) {
+            log.error("", e);
+        } finally {
+        }
+    }
 
-	/**
-	 * 根据web.xml中filter的启动参数path-style来创建webservice的访问url格式
-	 * 
-	 * <pre>
+    /**
+     * 根据web.xml中filter的启动参数path-style来创建webservice的访问url格式
+     * 
+     * <pre>
 	 * &lt;servlet&gt;
 	 *   &lt;servlet-name&gt;&lt;/servlet-name&gt;
 	 *   &lt;servlet-class&gt;&lt;/servlet-class&gt;
@@ -107,31 +107,31 @@ public class JaxWsServlet extends CXFNonSpringServlet {
 	 *   &lt;/init-param&gt;
 	 * &lt;/servlet&gt;
 	 * </pre>
-	 */
-	private String buildPath(ServletConfig sc, Class<?> c) {
-		String pathStyle = sc.getInitParameter(PATH_STYLE);
-		if (pathStyle != null && "annotation".endsWith(pathStyle)) {
-			return getPathFromAnnotation(c);
-		}
-		return getPathFromClass(c);
-	}
+     */
+    private String buildPath(ServletConfig sc, Class<?> c) {
+        String pathStyle = sc.getInitParameter(PATH_STYLE);
+        if (pathStyle != null && "annotation".endsWith(pathStyle)) {
+            return getPathFromAnnotation(c);
+        }
+        return getPathFromClass(c);
+    }
 
-	private String getPathFromClass(Class<?> cls) {
-		return "/" + cls.getSimpleName();
-	}
+    private String getPathFromClass(Class<?> cls) {
+        return "/" + cls.getSimpleName();
+    }
 
-	private String getPathFromAnnotation(Class<?> cls) {
-		WebService webService = cls.getAnnotation(WebService.class);
-		if (webService != null) {
-			return "".equals(webService.serviceName()) ? getPathFromClass(cls) : "/" + webService.serviceName();
-		}
-		return getPathFromClass(cls);
-	}
+    private String getPathFromAnnotation(Class<?> cls) {
+        WebService webService = cls.getAnnotation(WebService.class);
+        if (webService != null) {
+            return "".equals(webService.serviceName()) ? getPathFromClass(cls) : "/" + webService.serviceName();
+        }
+        return getPathFromClass(cls);
+    }
 
-	/**
-	 * 根据web.xml中filter的启动参数scan-package来设置扫描路径
-	 * 
-	 * <pre>
+    /**
+     * 根据web.xml中filter的启动参数scan-package来设置扫描路径
+     * 
+     * <pre>
 	 * &lt;servlet&gt;
 	 *   &lt;servlet-name&gt;&lt;/servlet-name&gt;
 	 *   &lt;servlet-class&gt;&lt;/servlet-class&gt;
@@ -141,9 +141,9 @@ public class JaxWsServlet extends CXFNonSpringServlet {
 	 *   &lt;/init-param&gt;
 	 * &lt;/servlet&gt;
 	 * </pre>
-	 */
-	protected String getScanPackage(ServletConfig sc) {
-		return sc.getInitParameter(SCAN_PACKAGE) == null ? "com.harmony" : sc.getInitParameter(SCAN_PACKAGE);
-	}
+     */
+    protected String getScanPackage(ServletConfig sc) {
+        return sc.getInitParameter(SCAN_PACKAGE) == null ? "com.harmony" : sc.getInitParameter(SCAN_PACKAGE);
+    }
 
 }

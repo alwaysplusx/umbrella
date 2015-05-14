@@ -19,7 +19,7 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
-import com.harmony.umbrella.io.utils.AntPathMatcher;
+import com.harmony.umbrella.io.util.AntPathMatcher;
 
 /**
  * @author wuxii@foxmail.com

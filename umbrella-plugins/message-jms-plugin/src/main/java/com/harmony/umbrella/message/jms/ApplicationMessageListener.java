@@ -30,7 +30,7 @@ import com.harmony.umbrella.context.ApplicationContext;
 import com.harmony.umbrella.core.BeanFactory;
 import com.harmony.umbrella.core.NoSuchBeanFindException;
 import com.harmony.umbrella.core.ClassFilter;
-import com.harmony.umbrella.io.utils.ResourceScaner;
+import com.harmony.umbrella.io.util.ResourceScaner;
 import com.harmony.umbrella.message.AbstractMessageListener;
 import com.harmony.umbrella.message.MessageResolver;
 

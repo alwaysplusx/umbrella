@@ -25,7 +25,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
 
-import com.harmony.umbrella.io.utils.ResourceUtils;
+import com.harmony.umbrella.io.util.ResourceUtils;
 import com.harmony.umbrella.util.StringUtils;
 
 /**
