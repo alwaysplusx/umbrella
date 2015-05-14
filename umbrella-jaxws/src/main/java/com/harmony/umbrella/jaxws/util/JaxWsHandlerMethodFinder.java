@@ -15,6 +15,7 @@
  */
 package com.harmony.umbrella.jaxws.util;
 
+import static com.harmony.umbrella.util.StringUtils.*;
 import static com.harmony.umbrella.util.ClassUtils.*;
 
 import java.io.IOException;
@@ -37,7 +38,6 @@ import com.harmony.umbrella.jaxws.Handler;
 import com.harmony.umbrella.jaxws.JaxWsAbortException;
 import com.harmony.umbrella.jaxws.Phase;
 import com.harmony.umbrella.jaxws.Handler.HandleMethod;
-import com.harmony.umbrella.util.StringUtils;
 
 /**
  * @author wuxii@foxmail.com
@@ -81,7 +81,9 @@ public class JaxWsHandlerMethodFinder {
                     try {
                         if (clazz.isInterface())
                             return false;
-                        if (clazz.getModifiers() != Modifier.PUBLIC)
+                        if (!Modifier.isPublic(clazz.getModifiers()))
+                            return false;
+                        if (Modifier.isAbstract(clazz.getModifiers()))
                             return false;
                         if (clazz.getAnnotation(Handler.class) == null)
                             return false;
@@ -98,7 +100,9 @@ public class JaxWsHandlerMethodFinder {
                 Collections.addAll(handlerClasses, classes);
                 handlerCache.put(ALL_HANDLER_CLASS, handlerClasses);
             }
+            log.info("all @Handler classes {}", handlerClasses);
         } catch (IOException e) {
+            log.error("", e);
         }
         return handlerClasses.toArray(new Class[handlerClasses.size()]);
     }
@@ -121,7 +125,7 @@ public class JaxWsHandlerMethodFinder {
                 if (isMatchHandler(serviceClass, handler))
                     classes.add(clazz);
             }
-            log.info("{} handler class {}", cacheKey, classes);
+            log.info("{} @Handler classes -> {}]", cacheKey, classes);
             handlerCache.put(cacheKey, classes);
         }
         return classes.toArray(new Class[classes.size()]);
@@ -158,7 +162,7 @@ public class JaxWsHandlerMethodFinder {
         for (Class<?> clazz : getAllHandlerClass()) {
             Collections.addAll(result, findHandleMethods(serviceMethod, clazz, phase));
         }
-        log.debug("service method {}.{} handle method {}", serviceMethod, phase, result);
+        log.debug("{}.{} handle method {}", getMethodIdentifiteName(serviceMethod), phase, result);
         return result.toArray(new HandleMethodInvoker[result.size()]);
     }
 
@@ -186,6 +190,7 @@ public class JaxWsHandlerMethodFinder {
                 Class<?>[] parameterTypes = handleMethod.getParameterTypes();
                 hmi.setEndWithMap(canonicalNameEquals(Map.class, parameterTypes[parameterTypes.length - 1]));
                 result.add(hmi);
+                
             }
         }
         return result.toArray(new HandleMethodInvoker[result.size()]);
@@ -209,8 +214,10 @@ public class JaxWsHandlerMethodFinder {
         final Class<?>[] handleParamTypes = handleMethod.getParameterTypes();
         List<Class<?>> types = new LinkedList<Class<?>>();
         Collections.addAll(types, serviceParamTypes);
-        log.info("[{}.{}] service param types{} handle param types{}", StringUtils.getMethodIdentifiteName(serviceMethod), phase, types(serviceParamTypes),
-                types(handleParamTypes));
+        if (log.isDebugEnabled()) {
+            log.debug("test handle method match\n{\n  {}.{}\n  service->{}\n  {}\n  handler->{}\n}", getMethodIdentifiteName(serviceMethod), phase,
+                    typeString(serviceParamTypes), getMethodIdentifiteName(handleMethod), typeString(handleParamTypes));
+        }
         switch (phase) {
         case PRE_INVOKE:
             if (!typeEquals(serviceParamTypes, handleParamTypes)) {
@@ -256,8 +263,7 @@ public class JaxWsHandlerMethodFinder {
         return returnType == void.class ? Object.class : returnType;
     }
 
-    
-    private String types(Class<?>... classes) {
+    private String typeString(Class<?>... classes) {
         StringBuilder sb = new StringBuilder();
         for (Class<?> clazz : classes) {
             sb.append(", ").append(clazz.getName());
@@ -265,9 +271,9 @@ public class JaxWsHandlerMethodFinder {
         if (sb.length() > 0) {
             sb.delete(0, 2);
         }
-        return "[" + sb.toString() + "]";
+        return sb.toString();
     }
-    
+
     private String cacheKey(Object obj, Phase phase) {
         if (obj instanceof Method) {
             return ((Method) obj).toGenericString() + "." + phase;

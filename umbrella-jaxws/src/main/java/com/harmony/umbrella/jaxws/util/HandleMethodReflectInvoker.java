@@ -24,6 +24,7 @@ import java.util.Map;
 import com.harmony.umbrella.core.DefaultInvoker;
 import com.harmony.umbrella.core.InvokeException;
 import com.harmony.umbrella.jaxws.Phase;
+import com.harmony.umbrella.util.StringUtils;
 
 /**
  * @author wuxii@foxmail.com
@@ -148,7 +149,7 @@ public class HandleMethodReflectInvoker extends DefaultInvoker implements Handle
 
 	@Override
 	public String toString() {
-		return handleMethod + "." + phase;
+		return StringUtils.getMethodIdentifiteName(handleMethod) + "." + phase;
 	}
 
 	@Override

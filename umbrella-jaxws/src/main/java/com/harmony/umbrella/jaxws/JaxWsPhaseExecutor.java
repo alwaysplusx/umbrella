@@ -15,6 +15,7 @@
  */
 package com.harmony.umbrella.jaxws;
 
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -182,7 +183,7 @@ public abstract class JaxWsPhaseExecutor implements JaxWsExecutor {
 
     @Override
     public List<JaxWsContextHandler> getHandlers() {
-        return this.handlers;
+        return Collections.unmodifiableList(this.handlers);
     }
 
     @Override

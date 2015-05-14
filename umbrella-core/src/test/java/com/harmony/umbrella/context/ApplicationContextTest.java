@@ -24,11 +24,11 @@ import org.junit.Test;
  */
 public class ApplicationContextTest {
 
-	@Test
-	public void test() {
-		ApplicationContext context = ApplicationContext.getApplicationContext();
-		assertNotNull(context);
-		System.out.println(context.getDescription());
-	}
+    @Test
+    public void test() {
+        ApplicationContext context = ApplicationContext.getApplicationContext();
+        assertNotNull(context);
+        System.out.println(context.getDescription());
+    }
 
 }

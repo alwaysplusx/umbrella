@@ -15,24 +15,25 @@
  */
 package com.harmony.umbrella.context.spring;
 
-import java.util.Properties;
+import static org.junit.Assert.*;
+
+import org.junit.Test;
 
 import com.harmony.umbrella.context.ApplicationContext;
-import com.harmony.umbrella.context.spi.ApplicationContextProvider;
 
 /**
  * @author wuxii@foxmail.com
  */
-public class SpringApplicationContextProvider implements ApplicationContextProvider {
+public class ApplicationContextTest {
 
-	@Override
-	public ApplicationContext createApplicationContext() {
-		return null;
-	}
+    @Test
+    public void testGetApplicationContext() {
+        ApplicationContext context = ApplicationContext.getApplicationContext();
+        assertEquals(context.getClass(), SpringApplicationContext.class);
+    }
 
-	@Override
-	public ApplicationContext createApplicationContext(Properties props) {
-		return null;
-	}
-
+    public static void main(String[] args) {
+        ApplicationContext context = ApplicationContext.getApplicationContext();
+        System.out.println(context);
+    }
 }

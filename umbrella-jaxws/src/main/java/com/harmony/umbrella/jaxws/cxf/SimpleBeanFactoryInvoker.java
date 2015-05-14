@@ -65,7 +65,7 @@ public class SimpleBeanFactoryInvoker extends AbstractInvoker implements BeanFac
 
 	@Override
 	public Object getServiceObject(Exchange context) {
-		log.info("get {}[{}] from {}", serviceClass.getName(), PROTOTYPE, this);
+		log.info("get instance [{}({})] from [{}]", serviceClass.getName(), PROTOTYPE, beanFactory);
 		return getBean(serviceClass, PROTOTYPE);
 	}
 

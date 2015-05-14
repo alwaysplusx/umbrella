@@ -16,10 +16,8 @@
 package com.harmony.umbrella.jaxws.support;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.List;
 import java.util.Properties;
-import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,7 +30,7 @@ import com.harmony.umbrella.jaxws.JaxWsExecutor;
 import com.harmony.umbrella.jaxws.JaxWsMetadataLoader;
 import com.harmony.umbrella.jaxws.impl.JaxWsCXFExecutor;
 import com.harmony.umbrella.jaxws.impl.SimpleJaxWsContext;
-import com.harmony.umbrella.util.ClassUtils;
+import com.harmony.umbrella.util.PropUtils;
 
 /**
  * @author wuxii@foxmail.com
@@ -79,55 +77,31 @@ public class PropertiesFileJaxWsContextReceiver implements JaxWsContextReceiver 
 
     public PropertiesFileJaxWsContextReceiver(String handlersLocation) {
         this.handlersLocation = handlersLocation;
+        this.init();
     }
 
     /**
      * 初始化加载{@linkplain #handlersLocation}文件中的{@linkplain JaxWsContextHandler}
      */
     protected void init() {
-        InputStream inStream = null;
         try {
-            ClassLoader loader = ClassUtils.getDefaultClassLoader();
-            inStream = loader.getResourceAsStream(handlersLocation);
-            if (inStream != null) {
-                Properties props = new Properties();
-                props.load(inStream);
-                initHandlers(props);
+            Properties props = PropUtils.loadProperties(handlersLocation);
+            for (String name : props.stringPropertyNames()) {
+                if (!Boolean.valueOf(props.getProperty(name)))
+                    continue;
+                try {
+                    Class<?> clazz = Class.forName(name);
+                    if (JaxWsContextHandler.class.isAssignableFrom(clazz)) {
+                        addHandler((JaxWsContextHandler) beanFactory.getBean(clazz));
+                    } else {
+                        log.warn("{}不为{}的子类", clazz, JaxWsContextHandler.class);
+                    }
+                } catch (Exception e) {
+                    log.warn("无法初始化 {}", name, e);
+                }
             }
         } catch (IOException e) {
             log.error("加载资源文件出错", handlersLocation, e);
-        } finally {
-            try {
-                if (inStream != null) {
-                    inStream.close();
-                }
-            } catch (IOException e) {
-                log.debug("关闭资源文件{}出错", handlersLocation, e);
-            }
-        }
-    }
-
-    private void initHandlers(Properties props) {
-        Set<String> names = props.stringPropertyNames();
-        for (String name : names) {
-            if (!Boolean.valueOf(props.getProperty(name)))
-                continue;
-            try {
-                Class<?> clazz = Class.forName(name);
-                if (JaxWsContextHandler.class.isAssignableFrom(clazz)) {
-                    Object handler;
-                    try {
-                        handler = beanFactory.getBean(clazz);
-                        this.addHandler((JaxWsContextHandler) handler);
-                        continue;
-                    } catch (Exception e) {
-                        log.error("无法初始化{}", clazz, e);
-                    }
-                }
-                log.warn("{}不为{}的子类", clazz, JaxWsContextHandler.class);
-            } catch (ClassNotFoundException e) {
-                log.warn("class not find {}", name, e);
-            }
         }
     }
 
@@ -224,7 +198,7 @@ public class PropertiesFileJaxWsContextReceiver implements JaxWsContextReceiver 
         this.retentionHandlers = retentionHandlers;
     }
 
-    public void setBeanLoader(BeanFactory beanFactory) {
+    public void setBeanFactory(BeanFactory beanFactory) {
         this.beanFactory = beanFactory;
     }
 
