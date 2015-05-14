@@ -26,6 +26,7 @@ import javax.ejb.MessageDriven;
 import javax.jms.JMSException;
 import javax.jms.ObjectMessage;
 
+import com.harmony.umbrella.Constant;
 import com.harmony.umbrella.context.ApplicationContext;
 import com.harmony.umbrella.core.BeanFactory;
 import com.harmony.umbrella.core.NoSuchBeanFindException;
@@ -48,7 +49,7 @@ import com.harmony.umbrella.message.MessageResolver;
 )
 public class ApplicationMessageListener extends AbstractMessageListener implements javax.jms.MessageListener {
 
-    private static final String basePackage = "com.harmony";
+    private static final String basePackage = Constant.DEFAULT_PACKAGE;
     private BeanFactory beanFactory = ApplicationContext.getApplicationContext();
 
     @SuppressWarnings({ "rawtypes", "unchecked" })

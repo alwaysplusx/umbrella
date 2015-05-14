@@ -43,7 +43,7 @@ import com.harmony.umbrella.message.MessageResolver;
 })
 public class ApplicationMessageListener extends AbstractMessageListener implements javax.jms.MessageListener {
 
-    private static final String basePackage = "com.harmony";
+    private static final String basePackage = Constant.DEFAULT_PACKAGE;
     private BeanFactory beanFactory = new SimpleBeanFactory();
 
     @PostConstruct

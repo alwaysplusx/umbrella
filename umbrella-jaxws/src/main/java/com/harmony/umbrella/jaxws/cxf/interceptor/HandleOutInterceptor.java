@@ -32,7 +32,7 @@ public class HandleOutInterceptor extends AbstractHandleInterceptor {
 	}
 
 	@Override
-	protected void handleServerValidation(Message message, Object resourceInstance, Method method, Object[] responseArgs) {
+	protected void handleServer(Message message, Object resourceInstance, Method method, Object[] responseArgs) {
 		// Message requestMessage = PREVIOUS_SERVER_MESSAGE.get();
 		// if (requestMessage == null) {
 		// log.warn("please add handle in interceptor");
@@ -58,7 +58,7 @@ public class HandleOutInterceptor extends AbstractHandleInterceptor {
 	}
 
 	@Override
-	protected void handleProxyValidation(Message message, Method method, Object[] args) {
+	protected void handleProxy(Message message, Method method, Object[] args) {
 		// try {
 		// Method[] handlMethods = finder.findHandlerMethod(method, Phase.PRE_INVOKE);
 		// for (Method m : handlMethods) {

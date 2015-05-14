@@ -20,6 +20,7 @@ import static com.harmony.umbrella.jaxws.Phase.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.harmony.umbrella.Constant;
 import com.harmony.umbrella.core.BeanFactory;
 import com.harmony.umbrella.core.SimpleBeanFactory;
 import com.harmony.umbrella.core.InvokeException;
@@ -42,7 +43,7 @@ import com.harmony.umbrella.util.Exceptions;
 public class JaxWsAnnotationHandler implements JaxWsContextHandler {
 
 	private static final long serialVersionUID = -2065293420059388476L;
-	protected static final String defaultPackage = "com.harmony";
+	protected static final String defaultPackage = Constant.DEFAULT_PACKAGE;
 
 	private final static Logger log = LoggerFactory.getLogger(JaxWsAnnotationHandler.class);
 

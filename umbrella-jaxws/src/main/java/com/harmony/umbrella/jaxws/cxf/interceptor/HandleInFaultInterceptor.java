@@ -28,11 +28,11 @@ public class HandleInFaultInterceptor extends AbstractHandleInterceptor {
     }
 
     @Override
-    protected void handleServerValidation(Message message, Object resourceInstance, Method method, Object[] args) {
+    protected void handleServer(Message message, Object resourceInstance, Method method, Object[] args) {
     }
 
     @Override
-    protected void handleProxyValidation(Message message, Method method, Object[] args) {
+    protected void handleProxy(Message message, Method method, Object[] args) {
     }
 
 }
