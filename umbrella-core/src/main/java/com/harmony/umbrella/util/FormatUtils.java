@@ -47,7 +47,7 @@ public abstract class FormatUtils {
 
     private final static Map<String, NullableDateFormat> dateFormatMap = new HashMap<String, NullableDateFormat>();
 
-    private final static Map<String, NullableDecimalFormat> numFormatMap = new HashMap<String, NullableDecimalFormat>();
+    private final static Map<String, NullableNumberFormat> numberFormatMap = new HashMap<String, NullableNumberFormat>();
 
     /**
      * 创建一个日期格式工具
@@ -64,38 +64,44 @@ public abstract class FormatUtils {
         return ndf;
     }
 
-    public static NullableDecimalFormat createNumberFormat(String pattern, RoundingMode mode) {
+    public static NullableNumberFormat createNumberFormat(String pattern, RoundingMode mode) {
         String key = pattern + "." + mode;
-        NullableDecimalFormat ndf = numFormatMap.get(key);
+        NullableNumberFormat ndf = numberFormatMap.get(key);
         if (ndf == null) {
-            numFormatMap.put(key, ndf = new NullableDecimalFormat(pattern, mode));
+            numberFormatMap.put(key, ndf = new NullableNumberFormat(pattern, mode));
         }
         return ndf;
     }
 
-    public static class NullableDecimalFormat implements Serializable {
+    public static class NullableNumberFormat implements Serializable {
 
         private static final long serialVersionUID = 8770260343737030870L;
         private final String pattern;
         private final RoundingMode mode;
         private final DecimalFormat df;
 
-        public NullableDecimalFormat(String pattern) {
+        public NullableNumberFormat(String pattern) {
             this(pattern, RoundingMode.HALF_UP);
         }
 
-        public NullableDecimalFormat(String pattern, RoundingMode mode) {
+        public NullableNumberFormat(String pattern, RoundingMode mode) {
             this.pattern = pattern;
             this.mode = mode;
             this.df = new DecimalFormat(pattern);
         }
 
+        /**
+         * 格式化Number
+         */
         public String format(Number number) {
             if (number == null)
                 return null;
             return df.format(number);
         }
 
+        /**
+         * 格式化为Long
+         */
         public Long formatLong(Number number) {
             if (number == null)
                 return null;
@@ -106,6 +112,9 @@ public abstract class FormatUtils {
             }
         }
 
+        /**
+         * 格式化为Double
+         */
         public Double formatDouble(Number number) {
             if (number == null)
                 return null;
@@ -116,6 +125,9 @@ public abstract class FormatUtils {
             }
         }
 
+        /**
+         * 格式化为BigDecimal
+         */
         public BigDecimal formatBigDecimal(Number number) {
             if (number == null)
                 return null;
@@ -126,24 +138,36 @@ public abstract class FormatUtils {
             }
         }
 
+        /**
+         * 数字的字符转为Number
+         */
         public Number parse(String source) throws ParseException {
             if (source == null || "".equals(source))
                 return null;
             return df.parse(source);
         }
 
+        /**
+         * 数字的字符转为Long
+         */
         public Long parseLong(String source) throws ParseException {
             if (source == null || "".equals(source))
                 return null;
             return df.parse(source).longValue();
         }
 
+        /**
+         * 数字的字符转为Double
+         */
         public Double parseDouble(String source) throws ParseException {
             if (source == null || "".equals(source))
                 return null;
             return df.parse(source).doubleValue();
         }
 
+        /**
+         * 数字的字符转为BigDecimal
+         */
         public BigDecimal parseBigDecimal(String source) throws ParseException {
             if (source == null || "".equals(source))
                 return null;
@@ -167,7 +191,7 @@ public abstract class FormatUtils {
                 return false;
             if (getClass() != obj.getClass())
                 return false;
-            NullableDecimalFormat other = (NullableDecimalFormat) obj;
+            NullableNumberFormat other = (NullableNumberFormat) obj;
             if (mode != other.mode)
                 return false;
             if (pattern == null) {
@@ -180,6 +204,11 @@ public abstract class FormatUtils {
 
     }
 
+    /**
+     * 值可为空的格式化工具
+     * 
+     * @author wuxii@foxmail.com
+     */
     public static class NullableDateFormat implements Serializable {
 
         private static final long serialVersionUID = 8448875239037856747L;
@@ -220,6 +249,13 @@ public abstract class FormatUtils {
             }
         }
 
+        /**
+         * 将Date转为Calendar
+         * 
+         * @param date
+         *            Date
+         * @return
+         */
         public Calendar toCalendar(Date date) {
             if (date == null)
                 return null;
@@ -228,6 +264,13 @@ public abstract class FormatUtils {
             return c;
         }
 
+        /**
+         * 将Calendar转为Date
+         * 
+         * @param c
+         *            Calendar
+         * @return
+         */
         public Date toDate(Calendar c) {
             if (c == null)
                 return null;
@@ -268,6 +311,11 @@ public abstract class FormatUtils {
             return null;
         }
 
+        /**
+         * 格式
+         * 
+         * @return
+         */
         public String getPattern() {
             return pattern;
         }

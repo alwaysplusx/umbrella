@@ -19,6 +19,8 @@ import java.lang.reflect.Method;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.harmony.umbrella.util.StringUtils;
+
 /**
  * 监听工具类
  * 
@@ -33,16 +35,7 @@ public abstract class MonitorUtils {
      * @return
      */
     public static String methodIdentifie(Method method) {
-        if (method == null)
-            return "";
-        StringBuilder sb = new StringBuilder();
-        for (Class<?> clazz : method.getParameterTypes()) {
-            sb.append(", ").append(clazz.getName());
-        }
-        if (sb.length() > 0) {
-            sb.delete(0, 2);
-        }
-        return method.getDeclaringClass().getName() + "#(" + sb.toString() + ")";
+        return StringUtils.getMethodIdentifiteName(method);
     }
 
     /**
