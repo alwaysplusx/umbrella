@@ -17,9 +17,10 @@ package com.harmony.umbrella.jaxws;
 
 /**
  * 
- * 加载服务的元数据信息<p> [{@linkplain #getAddress(Class)},
- * {@linkplain #getPassword(Class)}, {@linkplain #getUsername(Class)}]可用
- * {@linkplain #getJaxWsMetadata(Class)}替代
+ * 加载服务的元数据信息
+ * <p>
+ * [{@linkplain #getAddress(Class)}, {@linkplain #getPassword(Class)},
+ * {@linkplain #getUsername(Class)}]可用 {@linkplain #getJaxWsMetadata(Class)}替代
  * 
  * @author wuxii@foxmail.com
  */
@@ -37,26 +38,35 @@ public interface JaxWsMetadataLoader {
 
 	/**
 	 * 获取指定serviceClass的用户名
+	 * <p>
+	 * {@linkplain #getJaxWsMetadata(Class)}取代
 	 * 
 	 * @param serviceClass
 	 * @return
 	 */
+	@Deprecated
 	String getUsername(Class<?> serviceClass);
 
 	/**
 	 * 获取指定serviceClass的密码
+	 * <p>
+	 * {@linkplain #getJaxWsMetadata(Class)}取代
 	 * 
 	 * @param serviceClass
 	 * @return
 	 */
+	@Deprecated
 	String getPassword(Class<?> serviceClass);
 
 	/**
 	 * 获取指定serviceClass的地址
+	 * <p>
+	 * {@linkplain #getJaxWsMetadata(Class)}取代
 	 * 
 	 * @param serviceClass
 	 * @return
 	 */
+	@Deprecated
 	String getAddress(Class<?> serviceClass);
 
 }

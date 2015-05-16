@@ -51,7 +51,7 @@ public class JaxWsProxyBuilder {
     private String username;
     private String password;
 
-    private JaxWsMetadataLoader metaloader;
+    private JaxWsMetadataLoader metaLoader;
 
     /**
      * 实际的代理服务类
@@ -200,7 +200,7 @@ public class JaxWsProxyBuilder {
     }
 
     /**
-     * 如果{@linkplain #metaloader}不为空则先从loader中加载元数据.
+     * 如果{@linkplain #metaLoader}不为空则先从loader中加载元数据.
      * <p>
      * 另,如果当前 {@linkplain JaxWsProxyBuilder}中:
      * <li>{@linkplain #address}不为空则覆盖元数据中的地址
@@ -211,11 +211,11 @@ public class JaxWsProxyBuilder {
      * @return
      */
     protected JaxWsMetadata getJaxWsMetadata(Class<?> serviceClass) {
-        if (metaloader == null) {
+        if (metaLoader == null) {
             return new SimpleJaxWsMetadata(serviceClass, address, username, password);
         }
         SimpleJaxWsMetadata result = new SimpleJaxWsMetadata(serviceClass);
-        JaxWsMetadata temp = metaloader.getJaxWsMetadata(serviceClass);
+        JaxWsMetadata temp = metaLoader.getJaxWsMetadata(serviceClass);
         result.setAddress(StringUtils.isBlank(address) ? temp.getAddress() : address);
         result.setUsername(StringUtils.isNotBlank(username) ? temp.getUsername() : username);
         result.setPassword(StringUtils.isNotBlank(password) ? temp.getPassword() : password);
@@ -249,11 +249,11 @@ public class JaxWsProxyBuilder {
      * 创建代理服务, 并使用指定的元数据加载工具加载元数据信息(地址/用户名/密码).
      * 
      * @param serviceClass
-     * @param jaxWsMetadataLoader
+     * @param metaLoader
      * @return
      */
-    public <T> T build(Class<T> serviceClass, JaxWsMetadataLoader jaxWsMetadataLoader) {
-        this.metaloader = jaxWsMetadataLoader;
+    public <T> T build(Class<T> serviceClass, JaxWsMetadataLoader metaLoader) {
+        this.metaLoader = metaLoader;
         return build(serviceClass, (JaxWsProxyFactoryConfig) null);
     }
 
@@ -277,7 +277,7 @@ public class JaxWsProxyBuilder {
      * @return
      */
     public JaxWsProxyBuilder setJaxWsMetadataLoader(JaxWsMetadataLoader loader) {
-        this.metaloader = loader;
+        this.metaLoader = loader;
         return this;
     }
 

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.umbrella.message;
+package com.harmony.umbrella.message.ee;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -25,6 +25,9 @@ import javax.jms.Session;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.harmony.umbrella.message.Message;
+import com.harmony.umbrella.message.MessageSender;
 
 /**
  * 基于JMS的消息发送基础抽象类

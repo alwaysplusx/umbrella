@@ -45,7 +45,6 @@ public class JaxWsServerBuilder {
 	/**
 	 * use {@link #getBeanFactory()} method
 	 */
-	@Deprecated
 	private BeanFactoryInvoker beanFactoryInvoker;
 	/**
 	 * 服务的接口,可为空

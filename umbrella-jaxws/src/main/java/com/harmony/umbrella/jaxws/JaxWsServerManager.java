@@ -54,7 +54,7 @@ public class JaxWsServerManager {
 	/**
 	 * 服务元数据加载器
 	 */
-	private JaxWsMetadataLoader jaxWsMetadataLoader;
+	private JaxWsMetadataLoader metaLoader;
 
 	/**
 	 * @see org.apache.cxf.service.invoker.Invoker
@@ -81,14 +81,14 @@ public class JaxWsServerManager {
 	}
 
 	/**
-	 * 发布一个服务实例为{@code serviceClass}的服务，地址依赖{@link #jaxWsMetadataLoader}
-	 * 来加载。所以在使用这个方法时候请注意需要先设置{@link #jaxWsMetadataLoader}
+	 * 发布一个服务实例为{@code serviceClass}的服务，地址依赖{@link #metaLoader}
+	 * 来加载。所以在使用这个方法时候请注意需要先设置{@link #metaLoader}
 	 * 
 	 * @param serviceClass
 	 *            服务实例类型
 	 */
 	public boolean publish(Class<?> serviceClass) {
-		return publish(serviceClass, jaxWsMetadataLoader.getAddress(serviceClass), null);
+		return publish(serviceClass, null, null);
 	}
 
 	/**
@@ -112,7 +112,7 @@ public class JaxWsServerManager {
 	 *            服务配置回调
 	 */
 	public boolean publish(Class<?> serviceClass, JaxWsServerFactoryConfig factoryConfig) {
-		return publish(serviceClass, jaxWsMetadataLoader.getAddress(serviceClass), factoryConfig);
+		return publish(serviceClass, null, factoryConfig);
 	}
 
 	/**
@@ -126,21 +126,24 @@ public class JaxWsServerManager {
 	 *            服务配置回调
 	 */
 	public boolean publish(Class<?> serviceClass, String address, JaxWsServerFactoryConfig factoryConfig) {
-		Assert.notNull(serviceClass, "service class is null");
-		Assert.notNull(address, "address is null");
 		return doPublish(serviceClass, address, factoryConfig);
 	}
 
 	private boolean doPublish(Class<?> serviceClass, String address, JaxWsServerFactoryConfig factoryConfig) {
-		JaxWsServerBuilder builder;
+		Assert.notNull(serviceClass, "service class is null");
+		JaxWsMetadata metadata = metaLoader != null ? metaLoader.getJaxWsMetadata(serviceClass) : null;
+		if (address == null && metadata != null) {
+			address = metadata.getAddress();
+		}
+		Assert.notNull(address, "address is null");
 		try {
-			builder = newServerBuilder();
+			JaxWsServerBuilder builder = newServerBuilder();
 			if (beanFactoryInvoker != null) {
 				builder.setBeanFactoryInvoker(beanFactoryInvoker);
 			}
-			if (jaxWsMetadataLoader != null) {
-				builder.setUsername(jaxWsMetadataLoader.getUsername(serviceClass));
-				builder.setPassword(jaxWsMetadataLoader.getPassword(serviceClass));
+			if (metadata != null) {
+				builder.setUsername(metadata.getUsername());
+				builder.setPassword(metadata.getPassword());
 			}
 			builder.publish(serviceClass, address, factoryConfig);
 			registerServerInstance(builder);
@@ -159,7 +162,7 @@ public class JaxWsServerManager {
 	 * 设置服务的元数据加载器
 	 */
 	public void setJaxWsMetadataLoader(JaxWsMetadataLoader jaxWsMetadataLoader) {
-		this.jaxWsMetadataLoader = jaxWsMetadataLoader;
+		this.metaLoader = jaxWsMetadataLoader;
 	}
 
 	/**
@@ -253,7 +256,9 @@ public class JaxWsServerManager {
 	}
 
 	/**
-	 * 单个服务的所有信息. <p> 服务可以发布在多个地址
+	 * 单个服务的所有信息.
+	 * <p>
+	 * 服务可以发布在多个地址
 	 * 
 	 * @author wuxii@foxmail.com
 	 */

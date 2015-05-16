@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author wuxii
  */
-public class AbstractMessageListener implements MessageListener {
+public abstract class AbstractMessageListener implements MessageListener {
 
     protected Logger log = LoggerFactory.getLogger(AbstractMessageListener.class);
     protected List<MessageResolver> messageResolvers = new ArrayList<MessageResolver>();
@@ -38,10 +38,6 @@ public class AbstractMessageListener implements MessageListener {
 
     public AbstractMessageListener(List<MessageResolver> messageResolvers) {
         this.messageResolvers = messageResolvers;
-    }
-
-    @Override
-    public void init() {
     }
 
     /**
@@ -61,10 +57,6 @@ public class AbstractMessageListener implements MessageListener {
                 mr.handle(message);
             }
         }
-    }
-
-    @Override
-    public void destory() {
     }
 
     /**

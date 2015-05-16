@@ -56,7 +56,6 @@ public class ApplicationMessageListener extends AbstractMessageListener implemen
     @Override
     @PostConstruct
     public void init() {
-        super.init();
         try {
             Class<?>[] classes = ResourceScaner.getInstance().scanPackage(basePackage, new ClassFilter() {
                 @Override
@@ -111,7 +110,6 @@ public class ApplicationMessageListener extends AbstractMessageListener implemen
     @Override
     @PreDestroy
     public void destory() {
-        super.destory();
     }
     
 }

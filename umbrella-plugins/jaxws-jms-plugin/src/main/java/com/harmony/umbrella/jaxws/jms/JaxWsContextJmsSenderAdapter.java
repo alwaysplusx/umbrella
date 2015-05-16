@@ -17,9 +17,9 @@ package com.harmony.umbrella.jaxws.jms;
 
 import com.harmony.umbrella.jaxws.JaxWsContext;
 import com.harmony.umbrella.jaxws.support.JaxWsContextSender;
-import com.harmony.umbrella.message.AbstractJmsMessageSender;
 import com.harmony.umbrella.message.Message;
 import com.harmony.umbrella.message.MessageSender;
+import com.harmony.umbrella.message.ee.AbstractJmsMessageSender;
 
 /**
  * {@linkplain JaxWsContextSender}与{@linkplain MessageSender}的适配工具类。<p>

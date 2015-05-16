@@ -15,23 +15,18 @@
  */
 package com.harmony.umbrella.message.tcp;
 
-import com.harmony.umbrella.message.Message;
-import com.harmony.umbrella.message.MessageListener;
+import com.harmony.umbrella.message.AbstractMessageListener;
 
 /**
  * @author wuxii@foxmail.com
  */
-public class TcpMessageListener implements MessageListener {
+public class TcpMessageListener extends AbstractMessageListener {
 
 	public TcpMessageListener(int port) {
 	}
 
 	@Override
 	public void init() {
-	}
-
-	@Override
-	public void onMessage(Message message) {
 	}
 
 	@Override
