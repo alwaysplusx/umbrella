@@ -62,7 +62,7 @@ public class JaxWsServerManager {
 	private BeanFactoryInvoker beanFactoryInvoker;
 
 	/**
-	 * 当遇到服务发布失败，则结束剩余的服务发布
+	 * 当遇到服务发布失败, 抛出异常终止发布
 	 */
 	private boolean failFast = false;
 
@@ -161,8 +161,8 @@ public class JaxWsServerManager {
 	/**
 	 * 设置服务的元数据加载器
 	 */
-	public void setJaxWsMetadataLoader(JaxWsMetadataLoader jaxWsMetadataLoader) {
-		this.metaLoader = jaxWsMetadataLoader;
+	public void setJaxWsMetadataLoader(JaxWsMetadataLoader metaLoader) {
+		this.metaLoader = metaLoader;
 	}
 
 	/**

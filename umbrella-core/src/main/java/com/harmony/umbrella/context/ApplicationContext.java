@@ -188,14 +188,16 @@ public abstract class ApplicationContext implements BeanFactory {
 
     public String getDescription() {
         StringBuilder sb = new StringBuilder();
-        sb.append("#### 操作系统信息 ####\n")
-          .append(getInformationOfOS()).append("\n")
-          .append("#### 虚 拟 机 信 息  ####\n")
-          .append(getInforamtionOfJVM()).append("\n")
-          .append("#### 数 据 库 信 息 ####\n")
-          .append(getInformationOfDB() == null ? "{}" : getInformationOfDB()).append("\n")
-          .append("#### 服 务 器 信 息 ####\n")
-          .append(getInformationOfServer() == null ? "{}" : getInformationOfServer());
+        sb.append("{")
+          .append("\n\"os\":")
+          .append(getInformationOfOS()).append(",\n")
+          .append("\"jvm\":")
+          .append(getInforamtionOfJVM()).append(",\n")
+          .append("\"db\":")
+          .append(getInformationOfDB() == null ? "{}" : getInformationOfDB()).append(",\n")
+          .append("\"server\":")
+          .append(getInformationOfServer() == null ? "{}" : getInformationOfServer()).append("\n")
+          .append("}");
         return sb.toString();
     }
 

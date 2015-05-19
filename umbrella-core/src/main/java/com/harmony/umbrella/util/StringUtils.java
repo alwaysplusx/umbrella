@@ -554,7 +554,7 @@ public abstract class StringUtils {
         if (method == null)
             return "";
         StringBuilder sb = new StringBuilder(method.getDeclaringClass().getName());
-        sb.append("#").append("(");
+        sb.append("(");
         Class<?>[] types = method.getParameterTypes();
         if (types.length > 0) {
             for (Class<?> type : types) {

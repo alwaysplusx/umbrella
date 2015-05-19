@@ -42,10 +42,15 @@ import com.harmony.umbrella.util.Exceptions;
 public class JaxWsCXFExecutor extends JaxWsPhaseExecutor {
 
     private static final Logger log = LoggerFactory.getLogger(JaxWsCXFExecutor.class);
+    
     private Map<JaxWsContextKey, Object> proxyCache = new HashMap<JaxWsContextKey, Object>();
+    
     private boolean cacheable = true;
+    
     private Invoker invoker = new JaxWsInvoker();
 
+    private JaxWsGraphAnalysis analysis;
+    
     @SuppressWarnings("unchecked")
     @Override
     public <T> T executeQuite(JaxWsContext context, Class<T> resultType) {
@@ -72,11 +77,6 @@ public class JaxWsCXFExecutor extends JaxWsPhaseExecutor {
             graph.setResponseTime(Calendar.getInstance());
         }
         return result;
-    }
-
-    @Override
-    protected void persistGraph(JaxWsGraph graph) {
-        // empty implement
     }
 
     /**
@@ -150,6 +150,15 @@ public class JaxWsCXFExecutor extends JaxWsPhaseExecutor {
             proxy = createProxy(context);
         }
         return proxy;
+    }
+
+    @Override
+    public JaxWsGraphAnalysis getJaxWsGraphAnalysis() {
+        return analysis;
+    }
+    
+    public void setJaxWsGraphAnalysis(JaxWsGraphAnalysis analysis) {
+        this.analysis = analysis;
     }
 
     private static class JaxWsContextKey {

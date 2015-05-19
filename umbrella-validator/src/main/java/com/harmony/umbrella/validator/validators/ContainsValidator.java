@@ -39,9 +39,10 @@ public class ContainsValidator implements ConstraintValidator<Contains, String> 
         if (value == null)
             return false;
         for (String content : contents) {
-            if (value.contains(content) && !all) {
+            boolean contains = value.contains(content);
+            if (contains && !all) {
                 return true;
-            } else if (!value.contains(content) && all) {
+            } else if (!contains && all) {
                 return false;
             }
         }

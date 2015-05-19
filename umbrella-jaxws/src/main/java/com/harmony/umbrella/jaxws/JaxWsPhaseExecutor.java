@@ -54,6 +54,11 @@ public abstract class JaxWsPhaseExecutor implements JaxWsExecutor {
     public abstract <T> T executeQuite(JaxWsContext context, Class<T> resultType);
 
     /**
+     * {@linkplain JaxWsContext}设置 {@linkplain JaxWsGraph}.才存在结果分析.
+     */
+    public abstract JaxWsGraphAnalysis getJaxWsGraphAnalysis();
+
+    /**
      * 安静的执行{@linkplain #execute(JaxWsContext)}，不触发内部的handler
      * 
      * @param context
@@ -122,7 +127,10 @@ public abstract class JaxWsPhaseExecutor implements JaxWsExecutor {
                 Object graph = context.get(JaxWsGraph.JAXWS_CONTEXT_GRAPH);
                 LOG.info("执行情况概要如下:{}", graph);
                 try {
-                    persistGraph((JaxWsGraph) graph);
+                    JaxWsGraphAnalysis analysis = getJaxWsGraphAnalysis();
+                    if (analysis != null) {
+                        analysis.analyze((JaxWsGraph) graph);
+                    }
                 } catch (Exception e) {
                     LOG.debug("保存失败, JaxWs执行概要无法正常保存", e);
                 }
@@ -130,16 +138,6 @@ public abstract class JaxWsPhaseExecutor implements JaxWsExecutor {
         }
         return result;
     }
-
-    /**
-     * {@linkplain JaxWsPhaseExecutor}中没有在{@linkplain JaxWsContext}中设置
-     * {@linkplain JaxWsGraph}.
-     * <p>
-     * 所以子类必须在{@linkplain JaxWsContext}设置 {@linkplain JaxWsGraph}.才会进入保存流程.
-     * 
-     * @param graph
-     */
-    protected abstract void persistGraph(JaxWsGraph graph);
 
     @Override
     public Object execute(JaxWsContext context) {
@@ -264,6 +262,17 @@ public abstract class JaxWsPhaseExecutor implements JaxWsExecutor {
 
     public void setHideTrowable(boolean hideTrowable) {
         this.hideTrowable = hideTrowable;
+    }
+
+    /**
+     * 结果处理工具
+     * 
+     * @author wuxii@foxmail.com
+     */
+    public interface JaxWsGraphAnalysis {
+
+        void analyze(JaxWsGraph graph);
+
     }
 
 }

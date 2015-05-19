@@ -59,7 +59,7 @@ public class DefaultMethodGraph extends AbstractGraph implements MethodGraph {
         Map<String, Object> arguments = new HashMap<String, Object>();
         if (args != null) {
             for (int i = 0, max = args.length; i < max; i++) {
-                arguments.put(args[i].getClass().getName(), args[i]);
+                arguments.put(i + "", args[i]);
             }
         }
         return arguments;

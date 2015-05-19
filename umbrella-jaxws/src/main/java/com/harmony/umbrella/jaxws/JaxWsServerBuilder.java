@@ -69,7 +69,7 @@ public class JaxWsServerBuilder {
 	/**
 	 * 创建服务的服务工厂
 	 */
-	private ServerFactoryBean serverFactoryBean;
+	private JaxWsServerFactoryBean serverFactoryBean;
 
 	/**
 	 * 创建服务Builder
@@ -167,20 +167,20 @@ public class JaxWsServerBuilder {
 		Assert.notNull(address, "publish address is null");
 		Assert.notNull(serviceClass, "service class is null");
 		try {
-			JaxWsServerFactoryBean factoryBean = new JaxWsServerFactoryBean();
+			serverFactoryBean = new JaxWsServerFactoryBean();
 			if (factoryConfig != null) {
-				factoryConfig.config(factoryBean);
-				if (factoryBean.getServer() != null) {
+				factoryConfig.config(serverFactoryBean);
+				if (serverFactoryBean.getServer() != null) {
 					throw new IllegalStateException("config factory not allow call create method");
 				}
 			}
 			if (log.isInfoEnabled()) {
-				addInOutLogging(factoryBean);
+				addInOutLogging(serverFactoryBean);
 			}
-			applyPrefectServiceClass(factoryBean, serviceClass, serviceInterface);
-			factoryBean.setInvoker(getBeanFactoryInvoker());
-			factoryBean.setAddress(address);
-			return factoryBean.create();
+			applyPrefectServiceClass(serverFactoryBean, serviceClass, serviceInterface);
+			serverFactoryBean.setInvoker(getBeanFactoryInvoker());
+			serverFactoryBean.setAddress(address);
+			return serverFactoryBean.create();
 		} catch (NoSuchBeanFindException e) {
 			throw new JaxWsException("no target bean of class " + serviceClass.getName() + " find");
 		}

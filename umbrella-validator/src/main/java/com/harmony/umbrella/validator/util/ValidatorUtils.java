@@ -74,9 +74,9 @@ public abstract class ValidatorUtils {
 		StringBuilder sb = new StringBuilder();
 		Set<ConstraintViolation<Object>> cvs = getValidator().validate(object, groups);
 		for (ConstraintViolation<Object> cv : cvs) {
-			sb.append(",").append(cv.getMessage());
+			sb.append(", ").append(cv.getMessage());
 		}
-		return sb.length() == 0 ? null : sb.toString().substring(1);
+		return sb.length() == 0 ? null : sb.substring(2);
 	}
 
 	/**
