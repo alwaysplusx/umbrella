@@ -17,7 +17,6 @@ package com.harmony.umbrella.message.jms;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.lang.reflect.Modifier;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -30,10 +29,11 @@ import com.harmony.umbrella.Constant;
 import com.harmony.umbrella.context.ApplicationContext;
 import com.harmony.umbrella.core.BeanFactory;
 import com.harmony.umbrella.core.NoSuchBeanFindException;
-import com.harmony.umbrella.core.ClassFilter;
 import com.harmony.umbrella.io.util.ResourceScaner;
 import com.harmony.umbrella.message.AbstractMessageListener;
 import com.harmony.umbrella.message.MessageResolver;
+import com.harmony.umbrella.util.ClassUtils.ClassFilter;
+import com.harmony.umbrella.util.ClassUtils.ClassFilterFeature;
 
 /**
  * 系统消息JMS监听.初始加载指定包{@linkplain ApplicationMessageListener#basePackage
@@ -41,12 +41,8 @@ import com.harmony.umbrella.message.MessageResolver;
  * 
  * @author wuxii
  */
-@MessageDriven(mappedName = "jms/queue", 
-    activationConfig = { 
-        @ActivationConfigProperty(propertyName = "acknowledgeMode", propertyValue = "Auto-acknowledge"),
-        @ActivationConfigProperty(propertyName = "destinationType", propertyValue = "javax.jms.Queue") 
-    }
-)
+@MessageDriven(mappedName = "jms/queue", activationConfig = { @ActivationConfigProperty(propertyName = "acknowledgeMode", propertyValue = "Auto-acknowledge"),
+        @ActivationConfigProperty(propertyName = "destinationType", propertyValue = "javax.jms.Queue") })
 public class ApplicationMessageListener extends AbstractMessageListener implements javax.jms.MessageListener {
 
     private static final String basePackage = Constant.DEFAULT_PACKAGE;
@@ -60,11 +56,7 @@ public class ApplicationMessageListener extends AbstractMessageListener implemen
             Class<?>[] classes = ResourceScaner.getInstance().scanPackage(basePackage, new ClassFilter() {
                 @Override
                 public boolean accept(Class<?> clazz) {
-                    if (clazz.isInterface())
-                        return false;
-                    if (Modifier.isAbstract(clazz.getModifiers()))
-                        return false;
-                    if (!Modifier.isPublic(clazz.getModifiers()))
+                    if (!ClassFilterFeature.NEWABLE.accept(clazz))
                         return false;
                     if (!MessageResolver.class.isAssignableFrom(clazz))
                         return false;
@@ -106,10 +98,10 @@ public class ApplicationMessageListener extends AbstractMessageListener implemen
             }
         }
     }
-    
+
     @Override
     @PreDestroy
     public void destory() {
     }
-    
+
 }

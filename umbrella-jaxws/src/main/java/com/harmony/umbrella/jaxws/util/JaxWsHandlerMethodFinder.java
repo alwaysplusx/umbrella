@@ -15,12 +15,11 @@
  */
 package com.harmony.umbrella.jaxws.util;
 
-import static com.harmony.umbrella.util.StringUtils.*;
 import static com.harmony.umbrella.util.ClassUtils.*;
+import static com.harmony.umbrella.util.StringUtils.*;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -32,12 +31,13 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.harmony.umbrella.core.ClassFilter;
 import com.harmony.umbrella.io.util.ResourceScaner;
 import com.harmony.umbrella.jaxws.Handler;
+import com.harmony.umbrella.jaxws.Handler.HandleMethod;
 import com.harmony.umbrella.jaxws.JaxWsAbortException;
 import com.harmony.umbrella.jaxws.Phase;
-import com.harmony.umbrella.jaxws.Handler.HandleMethod;
+import com.harmony.umbrella.util.ClassUtils.ClassFilter;
+import com.harmony.umbrella.util.ClassUtils.ClassFilterFeature;
 
 /**
  * @author wuxii@foxmail.com
@@ -79,11 +79,7 @@ public class JaxWsHandlerMethodFinder {
                 @Override
                 public boolean accept(Class<?> clazz) {
                     try {
-                        if (clazz.isInterface())
-                            return false;
-                        if (!Modifier.isPublic(clazz.getModifiers()))
-                            return false;
-                        if (Modifier.isAbstract(clazz.getModifiers()))
+                        if (!ClassFilterFeature.NEWABLE.accept(clazz))
                             return false;
                         if (clazz.getAnnotation(Handler.class) == null)
                             return false;
@@ -182,15 +178,14 @@ public class JaxWsHandlerMethodFinder {
                 continue;
             HandleMethod ann = handleMethod.getAnnotation(HandleMethod.class);
             // annotation不为空、周期相同、方法名与annotation相同或与handleMethod相同
-            if (ann != null && phase.equals(ann.phase()) 
-                    && (ann.methodName().equals(name) || handleMethod.getName().equals(name))
+            if (ann != null && phase.equals(ann.phase()) && (ann.methodName().equals(name) || handleMethod.getName().equals(name))
                     && isMatchHandleMethod(serviceMethod, handleMethod, phase)) {
 
                 HandleMethodReflectInvoker hmi = new HandleMethodReflectInvoker(handlerClass, handleMethod, phase);
                 Class<?>[] parameterTypes = handleMethod.getParameterTypes();
                 hmi.setEndWithMap(canonicalNameEquals(Map.class, parameterTypes[parameterTypes.length - 1]));
                 result.add(hmi);
-                
+
             }
         }
         return result.toArray(new HandleMethodInvoker[result.size()]);

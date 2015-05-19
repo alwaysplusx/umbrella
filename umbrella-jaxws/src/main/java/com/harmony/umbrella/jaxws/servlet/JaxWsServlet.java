@@ -16,7 +16,6 @@
 package com.harmony.umbrella.jaxws.servlet;
 
 import java.io.IOException;
-import java.lang.reflect.Modifier;
 
 import javax.jws.WebService;
 import javax.servlet.ServletConfig;
@@ -27,9 +26,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.harmony.umbrella.Constant;
-import com.harmony.umbrella.core.ClassFilter;
 import com.harmony.umbrella.io.util.ResourceScaner;
 import com.harmony.umbrella.jaxws.JaxWsServerManager;
+import com.harmony.umbrella.util.ClassUtils.ClassFilter;
+import com.harmony.umbrella.util.ClassUtils.ClassFilterFeature;
 
 /**
  * @author wuxii@foxmail.com
@@ -67,20 +67,9 @@ public class JaxWsServlet extends CXFNonSpringServlet {
             Class<?>[] classes = scaner.scanPackage(getScanPackage(sc), new ClassFilter() {
                 @Override
                 public boolean accept(Class<?> clazz) {
-                    if (clazz.isInterface())
+                    if (!ClassFilterFeature.NEWABLE.accept(clazz)) {
                         return false;
-                    if (!Modifier.isPublic(clazz.getModifiers()))
-                        return false;
-                    if (Modifier.isAbstract(clazz.getModifiers()))
-                        return false;
-                    if (clazz.isMemberClass())
-                        return false;
-                    if (clazz.isEnum())
-                        return false;
-                    if (clazz.isAnnotation())
-                        return false;
-                    if (clazz.isAnonymousClass())
-                        return false;
+                    }
                     if (clazz.getAnnotation(WebService.class) == null)
                         return false;
                     return true;

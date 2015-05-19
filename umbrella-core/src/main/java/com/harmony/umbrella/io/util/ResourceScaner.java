@@ -27,11 +27,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.harmony.umbrella.asm.ClassReader;
-import com.harmony.umbrella.core.ClassFilter;
 import com.harmony.umbrella.io.PathMatchingResourcePatternResolver;
 import com.harmony.umbrella.io.Resource;
 import com.harmony.umbrella.io.ResourcePatternResolver;
 import com.harmony.umbrella.util.ClassUtils;
+import com.harmony.umbrella.util.ClassUtils.ClassFilter;
 
 /**
  * @author wuxii@foxmail.com

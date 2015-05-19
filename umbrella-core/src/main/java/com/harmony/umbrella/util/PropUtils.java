@@ -19,6 +19,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
+import com.harmony.umbrella.io.ClassPathResource;
+
 /**
  * 属性加载工具
  * 
@@ -26,48 +28,53 @@ import java.util.Properties;
  */
 public abstract class PropUtils {
 
-	/**
-	 * 加载指定文件下的资源文件
-	 * 
-	 * @param filePath
-	 * @return
-	 * @throws IOException
-	 */
-	public static Properties loadProperties(String filePath) throws IOException {
-		Properties props = new Properties();
-		InputStream resourceStream = null;
-		try {
-			resourceStream = ClassUtils.getDefaultClassLoader().getResourceAsStream(filePath);
-			if (resourceStream == null) {
-				throw new IOException("file " + filePath + " not find ");
-			}
-			props.load(resourceStream);
-		} finally {
-			resourceStream.close();
-		}
-		return props;
-	}
+    /**
+     * 加载指定文件下的资源文件
+     * 
+     * @param filePath
+     * @return
+     * @throws IOException
+     */
+    public static Properties loadProperties(String... paths) throws IOException {
+        Properties props = new Properties();
+        if (paths == null || paths.length == 0)
+            return props;
+        for (String path : paths) {
+            loadProperties(path, props);
+        }
+        return props;
+    }
 
-	/**
-	 * 系统{@linkplain System#getProperties(String)}
-	 * 
-	 * @param key
-	 * @return
-	 */
-	public static String getSystemProperty(String key) {
-		String value = System.getProperty(key);
-		return value;
-	}
+    private static void loadProperties(String path, Properties props) throws IOException {
+        InputStream inStream = null;
+        try {
+            inStream = new ClassPathResource(path).getInputStream();
+            props.load(inStream);
+        } finally {
+            if (inStream != null) {
+                inStream.close();
+            }
+        }
+    }
 
-	/**
-	 * 系统{@linkplain System#getProperties(String)}
-	 * 
-	 * @param key
-	 * @param defaultValue
-	 * @return
-	 */
-	public static String getSystemProperty(String key, String defaultValue) {
-		String value = getSystemProperty(key);
-		return value == null ? defaultValue : value;
-	}
+    /**
+     * 系统{@linkplain System#getProperties(String)}
+     * 
+     * @param key
+     * @return
+     */
+    public static String getSystemProperty(String key) {
+        return System.getProperty(key);
+    }
+
+    /**
+     * 系统{@linkplain System#getProperties(String)}
+     * 
+     * @param key
+     * @param defaultValue
+     * @return
+     */
+    public static String getSystemProperty(String key, String defaultValue) {
+        return System.getProperty(key, defaultValue);
+    }
 }
