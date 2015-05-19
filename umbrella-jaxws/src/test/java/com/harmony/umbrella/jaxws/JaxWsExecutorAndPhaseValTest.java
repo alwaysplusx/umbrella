@@ -20,7 +20,6 @@ import static org.junit.Assert.*;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.harmony.umbrella.jaxws.handler.JaxWsAnnotationHandler;
 import com.harmony.umbrella.jaxws.impl.JaxWsCXFExecutor;
 import com.harmony.umbrella.jaxws.impl.SimpleJaxWsContext;
 import com.harmony.umbrella.jaxws.services.HelloService;
@@ -37,7 +36,7 @@ public class JaxWsExecutorAndPhaseValTest {
     @BeforeClass
     public static void setUp() {
         JaxWsServerBuilder.newServerBuilder().publish(HelloServiceImpl.class, address);
-        executor.addHandler(new JaxWsAnnotationHandler());
+        // executor.addHandler(new JaxWsAnnotationHandler());
     }
 
     @Test

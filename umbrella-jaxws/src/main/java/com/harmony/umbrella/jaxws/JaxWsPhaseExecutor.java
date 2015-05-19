@@ -15,9 +15,6 @@
  */
 package com.harmony.umbrella.jaxws;
 
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
@@ -36,107 +33,51 @@ public abstract class JaxWsPhaseExecutor implements JaxWsExecutor {
 
     protected static final Logger LOG = LoggerFactory.getLogger(JaxWsPhaseExecutor.class);
 
-    private List<JaxWsContextHandler> handlers = new LinkedList<JaxWsContextHandler>();
-
     /**
      * 标记执行出现错误是抛出还是隐藏
      */
     private boolean hideTrowable = false;
 
-    /**
-     * 安静的执行{@linkplain #execute(JaxWsContext)}，不触发内部的handler
-     * 
-     * @param context
-     * @param resultType
-     * @return
-     * @see #execute(JaxWsContext, Class)
-     */
     public abstract <T> T executeQuite(JaxWsContext context, Class<T> resultType);
-
-    /**
-     * {@linkplain JaxWsContext}设置 {@linkplain JaxWsGraph}.才存在结果分析.
-     */
-    public abstract JaxWsGraphAnalysis getJaxWsGraphAnalysis();
-
-    /**
-     * 安静的执行{@linkplain #execute(JaxWsContext)}，不触发内部的handler
-     * 
-     * @param context
-     * @return
-     * @see #execute(JaxWsContext, Class)
-     */
-    public Object executeQuite(JaxWsContext context) {
-        return executeQuite(context, Object.class);
-    }
-
-    /**
-     * 安静的异步执行{@linkplain #executeAsync(JaxWsContext)}
-     * 
-     * @param context
-     * @param resultType
-     * @return
-     * @see #executeAsync(JaxWsContext)
-     */
-    public <T> Future<T> executeAsyncQuite(final JaxWsContext context, final Class<T> resultType) {
-        FutureTask<T> task = new FutureTask<T>(new Callable<T>() {
-            @Override
-            public T call() throws Exception {
-                return executeQuite(context, resultType);
-            }
-        });
-        new Thread(task).start();
-        return task;
-    }
-
-    /**
-     * 安静的异步执行{@linkplain #executeAsync(JaxWsContext)}
-     * 
-     * @param context
-     * @return
-     */
-    public Future<?> executeAsyncQuite(JaxWsContext context) {
-        return executeAsyncQuite(context, Object.class);
-    }
 
     @Override
     public <T> T execute(JaxWsContext context, Class<T> resultType) {
-        Exception exception = null;
+        return execute(context, resultType, (JaxWsPhaseVisitor) null);
+    }
+
+    @Override
+    public <T> T execute(JaxWsContext context, Class<T> resultType, JaxWsPhaseVisitor... visitors) {
+        Exception ex = null;
         T result = null;
         try {
-            doBefore(context);
             LOG.debug("执行交互{}", context);
+            if (!doBefore(context)) {
+                return null;
+            }
             long start = System.currentTimeMillis();
             result = executeQuite(context, resultType);
             LOG.debug("交互成功{}, 返回结果[{}], 交互耗时:{}ms", context, result, System.currentTimeMillis() - start);
-            doCompletion(context, result);
+            doCompletion(result, context, visitors);
+        } catch (JaxWsAbortException e) {
+            LOG.info("交互取消{}", context, e);
+            doAbort((JaxWsAbortException) (ex = e), context, visitors);
         } catch (Exception e) {
             LOG.warn("交互失败{}", context, e);
-            try {
-                doThrowing(context, exception = e);
-            } catch (Exception e1) {
-                // ignore
-            }
+            doThrowing(ex = e, context, visitors);
             throwOrHide(e);
         } finally {
-            try {
-                doFinally(context, result, exception);
-            } catch (Exception e) {
-                // ignore
-            }
+            doFinally(result, ex, context, visitors);
             if (context.contains(JaxWsGraph.JAXWS_CONTEXT_GRAPH)) {
                 Object graph = context.get(JaxWsGraph.JAXWS_CONTEXT_GRAPH);
                 LOG.info("执行情况概要如下:{}", graph);
-                try {
-                    JaxWsGraphAnalysis analysis = getJaxWsGraphAnalysis();
-                    if (analysis != null) {
-                        analysis.analyze((JaxWsGraph) graph);
-                    }
-                } catch (Exception e) {
-                    LOG.debug("保存失败, JaxWs执行概要无法正常保存", e);
-                }
             }
         }
         return result;
+    }
+
+    @Override
+    public Object execute(JaxWsContext context, JaxWsPhaseVisitor... visitors) {
+        return execute(context, Object.class, visitors);
     }
 
     @Override
@@ -161,6 +102,20 @@ public abstract class JaxWsPhaseExecutor implements JaxWsExecutor {
         return (Future<?>) executeAsync(context, Object.class);
     }
 
+    /**
+     * 将执行中抛出的异常在方法中通过判断是否抛出
+     * 
+     * @param e
+     */
+    protected void throwOrHide(Exception e) {
+        if (!hideTrowable) {
+            if (e instanceof RuntimeException) {
+                throw (RuntimeException) e;
+            }
+            throw new JaxWsException(e);
+        }
+    }
+
     @SuppressWarnings("unchecked")
     @Override
     public <V> void executeAsync(final JaxWsContext context, JaxWsAsyncCallback<V> callback) throws JaxWsException {
@@ -179,100 +134,47 @@ public abstract class JaxWsPhaseExecutor implements JaxWsExecutor {
         }
     }
 
-    @Override
-    public List<JaxWsContextHandler> getHandlers() {
-        return Collections.unmodifiableList(this.handlers);
-    }
-
-    @Override
-    public boolean addHandler(JaxWsContextHandler handler) {
-        return this.handlers.add(handler);
-    }
-
-    @Override
-    public boolean removeHandler(JaxWsContextHandler handler) {
-        return this.handlers.remove(handler);
-    }
-
-    /**
-     * 将执行中抛出的异常在方法中通过判断是否抛出
-     * 
-     * @param e
-     */
-    protected void throwOrHide(Exception e) {
-        if (!hideTrowable) {
-            if (e instanceof RuntimeException) {
-                throw (RuntimeException) e;
+    protected boolean doBefore(JaxWsContext context, JaxWsPhaseVisitor... visitors) throws JaxWsAbortException {
+        if (visitors != null && visitors.length > 0) {
+            for (JaxWsPhaseVisitor visitor : visitors) {
+                if (!visitor.visitBefore(context)) {
+                    return false;
+                }
             }
-            throw new JaxWsException(e);
-        }
-    }
-
-    private boolean doBefore(JaxWsContext context) {
-        try {
-            return doPrepare(context);
-        } catch (JaxWsAbortException e) {
-            LOG.warn("jaxws executor throw {}, abort execut", e);
-            doAbort(context, e);
-            return false;
-        }
-    }
-
-    protected boolean doPrepare(JaxWsContext context) throws JaxWsAbortException {
-        for (JaxWsContextHandler handler : handlers) {
-            LOG.debug("{} do prepare", handler);
-            if (!handler.preExecute(context))
-                LOG.debug("{} PERPARE return false", handler);
-            return false;
         }
         return true;
     }
 
-    protected void doCompletion(JaxWsContext context, Object result) {
-        for (JaxWsContextHandler handler : handlers) {
-            LOG.debug("{} do completion", handler);
-            handler.postExecute(context, result);
+    protected void doAbort(JaxWsAbortException ex, JaxWsContext context, JaxWsPhaseVisitor... visitors) {
+        if (visitors != null && visitors.length > 0) {
+            for (JaxWsPhaseVisitor visitor : visitors) {
+                visitor.visitAbort(ex, context);
+            }
         }
     }
 
-    protected void doThrowing(JaxWsContext context, Exception e) {
-        for (JaxWsContextHandler handler : handlers) {
-            LOG.debug("{} do throwing", handler);
-            handler.throwing(context, e);
+    protected void doCompletion(Object result, JaxWsContext context, JaxWsPhaseVisitor... visitors) {
+        if (visitors != null && visitors.length > 0) {
+            for (JaxWsPhaseVisitor visitor : visitors) {
+                visitor.visitCompletion(result, context);
+            }
         }
     }
 
-    protected void doAbort(JaxWsContext context, JaxWsAbortException e) {
-        for (JaxWsContextHandler handler : handlers) {
-            LOG.debug("{} do abort", handler);
-            handler.abortExecute(context, e);
+    protected void doThrowing(Exception throwable, JaxWsContext context, JaxWsPhaseVisitor... visitors) {
+        if (visitors != null && visitors.length > 0) {
+            for (JaxWsPhaseVisitor visitor : visitors) {
+                visitor.visitThrowing(throwable, context);
+            }
         }
     }
 
-    protected void doFinally(JaxWsContext context, Object result, Exception e) {
-        for (JaxWsContextHandler handler : handlers) {
-            LOG.debug("{} do finally", handler);
-            handler.finallyExecute(context, result, e);
+    protected void doFinally(Object result, Exception throwable, JaxWsContext context, JaxWsPhaseVisitor... visitors) {
+        if (visitors != null && visitors.length > 0) {
+            for (JaxWsPhaseVisitor visitor : visitors) {
+                visitor.visitFinally(result, throwable, (JaxWsGraph) context.get(JaxWsGraph.JAXWS_CONTEXT_GRAPH), context);
+            }
         }
     }
-
-    public boolean isHideTrowable() {
-        return hideTrowable;
-    }
-
-    public void setHideTrowable(boolean hideTrowable) {
-        this.hideTrowable = hideTrowable;
-    }
-
-    /**
-     * 结果处理工具
-     * 
-     * @author wuxii@foxmail.com
-     */
-    public interface JaxWsGraphAnalysis {
-
-        void analyze(JaxWsGraph graph);
-
-    }
-
+    
 }

@@ -15,7 +15,6 @@
  */
 package com.harmony.umbrella.jaxws;
 
-import java.util.List;
 import java.util.concurrent.Future;
 
 /**
@@ -25,6 +24,30 @@ import java.util.concurrent.Future;
  *
  */
 public interface JaxWsExecutor {
+
+    /**
+     * 执行交互, 提供visitor的各时段的访问
+     * 
+     * @param context
+     *            执行上下文
+     * @param resultType
+     *            返回类型
+     * @param visitors
+     *            执行的访问者
+     * @return
+     */
+    <T> T execute(JaxWsContext context, Class<T> resultType, JaxWsPhaseVisitor... visitors);
+
+    /**
+     * 执行交互, 提供各时段的visitor
+     * 
+     * @param context
+     *            执行上下文
+     * @param visitors
+     *            执行的访问者
+     * @return
+     */
+    Object execute(JaxWsContext context, JaxWsPhaseVisitor... visitors);
 
     /**
      * 执行交互，并返回指定类型的返回值
@@ -77,28 +100,5 @@ public interface JaxWsExecutor {
      *            结果回调
      */
     <V> void executeAsync(JaxWsContext context, JaxWsAsyncCallback<V> callback);
-
-    /**
-     * 增加一个处理器
-     * 
-     * @param handler
-     * @return
-     */
-    boolean addHandler(JaxWsContextHandler handler);
-
-    /**
-     * 移除一个处理器
-     * 
-     * @param handler
-     * @return
-     */
-    boolean removeHandler(JaxWsContextHandler handler);
-
-    /**
-     * 当前Executor所拥有的处理器
-     * 
-     * @return {@linkplain java.util.Collections#unmodifiableList(List)}
-     */
-    List<JaxWsContextHandler> getHandlers();
 
 }
