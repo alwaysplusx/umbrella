@@ -35,8 +35,11 @@ import com.harmony.umbrella.jaxws.impl.SimpleJaxWsContext;
 import com.harmony.umbrella.util.PropUtils;
 
 /**
+ * 基于配置文件jaxws-receiver.txt的接收
+ * 
  * @author wuxii@foxmail.com
  */
+@Deprecated
 public class PropertiesFileJaxWsContextReceiver implements JaxWsContextReceiver {
 
     protected final static String JAXWS_HANDLERS_LOCATION = "META-INF/jaxws/jaxws-receiver.txt";

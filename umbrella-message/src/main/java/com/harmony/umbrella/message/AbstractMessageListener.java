@@ -28,10 +28,9 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class AbstractMessageListener implements MessageListener {
 
-    protected Logger log = LoggerFactory.getLogger(AbstractMessageListener.class);
-    protected List<MessageResolver> messageResolvers = new ArrayList<MessageResolver>();
+    protected final static Logger LOG = LoggerFactory.getLogger(AbstractMessageListener.class);
 
-    // private boolean initialized = false;
+    protected List<MessageResolver> messageResolvers = new ArrayList<MessageResolver>();
 
     public AbstractMessageListener() {
     }
@@ -53,7 +52,7 @@ public abstract class AbstractMessageListener implements MessageListener {
     public void onMessage(Message message) {
         for (MessageResolver mr : messageResolvers) {
             if (mr.support(message)) {
-                log.debug("{}处理消息{}", mr, message);
+                LOG.debug("{}处理消息{}", mr, message);
                 mr.handle(message);
             }
         }
@@ -61,6 +60,7 @@ public abstract class AbstractMessageListener implements MessageListener {
 
     /**
      * 动态增加{@linkplain MessageResolver}
+     * 
      * @param messageResolver
      * @return
      */
@@ -70,6 +70,7 @@ public abstract class AbstractMessageListener implements MessageListener {
 
     /**
      * 动态删除{@linkplain MessageResolver}
+     * 
      * @param messageResolver
      * @return
      */
@@ -78,11 +79,14 @@ public abstract class AbstractMessageListener implements MessageListener {
     }
 
     /**
-     * 检测是否包含{@linkplain MessageResolver}. 重写{@linkplain Object#hashCode()} {@linkplain Object#equals()}方法
+     * 检测是否包含{@linkplain MessageResolver}. 重写{@linkplain Object#hashCode()}
+     * {@linkplain Object#equals()}方法
+     * 
      * @param messageResolver
      * @return
      */
     public boolean containsMessageResolver(MessageResolver messageResolver) {
         return messageResolvers.contains(messageResolver);
     }
+
 }

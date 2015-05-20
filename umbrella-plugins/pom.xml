@@ -16,7 +16,7 @@
     <!-- <module>message-mail-plugin</module> -->
     <!-- <module>message-sms-plugin</module> -->
     <!-- <module>jaxws-bus-plugin</module> -->
-    <module>message-jms-plugin</module>
     <!-- <module>scheduler-ejb-plugin</module> -->
+    <module>message-ee-plugin</module>
   </modules>
 </project>

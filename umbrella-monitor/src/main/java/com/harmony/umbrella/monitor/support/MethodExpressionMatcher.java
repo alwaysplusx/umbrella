@@ -37,6 +37,7 @@ import com.harmony.umbrella.util.ClassUtils;
 public class MethodExpressionMatcher implements ResourceMatcher<Method> {
 
     protected static final PointcutExpressionFactory factoryInstance = new PointcutExpressionFactory();
+    
     private final PointcutExpression pointcutExpression;
 
     public MethodExpressionMatcher(String expression) {
