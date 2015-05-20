@@ -24,6 +24,7 @@ import com.harmony.umbrella.jaxws.impl.JaxWsCXFExecutor;
 import com.harmony.umbrella.jaxws.impl.SimpleJaxWsContext;
 import com.harmony.umbrella.jaxws.services.HelloService;
 import com.harmony.umbrella.jaxws.services.HelloServiceImpl;
+import com.harmony.umbrella.jaxws.visitor.JaxWsPhaseValidationVisitor;
 
 /**
  * @author wuxii@foxmail.com
@@ -36,14 +37,13 @@ public class JaxWsExecutorAndPhaseValTest {
     @BeforeClass
     public static void setUp() {
         JaxWsServerBuilder.newServerBuilder().publish(HelloServiceImpl.class, address);
-        // executor.addHandler(new JaxWsAnnotationHandler());
     }
 
     @Test
     public void testHelloServicePhaseVal() {
         SimpleJaxWsContext context = new SimpleJaxWsContext(HelloService.class, "sayHi", new Object[] { "wuxii" });
         context.setAddress(address);
-        Object result = executor.execute(context);
+        Object result = executor.execute(context, new JaxWsPhaseValidationVisitor());
         assertNotNull(result);
         assertEquals("Hi wuxii", result);
     }

@@ -51,7 +51,7 @@ public abstract class JaxWsPhaseExecutor implements JaxWsExecutor {
         T result = null;
         try {
             LOG.debug("执行交互{}", context);
-            if (!doBefore(context)) {
+            if (!doBefore(context, visitors)) {
                 return null;
             }
             long start = System.currentTimeMillis();
@@ -134,7 +134,7 @@ public abstract class JaxWsPhaseExecutor implements JaxWsExecutor {
         }
     }
 
-    protected boolean doBefore(JaxWsContext context, JaxWsPhaseVisitor... visitors) throws JaxWsAbortException {
+    protected boolean doBefore(JaxWsContext context, JaxWsPhaseVisitor[] visitors) throws JaxWsAbortException {
         if (visitors != null && visitors.length > 0) {
             for (JaxWsPhaseVisitor visitor : visitors) {
                 if (!visitor.visitBefore(context)) {
@@ -145,7 +145,7 @@ public abstract class JaxWsPhaseExecutor implements JaxWsExecutor {
         return true;
     }
 
-    protected void doAbort(JaxWsAbortException ex, JaxWsContext context, JaxWsPhaseVisitor... visitors) {
+    protected void doAbort(JaxWsAbortException ex, JaxWsContext context, JaxWsPhaseVisitor[] visitors) {
         if (visitors != null && visitors.length > 0) {
             for (JaxWsPhaseVisitor visitor : visitors) {
                 visitor.visitAbort(ex, context);
@@ -153,7 +153,7 @@ public abstract class JaxWsPhaseExecutor implements JaxWsExecutor {
         }
     }
 
-    protected void doCompletion(Object result, JaxWsContext context, JaxWsPhaseVisitor... visitors) {
+    protected void doCompletion(Object result, JaxWsContext context, JaxWsPhaseVisitor[] visitors) {
         if (visitors != null && visitors.length > 0) {
             for (JaxWsPhaseVisitor visitor : visitors) {
                 visitor.visitCompletion(result, context);
@@ -161,7 +161,7 @@ public abstract class JaxWsPhaseExecutor implements JaxWsExecutor {
         }
     }
 
-    protected void doThrowing(Exception throwable, JaxWsContext context, JaxWsPhaseVisitor... visitors) {
+    protected void doThrowing(Exception throwable, JaxWsContext context, JaxWsPhaseVisitor[] visitors) {
         if (visitors != null && visitors.length > 0) {
             for (JaxWsPhaseVisitor visitor : visitors) {
                 visitor.visitThrowing(throwable, context);
@@ -169,7 +169,7 @@ public abstract class JaxWsPhaseExecutor implements JaxWsExecutor {
         }
     }
 
-    protected void doFinally(Object result, Exception throwable, JaxWsContext context, JaxWsPhaseVisitor... visitors) {
+    protected void doFinally(Object result, Exception throwable, JaxWsContext context, JaxWsPhaseVisitor[] visitors) {
         if (visitors != null && visitors.length > 0) {
             for (JaxWsPhaseVisitor visitor : visitors) {
                 visitor.visitFinally(result, throwable, (JaxWsGraph) context.get(JaxWsGraph.JAXWS_CONTEXT_GRAPH), context);
