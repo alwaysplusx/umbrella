@@ -16,9 +16,9 @@
 package com.harmony.umbrella.monitor;
 
 import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 
 import com.harmony.umbrella.monitor.MethodMonitor.MethodGraph;
 import com.harmony.umbrella.monitor.annotation.Monitored;
@@ -27,27 +27,20 @@ import com.harmony.umbrella.monitor.util.MonitorUtils;
 /**
  * @author wuxii@foxmail.com
  */
-public class DefaultMethodGraph extends AbstractGraph implements MethodGraph {
+public class DefaultMethodGraph extends AbstractGraph<Collection<Object>> implements MethodGraph {
 
     protected Object target;
     protected Method method;
-    protected Object[] args;
+    protected Collection<Object> arguments = new ArrayList<Object>();
 
     public DefaultMethodGraph() {
     }
 
-    @Override
-    public String getIdentifie() {
-        if (identifie == null) {
-            identifie = MonitorUtils.methodIdentifie(method);
-        }
-        return super.getIdentifie();
-    }
-
     public DefaultMethodGraph(Object target, Method method, Object[] args) {
+        this.identifie = MonitorUtils.methodIdentifie(method);
         this.target = target;
         this.method = method;
-        this.args = args;
+        Collections.addAll(arguments, args);
     }
 
     public Object getTarget() {
@@ -55,30 +48,18 @@ public class DefaultMethodGraph extends AbstractGraph implements MethodGraph {
     }
 
     @Override
-    public Map<String, Object> getArguments() {
-        Map<String, Object> arguments = new HashMap<String, Object>();
-        if (args != null) {
-            for (int i = 0, max = args.length; i < max; i++) {
-                arguments.put(i + "", args[i]);
-            }
-        }
-        return arguments;
-    }
-
-    @Override
-    @Deprecated
-    public void setArguments(Map<String, Object> arguments) {
-        super.setArguments(arguments);
-    }
-
-    @Override
     public Method getMethod() {
         return method;
     }
 
+    public void setMethod(Method method) {
+        this.method = method;
+        this.identifie = MonitorUtils.methodIdentifie(method);
+    }
+
     @Override
     public Object[] getArgs() {
-        return args;
+        return arguments.toArray();
     }
 
     @Override
@@ -99,12 +80,9 @@ public class DefaultMethodGraph extends AbstractGraph implements MethodGraph {
         return null;
     }
 
-    public void setMethod(Method method) {
-        this.method = method;
-    }
-
     public void setArgs(Object[] args) {
-        this.args = args;
+        this.arguments.clear();
+        Collections.addAll(arguments, args);
     }
 
     public void setTarget(Object target) {
@@ -112,37 +90,11 @@ public class DefaultMethodGraph extends AbstractGraph implements MethodGraph {
     }
 
     @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + Arrays.hashCode(args);
-        result = prime * result + ((method == null) ? 0 : method.hashCode());
-        result = prime * result + ((target == null) ? 0 : target.hashCode());
-        return result;
+    public Collection<Object> getArguments() {
+        return arguments;
     }
 
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        DefaultMethodGraph other = (DefaultMethodGraph) obj;
-        if (!Arrays.equals(args, other.args))
-            return false;
-        if (method == null) {
-            if (other.method != null)
-                return false;
-        } else if (!method.equals(other.method))
-            return false;
-        if (target == null) {
-            if (other.target != null)
-                return false;
-        } else if (!target.equals(other.target))
-            return false;
-        return true;
+    public void setArguments(Collection<Object> arguments) {
+        this.arguments = arguments;
     }
-
 }

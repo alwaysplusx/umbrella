@@ -17,6 +17,7 @@ package com.harmony.umbrella.util;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -26,15 +27,17 @@ import java.util.StringTokenizer;
 /**
  * Miscellaneous {@link String} utility methods.
  *
- * <p>Mainly for internal use within the framework; consider
- * <a href="http://jakarta.apache.org/commons/lang/">Apache's Commons Lang</a>
- * for a more comprehensive suite of String utilities.
+ * <p>
+ * Mainly for internal use within the framework; consider <a
+ * href="http://jakarta.apache.org/commons/lang/">Apache's Commons Lang</a> for
+ * a more comprehensive suite of String utilities.
  *
- * <p>This class delivers some simple functionality that should really
- * be provided by the core Java {@code String} and {@link StringBuilder}
- * classes, such as the ability to {@link #replace} all occurrences of a given
- * substring in a target string. It also provides easy-to-use methods to convert
- * between delimited strings, such as CSV strings, and collections and arrays.
+ * <p>
+ * This class delivers some simple functionality that should really be provided
+ * by the core Java {@code String} and {@link StringBuilder} classes, such as
+ * the ability to {@link #replace} all occurrences of a given substring in a
+ * target string. It also provides easy-to-use methods to convert between
+ * delimited strings, such as CSV strings, and collections and arrays.
  *
  * @author Rod Johnson
  * @author Juergen Hoeller
@@ -56,9 +59,10 @@ public abstract class StringUtils {
 
     /**
      * Normalize the path by suppressing sequences like "path/.." and inner
-     * simple dots. <p>The result is convenient for path comparison. For other
-     * uses, notice that Windows separators ("\") are replaced by simple
-     * slashes.
+     * simple dots.
+     * <p>
+     * The result is convenient for path comparison. For other uses, notice that
+     * Windows separators ("\") are replaced by simple slashes.
      * 
      * @param path
      *            the original path
@@ -165,8 +169,9 @@ public abstract class StringUtils {
 
     /**
      * Take a String which is a delimited list and convert it to a String array.
-     * <p>A single delimiter can consists of more than one character: It will
-     * still be considered as single delimiter string, rather than as bunch of
+     * <p>
+     * A single delimiter can consists of more than one character: It will still
+     * be considered as single delimiter string, rather than as bunch of
      * potential delimiter characters - in contrast to
      * {@code tokenizeToStringArray}.
      * 
@@ -184,8 +189,9 @@ public abstract class StringUtils {
 
     /**
      * Take a String which is a delimited list and convert it to a String array.
-     * <p>A single delimiter can consists of more than one character: It will
-     * still be considered as single delimiter string, rather than as bunch of
+     * <p>
+     * A single delimiter can consists of more than one character: It will still
+     * be considered as single delimiter string, rather than as bunch of
      * potential delimiter characters - in contrast to
      * {@code tokenizeToStringArray}.
      * 
@@ -303,7 +309,10 @@ public abstract class StringUtils {
     /**
      * Check that the given CharSequence is neither {@code null} nor of length
      * 0. Note: Will return {@code true} for a CharSequence that purely consists
-     * of whitespace. <p><pre class="code"> StringUtils.hasLength(null) = false
+     * of whitespace.
+     * <p>
+     * 
+     * <pre class="code"> StringUtils.hasLength(null) = false
      * StringUtils.hasLength("") = false StringUtils.hasLength(" ") = true
      * StringUtils.hasLength("Hello") = true </pre>
      * 
@@ -372,11 +381,12 @@ public abstract class StringUtils {
 
     /**
      * Tokenize the given String into a String array via a StringTokenizer.
-     * Trims tokens and omits empty tokens. <p>The given delimiters string is
-     * supposed to consist of any number of delimiter characters. Each of those
-     * characters can be used to separate tokens. A delimiter is always a single
-     * character; for multi-character delimiters, consider using
-     * {@code delimitedListToStringArray}
+     * Trims tokens and omits empty tokens.
+     * <p>
+     * The given delimiters string is supposed to consist of any number of
+     * delimiter characters. Each of those characters can be used to separate
+     * tokens. A delimiter is always a single character; for multi-character
+     * delimiters, consider using {@code delimitedListToStringArray}
      * 
      * @param str
      *            the String to tokenize
@@ -394,7 +404,8 @@ public abstract class StringUtils {
 
     /**
      * Tokenize the given String into a String array via a StringTokenizer.
-     * <p>The given delimiters string is supposed to consist of any number of
+     * <p>
+     * The given delimiters string is supposed to consist of any number of
      * delimiter characters. Each of those characters can be used to separate
      * tokens. A delimiter is always a single character; for multi-character
      * delimiters, consider using {@code delimitedListToStringArray}
@@ -439,7 +450,9 @@ public abstract class StringUtils {
      * Check whether the given CharSequence has actual text. More specifically,
      * returns {@code true} if the string not {@code null}, its length is
      * greater than 0, and it contains at least one non-whitespace character.
-     * <p><pre class="code"> StringUtils.hasText(null) = false
+     * <p>
+     * 
+     * <pre class="code"> StringUtils.hasText(null) = false
      * StringUtils.hasText("") = false StringUtils.hasText(" ") = false
      * StringUtils.hasText("12345") = true StringUtils.hasText(" 12345 ") = true
      * </pre>
@@ -479,7 +492,9 @@ public abstract class StringUtils {
     }
 
     /**
-     * <p>Checks if a String is whitespace, empty ("") or null.</p>
+     * <p>
+     * Checks if a String is whitespace, empty ("") or null.
+     * </p>
      *
      * <pre> 
      * StringUtils.isBlank(null) = true 
@@ -496,7 +511,9 @@ public abstract class StringUtils {
     }
 
     /**
-     * <p>Checks if a String is not empty (""), not null and not whitespace only.</p>
+     * <p>
+     * Checks if a String is not empty (""), not null and not whitespace only.
+     * </p>
      *
      * <pre>
      * StringUtils.isNotBlank(null)      = false
@@ -506,16 +523,19 @@ public abstract class StringUtils {
      * StringUtils.isNotBlank("  bob  ") = true
      * </pre>
      *
-     * @param str  the CharSequence to check, may be null
-     * @return {@code true} if the CharSequence is
-     *  not empty and not null and not whitespace
+     * @param str
+     *            the CharSequence to check, may be null
+     * @return {@code true} if the CharSequence is not empty and not null and
+     *         not whitespace
      */
     public static boolean isNotBlank(String str) {
         return hasText(str);
     }
 
     /**
-     * <p>Checks if a String is empty ("") or null.</p>
+     * <p>
+     * Checks if a String is empty ("") or null.
+     * </p>
      *
      * <pre>
      * StringUtils.isEmpty(null)      = true
@@ -525,7 +545,8 @@ public abstract class StringUtils {
      * StringUtils.isEmpty("  bob  ") = false
      * </pre>
      *
-     * @param str  the CharSequence to check, may be null
+     * @param str
+     *            the CharSequence to check, may be null
      * @return {@code true} if the CharSequence is empty or null
      */
     public static boolean isEmpty(String str) {
@@ -533,7 +554,9 @@ public abstract class StringUtils {
     }
 
     /**
-     * <p>Checks if a String is not empty ("") and not null.</p>
+     * <p>
+     * Checks if a String is not empty ("") and not null.
+     * </p>
      *
      * <pre>
      * StringUtils.isNotEmpty(null)      = false
@@ -543,7 +566,8 @@ public abstract class StringUtils {
      * StringUtils.isNotEmpty("  bob  ") = true
      * </pre>
      *
-     * @param str  the CharSequence to check, may be null
+     * @param str
+     *            the CharSequence to check, may be null
      * @return {@code true} if the CharSequence is not empty and not null
      */
     public static boolean isNotEmpty(String str) {
@@ -553,16 +577,28 @@ public abstract class StringUtils {
     public static String getMethodIdentifiteName(Method method) {
         if (method == null)
             return "";
-        StringBuilder sb = new StringBuilder(method.getDeclaringClass().getName());
-        sb.append("(");
-        Class<?>[] types = method.getParameterTypes();
-        if (types.length > 0) {
-            for (Class<?> type : types) {
-                sb.append(type.getName()).append(", ");
-            }
-            sb.delete(sb.length() - 2, sb.length());
+        String args = typeArrayString(Arrays.asList(method.getParameterTypes()), ", ");
+        StringBuilder sb = new StringBuilder();
+        sb.append(method.getDeclaringClass().getName()).append("#").append(method.getName()).append("(").append(args).append(")");
+        return sb.toString();
+    }
+
+    public static String typeArrayString(List<Class<?>> all, String delim) {
+        return typeArrayString(all, delim, "", "");
+    }
+
+    public static String typeArrayString(List<Class<?>> coll, String delim, String prefix, String suffix) {
+        if (coll == null || coll.isEmpty()) {
+            return "";
         }
-        sb.append(")");
+        StringBuilder sb = new StringBuilder();
+        Iterator<Class<?>> it = coll.iterator();
+        while (it.hasNext()) {
+            sb.append(prefix).append(it.next().getName()).append(suffix);
+            if (it.hasNext()) {
+                sb.append(delim);
+            }
+        }
         return sb.toString();
     }
 

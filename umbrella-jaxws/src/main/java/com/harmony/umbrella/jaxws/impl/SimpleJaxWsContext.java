@@ -40,6 +40,8 @@ public class SimpleJaxWsContext implements JaxWsContext, Serializable {
     private String address;
     private String username;
     private String password;
+    private long connectionTimeout = -1;
+    private long receiveTimeout = -1;
 
     public SimpleJaxWsContext() {
     }
@@ -169,6 +171,34 @@ public class SimpleJaxWsContext implements JaxWsContext, Serializable {
     }
 
     @Override
+    public String getServiceName() {
+        return serviceInterface.getName();
+    }
+
+    @Override
+    public Class<?> getServiceClass() {
+        return serviceInterface;
+    }
+
+    @Override
+    public long getConnectionTimeout() {
+        return connectionTimeout;
+    }
+
+    @Override
+    public long getReceiveTimeout() {
+        return receiveTimeout;
+    }
+
+    public void setConnectionTimeout(long connectionTimeout) {
+        this.connectionTimeout = connectionTimeout;
+    }
+
+    public void setReceiveTimeout(long receiveTimeout) {
+        this.receiveTimeout = receiveTimeout;
+    }
+    
+    @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
@@ -239,8 +269,11 @@ public class SimpleJaxWsContext implements JaxWsContext, Serializable {
         result.append("\n")
             .append("  address  <-> ").append(address).append("\n")
             .append("  username <-> ").append(username).append("\n")
-            .append("  password <-> ").append(password).append("\n");
+            .append("  password <-> ").append(password).append("\n")
+            .append("  ctimeout <-> ").append(connectionTimeout).append("\n")
+            .append("  rtimeout <-> ").append(receiveTimeout).append("\n");
         result.append("}");
         return result.toString();
     }
+    
 }

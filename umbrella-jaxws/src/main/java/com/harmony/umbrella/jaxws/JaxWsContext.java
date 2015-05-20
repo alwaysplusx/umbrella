@@ -34,7 +34,7 @@ import java.util.Map;
  * @author wuxii@foxmail.com
  *
  */
-public interface JaxWsContext extends Serializable {
+public interface JaxWsContext extends JaxWsMetadata, Serializable {
 
     /**
      * 接口类

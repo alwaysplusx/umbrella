@@ -15,24 +15,21 @@
  */
 package com.harmony.umbrella.monitor;
 
-import static com.harmony.umbrella.util.FormatUtils.*;
-
 import java.util.Calendar;
-import java.util.Map;
 
 import com.harmony.umbrella.util.Exceptions;
 import com.harmony.umbrella.util.FormatUtils;
+import com.harmony.umbrella.util.FormatUtils.NullableDateFormat;
 
 /**
  * 监视结果基础抽象类
  * 
  * @author wuxii@foxmail.com
  */
-public class AbstractGraph implements Graph {
+public abstract class AbstractGraph<T> implements Graph<T> {
 
     protected NullableDateFormat ndf = FormatUtils.createDateFormat(FormatUtils.FULL_DATE_PATTERN);
     protected String identifie;
-    protected Map<String, Object> arguments;
     protected Object result;
     protected Calendar requestTime = Calendar.getInstance();
     protected Calendar responseTime;
@@ -56,11 +53,6 @@ public class AbstractGraph implements Graph {
     @Override
     public Object getResult() {
         return result;
-    }
-
-    @Override
-    public Map<String, Object> getArguments() {
-        return arguments;
     }
 
     @Override
@@ -94,10 +86,6 @@ public class AbstractGraph implements Graph {
         this.exception = exception;
     }
 
-    public void setIdentifie(String identifie) {
-        this.identifie = identifie;
-    }
-
     public void setRequestTime(Calendar requestTime) {
         this.requestTime = requestTime;
     }
@@ -110,13 +98,41 @@ public class AbstractGraph implements Graph {
         this.result = result;
     }
 
-    public void setArguments(Map<String, Object> arguments) {
-        this.arguments = arguments;
+    @Override
+    public String getDescription() {
+        return "{\"identifie\":\"" + getIdentifie() + "\", \"arguments\":\"" + getArguments() + "\", \"result\":\"" + getResult() + "\", \"use\":\"" + use()
+                + "\", \"requestTime\":\"" + ndf.format(getRequestTime()) + "\", \"exception\":\"" + isException() + "\"}";
     }
 
     @Override
     public String toString() {
-        return "{\"identifie\":\"" + getIdentifie() + "\", \"arguments\":\"" + getArguments() + "\", \"result\":\"" + getResult() + "\", \"use\":\"" + use()
-                + "\", \"requestTime\":\"" + ndf.format(getRequestTime()) + "\", \"exception\":\"" + isException() + "\"}";
+        return getDescription();
     }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((identifie == null) ? 0 : identifie.hashCode());
+        return result;
+    }
+
+    @SuppressWarnings("rawtypes")
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        AbstractGraph other = (AbstractGraph) obj;
+        if (identifie == null) {
+            if (other.identifie != null)
+                return false;
+        } else if (!identifie.equals(other.identifie))
+            return false;
+        return true;
+    }
+
 }

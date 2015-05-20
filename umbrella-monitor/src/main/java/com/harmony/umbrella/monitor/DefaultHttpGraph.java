@@ -30,13 +30,14 @@ import com.harmony.umbrella.monitor.HttpMonitor.HttpGraph;
 /**
  * @author wuxii@foxmail.com
  */
-public class DefaultHttpGraph extends AbstractGraph implements HttpGraph {
+public class DefaultHttpGraph extends AbstractGraph<Map<String, Object>> implements HttpGraph {
 
-    private String method;
-    private String remoteAddr;
-    private String localAddr;
-    private String queryString;
-    private int status;
+    protected String method;
+    protected String remoteAddr;
+    protected String localAddr;
+    protected String queryString;
+    protected int status;
+    protected Map<String, Object> arguments = new HashMap<String, Object>();
 
     public DefaultHttpGraph(String resource) {
         this.identifie = resource;
@@ -89,15 +90,8 @@ public class DefaultHttpGraph extends AbstractGraph implements HttpGraph {
     }
 
     @Override
-    @Deprecated
-    public void setArguments(Map<String, Object> arguments) {
-        super.setArguments(arguments);
-    }
-
-    @Override
-    @Deprecated
-    public void setResult(Object result) {
-        super.setResult(result);
+    public Map<String, Object> getArguments() {
+        return arguments;
     }
 
     public void setRequestArguments(HttpServletRequest request) {

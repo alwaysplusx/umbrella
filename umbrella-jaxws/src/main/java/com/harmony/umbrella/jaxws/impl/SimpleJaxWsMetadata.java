@@ -29,8 +29,8 @@ public class SimpleJaxWsMetadata implements JaxWsMetadata {
     private String address;
     private String username;
     private String password;
-    private long connectionTimeout;
-    private long receiveTimeout;
+    private long connectionTimeout = -1;
+    private long receiveTimeout = -1;
 
     public SimpleJaxWsMetadata(Class<?> serviceClass) {
         this.serviceClass = serviceClass;
@@ -153,4 +153,16 @@ public class SimpleJaxWsMetadata implements JaxWsMetadata {
         return true;
     }
 
+    @Override
+    public String toString() {
+        StringBuilder result = new StringBuilder("{\n");
+        result.append("  serviceName  -> ").append(serviceName).append("\n")
+              .append("  serviceClass -> ").append(serviceClass.getName()).append("\n")
+              .append("  address  -> ").append(address).append("\n")
+              .append("  password -> ").append(password).append("\n")
+              .append("  ctimeout -> ").append(connectionTimeout).append("\n")
+              .append("  rtimeout -> ").append(receiveTimeout).append("\n");
+        result.append("\n}");
+        return result.toString();
+    }
 }

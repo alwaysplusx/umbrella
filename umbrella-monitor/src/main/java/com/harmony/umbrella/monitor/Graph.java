@@ -16,14 +16,13 @@
 package com.harmony.umbrella.monitor;
 
 import java.util.Calendar;
-import java.util.Map;
 
 /**
  * 监视记录
  * 
  * @author wuxii@foxmail.com
  */
-public interface Graph {
+public interface Graph<T> {
 
     /**
      * 监视的资源标识
@@ -58,7 +57,7 @@ public interface Graph {
      * 
      * @return
      */
-    Map<String, Object> getArguments();
+    T getArguments();
 
     /**
      * 请求中是否有异常
@@ -87,5 +86,7 @@ public interface Graph {
      * @return -1 无法计算耗时
      */
     long use();
+
+    String getDescription();
 
 }

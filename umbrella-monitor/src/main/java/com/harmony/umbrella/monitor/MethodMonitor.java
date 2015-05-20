@@ -16,24 +16,29 @@
 package com.harmony.umbrella.monitor;
 
 import java.lang.reflect.Method;
+import java.util.Collection;
 
 import com.harmony.umbrella.monitor.annotation.Monitored;
+import com.harmony.umbrella.monitor.support.MethodExpressionMatcher;
 
 /**
- * 方法监控器<p> 默认监控符合表达式{@linkplain #DEFAULT_METHOD_PATTERN}的方法. <p>该表达式解析如
- * {@linkplain MethodExpressionMatcher}
+ * 方法监控器
+ * <p>
+ * 默认监控符合表达式{@linkplain #DEFAULT_METHOD_PATTERN}的方法.
+ * <p>
+ * 该表达式解析如 {@linkplain MethodExpressionMatcher}
  * 
  * @author wuxii@foxmail.com
  * 
  */
 public interface MethodMonitor extends Monitor<Method> {
 
-	String DEFAULT_METHOD_PATTERN = "execution(* com.harmony..*.*(..))";
+    String DEFAULT_METHOD_PATTERN = "execution(* com.harmony..*.*(..))";
 
     /**
      * 方法监控结果
      */
-    public interface MethodGraph extends Graph {
+    public interface MethodGraph extends Graph<Collection<Object>> {
 
         /**
          * 方法的执行目标

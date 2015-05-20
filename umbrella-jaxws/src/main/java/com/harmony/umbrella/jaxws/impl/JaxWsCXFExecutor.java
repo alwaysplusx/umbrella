@@ -129,6 +129,8 @@ public class JaxWsCXFExecutor extends JaxWsPhaseExecutor {
                 .setAddress(context.getAddress())
                 .setUsername(context.getUsername())
                 .setPassword(context.getPassword())
+                .setReceiveTimeout(context.getReceiveTimeout())
+                .setConnectionTimeout(context.getConnectionTimeout())
                 .build(context.getServiceInterface());
     }
 

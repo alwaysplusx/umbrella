@@ -139,21 +139,23 @@ public class PropertiesFileJaxWsContextReceiver implements JaxWsContextReceiver 
     protected JaxWsContext reloadContext(JaxWsContext context) {
         if (!reload && context.getAddress() != null)
             return context;
-        SimpleJaxWsContext copyContext = new SimpleJaxWsContext();
-        Class<?> serviceInterface = context.getServiceInterface();
-        copyContext = new SimpleJaxWsContext(serviceInterface, context.getMethodName(), context.getParameters());
         if (metaLoader != null) {
             JaxWsMetadata metadata = metaLoader.getJaxWsMetadata(context.getServiceInterface());
-            copyContext.setAddress(metadata.getAddress());
-            copyContext.setUsername(metadata.getUsername());
-            copyContext.setPassword(metadata.getPassword());
-        } else {
-            copyContext.setAddress(context.getAddress());
-            copyContext.setUsername(context.getUsername());
-            copyContext.setPassword(context.getPassword());
+            if (metadata != null) {
+                SimpleJaxWsContext copyContext = new SimpleJaxWsContext();
+                copyContext.setServiceInterface(context.getServiceInterface());
+                copyContext.setParameters(context.getParameters());
+                copyContext.setMethodName(context.getMethodName());
+                copyContext.putAll(context.getContextMap());
+                copyContext.setAddress(metadata.getAddress());
+                copyContext.setUsername(metadata.getUsername());
+                copyContext.setPassword(metadata.getPassword());
+                copyContext.setConnectionTimeout(metadata.getConnectionTimeout());
+                copyContext.setReceiveTimeout(metadata.getReceiveTimeout());
+                return copyContext;
+            }
         }
-        copyContext.putAll(context.getContextMap());
-        return copyContext;
+        return context;
     }
 
     @Override
