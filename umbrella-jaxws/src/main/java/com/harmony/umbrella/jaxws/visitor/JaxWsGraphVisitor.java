@@ -29,7 +29,7 @@ public abstract class JaxWsGraphVisitor extends AbstractJaxWsPhaseVisitor {
 
     @Override
     public void visitFinally(Object result, Throwable throwable, JaxWsGraph graph, JaxWsContext context) {
-
+        visitGraph(graph, context);
     }
 
 }

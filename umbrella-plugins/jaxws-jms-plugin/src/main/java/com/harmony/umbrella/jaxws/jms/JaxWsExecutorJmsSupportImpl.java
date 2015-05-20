@@ -15,7 +15,6 @@
  */
 package com.harmony.umbrella.jaxws.jms;
 
-import java.util.List;
 import java.util.concurrent.Future;
 
 import javax.ejb.EJB;
@@ -24,8 +23,8 @@ import javax.ejb.Stateless;
 
 import com.harmony.umbrella.jaxws.JaxWsAsyncCallback;
 import com.harmony.umbrella.jaxws.JaxWsContext;
-import com.harmony.umbrella.jaxws.JaxWsContextHandler;
 import com.harmony.umbrella.jaxws.JaxWsExecutor;
+import com.harmony.umbrella.jaxws.JaxWsPhaseVisitor;
 import com.harmony.umbrella.jaxws.impl.JaxWsCXFExecutor;
 import com.harmony.umbrella.jaxws.support.JaxWsContextSender;
 import com.harmony.umbrella.jaxws.support.JaxWsExecutorSupport;
@@ -83,21 +82,6 @@ public class JaxWsExecutorJmsSupportImpl implements JaxWsExecutorSupport {
     }
 
     @Override
-    public boolean addHandler(JaxWsContextHandler handler) {
-        return executor.addHandler(handler);
-    }
-
-    @Override
-    public boolean removeHandler(JaxWsContextHandler handler) {
-        return executor.removeHandler(handler);
-    }
-
-    @Override
-    public List<JaxWsContextHandler> getHandlers() {
-        return executor.getHandlers();
-    }
-
-    @Override
     public boolean send(JaxWsContext context) {
         if (sender == null)
             throw new NullPointerException();
@@ -110,6 +94,16 @@ public class JaxWsExecutorJmsSupportImpl implements JaxWsExecutorSupport {
 
     public void setJaxWsContextSender(JaxWsContextSender sender) {
         this.sender = sender;
+    }
+
+    @Override
+    public <T> T execute(JaxWsContext context, Class<T> resultType, JaxWsPhaseVisitor... visitors) {
+        return executor.execute(context, resultType, visitors);
+    }
+
+    @Override
+    public Object execute(JaxWsContext context, JaxWsPhaseVisitor... visitors) {
+        return executor.execute(context, visitors);
     }
 
 }
