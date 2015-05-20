@@ -235,11 +235,7 @@ public class SimpleJaxWsContext implements JaxWsContext, Serializable {
             args = sb.toString();
         }
         result.append("  ").append(serviceInterface.getName())
-            .append("#")
-            .append(methodName)
-            .append("(")
-            .append(args)
-            .append(")");
+            .append("#").append(methodName).append("(").append(args).append(")");
         result.append("\n")
             .append("  address  <-> ").append(address).append("\n")
             .append("  username <-> ").append(username).append("\n")

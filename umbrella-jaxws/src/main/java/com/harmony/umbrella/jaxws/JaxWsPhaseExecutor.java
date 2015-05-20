@@ -42,7 +42,7 @@ public abstract class JaxWsPhaseExecutor implements JaxWsExecutor {
 
     @Override
     public <T> T execute(JaxWsContext context, Class<T> resultType) {
-        return execute(context, resultType, (JaxWsPhaseVisitor) null);
+        return execute(context, resultType, new JaxWsPhaseVisitor[0]);
     }
 
     @Override
@@ -176,5 +176,5 @@ public abstract class JaxWsPhaseExecutor implements JaxWsExecutor {
             }
         }
     }
-    
+
 }
