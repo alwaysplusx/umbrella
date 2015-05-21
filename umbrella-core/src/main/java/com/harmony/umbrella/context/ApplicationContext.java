@@ -38,6 +38,8 @@ import com.harmony.umbrella.core.BeanFactory;
  */
 public abstract class ApplicationContext implements BeanFactory {
 
+    protected static final InheritableThreadLocal<CurrentContext> current = new InheritableThreadLocal<CurrentContext>();
+
     protected static final Logger LOG = LoggerFactory.getLogger(ApplicationContext.class);
 
     private static final ServiceLoader<ContextProvider> providers = ServiceLoader.load(ContextProvider.class);
@@ -75,9 +77,31 @@ public abstract class ApplicationContext implements BeanFactory {
     public abstract void destory();
 
     /**
-     * 获取当前应用的应用上下文
-     * <p>
-     * 加载
+     * 检入{@linkplain InheritableThreadLocal}
+     * 
+     * @param currentCtx
+     */
+    public void checkIn(CurrentContext currentCtx) {
+        current.set(currentCtx);
+    }
+
+    public CurrentContext getCurrent() {
+        return current.get();
+    }
+
+    /**
+     * {@linkplain InheritableThreadLocal}中设置为空
+     * 
+     * @return
+     */
+    public CurrentContext checkOut() {
+        CurrentContext cur = current.get();
+        current.set(null);
+        return cur;
+    }
+
+    /**
+     * 获取当前应用的应用上下文 <p> 加载
      * {@code META-INF/services/com.harmony.umbrella.context.spi.ApplicationContextProvider}
      * 文件中的实际类型来创建
      * 
@@ -144,9 +168,7 @@ public abstract class ApplicationContext implements BeanFactory {
     }
 
     /**
-     * 注册应用的web服务信息
-     * <p>
-     * 一经注册就不在更改
+     * 注册应用的web服务信息 <p> 一经注册就不在更改
      * 
      * @param servletContext
      *            web上下文
@@ -159,9 +181,7 @@ public abstract class ApplicationContext implements BeanFactory {
     }
 
     /**
-     * 初始化应用的数据源信息
-     * <p>
-     * 一经初始化就不在更改
+     * 初始化应用的数据源信息 <p> 一经初始化就不在更改
      * 
      * @param conn
      *            数据源的一个连接
@@ -189,15 +209,15 @@ public abstract class ApplicationContext implements BeanFactory {
     public String getDescription() {
         StringBuilder sb = new StringBuilder();
         sb.append("{")
-          .append("\n\"os\":")
-          .append(getInformationOfOS()).append(",\n")
-          .append("\"jvm\":")
-          .append(getInforamtionOfJVM()).append(",\n")
-          .append("\"db\":")
-          .append(getInformationOfDB() == null ? "{}" : getInformationOfDB()).append(",\n")
-          .append("\"server\":")
-          .append(getInformationOfServer() == null ? "{}" : getInformationOfServer()).append("\n")
-          .append("}");
+            .append("\n\"os\":")
+            .append(getInformationOfOS()).append(",\n")
+            .append("\"jvm\":")
+            .append(getInforamtionOfJVM()).append(",\n")
+            .append("\"db\":")
+            .append(getInformationOfDB() == null ? "{}" : getInformationOfDB()).append(",\n")
+            .append("\"server\":")
+            .append(getInformationOfServer() == null ? "{}" : getInformationOfServer()).append("\n")
+            .append("}");
         return sb.toString();
     }
 

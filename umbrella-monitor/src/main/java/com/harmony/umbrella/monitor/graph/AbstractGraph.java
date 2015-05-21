@@ -13,10 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.umbrella.monitor;
+package com.harmony.umbrella.monitor.graph;
 
 import java.util.Calendar;
 
+import com.harmony.umbrella.monitor.Graph;
 import com.harmony.umbrella.util.Exceptions;
 import com.harmony.umbrella.util.FormatUtils;
 import com.harmony.umbrella.util.FormatUtils.NullableDateFormat;

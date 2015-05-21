@@ -16,7 +16,7 @@
 package com.harmony.umbrella.jaxws.impl;
 
 import com.harmony.umbrella.jaxws.JaxWsGraph;
-import com.harmony.umbrella.monitor.DefaultMethodGraph;
+import com.harmony.umbrella.monitor.graph.DefaultMethodGraph;
 
 /**
  * @author wuxii@foxmail.com

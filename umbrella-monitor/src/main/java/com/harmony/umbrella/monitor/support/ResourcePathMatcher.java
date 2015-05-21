@@ -46,6 +46,14 @@ public class ResourcePathMatcher implements ResourceMatcher<String> {
         return pattern;
     }
 
+    public PathMatcher getMatcher() {
+        return matcher;
+    }
+
+    public void setMatcher(PathMatcher matcher) {
+        this.matcher = matcher;
+    }
+
     @Override
     public String toString() {
         return "resource matcher of pattern:" + pattern;
