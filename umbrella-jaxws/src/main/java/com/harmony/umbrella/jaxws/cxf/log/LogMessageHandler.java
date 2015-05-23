@@ -15,13 +15,11 @@
  */
 package com.harmony.umbrella.jaxws.cxf.log;
 
-import org.apache.cxf.interceptor.LoggingMessage;
-
 /**
  * @author wuxii@foxmail.com
  */
-public interface LoggingMessageHandler {
+public interface LogMessageHandler {
 
-	void handle(LoggingMessage logMessage);
+	void handle(LogMessage logMessage);
 
 }

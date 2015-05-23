@@ -18,19 +18,22 @@ package com.harmony.umbrella.jaxws.cxf.interceptor;
 import java.io.InputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.net.URI;
 
+import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 import javax.xml.transform.stream.StreamSource;
 
 import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.interceptor.Fault;
-import org.apache.cxf.interceptor.LoggingMessage;
 import org.apache.cxf.io.CachedOutputStream;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.staxutils.PrettyPrintXMLStreamWriter;
 import org.apache.cxf.staxutils.StaxUtils;
+
+import com.harmony.umbrella.jaxws.cxf.log.LogMessage;
 
 /**
  * @author wuxii@foxmail.com
@@ -48,19 +51,24 @@ public abstract class AbstractMessageInterceptor extends AbstractPhaseIntercepto
 		logging(buildLoggingMessage(message));
 	}
 
-	protected abstract void logging(LoggingMessage loggingMessage);
+	@Override
+	public void handleFault(Message message) {
+
+	}
+
+	protected abstract void logging(LogMessage loggingMessage);
 
 	protected abstract String getPayload(Message message);
 
-	protected LoggingMessage buildLoggingMessage(Message message) throws Fault {
+	protected LogMessage buildLoggingMessage(Message message) throws Fault {
 
-		String id = (String) message.getExchange().get(LoggingMessage.ID_KEY);
+		String id = (String) message.getExchange().get(LogMessage.ID_KEY);
 		if (id == null) {
-			id = LoggingMessage.nextId();
-			message.getExchange().put(LoggingMessage.ID_KEY, id);
+			id = LogMessage.nextId();
+			message.getExchange().put(LogMessage.ID_KEY, id);
 		}
 
-		final LoggingMessage logMessage = new LoggingMessage(getMessageHeading(), id);
+		final LogMessage logMessage = new LogMessage(getMessageHeading(), id);
 
 		Integer responseCode = (Integer) message.get(Message.RESPONSE_CODE);
 		if (responseCode != null) {
@@ -102,6 +110,26 @@ public abstract class AbstractMessageInterceptor extends AbstractPhaseIntercepto
 		String payload = getPayload(message);
 		if (payload != null) {
 			logMessage.getPayload().append(payload);
+		}
+
+		Object proxy = message.getContextualProperty("javax.xml.ws.wsdl.port");
+		if (proxy instanceof QName) {
+			logMessage.setProxy((QName) proxy);
+		}
+
+		Object service = message.getContextualProperty("javax.xml.ws.wsdl.service");
+		if (service instanceof QName) {
+			logMessage.setService((QName) service);
+		}
+
+		Object wsdlUrl = message.getContextualProperty(URI.class.getName());
+		if (wsdlUrl != null) {
+			logMessage.setWsdlUrl(String.valueOf(wsdlUrl));
+		}
+
+		Object operation = message.getContextualProperty("javax.xml.ws.wsdl.operation");
+		if (operation instanceof QName) {
+			logMessage.setOperation((QName) operation);
 		}
 
 		return logMessage;
@@ -167,46 +195,5 @@ public abstract class AbstractMessageInterceptor extends AbstractPhaseIntercepto
 
 	public void setPrettyLogging(boolean prettyLogging) {
 		this.prettyLogging = prettyLogging;
-	}
-
-	protected String formatLogMessage(LoggingMessage lm) {
-		if (lm == null)
-			return null;
-		StringBuilder buffer = new StringBuilder();
-		buffer.append(getMessageHeading());
-		buffer.append("\nID: ").append(lm.getId());
-		if (lm.getAddress().length() > 0) {
-			buffer.append("\nAddress: ");
-			buffer.append(lm.getAddress());
-		}
-		if (lm.getResponseCode().length() > 0) {
-			buffer.append("\nResponse-Code: ");
-			buffer.append(lm.getResponseCode());
-		}
-		if (lm.getEncoding().length() > 0) {
-			buffer.append("\nEncoding: ");
-			buffer.append(lm.getEncoding());
-		}
-		if (lm.getHttpMethod().length() > 0) {
-			buffer.append("\nHttp-Method: ");
-			buffer.append(lm.getHttpMethod());
-		}
-		buffer.append("\nContent-Type: ");
-		buffer.append(lm.getContentType());
-		buffer.append("\nHeaders: ");
-		buffer.append(lm.getHeader());
-		if (lm.getMessage().length() > 0) {
-			buffer.append("\nMessages: ");
-			buffer.append(lm.getMessage());
-		}
-		if (lm.getPayload().length() > 0) {
-			buffer.append("\nPayload: \n");
-			buffer.append(lm.getPayload());
-			if (!buffer.toString().endsWith("\n")) {
-				buffer.append("\n");
-			}
-		}
-		buffer.append("--------------------------------------");
-		return buffer.toString();
 	}
 }

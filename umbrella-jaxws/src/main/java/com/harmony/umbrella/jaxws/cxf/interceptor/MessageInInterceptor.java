@@ -22,7 +22,6 @@ import java.io.Reader;
 import java.io.SequenceInputStream;
 
 import org.apache.cxf.helpers.IOUtils;
-import org.apache.cxf.interceptor.LoggingMessage;
 import org.apache.cxf.io.CachedOutputStream;
 import org.apache.cxf.io.CachedWriter;
 import org.apache.cxf.io.DelegatingInputStream;
@@ -31,14 +30,15 @@ import org.apache.cxf.phase.Phase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.harmony.umbrella.jaxws.cxf.log.LoggingMessageHandler;
+import com.harmony.umbrella.jaxws.cxf.log.LogMessage;
+import com.harmony.umbrella.jaxws.cxf.log.LogMessageHandler;
 
 /**
  * @author wuxii@foxmail.com
  */
 public class MessageInInterceptor extends AbstractMessageInterceptor {
 
-	private LoggingMessageHandler handler;
+	private LogMessageHandler handler;
 	private static final Logger log = LoggerFactory.getLogger(MessageInInterceptor.class);
 
 	public MessageInInterceptor() {
@@ -50,13 +50,13 @@ public class MessageInInterceptor extends AbstractMessageInterceptor {
 	}
 
 	@Override
-	protected void logging(LoggingMessage loggingMessage) {
+	protected void logging(LogMessage logMessage) {
 		try {
 			if (handler != null) {
-				handler.handle(loggingMessage);
+				handler.handle(logMessage);
 			}
 		} finally {
-			log.info("{}", formatLogMessage(loggingMessage));
+			log.info("{}", logMessage);
 		}
 	}
 
@@ -115,11 +115,11 @@ public class MessageInInterceptor extends AbstractMessageInterceptor {
 		return buffer.toString();
 	}
 
-	public LoggingMessageHandler getHandler() {
+	public LogMessageHandler getHandler() {
 		return handler;
 	}
 
-	public void setHandler(LoggingMessageHandler handler) {
+	public void setHandler(LogMessageHandler handler) {
 		this.handler = handler;
 	}
 
