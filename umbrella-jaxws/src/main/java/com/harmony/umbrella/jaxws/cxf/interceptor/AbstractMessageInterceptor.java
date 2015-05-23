@@ -37,225 +37,176 @@ import org.apache.cxf.staxutils.StaxUtils;
  */
 public abstract class AbstractMessageInterceptor extends AbstractPhaseInterceptor<Message> {
 
-    public static final int DEFAULT_LIMIT = 48 * 1024;
+	protected boolean prettyLogging = true;
 
-    protected int limit = DEFAULT_LIMIT;
+	public AbstractMessageInterceptor(String phase) {
+		super(phase);
+	}
 
-    protected boolean prettyLogging = true;
+	@Override
+	public void handleMessage(Message message) throws Fault {
+		logging(buildLoggingMessage(message));
+	}
 
-    public AbstractMessageInterceptor(String phase) {
-        super(phase);
-    }
+	protected abstract void logging(LoggingMessage loggingMessage);
 
-    @Override
-    public void handleMessage(Message message) throws Fault {
-        logging(buildLoggingMessage(message));
-    }
+	protected abstract String getPayload(Message message);
 
-    protected abstract void logging(LoggingMessage loggingMessage);
+	protected LoggingMessage buildLoggingMessage(Message message) throws Fault {
 
-    protected LoggingMessage buildLoggingMessage(Message message) throws Fault {
-        String id = (String) message.getExchange().get(LoggingMessage.ID_KEY);
-        if (id == null) {
-            id = LoggingMessage.nextId();
-            message.getExchange().put(LoggingMessage.ID_KEY, id);
-        }
+		String id = (String) message.getExchange().get(LoggingMessage.ID_KEY);
+		if (id == null) {
+			id = LoggingMessage.nextId();
+			message.getExchange().put(LoggingMessage.ID_KEY, id);
+		}
 
-        final LoggingMessage buffer = new LoggingMessage("Logging Message\n---------------------------", id);
+		final LoggingMessage logMessage = new LoggingMessage(getMessageHeading(), id);
 
-        Integer responseCode = (Integer) message.get(Message.RESPONSE_CODE);
-        if (responseCode != null) {
-            buffer.getResponseCode().append(responseCode);
-        }
+		Integer responseCode = (Integer) message.get(Message.RESPONSE_CODE);
+		if (responseCode != null) {
+			logMessage.getResponseCode().append(responseCode);
+		}
 
-        String encoding = (String) message.get(Message.ENCODING);
-        if (encoding != null) {
-            buffer.getEncoding().append(encoding);
-        }
-        String httpMethod = (String) message.get(Message.HTTP_REQUEST_METHOD);
-        if (httpMethod != null) {
-            buffer.getHttpMethod().append(httpMethod);
-        }
-        String address = (String) message.get(Message.ENDPOINT_ADDRESS);
-        if (address != null) {
-            buffer.getAddress().append(address);
-            String uri = (String) message.get(Message.REQUEST_URI);
-            if (uri != null && !address.startsWith(uri)) {
-                if (!address.endsWith("/") && !uri.startsWith("/")) {
-                    buffer.getAddress().append("/");
-                }
-                buffer.getAddress().append(uri);
-            }
-        }
-        String ct = (String) message.get(Message.CONTENT_TYPE);
-        if (ct != null) {
-            buffer.getContentType().append(ct);
-        }
-        Object headers = message.get(Message.PROTOCOL_HEADERS);
-        if (headers != null) {
-            buffer.getHeader().append(headers);
-        }
-        InputStream is = message.getContent(InputStream.class);
-        if (is != null) {
-        }
-        return buffer;
+		String encoding = (String) message.get(Message.ENCODING);
+		if (encoding != null) {
+			logMessage.getEncoding().append(encoding);
+		}
 
-    }
+		String httpMethod = (String) message.get(Message.HTTP_REQUEST_METHOD);
+		if (httpMethod != null) {
+			logMessage.getHttpMethod().append(httpMethod);
+		}
 
-    protected void writePayload(StringBuilder builder, CachedOutputStream cos, String encoding, String contentType) throws Exception {
-        // Just transform the XML message when the cos has content
-        if (isPrettyLogging() && (contentType != null && contentType.indexOf("xml") >= 0 && contentType.toLowerCase().indexOf("multipart/related") < 0)
-                && cos.size() > 0) {
+		String address = (String) message.get(Message.ENDPOINT_ADDRESS);
+		if (address != null) {
+			logMessage.getAddress().append(address);
+			String uri = (String) message.get(Message.REQUEST_URI);
+			if (uri != null && !address.startsWith(uri)) {
+				if (!address.endsWith("/") && !uri.startsWith("/")) {
+					logMessage.getAddress().append("/");
+				}
+				logMessage.getAddress().append(uri);
+			}
+		}
 
-            StringWriter swriter = new StringWriter();
-            XMLStreamWriter xwriter = StaxUtils.createXMLStreamWriter(swriter);
-            xwriter = new PrettyPrintXMLStreamWriter(xwriter, 2);
-            InputStream in = cos.getInputStream();
-            try {
-                StaxUtils.copy(new StreamSource(in), xwriter);
-            } catch (XMLStreamException xse) {
-                // ignore
-            } finally {
-                try {
-                    xwriter.flush();
-                    xwriter.close();
-                } catch (XMLStreamException xse2) {
-                    // ignore
-                }
-                in.close();
-            }
+		String ct = (String) message.get(Message.CONTENT_TYPE);
+		if (ct != null) {
+			logMessage.getContentType().append(ct);
+		}
 
-            String result = swriter.toString();
-            if (result.length() < limit || limit == -1) {
-                builder.append(swriter.toString());
-            } else {
-                builder.append(swriter.toString().substring(0, limit));
-            }
+		Object headers = message.get(Message.PROTOCOL_HEADERS);
+		if (headers != null) {
+			logMessage.getHeader().append(headers);
+		}
 
-        } else {
-            if (StringUtils.isEmpty(encoding)) {
-                cos.writeCacheTo(builder, limit);
-            } else {
-                cos.writeCacheTo(builder, encoding, limit);
-            }
-        }
-    }
+		String payload = getPayload(message);
+		if (payload != null) {
+			logMessage.getPayload().append(payload);
+		}
 
-    protected void writePayload(StringBuilder builder, StringWriter stringWriter, String contentType) throws Exception {
-        // Just transform the XML message when the cos has content
-        if (isPrettyLogging() && contentType != null && contentType.indexOf("xml") >= 0 && stringWriter.getBuffer().length() > 0) {
+		return logMessage;
 
-            StringWriter swriter = new StringWriter();
-            XMLStreamWriter xwriter = StaxUtils.createXMLStreamWriter(swriter);
-            xwriter = new PrettyPrintXMLStreamWriter(xwriter, 2);
-            StaxUtils.copy(new StreamSource(new StringReader(stringWriter.getBuffer().toString())), xwriter);
-            xwriter.close();
+	}
 
-            String result = swriter.toString();
-            if (result.length() < limit || limit == -1) {
-                builder.append(swriter.toString());
-            } else {
-                builder.append(swriter.toString().substring(0, limit));
-            }
+	protected void writePayload(StringBuilder builder, CachedOutputStream cos, String encoding, String contentType) throws Exception {
 
-        } else {
-            StringBuffer buffer = stringWriter.getBuffer();
-            if (buffer.length() > limit) {
-                builder.append(buffer.subSequence(0, limit));
-            } else {
-                builder.append(buffer);
-            }
-        }
-    }
+		// Just transform the XML message when the cos has content
+		if (isPrettyLogging() && (contentType != null && contentType.indexOf("xml") >= 0 && contentType.toLowerCase().indexOf("multipart/related") < 0) && cos.size() > 0) {
 
-    public boolean isPrettyLogging() {
-        return prettyLogging;
-    }
+			StringWriter swriter = new StringWriter();
+			XMLStreamWriter xwriter = StaxUtils.createXMLStreamWriter(swriter);
+			xwriter = new PrettyPrintXMLStreamWriter(xwriter, 2);
+			InputStream in = cos.getInputStream();
+			try {
+				StaxUtils.copy(new StreamSource(in), xwriter);
+			} catch (XMLStreamException xse) {
+				// ignore
+			} finally {
+				try {
+					xwriter.flush();
+					xwriter.close();
+				} catch (XMLStreamException xse2) {
+					// ignore
+				}
+				in.close();
+			}
+			builder.append(swriter.toString());
 
-    public void setPrettyLogging(boolean prettyLogging) {
-        this.prettyLogging = prettyLogging;
-    }
+		} else {
+			if (StringUtils.isEmpty(encoding)) {
+				cos.writeCacheTo(builder);
+			} else {
+				cos.writeCacheTo(builder, encoding);
+			}
+		}
+	}
 
+	protected void writePayload(StringBuilder builder, StringWriter stringWriter, String contentType) throws Exception {
+
+		// Just transform the XML message when the cos has content
+		if (isPrettyLogging() && contentType != null && contentType.indexOf("xml") >= 0 && stringWriter.getBuffer().length() > 0) {
+			StringWriter swriter = new StringWriter();
+			XMLStreamWriter xwriter = StaxUtils.createXMLStreamWriter(swriter);
+			xwriter = new PrettyPrintXMLStreamWriter(xwriter, 2);
+			StaxUtils.copy(new StreamSource(new StringReader(stringWriter.getBuffer().toString())), xwriter);
+			xwriter.close();
+			builder.append(swriter.toString());
+
+		} else {
+			builder.append(stringWriter.getBuffer());
+		}
+	}
+
+	protected String getMessageHeading() {
+		return "\n--------------------------------------\nLogging Message\n--------------------------------------";
+	}
+
+	public boolean isPrettyLogging() {
+		return prettyLogging;
+	}
+
+	public void setPrettyLogging(boolean prettyLogging) {
+		this.prettyLogging = prettyLogging;
+	}
+
+	protected String formatLogMessage(LoggingMessage lm) {
+		if (lm == null)
+			return null;
+		StringBuilder buffer = new StringBuilder();
+		buffer.append(getMessageHeading());
+		buffer.append("\nID: ").append(lm.getId());
+		if (lm.getAddress().length() > 0) {
+			buffer.append("\nAddress: ");
+			buffer.append(lm.getAddress());
+		}
+		if (lm.getResponseCode().length() > 0) {
+			buffer.append("\nResponse-Code: ");
+			buffer.append(lm.getResponseCode());
+		}
+		if (lm.getEncoding().length() > 0) {
+			buffer.append("\nEncoding: ");
+			buffer.append(lm.getEncoding());
+		}
+		if (lm.getHttpMethod().length() > 0) {
+			buffer.append("\nHttp-Method: ");
+			buffer.append(lm.getHttpMethod());
+		}
+		buffer.append("\nContent-Type: ");
+		buffer.append(lm.getContentType());
+		buffer.append("\nHeaders: ");
+		buffer.append(lm.getHeader());
+		if (lm.getMessage().length() > 0) {
+			buffer.append("\nMessages: ");
+			buffer.append(lm.getMessage());
+		}
+		if (lm.getPayload().length() > 0) {
+			buffer.append("\nPayload: \n");
+			buffer.append(lm.getPayload());
+			if (!buffer.toString().endsWith("\n")) {
+				buffer.append("\n");
+			}
+		}
+		buffer.append("--------------------------------------");
+		return buffer.toString();
+	}
 }
-
-//
-//
-//
-// // ################################################################
-// if (message.containsKey(LoggingMessage.ID_KEY)) {
-// return;
-// }
-// String id = (String) message.getExchange().get(LoggingMessage.ID_KEY);
-// if (id == null) {
-// id = LoggingMessage.nextId();
-// message.getExchange().put(LoggingMessage.ID_KEY, id);
-// }
-// message.put(LoggingMessage.ID_KEY, id);
-// final LoggingMessage buffer = new
-// LoggingMessage("Inbound Message\n----------------------------", id);
-//
-// if (!Boolean.TRUE.equals(message.get(Message.DECOUPLED_CHANNEL_MESSAGE))) {
-// // avoid logging the default responseCode 200 for the decoupled
-// // responses
-// Integer responseCode = (Integer) message.get(Message.RESPONSE_CODE);
-// if (responseCode != null) {
-// buffer.getResponseCode().append(responseCode);
-// }
-// }
-//
-// String encoding = (String) message.get(Message.ENCODING);
-//
-// if (encoding != null) {
-// buffer.getEncoding().append(encoding);
-// }
-// String httpMethod = (String) message.get(Message.HTTP_REQUEST_METHOD);
-// if (httpMethod != null) {
-// buffer.getHttpMethod().append(httpMethod);
-// }
-// String ct = (String) message.get(Message.CONTENT_TYPE);
-// if (ct != null) {
-// buffer.getContentType().append(ct);
-// }
-// Object headers = message.get(Message.PROTOCOL_HEADERS);
-//
-// if (headers != null) {
-// buffer.getHeader().append(headers);
-// }
-// String uri = (String) message.get(Message.REQUEST_URL);
-// if (uri == null) {
-// String address = (String) message.get(Message.ENDPOINT_ADDRESS);
-// uri = (String) message.get(Message.REQUEST_URI);
-// if (uri != null && uri.startsWith("/")) {
-// if (address != null && !address.startsWith(uri)) {
-// if (address.endsWith("/") && address.length() > 1) {
-// address = address.substring(0, address.length());
-// }
-// uri = address + uri;
-// }
-// } else {
-// uri = address;
-// }
-// }
-// if (uri != null) {
-// buffer.getAddress().append(uri);
-// String query = (String) message.get(Message.QUERY_STRING);
-// if (query != null) {
-// buffer.getAddress().append("?").append(query);
-// }
-// }
-//
-// if (!isShowBinaryContent() && isBinaryContent(ct)) {
-// buffer.getMessage().append(BINARY_CONTENT_MESSAGE).append('\n');
-// log(logger, buffer.toString());
-// return;
-// }
-//
-// InputStream is = message.getContent(InputStream.class);
-// if (is != null) {
-// logInputStream(message, is, buffer, encoding, ct);
-// } else {
-// Reader reader = message.getContent(Reader.class);
-// if (reader != null) {
-// logReader(message, reader, buffer);
-// }
-// }

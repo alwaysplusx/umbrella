@@ -15,15 +15,9 @@
  */
 package com.harmony.umbrella.jaxws;
 
-import java.util.List;
-
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.frontend.ServerFactoryBean;
-import org.apache.cxf.interceptor.Interceptor;
-import org.apache.cxf.interceptor.LoggingInInterceptor;
-import org.apache.cxf.interceptor.LoggingOutInterceptor;
 import org.apache.cxf.jaxws.JaxWsServerFactoryBean;
-import org.apache.cxf.message.Message;
 import org.apache.cxf.service.invoker.Invoker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,44 +26,64 @@ import com.harmony.umbrella.core.BeanFactory;
 import com.harmony.umbrella.core.NoSuchBeanFindException;
 import com.harmony.umbrella.core.SimpleBeanFactory;
 import com.harmony.umbrella.jaxws.cxf.SimpleBeanFactoryInvoker;
+import com.harmony.umbrella.jaxws.cxf.interceptor.MessageInInterceptor;
+import com.harmony.umbrella.jaxws.cxf.interceptor.MessageOutInterceptor;
+import com.harmony.umbrella.jaxws.impl.SimpleJaxWsMetadata;
 import com.harmony.umbrella.util.Assert;
+import com.harmony.umbrella.util.StringUtils;
 
 /**
- * 服务建造者 <p> 为方便使用,方法采用链式结构 <p> <em>one server one builder</em>
+ * 服务建造者
+ * <p>
+ * 为方便使用,方法采用链式结构
+ * <p>
+ * <em>one server one builder</em>
  * 
  * @author wuxii@foxmail.com
  */
 public class JaxWsServerBuilder {
 
 	private static final Logger log = LoggerFactory.getLogger(JaxWsServerBuilder.class);
+
 	/**
 	 * use {@link #getBeanFactory()} method
 	 */
 	private BeanFactoryInvoker beanFactoryInvoker;
+
 	/**
 	 * 服务的接口,可为空
 	 */
 	protected Class<?> serviceInterface;
+
 	/**
 	 * 服务的实现
 	 */
 	protected Class<?> serviceClass;
+
 	/**
 	 * 发布的地址
 	 */
 	protected String address;
+
 	/**
 	 * 访问服务的用户名
 	 */
 	protected String username;
+
 	/**
 	 * 访问服务的密码
 	 */
 	protected String password;
+
 	/**
 	 * 创建服务的服务工厂
 	 */
 	private JaxWsServerFactoryBean serverFactoryBean;
+
+	/**
+	 * JaxWs服务元数据加载器
+	 */
+	private JaxWsMetadataLoader metaLoader;
 
 	/**
 	 * 创建服务Builder
@@ -82,7 +96,8 @@ public class JaxWsServerBuilder {
 
 	/**
 	 * 使用{@linkplain #setAddress(String)}, {@linkplain #setServiceClass(Class)}/
-	 * {@linkplain #setServiceInterface(Class)}设置过的值来发布服务 <p>
+	 * {@linkplain #setServiceInterface(Class)}设置过的值来发布服务
+	 * <p>
 	 * <b><em>发布时请确保值已经设置了必要的值</em>
 	 * 
 	 * @return jaxws服务
@@ -92,7 +107,8 @@ public class JaxWsServerBuilder {
 	}
 
 	/**
-	 * 使用已经设置过地址{@linkplain #address}以及{@code serviceClass}发布服务 <p>
+	 * 使用已经设置过地址{@linkplain #address}以及{@code serviceClass}发布服务
+	 * <p>
 	 * {@code serviceClass}一般为服务的实现类, 如果设置的
 	 * {@linkplain #setBeanFactory(BeanFactory)}支持通过接口获取bean. 那么将直接使用
 	 * {@linkplain BeanFactory#getBean(Class)}的bean来作为服务实例
@@ -106,9 +122,11 @@ public class JaxWsServerBuilder {
 	}
 
 	/**
-	 * 使用{@code serviceClass}以及{@code address}来发布服务 <p> {@code serviceClass}
-	 * 一般为服务的实现类, 如果设置的 {@linkplain #setBeanFactory(BeanFactory)}支持通过接口获取bean.
-	 * 那么将直接使用 {@linkplain BeanFactory#getBean(Class)}的bean来作为服务实例
+	 * 使用{@code serviceClass}以及{@code address}来发布服务
+	 * <p>
+	 * {@code serviceClass} 一般为服务的实现类, 如果设置的
+	 * {@linkplain #setBeanFactory(BeanFactory)}支持通过接口获取bean. 那么将直接使用
+	 * {@linkplain BeanFactory#getBean(Class)}的bean来作为服务实例
 	 * 
 	 * @param serviceClass
 	 *            服务类
@@ -121,10 +139,12 @@ public class JaxWsServerBuilder {
 	}
 
 	/**
-	 * 使用{@code serviceClass}, {@code address}和{@code factoryConfig}发布服务 <p>
+	 * 使用{@code serviceClass}, {@code address}和{@code factoryConfig}发布服务
+	 * <p>
 	 * {@code serviceClass}一般为服务的实现类, 如果设置的
 	 * {@linkplain #setBeanFactory(BeanFactory)}支持通过接口获取bean. 那么将直接使用
-	 * {@linkplain BeanFactory#getBean(Class)}的bean来作为服务实例 <p>
+	 * {@linkplain BeanFactory#getBean(Class)}的bean来作为服务实例
+	 * <p>
 	 * {@code factoryConfig}提供创建前的配置回调,可以在{@link #serverFactoryBean} 创建前
 	 * 设置其他感兴趣的属性. 但是不可以在{@code factoryConfig}中调用
 	 * {@linkplain ServerFactoryBean#create()}方法
@@ -145,7 +165,7 @@ public class JaxWsServerBuilder {
 	public Server publish(Class<?> serviceClass, String address, JaxWsServerFactoryConfig factoryConfig) {
 		this.serviceClass = serviceClass;
 		this.address = address;
-		return doPublish(serviceClass, address, factoryConfig);
+		return doPublish(serviceClass, factoryConfig);
 	}
 
 	/**
@@ -153,19 +173,16 @@ public class JaxWsServerBuilder {
 	 * 
 	 * @param serviceClass
 	 *            服务类
-	 * @param address
-	 *            服务发布的地址
 	 * @param factoryConfig
 	 *            工厂配置信息
-	 * @return jaxws服务
-	 * @throws IllegalArgumentException
-	 *             serviceClass or address is null
+	 * @return
 	 * @throws IllegalStateException
 	 *             factoryConfig中调用了serverFactoryBean的create方法
 	 */
-	protected Server doPublish(Class<?> serviceClass, String address, JaxWsServerFactoryConfig factoryConfig) {
-		Assert.notNull(address, "publish address is null");
+	protected Server doPublish(Class<?> serviceClass, JaxWsServerFactoryConfig factoryConfig) {
 		Assert.notNull(serviceClass, "service class is null");
+		JaxWsMetadata metadata = getJaxWsMetadata(serviceClass);
+		Assert.isTrue(StringUtils.isNotBlank(metadata.getAddress()), "server address is null or blank");
 		try {
 			serverFactoryBean = new JaxWsServerFactoryBean();
 			if (factoryConfig != null) {
@@ -174,52 +191,43 @@ public class JaxWsServerBuilder {
 					throw new IllegalStateException("config factory not allow call create method");
 				}
 			}
-			if (log.isInfoEnabled()) {
-				addInOutLogging(serverFactoryBean);
-			}
+			serverFactoryBean.getInInterceptors().add(new MessageInInterceptor());
+			serverFactoryBean.getOutInterceptors().add(new MessageOutInterceptor());
 			applyPrefectServiceClass(serverFactoryBean, serviceClass, serviceInterface);
 			serverFactoryBean.setInvoker(getBeanFactoryInvoker());
 			serverFactoryBean.setAddress(address);
-			return serverFactoryBean.create();
+			Server server = serverFactoryBean.create();
+			log.debug("create server success");
+			return server;
 		} catch (NoSuchBeanFindException e) {
 			throw new JaxWsException("no target bean of class " + serviceClass.getName() + " find");
 		}
 	}
 
+	/**
+	 * 给当前工厂设置最优的接口类
+	 */
 	protected void applyPrefectServiceClass(JaxWsServerFactoryBean factoryBean, Class<?> serviceClass, Class<?> serviceInterface) {
 		factoryBean.setServiceClass(serviceClass);
 	}
 
-	/**
-	 * 如果{@linkplain factoryBean}中为添加in,out日志则添加日志拦截器
-	 * 
-	 * @param factoryBean
-	 *            服务工厂
-	 */
-	protected void addInOutLogging(JaxWsServerFactoryBean factoryBean) {
-		List<Interceptor<? extends Message>> inInterceptors = factoryBean.getInInterceptors();
-		int i, max;
-		for (i = 0, max = inInterceptors.size(); i < max; i++) {
-			if (inInterceptors.get(i) instanceof LoggingInInterceptor) {
-				break;
-			}
+	protected JaxWsMetadata getJaxWsMetadata(Class<?> serviceClass) {
+		if (metaLoader == null) {
+			return new SimpleJaxWsMetadata(serviceClass, address, username, password);
 		}
-		if (i == max) {
-			inInterceptors.add(new LoggingInInterceptor());
-		}
-		List<Interceptor<? extends Message>> outInterceptors = factoryBean.getOutInterceptors();
-		for (i = 0, max = outInterceptors.size(); i < max; i++) {
-			if (outInterceptors.get(i) instanceof LoggingOutInterceptor) {
-				break;
-			}
-		}
-		if (i == max) {
-			outInterceptors.add(new LoggingOutInterceptor());
-		}
+		SimpleJaxWsMetadata result = new SimpleJaxWsMetadata(serviceClass);
+		JaxWsMetadata temp = metaLoader.getJaxWsMetadata(serviceClass);
+		result.setAddress(StringUtils.isBlank(address) ? temp.getAddress() : address);
+		result.setUsername(StringUtils.isNotBlank(username) ? temp.getUsername() : username);
+		result.setPassword(StringUtils.isNotBlank(password) ? temp.getPassword() : password);
+		result.setServiceName(temp.getServiceName());
+		return result;
 	}
 
 	/**
-	 * 懒初始化 <p> 当beanFactory为空时候才使用默认的{@linkplain SimpleBeanFactory}
+	 * 懒初始化
+	 * <p>
+	 * 当beanFactory为空时候才使用默认的{@linkplain SimpleBeanFactory}
 	 */
 	protected BeanFactoryInvoker getBeanFactoryInvoker() {
 		if (beanFactoryInvoker == null) {
