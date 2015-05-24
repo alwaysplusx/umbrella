@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
-  xmlns:tx="http://www.springframework.org/schema/tx" xmlns:aop="http://www.springframework.org/schema/aop"
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:context="http://www.springframework.org/schema/context" xmlns:tx="http://www.springframework.org/schema/tx"
+  xmlns:aop="http://www.springframework.org/schema/aop"
   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
@@ -8,15 +9,21 @@
 
   <context:component-scan base-package="com.harmony" />
 
-  <bean name="genericBaseRepository" class="com.harmony.umbrella.data.repository.support.GenericBaseRepository">
+  <bean name="simpleDao" class="com.harmony.umbrella.data.dao.support.SimpleDao">
+    <constructor-arg name="entityManager">
+      <bean class="org.springframework.orm.jpa.support.SharedEntityManagerBean">
+        <property name="entityManagerFactory" ref="entityManagerFactory" />
+      </bean>
+    </constructor-arg>
+  </bean>
+
+  <!-- <bean name="genericBaseRepository" class="com.harmony.umbrella.data.repository.support.GenericBaseRepository">
     <property name="entityManager">
       <bean class="org.springframework.orm.jpa.support.SharedEntityManagerBean">
         <property name="entityManagerFactory" ref="entityManagerFactory" />
       </bean>
     </property>
-  </bean>
-
-  <!-- <bean name="userRepository" class="com.harmony.umbrella.data.repository.UserRepositoryImpl"/> -->
+  </bean> -->
 
   <tx:annotation-driven transaction-manager="transactionManager" />
 
@@ -37,17 +44,18 @@
     <property name="entityManagerFactory" ref="entityManagerFactory" />
   </bean>
 
-  <tx:advice id="repositoryAdvice">
+  <tx:advice id="daoAdvice">
     <tx:attributes>
       <tx:method name="save*" propagation="REQUIRED" rollback-for="Exception" />
       <tx:method name="delete*" propagation="REQUIRED" rollback-for="Exception" />
+      <tx:method name="update*" propagation="REQUIRED" rollback-for="Exception" />      
       <tx:method name="execute*" propagation="REQUIRED" rollback-for="Exception" />
     </tx:attributes>
   </tx:advice>
 
   <aop:config>
-    <aop:pointcut id="repositoryPointcut" expression="execution(* com.harmony.umbrella..*.*Repository*.*(..))" />
-    <aop:advisor advice-ref="repositoryAdvice" pointcut-ref="repositoryPointcut" />
+    <aop:pointcut id="daoPointcut" expression="execution(* com.harmony.umbrella..*.*Dao*.*(..))" />
+    <aop:advisor advice-ref="daoAdvice" pointcut-ref="daoPointcut" />
   </aop:config>
 
 </beans>

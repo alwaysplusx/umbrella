@@ -29,70 +29,72 @@ import com.harmony.umbrella.data.domain.Sort;
  */
 public interface Dao {
 
-	<T> T save(T entity);
+    <T> T save(T entity);
 
-	<T> Iterable<T> save(Iterable<T> entities);
+    <T> Iterable<T> save(Iterable<T> entities);
 
-	<T> T update(T entity);
+    <T> T update(T entity);
 
-	<T> Iterable<T> update(Iterable<T> entities);
+    <T> Iterable<T> update(Iterable<T> entities);
 
-	<T> T saveOrUpdate(T entity);
+    <T> T saveOrUpdate(T entity);
 
-	<T> Iterable<T> saveOrUpdate(Iterable<T> entities);
+    <T> Iterable<T> saveOrUpdate(Iterable<T> entities);
 
-	void delete(Object entity);
+    void delete(Object entity);
 
-	<T> T delete(Class<T> entityClass, Serializable id);
+    <T> void delete(List<T> entities);
 
-	<T> Iterable<T> delete(Class<T> entityClass, Iterable<? extends Serializable> ids);
+    <T> T delete(Class<T> entityClass, Serializable id);
 
-	<T> T findOne(Class<T> entityClass, Serializable id);
+    <T> Iterable<T> delete(Class<T> entityClass, Iterable<? extends Serializable> ids);
 
-	<T> T findOne(String jpql);
+    <T> T findOne(Class<T> entityClass, Serializable id);
 
-	<T> T findOne(String jpql, Object... parameters);
+    <T> T findOne(String jpql);
 
-	<T> T findOne(String jpql, Map<String, Object> parameters);
+    <T> T findOne(String jpql, Object... parameters);
 
-	<T> T findOneBySQL(String sql, Class<T> resultClass);
+    <T> T findOne(String jpql, Map<String, Object> parameters);
 
-	<T> T findOneBySQL(String sql, Class<T> resultClass, Object... parameters);
+    <T> T findOneBySQL(String sql, Class<T> resultClass);
 
-	<T> T findOneBySQL(String sql, Map<String, Object> parameters);
+    <T> T findOneBySQL(String sql, Class<T> resultClass, Object... parameters);
 
-	<T> List<T> findAll(Class<T> entityClass);
+    <T> T findOneBySQL(String sql, Class<T> resultClass, Map<String, Object> parameters);
 
-	<T> List<T> findAll(Class<T> entityClass, Sort sort);
+    <T> List<T> findAll(Class<T> entityClass);
 
-	<T> List<T> findAll(String jpql);
+    <T> List<T> findAll(Class<T> entityClass, Sort sort);
 
-	<T> List<T> findAll(String jpql, Object... parameters);
+    <T> List<T> findAll(String jpql);
 
-	<T> List<T> findAll(String jpql, Map<String, Object> parameters);
+    <T> List<T> findAll(String jpql, Object... parameters);
 
-	<T> List<T> findAllBySQL(String sql, Class<T> resultClass);
+    <T> List<T> findAll(String jpql, Map<String, Object> parameters);
 
-	<T> List<T> findAllBySQL(String sql, Class<T> resultClass, Object... parameters);
+    <T> List<T> findAllBySQL(String sql, Class<T> resultClass);
 
-	<T> List<T> findAllBySQL(String sql, Class<T> resultClass, Map<String, Object> parameters);
+    <T> List<T> findAllBySQL(String sql, Class<T> resultClass, Object... parameters);
 
-	long countAll(Class<?> entityClass);
+    <T> List<T> findAllBySQL(String sql, Class<T> resultClass, Map<String, Object> parameters);
 
-	long count(String jpql);
+    long countAll(Class<?> entityClass);
 
-	long count(String jpql, Object... parameters);
+    long count(String jpql);
 
-	long count(String jpql, Map<String, Object> parameters);
+    long count(String jpql, Object... parameters);
 
-	long countBySQL(String sql);
+    long count(String jpql, Map<String, Object> parameters);
 
-	long countBySQL(String sql, Object... parameters);
+    long countBySQL(String sql);
 
-	long countBySQL(String sql, Map<String, Object> parameters);
+    long countBySQL(String sql, Object... parameters);
 
-	int executeUpdate(String jpql);
+    long countBySQL(String sql, Map<String, Object> parameters);
 
-	int executeUpdateBySQL(String sql);
+    int executeUpdate(String jpql);
+
+    int executeUpdateBySQL(String sql);
 
 }

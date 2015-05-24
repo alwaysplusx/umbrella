@@ -24,6 +24,10 @@ import java.util.Map;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Order;
+import javax.persistence.criteria.Root;
 
 import org.springframework.data.jpa.provider.PersistenceProvider;
 import org.springframework.util.Assert;
@@ -38,326 +42,455 @@ import com.harmony.umbrella.data.query.JpaEntityInformation;
  */
 public class SimpleDao implements Dao {
 
-	private static final String ENTITY_CLASS_MUST_NOT_BE_NULL = "The given entity class must not be null!";
+    private static final String ENTITY_CLASS_MUST_NOT_BE_NULL = "The given entity class must not be null!";
 
-	private static final Object[] EMPTY_ARRAY = new Object[0];
+    private static final Object[] EMPTY_ARRAY = new Object[0];
 
-	private final EntityManager em;
+    private final EntityManager em;
 
-	@SuppressWarnings("unused")
-	private final PersistenceProvider provider;
+    @SuppressWarnings("unused")
+    private final PersistenceProvider provider;
 
-	public SimpleDao(EntityManager entityManager) {
-		this.em = entityManager;
-		this.provider = PersistenceProvider.fromEntityManager(entityManager);
-	}
+    public SimpleDao(EntityManager entityManager) {
+        this.em = entityManager;
+        this.provider = PersistenceProvider.fromEntityManager(entityManager);
+    }
 
-	@Override
-	public <T> T save(T entity) {
+    @Override
+    public <T> T save(T entity) {
 
-		EntityInformation<T, Serializable> entityInfo = getEntityInformation(entity);
+        EntityInformation<T, Serializable> entityInfo = getEntityInformation(entity);
 
-		if (entityInfo.isNew(entity)) {
-			em.persist(entity);
-			return entity;
-		}
+        if (entityInfo.isNew(entity)) {
+            em.persist(entity);
+            return entity;
+        }
 
-		throw new IllegalStateException("save failed! " + entity + " is not new entity");
-	}
+        throw new IllegalStateException("save failed! " + entity + " is not new entity");
+    }
 
-	@Override
-	public <T> Iterable<T> save(Iterable<T> entities) {
+    @Override
+    public <T> Iterable<T> save(Iterable<T> entities) {
 
-		List<T> result = new ArrayList<T>();
+        List<T> result = new ArrayList<T>();
 
-		if (entities == null) {
-			return result;
-		}
+        if (entities == null) {
+            return result;
+        }
 
-		for (T entity : entities) {
-			result.add(save(entity));
-		}
+        for (T entity : entities) {
+            result.add(save(entity));
+        }
 
-		return result;
-	}
+        return result;
+    }
 
-	@Override
-	public <T> T update(T entity) {
+    @Override
+    public <T> T update(T entity) {
 
-		EntityInformation<T, Serializable> entityInfo = getEntityInformation(entity);
+        EntityInformation<T, Serializable> entityInfo = getEntityInformation(entity);
 
-		if (!entityInfo.isNew(entity)) {
-			return em.merge(entity);
-		}
+        if (!entityInfo.isNew(entity)) {
+            return em.merge(entity);
+        }
 
-		throw new IllegalStateException("update failed! " + entity + " is not exists");
-	}
+        throw new IllegalStateException("update failed! " + entity + " is not exists");
+    }
 
-	@Override
-	public <T> Iterable<T> update(Iterable<T> entities) {
+    @Override
+    public <T> Iterable<T> update(Iterable<T> entities) {
 
-		List<T> result = new ArrayList<T>();
+        List<T> result = new ArrayList<T>();
 
-		if (entities == null) {
-			return result;
-		}
+        if (entities == null) {
+            return result;
+        }
 
-		for (T entity : entities) {
-			result.add(update(entity));
-		}
+        for (T entity : entities) {
+            result.add(update(entity));
+        }
 
-		return result;
-	}
+        return result;
+    }
 
-	@Override
-	public <T> T saveOrUpdate(T entity) {
+    @Override
+    public <T> T saveOrUpdate(T entity) {
 
-		EntityInformation<Object, Serializable> entityInfo = getEntityInformation(entity);
+        EntityInformation<Object, Serializable> entityInfo = getEntityInformation(entity);
 
-		if (entityInfo.isNew(entity)) {
-			em.persist(entity);
-			return entity;
-		} else {
-			return em.merge(entity);
-		}
-
-	}
-
-	@Override
-	public <T> Iterable<T> saveOrUpdate(Iterable<T> entities) {
-		List<T> result = new ArrayList<T>();
-
-		if (entities == null) {
-			return result;
-		}
-
-		for (T entity : entities) {
-			result.add(saveOrUpdate(entity));
-		}
-
-		return result;
-	}
-
-	@Override
-	public void delete(Object entity) {
-		if (entity == null)
-			return;
-		em.remove(em.contains(entity) ? entity : em.merge(entity));
-	}
-
-	@Override
-	public <T> T delete(Class<T> entityClass, Serializable id) {
-		T entity = findOne(entityClass, id);
-		if (entity != null) {
-			delete(entity);
-		}
-		return entity;
-	}
-
-	@Override
-	public <T> Iterable<T> delete(Class<T> entityClass, Iterable<? extends Serializable> ids) {
-
-		List<T> result = new ArrayList<T>();
-
-		if (ids == null) {
-			return result;
-		}
-
-		for (Serializable id : ids) {
-			result.add(delete(entityClass, id));
-		}
-
-		return result;
-	}
-
-	@Override
-	public <T> T findOne(Class<T> entityClass, Serializable id) {
-		Assert.notNull(entityClass, ENTITY_CLASS_MUST_NOT_BE_NULL);
-
-		if (id == null)
-			return null;
-
-		return em.find(entityClass, id);
-	}
-
-	@Override
-	public <T> T findOne(String jpql) {
-		return findOne(jpql, EMPTY_ARRAY);
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public <T> T findOne(String jpql, Object... parameters) {
-		if (jpql == null)
-			return null;
-		Query query = em.createQuery(jpql);
-		if (parameters != null) {
-			for (int i = 0, max = parameters.length; i < max; i++) {
-				query.setParameter(i + 1, parameters[i]);
-			}
-		}
-		try {
-			return (T) query.getSingleResult();
-		} catch (NoResultException e) {
-			return null;
-		}
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public <T> T findOne(String jpql, Map<String, Object> parameters) {
-		if (jpql == null)
-			return null;
-		Query query = em.createQuery(jpql);
-
-		if (parameters != null) {
-			Iterator<String> keys = parameters.keySet().iterator();
-			while (keys.hasNext()) {
-				String key = keys.next();
-				query.setParameter(key, parameters.get(key));
-			}
-		}
-		try {
-			return (T) query.getSingleResult();
-		} catch (NoResultException e) {
-			return null;
-		}
-	}
-
-	@Override
-	public <T> T findOneBySQL(String sql, Class<T> resultClass) {
-		return findOneBySQL(sql, resultClass, EMPTY_ARRAY);
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public <T> T findOneBySQL(String sql, Class<T> resultClass, Object... parameters) {
-		if (sql == null)
-			return null;
-
-		Query query = null;
-
-		if (resultClass == null) {
-			query = em.createQuery(sql);
-		} else {
-			query = em.createQuery(sql, resultClass);
-		}
-
-		if (parameters != null) {
-			for (int i = 0, max = parameters.length; i < max; i++) {
-				query.setParameter(i + 1, parameters[i]);
-			}
-		}
-
-		try {
-			return (T) query.getSingleResult();
-		} catch (NoResultException e) {
-			return null;
-		}
-	}
-
-	@Override
-	public <T> T findOneBySQL(String sql, Map<String, Object> parameters) {
-		return null;
-	}
-
-	@Override
-	public <T> List<T> findAll(Class<T> entityClass) {
-		return null;
-	}
-
-	@Override
-	public <T> List<T> findAll(Class<T> entityClass, Sort sort) {
-		return null;
-	}
-
-	@Override
-	public <T> List<T> findAll(String jpql) {
-		return null;
-	}
-
-	@Override
-	public <T> List<T> findAll(String jpql, Object... parameters) {
-		return null;
-	}
-
-	@Override
-	public <T> List<T> findAll(String jpql, Map<String, Object> parameters) {
-		return null;
-	}
-
-	@Override
-	public <T> List<T> findAllBySQL(String sql, Class<T> resultClass) {
-		return null;
-	}
-
-	@Override
-	public <T> List<T> findAllBySQL(String sql, Class<T> resultClass, Object... parameters) {
-		return null;
-	}
-
-	@Override
-	public <T> List<T> findAllBySQL(String sql, Class<T> resultClass, Map<String, Object> parameters) {
-		return null;
-	}
-
-	@Override
-	public long countAll(Class<?> entityClass) {
-		return 0;
-	}
-
-	@Override
-	public long count(String jpql) {
-		return 0;
-	}
-
-	@Override
-	public long count(String jpql, Object... parameters) {
-		return 0;
-	}
-
-	@Override
-	public long count(String jpql, Map<String, Object> parameters) {
-		return 0;
-	}
-
-	@Override
-	public long countBySQL(String sql) {
-		return 0;
-	}
-
-	@Override
-	public long countBySQL(String sql, Object... parameters) {
-		return 0;
-	}
-
-	@Override
-	public long countBySQL(String sql, Map<String, Object> parameters) {
-		return 0;
-	}
-
-	@Override
-	public int executeUpdate(String jpql) {
-		return 0;
-	}
-
-	@Override
-	public int executeUpdateBySQL(String sql) {
-		return 0;
-	}
-
-	@SuppressWarnings("unchecked")
-	protected <T> Class<T> getDomainClass(Object entity) {
-		return (Class<T>) entity.getClass();
-	}
-
-	@SuppressWarnings("unchecked")
-	protected <T> EntityInformation<T, Serializable> getEntityInformation(Object entity) {
-		return new JpaEntityInformation<T, Serializable>((Class<T>) entity.getClass(), em.getMetamodel());
-	}
-
-	protected <T> EntityInformation<T, Serializable> getEntityInformation(Class<T> entityClass) {
-		return new JpaEntityInformation<T, Serializable>(entityClass, em.getMetamodel());
-	}
+        if (entityInfo.isNew(entity)) {
+            em.persist(entity);
+            return entity;
+        } else {
+            return em.merge(entity);
+        }
+
+    }
+
+    @Override
+    public <T> Iterable<T> saveOrUpdate(Iterable<T> entities) {
+        List<T> result = new ArrayList<T>();
+
+        if (entities == null) {
+            return result;
+        }
+
+        for (T entity : entities) {
+            result.add(saveOrUpdate(entity));
+        }
+
+        return result;
+    }
+
+    @Override
+    public void delete(Object entity) {
+        if (entity == null)
+            return;
+
+        em.remove(em.contains(entity) ? entity : em.merge(entity));
+    }
+
+    @Override
+    public <T> void delete(List<T> entities) {
+        
+        if (entities != null && !entities.isEmpty()) {
+            
+            for (T entity : entities) {
+                delete(entity);
+            }
+            
+        }
+    }
+
+    @Override
+    public <T> T delete(Class<T> entityClass, Serializable id) {
+
+        T entity = findOne(entityClass, id);
+
+        if (entity != null) {
+            delete(entity);
+        }
+
+        return entity;
+    }
+
+    @Override
+    public <T> Iterable<T> delete(Class<T> entityClass, Iterable<? extends Serializable> ids) {
+
+        List<T> result = new ArrayList<T>();
+
+        if (ids == null) {
+            return result;
+        }
+
+        for (Serializable id : ids) {
+            result.add(delete(entityClass, id));
+        }
+
+        return result;
+    }
+
+    @Override
+    public <T> T findOne(Class<T> entityClass, Serializable id) {
+        Assert.notNull(entityClass, ENTITY_CLASS_MUST_NOT_BE_NULL);
+
+        if (id == null)
+            return null;
+
+        return em.find(entityClass, id);
+    }
+
+    @Override
+    public <T> T findOne(String jpql) {
+        return findOne(jpql, EMPTY_ARRAY);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public <T> T findOne(String jpql, Object... parameters) {
+
+        if (jpql == null)
+            return null;
+
+        try {
+            return (T) applyParameterToQuery(em.createQuery(jpql), parameters).getSingleResult();
+        } catch (NoResultException e) {
+            return null;
+        }
+
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public <T> T findOne(String jpql, Map<String, Object> parameters) {
+
+        if (jpql == null)
+            return null;
+
+        try {
+            return (T) applyParameterToQuery(em.createQuery(jpql), parameters).getSingleResult();
+        } catch (NoResultException e) {
+            return null;
+        }
+
+    }
+
+    @Override
+    public <T> T findOneBySQL(String sql, Class<T> resultClass) {
+        return findOneBySQL(sql, resultClass, EMPTY_ARRAY);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public <T> T findOneBySQL(String sql, Class<T> resultClass, Object... parameters) {
+
+        if (sql == null)
+            return null;
+
+        Query query = null;
+
+        if (resultClass == null) {
+            query = em.createQuery(sql);
+        } else {
+            query = em.createQuery(sql, resultClass);
+        }
+
+        try {
+            return (T) applyParameterToQuery(query, parameters).getSingleResult();
+        } catch (NoResultException e) {
+            return null;
+        }
+
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public <T> T findOneBySQL(String sql, Class<T> resultClass, Map<String, Object> parameters) {
+        if (sql == null)
+            return null;
+
+        Query query = null;
+
+        if (resultClass == null) {
+            query = em.createQuery(sql);
+        } else {
+            query = em.createQuery(sql, resultClass);
+        }
+
+        try {
+            return (T) applyParameterToQuery(query, parameters).getSingleResult();
+        } catch (NoResultException e) {
+            return null;
+        }
+
+    }
+
+    @Override
+    public <T> List<T> findAll(Class<T> entityClass) {
+        return findAll(entityClass, null);
+    }
+
+    @Override
+    public <T> List<T> findAll(Class<T> entityClass, Sort sort) {
+        if (entityClass == null) {
+            return new ArrayList<T>();
+        }
+
+        CriteriaBuilder builder = em.getCriteriaBuilder();
+        CriteriaQuery<T> query = builder.createQuery(entityClass);
+        query.from(entityClass);
+
+        if (sort != null) {
+            query.orderBy(toOrders(sort, query.from(entityClass), builder));
+        }
+
+        return em.createQuery(query).getResultList();
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public <T> List<T> findAll(String jpql) {
+
+        if (jpql == null)
+            return new ArrayList<T>();
+
+        return em.createQuery(jpql).getResultList();
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public <T> List<T> findAll(String jpql, Object... parameters) {
+        if (jpql == null)
+            return new ArrayList<T>();
+
+        return applyParameterToQuery(em.createQuery(jpql), parameters).getResultList();
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public <T> List<T> findAll(String jpql, Map<String, Object> parameters) {
+        if (jpql == null)
+            return new ArrayList<T>();
+
+        return applyParameterToQuery(em.createQuery(jpql), parameters).getResultList();
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public <T> List<T> findAllBySQL(String sql, Class<T> resultClass) {
+        if (sql == null)
+            return new ArrayList<T>();
+
+        if (resultClass == null) {
+            return em.createQuery(sql).getResultList();
+        } else {
+            return em.createQuery(sql, resultClass).getResultList();
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public <T> List<T> findAllBySQL(String sql, Class<T> resultClass, Object... parameters) {
+        if (sql == null)
+            return new ArrayList<T>();
+
+        Query query = null;
+        if (resultClass == null) {
+            query = em.createQuery(sql);
+        } else {
+            query = em.createQuery(sql, resultClass);
+        }
+
+        return applyParameterToQuery(query, parameters).getResultList();
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public <T> List<T> findAllBySQL(String sql, Class<T> resultClass, Map<String, Object> parameters) {
+        if (sql == null)
+            return new ArrayList<T>();
+
+        Query query = null;
+        if (resultClass == null) {
+            query = em.createQuery(sql);
+        } else {
+            query = em.createQuery(sql, resultClass);
+        }
+
+        return applyParameterToQuery(query, parameters).getResultList();
+    }
+
+    @Override
+    public long countAll(Class<?> entityClass) {
+        if (entityClass == null)
+            throw new IllegalArgumentException(ENTITY_CLASS_MUST_NOT_BE_NULL);
+
+        CriteriaBuilder builder = em.getCriteriaBuilder();
+        CriteriaQuery<Long> query = builder.createQuery(Long.class);
+        query.select(builder.function("count", Long.class, query.from(entityClass)));
+
+        return em.createQuery(query).getSingleResult();
+    }
+
+    @Override
+    public long count(String jpql) {
+        if (jpql == null)
+            throw new IllegalArgumentException("count query must not be null");
+
+        return ((Number) em.createQuery(jpql).getSingleResult()).longValue();
+    }
+
+    @Override
+    public long count(String jpql, Object... parameters) {
+        if (jpql == null)
+            throw new IllegalArgumentException("count query must not be null");
+
+        return ((Number) applyParameterToQuery(em.createQuery(jpql), parameters).getSingleResult()).longValue();
+    }
+
+    @Override
+    public long count(String jpql, Map<String, Object> parameters) {
+        if (jpql == null)
+            throw new IllegalArgumentException("count query must not be null");
+
+        return ((Number) applyParameterToQuery(em.createQuery(jpql), parameters).getSingleResult()).longValue();
+    }
+
+    @Override
+    public long countBySQL(String sql) {
+        if (sql == null)
+            throw new IllegalArgumentException("count query must not be null");
+
+        return ((Number) em.createQuery(sql).getSingleResult()).longValue();
+    }
+
+    @Override
+    public long countBySQL(String sql, Object... parameters) {
+        if (sql == null)
+            throw new IllegalArgumentException("count query must not be null");
+
+        return ((Number) em.createQuery(sql).getSingleResult()).longValue();
+    }
+
+    @Override
+    public long countBySQL(String sql, Map<String, Object> parameters) {
+        return count(sql, parameters);
+    }
+
+    @Override
+    public int executeUpdate(String jpql) {
+        if (jpql == null)
+            throw new IllegalArgumentException("execute query must not be null");
+
+        return em.createQuery(jpql).executeUpdate();
+    }
+
+    @Override
+    public int executeUpdateBySQL(String sql) {
+        if (sql == null)
+            throw new IllegalArgumentException("execute query must not be null");
+
+        return em.createQuery(sql).executeUpdate();
+    }
+
+    protected List<Order> toOrders(Sort sort, Root<?> root, CriteriaBuilder builder) {
+        return new ArrayList<Order>();
+    }
+
+    protected <T extends Query> T applyParameterToQuery(T query, Object[] parameters) {
+        Assert.notNull(query, "query must not be null");
+        if (parameters != null && parameters.length > 0) {
+            for (int i = 0, max = parameters.length; i < max; i++) {
+                query.setParameter(i + 1, parameters[i]);
+            }
+        }
+        return query;
+    }
+
+    protected <T extends Query> T applyParameterToQuery(T query, Map<String, Object> parameters) {
+        Assert.notNull(query, "query must not be null");
+        if (parameters != null) {
+            Iterator<String> keys = parameters.keySet().iterator();
+            while (keys.hasNext()) {
+                String key = keys.next();
+                query.setParameter(key, parameters.get(key));
+            }
+        }
+        return query;
+    }
+
+    @SuppressWarnings("unchecked")
+    protected <T> Class<T> getDomainClass(Object entity) {
+        return (Class<T>) entity.getClass();
+    }
+
+    @SuppressWarnings("unchecked")
+    protected <T> EntityInformation<T, Serializable> getEntityInformation(Object entity) {
+        return new JpaEntityInformation<T, Serializable>((Class<T>) entity.getClass(), em.getMetamodel());
+    }
+
+    protected <T> EntityInformation<T, Serializable> getEntityInformation(Class<T> entityClass) {
+        return new JpaEntityInformation<T, Serializable>(entityClass, em.getMetamodel());
+    }
 
 }
