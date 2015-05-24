@@ -41,4 +41,9 @@ public class UserRepositoryImpl extends AbstractJpaRepository<User, Long> implem
 		this.em = em;
 	}
 
+	@Override
+	public void deleteInBatch(Iterable<User> entities) {
+		super.deleteInBatch(entities);
+	}
+	
 }

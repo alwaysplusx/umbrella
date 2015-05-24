@@ -17,13 +17,14 @@
     </constructor-arg>
   </bean>
 
-  <!-- <bean name="genericBaseRepository" class="com.harmony.umbrella.data.repository.support.GenericBaseRepository">
-    <property name="entityManager">
+  <bean name="userJpaDao" class="com.harmony.umbrella.data.dao.support.SimpleJpaDao">
+    <constructor-arg name="entityClass" value="com.harmony.umbrella.data.persistence.User" />
+    <constructor-arg name="entityManager">
       <bean class="org.springframework.orm.jpa.support.SharedEntityManagerBean">
         <property name="entityManagerFactory" ref="entityManagerFactory" />
       </bean>
-    </property>
-  </bean> -->
+    </constructor-arg>
+  </bean>
 
   <tx:annotation-driven transaction-manager="transactionManager" />
 
@@ -48,13 +49,13 @@
     <tx:attributes>
       <tx:method name="save*" propagation="REQUIRED" rollback-for="Exception" />
       <tx:method name="delete*" propagation="REQUIRED" rollback-for="Exception" />
-      <tx:method name="update*" propagation="REQUIRED" rollback-for="Exception" />      
+      <tx:method name="update*" propagation="REQUIRED" rollback-for="Exception" />
       <tx:method name="execute*" propagation="REQUIRED" rollback-for="Exception" />
     </tx:attributes>
   </tx:advice>
 
   <aop:config>
-    <aop:pointcut id="daoPointcut" expression="execution(* com.harmony.umbrella..*.*Dao*.*(..))" />
+    <aop:pointcut id="daoPointcut" expression="execution(* com.harmony.umbrella..*.*.*(..))" />
     <aop:advisor advice-ref="daoAdvice" pointcut-ref="daoPointcut" />
   </aop:config>
 

@@ -38,6 +38,8 @@ public interface JpaDao<T, ID extends Serializable> extends Dao {
 
 	void deleteAll();
 
+	T findOne(ID id);
+
 	List<T> findAll();
 
 	List<T> findAll(Iterable<ID> ids);
