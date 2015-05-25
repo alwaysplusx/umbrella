@@ -22,6 +22,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
@@ -30,6 +31,8 @@ import javax.persistence.criteria.ParameterExpression;
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+
+import org.springframework.util.Assert;
 
 import com.harmony.umbrella.data.dao.JpaDao;
 import com.harmony.umbrella.data.domain.Page;
@@ -174,40 +177,119 @@ public class SimpleJpaDao<E, ID extends Serializable> extends SimpleDao implemen
 
 	@Override
 	public E getOne(ID id) {
-		return null;
+		if (id == null)
+			return null;
+		return em.getReference(ei.getJavaType(), id);
 	}
 
 	@Override
 	public E findOne(Specification<E> spec) {
-		return null;
+		try {
+			return getQuery(spec, null).getSingleResult();
+		} catch (NoResultException e) {
+			return null;
+		}
 	}
 
 	@Override
 	public List<E> findAll(Specification<E> spec) {
-		return null;
+		return getQuery(spec, null).getResultList();
 	}
 
 	@Override
 	public Page<E> findAll(Specification<E> spec, Pageable pageable) {
-		return null;
+
+		TypedQuery<E> query = getQuery(spec, pageable != null ? pageable.getSort() : null);
+
+		return pageable == null ? new PageImpl<E>(query.getResultList()) : readPage(query, pageable, spec);
 	}
 
 	@Override
 	public List<E> findAll(Specification<E> spec, Sort sort) {
-		return null;
+		return getQuery(spec, sort).getResultList();
 	}
 
 	@Override
 	public long count(Specification<E> spec) {
-		return 0;
+		return executeCountQuery(getCountQuery(spec));
 	}
 
 	protected TypedQuery<E> getQuery(Specification<E> spec, Sort sort) {
+		// TODO
 		return null;
 	}
 
 	protected EntityInformation<E, ID> getEntityInformation(Class<E> entityClass) {
 		return new JpaEntityInformation<E, ID>(entityClass, em.getMetamodel());
+	}
+
+	protected Page<E> readPage(TypedQuery<E> query, Pageable pageable, Specification<E> spec) {
+		// TODO
+		// query.setFirstResult(pageable.getOffset());
+		// query.setMaxResults(pageable.getPageSize());
+		//
+		// Long total = executeCountQuery(getCountQuery(spec));
+		// List<T> content = total > pageable.getOffset() ?
+		// query.getResultList() : Collections.<T> emptyList();
+		//
+		// return new PageImpl<T>(content, pageable, total);
+		return null;
+	}
+
+	protected TypedQuery<Long> getCountQuery(Specification<E> spec) {
+
+		CriteriaBuilder builder = em.getCriteriaBuilder();
+		CriteriaQuery<Long> query = builder.createQuery(Long.class);
+
+		Root<E> root = applySpecificationToCriteria(spec, query);
+
+		if (query.isDistinct()) {
+			query.select(builder.countDistinct(root));
+		} else {
+			query.select(builder.count(root));
+		}
+
+		return em.createQuery(query);
+	}
+
+	private <S> Root<E> applySpecificationToCriteria(Specification<E> spec, CriteriaQuery<S> query) {
+
+		Assert.notNull(query);
+		Root<E> root = query.from(ei.getJavaType());
+
+		if (spec == null) {
+			return root;
+		}
+
+		CriteriaBuilder builder = em.getCriteriaBuilder();
+		Predicate predicate = spec.toPredicate(root, query, builder);
+
+		if (predicate != null) {
+			query.where(predicate);
+		}
+
+		return root;
+	}
+
+	/**
+	 * Executes a count query and transparently sums up all values returned.
+	 * 
+	 * @param query
+	 *            must not be {@literal null}.
+	 * @return
+	 */
+	private static Long executeCountQuery(TypedQuery<Long> query) {
+
+		Assert.notNull(query);
+
+		List<Long> totals = query.getResultList();
+		Long total = 0L;
+
+		for (Long element : totals) {
+			total += element == null ? 0 : element;
+		}
+
+		return total;
 	}
 
 	private static final class ByIdsSpecification<T> implements Specification<T> {
@@ -232,6 +314,7 @@ public class SimpleJpaDao<E, ID extends Serializable> extends SimpleDao implemen
 			return path.in(parameter);
 		}
 	}
+
 	//
 	// @Override
 	// public <T> T save(T entity) {
