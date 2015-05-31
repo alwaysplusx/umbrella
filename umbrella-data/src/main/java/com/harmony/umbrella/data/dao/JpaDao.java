@@ -52,6 +52,10 @@ public interface JpaDao<T, ID extends Serializable> extends Dao {
 
 	void deleteAllInBatch();
 
+	boolean exists(ID id);
+	
+	boolean exists(Specification<T> spec);
+	
 	/**
 	 * Returns a reference to the entity with the given identifier.
 	 * 

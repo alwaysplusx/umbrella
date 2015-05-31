@@ -214,6 +214,19 @@ public class SimpleJpaDao<E, ID extends Serializable> extends SimpleDao implemen
 		return executeCountQuery(getCountQuery(spec));
 	}
 
+	@Override
+	public boolean exists(ID id) {
+		if (id == null)
+			return false;
+		
+		return findOne(id) != null;
+	}
+
+	@Override
+	public boolean exists(Specification<E> spec) {
+		return executeCountQuery(getCountQuery(spec)) > 0;
+	}
+
 	protected TypedQuery<E> getQuery(Specification<E> spec, Sort sort) {
 		// TODO
 		return null;
