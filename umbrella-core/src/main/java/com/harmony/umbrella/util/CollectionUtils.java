@@ -15,6 +15,7 @@
  */
 package com.harmony.umbrella.util;
 
+import java.lang.reflect.Array;
 import java.util.Collection;
 import java.util.Map;
 
@@ -46,5 +47,11 @@ public class CollectionUtils {
 	public static boolean isEmpty(Map<?, ?> map) {
 		return (map == null || map.isEmpty());
 	}
+
+	@SuppressWarnings("unchecked")
+    public static <T> T[] toArray(Collection<T> c, Class<T> arrayType) {
+        T[] array = (T[]) Array.newInstance(arrayType, c.size());
+        return c.toArray(array);
+    }
 
 }

@@ -31,7 +31,7 @@ import java.util.Map;
  * 
  * @author wuxii@foxmail.com
  */
-public abstract class FormatUtils {
+public abstract class Formats {
 
     public static final String FULL_DATE_PATTERN = "yyyy-MM-dd HH:mm:ss:SSS";
 

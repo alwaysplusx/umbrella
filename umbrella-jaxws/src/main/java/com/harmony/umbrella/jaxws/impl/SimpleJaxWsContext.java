@@ -256,16 +256,20 @@ public class SimpleJaxWsContext implements JaxWsContext, Serializable {
         String args = "";
         {
             StringBuilder sb = new StringBuilder();
-            for (Object param : parameters) {
-                sb.append(", ").append(param.getClass().getName());
-            }
-            if (sb.length() > 0) {
-                sb.delete(0, 2);
+            if (parameters != null) {
+                for (Object param : parameters) {
+                    sb.append(", ").append(param != null ? param.getClass().getName() : "unknow");
+                }
+                if (sb.length() > 0) {
+                    sb.delete(0, 2);
+                }
             }
             args = sb.toString();
         }
-        result.append("  ").append(serviceInterface.getName())
+        
+        result.append("  ").append(serviceInterface == null ? "unknow" : serviceInterface.getName())
             .append("#").append(methodName).append("(").append(args).append(")");
+        
         result.append("\n")
             .append("  address  <-> ").append(address).append("\n")
             .append("  username <-> ").append(username).append("\n")

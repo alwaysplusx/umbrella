@@ -19,8 +19,8 @@ import java.util.Calendar;
 
 import com.harmony.umbrella.monitor.Graph;
 import com.harmony.umbrella.util.Exceptions;
-import com.harmony.umbrella.util.FormatUtils;
-import com.harmony.umbrella.util.FormatUtils.NullableDateFormat;
+import com.harmony.umbrella.util.Formats;
+import com.harmony.umbrella.util.Formats.NullableDateFormat;
 
 /**
  * 监视结果基础抽象类
@@ -29,7 +29,7 @@ import com.harmony.umbrella.util.FormatUtils.NullableDateFormat;
  */
 public abstract class AbstractGraph<T> implements Graph<T> {
 
-    protected NullableDateFormat ndf = FormatUtils.createDateFormat(FormatUtils.FULL_DATE_PATTERN);
+    protected NullableDateFormat ndf = Formats.createDateFormat(Formats.FULL_DATE_PATTERN);
     protected String identifie;
     protected Object result;
     protected Calendar requestTime = Calendar.getInstance();

@@ -19,6 +19,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.xml.namespace.QName;
 
+import com.harmony.umbrella.util.Exceptions;
+
 /**
  * @author wuxii@foxmail.com
  */
@@ -42,6 +44,7 @@ public class LogMessage {
 	private QName proxy;
 	private QName operation;
 	private String wsdlUrl;
+	private Throwable exception;
 
 	public LogMessage(String heading, String id) {
 		this.heading = heading;
@@ -132,6 +135,18 @@ public class LogMessage {
 		this.operation = operation;
 	}
 
+    public boolean isException() {
+        return exception != null;
+    }
+	
+	public Throwable getException() {
+        return exception;
+    }
+	
+	public void setException(Throwable exception) {
+        this.exception = exception;
+    }
+	
 	public String toString() {
 		StringBuilder buffer = new StringBuilder();
 		buffer.append(heading);
@@ -168,14 +183,20 @@ public class LogMessage {
 			buffer.append(message);
 		}
 
+		if (isException()) {
+		    buffer.append("\nException: ");
+		    buffer.append(Exceptions.getRootCause(exception));
+		}
+		
 		if (payload.length() > 0) {
 			buffer.append("\nPayload: \n");
 			buffer.append(payload);
-			if (!buffer.toString().endsWith("\n")) {
-				buffer.append("\n");
-			}
 		}
 
+		if (!buffer.toString().endsWith("\n")) {
+		    buffer.append("\n");
+		}
+		
 		buffer.append("--------------------------------------");
 		return buffer.toString();
 	}

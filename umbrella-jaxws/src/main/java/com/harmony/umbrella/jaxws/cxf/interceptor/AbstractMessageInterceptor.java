@@ -53,7 +53,8 @@ public abstract class AbstractMessageInterceptor extends AbstractPhaseIntercepto
 
 	@Override
 	public void handleFault(Message message) {
-
+	    LogMessage logMessage = buildLoggingMessage(message);
+	    System.err.println(logMessage);
 	}
 
 	protected abstract void logging(LogMessage loggingMessage);
@@ -132,6 +133,11 @@ public abstract class AbstractMessageInterceptor extends AbstractPhaseIntercepto
 			logMessage.setOperation((QName) operation);
 		}
 
+        Exception ex = message.getContent(Exception.class);
+        if (ex != null) {
+            logMessage.setException(ex);
+        }
+		
 		return logMessage;
 
 	}
