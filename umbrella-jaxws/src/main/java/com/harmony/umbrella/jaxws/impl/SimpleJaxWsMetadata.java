@@ -157,7 +157,7 @@ public class SimpleJaxWsMetadata implements JaxWsMetadata {
     public String toString() {
         StringBuilder result = new StringBuilder("{\n");
         result.append("  serviceName  -> ").append(serviceName).append("\n")
-              .append("  serviceClass -> ").append(serviceClass.getName()).append("\n")
+              .append("  serviceClass -> ").append(serviceClass != null ? "unknow" : serviceClass.getName()).append("\n")
               .append("  address  -> ").append(address).append("\n")
               .append("  password -> ").append(password).append("\n")
               .append("  ctimeout -> ").append(connectionTimeout).append("\n")

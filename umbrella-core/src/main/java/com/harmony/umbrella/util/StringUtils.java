@@ -583,11 +583,11 @@ public abstract class StringUtils {
         return sb.toString();
     }
 
-    public static String typeArrayString(List<Class<?>> all, String delim) {
+    private static String typeArrayString(List<Class<?>> all, String delim) {
         return typeArrayString(all, delim, "", "");
     }
 
-    public static String typeArrayString(List<Class<?>> coll, String delim, String prefix, String suffix) {
+    private static String typeArrayString(List<Class<?>> coll, String delim, String prefix, String suffix) {
         if (coll == null || coll.isEmpty()) {
             return "";
         }

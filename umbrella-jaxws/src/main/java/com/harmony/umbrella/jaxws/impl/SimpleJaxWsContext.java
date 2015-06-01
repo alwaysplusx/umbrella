@@ -26,6 +26,7 @@ import java.util.Map;
 
 import com.harmony.umbrella.jaxws.JaxWsContext;
 import com.harmony.umbrella.util.ClassUtils;
+import com.harmony.umbrella.util.StringUtils;
 
 /**
  * @author wuxii@foxmail.com
@@ -252,31 +253,39 @@ public class SimpleJaxWsContext implements JaxWsContext, Serializable {
 
     @Override
     public String toString() {
-        StringBuilder result = new StringBuilder("{\n");
-        String args = "";
-        {
-            StringBuilder sb = new StringBuilder();
-            if (parameters != null) {
-                for (Object param : parameters) {
-                    sb.append(", ").append(param != null ? param.getClass().getName() : "unknow");
-                }
-                if (sb.length() > 0) {
-                    sb.delete(0, 2);
-                }
-            }
-            args = sb.toString();
+        
+        String methodId = null;
+        
+        try {
+            methodId = StringUtils.getMethodIdentifiteName(getMethod());
+        } catch (NoSuchMethodException e) {
         }
         
-        result.append("  ").append(serviceInterface == null ? "unknow" : serviceInterface.getName())
-            .append("#").append(methodName).append("(").append(args).append(")");
+        if(methodId == null){
+            StringBuilder sb = new StringBuilder();
+            sb.append(serviceInterface == null ? "unknow" : serviceInterface.getName())
+              .append("#").append(methodName)
+              .append("(");
+            if (parameters != null) {
+                for (Object param : parameters) {
+                    sb.append(param != null ? param.getClass().getName() : "unknow").append(", ");
+                }
+                if (sb.lastIndexOf(", ") == sb.length() - 2) {
+                    sb.delete(sb.length() - 2, sb.length());
+                }
+            }
+            methodId = sb.append(")").toString();
+        }
         
-        result.append("\n")
-            .append("  address  <-> ").append(address).append("\n")
-            .append("  username <-> ").append(username).append("\n")
-            .append("  password <-> ").append(password).append("\n")
-            .append("  ctimeout <-> ").append(connectionTimeout).append("\n")
-            .append("  rtimeout <-> ").append(receiveTimeout).append("\n");
+        StringBuilder result = new StringBuilder("{\n");
+        result.append("  address  <-> ").append(address).append("\n")
+              .append("  methodId <-> ").append(methodId).append("\n")
+              .append("  username <-> ").append(username).append("\n")
+              .append("  password <-> ").append(password).append("\n")
+              .append("  ctimeout <-> ").append(connectionTimeout).append("\n")
+              .append("  rtimeout <-> ").append(receiveTimeout).append("\n");
         result.append("}");
+        
         return result.toString();
     }
     
