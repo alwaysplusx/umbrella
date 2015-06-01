@@ -9,6 +9,8 @@ import java.lang.annotation.Target;
 
 import javax.interceptor.InterceptorBinding;
 
+import com.harmony.umbrella.monitor.InnerAttacker;
+
 /**
  * 此注解配合CDI使用. /META-INF/beans.xml
  */
@@ -31,5 +33,32 @@ public @interface Monitored {
      * @return
      */
     String operator() default "";
+
+    /**
+     * 对监控对象内部数据的获取工具
+     * 
+     * @return
+     */
+    Attacker[] attacker() default {};
+
+    @Target({ TYPE, METHOD })
+    @Retention(RUNTIME)
+    public @interface Attacker {
+
+        /**
+         * 监控对象内容处理工具类
+         * 
+         * @return
+         */
+        Class<? super InnerAttacker> attacker();
+
+        /**
+         * 监控的内部属性的名称
+         * 
+         * @return
+         */
+        String[] names() default {};
+
+    }
 
 }
