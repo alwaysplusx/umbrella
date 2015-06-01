@@ -71,4 +71,11 @@ public interface JaxWsMetadata {
      */
     long getReceiveTimeout();
 
+    /**
+     * 设置客户端等待时间
+     * 
+     * @return
+     */
+    int getSynchronousTimeout();
+
 }

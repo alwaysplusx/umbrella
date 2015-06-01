@@ -71,10 +71,8 @@ public class XmlJaxWsContextReceiver implements JaxWsContextReceiver {
         if (metaLoader != null) {
             JaxWsMetadata metadata = metaLoader.getJaxWsMetadata(context.getServiceInterface());
             if (metadata != null) {
-                SimpleJaxWsContext copyContext = new SimpleJaxWsContext();
-                copyContext.setServiceInterface(context.getServiceInterface());
+                SimpleJaxWsContext copyContext = new SimpleJaxWsContext(context.getServiceInterface(), context.getMethodName());
                 copyContext.setParameters(context.getParameters());
-                copyContext.setMethodName(context.getMethodName());
                 copyContext.putAll(context.getContextMap());
                 copyContext.setAddress(metadata.getAddress());
                 copyContext.setUsername(metadata.getUsername());

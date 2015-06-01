@@ -19,6 +19,7 @@ import java.lang.reflect.Proxy;
 import java.util.List;
 
 import org.apache.cxf.endpoint.Client;
+import org.apache.cxf.endpoint.ClientImpl;
 import org.apache.cxf.frontend.ClientProxy;
 import org.apache.cxf.frontend.ClientProxyFactoryBean;
 import org.apache.cxf.interceptor.Interceptor;
@@ -61,6 +62,7 @@ public class JaxWsProxyBuilder {
 
 	private long receiveTimeout = -1;
 	private long connectionTimeout = -1;
+	private int synchronousTimeout = -1;
 
 	public static JaxWsProxyBuilder newProxyBuilder() {
 		refush();
@@ -160,12 +162,24 @@ public class JaxWsProxyBuilder {
 	 * 
 	 * @param connectionTimeout
 	 * @return
+	 * @see HTTPConduit#set
 	 */
 	public JaxWsProxyBuilder setConnectionTimeout(long connectionTimeout) {
 		this.connectionTimeout = connectionTimeout;
 		return this;
 	}
 
+    /**
+     * 设置{@linkplain ClientImpl#setSynchronousTimeout(int)}
+     * 
+     * @param synchronousTimeout
+     * @return
+     */
+    public JaxWsProxyBuilder setSynchronousTimeout(int synchronousTimeout) {
+        this.synchronousTimeout = synchronousTimeout;
+        return this;
+    }
+	
 	/**
 	 * 创建代理服务，并创建前提供{@linkplain JaxWsProxyFactoryConfig}配置工厂属性
 	 * 
@@ -174,25 +188,38 @@ public class JaxWsProxyBuilder {
 	 * @return
 	 */
 	public <T> T build(Class<T> serviceClass, JaxWsProxyFactoryConfig proxyConfig) {
+	    Assert.notNull(serviceClass, "service class must be not null");
 		JaxWsMetadata metadata = getJaxWsMetadata(serviceClass);
 		Assert.isTrue(StringUtils.isNotBlank(metadata.getAddress()), "proxy address is null or blank");
+		
 		JaxWsProxyFactoryBean factoryBean = factoryBeans.get();
 		if (proxyConfig != null)
 			proxyConfig.config(factoryBean);
+		
 		factoryBean.setAddress(metadata.getAddress());
 		factoryBean.setUsername(metadata.getUsername());
 		factoryBean.setPassword(metadata.getPassword());
+		
 		target = factoryBean.create(serviceClass);
+		
 		// 设置最长超时时间按
-		long connTimeout = connectionTimeout > metadata.getConnectionTimeout() ? connectionTimeout : metadata.getConnectionTimeout();
+		long connTimeout = metadata.getConnectionTimeout();
 		if (connTimeout > 0) {
 			setConnectionTimeout(target, connTimeout);
 		}
+		
 		// 设置最长超时时间
-		long recTimeout = receiveTimeout > metadata.getReceiveTimeout() ? receiveTimeout : metadata.getReceiveTimeout();
+		long recTimeout = metadata.getReceiveTimeout();
 		if (recTimeout > 0) {
 			setReceiveTimeout(target, recTimeout);
 		}
+		
+		// 设置返回等待时间
+		int syncTimeout = metadata.getSynchronousTimeout();
+        if (synchronousTimeout > 0) {
+            setSynchronousTimeout(target, syncTimeout);
+        }
+		
 		log.debug("build proxy[{}] successfully", serviceClass.getName());
 		return serviceClass.cast(target);
 	}
@@ -208,18 +235,27 @@ public class JaxWsProxyBuilder {
 	 * @param serviceClass
 	 * @return
 	 */
-	protected JaxWsMetadata getJaxWsMetadata(Class<?> serviceClass) {
-		if (metaLoader == null) {
-			return new SimpleJaxWsMetadata(serviceClass, address, username, password);
-		}
-		SimpleJaxWsMetadata result = new SimpleJaxWsMetadata(serviceClass);
-		JaxWsMetadata temp = metaLoader.getJaxWsMetadata(serviceClass);
-		result.setAddress(StringUtils.isBlank(address) ? temp.getAddress() : address);
-		result.setUsername(StringUtils.isNotBlank(username) ? temp.getUsername() : username);
-		result.setPassword(StringUtils.isNotBlank(password) ? temp.getPassword() : password);
-		result.setServiceName(temp.getServiceName());
-		return result;
-	}
+    protected JaxWsMetadata getJaxWsMetadata(Class<?> serviceClass) {
+        SimpleJaxWsMetadata result = new SimpleJaxWsMetadata(serviceClass);
+        if (metaLoader == null) {
+            result.setAddress(address);
+            result.setUsername(username);
+            result.setPassword(password);
+            result.setConnectionTimeout(connectionTimeout);
+            result.setReceiveTimeout(receiveTimeout);
+            result.setSynchronousTimeout(synchronousTimeout);
+        } else {
+            JaxWsMetadata temp = metaLoader.getJaxWsMetadata(serviceClass);
+            result.setAddress(StringUtils.isBlank(address) ? temp.getAddress() : address);
+            result.setUsername(StringUtils.isBlank(username) ? temp.getUsername() : username);
+            result.setPassword(StringUtils.isBlank(password) ? temp.getPassword() : password);
+            result.setServiceName(temp.getServiceName());
+            result.setConnectionTimeout(connectionTimeout > temp.getConnectionTimeout() ? connectionTimeout : temp.getConnectionTimeout());
+            result.setReceiveTimeout(receiveTimeout > temp.getReceiveTimeout() ? receiveTimeout : temp.getReceiveTimeout());
+            result.setSynchronousTimeout(synchronousTimeout > temp.getSynchronousTimeout() ? synchronousTimeout : temp.getSynchronousTimeout());
+        }
+        return result;
+    }
 
 	/**
 	 * 创建代理服务
@@ -279,58 +315,76 @@ public class JaxWsProxyBuilder {
 		return this;
 	}
 
-	/**
-	 * 获取代理工厂中的内容
-	 * 
-	 * @param cls
-	 * @return
-	 */
-	@SuppressWarnings("unchecked")
-	public <T> T unwrap(Class<T> cls) {
-		if (ClientProxyFactoryBean.class.isAssignableFrom(cls)) {
-			return (T) factoryBeans.get();
-		}
-		if (ClientProxy.class.isAssignableFrom(cls)) {
-			if (target == null)
-				throw new IllegalStateException("proxy not yet build");
-			return (T) Proxy.getInvocationHandler(target);
-		}
-		if (Client.class.isAssignableFrom(cls)) {
-			if (target == null)
-				throw new IllegalStateException("proxy not yet build");
-			return (T) ClientProxy.getClient(target);
-		}
-		throw new IllegalArgumentException("Unsupported unwrap target type [" + cls.getName() + "]");
-	}
+    /**
+     * 获取代理工厂中的内容
+     * 
+     * @param cls
+     *            期待的类型
+     * @return
+     */
+    @SuppressWarnings("unchecked")
+    public <T> T unwrap(Class<T> cls) {
+        if (ClientProxyFactoryBean.class.isAssignableFrom(cls)) {
+            return (T) factoryBeans.get();
+        }
+        if (ClientProxy.class.isAssignableFrom(cls)) {
+            if (target == null)
+                throw new IllegalStateException("proxy not yet build");
+            return (T) Proxy.getInvocationHandler(target);
+        }
+        if (Client.class.isAssignableFrom(cls)) {
+            if (target == null)
+                throw new IllegalStateException("proxy not yet build");
+            return (T) ClientProxy.getClient(target);
+        }
+        throw new IllegalArgumentException("Unsupported unwrap target type [" + cls.getName() + "]");
+    }
 
-	/**
-	 * 设置接受超时时间
-	 * 
-	 * @param target
-	 * @param receiveTimeout
-	 */
-	public static void setReceiveTimeout(Object target, long receiveTimeout) {
-		Client proxy = ClientProxy.getClient(target);
-		HTTPConduit conduit = (HTTPConduit) proxy.getConduit();
-		HTTPClientPolicy policy = new HTTPClientPolicy();
-		policy.setReceiveTimeout(receiveTimeout);
-		conduit.setClient(policy);
-	}
+    /**
+     * 设置Http接收超时时间
+     * 
+     * @param target
+     * @param receiveTimeout
+     * @see HTTPClientPolicy#setReceiveTimeout(long)
+     */
+    public static void setReceiveTimeout(Object target, long receiveTimeout) {
+        Client proxy = ClientProxy.getClient(target);
+        HTTPConduit conduit = (HTTPConduit) proxy.getConduit();
+        HTTPClientPolicy policy = new HTTPClientPolicy();
+        policy.setReceiveTimeout(receiveTimeout);
+        conduit.setClient(policy);
+    }
 
-	/**
-	 * 设置连接超时时间
-	 * 
-	 * @param target
-	 * @param connectionTimeout
-	 */
-	public static void setConnectionTimeout(Object target, long connectionTimeout) {
-		Client proxy = ClientProxy.getClient(target);
-		HTTPConduit conduit = (HTTPConduit) proxy.getConduit();
-		HTTPClientPolicy policy = new HTTPClientPolicy();
-		policy.setConnectionTimeout(connectionTimeout);
-		conduit.setClient(policy);
-	}
+    /**
+     * 设置Http连接超时时间
+     * 
+     * @param target
+     * @param connectionTimeout
+     * @see HTTPClientPolicy#setConnectionTimeout(long)
+     */
+    public static void setConnectionTimeout(Object target, long connectionTimeout) {
+        Client proxy = ClientProxy.getClient(target);
+        HTTPConduit conduit = (HTTPConduit) proxy.getConduit();
+        HTTPClientPolicy policy = new HTTPClientPolicy();
+        policy.setConnectionTimeout(connectionTimeout);
+        conduit.setClient(policy);
+    }
 
+    /**
+     * 设置Client的同步等待时间
+     * 
+     * @param target
+     * @param synchronousTimeout
+     * @see ClientImpl#setSynchronousTimeout(int)
+     */
+    public static void setSynchronousTimeout(Object target, int synchronousTimeout) {
+        Client client = ClientProxy.getClient(target);
+        if (client instanceof ClientImpl) {
+            ClientImpl clientImpl = (ClientImpl) client;
+            clientImpl.setSynchronousTimeout(synchronousTimeout);
+        }
+    }
+	
 	/**
 	 * 创建时候的回调方法，负责创建前配置{@linkplain JaxWsProxyFactoryBean}
 	 * <p>

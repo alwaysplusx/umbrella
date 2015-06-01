@@ -34,19 +34,21 @@ import com.harmony.umbrella.util.StringUtils;
 public class SimpleJaxWsContext implements JaxWsContext, Serializable {
 
     private static final long serialVersionUID = -7702092080209756058L;
+    private final Class<?> serviceInterface;
+    private final String methodName;
     private Map<String, Object> contextMap = new HashMap<String, Object>();
-    private Class<?> serviceInterface;
-    private String methodName;
     private Object[] parameters;
     private String address;
     private String username;
     private String password;
     private long connectionTimeout = -1;
     private long receiveTimeout = -1;
+    private int synchronousTimeout;
 
-    public SimpleJaxWsContext() {
+    public SimpleJaxWsContext(Class<?> serviceInterface, String methodName) {
+        this(serviceInterface, methodName, null);
     }
-
+    
     public SimpleJaxWsContext(Class<?> serviceInterface, String methodName, Object[] parameters) {
         this.serviceInterface = serviceInterface;
         this.methodName = methodName;
@@ -66,14 +68,6 @@ public class SimpleJaxWsContext implements JaxWsContext, Serializable {
     @Override
     public String getMethodName() {
         return this.methodName;
-    }
-
-    public void setServiceInterface(Class<?> serviceInterface) {
-        this.serviceInterface = serviceInterface;
-    }
-
-    public void setMethodName(String methodName) {
-        this.methodName = methodName;
     }
 
     public void setParameters(Object[] parameters) {
@@ -198,6 +192,15 @@ public class SimpleJaxWsContext implements JaxWsContext, Serializable {
     public void setReceiveTimeout(long receiveTimeout) {
         this.receiveTimeout = receiveTimeout;
     }
+
+    @Override
+    public int getSynchronousTimeout() {
+        return synchronousTimeout;
+    }
+
+    public void setSynchronousTimeout(int synchronousTimeout) {
+        this.synchronousTimeout = synchronousTimeout;
+    }
     
     @Override
     public int hashCode() {
@@ -283,10 +286,11 @@ public class SimpleJaxWsContext implements JaxWsContext, Serializable {
               .append("  username <-> ").append(username).append("\n")
               .append("  password <-> ").append(password).append("\n")
               .append("  ctimeout <-> ").append(connectionTimeout).append("\n")
-              .append("  rtimeout <-> ").append(receiveTimeout).append("\n");
+              .append("  rtimeout <-> ").append(receiveTimeout).append("\n")
+              .append("  stimeout <-> ").append(synchronousTimeout).append("\n");
         result.append("}");
         
         return result.toString();
     }
-    
+
 }

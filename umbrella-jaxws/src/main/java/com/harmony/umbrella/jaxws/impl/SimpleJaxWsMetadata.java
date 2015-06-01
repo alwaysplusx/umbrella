@@ -31,7 +31,9 @@ public class SimpleJaxWsMetadata implements JaxWsMetadata {
     private String password;
     private long connectionTimeout = -1;
     private long receiveTimeout = -1;
-
+    private int synchronousTimeout = -1;
+    
+    
     public SimpleJaxWsMetadata(Class<?> serviceClass) {
         this.serviceClass = serviceClass;
         this.serviceName = serviceClass.getName();
@@ -111,6 +113,15 @@ public class SimpleJaxWsMetadata implements JaxWsMetadata {
     }
 
     @Override
+    public int getSynchronousTimeout() {
+        return synchronousTimeout;
+    }
+
+    public void setSynchronousTimeout(int synchronousTimeout) {
+        this.synchronousTimeout = synchronousTimeout;
+    }
+    
+    @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
@@ -165,4 +176,5 @@ public class SimpleJaxWsMetadata implements JaxWsMetadata {
         result.append("\n}");
         return result.toString();
     }
+
 }

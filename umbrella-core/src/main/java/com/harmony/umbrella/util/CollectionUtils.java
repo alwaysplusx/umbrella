@@ -48,6 +48,14 @@ public class CollectionUtils {
 		return (map == null || map.isEmpty());
 	}
 
+    /**
+     * 将Collection转为数组输出
+     * 
+     * @param c
+     *            集合
+     * @param arrayType
+     *            数组类型, String -> String[]
+     */
 	@SuppressWarnings("unchecked")
     public static <T> T[] toArray(Collection<T> c, Class<T> arrayType) {
         T[] array = (T[]) Array.newInstance(arrayType, c.size());

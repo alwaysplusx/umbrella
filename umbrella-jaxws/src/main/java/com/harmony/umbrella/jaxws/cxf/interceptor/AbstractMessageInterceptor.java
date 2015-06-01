@@ -53,8 +53,7 @@ public abstract class AbstractMessageInterceptor extends AbstractPhaseIntercepto
 
 	@Override
 	public void handleFault(Message message) {
-	    LogMessage logMessage = buildLoggingMessage(message);
-	    System.err.println(logMessage);
+	    logging(buildLoggingMessage(message));
 	}
 
 	protected abstract void logging(LogMessage loggingMessage);
