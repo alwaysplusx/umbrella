@@ -17,6 +17,7 @@ package com.harmony.umbrella.jaxws.cxf;
 
 import static org.junit.Assert.*;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.harmony.umbrella.jaxws.JaxWsProxyBuilder;
@@ -34,6 +35,7 @@ public class MessageInterceptorTest {
 	private static final String address = "http://localhost:8082/hello";
 
 	@Test
+	@Ignore
 	public void testMessageLogging() {
 		JaxWsProxyBuilder builder = JaxWsProxyBuilder.newProxyBuilder();
 		builder.getInInterceptors().add(new MessageInInterceptor());

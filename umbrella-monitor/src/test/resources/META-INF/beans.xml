@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <beans>
 	<!-- Container Dependency Inject(CDI) Feature -->
-	<interceptors>
+	<!-- <interceptors>
 		<class>com.harmony.umbrella.monitor.impl.MethodMonitorInterceptor</class>
-	</interceptors>
+	</interceptors> -->
 </beans>
