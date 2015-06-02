@@ -22,7 +22,7 @@ import java.util.Map;
  * 
  * @author wuxii@foxmail.com
  */
-public interface InnerAttacker {
+public interface Attacker {
 
     /**
      * 获取内部数据
