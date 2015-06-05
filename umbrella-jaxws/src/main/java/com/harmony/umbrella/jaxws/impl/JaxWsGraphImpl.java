@@ -15,6 +15,8 @@
  */
 package com.harmony.umbrella.jaxws.impl;
 
+import java.lang.reflect.Method;
+
 import com.harmony.umbrella.jaxws.JaxWsGraph;
 import com.harmony.umbrella.monitor.graph.DefaultMethodGraph;
 
@@ -22,5 +24,9 @@ import com.harmony.umbrella.monitor.graph.DefaultMethodGraph;
  * @author wuxii@foxmail.com
  */
 public class JaxWsGraphImpl extends DefaultMethodGraph implements JaxWsGraph {
+
+    public JaxWsGraphImpl(Method method) {
+        super(method);
+    }
 
 }

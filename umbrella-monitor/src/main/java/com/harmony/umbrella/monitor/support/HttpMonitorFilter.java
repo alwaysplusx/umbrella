@@ -73,10 +73,10 @@ public class HttpMonitorFilter extends AbstractMonitor<String> implements HttpMo
             return;
         }
         DefaultHttpGraph graph = new DefaultHttpGraph(resource);
-        graph.setRequestArguments(request);
+        // graph.setRequestArguments(request);
         try {
             chain.doFilter(request, response);
-            graph.setResponseResult(request, response);
+            // graph.setResponseResult(request, response);
         } catch (Exception e) {
             graph.setException(e);
             if (e instanceof IOException) {

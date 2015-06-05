@@ -97,7 +97,7 @@ public abstract class MethodMonitorInterceptor<I> extends AbstractMonitor<Method
         DefaultMethodGraph graph = new DefaultMethodGraph(target, method, parameters);
         try {
             result = process(ctx);
-            graph.setResult(result);
+            graph.setResponseResult(result);
         } catch (Exception e) {
             graph.setException(e);
             throw e;

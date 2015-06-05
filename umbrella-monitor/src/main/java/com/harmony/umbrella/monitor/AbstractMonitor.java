@@ -62,6 +62,11 @@ public abstract class AbstractMonitor<T> implements Monitor<T> {
     public MonitorPolicy getPolicy() {
         return policy;
     }
+    
+    @Override
+    public void setPolicy(MonitorPolicy policy) {
+        this.policy = policy;
+    }
 
     @Override
     public void excludePattern(String pattern) {

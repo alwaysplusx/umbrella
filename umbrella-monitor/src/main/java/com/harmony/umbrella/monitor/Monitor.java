@@ -31,6 +31,14 @@ public interface Monitor<T> {
      * @return
      */
     MonitorPolicy getPolicy();
+    
+    /**
+     * 更改监控策略
+     * 
+     * @param policy
+     * @see MonitorPolicy
+     */
+    void setPolicy(MonitorPolicy policy);
 
     /**
      * 排除监控一个资源路径模版

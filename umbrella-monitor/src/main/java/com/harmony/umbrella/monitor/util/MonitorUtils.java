@@ -35,7 +35,7 @@ public abstract class MonitorUtils {
      * @return
      */
     public static String methodIdentifie(Method method) {
-        return StringUtils.getMethodIdentifiteName(method);
+        return method == null ? "" : StringUtils.getMethodIdentifiteName(method);
     }
 
     /**
@@ -45,9 +45,7 @@ public abstract class MonitorUtils {
      * @return
      */
     public static String requestIdentifie(HttpServletRequest request) {
-        if (request == null)
-            return "";
-        return request.getRequestURI();
+        return request == null ? null : request.getRequestURI();
     }
 
 }

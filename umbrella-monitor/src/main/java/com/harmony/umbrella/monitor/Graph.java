@@ -29,7 +29,7 @@ public interface Graph<T> {
      * 
      * @return
      */
-    String getIdentifie();
+    String getIdentifier();
 
     /**
      * 请求时间
@@ -46,18 +46,25 @@ public interface Graph<T> {
     Calendar getResponseTime();
 
     /**
-     * 处理结果
+     * 请求耗时 单位毫秒(ms)
+     * 
+     * @return -1 无法计算耗时
+     */
+    long use();
+
+    /**
+     * 返回结果
      * 
      * @return
      */
-    Object getResult();
+    Object getResponseResult();
 
     /**
      * 请求参数
      * 
      * @return
      */
-    T getArguments();
+    T getRequestParam();
 
     /**
      * 请求中是否有异常
@@ -67,26 +74,17 @@ public interface Graph<T> {
     boolean isException();
 
     /**
-     * 异常消息
-     * 
-     * @return
-     */
-    String getExceptionMessage();
-
-    /**
      * 异常的原因
      * 
      * @return
      */
-    String getCause();
+    Exception getException();
 
     /**
-     * 请求耗时 单位毫秒(ms)
+     * 监控的整体描述
      * 
-     * @return -1 无法计算耗时
+     * @return
      */
-    long use();
-
     String getDescription();
 
 }

@@ -19,12 +19,14 @@ import java.lang.reflect.Method;
 import java.util.Collection;
 
 import com.harmony.umbrella.Constant;
-import com.harmony.umbrella.monitor.annotation.Monitored;
 import com.harmony.umbrella.monitor.support.MethodExpressionMatcher;
 
 /**
- * 方法监控器 <p> 默认监控符合表达式{@linkplain #DEFAULT_METHOD_PATTERN}的方法. <p> 该表达式解析如
- * {@linkplain MethodExpressionMatcher}
+ * 方法监控器
+ * <p>
+ * 默认监控符合表达式{@linkplain #DEFAULT_METHOD_PATTERN}的方法.
+ * <p>
+ * 该表达式解析如 {@linkplain MethodExpressionMatcher}
  * 
  * @author wuxii@foxmail.com
  * 
@@ -50,7 +52,7 @@ public interface MethodMonitor extends Monitor<Method> {
          * 
          * @return
          */
-        Object[] getArgs();
+        Object[] getArguments();
 
         /**
          * 方法
@@ -58,29 +60,6 @@ public interface MethodMonitor extends Monitor<Method> {
          * @return
          */
         Method getMethod();
-
-        /**
-         * 方法请求时候发生的异常
-         * 
-         * @return
-         */
-        Exception getException();
-
-        /**
-         * 方法所属的模块
-         * 
-         * @return
-         * @see Monitored#module()
-         */
-        String getModule();
-
-        /**
-         * 方法所对应的操作
-         * 
-         * @return
-         * @see Monitored#operator()
-         */
-        String getOperator();
 
     }
 

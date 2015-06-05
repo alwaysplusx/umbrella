@@ -15,14 +15,14 @@
  */
 package com.harmony.umbrella.monitor.graph;
 
+import static com.harmony.umbrella.monitor.util.MonitorUtils.*;
+
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 
 import com.harmony.umbrella.monitor.MethodMonitor.MethodGraph;
-import com.harmony.umbrella.monitor.annotation.Monitored;
-import com.harmony.umbrella.monitor.util.MonitorUtils;
 
 /**
  * @author wuxii@foxmail.com
@@ -30,17 +30,20 @@ import com.harmony.umbrella.monitor.util.MonitorUtils;
 public class DefaultMethodGraph extends AbstractGraph<Collection<Object>> implements MethodGraph {
 
     protected Object target;
-    protected Method method;
+    protected final Method method;
     protected Collection<Object> arguments = new ArrayList<Object>();
 
-    public DefaultMethodGraph() {
+    public DefaultMethodGraph(Method method) {
+        this(null, method, null);
     }
 
     public DefaultMethodGraph(Object target, Method method, Object[] args) {
-        this.identifie = MonitorUtils.methodIdentifie(method);
+        super(methodIdentifie(method));
         this.target = target;
         this.method = method;
-        Collections.addAll(arguments, args);
+        if (args != null) {
+            Collections.addAll(arguments, args);
+        }
     }
 
     public Object getTarget() {
@@ -52,49 +55,23 @@ public class DefaultMethodGraph extends AbstractGraph<Collection<Object>> implem
         return method;
     }
 
-    public void setMethod(Method method) {
-        this.method = method;
-        this.identifie = MonitorUtils.methodIdentifie(method);
-    }
-
-    @Override
-    public Object[] getArgs() {
-        return arguments.toArray();
-    }
-
-    @Override
-    public String getModule() {
-        Monitored ann = method.getAnnotation(Monitored.class);
-        if (ann != null) {
-            return ann.module();
-        }
-        return null;
-    }
-
-    @Override
-    public String getOperator() {
-        Monitored ann = method.getAnnotation(Monitored.class);
-        if (ann != null) {
-            return ann.operator();
-        }
-        return null;
-    }
-
-    public void setArgs(Object[] args) {
-        this.arguments.clear();
-        Collections.addAll(arguments, args);
-    }
-
     public void setTarget(Object target) {
         this.target = target;
     }
 
     @Override
-    public Collection<Object> getArguments() {
-        return arguments;
+    public Collection<Object> getRequestParam() {
+        return Collections.unmodifiableCollection(arguments);
     }
 
-    public void setArguments(Collection<Object> arguments) {
-        this.arguments = arguments;
+    public void setArguments(Object[] arguments) {
+        this.arguments.clear();
+        Collections.addAll(this.arguments, arguments);
     }
+
+    @Override
+    public Object[] getArguments() {
+        return arguments.toArray();
+    }
+
 }

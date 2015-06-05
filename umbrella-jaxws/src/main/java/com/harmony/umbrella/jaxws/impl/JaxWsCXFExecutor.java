@@ -53,26 +53,27 @@ public class JaxWsCXFExecutor extends JaxWsPhaseExecutor {
     @Override
     public <T> T executeQuite(JaxWsContext context, Class<T> resultType) {
         T result = null;
-        JaxWsGraphImpl graph = new JaxWsGraphImpl();
-        context.put(JaxWsGraph.JAXWS_CONTEXT_GRAPH, graph);
+        JaxWsGraphImpl graph = null;
         try {
             Method method = context.getMethod();
+            graph = new JaxWsGraphImpl(method);
             Object proxy = loadProxy(context);
             Object[] parameters = context.getParameters();
-            graph.setMethod(method);
             graph.setTarget(proxy);
-            graph.setArgs(parameters);
+            graph.setArguments(parameters);
             log.info("使用代理[{}]执行交互{}, invoker is [{}]", proxy, context, invoker);
             result = (T) invoker.invoke(proxy, method, parameters);
-            graph.setResult(result);
         } catch (NoSuchMethodException e) {
+            graph = new JaxWsGraphImpl(null);
             graph.setException(e);
             throw new JaxWsException("未找到接口方法" + context, e);
         } catch (InvokeException e) {
             graph.setException(e);
             throw new JaxWsException("执行交互失败", Exceptions.getRootCause(e));
         } finally {
+            graph.setResponseResult(result);
             graph.setResponseTime(Calendar.getInstance());
+            context.put(JaxWsGraph.JAXWS_CONTEXT_GRAPH, graph);
         }
         return result;
     }
@@ -124,7 +125,7 @@ public class JaxWsCXFExecutor extends JaxWsPhaseExecutor {
      * @return
      */
     protected Object createProxy(JaxWsContext context) {
-        log.info("创建代理服务, {}", context);
+        log.debug("创建代理服务, {}", context);
         return newProxyBuilder()
                 .setAddress(context.getAddress())
                 .setUsername(context.getUsername())
