@@ -36,7 +36,7 @@ public class SimpleJaxWsContext implements JaxWsContext, Serializable {
     private static final long serialVersionUID = -7702092080209756058L;
     private final Class<?> serviceInterface;
     private final String methodName;
-    private Map<String, Object> contextMap = new HashMap<String, Object>();
+    private final Map<String, Object> contextMap = new HashMap<String, Object>();
     private Object[] parameters;
     private String address;
     private String username;

@@ -16,7 +16,6 @@
 package com.harmony.umbrella.monitor;
 
 import java.lang.reflect.Method;
-import java.util.Collection;
 
 import com.harmony.umbrella.Constant;
 import com.harmony.umbrella.monitor.support.MethodExpressionMatcher;
@@ -38,7 +37,7 @@ public interface MethodMonitor extends Monitor<Method> {
     /**
      * 方法监控结果
      */
-    public interface MethodGraph extends Graph<Collection<Object>> {
+    public interface MethodGraph extends Graph {
 
         /**
          * 方法的执行目标
@@ -46,13 +45,6 @@ public interface MethodMonitor extends Monitor<Method> {
          * @return
          */
         Object getTarget();
-
-        /**
-         * 方法请求的参数
-         * 
-         * @return
-         */
-        Object[] getArguments();
 
         /**
          * 方法

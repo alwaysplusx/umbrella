@@ -54,7 +54,7 @@ public class JaxWsServerAndProxyTest {
             @Override
             public void handle(String result, Map<String, Object> content) {
                 assertEquals("Hi wuxii", result);
-                System.out.println("jaxws content is " + content);
+                // System.out.println("jaxws content is " + content);
             }
         });
     }

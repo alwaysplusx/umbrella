@@ -19,8 +19,10 @@ package com.harmony.umbrella.monitor;
  * 结果分析处理工具
  * 
  * @author wuxii@foxmail.com
+ * @param T
+ *            可以被解析的监控视图类型
  */
-public interface GraphAnalyzer<T extends Graph<E>, E> {
+public interface GraphAnalyzer<T extends Graph> {
 
     /**
      * 分析结果

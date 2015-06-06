@@ -22,6 +22,8 @@ import java.util.Set;
  * 监控器，默认监控所有资源
  * 
  * @author wuxii@foxmail.com
+ * @param T
+ *            监控的资源类型
  */
 public interface Monitor<T> {
 

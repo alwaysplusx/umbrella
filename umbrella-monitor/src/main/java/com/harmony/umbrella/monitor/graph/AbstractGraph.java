@@ -16,6 +16,9 @@
 package com.harmony.umbrella.monitor.graph;
 
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.harmony.umbrella.monitor.Graph;
 import com.harmony.umbrella.util.Formats;
@@ -26,7 +29,7 @@ import com.harmony.umbrella.util.Formats.NullableDateFormat;
  * 
  * @author wuxii@foxmail.com
  */
-public abstract class AbstractGraph<T> implements Graph<T> {
+public abstract class AbstractGraph implements Graph {
 
     protected static final NullableDateFormat ndf = Formats.createDateFormat(Formats.FULL_DATE_PATTERN);
 
@@ -35,7 +38,9 @@ public abstract class AbstractGraph<T> implements Graph<T> {
      */
     protected final String identifier;
 
-    protected Object responseResult;
+    protected Object result;
+    
+    protected final Map<String, Object> arguments = new HashMap<String, Object>();
 
     protected Calendar requestTime = Calendar.getInstance();
 
@@ -74,6 +79,20 @@ public abstract class AbstractGraph<T> implements Graph<T> {
         }
         return -1;
     }
+    
+    @Override
+    public Map<String, Object> getArguments() {
+        return Collections.unmodifiableMap(arguments);
+    }
+    
+    @Override
+    public Object getResult() {
+        return result;
+    }
+    
+    public void setResult(Object result) {
+        this.result = result;
+    }
 
     @Override
     public Exception getException() {
@@ -91,16 +110,6 @@ public abstract class AbstractGraph<T> implements Graph<T> {
     public void setResponseTime(Calendar responseTime) {
         this.responseTime = responseTime;
     }
-
-    @Override
-    public Object getResponseResult() {
-        return responseResult;
-    }
-
-    public void setResponseResult(Object responseResult) {
-        this.responseResult = responseResult;
-    }
-    
     
     @Override
     public String getDescription() {
@@ -109,8 +118,8 @@ public abstract class AbstractGraph<T> implements Graph<T> {
             .append("  id:").append(identifier).append("\n")
             .append("  requestTime:").append(ndf.format(requestTime)).append("\n")
             .append("  use:").append(use()).append("\n")
-            .append("  requestParam:").append(formatObjectValue(getRequestParam())).append("\n")
-            .append("  responseResult:").append(formatObjectValue(getResponseResult())).append("\n")
+            .append("  arguments:").append(formatObjectValue(getArguments())).append("\n")
+            .append("  result:").append(formatObjectValue(getResult())).append("\n")
             .append("  exception:").append(isException()).append("\n");
         if (isException()) {
             buffer.append("  exceptionMessage:").append(exception).append("\n");

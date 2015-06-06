@@ -54,15 +54,18 @@ public class JaxWsCXFExecutor extends JaxWsPhaseExecutor {
     public <T> T executeQuite(JaxWsContext context, Class<T> resultType) {
         T result = null;
         JaxWsGraphImpl graph = null;
+        Object[] parameters = context.getParameters();
+        
         try {
             Method method = context.getMethod();
-            graph = new JaxWsGraphImpl(method);
             Object proxy = loadProxy(context);
-            Object[] parameters = context.getParameters();
+
+            graph = new JaxWsGraphImpl(method);
             graph.setTarget(proxy);
-            graph.setArguments(parameters);
+
             log.info("使用代理[{}]执行交互{}, invoker is [{}]", proxy, context, invoker);
             result = (T) invoker.invoke(proxy, method, parameters);
+
         } catch (NoSuchMethodException e) {
             graph = new JaxWsGraphImpl(null);
             graph.setException(e);
@@ -71,7 +74,8 @@ public class JaxWsCXFExecutor extends JaxWsPhaseExecutor {
             graph.setException(e);
             throw new JaxWsException("执行交互失败", Exceptions.getRootCause(e));
         } finally {
-            graph.setResponseResult(result);
+            graph.setArguments(parameters);
+            graph.setResult(result);
             graph.setResponseTime(Calendar.getInstance());
             context.put(JaxWsGraph.JAXWS_CONTEXT_GRAPH, graph);
         }

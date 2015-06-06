@@ -16,8 +16,6 @@
 package com.harmony.umbrella.monitor.support;
 
 import java.lang.reflect.Method;
-import java.util.Calendar;
-import java.util.Collection;
 
 import com.harmony.umbrella.monitor.AbstractMonitor;
 import com.harmony.umbrella.monitor.GraphAnalyzer;
@@ -33,7 +31,7 @@ import com.harmony.umbrella.monitor.graph.DefaultMethodGraph;
  */
 public abstract class MethodMonitorInterceptor<I> extends AbstractMonitor<Method> implements MethodMonitor {
 
-    private GraphAnalyzer<MethodGraph, Collection<Object>> analyzer;
+    private GraphAnalyzer<MethodGraph> analyzer;
 
     @Override
     protected ResourceMatcher<Method> createMatcher(String pattern) {
@@ -97,22 +95,22 @@ public abstract class MethodMonitorInterceptor<I> extends AbstractMonitor<Method
         DefaultMethodGraph graph = new DefaultMethodGraph(target, method, parameters);
         try {
             result = process(ctx);
-            graph.setResponseResult(result);
+            // graph.setResponseResult(result);
         } catch (Exception e) {
-            graph.setException(e);
+            // graph.setException(e);
             throw e;
         } finally {
-            graph.setResponseTime(Calendar.getInstance());
+            // graph.setResponseTime(Calendar.getInstance());
             analyzer.analyze(graph);
         }
         return result;
     }
 
-    public GraphAnalyzer<MethodGraph, Collection<Object>> getAnalyzer() {
+    public GraphAnalyzer<MethodGraph> getAnalyzer() {
         return analyzer;
     }
 
-    public void setAnalyzer(GraphAnalyzer<MethodGraph, Collection<Object>> analyzer) {
+    public void setAnalyzer(GraphAnalyzer<MethodGraph> analyzer) {
         this.analyzer = analyzer;
     }
 

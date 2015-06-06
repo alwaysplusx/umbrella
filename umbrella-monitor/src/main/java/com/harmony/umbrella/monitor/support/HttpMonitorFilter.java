@@ -16,8 +16,6 @@
 package com.harmony.umbrella.monitor.support;
 
 import java.io.IOException;
-import java.util.Calendar;
-import java.util.Map;
 
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -48,7 +46,7 @@ public class HttpMonitorFilter extends AbstractMonitor<String> implements HttpMo
 
     private static final Logger log = LoggerFactory.getLogger(HttpMonitorFilter.class);
 
-    private GraphAnalyzer<HttpGraph, Map<String, Object>> analyzer;
+    private GraphAnalyzer<HttpGraph> analyzer;
 
     @SuppressWarnings("unchecked")
     @Override
@@ -56,7 +54,7 @@ public class HttpMonitorFilter extends AbstractMonitor<String> implements HttpMo
         String analyzerClassName = filterConfig.getInitParameter(ANALYZER_CLASS);
         try {
             Class<?> analyzerClass = Class.forName(analyzerClassName);
-            analyzer = (GraphAnalyzer<HttpGraph, Map<String, Object>>) ReflectionUtils.instantiateClass(analyzerClass);
+            analyzer = (GraphAnalyzer<HttpGraph>) ReflectionUtils.instantiateClass(analyzerClass);
         } catch (Exception e) {
             log.error("error analyzer class {}", analyzerClassName, e);
             throw new ServletException(e);
@@ -78,7 +76,7 @@ public class HttpMonitorFilter extends AbstractMonitor<String> implements HttpMo
             chain.doFilter(request, response);
             // graph.setResponseResult(request, response);
         } catch (Exception e) {
-            graph.setException(e);
+            // graph.setException(e);
             if (e instanceof IOException) {
                 throw (IOException) e;
             }
@@ -87,7 +85,7 @@ public class HttpMonitorFilter extends AbstractMonitor<String> implements HttpMo
             }
             throw Exceptions.unchecked(e);
         } finally {
-            graph.setResponseTime(Calendar.getInstance());
+            // graph.setResponseTime(Calendar.getInstance());
             analyzer.analyze(graph);
         }
     }
@@ -97,11 +95,11 @@ public class HttpMonitorFilter extends AbstractMonitor<String> implements HttpMo
         return new ResourcePathMatcher(pattern);
     }
 
-    public GraphAnalyzer<HttpGraph, Map<String, Object>> getAnalyzer() {
+    public GraphAnalyzer<HttpGraph> getAnalyzer() {
         return analyzer;
     }
 
-    public void setAnalyzer(GraphAnalyzer<HttpGraph, Map<String, Object>> analyzer) {
+    public void setAnalyzer(GraphAnalyzer<HttpGraph> analyzer) {
         this.analyzer = analyzer;
     }
 

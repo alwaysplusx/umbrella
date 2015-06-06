@@ -18,20 +18,16 @@ package com.harmony.umbrella.monitor.graph;
 import static com.harmony.umbrella.monitor.util.MonitorUtils.*;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 
 import com.harmony.umbrella.monitor.MethodMonitor.MethodGraph;
 
 /**
  * @author wuxii@foxmail.com
  */
-public class DefaultMethodGraph extends AbstractGraph<Collection<Object>> implements MethodGraph {
+public class DefaultMethodGraph extends AbstractGraph implements MethodGraph {
 
     protected Object target;
     protected final Method method;
-    protected Collection<Object> arguments = new ArrayList<Object>();
 
     public DefaultMethodGraph(Method method) {
         this(null, method, null);
@@ -41,9 +37,7 @@ public class DefaultMethodGraph extends AbstractGraph<Collection<Object>> implem
         super(methodIdentifie(method));
         this.target = target;
         this.method = method;
-        if (args != null) {
-            Collections.addAll(arguments, args);
-        }
+        this.setArguments(args);
     }
 
     public Object getTarget() {
@@ -59,19 +53,13 @@ public class DefaultMethodGraph extends AbstractGraph<Collection<Object>> implem
         this.target = target;
     }
 
-    @Override
-    public Collection<Object> getRequestParam() {
-        return Collections.unmodifiableCollection(arguments);
-    }
-
-    public void setArguments(Object[] arguments) {
+    public void setArguments(Object[] args) {
         this.arguments.clear();
-        Collections.addAll(this.arguments, arguments);
-    }
-
-    @Override
-    public Object[] getArguments() {
-        return arguments.toArray();
+        if (args != null) {
+            for (int i = 0, max = args.length; i < max; i++) {
+                arguments.put(i + 1 + "", args[i]);
+            }
+        }
     }
 
 }

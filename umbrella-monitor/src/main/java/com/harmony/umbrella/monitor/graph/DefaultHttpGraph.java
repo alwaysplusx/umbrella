@@ -15,31 +15,32 @@
  */
 package com.harmony.umbrella.monitor.graph;
 
+import static com.harmony.umbrella.util.ObjectUtils.*;
+
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import com.harmony.umbrella.monitor.HttpMonitor.HttpGraph;
 
 /**
  * @author wuxii@foxmail.com
  */
-public class DefaultHttpGraph extends AbstractGraph<Map<String, Object>> implements HttpGraph {
+public class DefaultHttpGraph extends AbstractGraph implements HttpGraph {
 
     protected String method;
     protected String remoteAddr;
     protected String localAddr;
     protected String queryString;
     protected int status;
-    protected Map<String, Object> requestParam = new HashMap<String, Object>();
 
     public DefaultHttpGraph(String resource) {
         super(resource);
-        this.responseResult = new HashMap<String, Object>();
-    }
-
-    @Override
-    public Map<String, Object> getRequestParam() {
-        return requestParam;
+        this.result = new HashMap<String, Object>();
     }
 
     @Override
@@ -87,54 +88,83 @@ public class DefaultHttpGraph extends AbstractGraph<Map<String, Object>> impleme
         this.status = status;
     }
 
-    /*
-        public void setRequestArguments(HttpServletRequest request) {
-            this.remoteAddr = request.getRemoteAddr();
-            this.localAddr = request.getLocalAddr();
-            this.method = request.getMethod();
-            this.queryString = request.getQueryString();
-            Map<String, Object> sessionAttrMap = new HashMap<String, Object>();
-            Map<String, Object> reqAttrMap = new HashMap<String, Object>();
-            arguments.put("parameter", request.getParameterMap());
-            arguments.put("sessionAttribute", sessionAttrMap);
-            arguments.put("requestAttribute", reqAttrMap);
-            for (Enumeration<String> names = request.getAttributeNames(); names.hasMoreElements();) {
-                String name = names.nextElement();
-                reqAttrMap.put(name, request.getAttribute(name));
-            }
-            HttpSession session = request.getSession();
-            for (Enumeration<String> names = session.getAttributeNames(); names.hasMoreElements();) {
-                String name = names.nextElement();
-                sessionAttrMap.put(name, session.getAttribute(name));
-            }
+    @SuppressWarnings("unchecked")
+    @Override
+    public void setResult(Object result) {
+        if (result == null)
+            return;
+        if (result instanceof Map) {
+            this.result = result;
+        } else {
+            Map<String, Object> temp = (Map<String, Object>) (this.result);
+            temp.put(result.getClass().getSimpleName() + "." + result.hashCode(), result);
+        }
+    }
+
+    public void setRequest(HttpServletRequest request) {
+        this.remoteAddr = request.getRemoteAddr();
+        this.localAddr = request.getLocalAddr();
+        this.method = request.getMethod();
+        this.queryString = request.getQueryString();
+
+        // request Attribute
+        Map<String, Object> reqAttrMap = new HashMap<String, Object>();
+        for (Enumeration<String> names = request.getAttributeNames(); names.hasMoreElements();) {
+            String name = names.nextElement();
+            reqAttrMap.put(name, request.getAttribute(name));
         }
 
-        @SuppressWarnings("unchecked")
-        public void setResponseResult(HttpServletRequest request, HttpServletResponse response) {
-            this.status = response.getStatus();
-            Map<String, Object> sessionAttrMap = new HashMap<String, Object>();
-            Map<String, Object> reqAttrMap = new HashMap<String, Object>();
-            ((Map<String, Object>) result).put("sessionAttribute", sessionAttrMap);
-            ((Map<String, Object>) result).put("requestAttribute", reqAttrMap);
-            // 请求时候request中的attribute
-            Map<String, Object> requestAttrMap = (Map<String, Object>) arguments.get("requestAttribute");
-            for (Enumeration<String> names = request.getAttributeNames(); names.hasMoreElements();) {
-                String name = names.nextElement();
-                if (requestAttrMap.containsKey(name) && nullSafeEquals(request.getAttribute(name), requestAttrMap.get(name))) {
-                    continue;
-                }
-                reqAttrMap.put(name, request.getAttribute(name));
+        // session Attribute
+        Map<String, Object> sessionAttrMap = new HashMap<String, Object>();
+        HttpSession session = request.getSession();
+        for (Enumeration<String> names = session.getAttributeNames(); names.hasMoreElements();) {
+            String name = names.nextElement();
+            sessionAttrMap.put(name, session.getAttribute(name));
+        }
+        
+        // set parameter
+        arguments.put("parameter", request.getParameterMap());
+        arguments.put("requestAttribute", reqAttrMap);
+        arguments.put("sessionAttribute", sessionAttrMap);
+
+    }
+
+    @SuppressWarnings("unchecked")
+    public void setResponse(HttpServletRequest request, HttpServletResponse response) {
+        this.status = response.getStatus();
+        // http graph result is a map
+        Map<String, Object> result = (Map<String, Object>) this.result;
+
+        // 请求时候request中的attribute
+        Map<String, Object> requestAttrMap = (Map<String, Object>) arguments.get("requestAttribute");
+
+        Map<String, Object> responseAttrMap = new HashMap<String, Object>();
+        for (Enumeration<String> names = request.getAttributeNames(); names.hasMoreElements();) {
+            String name = names.nextElement();
+            if (requestAttrMap != null && requestAttrMap.containsKey(name) 
+                    && nullSafeEquals(request.getAttribute(name), requestAttrMap.get(name))) {
+                continue;
             }
-            // 请求时候的session中的attribute
-            Map<String, Object> requestSessionAttrMap = (Map<String, Object>) arguments.get("sessionAttribute");
-            HttpSession session = request.getSession();
-            for (Enumeration<String> names = session.getAttributeNames(); names.hasMoreElements();) {
-                String name = names.nextElement();
-                if (requestSessionAttrMap.containsKey(name) && nullSafeEquals(session.getAttribute(name), requestSessionAttrMap.get(name))) {
-                    continue;
-                }
-                sessionAttrMap.put(name, session.getAttribute(name));
+            responseAttrMap.put(name, request.getAttribute(name));
+        }
+
+        // 请求时候的session中的attribute
+        Map<String, Object> requestSessionAttrMap = (Map<String, Object>) arguments.get("sessionAttribute");
+        
+        Map<String, Object> responseSessionAttrMap = new HashMap<String, Object>();
+        HttpSession session = request.getSession();
+        for (Enumeration<String> names = session.getAttributeNames(); names.hasMoreElements();) {
+            String name = names.nextElement();
+            if (requestSessionAttrMap != null && requestSessionAttrMap.containsKey(name) 
+                    && nullSafeEquals(session.getAttribute(name), requestSessionAttrMap.get(name))) {
+                continue;
             }
-        }*/
+            responseSessionAttrMap.put(name, session.getAttribute(name));
+        }
+        
+        result.put("requestAttribute", responseAttrMap);
+        result.put("sessionAttribute", responseSessionAttrMap);
+
+    }
 
 }
