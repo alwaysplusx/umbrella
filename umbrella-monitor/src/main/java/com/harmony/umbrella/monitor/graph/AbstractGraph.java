@@ -18,7 +18,9 @@ package com.harmony.umbrella.monitor.graph;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import com.harmony.umbrella.monitor.Graph;
 import com.harmony.umbrella.util.Formats;
@@ -127,8 +129,28 @@ public abstract class AbstractGraph implements Graph {
         return buffer.append("}").toString();
     }
     
+    @SuppressWarnings("rawtypes")
     protected String formatObjectValue(Object value) {
+        if (value instanceof Map) {
+            return formatMap((Map) value);
+        }
         return String.valueOf(value);
+    }
+    
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    protected String formatMap(Map obj) {
+        if (obj == null)
+            return "";
+        StringBuilder buffer = new StringBuilder("{");
+        Iterator<Entry> iterator = obj.entrySet().iterator();
+        while (iterator.hasNext()) {
+            Entry entry = iterator.next();
+            buffer.append(entry.getKey()).append(":").append(formatObjectValue(entry.getValue()));
+            if (iterator.hasNext()) {
+                buffer.append(", ");
+            }
+        }
+        return buffer.append("}").toString();
     }
 
     @Override
