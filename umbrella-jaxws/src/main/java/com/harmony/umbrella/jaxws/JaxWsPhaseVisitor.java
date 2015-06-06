@@ -18,18 +18,65 @@ package com.harmony.umbrella.jaxws;
 import java.io.Serializable;
 
 /**
+ * {@linkplain JaxWsExecutor}执行的各个周期的访问者.
+ * 
  * @author wuxii@foxmail.com
  */
 public interface JaxWsPhaseVisitor extends Serializable {
 
+    /**
+     * 在执行前被调用
+     * 
+     * @param context
+     *            执行的上下文
+     * @return {@code true}告知调用者可以继续其业务逻辑, {@code false}不可以继续其业务逻辑
+     * @throws JaxWsAbortException
+     *             必须马上取消调用
+     */
     boolean visitBefore(JaxWsContext context) throws JaxWsAbortException;
 
+    /**
+     * 执行被取消时候调用
+     * 
+     * @param ex
+     *            取消的异常
+     * @param context
+     *            执行的上下文
+     */
     void visitAbort(JaxWsAbortException ex, JaxWsContext context);
 
+    /**
+     * 执行成功时候调用
+     * 
+     * @param result
+     *            执行结果
+     * @param context
+     *            执行上下文
+     */
     void visitCompletion(Object result, JaxWsContext context);
 
+    /**
+     * 执行异常时候被调用
+     * 
+     * @param throwable
+     *            异常信息
+     * @param context
+     *            执行上下文
+     */
     void visitThrowing(Throwable throwable, JaxWsContext context);
 
+    /**
+     * 总是在执行最后被调用
+     * 
+     * @param result
+     *            执行结果
+     * @param throwable
+     *            异常信息
+     * @param graph
+     *            执行的结果视图
+     * @param context
+     *            执行的上下文
+     */
     void visitFinally(Object result, Throwable throwable, JaxWsGraph graph, JaxWsContext context);
 
 }
