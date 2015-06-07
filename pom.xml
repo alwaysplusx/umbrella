@@ -474,6 +474,7 @@
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.3</version>
         <configuration>
+          <encoding>UTF-8</encoding>
           <source>${jdk.version}</source>
           <target>${jdk.version}</target>
           <excludes>

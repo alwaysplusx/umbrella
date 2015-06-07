@@ -33,16 +33,30 @@ public class ApplicationMetadata {
     private ApplicationMetadata() {
     }
 
-    static final ApplicationMetadata INSTANCE = new ApplicationMetadata();
-    static final JVMInformation jvmInfo = INSTANCE.new JVMInformation();
-    static final OSInformation osInfo = INSTANCE.new OSInformation();
+    static final ApplicationMetadata METADATA = new ApplicationMetadata();
 
-    static final DBInformation EMPTY_DATABASEINFO = INSTANCE.new DBInformation();
+    static final JVMInformation JVMINFO = METADATA.new JVMInformation();
 
+    static final OSInformation OSINFO = METADATA.new OSInformation();
+
+    static final DBInformation EMPTY_DATABASEINFO = METADATA.new DBInformation();
+
+    /**
+     * 应用的web服务信息
+     * 
+     * @author wuxii@foxmail.com
+     */
     public class ServerInformation {
 
+        /**
+         * servlet 的版本e.g:3.1
+         */
         public final String servletVersion;
+        /**
+         * web application server 的服务名e.g:Tomcat
+         */
         public final String serverName;
+        
         public final int serverType;
 
         ServerInformation(ServletContext context) {
@@ -82,6 +96,11 @@ public class ApplicationMetadata {
 
     }
 
+    /**
+     * 应用所使用的数据库信息
+     * 
+     * @author wuxii@foxmail.com
+     */
     public class DBInformation {
 
         public final String productName;
@@ -149,6 +168,11 @@ public class ApplicationMetadata {
 
     }
 
+    /**
+     * 应用所使用的jvm属性
+     * 
+     * @author wuxii@foxmail.com
+     */
     public class JVMInformation {
 
         public final String specificationName;
@@ -192,6 +216,11 @@ public class ApplicationMetadata {
 
     }
 
+    /**
+     * 操作系统信息
+     * 
+     * @author wuxii@foxmail.com
+     */
     public class OSInformation {
 
         public final String osName;

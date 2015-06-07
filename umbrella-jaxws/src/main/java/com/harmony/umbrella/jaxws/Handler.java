@@ -43,32 +43,54 @@ public @interface Handler {
 
     /**
      * 为方法标记{@linkplain HandleMethod}，表示为一个{@linkplain Handler}处理方法.
+     * <p>
+     * 并支持各个周期中获取执行上下文的context各个Phase对应的方法说明(该参数是可选项)
      * 
-     * <pre> 各个Phase对应的方法说明 <table border="2" rules="all" cellpadding="4">
-     * <thead> <tr> <th align="center" colspan="5">Phase对应方法参数说明</th> </tr>
-     * </thead> <tbody> <tr> <th>Phase</th> <th>Parameter Types</th> <th>Context
-     * Map Parameter Types</th> <th>Return type</th> </tr> <tr>
-     * <td>PRE_INVOKER</td> <td>{@linkplain JaxWsContext#getParameters()}</td>
-     * <td>{@linkplain JaxWsContext#getParameters()} + {@linkplain Map} </td>
-     * <td>Boolean or void</td> </tr> <tr> <td>ABORT</td> <td>@
-     * {@linkplain JaxWsAbortException} +
-     * {@linkplain JaxWsContext#getParameters()}</td> <td>
-     * {@linkplain JaxWsAbortException} +
-     * {@linkplain JaxWsContext#getParameters()} + {@linkplain Map}</td>
-     * <td>void</td> </tr> <tr> <td>POST_INVOKE</td> <td>
-     * {@linkplain JaxWsContext#getMethod()}的返回类型 +
-     * {@linkplain JaxWsContext#getParameters()}</td> <td>
-     * {@linkplain JaxWsContext#getMethod()}的返回类型 +
-     * {@linkplain JaxWsContext#getParameters()} + {@linkplain Map}</td>
-     * <td>void</td> </tr> <tr> <td>THROWING</td> <td>{@linkplain Throwable} +
-     * {@linkplain JaxWsContext#getParameters()}</td> <td>{@linkplain Throwable}
-     * + {@linkplain JaxWsContext#getParameters()} + {@linkplain Map}</td>
-     * <td>void</td> </tr> <tr> <td>FINALLY</td> <td>{@linkplain Throwable} +
-     * {@linkplain JaxWsContext#getMethod()}的返回类型 +
-     * {@linkplain JaxWsContext#getParameters()}</td> <td>{@linkplain Throwable}
-     * + {@linkplain JaxWsContext#getMethod()}的返回类型 +
-     * {@linkplain JaxWsContext#getParameters()} + {@linkplain Map}</td>
-     * <td>void</td> </tr> </tbody> </table> </pre>
+     * <pre>
+     *  <table border="2" rules="all" cellpadding="4">
+     *    <thead> 
+     *      <tr><th align="center" colspan="5">Phase对应方法参数说明</th></tr>
+     *    </thead> 
+     *    <tbody>
+     *      <tr>
+     *          <th>Phase</th>
+     *          <th>Parameter Types</th> 
+     *          <th>Support Context Map</th>
+     *          <th>Return type</th>
+     *      </tr>
+     *      <tr>
+     *          <td>PRE_INVOKER</td>
+     *          <td>{@linkplain JaxWsContext#getParameters()}</td>
+     *          <td>true</td>
+     *          <td>Boolean or void</td> 
+     *      </tr>
+     *      <tr>
+     *          <td>ABORT</td>
+     *          <td>{@linkplain JaxWsAbortException}, {@linkplain JaxWsContext#getParameters()}</td>
+     *          <td>true</td>
+     *          <td>void</td>
+     *      </tr>
+     *      <tr>
+     *          <td>POST_INVOKE</td>
+     *          <td>{@linkplain JaxWsContext#getMethod()}的返回类型, {@linkplain JaxWsContext#getParameters()}</td>
+     *          <td>true</td>
+     *          <td>void</td>
+     *      </tr>
+     *      <tr>
+     *          <td>THROWING</td>
+     *          <td>{@linkplain Throwable}, {@linkplain JaxWsContext#getParameters()}</td>
+     *          <td>true</td>
+     *          <td>void</td>
+     *      </tr>
+     *      <tr>
+     *          <td>FINALLY</td>
+     *          <td>{@linkplain Throwable}, {@linkplain JaxWsContext#getMethod()}的返回类型, {@linkplain JaxWsContext#getParameters()}</td>
+     *          <td>true</td>
+     *          <td>void</td>
+     *      </tr>
+     *    </tbody>
+     *  </table>
+     * </pre>
      * 
      */
     @Documented

@@ -16,7 +16,9 @@
 package com.harmony.umbrella.context.current;
 
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -33,18 +35,17 @@ public class DefaultHttpCurrentContext implements HttpCurrentContext {
 
     private static final long serialVersionUID = -7923350971915932542L;
 
-    private static final int ONEDAY = 1000 * 60 * 60 * 24;
+    private static final int SECONDS_OF_ONEDAY = 1000 * 60 * 60 * 24;
 
-    protected HttpServletRequest request;
+    protected final HttpServletRequest request;
 
-    protected HttpServletResponse response;
+    protected final HttpServletResponse response;
 
     protected Locale locale;
 
     private HttpSession session;
 
-    public DefaultHttpCurrentContext() {
-    }
+    private final Map<String, Object> currentMap = new HashMap<String, Object>();
 
     public DefaultHttpCurrentContext(HttpServletRequest request, HttpServletResponse response) {
         this.request = request;
@@ -124,11 +125,6 @@ public class DefaultHttpCurrentContext implements HttpCurrentContext {
     }
 
     @Override
-    public Cookie[] getHttpCookies() {
-        return request.getCookies();
-    }
-
-    @Override
     public String getParameter(String name) {
         return request.getParameter(name);
     }
@@ -143,7 +139,8 @@ public class DefaultHttpCurrentContext implements HttpCurrentContext {
         getHttpSession().setAttribute(name, o);
     }
 
-    public String getCookieValue(String name) {
+    @Override
+    public String getHttpCookie(String name) {
         for (Cookie cookie : getHttpCookies()) {
             if (cookie.getName().equals(name)) {
                 return cookie.getValue();
@@ -158,7 +155,7 @@ public class DefaultHttpCurrentContext implements HttpCurrentContext {
     }
 
     public void addCookie(String name, String value) {
-        addCookie(name, value, ONEDAY);
+        addCookie(name, value, SECONDS_OF_ONEDAY);
     }
 
     @Override
@@ -185,24 +182,28 @@ public class DefaultHttpCurrentContext implements HttpCurrentContext {
 
     @Override
     public boolean containsCookie(String name) {
-        return getCookieValue(name) != null;
+        return getHttpCookie(name) != null;
     }
 
     @Override
     public boolean contains(String name) {
-        return containsParameter(name) || containsAttribute(name) || containsSessionAttribute(name) || containsCookie(name);
+        return currentMap.containsKey(name);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public <T> T get(String name) {
-        return get(name, SCOPE_REQUEST);
+        return (T) currentMap.get(name);
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public <T> T get(String name, int scope) {
         Object result = null;
-        switch (scope < SCOPE_REQUEST ? SCOPE_REQUEST : scope > SCOPE_COOKIE ? SCOPE_COOKIE : SCOPE_SESSION) {
+        switch (getScope(scope)) {
+        case SCOPE_CURRENT:
+            result = get(name);
+            break;
         case SCOPE_REQUEST:
             result = getAttribute(name);
             break;
@@ -210,7 +211,7 @@ public class DefaultHttpCurrentContext implements HttpCurrentContext {
             result = getSessionAttribute(name);
             break;
         case SCOPE_COOKIE:
-            result = getCookieValue(name);
+            result = getHttpCookie(name);
             break;
         }
         return (T) result;
@@ -218,12 +219,15 @@ public class DefaultHttpCurrentContext implements HttpCurrentContext {
 
     @Override
     public void put(String name, Object o) {
-        put(name, o, SCOPE_REQUEST);
+        currentMap.put(name, o);
     }
 
     @Override
     public void put(String name, Object o, int scope) {
-        switch (scope < SCOPE_REQUEST ? SCOPE_REQUEST : scope > SCOPE_COOKIE ? SCOPE_COOKIE : SCOPE_SESSION) {
+        switch (getScope(scope)) {
+        case SCOPE_CURRENT:
+            put(name, o);
+            break;
         case SCOPE_REQUEST:
             setAttribute(name, o);
             break;
@@ -231,7 +235,7 @@ public class DefaultHttpCurrentContext implements HttpCurrentContext {
             setSessionAttribute(name, o);
             break;
         case SCOPE_COOKIE:
-            addCookie(name, o == null ? null : o.toString(), ONEDAY);
+            addCookie(name, o == null ? null : o.toString(), SECONDS_OF_ONEDAY);
             break;
         }
     }
@@ -246,6 +250,16 @@ public class DefaultHttpCurrentContext implements HttpCurrentContext {
             session = request.getSession();
         }
         return session;
+    }
+
+    public Cookie[] getHttpCookies() {
+        return request.getCookies();
+    }
+
+    private int getScope(int scope) {
+        return scope <= SCOPE_CURRENT ? SCOPE_CURRENT : 
+                scope <= SCOPE_REQUEST ? SCOPE_REQUEST : 
+                scope <= SCOPE_SESSION ? SCOPE_SESSION : SCOPE_COOKIE;
     }
 
 }

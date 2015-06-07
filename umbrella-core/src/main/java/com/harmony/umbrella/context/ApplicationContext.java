@@ -15,6 +15,8 @@
  */
 package com.harmony.umbrella.context;
 
+import static com.harmony.umbrella.context.ApplicationMetadata.*;
+
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Properties;
@@ -25,10 +27,7 @@ import javax.servlet.ServletContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.harmony.umbrella.context.ApplicationMetadata.DBInformation;
-import com.harmony.umbrella.context.ApplicationMetadata.JVMInformation;
-import com.harmony.umbrella.context.ApplicationMetadata.OSInformation;
-import com.harmony.umbrella.context.ApplicationMetadata.ServerInformation;
+import com.harmony.umbrella.context.ApplicationMetadata.*;
 import com.harmony.umbrella.core.BeanFactory;
 
 /**
@@ -45,26 +44,26 @@ public abstract class ApplicationContext implements BeanFactory {
     private static final ServiceLoader<ContextProvider> providers = ServiceLoader.load(ContextProvider.class);
 
     /**
-     * 运行的web服务信息，未初始化则为null
+     * 运行的web服务信息，未初始化则为{@code null}
      */
     private static ServerInformation serverInfo;
     /**
-     * 所连接的数据库信息
+     * 所连接的数据库信息, 未初始化则为{@code null}
      */
     private static DBInformation dbInfo;
 
     /**
      * 应用上下文状态：新建
      */
-    protected static final int CREATE = 1;
+    protected static final int CREATE = 0;
     /**
      * 应用上下文状态：以初始化
      */
-    protected static final int INITIALIZED = 2;
+    protected static final int INITIALIZED = 1;
     /**
      * 应用上下文状态：销毁
      */
-    protected static final int DESTROY = 3;
+    protected static final int DESTROY = 2;
 
     /**
      * 初始化应用上下文
@@ -111,6 +110,13 @@ public abstract class ApplicationContext implements BeanFactory {
         return getApplicationContext(new Properties());
     }
 
+    /**
+     * 获取当前应用的上下文, 并使用初始化属性{@code props}对应用进行初始化
+     * 
+     * @param props
+     *            引用的初始化属性
+     * @return 应用上下文
+     */
     public static final ApplicationContext getApplicationContext(Properties props) {
         ApplicationContext context = null;
         providers.reload();
@@ -137,7 +143,7 @@ public abstract class ApplicationContext implements BeanFactory {
      * @return jvm信息
      */
     public JVMInformation getInforamtionOfJVM() {
-        return ApplicationMetadata.jvmInfo;
+        return JVMINFO;
     }
 
     /**
@@ -155,7 +161,7 @@ public abstract class ApplicationContext implements BeanFactory {
      * @return 操作系统的信息
      */
     public OSInformation getInformationOfOS() {
-        return ApplicationMetadata.osInfo;
+        return OSINFO;
     }
 
     /**
@@ -175,7 +181,7 @@ public abstract class ApplicationContext implements BeanFactory {
      */
     public void initializeServerInformation(ServletContext servletContext) {
         if (serverInfo == null) {
-            serverInfo = ApplicationMetadata.INSTANCE.new ServerInformation(servletContext);
+            serverInfo = METADATA.new ServerInformation(servletContext);
             LOG.info("init server information success\n{}", serverInfo);
         }
     }
@@ -193,7 +199,7 @@ public abstract class ApplicationContext implements BeanFactory {
     public void initializeDBInformation(Connection conn, boolean close) throws SQLException {
         if (dbInfo == null) {
             try {
-                dbInfo = ApplicationMetadata.INSTANCE.new DBInformation(conn);
+                dbInfo = METADATA.new DBInformation(conn);
                 LOG.info("init database information success\n{}", dbInfo);
             } finally {
                 if (close) {
@@ -206,6 +212,9 @@ public abstract class ApplicationContext implements BeanFactory {
         }
     }
 
+    /**
+     * 应用的概况
+     */
     public String getDescription() {
         StringBuilder sb = new StringBuilder();
         sb.append("{")
