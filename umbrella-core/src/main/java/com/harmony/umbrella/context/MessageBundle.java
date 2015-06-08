@@ -144,7 +144,8 @@ public class MessageBundle {
     public static Locale getLocale(Locale locale) {
         if (locale == null)
             return null;
-        return getLocale(locale.toString());
+        Locale realLocale = getLocale(locale.toString());
+        return realLocale == null ? locale : realLocale;
     }
 
     public static Locale getLocale(String locale) {

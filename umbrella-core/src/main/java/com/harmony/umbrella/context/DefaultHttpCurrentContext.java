@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.umbrella.context.current;
+package com.harmony.umbrella.context;
 
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -27,6 +27,7 @@ import javax.servlet.http.HttpSession;
 
 import com.harmony.umbrella.context.HttpCurrentContext;
 import com.harmony.umbrella.context.MessageBundle;
+import com.harmony.umbrella.util.StringUtils;
 
 /**
  * @author wuxii@foxmail.com
@@ -51,18 +52,63 @@ public class DefaultHttpCurrentContext implements HttpCurrentContext {
         this.request = request;
         this.response = response;
         this.session = request.getSession(false);
+        this.put(HTTP_REQUEST, request);
+        this.put(HTTP_RESPONSE, response);
+        if (this.session != null)
+            this.put(HTTP_SESSION, session);
     }
 
     @Override
     public Long getUserId() {
-        return (Long) getAttribute(USER_ID);
+        return (Long) getSessionAttribute(USER_ID);
     }
 
+    /**
+     * 设置用户id, 一经设置就不再允许修改
+     * 
+     * @param userId
+     *            用户id
+     * @return if return {@code true}设置成功
+     */
+    public boolean setUserId(Long userId) {
+        if (userId == null || containsSessionAttribute(USER_ID))
+            return false;
+        setSessionAttribute(USER_ID, userId);
+        return true;
+    }
+    
+    @Override
+    public String getUserCode() {
+        return (String) getSessionAttribute(USER_CODE);
+    }
+    
+    /**
+     * 设置用户名称, 一经设置就不再允许修改
+     */
+    public boolean setUserCode(String userCode) {
+        if (StringUtils.isBlank(userCode) || containsSessionAttribute(USER_CODE)) {
+            return false;
+        }
+        setSessionAttribute(USER_CODE, userCode);
+        return true;
+    }
+    
     @Override
     public String getUsername() {
         return (String) getSessionAttribute(USERNAME);
     }
 
+    /**
+     * 设置用户名称, 一经设置就不再允许修改
+     */
+    public boolean setUsername(String username) {
+        if (StringUtils.isBlank(username) || containsSessionAttribute(USERNAME)) {
+            return false;
+        }
+        setSessionAttribute(USERNAME, username);
+        return true;
+    }
+    
     @Override
     public String getRemoteHost() {
         return request.getRemoteHost();
@@ -85,8 +131,8 @@ public class DefaultHttpCurrentContext implements HttpCurrentContext {
 
     @Override
     public void setLocale(Locale locale) {
-        this.response.setLocale(locale);
         this.locale = MessageBundle.getLocale(locale);
+        this.response.setLocale(this.locale);
     }
 
     @Override
@@ -115,30 +161,22 @@ public class DefaultHttpCurrentContext implements HttpCurrentContext {
     }
 
     @Override
-    public Object getAttribute(String name) {
-        return request.getAttribute(name);
-    }
-
-    @Override
-    public Object getSessionAttribute(String name) {
-        return getHttpSession().getAttribute(name);
-    }
-
-    @Override
     public String getParameter(String name) {
         return request.getParameter(name);
     }
-
+    
+    @SuppressWarnings("unchecked")
     @Override
-    public void setAttribute(String name, Object o) {
-        request.setAttribute(name, o);
+    public <T> T getAttribute(String name) {
+        return (T) request.getAttribute(name);
     }
-
+    
+    @SuppressWarnings("unchecked")
     @Override
-    public void setSessionAttribute(String name, Object o) {
-        getHttpSession().setAttribute(name, o);
+    public <T> T getSessionAttribute(String name) {
+        return (T) getHttpSession().getAttribute(name);
     }
-
+    
     @Override
     public String getHttpCookie(String name) {
         for (Cookie cookie : getHttpCookies()) {
@@ -147,6 +185,16 @@ public class DefaultHttpCurrentContext implements HttpCurrentContext {
             }
         }
         return null;
+    }
+    
+    @Override
+    public void setAttribute(String name, Object o) {
+        request.setAttribute(name, o);
+    }
+
+    @Override
+    public void setSessionAttribute(String name, Object o) {
+        getHttpSession().setAttribute(name, o);
     }
 
     @Override
@@ -217,9 +265,17 @@ public class DefaultHttpCurrentContext implements HttpCurrentContext {
         return (T) result;
     }
 
+    /**
+     * 一经设置不允许修改的属性有{@code HTTP_REQUEST}, {@code HTTP_RESPONSE}, {@code HTTP_SESSION}
+     */
     @Override
     public void put(String name, Object o) {
-        currentMap.put(name, o);
+        if ((HTTP_REQUEST.equals(name) || HTTP_RESPONSE.equals(name) || HTTP_SESSION.equals(name))) {
+            if (!currentMap.containsKey(name))
+                currentMap.put(name, o);
+        } else {
+            currentMap.put(name, o);
+        }
     }
 
     @Override
@@ -248,6 +304,7 @@ public class DefaultHttpCurrentContext implements HttpCurrentContext {
     private HttpSession getSession() {
         if (session == null) {
             session = request.getSession();
+            put(HTTP_SESSION, session);
         }
         return session;
     }

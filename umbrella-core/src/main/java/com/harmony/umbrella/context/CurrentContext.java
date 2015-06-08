@@ -36,6 +36,11 @@ public interface CurrentContext extends Serializable {
     String USER_ID = CurrentContext.class.getName() + ".USER_ID";
 
     /**
+     * key:用户编码
+     */
+    String USER_CODE = CurrentContext.class.getName() + ".USER_CODE";
+
+    /**
      * key:用户的名称
      */
     String USERNAME = CurrentContext.class.getName() + ".CURRENT_USERNAME";
@@ -61,6 +66,13 @@ public interface CurrentContext extends Serializable {
      * @return 用户id
      */
     Long getUserId();
+
+    /**
+     * 用户编码
+     * 
+     * @return 用户编码
+     */
+    String getUserCode();
 
     /**
      * 用户名

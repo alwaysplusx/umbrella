@@ -139,7 +139,7 @@ public interface HttpCurrentContext extends CurrentContext {
      *            key of value
      * @return if not exists return {@code null}
      */
-    Object getAttribute(String name);
+    <T> T getAttribute(String name);
 
     /**
      * 获取作用域为{@linkplain #SCOPE_SESSION}的值
@@ -148,7 +148,7 @@ public interface HttpCurrentContext extends CurrentContext {
      *            key of value
      * @return if not exists return {@code null}
      */
-    Object getSessionAttribute(String name);
+    <T> T getSessionAttribute(String name);
 
     // Cookie[] getHttpCookies();
 
