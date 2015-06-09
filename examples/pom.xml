@@ -22,6 +22,7 @@
     <module>example-ear</module>
     <module>example-data</module>
     <module>example-ee</module>
+    <module>example-shiro</module>
   </modules>
   <build>
     <!-- To define the plugin version in your parent POM -->

@@ -285,7 +285,12 @@
         <groupId>org.apache.shiro</groupId>
         <artifactId>shiro-web</artifactId>
         <version>${apache.shiro.version}</version>
-      </dependency>      
+      </dependency>
+      <dependency>
+        <groupId>org.apache.shiro</groupId>
+        <artifactId>shiro-spring</artifactId>
+        <version>${apache.shiro.version}</version>
+      </dependency>        
       <!-- apache jee -->
       <dependency>
         <groupId>org.apache.openejb</groupId>
