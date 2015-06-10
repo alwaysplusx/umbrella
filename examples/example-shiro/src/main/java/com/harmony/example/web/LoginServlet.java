@@ -16,6 +16,7 @@
 package com.harmony.example.web;
 
 import java.io.IOException;
+import java.util.Enumeration;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -23,6 +24,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.authc.UsernamePasswordToken;
+import org.apache.shiro.subject.Subject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,7 +42,33 @@ public class LoginServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        log.info("login servlet");
+
+        Enumeration<String> names = req.getHeaderNames();
+        while (names.hasMoreElements()) {
+            String name = names.nextElement();
+            log.info("{} : {}", name, req.getHeader(name));
+        }
+
+        Subject subject = SecurityUtils.getSubject();
+        
+        log.info("current subject >> {}", subject);
+        if (subject.isAuthenticated()) {
+            log.info("already login");
+            resp.getWriter().write("{\"success\":true, \"url\":\"index.jsp\"}");
+            resp.getWriter().flush();
+            // resp.sendRedirect("index.jsp");
+        } else {
+            String username = req.getParameter("username");
+            String password = req.getParameter("password");
+            UsernamePasswordToken token = new UsernamePasswordToken(username, password);
+            if (username != null) {
+                subject.login(token);
+                resp.getWriter().write("{\"success\":true, \"url\":\"success.jsp\"}");
+                resp.getWriter().flush();
+            } else {
+                resp.sendRedirect("login.jsp");
+            }
+        }
     }
 
     @Override
