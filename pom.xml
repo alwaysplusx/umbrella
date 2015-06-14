@@ -56,7 +56,7 @@
     <h2.version>1.4.181</h2.version>
     <mysql.version>5.1.35</mysql.version>
     <oracle.version>11.2.0.1.0</oracle.version>
-    <eclipselink.version>2.5.1</eclipselink.version>
+    <eclipselink.version>2.6.1-RC1</eclipselink.version>
     <aspect.version>1.8.1</aspect.version>
     <glassfish.el.version>3.0.0</glassfish.el.version>
     <fastjson.version>1.2.4</fastjson.version>

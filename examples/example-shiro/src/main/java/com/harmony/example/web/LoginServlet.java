@@ -16,7 +16,6 @@
 package com.harmony.example.web;
 
 import java.io.IOException;
-import java.util.Enumeration;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -36,37 +35,22 @@ import org.slf4j.LoggerFactory;
 @WebServlet(urlPatterns = { "/login" })
 public class LoginServlet extends HttpServlet {
 
-    private static final Logger log = LoggerFactory.getLogger(LoginServlet.class);
-
     private static final long serialVersionUID = 1L;
+    private static final Logger log = LoggerFactory.getLogger(LoginServlet.class);
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-
-        Enumeration<String> names = req.getHeaderNames();
-        while (names.hasMoreElements()) {
-            String name = names.nextElement();
-            log.info("{} : {}", name, req.getHeader(name));
-        }
-
         Subject subject = SecurityUtils.getSubject();
-        
-        log.info("current subject >> {}", subject);
-        if (subject.isAuthenticated()) {
-            log.info("already login");
-            resp.getWriter().write("{\"success\":true, \"url\":\"index.jsp\"}");
-            resp.getWriter().flush();
-            // resp.sendRedirect("index.jsp");
-        } else {
+        if (!subject.isAuthenticated()) {
             String username = req.getParameter("username");
             String password = req.getParameter("password");
-            UsernamePasswordToken token = new UsernamePasswordToken(username, password);
-            if (username != null) {
-                subject.login(token);
-                resp.getWriter().write("{\"success\":true, \"url\":\"success.jsp\"}");
-                resp.getWriter().flush();
+            if (username == null) {
+                req.getRequestDispatcher("/").forward(req, resp);
             } else {
-                resp.sendRedirect("login.jsp");
+                subject.login(new UsernamePasswordToken(username, password));
+                log.info("{} login success", username);
+                resp.getWriter().write("{\"success\":true, \"url\":\"index.jsp\"}");
+                resp.getWriter().flush();
             }
         }
     }
