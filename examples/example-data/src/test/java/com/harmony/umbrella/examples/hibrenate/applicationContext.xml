@@ -18,11 +18,11 @@
   </bean>
 
   <bean name="teacherDao" class="com.harmony.umbrella.examples.data.dao.TeacherDaoImpl">
-    <constructor-arg name="entityManager">
+    <property name="entityManager">
       <bean class="org.springframework.orm.jpa.support.SharedEntityManagerBean">
         <property name="entityManagerFactory" ref="entityManagerFactory" />
       </bean>
-    </constructor-arg>
+    </property>
   </bean>
 
   <tx:annotation-driven transaction-manager="transactionManager" />
@@ -36,7 +36,7 @@
 
   <bean name="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
     <property name="dataSource" ref="jdbc/moon" />
-    <property name="persistenceUnitName" value="moon" />
+    <property name="persistenceUnitName" value="moon.hibernate" />
     <property name="persistenceXmlLocation" value="META-INF/persistence.xml" />
   </bean>
 

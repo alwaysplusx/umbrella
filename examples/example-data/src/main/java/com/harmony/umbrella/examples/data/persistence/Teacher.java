@@ -68,6 +68,31 @@ public class Teacher implements Serializable {
     }
 
     @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((teacherId == null) ? 0 : teacherId.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        Teacher other = (Teacher) obj;
+        if (teacherId == null) {
+            if (other.teacherId != null)
+                return false;
+        } else if (!teacherId.equals(other.teacherId))
+            return false;
+        return true;
+    }
+
+    @Override
     public String toString() {
         return "{\"teacherId\":\"" + teacherId + "\", \"teacherName\":\"" + teacherName + "\"}";
     }

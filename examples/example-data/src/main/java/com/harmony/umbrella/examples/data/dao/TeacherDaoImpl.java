@@ -17,20 +17,29 @@ package com.harmony.umbrella.examples.data.dao;
 
 import javax.persistence.EntityManager;
 
-import com.harmony.umbrella.data.dao.support.SimpleJpaDao;
+import com.harmony.umbrella.data.dao.support.JpaDaoSupport;
+import com.harmony.umbrella.data.query.EntityInformation;
 import com.harmony.umbrella.examples.data.persistence.Teacher;
 
 /**
  * @author wuxii@foxmail.com
  */
-public class TeacherDaoImpl extends SimpleJpaDao<Teacher, Long> implements TeacherDao {
+public class TeacherDaoImpl extends JpaDaoSupport<Teacher, Long> implements TeacherDao {
 
-    public TeacherDaoImpl(EntityManager entityManager) {
-        this(Teacher.class, entityManager);
+    private EntityManager entityManager;
+
+    @Override
+    protected EntityManager getEntityManager() {
+        return entityManager;
     }
 
-    public TeacherDaoImpl(Class<Teacher> entityClass, EntityManager entityManager) {
-        super(entityClass, entityManager);
+    public void setEntityManager(EntityManager entityManager) {
+        this.entityManager = entityManager;
+    }
+
+    @Override
+    protected EntityInformation<Teacher, Long> getEntityInformation() {
+        return getEntityInformation(Teacher.class);
     }
 
 }

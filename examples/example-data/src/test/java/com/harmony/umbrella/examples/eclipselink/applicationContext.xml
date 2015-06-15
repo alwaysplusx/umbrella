@@ -18,11 +18,11 @@
   </bean>
 
   <bean name="teacherDao" class="com.harmony.umbrella.examples.data.dao.TeacherDaoImpl">
-    <constructor-arg name="entityManager">
+    <property name="entityManager">
       <bean class="org.springframework.orm.jpa.support.SharedEntityManagerBean">
         <property name="entityManagerFactory" ref="entityManagerFactory" />
       </bean>
-    </constructor-arg>
+    </property>
   </bean>
 
   <tx:annotation-driven transaction-manager="transactionManager" />
@@ -34,9 +34,20 @@
     <property name="password" value="" />
   </bean>
 
+  <!-- Necessary to get the entity manager injected into the factory bean -->
+  <bean class="org.springframework.orm.jpa.support.PersistenceAnnotationBeanPostProcessor" /> 
+
+  <!-- Define EclipseLink JPA Vendor Adapter -->
+  <bean id="jpaVendorAdapter" class="org.springframework.orm.jpa.vendor.EclipseLinkJpaVendorAdapter">
+    <property name="databasePlatform" value="org.eclipse.persistence.platform.database.MySQLPlatform" />
+    <property name="generateDdl" value="false" />
+    <property name="showSql" value="true" />
+  </bean>
+
   <bean name="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
     <property name="dataSource" ref="jdbc/moon" />
-    <property name="persistenceUnitName" value="moon" />
+    <property name="persistenceUnitName" value="moon.eclipselink" />
+    <property name="jpaVendorAdapter" ref="jpaVendorAdapter"/>
     <property name="persistenceXmlLocation" value="META-INF/persistence.xml" />
   </bean>
 

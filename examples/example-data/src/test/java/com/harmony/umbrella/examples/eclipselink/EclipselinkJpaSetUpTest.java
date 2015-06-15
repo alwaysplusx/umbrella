@@ -13,24 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.umbrella.examples.data;
+package com.harmony.umbrella.examples.eclipselink;
 
 import static org.junit.Assert.*;
 
 import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
+import javax.persistence.PersistenceContext;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 /**
  * @author wuxii@foxmail.com
  */
-public class JapSetUpTest {
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = "applicationContext.xml")
+public class EclipselinkJpaSetUpTest {
 
-    public static void main(String[] args) {
-        EntityManagerFactory emf = Persistence.createEntityManagerFactory("umbrella");
-        EntityManager em = emf.createEntityManager();
+    @PersistenceContext(unitName = "moon.eclipselink")
+    private EntityManager em;
+
+    @Test
+    public void testSetUp() {
+        assertNotNull(em);
         Object result = em.createNativeQuery("select 1 from dual").getSingleResult();
-        assertEquals(1l, result);
+        assertEquals("1", String.valueOf(result));
     }
-
 }
