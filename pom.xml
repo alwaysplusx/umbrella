@@ -26,8 +26,13 @@
     <module>umbrella-spring</module>
   </modules>
   <properties>
-    <jdk.version>1.6</jdk.version>
+
+    <project.compile.jdkversion>1.6</project.compile.jdkversion>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
     <slf4j.version>1.7.7</slf4j.version>
+    <log4j.version>1.2.17</log4j.version>
+
     <javax.ejb.version>3.2</javax.ejb.version>
     <javax.persistence.version>2.1.0</javax.persistence.version>
     <javax.jms.version>1.1</javax.jms.version>
@@ -38,32 +43,39 @@
     <javax.validation.version>1.1.0.Final</javax.validation.version>
     <javax.ws.rs.version>2.0</javax.ws.rs.version>
     <javax.annotation.version>1.2</javax.annotation.version>
+
     <apache.cxf.version>3.0.2</apache.cxf.version>
     <apache.openejb.version>4.7.1</apache.openejb.version>
     <apache.log4j2.version>2.2</apache.log4j2.version>
     <apache.shiro.version>1.2.3</apache.shiro.version>
     <apache.jee.version>6.0-6</apache.jee.version>
     <apache.struts.version>2.3.16</apache.struts.version>
+
     <spring.version>4.1.6.RELEASE</spring.version>
     <spring.data.version>1.10.0.RELEASE</spring.data.version>
     <spring.data.jpa.version>1.8.0.RELEASE</spring.data.jpa.version>
     <spring.security.version>4.0.0.RELEASE</spring.security.version>
+
+    <aspect.version>1.8.1</aspect.version>
+
     <hibernate.version>4.3.8.Final</hibernate.version>
     <hibernate.validator.version>5.1.3.Final</hibernate.validator.version>
-    <joda.time.version>2.7</joda.time.version>
-    <log4j.version>1.2.17</log4j.version>
-    <asm.version>5.0.3</asm.version>
+
     <h2.version>1.4.187</h2.version>
     <mysql.version>5.1.35</mysql.version>
     <oracle.version>11.2.0.1.0</oracle.version>
+
     <eclipselink.version>2.6.1-RC1</eclipselink.version>
-    <aspect.version>1.8.1</aspect.version>
-    <glassfish.el.version>3.0.0</glassfish.el.version>
+
+    <glassfish.el.version>2.2.6</glassfish.el.version>
+
+    <asm.version>5.0.3</asm.version>
+    <joda.time.version>2.7</joda.time.version>
     <fastjson.version>1.2.4</fastjson.version>
     <dozer.version>5.5.1</dozer.version>
-    <glassfish.el.version>2.2.6</glassfish.el.version>
     <netty.version>5.0.0.Alpha2</netty.version>
     <junit.version>4.11</junit.version>
+
   </properties>
   <dependencyManagement>
     <dependencies>
@@ -446,6 +458,7 @@
 
     </dependencies>
   </dependencyManagement>
+
   <repositories>
     <repository>
       <id>company-groups</id>
@@ -456,6 +469,7 @@
       </snapshots>
     </repository>
   </repositories>
+
   <pluginRepositories>
     <pluginRepository>
       <id>company-groups</id>
@@ -463,43 +477,63 @@
       <url>http://192.168.1.22:8081/nexus/content/groups/public/</url>
     </pluginRepository>
   </pluginRepositories>
+
   <distributionManagement>
+
     <repository>
       <id>company-releases</id>
       <name>Company Nexus Release Repository</name>
       <url>http://192.168.1.22:8081/nexus/content/repositories/releases/</url>
       <layout>default</layout>
     </repository>
+
     <snapshotRepository>
       <id>company-snapshots</id>
       <name>Company Nexus Snapshot Repository</name>
       <url>http://192.168.1.22:8081/nexus/content/repositories/snapshots/</url>
       <layout>default</layout>
     </snapshotRepository>
+
   </distributionManagement>
+
   <build>
+  
     <!-- <resources>
+      
       <resource>
-        <directory>src/main/java/**/*.xml</directory>
+        <directory>src/main/java</directory>
+        <filtering>true</filtering>
+        <includes>
+          <include>**/*.xml,**/*.java</include>
+        </includes>
       </resource>
+          
       <resource>
-        <directory>src/test/java/**/*.xml</directory>
+        <directory>src/test/java</directory>
+        <filtering>true</filtering>
+        <includes>
+          <include>**/*.xml,**/*.java</include>
+        </includes>
       </resource>
+      
     </resources> -->
+
     <plugins>
+
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.3</version>
         <configuration>
-          <encoding>UTF-8</encoding>
-          <source>${jdk.version}</source>
-          <target>${jdk.version}</target>
+          <encoding>${project.build.sourceEncoding}</encoding>
+          <source>${project.compile.jdkversion}</source>
+          <target>${project.compile.jdkversion}</target>
           <excludes>
             <exclude>**/package-info.java</exclude>
           </excludes>
         </configuration>
       </plugin>
+
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-source-plugin</artifactId>
@@ -514,11 +548,12 @@
           </execution>
         </executions>
         <configuration>
-          <charset>UTF-8</charset>
-          <encoding>UTF-8</encoding>
-          <docencoding>UTF-8</docencoding>
+          <charset>${project.build.sourceEncoding}</charset>
+          <encoding>${project.build.sourceEncoding}</encoding>
+          <docencoding>${project.build.sourceEncoding}</docencoding>
         </configuration>
       </plugin>
+      
       <!-- <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-resources-plugin</artifactId>
@@ -526,23 +561,18 @@
         <executions>
           <execution>
             <id>copy-resources</id>
-            here the phase you need
-            <phase>validate</phase>
+            <phase>copy-resources</phase>
             <goals>
               <goal>copy-resources</goal>
             </goals>
             <configuration>
-              <outputDirectory>${basedir}/target/extra-resources</outputDirectory>
-              <resources>
-                <resource>
-                  <directory>src/non-packaged-resources</directory>
-                  <filtering>true</filtering>
-                </resource>
-              </resources>
+              <encoding>UTF-8</encoding>
+              <outputDirectory>${project.build.outputDirectory}</outputDirectory>
             </configuration>
           </execution>
         </executions>
       </plugin> -->
+      
       <!-- <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
@@ -558,11 +588,12 @@
         </executions>
         <configuration>
           <aggregate>true</aggregate>
-          <charset>UTF-8</charset>
-          <encoding>UTF-8</encoding>
-          <docencoding>UTF-8</docencoding>
+          <charset>${project.build.sourceEncoding}</charset>
+          <encoding>${project.build.sourceEncoding}</encoding>
+          <docencoding>${project.build.sourceEncoding}</docencoding>
         </configuration>
       </plugin> -->
+
     </plugins>
   </build>
 </project>
