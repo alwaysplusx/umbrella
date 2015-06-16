@@ -62,11 +62,12 @@ public class EclipseTeacherTest {
         }
     }
 
-    @Test(expected = NonUniqueResultException.class)
+    @Test
     public void testFetch() {
         Teacher teacher = teacherDao.findOne(new Specification<Teacher>() {
             @Override
             public Predicate toPredicate(Root<Teacher> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+                // query.distinct(true);
                 root.fetch("students");
                 return cb.equal(root.get("teacherId"), 1l);
             }
@@ -79,11 +80,11 @@ public class EclipseTeacherTest {
 
     @Test(expected = NonUniqueResultException.class)
     public void testFetchStu() {
-        // FIXME eclipselink bug?
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<Teacher> query = cb.createQuery(Teacher.class);
         Root<Teacher> root = query.from(Teacher.class);
         root.fetch("students");
+        // query.distinct(true);
         query.where(cb.equal(root.get("teacherId"), 1l));
         Teacher teacher = em.createQuery(query).getSingleResult();
         assertNotNull(teacher);

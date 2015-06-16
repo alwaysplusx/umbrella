@@ -63,6 +63,7 @@ public class HibernateTeacherTest {
             @Override
             public Predicate toPredicate(Root<Teacher> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
                 root.fetch("students");
+                query.distinct(true);
                 return cb.equal(root.get("teacherId"), 1l);
             }
         });

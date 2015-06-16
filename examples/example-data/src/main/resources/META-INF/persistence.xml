@@ -7,17 +7,17 @@
     <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
     <exclude-unlisted-classes>false</exclude-unlisted-classes>
     <properties>
-      <!-- 
+      
       <property name="javax.persistence.jdbc.driver" value="org.h2.Driver"/> 
-      <property name="javax.persistence.jdbc.url" value="jdbc:h2:file:target/h2/data"/>
-      <property name="javax.persistence.jdbc.user" value="sa" />
-      <property name="javax.persistence.jdbc.password" value="" />
-      -->
-      <!-- <property name="javax.persistence.schema-generation.database.action" value="drop-and-create"/> -->
-      <property name="javax.persistence.jdbc.driver" value="com.mysql.jdbc.Driver" />
-      <property name="javax.persistence.jdbc.url" value="jdbc:mysql://localhost:3306/moon" />
+      <property name="javax.persistence.jdbc.url" value="jdbc:h2:file:~/.h2/moon/data"/>
       <property name="javax.persistence.jdbc.user" value="moon" />
       <property name="javax.persistence.jdbc.password" value="" />
+     
+      <!-- <property name="javax.persistence.schema-generation.database.action" value="drop-and-create"/> -->
+      <!-- <property name="javax.persistence.jdbc.driver" value="com.mysql.jdbc.Driver" />
+      <property name="javax.persistence.jdbc.url" value="jdbc:mysql://localhost:3306/moon" />
+      <property name="javax.persistence.jdbc.user" value="moon" />
+      <property name="javax.persistence.jdbc.password" value="" /> -->
 
       <property name="eclipselink.logging.level" value="FINE" />
       <property name="eclipselink.logging.level.sql" value="FINE" />
@@ -31,7 +31,6 @@
     <jta-data-source>jdbc/moon</jta-data-source>
     <exclude-unlisted-classes>false</exclude-unlisted-classes>
     <properties>
-      <property name="show-sql" value="true" />
       <property name="eclipselink.ddl-generation" value="create-tables" />
       <property name="eclipselink.weaving" value="false" />
       <property name="eclipselink.target-server" value="None" />
@@ -39,6 +38,7 @@
       <property name="eclipselink.logging.level" value="FINE" />
       <property name="eclipselink.logging.level.sql" value="FINE" />
       <property name="eclipselink.logging.parameters" value="true" />
+      <!-- <property name="eclipselink.create-ddl-jdbc-file-name" value="./data.sql"/> -->
       <!-- <property name="eclipselink.logging.file" value="./target/eclipselink.log"/> -->
     </properties>
   </persistence-unit>
@@ -48,7 +48,11 @@
     <jta-data-source>jdbc/moon</jta-data-source>
     <exclude-unlisted-classes>false</exclude-unlisted-classes>
     <properties>
+      <!-- <property name="hibernate.dialect" value="org.hibernate.dialect.H2Dialect" />
+      <property name="hibernate.use_sql_comments" value="true" /> -->
       <property name="hibernate.show_sql" value="true" />
+      <property name="hibernate.format_sql" value="true" />
+      <property name="hibernate.hbm2ddl.auto" value="update" />
     </properties>
   </persistence-unit>
 

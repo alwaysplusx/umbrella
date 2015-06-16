@@ -31,8 +31,6 @@ import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
-import org.springframework.util.Assert;
-
 import com.harmony.umbrella.data.dao.JpaDao;
 import com.harmony.umbrella.data.domain.Page;
 import com.harmony.umbrella.data.domain.PageImpl;
@@ -41,6 +39,7 @@ import com.harmony.umbrella.data.domain.Sort;
 import com.harmony.umbrella.data.domain.Specification;
 import com.harmony.umbrella.data.query.EntityInformation;
 import com.harmony.umbrella.data.query.JpaEntityInformation;
+import com.harmony.umbrella.util.Assert;
 
 /**
  * @author wuxii@foxmail.com
@@ -93,13 +92,10 @@ public abstract class JpaDaoSupport<E, ID extends Serializable> extends DaoSuppo
         }
 
         if (getEntityInformation().hasCompositeId()) {
-
             List<E> results = new ArrayList<E>();
-
             for (ID id : ids) {
                 results.add(findOne(id));
             }
-
             return results;
         }
 
@@ -232,25 +228,18 @@ public abstract class JpaDaoSupport<E, ID extends Serializable> extends DaoSuppo
         if (sort != null) {
             query.orderBy(toOrders(sort, root, builder));
         }
-        // return applyRepositoryMethodMetadata(em.createQuery(query));
+        
         return getEntityManager().createQuery(query);
     }
-
-    protected EntityInformation<E, ID> getEntityInformation(Class<E> entityClass) {
-        return new JpaEntityInformation<E, ID>(entityClass, getEntityManager().getMetamodel());
-    }
-
+    
     protected Page<E> readPage(TypedQuery<E> query, Pageable pageable, Specification<E> spec) {
-        // TODO
-        // query.setFirstResult(pageable.getOffset());
-        // query.setMaxResults(pageable.getPageSize());
-        //
-        // Long total = executeCountQuery(getCountQuery(spec));
-        // List<T> content = total > pageable.getOffset() ?
-        // query.getResultList() : Collections.<T> emptyList();
-        //
-        // return new PageImpl<T>(content, pageable, total);
-        return null;
+        query.setFirstResult(pageable.getOffset());
+        query.setMaxResults(pageable.getPageSize());
+
+        Long total = executeCountQuery(getCountQuery(spec));
+        List<E> content = total > pageable.getOffset() ? query.getResultList() : Collections.<E> emptyList();
+
+        return new PageImpl<E>(content, pageable, total);
     }
 
     protected TypedQuery<Long> getCountQuery(Specification<E> spec) {
@@ -268,7 +257,11 @@ public abstract class JpaDaoSupport<E, ID extends Serializable> extends DaoSuppo
 
         return getEntityManager().createQuery(query);
     }
-
+    
+    protected EntityInformation<E, ID> getEntityInformation(Class<E> entityClass) {
+        return new JpaEntityInformation<E, ID>(entityClass, getEntityManager().getMetamodel());
+    }
+    
     private <S> Root<E> applySpecificationToCriteria(Specification<E> spec, CriteriaQuery<S> query) {
 
         Assert.notNull(query);
@@ -283,6 +276,10 @@ public abstract class JpaDaoSupport<E, ID extends Serializable> extends DaoSuppo
 
         if (predicate != null) {
             query.where(predicate);
+        }
+        
+        if (root.getFetches().size() > 0 && !query.isDistinct()) {
+            query.distinct(true);
         }
 
         return root;

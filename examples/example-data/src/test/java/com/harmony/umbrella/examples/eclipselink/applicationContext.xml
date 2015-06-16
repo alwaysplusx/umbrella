@@ -28,8 +28,8 @@
   <tx:annotation-driven transaction-manager="transactionManager" />
 
   <bean name="jdbc/moon" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
-    <property name="driverClassName" value="com.mysql.jdbc.Driver" />
-    <property name="url" value="jdbc:mysql://localhost:3306/moon" />
+    <property name="driverClassName" value="org.h2.Driver" />
+    <property name="url" value="jdbc:h2:file:~/.h2/moon/data" />
     <property name="username" value="moon" />
     <property name="password" value="" />
   </bean>
@@ -39,7 +39,8 @@
 
   <!-- Define EclipseLink JPA Vendor Adapter -->
   <bean id="jpaVendorAdapter" class="org.springframework.orm.jpa.vendor.EclipseLinkJpaVendorAdapter">
-    <property name="databasePlatform" value="org.eclipse.persistence.platform.database.MySQLPlatform" />
+    <!-- <property name="databasePlatform" value="org.eclipse.persistence.platform.database.MySQLPlatform" /> -->
+    <property name="databasePlatform" value="org.eclipse.persistence.platform.database.H2Platform" />
     <property name="generateDdl" value="false" />
     <property name="showSql" value="true" />
   </bean>

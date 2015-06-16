@@ -34,8 +34,8 @@ public class SimpleJpaDao<E, ID extends Serializable> extends JpaDaoSupport<E, I
     protected final PersistenceProvider provider;
 
     public SimpleJpaDao(Class<E> entityClass, EntityManager entityManager) {
-        this.ei = getEntityInformation(entityClass);
         this.em = entityManager;
+        this.ei = getEntityInformation(entityClass);
         this.provider = PersistenceProvider.fromEntityManager(entityManager);
     }
 
