@@ -18,18 +18,20 @@
   </bean>
 
   <bean name="teacherDao" class="com.harmony.umbrella.examples.data.dao.TeacherDaoImpl">
-    <constructor-arg name="entityManager">
-      <bean class="org.springframework.orm.jpa.support.SharedEntityManagerBean">
-        <property name="entityManagerFactory" ref="entityManagerFactory" />
-      </bean>
-    </constructor-arg>
+    <property name="entityManager" ref="entityManager"/>
+  </bean>
+
+  <bean name="studentDao" class="com.harmony.umbrella.examples.data.dao.StudentDaoImpl">
+    <property name="entityManager" ref="entityManager"/>
+  </bean>
+
+  <bean name="entityManager" class="org.springframework.orm.jpa.support.SharedEntityManagerBean" scope="prototype">
+    <property name="entityManagerFactory" ref="entityManagerFactory" />
   </bean>
 
   <tx:annotation-driven transaction-manager="transactionManager" />
 
   <bean name="jdbc/moon" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
-    <!-- <property name="driverClassName" value="com.mysql.jdbc.Driver" />
-    <property name="url" value="jdbc:mysql://localhost:3306/moon" /> -->
     <property name="driverClassName" value="org.h2.Driver" />
     <property name="url" value="jdbc:h2:file:~/.h2/moon/data" />
     <property name="username" value="moon" />
@@ -38,7 +40,7 @@
 
   <bean name="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
     <property name="dataSource" ref="jdbc/moon" />
-    <property name="persistenceUnitName" value="moon" />
+    <property name="persistenceUnitName" value="umbrella" />
     <property name="persistenceXmlLocation" value="META-INF/persistence.xml" />
   </bean>
 

@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.StringTokenizer;
 
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
@@ -28,6 +29,7 @@ import javax.persistence.Query;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaDelete;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Root;
 
@@ -469,8 +471,20 @@ public abstract class DaoSupport implements Dao {
     }
 
     protected List<Order> toOrders(Sort sort, Root<?> root, CriteriaBuilder builder) {
-        // TODO TO orders
+        List<Order> result = new ArrayList<Order>();
+        for (Sort.Order order : sort) {
+            result.add(toJpaOrder(order, root, builder));
+        }
         return new ArrayList<Order>();
+    }
+
+    private static javax.persistence.criteria.Order toJpaOrder(Sort.Order order, Root<?> root, CriteriaBuilder cb) {
+        Expression<?> expression = null;
+        StringTokenizer token = new StringTokenizer(order.getProperty(), ".");
+        while (token.hasMoreElements()) {
+            expression = root.get(token.nextToken());
+        }
+        return order.isAscending() ? cb.asc(expression) : cb.desc(expression);
     }
 
     protected <T extends Query> T applyParameterToQuery(T query, Object[] parameters) {

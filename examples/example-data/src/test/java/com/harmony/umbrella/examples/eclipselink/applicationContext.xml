@@ -25,6 +25,14 @@
     </property>
   </bean>
 
+  <bean name="studentDao" class="com.harmony.umbrella.examples.data.dao.StudentDaoImpl">
+    <property name="entityManager">
+      <bean class="org.springframework.orm.jpa.support.SharedEntityManagerBean">
+        <property name="entityManagerFactory" ref="entityManagerFactory" />
+      </bean>
+    </property>
+  </bean>
+
   <tx:annotation-driven transaction-manager="transactionManager" />
 
   <bean name="jdbc/moon" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
@@ -48,7 +56,7 @@
   <bean name="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
     <property name="dataSource" ref="jdbc/moon" />
     <property name="persistenceUnitName" value="moon.eclipselink" />
-    <property name="jpaVendorAdapter" ref="jpaVendorAdapter"/>
+    <property name="jpaVendorAdapter" ref="jpaVendorAdapter" />
     <property name="persistenceXmlLocation" value="META-INF/persistence.xml" />
   </bean>
 

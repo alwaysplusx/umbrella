@@ -43,13 +43,20 @@ import com.harmony.umbrella.examples.data.persistence.Teacher;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = "applicationContext.xml")
-public class EclipseTeacherTest {
+public class EclipselinkTest {
 
     @Autowired
     private TeacherDao teacherDao;
 
     @PersistenceContext(unitName = "moon.eclipselink")
     private EntityManager em;
+
+    @Test
+    public void testSetUp() {
+        assertNotNull(em);
+        Object result = em.createNativeQuery("select 1 from dual").getSingleResult();
+        assertEquals("1", String.valueOf(result));
+    }
 
     @Test
     public void testFindAll() {
@@ -89,4 +96,5 @@ public class EclipseTeacherTest {
         Teacher teacher = em.createQuery(query).getSingleResult();
         assertNotNull(teacher);
     }
+
 }

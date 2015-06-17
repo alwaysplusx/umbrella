@@ -19,6 +19,8 @@ import static org.junit.Assert.*;
 
 import java.util.List;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
@@ -41,10 +43,20 @@ import com.harmony.umbrella.examples.data.persistence.Teacher;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = "applicationContext.xml")
-public class HibernateTeacherTest {
+public class HibernateTest {
 
     @Autowired
     private TeacherDao teacherDao;
+
+    @PersistenceContext(unitName = "moon.hibernate")
+    private EntityManager em;
+
+    @Test
+    public void testSetUp() {
+        assertNotNull(em);
+        Object result = em.createNativeQuery("select 1 from dual").getSingleResult();
+        assertEquals("1", String.valueOf(result));
+    }
 
     @Test(expected = LazyInitializationException.class)
     public void testFindAll() {

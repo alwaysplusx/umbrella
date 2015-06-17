@@ -13,32 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.umbrella.examples.eclipselink;
+package com.harmony.umbrella.examples.data.dao;
 
 import static org.junit.Assert.*;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import com.harmony.umbrella.examples.data.persistence.Student;
 
 /**
  * @author wuxii@foxmail.com
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = "applicationContext.xml")
-public class EclipselinkJpaSetUpTest {
+@ContextConfiguration(locations = "classpath:/applicationContext.xml")
+public class StudentDaoTest {
 
-    @PersistenceContext(unitName = "moon.eclipselink")
-    private EntityManager em;
+    @Autowired
+    private StudentDao stuDao;
 
     @Test
-    public void testSetUp() {
-        assertNotNull(em);
-        Object result = em.createNativeQuery("select 1 from dual").getSingleResult();
-        assertEquals("1", String.valueOf(result));
+    public void testFindOne() {
+        Student stu = stuDao.findOne(1l);
+        assertNotNull(stu);
     }
+
 }

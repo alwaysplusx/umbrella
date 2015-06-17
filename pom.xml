@@ -497,26 +497,36 @@
   </distributionManagement>
 
   <build>
-  
-    <!-- <resources>
-      
+
+    <resources>
       <resource>
+        <filtering>true</filtering>
         <directory>src/main/java</directory>
-        <filtering>true</filtering>
         <includes>
-          <include>**/*.xml,**/*.java</include>
+          <include>**/*.xml</include>
+          <include>**/*.properties</include>
         </includes>
       </resource>
-          
       <resource>
-        <directory>src/test/java</directory>
         <filtering>true</filtering>
-        <includes>
-          <include>**/*.xml,**/*.java</include>
-        </includes>
+        <directory>src/main/resources</directory>
       </resource>
-      
-    </resources> -->
+    </resources>
+
+    <testResources>
+      <testResource>
+        <filtering>true</filtering>
+        <directory>src/test/resources</directory>
+      </testResource>
+      <testResource>
+        <filtering>true</filtering>
+        <directory>src/test/java</directory>
+        <includes>
+          <include>**/*.xml</include>
+          <include>**/*.properties</include>
+        </includes>
+      </testResource>
+    </testResources>
 
     <plugins>
 
@@ -553,26 +563,7 @@
           <docencoding>${project.build.sourceEncoding}</docencoding>
         </configuration>
       </plugin>
-      
-      <!-- <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-resources-plugin</artifactId>
-        <version>2.7</version>
-        <executions>
-          <execution>
-            <id>copy-resources</id>
-            <phase>copy-resources</phase>
-            <goals>
-              <goal>copy-resources</goal>
-            </goals>
-            <configuration>
-              <encoding>UTF-8</encoding>
-              <outputDirectory>${project.build.outputDirectory}</outputDirectory>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin> -->
-      
+
       <!-- <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
