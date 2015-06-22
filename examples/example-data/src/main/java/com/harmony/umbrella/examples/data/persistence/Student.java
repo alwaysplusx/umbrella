@@ -16,6 +16,7 @@
 package com.harmony.umbrella.examples.data.persistence;
 
 import java.io.Serializable;
+import java.util.Calendar;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -24,6 +25,8 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 /**
  * @author wuxii@foxmail.com
@@ -39,6 +42,9 @@ public class Student implements Serializable {
     private Long studentId;
 
     private String studentName;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    private Calendar birthday;
 
     @ManyToOne
     @JoinColumn(name = "teacherId", referencedColumnName = "teacherId")
@@ -58,6 +64,14 @@ public class Student implements Serializable {
 
     public void setStudentName(String studentName) {
         this.studentName = studentName;
+    }
+
+    public Calendar getBirthday() {
+        return birthday;
+    }
+
+    public void setBirthday(Calendar birthday) {
+        this.birthday = birthday;
     }
 
     @Override

@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.StringTokenizer;
 
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
@@ -38,6 +37,7 @@ import com.harmony.umbrella.data.domain.Sort;
 import com.harmony.umbrella.data.jpa.provider.PersistenceProvider;
 import com.harmony.umbrella.data.query.EntityInformation;
 import com.harmony.umbrella.data.query.JpaEntityInformation;
+import com.harmony.umbrella.data.query.QueryUtils;
 import com.harmony.umbrella.util.Assert;
 
 /**
@@ -479,11 +479,7 @@ public abstract class DaoSupport implements Dao {
     }
 
     private static javax.persistence.criteria.Order toJpaOrder(Sort.Order order, Root<?> root, CriteriaBuilder cb) {
-        Expression<?> expression = null;
-        StringTokenizer token = new StringTokenizer(order.getProperty(), ".");
-        while (token.hasMoreElements()) {
-            expression = root.get(token.nextToken());
-        }
+        Expression<?> expression = QueryUtils.toExpressionRecursively(root, order.getProperty());
         return order.isAscending() ? cb.asc(expression) : cb.desc(expression);
     }
 

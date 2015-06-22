@@ -56,6 +56,13 @@ public class EclipselinkTest {
         assertNotNull(em);
         Object result = em.createNativeQuery("select 1 from dual").getSingleResult();
         assertEquals("1", String.valueOf(result));
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<Student> query = cb.createQuery(Student.class);
+        Root<Student> root = query.from(Student.class);
+        Predicate p1 = cb.and();
+        Predicate p2 = cb.equal(root.get("studentName"), "wuxii");
+        System.out.println(p1);
+        System.out.println(p2);
     }
 
     @Test

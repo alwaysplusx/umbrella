@@ -34,6 +34,17 @@ public @interface Monitored {
      */
     String operator() default "";
 
+    Level level() default Level.INFO;
+
+    /**
+     * 日志级别
+     * 
+     * @author wuxii@foxmail.com
+     */
+    enum Level {
+        TRACE, INFO, WARN, ERROR
+    }
+
     /**
      * 对监控对象内部数据的获取工具
      * 

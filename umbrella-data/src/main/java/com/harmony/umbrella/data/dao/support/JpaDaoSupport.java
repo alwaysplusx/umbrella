@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
@@ -49,7 +50,7 @@ public abstract class JpaDaoSupport<E, ID extends Serializable> extends DaoSuppo
     public static final String DELETE_ALL_QUERY_STRING = "delete from %s x";
 
     protected abstract EntityInformation<E, ID> getEntityInformation();
-    
+
     @Override
     public Page<E> findAll(Pageable pageable) {
 
@@ -213,6 +214,36 @@ public abstract class JpaDaoSupport<E, ID extends Serializable> extends DaoSuppo
     }
 
     @Override
+    public E findOneBySQL(String sql) {
+        return findOneBySQL(sql, getEntityInformation().getJavaType());
+    }
+
+    @Override
+    public E findOneBySQL(String sql, Map<String, Object> parameters) {
+        return findOneBySQL(sql, getEntityInformation().getJavaType(), parameters);
+    }
+
+    @Override
+    public E findOneBySQL(String sql, Object... parameters) {
+        return findOneBySQL(sql, getEntityInformation().getJavaType(), parameters);
+    }
+
+    @Override
+    public List<E> findAllBySQL(String sql) {
+        return findAllBySQL(sql, getEntityInformation().getJavaType());
+    }
+
+    @Override
+    public List<E> findAllBySQL(String sql, Map<String, Object> parameters) {
+        return findAllBySQL(sql, getEntityInformation().getJavaType(), parameters);
+    }
+
+    @Override
+    public List<E> findAllBySQL(String sql, Object... parameters) {
+        return findAllBySQL(sql, getEntityInformation().getJavaType(), parameters);
+    }
+
+    @Override
     public boolean exists(Specification<E> spec) {
         return executeCountQuery(getCountQuery(spec)) > 0;
     }
@@ -228,10 +259,10 @@ public abstract class JpaDaoSupport<E, ID extends Serializable> extends DaoSuppo
         if (sort != null) {
             query.orderBy(toOrders(sort, root, builder));
         }
-        
+
         return getEntityManager().createQuery(query);
     }
-    
+
     protected Page<E> readPage(TypedQuery<E> query, Pageable pageable, Specification<E> spec) {
         query.setFirstResult(pageable.getOffset());
         query.setMaxResults(pageable.getPageSize());
@@ -257,11 +288,11 @@ public abstract class JpaDaoSupport<E, ID extends Serializable> extends DaoSuppo
 
         return getEntityManager().createQuery(query);
     }
-    
+
     protected EntityInformation<E, ID> getEntityInformation(Class<E> entityClass) {
         return new JpaEntityInformation<E, ID>(entityClass, getEntityManager().getMetamodel());
     }
-    
+
     private <S> Root<E> applySpecificationToCriteria(Specification<E> spec, CriteriaQuery<S> query) {
 
         Assert.notNull(query);
@@ -277,7 +308,7 @@ public abstract class JpaDaoSupport<E, ID extends Serializable> extends DaoSuppo
         if (predicate != null) {
             query.where(predicate);
         }
-        
+
         if (root.getFetches().size() > 0 && !query.isDistinct()) {
             query.distinct(true);
         }

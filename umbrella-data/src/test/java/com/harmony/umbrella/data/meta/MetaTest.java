@@ -16,13 +16,14 @@
 package com.harmony.umbrella.data.meta;
 
 import java.io.Serializable;
-import java.util.StringTokenizer;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Expression;
+import javax.persistence.criteria.Path;
+import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.persistence.metamodel.Metamodel;
 
@@ -97,9 +98,26 @@ public class MetaTest {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<User> query = cb.createQuery(User.class);
         Root<User> root = query.from(User.class);
-        StringTokenizer tokenizer = new StringTokenizer("person.address", ".");
-        Expression<?> exp = QueryUtils.toExpressionRecursively(root, tokenizer);
+        Expression<?> exp = QueryUtils.toExpressionRecursively(root, "person.address");
         System.out.println(exp);
     }
 
+    @Test
+    public void testCriteriBuilder() {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<User> query = cb.createQuery(User.class);
+        Root<User> root = query.from(User.class);
+        Path<String> expression = root.get("username");
+        Predicate p1 = cb.equal(expression, "wuxii");
+        Predicate p2 = cb.equal(expression, "wuxii");
+        Predicate p3 = cb.and(p1, p2);
+        Predicate p4 = cb.and();
+        query.where(p4);
+        // query.groupBy();
+        em.createQuery(query).getResultList();
+        System.out.println(p1);
+        System.out.println(p2);
+        System.out.println(p3);
+        System.out.println(p4);
+    }
 }

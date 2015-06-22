@@ -397,23 +397,24 @@ public abstract class QueryUtils {
     }
 
     @SuppressWarnings("unchecked")
-    public static <T> Expression<T> toExpressionRecursively(From<?, ?> from, StringTokenizer token) {
+    public static <T> Expression<T> toExpressionRecursively(From<?, ?> from, String name) {
 
+        StringTokenizer token = new StringTokenizer(name, ".");
         Bindable<?> propertyPathModel = null;
         Expression<T> result = (Expression<T>) from;
 
         while (token.hasMoreTokens()) {
             Bindable<?> model = ((From<?, ?>) result).getModel();
-            String name = token.nextToken();
+            String currentName = token.nextToken();
             if (model instanceof ManagedType) {
-                propertyPathModel = (Bindable<?>) ((ManagedType<?>) model).getAttribute(name);
+                propertyPathModel = (Bindable<?>) ((ManagedType<?>) model).getAttribute(currentName);
             } else {
-                propertyPathModel = (((From<?, ?>) result).get(name)).getModel();
+                propertyPathModel = (((From<?, ?>) result).get(currentName)).getModel();
             }
             if (requiresJoin(propertyPathModel, model instanceof PluralAttribute)) {
-                result = (Expression<T>) getOrCreateJoin(from, name);
+                result = (Expression<T>) getOrCreateJoin(from, currentName);
             } else {
-                result = ((From<?, ?>) result).get(name);
+                result = ((From<?, ?>) result).get(currentName);
             }
         }
         return result;

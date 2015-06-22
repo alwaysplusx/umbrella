@@ -17,6 +17,7 @@ package com.harmony.umbrella.data.dao;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 
 import javax.persistence.EntityManager;
 
@@ -30,85 +31,98 @@ import com.harmony.umbrella.data.domain.Specification;
  */
 public interface JpaDao<T, ID extends Serializable> extends Dao {
 
-	Page<T> findAll(Pageable pageable);
+    Page<T> findAll(Pageable pageable);
 
-	Iterable<T> findAll(Sort sort);
+    Iterable<T> findAll(Sort sort);
 
-	long count();
+    long count();
 
-	void deleteAll();
+    void deleteAll();
 
-	T findOne(ID id);
+    T findOne(ID id);
 
-	List<T> findAll();
+    List<T> findAll();
 
-	List<T> findAll(Iterable<ID> ids);
+    List<T> findAll(Iterable<ID> ids);
 
-	void flush();
+    void flush();
 
-	T saveAndFlush(T entity);
+    T saveAndFlush(T entity);
 
-	void deleteInBatch(Iterable<T> entities);
+    void deleteInBatch(Iterable<T> entities);
 
-	void deleteAllInBatch();
+    void deleteAllInBatch();
 
-	boolean exists(ID id);
-	
-	boolean exists(Specification<T> spec);
-	
-	/**
-	 * Returns a reference to the entity with the given identifier.
-	 * 
-	 * @param id
-	 *            must not be {@literal null}.
-	 * @return a reference to the entity with the given identifier.
-	 * @see EntityManager#getReference(Class, Object)
-	 */
-	T getOne(ID id);
+    boolean exists(ID id);
 
-	/**
-	 * Returns a single entity matching the given {@link Specification}.
-	 * 
-	 * @param spec
-	 * @return
-	 */
-	T findOne(Specification<T> spec);
+    boolean exists(Specification<T> spec);
 
-	/**
-	 * Returns all entities matching the given {@link Specification}.
-	 * 
-	 * @param spec
-	 * @return
-	 */
-	List<T> findAll(Specification<T> spec);
+    /**
+     * Returns a reference to the entity with the given identifier.
+     * 
+     * @param id
+     *            must not be {@literal null}.
+     * @return a reference to the entity with the given identifier.
+     * @see EntityManager#getReference(Class, Object)
+     */
+    T getOne(ID id);
 
-	/**
-	 * Returns a {@link Page} of entities matching the given
-	 * {@link Specification}.
-	 * 
-	 * @param spec
-	 * @param pageable
-	 * @return
-	 */
-	Page<T> findAll(Specification<T> spec, Pageable pageable);
+    /**
+     * Returns a single entity matching the given {@link Specification}.
+     * 
+     * @param spec
+     * @return
+     */
+    T findOne(Specification<T> spec);
 
-	/**
-	 * Returns all entities matching the given {@link Specification} and
-	 * {@link Sort}.
-	 * 
-	 * @param spec
-	 * @param sort
-	 * @return
-	 */
-	List<T> findAll(Specification<T> spec, Sort sort);
+    /**
+     * Returns all entities matching the given {@link Specification}.
+     * 
+     * @param spec
+     * @return
+     */
+    List<T> findAll(Specification<T> spec);
 
-	/**
-	 * Returns the number of instances that the given {@link Specification} will
-	 * return.
-	 * 
-	 * @param spec
-	 *            the {@link Specification} to count instances for
-	 * @return the number of instances
-	 */
-	long count(Specification<T> spec);
+    /**
+     * Returns a {@link Page} of entities matching the given
+     * {@link Specification}.
+     * 
+     * @param spec
+     * @param pageable
+     * @return
+     */
+    Page<T> findAll(Specification<T> spec, Pageable pageable);
+
+    /**
+     * Returns all entities matching the given {@link Specification} and
+     * {@link Sort}.
+     * 
+     * @param spec
+     * @param sort
+     * @return
+     */
+    List<T> findAll(Specification<T> spec, Sort sort);
+
+    /**
+     * Returns the number of instances that the given {@link Specification} will
+     * return.
+     * 
+     * @param spec
+     *            the {@link Specification} to count instances for
+     * @return the number of instances
+     */
+    long count(Specification<T> spec);
+
+    T findOneBySQL(String sql);
+
+    T findOneBySQL(String sql, Map<String, Object> parameters);
+
+    T findOneBySQL(String sql, Object... parameters);
+
+    List<T> findAllBySQL(String sql);
+
+    List<T> findAllBySQL(String sql, Map<String, Object> parameters);
+
+    List<T> findAllBySQL(String sql, Object... parameters);
+
 }

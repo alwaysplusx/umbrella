@@ -1,193 +1,125 @@
 package com.harmony.umbrella.data.bond;
 
+import static com.harmony.umbrella.data.bond.Bond.Link.*;
+
+import java.util.Arrays;
 import java.util.Collection;
 
+import com.harmony.umbrella.data.bond.Bond.Link;
 import com.harmony.umbrella.data.domain.Sort;
+import com.harmony.umbrella.data.domain.Sort.Direction;
 
-/**
- * {@linkplain Bond}条件生成类(工厂类)
- * 
- * @author wuxii
- *
- */
-public interface BondBuilder {
+public class BondBuilder {
 
-    /**
-     * 生成equal条件的{@linkplain Bond}
-     * 
-     * @param name
-     *            字段名称
-     * @param value
-     *            值
-     * @return {@linkplain Bond}
-     */
-    Bond equal(String name, Object value);
+    public static BondBuilder newInstance() {
+        return new BondBuilder();
+    }
 
-    /**
-     * 生成not equal条件的{@linkplain Bond}
-     * 
-     * @param name
-     *            字段名称
-     * @param value
-     *            值
-     * @return {@linkplain Bond}
-     */
-    Bond notEqual(String name, Object value);
+    public Bond equal(String name, Object value) {
+        beforeBondCreate(name, value, EQUAL, false);
+        return afterBondCreated(new ComparisonBond(name, value, EQUAL));
+    }
 
-    /**
-     * 生成in条件的{@linkplain Bond}
-     * 
-     * @param name
-     *            字段名称
-     * @param c
-     *            值
-     * @return {@linkplain Bond}
-     */
-    Bond in(String name, Collection<?> c);
+    public Bond notEqual(String name, Object value) {
+        beforeBondCreate(name, value, NOT_EQUAL, false);
+        return afterBondCreated(new ComparisonBond(name, value, NOT_EQUAL));
+    }
 
-    /**
-     * 生成in条件的{@linkplain Bond}
-     * 
-     * @param name
-     *            字段名称
-     * @param values
-     *            值
-     * @return {@linkplain Bond}
-     */
-    Bond in(String name, Object... values);
+    public Bond in(String name, Collection<?> c) {
+        beforeBondCreate(name, c, IN, false);
+        return afterBondCreated(new InBond(name, c));
+    }
 
-    /**
-     * 生成not in条件的{@linkplain Bond}
-     * 
-     * @param name
-     *            字段名称
-     * @param c
-     *            值
-     * @return {@linkplain Bond}
-     */
-    Bond notIn(String name, Collection<?> c);
+    public Bond in(String name, Object... values) {
+        beforeBondCreate(name, values, IN, false);
+        return afterBondCreated(new InBond(name, Arrays.asList(values)));
+    }
 
-    /**
-     * 生成not in条件的{@linkplain Bond}
-     * 
-     * @param name
-     *            字段名称
-     * @param values
-     *            值
-     * @return {@linkplain Bond}
-     */
-    Bond notIn(String name, Object... values);
+    public Bond notIn(String name, Collection<?> c) {
+        beforeBondCreate(name, c, NOT_IN, false);
+        return afterBondCreated(new InBond(name, c, NOT_IN));
+    }
 
-    /**
-     * 生成is null条件的{@linkplain Bond}
-     * 
-     * @param name
-     *            字段名称
-     * @return {@linkplain Bond}
-     */
-    Bond isNull(String name);
+    public Bond notIn(String name, Object... values) {
+        beforeBondCreate(name, values, NOT_IN, false);
+        return afterBondCreated(new InBond(name, Arrays.asList(values), NOT_IN));
+    }
 
-    /**
-     * 生成is not null条件的{@linkplain Bond}
-     * 
-     * @param name
-     *            字段名称
-     * @return {@linkplain Bond}
-     */
-    Bond isNotNull(String name);
+    public Bond isNull(String name) {
+        beforeBondCreate(name, null, NULL, false);
+        return afterBondCreated(new NullBond(name));
+    }
 
-    /**
-     * 生成like条件的{@linkplain Bond}
-     * 
-     * @param name
-     *            字段名称
-     * @param value
-     *            值
-     * @return {@linkplain Bond}
-     */
-    Bond like(String name, String value);
+    public Bond isNotNull(String name) {
+        beforeBondCreate(name, null, NOT_NULL, false);
+        return afterBondCreated(new NullBond(name, NOT_NULL));
+    }
 
-    /**
-     * 生成not like条件的{@linkplain Bond}
-     * 
-     * @param name
-     *            字段名称
-     * @param value
-     *            值
-     * @return {@linkplain Bond}
-     */
-    Bond notLike(String name, String value);
+    public Bond like(String name, String value) {
+        beforeBondCreate(name, value, LIKE, false);
+        return afterBondCreated(new ComparisonBond(name, value, LIKE));
+    }
 
-    /**
-     * 生成great equal的{@linkplain Bond}
-     * 
-     * @param name
-     *            字段名称
-     * @param value
-     *            值
-     * @return {@linkplain Bond}
-     */
-    Bond ge(String name, Object value);
+    public Bond notLike(String name, String value) {
+        beforeBondCreate(name, value, NOT_LIKE, false);
+        return afterBondCreated(new ComparisonBond(name, value, NOT_LIKE));
+    }
 
-    /**
-     * 生成great than的{@linkplain Bond}
-     * 
-     * @param name
-     *            字段名称
-     * @param value
-     *            值
-     * @return {@linkplain Bond}
-     */
-    Bond gt(String name, Object value);
+    public Bond ge(String name, Object value) {
+        beforeBondCreate(name, value, GREATER_THAN_OR_EQUAL, false);
+        return afterBondCreated(new ComparisonBond(name, value, GREATER_THAN_OR_EQUAL));
+    }
 
-    /**
-     * 生成less equal的{@linkplain Bond}
-     * 
-     * @param name
-     *            字段名称
-     * @param value
-     *            值
-     * @return {@linkplain Bond}
-     */
-    Bond le(String name, Object value);
+    public Bond gt(String name, Object value) {
+        beforeBondCreate(name, value, GREATER_THAN, false);
+        return afterBondCreated(new ComparisonBond(name, value, GREATER_THAN));
+    }
 
-    /**
-     * 生成less than的{@linkplain Bond}
-     * 
-     * @param name
-     *            字段名称
-     * @param value
-     *            值
-     * @return {@linkplain Bond}
-     */
-    Bond lt(String name, Object value);
+    public Bond le(String name, Object value) {
+        beforeBondCreate(name, value, LESS_THAN_OR_EQUAL, false);
+        return afterBondCreated(new ComparisonBond(name, value, LESS_THAN_OR_EQUAL));
+    }
 
-    /**
-     * 生成between条件的{@linkplain Bond}
-     * 
-     * @param name
-     *            字段名称
-     * @param left
-     *            between左边值
-     * @param right
-     *            between右边值
-     * @return {@linkplain Bond}
-     */
-    Bond between(String name, Object left, Object right);
+    public Bond lt(String name, Object value) {
+        beforeBondCreate(name, value, LESS_THAN, false);
+        return afterBondCreated(new ComparisonBond(name, value, LESS_THAN));
+    }
 
-    /**
-     * 字段asc排序
-     * 
-     * @param name
-     * @return {@linkplain Sort}
-     */
-    Sort asc(String name);
+    public Bond inline(String name, String expression, Link link) {
+        beforeBondCreate(name, expression, link, true);
+        return afterBondCreated(new ComparisonBond(name, expression, link, true));
+    }
 
-    /**
-     * 字段desc排序
-     * 
-     * @param name
-     * @return {@linkplain Sort}
-     */
-    Sort desc(String name);
+    protected void beforeBondCreate(String name, Object value, Link link, boolean isInline) {
+
+    }
+
+    protected AbstractBond afterBondCreated(AbstractBond bond) {
+        return bond;
+    }
+
+    public Sort asc(String... name) {
+        return new Sort(Direction.ASC, name);
+    }
+
+    public Sort desc(String... name) {
+        return new Sort(Direction.DESC, name);
+    }
+
+    public Bond and(Bond... bonds) {
+        return new DisjunctionBond(Arrays.asList(bonds));
+    }
+
+    public Bond or(Bond... bonds) {
+        return new ConjunctionBond(Arrays.asList(bonds));
+    }
+
+    // public Bond conjunction() {
+    // return new Conjunction(AND, new ArrayList<Bond>());
+    // }
+    //
+    // public Bond disjunction() {
+    // return new Disjunction(OR, new ArrayList<Bond>());
+    // }
+
 }

@@ -174,6 +174,14 @@ public abstract class Assert {
 		}
 	}
 
+    public static void notBlank(String text) {
+        hasText(text);
+    }
+	
+    public static void notBlank(String text, String message) {
+        hasText(text, message);
+    }
+	
 	/**
 	 * Assert that the given String has valid text content; that is, it must not
 	 * be {@code null} and must contain at least one non-whitespace character.

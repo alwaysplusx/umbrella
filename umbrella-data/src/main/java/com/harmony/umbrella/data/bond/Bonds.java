@@ -15,16 +15,19 @@
  */
 package com.harmony.umbrella.data.bond;
 
-import org.junit.Test;
+import java.util.Arrays;
 
 /**
  * @author wuxii@foxmail.com
  */
-public class BondBuilderTest {
+public class Bonds {
 
-    @Test
-    public void testBetween() {
+    public static Bond and(Bond... bonds) {
+        return new DisjunctionBond(Arrays.asList(bonds));
+    }
 
+    public static Bond or(Bond... bonds) {
+        return new ConjunctionBond(Arrays.asList(bonds));
     }
 
 }

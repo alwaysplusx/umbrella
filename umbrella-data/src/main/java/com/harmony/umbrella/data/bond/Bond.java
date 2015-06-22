@@ -24,20 +24,6 @@ import java.io.Serializable;
  */
 public interface Bond extends Serializable {
 
-    String EQUAL = "=";
-    String NOT_EQAUL = "<>";
-    String IN = "in";
-    String NOT_IN = "not in";
-    String NULL = "is null";
-    String NOT_NULL = "is not null";
-    String LIKE = "like";
-    String NOT_LIKE = "not like";
-    String GREATER_EQUAL = ">=";
-    String GREATER_THAN = ">";
-    String LESS_EQUAL = "<=";
-    String LESS_THAN = "<";
-    String BETWEEN = "between";
-
     /**
      * 待查询的字段名称
      * 
@@ -57,22 +43,14 @@ public interface Bond extends Serializable {
      * 
      * @return 查询逻辑
      */
-    String getLink();
+    Link getLink();
 
     /**
-     * 为待查询字段生成的别名
+     * 对当前{@linkplain Bond}取反, 取反后返回新对象. 当前对象不受影响
      * 
-     * @return 字段别名
+     * @return
      */
-    String getAlias();
-
-    /**
-     * 设置字段别名
-     * 
-     * @param alias
-     *            字段别名
-     */
-    void setAlias(String alias);
+    Bond not();
 
     /**
      * 如果是{@code true}则表示{@linkplain #getName()}, {@linkplain #getValue()}
@@ -84,5 +62,165 @@ public interface Bond extends Serializable {
      * @return
      */
     boolean isInline();
+
+    String toSQL();
+
+    String toSQL(String tableAlias);
+
+    String toXQL(String nameAlias);
+
+    String toXQL(String tableAlias, String nameAlias);
+
+    enum Link {
+        EQUAL {
+
+            @Override
+            public Link negated() {
+                return NOT_EQUAL;
+            }
+
+            @Override
+            public String desc() {
+                return "=";
+            }
+        },
+        NOT_EQUAL {
+
+            @Override
+            public Link negated() {
+                return EQUAL;
+            }
+
+            @Override
+            public String desc() {
+                return "<>";
+            }
+        },
+        LESS_THAN {
+
+            @Override
+            public Link negated() {
+                return GREATER_THAN_OR_EQUAL;
+            }
+
+            @Override
+            public String desc() {
+                return "<";
+            }
+        },
+        LESS_THAN_OR_EQUAL {
+
+            @Override
+            public Link negated() {
+                return GREATER_THAN;
+            }
+
+            @Override
+            public String desc() {
+                return "<=";
+            }
+        },
+        GREATER_THAN {
+
+            @Override
+            public Link negated() {
+                return LESS_THAN_OR_EQUAL;
+            }
+
+            @Override
+            public String desc() {
+                return ">";
+            }
+        },
+        GREATER_THAN_OR_EQUAL {
+
+            @Override
+            public Link negated() {
+                return LESS_THAN;
+            }
+
+            @Override
+            public String desc() {
+                return ">=";
+            }
+        },
+        IN {
+
+            @Override
+            public Link negated() {
+                return NOT_IN;
+            }
+
+            @Override
+            public String desc() {
+                return "in";
+            }
+        },
+        NOT_IN {
+
+            @Override
+            public Link negated() {
+                return IN;
+            }
+
+            @Override
+            public String desc() {
+                return "not in";
+            }
+        },
+        NULL {
+
+            @Override
+            public Link negated() {
+                return NOT_NULL;
+            }
+
+            @Override
+            public String desc() {
+                return "is null";
+            }
+        },
+        NOT_NULL {
+
+            @Override
+            public Link negated() {
+                return NULL;
+            }
+
+            @Override
+            public String desc() {
+                return "is not null";
+            }
+        },
+        LIKE {
+
+            @Override
+            public Link negated() {
+                return NOT_LIKE;
+            }
+
+            @Override
+            public String desc() {
+                return "like";
+            }
+        },
+        NOT_LIKE {
+
+            @Override
+            public Link negated() {
+                return LIKE;
+            }
+
+            @Override
+            public String desc() {
+                return "not like";
+            }
+        };
+
+        public abstract Link negated();
+
+        public abstract String desc();
+
+    }
 
 }
