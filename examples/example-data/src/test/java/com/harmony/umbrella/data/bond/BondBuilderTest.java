@@ -37,7 +37,9 @@ import com.harmony.umbrella.examples.data.persistence.Student;
  * @author wuxii@foxmail.com
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = "classpath:/applicationContext.xml")
+//@ContextConfiguration(locations = "classpath:/applicationContext.xml")
+//@ContextConfiguration(locations = "classpath:/com/harmony/umbrella/examples/eclipselink/applicationContext.xml")
+@ContextConfiguration(locations = "classpath:/com/harmony/umbrella/examples/hibernate/applicationContext.xml")
 public class BondBuilderTest {
 
     private static final BondBuilder builder = new BondBuilder();
