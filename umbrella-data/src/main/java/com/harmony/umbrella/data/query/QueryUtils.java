@@ -21,10 +21,12 @@ import static javax.persistence.metamodel.Attribute.PersistentAttributeType.*;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Member;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -37,10 +39,12 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Parameter;
 import javax.persistence.Query;
+import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.From;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.JoinType;
+import javax.persistence.criteria.Root;
 import javax.persistence.metamodel.Attribute;
 import javax.persistence.metamodel.Attribute.PersistentAttributeType;
 import javax.persistence.metamodel.Bindable;
@@ -483,5 +487,14 @@ public abstract class QueryUtils {
         }
 
         return from.join(attribute, JoinType.LEFT);
+    }
+    
+    public static List<javax.persistence.criteria.Order> toJpaOrders(Sort sort, Root<?> root, CriteriaBuilder cb) {
+        List<javax.persistence.criteria.Order> result = new ArrayList<javax.persistence.criteria.Order>();
+        for (Sort.Order order : sort) {
+            Expression<?> expression = toExpressionRecursively(root, order.getProperty());
+            result.add(order.isAscending() ? cb.asc(expression) : cb.desc(expression));
+        }
+        return result;
     }
 }

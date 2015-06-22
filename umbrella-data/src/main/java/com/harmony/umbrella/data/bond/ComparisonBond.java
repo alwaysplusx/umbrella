@@ -22,10 +22,6 @@ public class ComparisonBond extends AbstractBond {
 
     private static final long serialVersionUID = 3853641833042801719L;
 
-    public ComparisonBond(String name, Link link) {
-        this(name, null, link);
-    }
-
     public ComparisonBond(String name, Object value, Link link) {
         super(name, value, link);
     }

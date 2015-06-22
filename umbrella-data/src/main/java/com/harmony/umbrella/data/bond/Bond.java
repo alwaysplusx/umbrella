@@ -63,15 +63,49 @@ public interface Bond extends Serializable {
      */
     boolean isInline();
 
+    /**
+     * 将{@linkplain Bond}转为最小单位的sql语句
+     * 
+     * @return sql
+     */
     String toSQL();
 
+    /**
+     * 将{@linkplain Bond}转为最小单位的sql语句, 并带有表的别名
+     * 
+     * @param tableAlias
+     *            表的别名
+     * @return sql
+     */
     String toSQL(String tableAlias);
 
+    /**
+     * 将{@linkplain Bond}转为最小单位的JPQL等类型的查询语句。 名称占位符
+     * 
+     * @param nameAlias
+     *            字段别名
+     * @return jpql, xql
+     */
     String toXQL(String nameAlias);
 
+    /**
+     * 将{@linkplain Bond}转为最小单位的JPQL等类型的查询语句。 名称占位符
+     * 
+     * @param tableAlias
+     *            表别名
+     * @param nameAlias
+     *            字段别名
+     * @return jpql, xql
+     */
     String toXQL(String tableAlias, String nameAlias);
 
+    /**
+     * SQL, JPQL中的连接关系
+     * 
+     * @author wuxii@foxmail.com
+     */
     enum Link {
+
         EQUAL {
 
             @Override
@@ -217,8 +251,18 @@ public interface Bond extends Serializable {
             }
         };
 
+        /**
+         * 对当前的link取反
+         * 
+         * @return 当前Link的反义
+         */
         public abstract Link negated();
 
+        /**
+         * 连接关系的字符
+         * 
+         * @return 连接字符
+         */
         public abstract String desc();
 
     }

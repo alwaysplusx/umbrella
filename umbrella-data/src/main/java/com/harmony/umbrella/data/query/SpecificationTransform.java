@@ -34,6 +34,7 @@ import javax.persistence.Table;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Expression;
+import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
@@ -44,6 +45,7 @@ import com.harmony.umbrella.data.bond.Bonds;
 import com.harmony.umbrella.data.bond.JunctionBond;
 import com.harmony.umbrella.data.bond.JunctionBond.AliasGenerator;
 import com.harmony.umbrella.data.bond.QBond;
+import com.harmony.umbrella.data.domain.Sort;
 import com.harmony.umbrella.data.domain.Specification;
 import com.harmony.umbrella.util.Assert;
 import com.harmony.umbrella.util.reflect.FieldUtils;
@@ -59,94 +61,94 @@ public class SpecificationTransform implements BondParser {
     protected static final String COUNT_QUERY_STRING = "select count(%s) from %s x";
     protected static final String DELETE_QUERY_STRING = "delete from %s";
 
-    public String toSQL(Class<?> domainClass, Bond... bonds) {
-        return toSQL(JpaUtils.getTableName(domainClass), bonds);
+    public String toSQL(Class<?> domainClass, Bond... bond) {
+        return toSQL(JpaUtils.getTableName(domainClass), bond);
     }
 
-    public String toCountSQL(Class<?> domainClass, Bond... bonds) {
-        return toCountSQL(JpaUtils.getTableName(domainClass), bonds);
+    public String toCountSQL(Class<?> domainClass, Bond... bond) {
+        return toCountSQL(JpaUtils.getTableName(domainClass), bond);
     }
 
-    public String toDeleteSQL(Class<?> domainClass, Bond... bonds) {
-        return toDeleteSQL(JpaUtils.getTableName(domainClass), bonds);
+    public String toDeleteSQL(Class<?> domainClass, Bond... bond) {
+        return toDeleteSQL(JpaUtils.getTableName(domainClass), bond);
     }
 
     @Override
-    public String toSQL(String tableName, Bond... bonds) {
+    public String toSQL(String tableName, Bond... bond) {
         Assert.notBlank(tableName, "table name must not be blank");
-        return toSQL(String.format(SELECT_QUERY_STRING, "*", tableName), DEFAULT_ALIAS, bonds);
+        return toSQL(String.format(SELECT_QUERY_STRING, "*", tableName), DEFAULT_ALIAS, bond);
     }
 
     @Override
-    public String toCountSQL(String tableName, Bond... bonds) {
+    public String toCountSQL(String tableName, Bond... bond) {
         Assert.notBlank(tableName, "table name must not be blank");
-        return toSQL(String.format(COUNT_QUERY_STRING, "*", tableName), DEFAULT_ALIAS, bonds);
+        return toSQL(String.format(COUNT_QUERY_STRING, "*", tableName), DEFAULT_ALIAS, bond);
     }
 
     @Override
-    public String toDeleteSQL(String tableName, Bond... bonds) {
+    public String toDeleteSQL(String tableName, Bond... bond) {
         Assert.notBlank(tableName, "table name must not be blank");
-        return toSQL(String.format(DELETE_QUERY_STRING, tableName), "", bonds);
+        return toSQL(String.format(DELETE_QUERY_STRING, tableName), "", bond);
     }
 
-    public QBond toXQL(Class<?> domainClass, Bond... bonds) {
-        return toXQL(JpaUtils.getEntityName(domainClass), bonds);
+    public QBond toXQL(Class<?> domainClass, Bond... bond) {
+        return toXQL(JpaUtils.getEntityName(domainClass), bond);
     }
 
-    public QBond toCountXQL(Class<?> domainClass, Bond... bonds) {
-        return toCountXQL(JpaUtils.getEntityName(domainClass), bonds);
+    public QBond toCountXQL(Class<?> domainClass, Bond... bond) {
+        return toCountXQL(JpaUtils.getEntityName(domainClass), bond);
     }
 
-    public QBond toDeleteXQL(Class<?> domainClass, Bond... bonds) {
-        return toDeleteXQL(JpaUtils.getEntityName(domainClass), bonds);
+    public QBond toDeleteXQL(Class<?> domainClass, Bond... bond) {
+        return toDeleteXQL(JpaUtils.getEntityName(domainClass), bond);
     }
 
     @Override
-    public QBond toXQL(String entityName, Bond... bonds) {
+    public QBond toXQL(String entityName, Bond... bond) {
         Assert.notBlank(entityName, "entity name must not be blank");
-        return toXQL(String.format(SELECT_QUERY_STRING, DEFAULT_ALIAS, entityName), DEFAULT_ALIAS, bonds);
+        return toXQL(String.format(SELECT_QUERY_STRING, DEFAULT_ALIAS, entityName), DEFAULT_ALIAS, bond);
     }
 
     @Override
-    public QBond toCountXQL(String entityName, Bond... bonds) {
+    public QBond toCountXQL(String entityName, Bond... bond) {
         Assert.notBlank(entityName, "entity name must not be blank");
-        return toXQL(String.format(COUNT_QUERY_STRING, DEFAULT_ALIAS, entityName), DEFAULT_ALIAS, bonds);
+        return toXQL(String.format(COUNT_QUERY_STRING, DEFAULT_ALIAS, entityName), DEFAULT_ALIAS, bond);
     }
 
     @Override
-    public QBond toDeleteXQL(String entityName, Bond... bonds) {
+    public QBond toDeleteXQL(String entityName, Bond... bond) {
         Assert.notBlank(entityName, "entity name must not be blank");
-        return toXQL(String.format(DELETE_QUERY_STRING, entityName), DEFAULT_ALIAS, bonds);
+        return toXQL(String.format(DELETE_QUERY_STRING, entityName), DEFAULT_ALIAS, bond);
     }
 
     @Override
-    public Predicate toPredicate(Root<?> root, CriteriaBuilder cb, Bond... bonds) {
-        if (bonds.length == 0) {
+    public Predicate toPredicate(Root<?> root, CriteriaBuilder cb, Bond... bond) {
+        if (bond.length == 0) {
             return cb.conjunction();
         }
-        Predicate predicate = toPredicate(root, cb, bonds[0]);
-        for (int i = 1, max = bonds.length; i < max; i++) {
-            predicate = cb.and(predicate, toPredicate(root, cb, bonds[i]));
+        Predicate predicate = toPredicate(root, cb, bond[0]);
+        for (int i = 1, max = bond.length; i < max; i++) {
+            predicate = cb.and(predicate, toPredicate(root, cb, bond[i]));
         }
         return predicate == null ? cb.conjunction() : predicate;
     }
 
     private static final SpecificationTransform st = new SpecificationTransform();
 
-    public static <T> Specification<T> toSpecification(Class<T> specClass, final Bond... bonds) {
+    public static <T> Specification<T> toSpecification(Class<T> specClass, final Bond... bond) {
         return new Specification<T>() {
             @Override
             public Predicate toPredicate(Root<T> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
-                return st.toPredicate(root, cb, bonds);
+                return st.toPredicate(root, cb, bond);
             }
         };
     }
 
-    public static <T> Specification<T> toSpecification(final Bond... bonds) {
+    public static <T> Specification<T> toSpecification(final Bond... bond) {
         return new Specification<T>() {
             @Override
             public Predicate toPredicate(Root<T> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
-                return st.toPredicate(root, cb, bonds);
+                return st.toPredicate(root, cb, bond);
             }
         };
     }
@@ -176,6 +178,48 @@ public class SpecificationTransform implements BondParser {
             result.add(toPredicate(root, cb, iterator.next()));
         }
         return result.toArray(new Predicate[result.size()]);
+    }
+
+    @Override
+    public List<Order> toJpaOrders(Sort sort, Root<?> root, CriteriaBuilder cb) {
+        return QueryUtils.toJpaOrders(sort, root, cb);
+    }
+
+    @Override
+    public String orderBy(Sort sort) {
+        return applySorting("", sort);
+    }
+
+    @Override
+    public String orderBy(Sort sort, String alias) {
+        return applySorting("", sort, alias);
+    }
+
+    public String toSQL(Class<?> domainClass, Sort sort, Bond... bond) {
+        return toSQL(JpaUtils.getTableName(domainClass), sort, bond);
+    }
+
+    @Override
+    public String toSQL(String tableName, Sort sort, Bond... bond) {
+        return applySorting(toSQL(tableName, bond), sort, DEFAULT_ALIAS);
+    }
+
+    public QBond toXQL(Class<?> domainClass, Sort sort, Bond... bond) {
+        return toXQL(JpaUtils.getEntityName(domainClass), sort, bond);
+    }
+
+    @Override
+    public QBond toXQL(String entityName, Sort sort, Bond... bond) {
+
+        StringBuilder buf = new StringBuilder(String.format(SELECT_QUERY_STRING, DEFAULT_ALIAS, entityName));
+
+        Map<String, Object> params = null;
+        if (bond != null && bond.length > 0) {
+            params = new HashMap<String, Object>();
+            buf.append(" where ").append(buildXQL(DEFAULT_ALIAS, params, bond));
+        }
+
+        return new QBond(applySorting(buf.toString(), sort, DEFAULT_ALIAS), params);
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
@@ -286,30 +330,30 @@ public class SpecificationTransform implements BondParser {
         throw new IllegalArgumentException("can't resolve bond [link=" + link + ", name=" + x + ", value=" + y + "]");
     }
 
-    private String toSQL(String query, String tableAlias, Bond... bonds) {
+    private String toSQL(String query, String tableAlias, Bond... bond) {
 
         StringBuilder buf = new StringBuilder(query);
 
-        if (bonds != null && bonds.length > 0) {
-            buf.append(" where ").append(Bonds.and(bonds).toSQL(tableAlias));
+        if (bond != null && bond.length > 0) {
+            buf.append(" where ").append(Bonds.and(bond).toSQL(tableAlias));
         }
 
         return buf.toString();
     }
 
-    private QBond toXQL(String query, String tableAlias, Bond... bonds) {
+    private QBond toXQL(String query, String tableAlias, Bond... bond) {
         StringBuilder buf = new StringBuilder(query);
 
         Map<String, Object> params = null;
-        if (bonds != null && bonds.length > 0) {
+        if (bond != null && bond.length > 0) {
             params = new HashMap<String, Object>();
-            buf.append(" where ").append(buildXQL(tableAlias, params, bonds));
+            buf.append(" where ").append(buildXQL(tableAlias, params, bond));
         }
         return new QBond(buf.toString(), params);
     }
 
-    private String buildXQL(String tableAlias, final Map<String, Object> params, Bond... bonds) {
-        if (bonds.length == 0)
+    private String buildXQL(String tableAlias, final Map<String, Object> params, Bond... bond) {
+        if (bond.length == 0)
             return "";
 
         StringBuilder buf = new StringBuilder();
@@ -334,12 +378,12 @@ public class SpecificationTransform implements BondParser {
 
         };
 
-        for (Bond bond : bonds) {
+        for (Bond b : bond) {
 
-            if (bond instanceof JunctionBond) {
-                buf.append(((JunctionBond) bond).toXQL(tableAlias, aliasGen));
+            if (b instanceof JunctionBond) {
+                buf.append(((JunctionBond) b).toXQL(tableAlias, aliasGen));
             } else {
-                buf.append(bond.toXQL(tableAlias, aliasGen.generateAlias(bond)));
+                buf.append(b.toXQL(tableAlias, aliasGen.generateAlias(b)));
             }
 
         }

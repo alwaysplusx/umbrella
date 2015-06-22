@@ -20,6 +20,8 @@ import com.harmony.umbrella.util.Assert;
 import com.harmony.umbrella.util.StringUtils;
 
 /**
+ * {@linkplain Bond}抽象
+ * 
  * @author wuxii@foxmail.com
  */
 public abstract class AbstractBond implements Bond {
@@ -40,10 +42,6 @@ public abstract class AbstractBond implements Bond {
     protected Class<?> domainClass;
     protected Object value;
     protected boolean inline;
-
-    public AbstractBond(String name, Link link) {
-        this(name, null, link);
-    }
 
     public AbstractBond(String name, Object value, Link link) {
         Assert.notNull(link, "link must not be null");
@@ -90,6 +88,12 @@ public abstract class AbstractBond implements Bond {
         }
     }
 
+    /**
+     * 返回value用sql值表示形式
+     * 
+     * @return sqlValue
+     * @see SQLFormat
+     */
     public String getSQLValue() {
         return isInline() ? getInlineExpression("") : SQLFormat.sqlValue(value);
     }
@@ -107,6 +111,13 @@ public abstract class AbstractBond implements Bond {
         return String.format(SQL_TEMPLATE_WITH_TABLE_ALIAS, tableAlias, name, link.desc(), isInline() ? getInlineExpression(tableAlias) : getSQLValue());
     }
 
+    /**
+     * sql如果是字段的内联关系的右边的字段名称
+     * 
+     * @param tableAlias
+     *            表的别名
+     * @return 内联右边字段值
+     */
     public String getInlineExpression(String tableAlias) {
         if (StringUtils.isBlank(tableAlias)) {
             return (String) getValue();

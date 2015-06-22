@@ -16,7 +16,6 @@
 package com.harmony.umbrella.data.bond;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -33,10 +32,6 @@ public abstract class JunctionBond implements Bond {
     protected final Operator operator;
     protected final List<Bond> bonds = new ArrayList<Bond>();
 
-    public JunctionBond(Operator operator) {
-        this(operator, Collections.<Bond> emptyList());
-    }
-
     public JunctionBond(Operator operator, List<Bond> bonds) {
         Assert.notNull(operator, "operator must not be null");
         this.operator = operator;
@@ -47,19 +42,19 @@ public abstract class JunctionBond implements Bond {
     @Override
     @Deprecated
     public String getName() {
-        return null;
+        return isInline() ? "1" : null;
     }
 
     @Override
     @Deprecated
     public Object getValue() {
-        return null;
+        return isInline() ? "1" : null;
     }
 
     @Override
     @Deprecated
     public Link getLink() {
-        return null;
+        return isInline() ? Link.EQUAL : null;
     }
 
     @Override

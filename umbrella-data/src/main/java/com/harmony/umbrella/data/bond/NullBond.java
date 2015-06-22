@@ -43,6 +43,8 @@ public class NullBond extends AbstractBond {
 
     private NullBond(String name, Link link, boolean inline, Class<?> domainClass) {
         super(name, null, link);
+        this.inline = inline;
+        this.domainClass = domainClass;
     }
 
     @Override
@@ -60,7 +62,7 @@ public class NullBond extends AbstractBond {
         if (StringUtils.isBlank(tableAlias)) {
             return toSQL();
         }
-        return String.format(NULL_SQL_TEMPLATE_WITH_TABLE_ALIAS, tableAlias, name, link.desc(), getSQLValue());
+        return String.format(NULL_SQL_TEMPLATE_WITH_TABLE_ALIAS, tableAlias, name, link.desc());
     }
 
     @Override

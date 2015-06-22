@@ -15,27 +15,42 @@
  */
 package com.harmony.umbrella.data.bond;
 
+import java.util.List;
+
 import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+
+import com.harmony.umbrella.data.domain.Sort;
 
 /**
  * @author wuxii@foxmail.com
  */
 public interface BondParser {
 
-    String toSQL(String tableName, Bond... bonds);
+    List<Order> toJpaOrders(Sort sort, Root<?> root, CriteriaBuilder cb);
 
-    String toCountSQL(String tableName, Bond... bonds);
+    String orderBy(Sort sort);
 
-    String toDeleteSQL(String tableName, Bond... bonds);
+    String orderBy(Sort sort, String alias);
 
-    QBond toXQL(String entityName, Bond... bonds);
+    String toSQL(String tableName, Bond... bond);
 
-    QBond toCountXQL(String entityName, Bond... bonds);
+    String toCountSQL(String tableName, Bond... bond);
 
-    QBond toDeleteXQL(String entityName, Bond... bonds);
+    String toDeleteSQL(String tableName, Bond... bond);
 
-    Predicate toPredicate(Root<?> root, CriteriaBuilder cb, Bond... bonds);
+    QBond toXQL(String entityName, Bond... bond);
+
+    QBond toCountXQL(String entityName, Bond... bond);
+
+    QBond toDeleteXQL(String entityName, Bond... bond);
+
+    String toSQL(String tableName, Sort sort, Bond... bond);
+
+    QBond toXQL(String entityName, Sort sort, Bond... bond);
+
+    Predicate toPredicate(Root<?> root, CriteriaBuilder cb, Bond... bond);
 
 }

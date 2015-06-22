@@ -38,10 +38,9 @@ public class InBond extends AbstractBond {
     }
 
     private InBond(String name, Object value, Link link, boolean inline, Class<?> domainClass) {
-        super(name, link);
+        super(name, value, link);
         this.domainClass = domainClass;
         this.inline = inline;
-        this.value = value;
     }
 
     @Override

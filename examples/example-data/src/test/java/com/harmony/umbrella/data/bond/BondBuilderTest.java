@@ -28,6 +28,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.harmony.umbrella.data.bond.Bond.Link;
+import com.harmony.umbrella.data.domain.Sort;
 import com.harmony.umbrella.data.query.SpecificationTransform;
 import com.harmony.umbrella.examples.data.dao.StudentDao;
 import com.harmony.umbrella.examples.data.persistence.Student;
@@ -156,15 +157,17 @@ public class BondBuilderTest {
     }
 
     @Test
-    @Ignore
     public void testAsc() {
-        fail("Not yet implemented");
+        Sort sort = builder.asc("studentName");
+        Bond bond = builder.equal("studentName", "stu1");
+        String sql = st.toSQL(Student.class, sort, bond);
+        System.err.println(sql);
+        assertNotNull(stuDao.findAllBySQL(sql));
     }
 
     @Test
     @Ignore
     public void testDesc() {
-        fail("Not yet implemented");
     }
 
     @Test
