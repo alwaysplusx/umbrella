@@ -21,6 +21,9 @@ import java.util.List;
 
 import org.springframework.util.Assert;
 
+import com.harmony.umbrella.data.query.QueryUtils;
+import com.harmony.umbrella.util.StringUtils;
+
 /**
  * @author wuxii@foxmail.com
  */
@@ -59,7 +62,7 @@ public abstract class JunctionBond implements Bond {
 
     @Override
     public boolean isInline() {
-        return bonds.size() == 0;
+        return bonds.isEmpty();
     }
 
     public Iterable<Bond> getBonds() {
@@ -81,34 +84,30 @@ public abstract class JunctionBond implements Bond {
 
     @Override
     public String toSQL(String tableAlias) {
-        if (isInline()) {
-            return "(1 = 1)";
+        if (bonds.isEmpty()) {
+            return QueryUtils.trueCondition();
         }
 
         if (bonds.size() == 1) {
             return bonds.get(0).toSQL(tableAlias);
         }
 
-        if (operator == null) {
-            throw new IllegalStateException("operator not set");
-        }
-
-        StringBuilder buf = new StringBuilder("(");
-
         Iterator<Bond> it = bonds.iterator();
+        
+        StringBuilder buf = new StringBuilder("( ");
         while (it.hasNext()) {
             buf.append(it.next().toSQL(tableAlias));
             if (it.hasNext()) {
                 buf.append(" ").append(operator.desc()).append(" ");
             }
         }
-        return buf.append(")").toString();
+        return buf.append(" )").toString();
     }
 
     public String toXQL(String tableAlias, AliasGenerator aliasGen) {
 
-        if (isInline()) {
-            return "(1 = 1)";
+        if (bonds.isEmpty()) {
+            return QueryUtils.trueCondition();
         }
 
         if (bonds.size() == 1) {
@@ -119,7 +118,7 @@ public abstract class JunctionBond implements Bond {
             return bond.toXQL(tableAlias, aliasGen.generateAlias(bond));
         }
 
-        StringBuilder buf = new StringBuilder("(");
+        StringBuilder buf = new StringBuilder("( ");
 
         Iterator<Bond> it = bonds.iterator();
 
@@ -137,7 +136,8 @@ public abstract class JunctionBond implements Bond {
                 buf.append(" ").append(operator.desc()).append(" ");
             }
         }
-        return buf.append(")").toString();
+        
+        return buf.append(" )").toString();
     }
 
     @Override
@@ -152,7 +152,7 @@ public abstract class JunctionBond implements Bond {
 
             @Override
             public String generateAlias(Bond bond) {
-                return nameAlias + (bond.getName() == null ? "" : "_" + bond.getName().replace(".", "")) + "_" + i++;
+                return nameAlias + (StringUtils.isBlank(bond.getName()) ? "" : "_" + bond.getName().replace(".", "")) + "_" + i++;
             }
 
         });

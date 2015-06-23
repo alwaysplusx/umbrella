@@ -15,6 +15,7 @@
  */
 package com.harmony.umbrella.data.query;
 
+import static com.harmony.umbrella.data.bond.Bond.Link.*;
 import static java.util.regex.Pattern.*;
 import static javax.persistence.metamodel.Attribute.PersistentAttributeType.*;
 
@@ -53,6 +54,8 @@ import javax.persistence.metamodel.PluralAttribute;
 
 import org.springframework.core.annotation.AnnotationUtils;
 
+import com.harmony.umbrella.data.bond.AbstractBond;
+import com.harmony.umbrella.data.bond.Bond;
 import com.harmony.umbrella.data.domain.Sort;
 import com.harmony.umbrella.data.domain.Sort.Order;
 import com.harmony.umbrella.util.Assert;
@@ -460,8 +463,21 @@ public abstract class QueryUtils {
         if (!(member instanceof AnnotatedElement)) {
             return true;
         }
-
-        Annotation annotation = AnnotationUtils.getAnnotation((AnnotatedElement) member, associationAnnotation);
+        
+        Annotation annotation = null;
+        AnnotatedElement annotatedElement = ((AnnotatedElement) member);
+        try {
+            annotation = annotatedElement.getAnnotation(associationAnnotation);
+            if (annotation == null) {
+                for (Annotation metaAnn : annotatedElement.getAnnotations()) {
+                    annotation = metaAnn.annotationType().getAnnotation(associationAnnotation);
+                    if (annotation != null) {
+                        break;
+                    }
+                }
+            }
+        } catch (Exception ex) {
+        }
         return annotation == null ? true : (Boolean) AnnotationUtils.getValue(annotation, "optional");
     }
 
@@ -488,7 +504,7 @@ public abstract class QueryUtils {
 
         return from.join(attribute, JoinType.LEFT);
     }
-    
+
     public static List<javax.persistence.criteria.Order> toJpaOrders(Sort sort, Root<?> root, CriteriaBuilder cb) {
         List<javax.persistence.criteria.Order> result = new ArrayList<javax.persistence.criteria.Order>();
         for (Sort.Order order : sort) {
@@ -497,4 +513,45 @@ public abstract class QueryUtils {
         }
         return result;
     }
+
+    public static String trueCondition() {
+        return "1 = 1";
+    }
+
+    public static String falseCondition() {
+        return "1 <> 1";
+    }
+
+    public static Bond trueBond() {
+        return new BooleanBond(true);
+    }
+
+    public static Bond falseBond() {
+        return new BooleanBond(false);
+    }
+
+    private static final class BooleanBond extends AbstractBond {
+
+        private static final long serialVersionUID = 8351121402796624988L;
+
+        public BooleanBond(boolean negated) {
+            super("1", "1", negated ? EQUAL : NOT_EQUAL);
+        }
+
+        private BooleanBond(Link link) {
+            super("1", "1", link);
+        }
+
+        @Override
+        public Bond not() {
+            return new BooleanBond(link.negated());
+        }
+
+        @Override
+        public boolean isInline() {
+            return true;
+        }
+
+    }
+
 }

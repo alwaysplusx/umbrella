@@ -208,4 +208,12 @@ public class BondBuilderTest {
         assertNotNull(stuDao.findAll(toSpecification(Student.class, bond)));
     }
 
+    @Test
+    public void testSpec() {
+        Bond bond = builder.and(builder.equal("studentName", "stu1"), builder.in("studentId", 1l, 2l));
+        QBond qBond = st.toXQL(Student.class, bond);
+        System.out.println(qBond);
+        assertNotNull(stuDao.findAll(qBond.getXQL(), qBond.getParams()));
+    }
+
 }
