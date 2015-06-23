@@ -28,13 +28,13 @@ public abstract class AbstractBond implements Bond {
 
     private static final long serialVersionUID = -3764032776378201348L;
 
-    protected static final String SQL_TEMPLATE_WITH_TABLE_ALIAS = "(%s.%s %s %s)";
+    private static final String SQL_TEMPLATE_WITH_TABLE_ALIAS = "%s.%s %s %s";
 
-    protected static final String XQL_TEMPLATE_WITH_TABLE_ALIAS = "(%s.%s %s :%s)";
+    private static final String XQL_TEMPLATE_WITH_TABLE_ALIAS = "%s.%s %s :%s";
 
-    protected static final String SQL_TEMPLATE = "(%s %s %s)";
+    private static final String SQL_TEMPLATE = "%s %s %s";
 
-    protected static final String XQL_TEMPLATE = "(%s %s :%s)";
+    private static final String XQL_TEMPLATE = "%s %s :%s";
 
     protected final String name;
     protected final Link link;

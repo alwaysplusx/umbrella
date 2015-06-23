@@ -26,10 +26,10 @@ public class NullBond extends AbstractBond {
 
     private static final long serialVersionUID = -7009203487387810846L;
 
-    private static final String NULL_SQL_TEMPLATE = "(%s %s)";
+    private static final String NULL_SQL_TEMPLATE = "%s %s";
     private static final String NULL_XQL_TEMPLATE = NULL_SQL_TEMPLATE;
 
-    protected static final String NULL_SQL_TEMPLATE_WITH_TABLE_ALIAS = "(%s.%s %s)";
+    protected static final String NULL_SQL_TEMPLATE_WITH_TABLE_ALIAS = "%s.%s %s";
 
     protected static final String NULL_XQL_TEMPLATE_WITH_TABLE_ALIAS = NULL_SQL_TEMPLATE_WITH_TABLE_ALIAS;
 

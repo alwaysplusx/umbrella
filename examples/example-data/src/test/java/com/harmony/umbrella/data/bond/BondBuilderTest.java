@@ -18,7 +18,13 @@ package com.harmony.umbrella.data.bond;
 import static com.harmony.umbrella.data.query.SpecificationTransform.*;
 import static org.junit.Assert.*;
 
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.List;
+
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 
 import org.junit.Ignore;
 import org.junit.Test;
@@ -37,8 +43,9 @@ import com.harmony.umbrella.examples.data.persistence.Student;
  * @author wuxii@foxmail.com
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-//@ContextConfiguration(locations = "classpath:/applicationContext.xml")
-//@ContextConfiguration(locations = "classpath:/com/harmony/umbrella/examples/eclipselink/applicationContext.xml")
+// @ContextConfiguration(locations = "classpath:/applicationContext.xml")
+// @ContextConfiguration(locations =
+// "classpath:/com/harmony/umbrella/examples/eclipselink/applicationContext.xml")
 @ContextConfiguration(locations = "classpath:/com/harmony/umbrella/examples/hibernate/applicationContext.xml")
 public class BondBuilderTest {
 
@@ -47,6 +54,9 @@ public class BondBuilderTest {
 
     @Autowired
     private StudentDao stuDao;
+
+    @PersistenceContext(unitName = "moon.hibernate")
+    private EntityManager em;
 
     @Test
     public void testEqual() {
@@ -74,13 +84,21 @@ public class BondBuilderTest {
         assertNotNull(stuDao.findAll(toSpecification(Student.class, bond)));
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void testHibernateIn() {
+        Query query = em.createQuery("select o from Student o where (o.studentId in :studentId)");
+        query.setParameter("studentId", Arrays.asList(1l, 2l));
+        @SuppressWarnings("unchecked")
+        List<Student> result = query.getResultList();
+        System.out.println(result);
+    }
+
     @Test
     public void testIn() {
         Bond bond = builder.in("studentId", 1l, 2l);
-        assertNotNull(stuDao.findAllBySQL(st.toSQL(Student.class, bond)));
+        // assertNotNull(stuDao.findAllBySQL(st.toSQL(Student.class, bond)));
         QBond qBond = st.toXQL(Student.class, bond);
         assertNotNull(stuDao.findAll(qBond.getXQL(), qBond.getParams()));
-        assertNotNull(stuDao.findAll(toSpecification(Student.class, bond)));
     }
 
     @Test
