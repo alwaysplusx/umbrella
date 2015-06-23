@@ -52,8 +52,8 @@ public class SpecificationTransformTest {
     @Test
     public void test() {
         Bond bond = builder.and(builder.in("userId", 1l));
-        QBond qbond = st.toXQL("User", bond);
-        List<User> result = simpleDao.findAll(qbond.getXQL(), qbond.getParams());
+        QBond qbond = st.toQBond("User", bond);
+        List<User> result = simpleDao.findAll(qbond.getQuery(), qbond.getParams());
         System.out.println(result);
     }
 
@@ -70,10 +70,9 @@ public class SpecificationTransformTest {
         Bond bond = builder.and(bond4, bond5);
 
         System.out.println(st.toSQL("t_user", bond));
-        System.out.println(st.toXQL("User", bond).getXQL());
-        System.out.println(st.toXQL("User", bond0, bond1, bond2, bond3).getXQL());
-        System.out.println(st.toXQL("User", Bonds.or(bond0, bond1, bond2, bond3)).getXQL());
+        System.out.println(st.toQBond("User", bond).getQuery());
+        System.out.println(st.toQBond("User", bond0, bond1, bond2, bond3).getQuery());
+        System.out.println(st.toQBond("User", Bonds.or(bond0, bond1, bond2, bond3)).getQuery());
 
     }
-
 }

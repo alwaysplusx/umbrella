@@ -19,19 +19,29 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
 
+import com.harmony.umbrella.data.query.SpecificationTransform.JpaUtils;
 import com.harmony.umbrella.util.Assert;
+import com.harmony.umbrella.util.StringUtils;
 
 /**
  * @author wuxii@foxmail.com
  */
 public class QBond {
 
-    private final String xql;
+    public static final String SELECT_QUERY_STRING = "select x from %s x";
+
+    public static final String COUNT_QUERY_STRING = "select count(x) from %s x";
+
+    public static final String DELETE_QUERY_STRING = "delete from %s x";
+
+    private final String entityName;
+    private final String query;
     private final Map<String, Object> params;
 
-    public QBond(String xql, Map<String, Object> params) {
-        Assert.notNull(xql, "xquery must not be null");
-        this.xql = xql;
+    public QBond(String entityName, String query, Map<String, Object> params) {
+        Assert.notBlank(entityName, "entity name must not be null");
+        this.entityName = entityName;
+        this.query = whereClause(query);
         if (params != null && !params.isEmpty()) {
             this.params = Collections.unmodifiableMap(params);
         } else {
@@ -39,12 +49,42 @@ public class QBond {
         }
     }
 
-    public String getXQL() {
-        return xql;
+    private String whereClause(String query) {
+        if (StringUtils.isBlank(query))
+            return "";
+        String lowerQuery = query.toLowerCase().trim();
+        if (lowerQuery.startsWith("where ")) {
+            return query.trim();
+        }
+        return "where " + query.trim();
+    }
+
+    public QBond(Class<?> domainClass, String query, Map<String, Object> params) {
+        this(JpaUtils.getEntityName(domainClass), query, params);
+    }
+
+    public String getEntityName() {
+        return entityName;
+    }
+
+    public String getQuery() {
+        return String.format(SELECT_QUERY_STRING, entityName) + " " + query;
+    }
+
+    public String getDeleteQuery() {
+        return String.format(DELETE_QUERY_STRING, entityName) + " " + query;
+    }
+
+    public String getCountQuery() {
+        return String.format(COUNT_QUERY_STRING, entityName) + " " + query;
     }
 
     public Iterator<String> paramKeys() {
         return params.keySet().iterator();
+    }
+
+    public boolean hasWhereClause() {
+        return StringUtils.isNotBlank(query);
     }
 
     public Object getValue(String key) {
@@ -53,11 +93,6 @@ public class QBond {
 
     public Map<String, Object> getParams() {
         return params;
-    }
-
-    @Override
-    public String toString() {
-        return "{" + xql + "\n" + params + "}";
     }
 
 }

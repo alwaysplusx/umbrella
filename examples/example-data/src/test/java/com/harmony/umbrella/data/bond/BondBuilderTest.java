@@ -65,8 +65,8 @@ public class BondBuilderTest {
         String sql = st.toSQL(Student.class, bond);
         assertNotNull(stuDao.findAllBySQL(sql, Student.class));
 
-        QBond qBond = st.toXQL(Student.class, bond);
-        assertNotNull(stuDao.findAll(qBond.getXQL(), qBond.getParams()));
+        QBond qBond = st.toQBond(Student.class, bond);
+        assertNotNull(stuDao.findAll(qBond.getQuery(), qBond.getParams()));
 
         assertNotNull(stuDao.findAll(toSpecification(Student.class, bond)));
     }
@@ -78,8 +78,8 @@ public class BondBuilderTest {
 
         assertNotNull(stuDao.findAllBySQL(st.toSQL(Student.class, bond)));
 
-        QBond qBond = st.toXQL(Student.class, bond);
-        assertNotNull(stuDao.findAll(qBond.getXQL(), qBond.getParams()));
+        QBond qBond = st.toQBond(Student.class, bond);
+        assertNotNull(stuDao.findAll(qBond.getQuery(), qBond.getParams()));
 
         assertNotNull(stuDao.findAll(toSpecification(Student.class, bond)));
     }
@@ -98,8 +98,8 @@ public class BondBuilderTest {
     public void testIn() {
         Bond bond = builder.in("studentId", 1l, 2l);
         // assertNotNull(stuDao.findAllBySQL(st.toSQL(Student.class, bond)));
-        QBond qBond = st.toXQL(Student.class, bond);
-        assertNotNull(stuDao.findAll(qBond.getXQL(), qBond.getParams()));
+        QBond qBond = st.toQBond(Student.class, bond);
+        assertNotNull(stuDao.findAll(qBond.getQuery(), qBond.getParams()));
     }
 
     @Test
@@ -111,8 +111,8 @@ public class BondBuilderTest {
     public void testIsNull() {
         Bond bond = builder.isNull("studentName");
         assertNotNull(stuDao.findAllBySQL(st.toSQL(Student.class, bond)));
-        QBond qBond = st.toXQL(Student.class, bond);
-        assertNotNull(stuDao.findAll(qBond.getXQL(), qBond.getParams()));
+        QBond qBond = st.toQBond(Student.class, bond);
+        assertNotNull(stuDao.findAll(qBond.getQuery(), qBond.getParams()));
         assertNotNull(stuDao.findAll(toSpecification(Student.class, bond)));
     }
 
@@ -125,8 +125,8 @@ public class BondBuilderTest {
     public void testLike() {
         Bond bond = builder.like("studentName", "%stu%");
         assertNotNull(stuDao.findAllBySQL(st.toSQL(Student.class, bond)));
-        QBond qBond = st.toXQL(Student.class, bond);
-        assertNotNull(stuDao.findAll(qBond.getXQL(), qBond.getParams()));
+        QBond qBond = st.toQBond(Student.class, bond);
+        assertNotNull(stuDao.findAll(qBond.getQuery(), qBond.getParams()));
         assertNotNull(stuDao.findAll(toSpecification(Student.class, bond)));
     }
 
@@ -139,14 +139,14 @@ public class BondBuilderTest {
     public void testGe() {
         Bond bond = builder.ge("studentId", 2l);
         assertNotNull(stuDao.findAllBySQL(st.toSQL(Student.class, bond)));
-        QBond qBond = st.toXQL(Student.class, bond);
-        assertNotNull(stuDao.findAll(qBond.getXQL(), qBond.getParams()));
+        QBond qBond = st.toQBond(Student.class, bond);
+        assertNotNull(stuDao.findAll(qBond.getQuery(), qBond.getParams()));
         assertNotNull(stuDao.findAll(toSpecification(Student.class, bond)));
 
         bond = builder.ge("birthday", Calendar.getInstance());
         // assertNotNull(stuDao.findAllBySQL(st.toSQL(Student.class, bond)));
-        qBond = st.toXQL(Student.class, bond);
-        assertNotNull(stuDao.findAll(qBond.getXQL(), qBond.getParams()));
+        qBond = st.toQBond(Student.class, bond);
+        assertNotNull(stuDao.findAll(qBond.getQuery(), qBond.getParams()));
         assertNotNull(stuDao.findAll(toSpecification(Student.class, bond)));
     }
 
@@ -171,8 +171,8 @@ public class BondBuilderTest {
         assertNotNull(stuDao.findAllBySQL(st.toSQL(Student.class, bond)));
 
         bond = builder.inline("studentId", "teacher.teacherId", Link.EQUAL);
-        QBond qBond = st.toXQL(Student.class, bond);
-        assertNotNull(stuDao.findAll(qBond.getXQL(), qBond.getParams()));
+        QBond qBond = st.toQBond(Student.class, bond);
+        assertNotNull(stuDao.findAll(qBond.getQuery(), qBond.getParams()));
 
         assertNotNull(stuDao.findAll(toSpecification(Student.class, bond)));
     }
@@ -195,8 +195,8 @@ public class BondBuilderTest {
     public void testAnd() {
         Bond bond = builder.and(builder.equal("studentName", "stu1"), builder.ge("studentId", 2l));
         assertNotNull(stuDao.findAllBySQL(st.toSQL(Student.class, bond)));
-        QBond qBond = st.toXQL(Student.class, bond);
-        assertNotNull(stuDao.findAll(qBond.getXQL(), qBond.getParams()));
+        QBond qBond = st.toQBond(Student.class, bond);
+        assertNotNull(stuDao.findAll(qBond.getQuery(), qBond.getParams()));
         assertNotNull(stuDao.findAll(toSpecification(Student.class, bond)));
     }
 
@@ -204,17 +204,17 @@ public class BondBuilderTest {
     public void testOr() {
         Bond bond = builder.or(builder.equal("studentName", "stu1"), builder.ge("studentId", 2l));
         assertNotNull(stuDao.findAllBySQL(st.toSQL(Student.class, bond)));
-        QBond qBond = st.toXQL(Student.class, bond);
-        assertNotNull(stuDao.findAll(qBond.getXQL(), qBond.getParams()));
+        QBond qBond = st.toQBond(Student.class, bond);
+        assertNotNull(stuDao.findAll(qBond.getQuery(), qBond.getParams()));
         assertNotNull(stuDao.findAll(toSpecification(Student.class, bond)));
     }
 
     @Test
     public void testSpec() {
         Bond bond = builder.and(builder.equal("studentName", "stu1"), builder.in("studentId", 1l, 2l));
-        QBond qBond = st.toXQL(Student.class, bond);
+        QBond qBond = st.toQBond(Student.class, bond);
         System.out.println(qBond);
-        assertNotNull(stuDao.findAll(qBond.getXQL(), qBond.getParams()));
+        assertNotNull(stuDao.findAll(qBond.getQuery(), qBond.getParams()));
     }
 
 }

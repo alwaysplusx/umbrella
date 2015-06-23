@@ -130,23 +130,32 @@ public abstract class JunctionBond implements Bond {
             if (it.hasNext()) {
                 buf.append(" ").append(operator.desc()).append(" ");
             }
-            
+
         }
 
+        // BUG FIX for hibernate multi value if param :id) end with ')' not
+        // append '(' ')'
         if (isOr() && isEndWithMultiValue()) {
             buf.append(" or ").append(QueryUtils.falseCondition());
         }
-        
+
         return buf.append(isOr() ? ")" : "").toString();
     }
 
+    /**
+     * if last one bond of {@linkplain JunctionBond#getBonds()}, value is array
+     * or collection, return true
+     */
     private boolean isEndWithMultiValue() {
         if (bonds.isEmpty())
             return false;
-        Object endValue = bonds.get(0).getValue();
+        Object endValue = bonds.get(bonds.size() - 1).getValue();
         return endValue.getClass().isArray() || endValue instanceof Collection;
     }
 
+    /**
+     * if instance of {@link JunctionBond} iterator it to parseXQL
+     */
     private String parseXQL(Bond bond, String tableAlias, AliasGenerator aliasGen) {
         if (bond instanceof JunctionBond) {
             return ((JunctionBond) bond).toXQL(tableAlias, aliasGen);
@@ -185,6 +194,11 @@ public abstract class JunctionBond implements Bond {
         return toSQL();
     }
 
+    /**
+     * and or
+     * 
+     * @author wuxii@foxmail.com
+     */
     public enum Operator {
 
         AND("and") {
@@ -206,16 +220,30 @@ public abstract class JunctionBond implements Bond {
             this.desc = desc;
         }
 
+        /**
+         * {@linkplain Operator}的字符描述
+         */
         public String desc() {
             return desc;
         }
 
+        /**
+         * 对当前的{@linkplain Operator}取反
+         */
         protected abstract Operator negated();
 
     }
 
+    /**
+     * 别名生成
+     * 
+     * @author wuxii@foxmail.com
+     */
     public interface AliasGenerator {
 
+        /**
+         * 根据{@linkplain Bond}生成一个别名
+         */
         String generateAlias(Bond bond);
 
     }

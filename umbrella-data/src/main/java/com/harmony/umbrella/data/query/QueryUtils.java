@@ -68,8 +68,8 @@ public abstract class QueryUtils {
 
     public static final String COUNT_QUERY_STRING = "select count(%s) from %s x";
     public static final String DELETE_ALL_QUERY_STRING = "delete from %s x";
-
-    private static final String DEFAULT_ALIAS = "x";
+    public static final String DEFAULT_ALIAS = "x";
+    
     private static final String COUNT_REPLACEMENT_TEMPLATE = "select count(%s) $5$6$7";
     private static final String SIMPLE_COUNT_VALUE = "$2";
     private static final String COMPLEX_COUNT_VALUE = "$3$6";

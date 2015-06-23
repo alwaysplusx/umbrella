@@ -25,32 +25,126 @@ import javax.persistence.criteria.Root;
 import com.harmony.umbrella.data.domain.Sort;
 
 /**
+ * {@linkplain Bond}解析工具
+ * 
  * @author wuxii@foxmail.com
  */
 public interface BondParser {
 
+    /**
+     * 将{@linkplain Sort}转为JPA {@linkplain Order}
+     * 
+     * @param sort
+     *            排序
+     * @param root
+     *            {@linkplain Root}
+     * @param cb
+     *            {@linkplain CriteriaBuilder}
+     * @return {@linkplain Order}
+     */
     List<Order> toJpaOrders(Sort sort, Root<?> root, CriteriaBuilder cb);
 
+    /**
+     * 将{@linkplain Sort}转为order by 语句
+     * 
+     * @param sort
+     *            排序
+     * @return order by sql
+     */
     String orderBy(Sort sort);
 
+    /**
+     * 将{@linkplain Sort}转为order by 语句
+     * 
+     * @param sort
+     *            排序
+     * @param alias
+     *            表别名
+     * @return order by sql
+     */
     String orderBy(Sort sort, String alias);
 
+    /**
+     * 将{@linkplain Bond}解析为查询的SQL语句
+     * 
+     * @param tableName
+     *            表名
+     * @param bond
+     *            bond条件
+     * @return select sql
+     */
     String toSQL(String tableName, Bond... bond);
 
+    /**
+     * 将{@linkplain Bond}解析为统计的SQL语句
+     * 
+     * @param tableName
+     *            表名
+     * @param bond
+     *            bond条件
+     * @return count sql
+     */
     String toCountSQL(String tableName, Bond... bond);
 
+    /**
+     * 将{@linkplain Bond}解析为删除的SQL语句
+     * 
+     * @param tableName
+     *            表名
+     * @param bond
+     *            bond条件
+     * @return delete sql
+     */
     String toDeleteSQL(String tableName, Bond... bond);
 
-    QBond toXQL(String entityName, Bond... bond);
+    /**
+     * 将{@linkplain Bond}解析为{@linkplain QBond}
+     * 
+     * @param entityName
+     *            entity名称
+     * @param bond
+     *            bond条件
+     * @return {@linkplain QBond}
+     */
+    QBond toQBond(String entityName, Bond... bond);
 
-    QBond toCountXQL(String entityName, Bond... bond);
+    /**
+     * {@linkplain Bond} to {@linkplain Predicate}JPA 2.0 查询条件转化
+     * 
+     * @param root
+     *            {@linkplain Root}
+     * @param cb
+     *            {@linkplain CriteriaBuilder}
+     * @param bond
+     *            bond条件
+     * @return {@linkplain Predicate}
+     */
+    Predicate toPredicate(Root<?> root, CriteriaBuilder cb, Bond... bond);
 
-    QBond toDeleteXQL(String entityName, Bond... bond);
-
+    /**
+     * 带排序条件的{@linkplain Bond}SQL转化
+     * 
+     * @param tableName
+     *            表名
+     * @param sort
+     *            排序条件
+     * @param bond
+     *            bond条件
+     * @return select sql
+     */
     String toSQL(String tableName, Sort sort, Bond... bond);
 
-    QBond toXQL(String entityName, Sort sort, Bond... bond);
-
-    Predicate toPredicate(Root<?> root, CriteriaBuilder cb, Bond... bond);
+    /**
+     * 带排序条件的{@linkplain Bond} -> {@linkplain QBond}转化
+     * 
+     * @param entityName
+     *            entity名称
+     * @param sort
+     *            排序条件
+     * @param bond
+     *            bond条件
+     * @return {@link QBond}
+     */
+    QBond toQBond(String entityName, Sort sort, Bond... bond);
 
 }
