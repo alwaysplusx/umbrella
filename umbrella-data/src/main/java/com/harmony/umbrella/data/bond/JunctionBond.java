@@ -16,6 +16,7 @@
 package com.harmony.umbrella.data.bond;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
@@ -132,7 +133,18 @@ public abstract class JunctionBond implements Bond {
             
         }
 
+        if (isOr() && isEndWithMultiValue()) {
+            buf.append(" or ").append(QueryUtils.falseCondition());
+        }
+        
         return buf.append(isOr() ? ")" : "").toString();
+    }
+
+    private boolean isEndWithMultiValue() {
+        if (bonds.isEmpty())
+            return false;
+        Object endValue = bonds.get(0).getValue();
+        return endValue.getClass().isArray() || endValue instanceof Collection;
     }
 
     private String parseXQL(Bond bond, String tableAlias, AliasGenerator aliasGen) {

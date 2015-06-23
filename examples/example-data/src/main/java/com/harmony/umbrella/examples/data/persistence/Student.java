@@ -43,6 +43,8 @@ public class Student implements Serializable {
 
     private String studentName;
 
+    private Integer age;
+
     @Temporal(TemporalType.TIMESTAMP)
     private Calendar birthday;
 
@@ -64,6 +66,22 @@ public class Student implements Serializable {
 
     public void setStudentName(String studentName) {
         this.studentName = studentName;
+    }
+
+    public Integer getAge() {
+        return age;
+    }
+
+    public void setAge(Integer age) {
+        this.age = age;
+    }
+
+    public Teacher getTeacher() {
+        return teacher;
+    }
+
+    public void setTeacher(Teacher teacher) {
+        this.teacher = teacher;
     }
 
     public Calendar getBirthday() {

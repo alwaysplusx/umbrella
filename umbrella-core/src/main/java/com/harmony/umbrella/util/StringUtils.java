@@ -48,7 +48,7 @@ import java.util.StringTokenizer;
  * @since 16 April 2001
  */
 public abstract class StringUtils {
-
+    
     private static final String FOLDER_SEPARATOR = "/";
 
     private static final String WINDOWS_FOLDER_SEPARATOR = "\\";

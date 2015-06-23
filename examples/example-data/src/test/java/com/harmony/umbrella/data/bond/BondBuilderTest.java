@@ -85,6 +85,7 @@ public class BondBuilderTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
+    @Ignore
     public void testHibernateIn() {
         Query query = em.createQuery("select o from Student o where (o.studentId in :studentId)");
         query.setParameter("studentId", Arrays.asList(1l, 2l));

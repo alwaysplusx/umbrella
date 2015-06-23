@@ -1,4 +1,4 @@
-package com.harmony.umbrella.data.query;
+package com.harmony.umbrella.data.sql;
 
 import static com.harmony.umbrella.util.Formats.*;
 
@@ -10,11 +10,25 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.Properties;
 
+/**
+ * @author wuxii@foxmail.com
+ */
 public abstract class SQLFormat {
 
     public static final String DATE_PATTERN = DEFAULT_DATE_PATTERN;
 
     private static final String PATTERN_KEY = "date.format.pattern";
+
+    public static String format(String sql, FormatStyle style) {
+        if (style == null) {
+            style = FormatStyle.BASIC;
+        }
+        return style.getFormatter().format(sql);
+    }
+
+    public static String format(String sql) {
+        return format(sql, FormatStyle.BASIC);
+    }
 
     public static String sqlValue(Object value) {
         return sqlValue(value, new Properties());

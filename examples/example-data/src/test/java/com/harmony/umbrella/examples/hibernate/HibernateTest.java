@@ -84,4 +84,5 @@ public class HibernateTest {
             System.out.println(stu);
         }
     }
+
 }

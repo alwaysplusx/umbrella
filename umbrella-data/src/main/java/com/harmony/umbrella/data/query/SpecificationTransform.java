@@ -39,6 +39,9 @@ import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.harmony.umbrella.data.bond.Bond;
 import com.harmony.umbrella.data.bond.Bond.Link;
 import com.harmony.umbrella.data.bond.BondParser;
@@ -48,6 +51,7 @@ import com.harmony.umbrella.data.bond.JunctionBond.AliasGenerator;
 import com.harmony.umbrella.data.bond.QBond;
 import com.harmony.umbrella.data.domain.Sort;
 import com.harmony.umbrella.data.domain.Specification;
+import com.harmony.umbrella.data.sql.SQLFormat;
 import com.harmony.umbrella.util.Assert;
 import com.harmony.umbrella.util.reflect.FieldUtils;
 
@@ -362,7 +366,9 @@ public class SpecificationTransform implements BondParser {
             buf.append(" where ").append(Bonds.and(bond).toSQL(tableAlias));
         }
 
-        return buf.toString();
+        String result = buf.toString();
+        logStatement("\nSQL:", result);
+        return result;
     }
 
     private QBond toXQL(String query, String tableAlias, Bond... bond) {
@@ -374,7 +380,9 @@ public class SpecificationTransform implements BondParser {
             buf.append(" where ").append(buildXQL(tableAlias, params, bond));
         }
 
-        return new QBond(buf.toString(), params);
+        QBond result = new QBond(buf.toString(), params);
+        logStatement("\nHQL:", result.getXQL());
+        return result;
     }
 
     private String buildXQL(String tableAlias, final Map<String, Object> params, Bond... bond) {
@@ -404,6 +412,14 @@ public class SpecificationTransform implements BondParser {
             }
 
         });
+    }
+
+    private static final Logger log = LoggerFactory.getLogger("com.harmony.umbrella.data.SQL");
+
+    private void logStatement(String message, String sql) {
+        if (log.isDebugEnabled()) {
+            log.debug("{} {}", message, SQLFormat.format(sql));
+        }
     }
 
     public static class JpaUtils {
