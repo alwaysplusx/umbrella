@@ -44,10 +44,16 @@ public abstract class AbstractBond implements Bond {
     protected boolean inline;
 
     public AbstractBond(String name, Object value, Link link) {
+        this(name, value, link, false, null);
+    }
+
+    public AbstractBond(String name, Object value, Link link, boolean inline, Class<?> domainClass) {
         Assert.notNull(link, "link must not be null");
         this.name = name;
         this.value = value;
         this.link = link;
+        this.inline = inline;
+        this.domainClass = domainClass;
     }
 
     @Override
@@ -127,6 +133,17 @@ public abstract class AbstractBond implements Bond {
 
     @Override
     public String toXQL(String nameAlias) {
+        if (isInline()) {
+            return toSQL();
+        }
+        if (StringUtils.isBlank(nameAlias)) {
+            throw new IllegalArgumentException("name alias must not be null");
+        }
+        /* FIXME Hibernate with multi value, such as (Array, Collection)
+         *        when HQL like :
+         *          select o from User o where (o.userId in :userId or o.age in :age) and o.username = :username 
+         *        the second in condition parse by @org.hibernate.internal.util.StringHelper#replace not append "(" and ")"
+         */
         return String.format(XQL_TEMPLATE, name, link.desc(), nameAlias);
     }
 

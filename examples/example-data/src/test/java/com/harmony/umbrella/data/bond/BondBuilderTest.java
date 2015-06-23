@@ -50,7 +50,7 @@ import com.harmony.umbrella.examples.data.persistence.Student;
 public class BondBuilderTest {
 
     private static final BondBuilder builder = new BondBuilder();
-    private static final SpecificationTransform st = new SpecificationTransform();
+    private static final SpecificationTransform st = SpecificationTransform.getInstance();
 
     @Autowired
     private StudentDao stuDao;

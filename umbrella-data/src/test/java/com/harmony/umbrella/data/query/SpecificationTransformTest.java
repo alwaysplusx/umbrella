@@ -28,6 +28,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.harmony.umbrella.data.bond.Bond;
 import com.harmony.umbrella.data.bond.BondBuilder;
+import com.harmony.umbrella.data.bond.Bonds;
 import com.harmony.umbrella.data.bond.QBond;
 import com.harmony.umbrella.data.dao.Dao;
 import com.harmony.umbrella.data.persistence.User;
@@ -40,7 +41,7 @@ import com.harmony.umbrella.data.persistence.User;
 public class SpecificationTransformTest {
 
     private static final BondBuilder builder = new BondBuilder();
-    private static final SpecificationTransform st = new SpecificationTransform();
+    private static final SpecificationTransform st = SpecificationTransform.getInstance();
 
     @PersistenceContext
     private EntityManager em;
@@ -54,6 +55,25 @@ public class SpecificationTransformTest {
         QBond qbond = st.toXQL("User", bond);
         List<User> result = simpleDao.findAll(qbond.getXQL(), qbond.getParams());
         System.out.println(result);
+    }
+
+    public static void main(String[] args) {
+        Bond bond0 = builder.equal("username", "wuxii");
+        Bond bond1 = builder.equal("userId", 12l);
+        Bond bond2 = builder.equal("username", "a");
+        Bond bond3 = builder.equal("userId", 12l);
+
+        Bond bond4 = builder.or(bond0, bond1);
+
+        Bond bond5 = builder.or(bond2, bond3);
+
+        Bond bond = builder.and(bond4, bond5);
+
+        System.out.println(st.toSQL("t_user", bond));
+        System.out.println(st.toXQL("User", bond).getXQL());
+        System.out.println(st.toXQL("User", bond0, bond1, bond2, bond3).getXQL());
+        System.out.println(st.toXQL("User", Bonds.or(bond0, bond1, bond2, bond3)).getXQL());
+
     }
 
 }

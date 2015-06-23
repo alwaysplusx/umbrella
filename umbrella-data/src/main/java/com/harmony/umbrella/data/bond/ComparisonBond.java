@@ -27,14 +27,11 @@ public class ComparisonBond extends AbstractBond {
     }
 
     ComparisonBond(String name, Object value, Link link, boolean inline) {
-        super(name, value, link);
-        this.inline = inline;
+        super(name, value, link, inline, null);
     }
 
     private ComparisonBond(String name, Object value, Link link, boolean inline, Class<?> domainClass) {
-        super(name, value, link);
-        this.inline = inline;
-        this.domainClass = domainClass;
+        super(name, value, link, inline, domainClass);
     }
 
     @Override

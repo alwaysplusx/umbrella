@@ -29,10 +29,6 @@ public class InBond extends AbstractBond {
     private static final String IN_SQL_TEMPLATE = "%s %s (%s)";
     protected static final String IN_SQL_TEMPLATE_WITH_TABLE_ALIAS = "%s.%s %s (%s)";
 
-    // private static final String XQL_TEMPLATE = "(%s %s (:%s))";
-    // private static final String XQL_TEMPLATE_WITH_TABLE_ALIAS =
-    // "(%s.%s %s (:%s))";
-
     public InBond(String name, Object value) {
         super(name, value, IN);
     }
@@ -42,9 +38,7 @@ public class InBond extends AbstractBond {
     }
 
     private InBond(String name, Object value, Link link, boolean inline, Class<?> domainClass) {
-        super(name, value, link);
-        this.domainClass = domainClass;
-        this.inline = inline;
+        super(name, value, link, inline, domainClass);
     }
 
     @Override
@@ -64,23 +58,5 @@ public class InBond extends AbstractBond {
         }
         return String.format(IN_SQL_TEMPLATE_WITH_TABLE_ALIAS, tableAlias, name, link.desc(), getSQLValue());
     }
-
-    /*public String toXQL(String nameAlias) {
-        return String.format(XQL_TEMPLATE, name, link.desc(), nameAlias);
-    }
-
-    @Override
-    public String toXQL(String tableAlias, String nameAlias) {
-        if (StringUtils.isBlank(tableAlias)) {
-            return toXQL(nameAlias);
-        }
-        if (isInline()) {
-            return toSQL(tableAlias);
-        }
-        if (StringUtils.isBlank(nameAlias)) {
-            throw new IllegalArgumentException("name alias must not be null");
-        }
-        return String.format(XQL_TEMPLATE_WITH_TABLE_ALIAS, tableAlias, name, link.desc(), nameAlias);
-    }*/
 
 }

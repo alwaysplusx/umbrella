@@ -22,11 +22,11 @@ import java.util.Arrays;
  */
 public class Bonds {
 
-    public static Bond and(Bond... bonds) {
+    public static JunctionBond and(Bond... bonds) {
         return new DisjunctionBond(Arrays.asList(bonds));
     }
 
-    public static Bond or(Bond... bonds) {
+    public static JunctionBond or(Bond... bonds) {
         return new ConjunctionBond(Arrays.asList(bonds));
     }
 

@@ -16,6 +16,7 @@
 package com.harmony.umbrella.data.query;
 
 import static com.harmony.umbrella.data.query.QueryUtils.*;
+import static com.harmony.umbrella.data.query.SpecificationTransform.JpaUtils.*;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -58,19 +59,37 @@ public class SpecificationTransform implements BondParser {
     protected static final String DEFAULT_ALIAS = "x";
 
     protected static final String SELECT_QUERY_STRING = "select %s from %s x";
+
     protected static final String COUNT_QUERY_STRING = "select count(%s) from %s x";
+
     protected static final String DELETE_QUERY_STRING = "delete from %s";
 
+    private static SpecificationTransform INSTANCE;
+
+    private SpecificationTransform() {
+    }
+
+    public static SpecificationTransform getInstance() {
+        if (INSTANCE == null) {
+            synchronized (SpecificationTransform.class) {
+                if (INSTANCE == null) {
+                    INSTANCE = new SpecificationTransform();
+                }
+            }
+        }
+        return INSTANCE;
+    }
+
     public String toSQL(Class<?> domainClass, Bond... bond) {
-        return toSQL(JpaUtils.getTableName(domainClass), bond);
+        return toSQL(getTableName(domainClass), bond);
     }
 
     public String toCountSQL(Class<?> domainClass, Bond... bond) {
-        return toCountSQL(JpaUtils.getTableName(domainClass), bond);
+        return toCountSQL(getTableName(domainClass), bond);
     }
 
     public String toDeleteSQL(Class<?> domainClass, Bond... bond) {
-        return toDeleteSQL(JpaUtils.getTableName(domainClass), bond);
+        return toDeleteSQL(getTableName(domainClass), bond);
     }
 
     @Override
@@ -92,15 +111,15 @@ public class SpecificationTransform implements BondParser {
     }
 
     public QBond toXQL(Class<?> domainClass, Bond... bond) {
-        return toXQL(JpaUtils.getEntityName(domainClass), bond);
+        return toXQL(getEntityName(domainClass), bond);
     }
 
     public QBond toCountXQL(Class<?> domainClass, Bond... bond) {
-        return toCountXQL(JpaUtils.getEntityName(domainClass), bond);
+        return toCountXQL(getEntityName(domainClass), bond);
     }
 
     public QBond toDeleteXQL(Class<?> domainClass, Bond... bond) {
-        return toDeleteXQL(JpaUtils.getEntityName(domainClass), bond);
+        return toDeleteXQL(getEntityName(domainClass), bond);
     }
 
     @Override
@@ -133,24 +152,29 @@ public class SpecificationTransform implements BondParser {
         return predicate == null ? cb.conjunction() : predicate;
     }
 
-    private static final SpecificationTransform st = new SpecificationTransform();
+    public static <T> Specification<T> toSpecification(Class<T> resultClass, final Bond... bond) {
+        return toSpecification(resultClass, null, bond);
+    }
 
-    public static <T> Specification<T> toSpecification(Class<T> specClass, final Bond... bond) {
+    public static <T> Specification<T> toSpecification(Class<?> resultClass, final QueryProcessor processor, final Bond... bond) {
         return new Specification<T>() {
             @Override
             public Predicate toPredicate(Root<T> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
-                return st.toPredicate(root, cb, bond);
+                Predicate result = getInstance().toPredicate(root, cb, bond);
+                if (processor != null) {
+                    processor.process(query);
+                }
+                return result;
             }
         };
     }
 
+    public static <T> Specification<T> toSpecification(QueryProcessor processor, final Bond... bond) {
+        return toSpecification(Object.class, processor, bond);
+    }
+
     public static <T> Specification<T> toSpecification(final Bond... bond) {
-        return new Specification<T>() {
-            @Override
-            public Predicate toPredicate(Root<T> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
-                return st.toPredicate(root, cb, bond);
-            }
-        };
+        return toSpecification(Object.class, null, bond);
     }
 
     @SuppressWarnings("rawtypes")
@@ -349,46 +373,37 @@ public class SpecificationTransform implements BondParser {
             params = new HashMap<String, Object>();
             buf.append(" where ").append(buildXQL(tableAlias, params, bond));
         }
+
         return new QBond(buf.toString(), params);
     }
 
     private String buildXQL(String tableAlias, final Map<String, Object> params, Bond... bond) {
-        if (bond.length == 0)
+        if (bond == null || bond.length == 0)
             return "";
 
-        StringBuilder buf = new StringBuilder();
-
-        AliasGenerator aliasGen = new AliasGenerator() {
+        return Bonds.and(bond).toXQL(tableAlias, new AliasGenerator() {
             Map<String, Integer> aliasIndexMap = new HashMap<String, Integer>();
 
             @Override
             public String generateAlias(Bond bond) {
                 String name = bond.getName();
                 if (name == null || bond.getLink() == Link.NULL || bond.getLink() == Link.NOT_NULL || bond.isInline())
-                    return null;
+                    return "";
+
                 Integer index = aliasIndexMap.get(bond.getName());
                 if (index == null) {
                     index = 0;
                 }
-                String alias = name.replace(".", "_") + "_" + index++;
+
                 aliasIndexMap.put(name, index);
+
+                String alias = name.replace(".", "_") + "_" + index++;
                 params.put(alias, bond.getValue());
+
                 return alias;
             }
 
-        };
-
-        for (Bond b : bond) {
-
-            if (b instanceof JunctionBond) {
-                buf.append(((JunctionBond) b).toXQL(tableAlias, aliasGen));
-            } else {
-                buf.append(b.toXQL(tableAlias, aliasGen.generateAlias(b)));
-            }
-
-        }
-
-        return buf.toString();
+        });
     }
 
     public static class JpaUtils {
@@ -511,6 +526,15 @@ public class SpecificationTransform implements BondParser {
         public static boolean isEntity(Object obj) {
             return isEntityClass(obj.getClass());
         }
+
+    }
+
+    /**
+     * @author wuxii@foxmail.com
+     */
+    public interface QueryProcessor {
+
+        void process(CriteriaQuery<?> query);
 
     }
 

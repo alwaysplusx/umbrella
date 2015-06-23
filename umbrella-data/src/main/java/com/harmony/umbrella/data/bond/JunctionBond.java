@@ -77,6 +77,10 @@ public abstract class JunctionBond implements Bond {
         return operator == Operator.AND;
     }
 
+    public Operator getOperator() {
+        return operator;
+    }
+
     @Override
     public String toSQL() {
         return toSQL("");
@@ -93,15 +97,15 @@ public abstract class JunctionBond implements Bond {
         }
 
         Iterator<Bond> it = bonds.iterator();
-        
-        StringBuilder buf = new StringBuilder("( ");
+
+        StringBuilder buf = new StringBuilder(isOr() ? "(" : "");
         while (it.hasNext()) {
             buf.append(it.next().toSQL(tableAlias));
             if (it.hasNext()) {
                 buf.append(" ").append(operator.desc()).append(" ");
             }
         }
-        return buf.append(" )").toString();
+        return buf.append(isOr() ? ")" : "").toString();
     }
 
     public String toXQL(String tableAlias, AliasGenerator aliasGen) {
@@ -111,33 +115,31 @@ public abstract class JunctionBond implements Bond {
         }
 
         if (bonds.size() == 1) {
-            Bond bond = bonds.get(0);
-            if (bond instanceof JunctionBond) {
-                return ((JunctionBond) bond).toXQL(tableAlias, aliasGen);
-            }
-            return bond.toXQL(tableAlias, aliasGen.generateAlias(bond));
+            return parseXQL(bonds.get(0), tableAlias, aliasGen);
         }
 
-        StringBuilder buf = new StringBuilder("( ");
+        StringBuilder buf = new StringBuilder(isOr() ? "(" : "");
 
         Iterator<Bond> it = bonds.iterator();
 
         while (it.hasNext()) {
 
-            Bond bond = it.next();
-
-            if (bond instanceof JunctionBond) {
-                buf.append(((JunctionBond) bond).toXQL(tableAlias, aliasGen));
-            } else {
-                buf.append(bond.toXQL(tableAlias, aliasGen.generateAlias(bond)));
-            }
+            buf.append(parseXQL(it.next(), tableAlias, aliasGen));
 
             if (it.hasNext()) {
                 buf.append(" ").append(operator.desc()).append(" ");
             }
+            
         }
-        
-        return buf.append(" )").toString();
+
+        return buf.append(isOr() ? ")" : "").toString();
+    }
+
+    private String parseXQL(Bond bond, String tableAlias, AliasGenerator aliasGen) {
+        if (bond instanceof JunctionBond) {
+            return ((JunctionBond) bond).toXQL(tableAlias, aliasGen);
+        }
+        return bond.toXQL(tableAlias, aliasGen.generateAlias(bond));
     }
 
     @Override
@@ -156,6 +158,14 @@ public abstract class JunctionBond implements Bond {
             }
 
         });
+    }
+
+    public boolean isAnd() {
+        return Operator.AND == operator;
+    }
+
+    public boolean isOr() {
+        return Operator.OR == operator;
     }
 
     @Override

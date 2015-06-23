@@ -42,9 +42,7 @@ public class NullBond extends AbstractBond {
     }
 
     private NullBond(String name, Link link, boolean inline, Class<?> domainClass) {
-        super(name, null, link);
-        this.inline = inline;
-        this.domainClass = domainClass;
+        super(name, null, link, inline, domainClass);
     }
 
     @Override
