@@ -28,9 +28,6 @@ import javax.persistence.Query;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaDelete;
 import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Expression;
-import javax.persistence.criteria.Order;
-import javax.persistence.criteria.Root;
 
 import com.harmony.umbrella.data.dao.Dao;
 import com.harmony.umbrella.data.domain.Sort;
@@ -112,6 +109,11 @@ public abstract class DaoSupport implements Dao {
         return result;
     }
 
+    @Override
+    public boolean isNew(Object entity) {
+        return getEntityInformation(entity).isNew(entity);
+    }
+    
     @Override
     public <T> T saveOrUpdate(T entity) {
 
@@ -315,7 +317,7 @@ public abstract class DaoSupport implements Dao {
         query.from(entityClass);
 
         if (sort != null) {
-            query.orderBy(toOrders(sort, query.from(entityClass), builder));
+            query.orderBy(QueryUtils.toJpaOrders(sort, query.from(getDomainClass(entityClass)), builder));
         }
 
         return getEntityManager().createQuery(query).getResultList();
@@ -470,19 +472,6 @@ public abstract class DaoSupport implements Dao {
         return getEntityManager().createNativeQuery(sql).executeUpdate();
     }
 
-    protected List<Order> toOrders(Sort sort, Root<?> root, CriteriaBuilder builder) {
-        List<Order> result = new ArrayList<Order>();
-        for (Sort.Order order : sort) {
-            result.add(toJpaOrder(order, root, builder));
-        }
-        return new ArrayList<Order>();
-    }
-
-    private static javax.persistence.criteria.Order toJpaOrder(Sort.Order order, Root<?> root, CriteriaBuilder cb) {
-        Expression<?> expression = QueryUtils.toExpressionRecursively(root, order.getProperty());
-        return order.isAscending() ? cb.asc(expression) : cb.desc(expression);
-    }
-
     protected <T extends Query> T applyParameterToQuery(T query, Object[] parameters) {
         Assert.notNull(query, "query must not be null");
         if (parameters != null && parameters.length > 0) {
@@ -495,10 +484,16 @@ public abstract class DaoSupport implements Dao {
 
     protected <T extends Query> T applyParameterToQuery(T query, Map<String, Object> parameters) {
         Assert.notNull(query, "query must not be null");
-        if (parameters != null) {
+        if (parameters != null && !parameters.isEmpty()) {
             Iterator<String> keys = parameters.keySet().iterator();
             while (keys.hasNext()) {
                 String key = keys.next();
+                try {
+                    query.getParameter(key);
+                } catch (IllegalArgumentException e) {
+                    // ensure specified parameter name exist
+                    continue;
+                }
                 query.setParameter(key, parameters.get(key));
             }
         }

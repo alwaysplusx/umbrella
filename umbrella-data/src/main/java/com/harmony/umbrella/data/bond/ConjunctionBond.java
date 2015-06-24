@@ -18,6 +18,8 @@ package com.harmony.umbrella.data.bond;
 import java.util.List;
 
 /**
+ * 对内部的{@linkplain #getBonds()}通过{@linkplain Operator#OR}关联关系关联
+ * 
  * @author wuxii@foxmail.com
  */
 public class ConjunctionBond extends JunctionBond {

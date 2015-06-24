@@ -26,9 +26,10 @@ import com.harmony.umbrella.data.query.QueryUtils;
 import com.harmony.umbrella.util.StringUtils;
 
 /**
+ * 用于连接多个{@linkplain Bond}的Bond
+ * 
  * @author wuxii@foxmail.com
  */
-
 public abstract class JunctionBond implements Bond {
 
     private static final long serialVersionUID = 2484162931403228104L;

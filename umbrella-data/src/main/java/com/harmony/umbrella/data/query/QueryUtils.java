@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 wuxii@foxmail.com.
+ * Copyright 2002-2014 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -62,6 +62,8 @@ import com.harmony.umbrella.util.Assert;
 import com.harmony.umbrella.util.StringUtils;
 
 /**
+ * 查询工具类
+ * 
  * @author wuxii@foxmail.com
  */
 public abstract class QueryUtils {
@@ -69,7 +71,7 @@ public abstract class QueryUtils {
     public static final String COUNT_QUERY_STRING = "select count(%s) from %s x";
     public static final String DELETE_ALL_QUERY_STRING = "delete from %s x";
     public static final String DEFAULT_ALIAS = "x";
-    
+
     private static final String COUNT_REPLACEMENT_TEMPLATE = "select count(%s) $5$6$7";
     private static final String SIMPLE_COUNT_VALUE = "$2";
     private static final String COMPLEX_COUNT_VALUE = "$3$6";
@@ -463,7 +465,7 @@ public abstract class QueryUtils {
         if (!(member instanceof AnnotatedElement)) {
             return true;
         }
-        
+
         Annotation annotation = null;
         AnnotatedElement annotatedElement = ((AnnotatedElement) member);
         try {

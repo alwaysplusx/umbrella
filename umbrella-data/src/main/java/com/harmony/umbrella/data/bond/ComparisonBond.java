@@ -16,6 +16,9 @@
 package com.harmony.umbrella.data.bond;
 
 /**
+ * 可比较的{@linkplain Bond}. 一般通用型Bond, 可用于表示{@linkplain Link#EQUAL},
+ * {@linkplain Link#GREATER_THAN}等
+ * 
  * @author wuxii@foxmail.com
  */
 public class ComparisonBond extends AbstractBond {

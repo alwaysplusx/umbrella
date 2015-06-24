@@ -40,6 +40,7 @@ import com.harmony.umbrella.data.domain.Sort;
 import com.harmony.umbrella.data.domain.Specification;
 import com.harmony.umbrella.data.query.EntityInformation;
 import com.harmony.umbrella.data.query.JpaEntityInformation;
+import com.harmony.umbrella.data.query.QueryUtils;
 import com.harmony.umbrella.util.Assert;
 
 /**
@@ -257,7 +258,7 @@ public abstract class JpaDaoSupport<E, ID extends Serializable> extends DaoSuppo
         query.select(root);
 
         if (sort != null) {
-            query.orderBy(toOrders(sort, root, builder));
+            query.orderBy(QueryUtils.toJpaOrders(sort, root, builder));
         }
 
         return getEntityManager().createQuery(query);

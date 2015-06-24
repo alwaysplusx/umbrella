@@ -20,6 +20,8 @@ import static com.harmony.umbrella.data.bond.Bond.Link.*;
 import com.harmony.umbrella.util.StringUtils;
 
 /**
+ * {@linkplain Link#IN}关系的{@linkplain Bond}
+ * 
  * @author wuxii@foxmail.com
  */
 public class InBond extends AbstractBond {

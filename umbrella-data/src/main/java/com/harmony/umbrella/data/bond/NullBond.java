@@ -20,6 +20,8 @@ import static com.harmony.umbrella.data.bond.Bond.Link.*;
 import com.harmony.umbrella.util.StringUtils;
 
 /**
+ * {@linkplain Link#NULL}条件的Bond
+ * 
  * @author wuxii@foxmail.com
  */
 public class NullBond extends AbstractBond {
