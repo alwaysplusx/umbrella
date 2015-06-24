@@ -15,6 +15,7 @@
  */
 package com.harmony.umbrella.validator.util;
 
+import java.util.Iterator;
 import java.util.Set;
 
 import javax.validation.ConstraintViolation;
@@ -30,73 +31,79 @@ import javax.validation.groups.Default;
  */
 public abstract class ValidatorUtils {
 
-	// thread-safe
-	private static Validator validator;
+    // thread-safe
+    private static Validator validator;
 
-	/**
-	 * Returns an initialized {@link Validator} instance using the factory defaults for
-	 * message interpolator, traversable resolver and constraint validator factory. <p/>
-	 * Validator instances can be pooled and shared by the implementation.
-	 *
-	 * @return an initialized {@code Validator} instance
-	 * @see Validation#buildDefaultValidatorFactory()
-	 * @see ValidatorFactory#getValidator()
-	 */
-	public static Validator getValidator() {
-		if (validator == null) {
-			validator = getValidatorFactory().getValidator();
-		}
-		return validator;
-	}
+    /**
+     * Returns an initialized {@link Validator} instance using the factory
+     * defaults for message interpolator, traversable resolver and constraint
+     * validator factory.
+     * <p/>
+     * Validator instances can be pooled and shared by the implementation.
+     *
+     * @return an initialized {@code Validator} instance
+     * @see Validation#buildDefaultValidatorFactory()
+     * @see ValidatorFactory#getValidator()
+     */
+    public static Validator getValidator() {
+        if (validator == null) {
+            validator = getValidatorFactory().getValidator();
+        }
+        return validator;
+    }
 
-	private static ValidatorFactory getValidatorFactory() {
-		return Validation.buildDefaultValidatorFactory();
-	}
+    private static ValidatorFactory getValidatorFactory() {
+        return Validation.buildDefaultValidatorFactory();
+    }
 
-	/**
-	 * 检查bean的违规信息
-	 * 
-	 * @param object
-	 * @return 所有的违规信息用逗号({@code ,})隔开,如果没有违规信息返回{@code null}
-	 */
-	public static String getViolationMessage(Object object) {
-		return getViolationMessage(object, Default.class);
-	}
+    /**
+     * 检查bean的违规信息
+     * 
+     * @param object
+     * @return 所有的违规信息用逗号({@code ,})隔开,如果没有违规信息返回{@code null}
+     */
+    public static String getViolationMessage(Object object) {
+        return getViolationMessage(object, Default.class);
+    }
 
-	/**
-	 * 检查bean的违规信息
-	 * 
-	 * @param object
-	 * @param groups
-	 * @return
-	 */
-	public static String getViolationMessage(Object object, Class<?>... groups) {
-		StringBuilder sb = new StringBuilder();
-		Set<ConstraintViolation<Object>> cvs = getValidator().validate(object, groups);
-		for (ConstraintViolation<Object> cv : cvs) {
-			sb.append(", ").append(cv.getMessage());
-		}
-		return sb.length() == 0 ? null : sb.substring(2);
-	}
+    /**
+     * 检查bean的违规信息
+     * 
+     * @param object
+     * @param groups
+     * @return
+     */
+    public static String getViolationMessage(Object object, Class<?>... groups) {
+        StringBuilder buf = new StringBuilder();
+        Set<ConstraintViolation<Object>> cvs = getValidator().validate(object, groups);
+        Iterator<ConstraintViolation<Object>> it = cvs.iterator();
+        while (it.hasNext()) {
+            buf.append(it.next().getMessage());
+            if (it.hasNext()) {
+                buf.append(", ");
+            }
+        }
+        return buf.toString();
+    }
 
-	/**
-	 * 检查bean的违规信息条数
-	 * 
-	 * @param object
-	 * @return
-	 */
-	public static int getNumberOfViolations(Object object, Class<?>... groups) {
-		return getValidator().validate(object, groups).size();
-	}
+    /**
+     * 检查bean的违规信息条数
+     * 
+     * @param object
+     * @return
+     */
+    public static int getNumberOfViolations(Object object, Class<?>... groups) {
+        return getValidator().validate(object, groups).size();
+    }
 
-	/**
-	 * 检查bean是否违规
-	 * 
-	 * @param object
-	 * @return
-	 */
-	public static boolean isViolation(Object object, Class<?> groups) {
-		return getNumberOfViolations(object, groups) > 0;
-	}
+    /**
+     * 检查bean是否违规
+     * 
+     * @param object
+     * @return
+     */
+    public static boolean isViolation(Object object, Class<?> groups) {
+        return getNumberOfViolations(object, groups) > 0;
+    }
 
 }
