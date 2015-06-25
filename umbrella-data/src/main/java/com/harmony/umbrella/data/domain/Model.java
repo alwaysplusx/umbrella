@@ -28,10 +28,10 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 
-import com.harmony.umbrella.util.reflect.FieldUtils;
-import com.harmony.umbrella.util.reflect.FieldUtils.FieldFilter;
-import com.harmony.umbrella.util.reflect.MethodUtils;
-import com.harmony.umbrella.util.reflect.MethodUtils.MethodFilter;
+import com.harmony.umbrella.util.FieldUtils;
+import com.harmony.umbrella.util.MethodUtils;
+import com.harmony.umbrella.util.FieldUtils.FieldFilter;
+import com.harmony.umbrella.util.MethodUtils.MethodFilter;
 
 /**
  * @author wuxii@foxmail.com

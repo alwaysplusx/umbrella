@@ -128,7 +128,7 @@ public class SimpleJaxWsContext implements JaxWsContext, Serializable {
             for (Method method : serviceInterface.getMethods()) {
                 if (method.getName().equals(methodName)) {
                     Class<?>[] pattern = method.getParameterTypes();
-                    if (ClassUtils.typeEquals(pattern, types)) {
+                    if (ClassUtils.isAssignable(pattern, types)) {
                         return method;
                     }
                 }

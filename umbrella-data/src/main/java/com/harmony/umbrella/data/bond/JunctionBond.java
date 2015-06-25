@@ -133,10 +133,13 @@ public abstract class JunctionBond implements Bond {
             }
 
         }
-
-        // BUG FIX for hibernate multi value if param :id) end with ')' not
-        // append '(' ')'
         if (isOr() && isEndWithMultiValue()) {
+            /* 
+             * Hibernate with multi value, such as (Array, Collection)
+             * when HQL like :
+             *   select o from User o where (o.userId in :userId or o.age in :age) and o.username = :username 
+             * the second in condition parse by @org.hibernate.internal.util.StringHelper#replace not append "(" and ")"
+             */
             buf.append(" or ").append(QueryUtils.falseCondition());
         }
 
@@ -165,18 +168,23 @@ public abstract class JunctionBond implements Bond {
     }
 
     @Override
-    public String toXQL(String nameAlias) {
-        return toXQL("", nameAlias);
+    public String toXQL(String aliasPrefix) {
+        return toXQL("", aliasPrefix);
     }
 
     @Override
-    public String toXQL(String tableAlias, final String nameAlias) {
+    public String toXQL(String tableAlias, final String aliasPrefix) {
+        
+        final String prefix = StringUtils.isBlank(aliasPrefix) ? "" : aliasPrefix.trim() + "_";
+        
         return toXQL(tableAlias, new AliasGenerator() {
             int i = 0;
-
+            
             @Override
             public String generateAlias(Bond bond) {
-                return nameAlias + (StringUtils.isBlank(bond.getName()) ? "" : "_" + bond.getName().replace(".", "")) + "_" + i++;
+                String name = StringUtils.isBlank(bond.getName()) ? "" : bond.getName().replace(".", "");
+                
+                return prefix + name + "_" + i++;
             }
 
         });

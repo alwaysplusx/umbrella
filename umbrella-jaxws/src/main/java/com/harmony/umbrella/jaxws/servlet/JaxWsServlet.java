@@ -60,27 +60,31 @@ public class JaxWsServlet extends CXFNonSpringServlet {
     private ResourceScaner scaner = ResourceScaner.getInstance();
 
     @Override
-    public void init(ServletConfig sc) throws ServletException {
+    public void init(final ServletConfig sc) throws ServletException {
         super.init(sc);
-        try {
-            // TODO 从启动参数分割多个包进行扫描
-            Class<?>[] classes = scaner.scanPackage(getScanPackage(sc), new ClassFilter() {
-                @Override
-                public boolean accept(Class<?> clazz) {
-                    if (!ClassFilterFeature.NEWABLE.accept(clazz)) {
-                        return false;
-                    }
-                    if (clazz.getAnnotation(WebService.class) == null)
-                        return false;
-                    return true;
+
+        ClassFilter filter = new ClassFilter() {
+            @Override
+            public boolean accept(Class<?> clazz) {
+                if (!ClassFilterFeature.NEWABLE.accept(clazz)) {
+                    return false;
                 }
-            });
-            for (Class<?> clazz : classes) {
-                serverManager.publish(clazz, buildPath(sc, clazz));
+                if (clazz.getAnnotation(WebService.class) == null)
+                    return false;
+                // do publish in filter
+                serverManager.publish(clazz, buildServicePath(sc, clazz));
+                return true;
+            }
+        };
+
+        try {
+            String[] packages = getPackages(sc);
+            for (String pkg : packages) {
+                scaner.scanPackage(pkg, filter);
             }
         } catch (IOException e) {
             log.error("", e);
-        } finally {
+            throw new ServletException(e);
         }
     }
 
@@ -98,7 +102,7 @@ public class JaxWsServlet extends CXFNonSpringServlet {
 	 * &lt;/servlet&gt;
 	 * </pre>
      */
-    private String buildPath(ServletConfig sc, Class<?> c) {
+    private String buildServicePath(ServletConfig sc, Class<?> c) {
         String pathStyle = sc.getInitParameter(PATH_STYLE);
         if (pathStyle != null && "annotation".endsWith(pathStyle)) {
             return getPathFromAnnotation(c);
@@ -122,18 +126,22 @@ public class JaxWsServlet extends CXFNonSpringServlet {
      * 根据web.xml中filter的启动参数scan-package来设置扫描路径
      * 
      * <pre>
-	 * &lt;servlet&gt;
-	 *   &lt;servlet-name&gt;&lt;/servlet-name&gt;
-	 *   &lt;servlet-class&gt;&lt;/servlet-class&gt;
-	 *   &lt;init-param&gt;
-	 *     &lt;param-name&gt;scan-package&lt;/param-name&gt;
-	 *     &lt;param-value&gt;com.harmony&lt;/param-value&gt;
-	 *   &lt;/init-param&gt;
-	 * &lt;/servlet&gt;
-	 * </pre>
+     * &lt;servlet&gt;
+     *   &lt;servlet-name&gt;&lt;/servlet-name&gt;
+     *   &lt;servlet-class&gt;&lt;/servlet-class&gt;
+     *   &lt;init-param&gt;
+     *     &lt;param-name&gt;scan-package&lt;/param-name&gt;
+     *     &lt;param-value&gt;com.harmony&lt;/param-value&gt;
+     *   &lt;/init-param&gt;
+     * &lt;/servlet&gt;
+     * </pre>
      */
-    protected String getScanPackage(ServletConfig sc) {
-        return sc.getInitParameter(SCAN_PACKAGE) == null ? Constant.DEFAULT_PACKAGE : sc.getInitParameter(SCAN_PACKAGE);
+    protected String[] getPackages(ServletConfig sc) {
+        String pkgs = sc.getInitParameter(SCAN_PACKAGE);
+        if (pkgs == null) {
+            return new String[] { Constant.DEFAULT_PACKAGE };
+        }
+        return pkgs.split(",");
     }
 
 }

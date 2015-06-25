@@ -215,38 +215,38 @@ public class JaxWsHandlerMethodFinder {
         }
         switch (phase) {
         case PRE_INVOKE:
-            if (!typeEquals(serviceParamTypes, handleParamTypes)) {
+            if (!isAssignable(serviceParamTypes, handleParamTypes)) {
                 types.add(Map.class);
-                return typeEquals(types.toArray(new Class[types.size()]), handleParamTypes);
+                return isAssignable(types.toArray(new Class[types.size()]), handleParamTypes);
             }
             return true;
         case ABORT:
             types.add(0, JaxWsAbortException.class);
-            if (!typeEquals(types.toArray(new Class[types.size()]), handleParamTypes)) {
+            if (!isAssignable(types.toArray(new Class[types.size()]), handleParamTypes)) {
                 types.add(Map.class);
-                return typeEquals(types.toArray(new Class[types.size()]), handleParamTypes);
+                return isAssignable(types.toArray(new Class[types.size()]), handleParamTypes);
             }
             return true;
         case POST_INVOKE:
             types.add(0, getReturnType(serviceMethod));
-            if (!typeEquals(types.toArray(new Class[types.size()]), handleParamTypes)) {
+            if (!isAssignable(types.toArray(new Class[types.size()]), handleParamTypes)) {
                 types.add(Map.class);
-                return typeEquals(types.toArray(new Class[types.size()]), handleParamTypes);
+                return isAssignable(types.toArray(new Class[types.size()]), handleParamTypes);
             }
             return true;
         case THROWING:
             types.add(0, Exception.class);
-            if (!typeEquals(types.toArray(new Class[types.size()]), handleParamTypes)) {
+            if (!isAssignable(types.toArray(new Class[types.size()]), handleParamTypes)) {
                 types.add(Map.class);
-                return typeEquals(types.toArray(new Class[types.size()]), handleParamTypes);
+                return isAssignable(types.toArray(new Class[types.size()]), handleParamTypes);
             }
             return true;
         case FINALLY:
             types.add(0, Exception.class);
             types.add(1, getReturnType(serviceMethod));
-            if (!typeEquals(types.toArray(new Class[types.size()]), handleParamTypes)) {
+            if (!isAssignable(types.toArray(new Class[types.size()]), handleParamTypes)) {
                 types.add(Map.class);
-                return typeEquals(types.toArray(new Class[types.size()]), handleParamTypes);
+                return isAssignable(types.toArray(new Class[types.size()]), handleParamTypes);
             }
             return true;
         }

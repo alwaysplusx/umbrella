@@ -53,7 +53,7 @@ import com.harmony.umbrella.data.domain.Sort;
 import com.harmony.umbrella.data.domain.Specification;
 import com.harmony.umbrella.data.sql.SQLFormat;
 import com.harmony.umbrella.util.Assert;
-import com.harmony.umbrella.util.reflect.FieldUtils;
+import com.harmony.umbrella.util.MethodUtils;
 
 /**
  * @author wuxii@foxmail.com
@@ -487,9 +487,8 @@ public class SpecificationTransform implements BondParser {
             }
             Field field = idField(entityClass);
             if (field != null) {
-                String methodName = FieldUtils.toGetMethodName(field.getName());
                 try {
-                    method = entityClass.getMethod(methodName);
+                    method = MethodUtils.findReadMethod(entityClass, field);
                     idMethods.put(entityClass, method);
                     return method;
                 } catch (Exception e) {

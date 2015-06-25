@@ -29,22 +29,22 @@ public abstract class AbstractBond implements Bond {
     private static final long serialVersionUID = -3764032776378201348L;
 
     /**
-     * 带表别名的SQL模版 e.g. {@code x.id = '1'}
+     * 带表别名的SQL模版 e.g. {{@code x.id = '1'}}
      */
     private static final String SQL_TEMPLATE_WITH_TABLE_ALIAS = "%s.%s %s %s";
 
     /**
-     * 带表别名的XQL模版 e.g. {@ x.id = :id}
+     * 带表别名的XQL模版 e.g. {{@code x.id = :id}}
      */
     private static final String XQL_TEMPLATE_WITH_TABLE_ALIAS = "%s.%s %s :%s";
 
     /**
-     * SQL模版 e.g. {@code id = '1'}
+     * SQL模版 e.g. {{@code id = '1'}}
      */
     private static final String SQL_TEMPLATE = "%s %s %s";
 
     /**
-     * XQL模版 e.g. {@code id = :id}
+     * XQL模版 e.g. {{@code id = :id}}
      */
     private static final String XQL_TEMPLATE = "%s %s :%s";
 
@@ -151,11 +151,6 @@ public abstract class AbstractBond implements Bond {
         if (StringUtils.isBlank(nameAlias)) {
             throw new IllegalArgumentException("name alias must not be null");
         }
-        /* Hibernate with multi value, such as (Array, Collection)
-         * when HQL like :
-         *   select o from User o where (o.userId in :userId or o.age in :age) and o.username = :username 
-         * the second in condition parse by @org.hibernate.internal.util.StringHelper#replace not append "(" and ")"
-         */
         return String.format(XQL_TEMPLATE, name, link.desc(), nameAlias.trim());
     }
 

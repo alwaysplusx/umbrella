@@ -144,16 +144,17 @@ public abstract class ClassUtils {
      * subClass是否是superClass的子类
      * 
      * @param superClass
+     *            待比较父类
      * @param subClass
-     * @return
+     *            待比较子类
      */
     public static boolean isAssignable(Class<?> superClass, Class<?> subClass) {
-        if (superClass == subClass)
+        if (superClass == subClass) {
             return true;
-        if (superClass == null && subClass == null)
-            return true;
-        if (subClass == null || superClass == null)
+        }
+        if (subClass == null || superClass == null) {
             return false;
+        }
         if (superClass.isAssignableFrom(subClass)) {
             return true;
         }
@@ -187,16 +188,17 @@ public abstract class ClassUtils {
     }
 
     /**
-     * 检查输入类型是否符合模版的参数
+     * 检查输入类型是否符合模版的参数. 首先类型数据的长度匹配, 再对各个类型进行
+     * {@linkplain #isAssignable(Class, Class)}匹配
      * 
      * @param pattern
      *            参数的模版
      * @param inputTypes
      *            输入类型
-     * @return
+     * @return true 所有类型都匹配
      * @see ClassUtils#isAssignable(Class, Class)
      */
-    public static boolean typeEquals(Class<?>[] pattern, Class<?>[] inputTypes) {
+    public static boolean isAssignable(Class<?>[] pattern, Class<?>[] inputTypes) {
         if (pattern.length != inputTypes.length)
             return false;
         for (int i = 0, max = pattern.length; i < max; i++) {
@@ -207,34 +209,27 @@ public abstract class ClassUtils {
     }
 
     /**
-     * 检查输入参数是否符合模版的参数类型
-     * 
-     * @param pattern
-     *            模版参数
-     * @param args
-     *            输入参数
-     * @return
-     */
-    public static boolean typeEquals(Class<?>[] pattern, Object[] args) {
-        return typeEquals(pattern, toTypeArray(args));
-    }
-
-    /**
      * 将参数转化为Class类型数组，对应于{@linkplain Method#getParameterTypes()}
+     * <p>
+     * 如果args中存在{@code null}的元素, 则将对象的类映射为{@linkplain Object}
      * 
      * @param args
-     * @return
+     *            参数数组
+     * @return 类型数组
      * @see Method#getParameterTypes()
      */
     public static Class<?>[] toTypeArray(Object[] args) {
-        Class<?>[] parameterTypes = new Class<?>[0];
+        if (args == null || args.length == 0) {
+            return new Class<?>[0];
+        }
+        Class<?>[] parameterTypes = new Class[args.length];
         if (args != null && args.length > 0) {
-            parameterTypes = new Class[args.length];
             for (int i = 0, max = args.length; i < max; i++) {
-                if (args[i] != null)
+                if (args[i] != null) {
                     parameterTypes[i] = getRealClass(args[i].getClass());
-                else
+                } else {
                     parameterTypes[i] = Object.class;
+                }
             }
         }
         return parameterTypes;
@@ -263,12 +258,6 @@ public abstract class ClassUtils {
         return Class.forName(name);
     }
 
-    /**
-     * 获得clazz的真实类型
-     * 
-     * @param clazz
-     * @return
-     */
     static Class<?> getRealClass(Class<?> clazz) {
         // if (Proxy.isProxyClass(clazz)) {
         // }
@@ -316,12 +305,22 @@ public abstract class ClassUtils {
     }
 
     public enum ClassFilterFeature {
+        NOTNULL {
 
+            @Override
+            public boolean accept(Class<?> clazz) {
+                return clazz != null;
+            }
+
+        },
         NEWABLE {
             @Override
             public boolean accept(Class<?> clazz) {
-                if (clazz == null || clazz.isInterface())
+                if (!NOTNULL.accept(clazz) || INTERFACE.accept(clazz) 
+                        || ABSTRACT.accept(clazz) || PRIVATE.accept(clazz)
+                        || PROTECTED.accept(clazz)) {
                     return false;
+                }
                 try {
                     return clazz.getDeclaredConstructor() != null;
                 } catch (Exception e) {

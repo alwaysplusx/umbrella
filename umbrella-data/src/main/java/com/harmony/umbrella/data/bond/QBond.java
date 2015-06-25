@@ -15,9 +15,11 @@
  */
 package com.harmony.umbrella.data.bond;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import com.harmony.umbrella.data.query.SpecificationTransform.JpaUtils;
 import com.harmony.umbrella.util.Assert;
@@ -39,18 +41,22 @@ public class QBond {
 
     public static final String DELETE_QUERY_STRING = "delete from %s x";
 
+    private static final int Q = 0;
+    private static final int C = 1;
+    private static final int D = 2;
+
     private final String entityName;
-    private final String query;
+    private final String whereClause;
     private final Map<String, Object> params;
 
-    public QBond(Class<?> domainClass, String query, Map<String, Object> params) {
-        this(JpaUtils.getEntityName(domainClass), query, params);
+    public QBond(Class<?> domainClass, String whereClause, Map<String, Object> params) {
+        this(JpaUtils.getEntityName(domainClass), whereClause, params);
     }
 
-    public QBond(String entityName, String query, Map<String, Object> params) {
+    public QBond(String entityName, String whereClause, Map<String, Object> params) {
         Assert.notBlank(entityName, "entity name must not be null");
         this.entityName = entityName;
-        this.query = whereClause(query);
+        this.whereClause = formatWhereClause(whereClause);
         if (params != null && !params.isEmpty()) {
             this.params = Collections.unmodifiableMap(params);
         } else {
@@ -64,11 +70,11 @@ public class QBond {
      * @param query
      *            查询条件
      */
-    private String whereClause(String query) {
+    private String formatWhereClause(String query) {
         if (StringUtils.isBlank(query))
             return "";
-        String lowerQuery = query.toLowerCase().trim();
-        if (lowerQuery.startsWith("where ")) {
+        String lowerWhereClause = query.toLowerCase().trim();
+        if (lowerWhereClause.startsWith("where ")) {
             return query.trim();
         }
         return "where " + query.trim();
@@ -82,35 +88,28 @@ public class QBond {
      * 查询的HQL
      */
     public String getQuery() {
-        return String.format(SELECT_QUERY_STRING, entityName) + " " + query;
+        return getQuery(Q);
     }
 
     /**
      * 统计的HQL
      */
     public String getDeleteQuery() {
-        return String.format(DELETE_QUERY_STRING, entityName) + " " + query;
+        return getQuery(D);
     }
 
     /**
      * 删除的HQL
      */
     public String getCountQuery() {
-        return String.format(COUNT_QUERY_STRING, entityName) + " " + query;
-    }
-
-    /**
-     * 查询的参数条件keys
-     */
-    public Iterator<String> paramKeys() {
-        return params.keySet().iterator();
+        return getQuery(C);
     }
 
     /**
      * 是否有查询条件
      */
     public boolean hasWhereClause() {
-        return StringUtils.isNotBlank(query);
+        return StringUtils.isNotBlank(whereClause);
     }
 
     /**
@@ -125,12 +124,54 @@ public class QBond {
     }
 
     /**
+     * 查询的参数条件keys
+     */
+    public Iterator<String> paramKeys() {
+        return params.keySet().iterator();
+    }
+
+    /**
+     * 所有参数值
+     * 
+     * @return 所有参数值
+     */
+    public Collection<Object> getValues() {
+        return params.values();
+    }
+
+    /**
      * 查询参数Map
      * 
      * @return 参数Map
      */
     public Map<String, Object> getParams() {
         return params;
+    }
+
+    private String getQuery(int type) {
+        String template = type == Q ? SELECT_QUERY_STRING : type == C ? COUNT_QUERY_STRING : DELETE_QUERY_STRING;
+        StringBuilder buf = new StringBuilder(String.format(template, entityName));
+        if (hasWhereClause()) {
+            buf.append(" ").append(this.whereClause);
+        }
+        return buf.toString();
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder buf = new StringBuilder("{\n");
+        buf.append("  query string -> ").append(getQuery(Q)).append("\n")
+           .append("  params -> {").append("\n");
+        Iterator<Entry<String, Object>> it = params.entrySet().iterator();
+        while (it.hasNext()) {
+            Entry<String, Object> entry = it.next();
+            buf.append("    ").append(entry.getKey()).append(":").append(entry.getValue());
+            if (it.hasNext()) {
+                buf.append(",\n");
+            }
+        }
+        buf.append("\n  }\n}");
+        return buf.toString();
     }
 
 }

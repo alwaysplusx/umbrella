@@ -40,7 +40,7 @@ public class DefaultInvoker implements Invoker, Serializable {
 			if (args.length != pattern.length) {
 				throw new InvokeException("parameter length mismatch");
 			}
-			if (!typeEquals(pattern, args)) {
+			if (!isAssignable(pattern, toTypeArray(args))) {
 				throw new InvokeException("parameter type mismatch");
 			}
 		}
