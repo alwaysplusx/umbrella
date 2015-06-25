@@ -89,4 +89,12 @@ public abstract class AbstractMessageListener implements MessageListener {
         return messageResolvers.contains(messageResolver);
     }
 
+    public List<MessageResolver> getMessageResolvers() {
+        return messageResolvers;
+    }
+
+    public void setMessageResolvers(List<MessageResolver> messageResolvers) {
+        this.messageResolvers = messageResolvers;
+    }
+
 }

@@ -88,16 +88,17 @@ public class DefaultHttpGraph extends AbstractGraph implements HttpGraph {
         this.status = status;
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
+    @Deprecated
     public void setResult(Object result) {
+        Map<String, Object> temp = (Map<String, Object>) (this.result);
         if (result == null)
             return;
         if (result instanceof Map) {
-            this.result = result;
+            temp.putAll((Map) result);
         } else {
-            Map<String, Object> temp = (Map<String, Object>) (this.result);
-            temp.put(result.getClass().getSimpleName() + "." + result.hashCode(), result);
+            temp.put(result.toString(), result);
         }
     }
 

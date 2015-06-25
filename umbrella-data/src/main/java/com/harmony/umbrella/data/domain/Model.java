@@ -39,98 +39,173 @@ import com.harmony.umbrella.util.MethodUtils.MethodFilter;
 @MappedSuperclass
 public abstract class Model<ID extends Serializable> implements Persistable<ID> {
 
-	private static final long serialVersionUID = -9098668260590791573L;
+    private static final long serialVersionUID = -9098668260590791573L;
 
-	@Column(updatable = false)
-	protected Long createUserId;
+    @Column(updatable = false)
+    protected Long creatorId;
 
-	@Column(updatable = false)
-	protected String createUserName;
+    @Column(updatable = false)
+    protected String creatorName;
 
-	@Temporal(TemporalType.TIMESTAMP)
-	@Column(updatable = false)
-	protected Calendar createTime;
+    @Column(updatable = false)
+    protected String creatorCode;
 
-	protected Long modifyUserId;
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(updatable = false)
+    protected Calendar createdTime;
 
-	protected String modifyUserName;
+    protected Long modifierId;
 
-	@Temporal(TemporalType.TIMESTAMP)
-	protected Calendar modifyTime;
+    protected String modifierName;
 
-	@SuppressWarnings("unchecked")
-	@Override
-	public ID getId() {
-		Method method = getIdMethod();
-		if (method != null) {
-			try {
-				return (ID) method.invoke(this);
-			} catch (Exception e) {
-			}
-		}
-		Field idField = getIdField();
-		if (idField != null) {
-			try {
-				String name = idField.getName();
-				String methodName = "get" + Character.toUpperCase(name.charAt(0)) + name.substring(1);
-				method = MethodUtils.findMethod(getClass(), methodName);
-				return (ID) MethodUtils.invokeMethod(method, this);
-			} catch (Exception e) {
-				try {
-					if (!idField.isAccessible()) {
-						idField.setAccessible(true);
-					}
-					return (ID) idField.get(this);
-				} catch (Exception e1) {
-				}
-			}
-		}
-		throw new IllegalStateException("entity " + getClass() + " not mapped @Id @EmbeddedId annotation on field and method");
-	}
+    protected String modifierCode;
 
-	@Override
-	public boolean isNew() {
-		return getId() == null;
-	}
+    @Temporal(TemporalType.TIMESTAMP)
+    protected Calendar modifiedTime;
 
-	@Transient
-	private static final Class<?>[] idClasses = new Class[] { Id.class, EmbeddedId.class };
+    public Long getCreatorId() {
+        return creatorId;
+    }
 
-	/**
-	 * 获取主键的方法, 所有声明了的public方法中查找. 标记有{@linkplain #idClasses}其中之一的方法
-	 * 
-	 * @return 主键的获取方法
-	 */
-	private Method getIdMethod() {
-		return MethodUtils.findMethod(getClass(), new MethodFilter() {
-			@Override
-			@SuppressWarnings({ "rawtypes", "unchecked" })
-			public boolean matches(Method method) {
-				for (Class ann : idClasses) {
-					if (method.getAnnotation(ann) != null)
-						return true;
-				}
-				return false;
-			}
-		});
-	}
+    public void setCreatorId(Long creatorId) {
+        this.creatorId = creatorId;
+    }
 
-	/**
-	 * 获取主键字段, 所有声明的字段中查找. 标记有{@linkplain #idClasses}其中之一的方法
-	 * 
-	 * @return
-	 */
-	private Field getIdField() {
-		return FieldUtils.findField(getClass(), new FieldFilter() {
-			@SuppressWarnings({ "unchecked", "rawtypes" })
-			@Override
-			public boolean matches(Field field) {
-				for (Class ann : idClasses) {
-					if (field.getAnnotation(ann) != null)
-						return true;
-				}
-				return false;
-			}
-		});
-	}
+    public String getCreatorName() {
+        return creatorName;
+    }
+
+    public void setCreatorName(String creatorName) {
+        this.creatorName = creatorName;
+    }
+
+    public String getCreatorCode() {
+        return creatorCode;
+    }
+
+    public void setCreatorCode(String creatorCode) {
+        this.creatorCode = creatorCode;
+    }
+
+    public Calendar getCreatedTime() {
+        return createdTime;
+    }
+
+    public void setCreatedTime(Calendar createdTime) {
+        this.createdTime = createdTime;
+    }
+
+    public Long getModifierId() {
+        return modifierId;
+    }
+
+    public void setModifierId(Long modifierId) {
+        this.modifierId = modifierId;
+    }
+
+    public String getModifierName() {
+        return modifierName;
+    }
+
+    public void setModifierName(String modifierName) {
+        this.modifierName = modifierName;
+    }
+
+    public String getModifierCode() {
+        return modifierCode;
+    }
+
+    public void setModifierCode(String modifierCode) {
+        this.modifierCode = modifierCode;
+    }
+
+    public Calendar getModifiedTime() {
+        return modifiedTime;
+    }
+
+    public void setModifiedTime(Calendar modifiedTime) {
+        this.modifiedTime = modifiedTime;
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public ID getId() {
+        Method method = getIdMethod();
+        if (method != null) {
+            try {
+                return (ID) method.invoke(this);
+            } catch (Exception e) {
+            }
+        }
+        Field idField = getIdField();
+        if (idField != null) {
+            try {
+                String name = idField.getName();
+                String methodName = "get" + Character.toUpperCase(name.charAt(0)) + name.substring(1);
+                method = MethodUtils.findMethod(getClass(), methodName);
+                return (ID) MethodUtils.invokeMethod(method, this);
+            } catch (Exception e) {
+                try {
+                    if (!idField.isAccessible()) {
+                        idField.setAccessible(true);
+                    }
+                    return (ID) idField.get(this);
+                } catch (Exception e1) {
+                }
+            }
+        }
+        throw new IllegalStateException("entity " + getClass() + " not mapped @Id @EmbeddedId annotation on field and method");
+    }
+
+    @Override
+    public boolean isNew() {
+        return getId() == null;
+    }
+
+    @Transient
+    private static final Class<?>[] idClasses = new Class[] { Id.class, EmbeddedId.class };
+
+    /**
+     * 获取主键的方法, 所有声明了的public方法中查找. 标记有{@linkplain #idClasses}其中之一的方法
+     * 
+     * @return 主键的获取方法
+     */
+    private Method getIdMethod() {
+        return MethodUtils.findMethod(getClass(), new MethodFilter() {
+            @Override
+            @SuppressWarnings({ "rawtypes", "unchecked" })
+            public boolean matches(Method method) {
+                for (Class ann : idClasses) {
+                    if (method.getAnnotation(ann) != null)
+                        return true;
+                }
+                return false;
+            }
+        });
+    }
+
+    /**
+     * 获取主键字段, 所有声明的字段中查找. 标记有{@linkplain #idClasses}其中之一的方法
+     * 
+     * @return
+     */
+    private Field getIdField() {
+        return FieldUtils.findField(getClass(), new FieldFilter() {
+            @SuppressWarnings({ "unchecked", "rawtypes" })
+            @Override
+            public boolean matches(Field field) {
+                for (Class ann : idClasses) {
+                    if (field.getAnnotation(ann) != null)
+                        return true;
+                }
+                return false;
+            }
+        });
+    }
+
+    @Override
+    public String toString() {
+        return "{\"" + getClass().getSimpleName() + "\":" + "{\"id\":\"" + getId() + "\"}}";
+    }
+
 }

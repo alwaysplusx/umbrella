@@ -13,33 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.umbrella.message;
+package com.harmony.umbrella.json;
+
+import static com.harmony.umbrella.json.JsonTest.*;
+
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.serializer.SerializerFeature;
+import com.harmony.umbrella.json.serializer.SimpleExcludeFilter;
 
 /**
- * 消息解析抽象类
- * 
- * @author wuxii
+ * @author wuxii@foxmail.com
  */
-public abstract class AbstractMessageResolver<T> implements MessageResolver {
+public class FastJsonTest {
 
-    @Override
-    public void handle(Message message) {
-        process(resolver(message));
+    public static void main(String[] args) {
+
+        String json = JSON.toJSONString(child1, new SimpleExcludeFilter("parent.parentId"), SerializerFeature.PrettyFormat);
+        System.out.println(json);
+
     }
-
-    /**
-     * 处理解析后的消息
-     * 
-     * @param message
-     */
-    public abstract void process(T message);
-
-    /**
-     * 将消息解析为对应的实际内容
-     * 
-     * @param message
-     * @return
-     */
-    protected abstract T resolver(Message message);
-
 }

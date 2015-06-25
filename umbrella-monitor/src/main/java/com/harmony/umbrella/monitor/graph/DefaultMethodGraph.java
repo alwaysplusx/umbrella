@@ -26,8 +26,8 @@ import com.harmony.umbrella.monitor.MethodMonitor.MethodGraph;
  */
 public class DefaultMethodGraph extends AbstractGraph implements MethodGraph {
 
-    protected Object target;
     protected final Method method;
+    protected Object target;
 
     public DefaultMethodGraph(Method method) {
         this(null, method, null);
@@ -55,7 +55,7 @@ public class DefaultMethodGraph extends AbstractGraph implements MethodGraph {
 
     public void setArguments(Object[] args) {
         this.arguments.clear();
-        if (args != null) {
+        if (args != null && args.length > 0) {
             for (int i = 0, max = args.length; i < max; i++) {
                 arguments.put(i + 1 + "", args[i]);
             }

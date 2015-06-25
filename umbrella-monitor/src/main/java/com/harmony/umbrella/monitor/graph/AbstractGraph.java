@@ -40,9 +40,9 @@ public abstract class AbstractGraph implements Graph {
      */
     protected final String identifier;
 
-    protected Object result;
-    
     protected final Map<String, Object> arguments = new HashMap<String, Object>();
+    
+    protected Object result;
 
     protected Calendar requestTime = Calendar.getInstance();
 

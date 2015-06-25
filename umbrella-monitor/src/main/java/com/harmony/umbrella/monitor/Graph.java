@@ -28,21 +28,21 @@ public interface Graph {
     /**
      * 监视的资源标识
      * 
-     * @return
+     * @return 资源id
      */
     String getIdentifier();
 
     /**
      * 请求时间
      * 
-     * @return
+     * @return 请求时间
      */
     Calendar getRequestTime();
 
     /**
      * 系统应答时间
      * 
-     * @return
+     * @return 应答时间
      */
     Calendar getResponseTime();
 
@@ -56,35 +56,35 @@ public interface Graph {
     /**
      * 返回结果
      * 
-     * @return
+     * @return 监控返回的结果
      */
     Object getResult();
 
     /**
      * 请求参数
      * 
-     * @return
+     * @return 请求参数
      */
     Map<String, Object> getArguments();
 
     /**
      * 请求中是否有异常
      * 
-     * @return
+     * @return true is exception
      */
     boolean isException();
 
     /**
      * 异常的原因
      * 
-     * @return
+     * @return exception, if not exception return null
      */
     Exception getException();
 
     /**
      * 监控的整体描述
      * 
-     * @return
+     * @return 监控的描述
      */
     String getDescription();
 

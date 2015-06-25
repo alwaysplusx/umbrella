@@ -19,7 +19,10 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
+import java.text.FieldPosition;
+import java.text.Format;
 import java.text.ParseException;
+import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -127,7 +130,29 @@ public abstract class Formats {
         return intValue(sdf.parse(source), mode);
     }
 
-    public static class NullableNumberFormat implements Serializable {
+    private abstract static class NullableFormat extends Format {
+
+        private static final long serialVersionUID = 7554718413792962086L;
+
+        @Override
+        public StringBuffer format(Object obj, StringBuffer toAppendTo, FieldPosition pos) {
+            if (obj == null)
+                return toAppendTo;
+            return getFormat().format(obj, toAppendTo, pos);
+        }
+
+        @Override
+        public Object parseObject(String source, ParsePosition pos) {
+            if (source == null)
+                return null;
+            return getFormat().parseObject(source, pos);
+        }
+
+        protected abstract Format getFormat();
+
+    }
+
+    public static class NullableNumberFormat extends NullableFormat implements Serializable {
 
         private static final long serialVersionUID = 8770260343737030870L;
         private final String pattern;
@@ -142,6 +167,11 @@ public abstract class Formats {
             this.pattern = pattern;
             this.mode = mode;
             this.df = new DecimalFormat(pattern);
+        }
+
+        @Override
+        protected Format getFormat() {
+            return this.df;
         }
 
         /**
@@ -238,7 +268,7 @@ public abstract class Formats {
      * 
      * @author wuxii@foxmail.com
      */
-    public static class NullableDateFormat implements Serializable {
+    public static class NullableDateFormat extends NullableFormat implements Serializable {
 
         private static final long serialVersionUID = 8448875239037856747L;
         private final SimpleDateFormat sdf;
@@ -249,13 +279,18 @@ public abstract class Formats {
             this.sdf = new SimpleDateFormat(pattern);
         }
 
+        @Override
+        protected Format getFormat() {
+            return this.sdf;
+        }
+
         /**
          * @param obj
          * @return
          * @throws IllegalArgumentException
          *             如果不是{@linkplain Date}或者{@linkplain Calendar}
          */
-        public String format(Object obj) {
+        /*public String format(Object obj) {
             if (obj instanceof Date) {
                 return format((Date) obj);
             } else if (obj instanceof Calendar) {
@@ -263,7 +298,7 @@ public abstract class Formats {
             } else {
                 throw new IllegalArgumentException("unsupport format type of " + obj);
             }
-        }
+        }*/
 
         /**
          * 格式化时间

@@ -22,19 +22,23 @@ public @interface Monitored {
 
     /**
      * 模块名称
-     * 
-     * @return
      */
     String module() default "";
 
     /**
      * 操作类型
-     * 
-     * @return
      */
     String operator() default "";
 
+    /**
+     * 对应日志的级别
+     */
     Level level() default Level.INFO;
+
+    /**
+     * 对监控对象内部数据的获取工具
+     */
+    AttackerProperty[] assist() default {};
 
     /**
      * 日志级别
@@ -45,28 +49,17 @@ public @interface Monitored {
         TRACE, INFO, WARN, ERROR
     }
 
-    /**
-     * 对监控对象内部数据的获取工具
-     * 
-     * @return
-     */
-    AttackerProperty[] assist() default {};
-
     @Target({ TYPE, METHOD })
     @Retention(RUNTIME)
     public @interface AttackerProperty {
 
         /**
          * 监控对象内容处理工具类
-         * 
-         * @return
          */
         Class<? extends Attacker> attacker();
 
         /**
          * 监控的内部属性或无参get方法的名称
-         * 
-         * @return
          */
         String[] names() default {};
 
