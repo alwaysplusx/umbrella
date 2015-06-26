@@ -65,6 +65,7 @@ public class Child extends Model<Long> {
     }
 
     public Parent getParent() {
+        // throw new IllegalArgumentException();
         return parent;
     }
 

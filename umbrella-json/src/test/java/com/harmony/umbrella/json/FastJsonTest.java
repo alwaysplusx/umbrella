@@ -28,8 +28,10 @@ public class FastJsonTest {
 
     public static void main(String[] args) {
 
-        String json = JSON.toJSONString(child1, new SimpleExcludeFilter("parent.parentId"), SerializerFeature.PrettyFormat);
-        System.out.println(json);
+//        String json = JSON.toJSONString(child1, new SimpleExcludeFilter("parent"), SerializerFeature.PrettyFormat);
+//        System.out.println(json);
+        String json2 = JSON.toJSONString(parent, new SimpleExcludeFilter("childs"), SerializerFeature.PrettyFormat);
+        System.out.println(json2);
 
     }
 }

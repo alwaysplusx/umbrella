@@ -15,21 +15,29 @@
  */
 package com.harmony.umbrella.json.serializer;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.alibaba.fastjson.serializer.JSONSerializer;
 import com.alibaba.fastjson.serializer.PropertyPreFilter;
+import com.alibaba.fastjson.serializer.SerialContext;
 
 /**
  * @author wuxii@foxmail.com
  */
 public class SimpleExcludeFilter implements PropertyPreFilter {
 
-    public static final String currentRef = "$";
+    private static final Logger log = LoggerFactory.getLogger(SimpleExcludeFilter.class);
+
     private final Class<?> clazz;
     private final Set<String> excludes = new HashSet<String>();
 
+    private boolean arrayCheck = false;
+    
     public SimpleExcludeFilter(String... excludes) {
         this(null, excludes);
     }
@@ -52,10 +60,84 @@ public class SimpleExcludeFilter implements PropertyPreFilter {
         if (clazz != null && !clazz.isInstance(source)) {
             return true;
         }
-        if (this.excludes.contains(name)) {
-            return false;
+
+        String fieldContextName = getContextNameWithArrayIndex(serializer.getContext(), name);
+        log.info(fieldContextName);
+        
+        for (String exclude : excludes) {
+            if (fieldContextName.startsWith(exclude)) {
+                return false;
+            }
         }
+
         return true;
     }
 
+    
+    protected String getContextNameWithArrayIndex(SerialContext context, String name) {
+        StringBuilder buf = new StringBuilder();
+        SerialContext currentContext = context;
+
+        // 往上迭代直到父上下文为空
+        while (currentContext.getParent() != null) {
+
+            String fieldName;
+            Object currentFieldName = currentContext.getFieldName();
+
+            SerialContext parentContext = currentContext.getParent();
+            Object parent = parentContext.getObject();
+
+            if ((parent instanceof Collection || parent.getClass().isArray()) 
+                    && currentFieldName instanceof Number) {
+                fieldName = "[" + currentFieldName + "]";
+            } else {
+                fieldName = String.valueOf(currentFieldName);
+            }
+
+            if (buf.indexOf("[") == 0) {
+                buf.insert(0, fieldName);
+            } else {
+                buf.insert(0, fieldName).insert(fieldName.length(), '.');
+            }
+            
+            // reset sctx
+            currentContext = parentContext;
+        }
+
+        return buf.append(name).toString();
+    }
+
+    protected String getContextName(SerialContext context, String name) {
+        StringBuilder buf = new StringBuilder();
+        SerialContext currentContext = context;
+        
+        // 往上迭代直到父上下文为空
+        while (currentContext.getParent() != null) {
+            
+            Object currentFieldName = currentContext.getFieldName();
+            String fieldName = String.valueOf(currentFieldName);
+            
+            SerialContext parentContext = currentContext.getParent();
+            Object parent = parentContext.getObject();
+            
+            if (!((parent instanceof Collection || parent.getClass().isArray()) 
+                    && currentFieldName instanceof Number)) {
+                buf.insert(0, fieldName).insert(fieldName.length(), '.');
+            }
+            
+            // reset sctx
+            currentContext = parentContext;
+        }
+        
+        return buf.append(name).toString();
+    }
+    
+    public boolean isEnableArrayCheck() {
+        return arrayCheck;
+    }
+    
+    public void setArrayCheck(boolean arrayCheck) {
+        this.arrayCheck = arrayCheck;
+    }
+    
 }
