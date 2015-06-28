@@ -13,25 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.umbrella.json;
-
-import static com.harmony.umbrella.json.JsonTest.*;
-
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.serializer.SerializerFeature;
+package com.harmony.umbrella;
 
 /**
  * @author wuxii@foxmail.com
  */
-public class FastJsonTest {
+public abstract class Constants {
 
-    public static void main(String[] args) {
+    private static final String defaultPackage = "com.harmony";
 
-//        String json = JSON.toJSONString(child1, new SimpleExcludeFilter("parent"), SerializerFeature.PrettyFormat);
-//        System.out.println(json);
-        JSON.DUMP_CLASS = "./target";
-        String json2 = JSON.toJSONString(parent, SerializerFeature.PrettyFormat);
-        System.out.println(json2);
+    public static final String GLOBAL_CONFIG = "META-INF/application.properties";
 
-    }
+    public static final String DEFAULT_PACKAGE = defaultPackage;
+
+    // public static final Properties GLOBAL_PROPERTIES;
+    //
+    // static {
+    // Properties props = new Properties();
+    // try {
+    // props.putAll(PropUtils.loadProperties(GLOBAL_CONFIG));
+    // } catch (IOException e) {
+    // }
+    //
+    // }
+
 }

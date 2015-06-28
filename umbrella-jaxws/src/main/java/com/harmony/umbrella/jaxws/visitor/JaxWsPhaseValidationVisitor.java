@@ -20,7 +20,7 @@ import static com.harmony.umbrella.jaxws.Phase.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.harmony.umbrella.Constant;
+import com.harmony.umbrella.Constants;
 import com.harmony.umbrella.core.BeanFactory;
 import com.harmony.umbrella.core.InvokeException;
 import com.harmony.umbrella.core.SimpleBeanFactory;
@@ -40,7 +40,7 @@ public class JaxWsPhaseValidationVisitor extends AbstractJaxWsPhaseVisitor {
 
     private final static Logger log = LoggerFactory.getLogger(JaxWsPhaseValidationVisitor.class);
 
-    protected static final String defaultPackage = Constant.DEFAULT_PACKAGE;
+    protected static final String defaultPackage = Constants.DEFAULT_PACKAGE;
 
     private BeanFactory beanFactory = new SimpleBeanFactory();
 

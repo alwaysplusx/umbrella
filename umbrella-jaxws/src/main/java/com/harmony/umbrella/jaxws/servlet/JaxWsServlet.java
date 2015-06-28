@@ -25,7 +25,7 @@ import org.apache.cxf.transport.servlet.CXFNonSpringServlet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.harmony.umbrella.Constant;
+import com.harmony.umbrella.Constants;
 import com.harmony.umbrella.io.util.ResourceScaner;
 import com.harmony.umbrella.jaxws.JaxWsServerManager;
 import com.harmony.umbrella.util.ClassUtils.ClassFilter;
@@ -139,7 +139,7 @@ public class JaxWsServlet extends CXFNonSpringServlet {
     protected String[] getPackages(ServletConfig sc) {
         String pkgs = sc.getInitParameter(SCAN_PACKAGE);
         if (pkgs == null) {
-            return new String[] { Constant.DEFAULT_PACKAGE };
+            return new String[] { Constants.DEFAULT_PACKAGE };
         }
         return pkgs.split(",");
     }

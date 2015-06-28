@@ -20,6 +20,10 @@
     </dependency>
     <dependency>
       <groupId>com.harmony.umbrella</groupId>
+      <artifactId>umbrella-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.harmony.umbrella</groupId>
       <artifactId>umbrella-data</artifactId>
       <scope>test</scope>
     </dependency>

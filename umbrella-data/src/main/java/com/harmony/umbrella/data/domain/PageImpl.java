@@ -38,7 +38,7 @@ public class PageImpl<T> implements Page<T> {
     }
 
     public PageImpl(List<T> content, Pageable pageable, long total) {
-        if (total >= content.size()) {
+        if (total < content.size()) {
             throw new IllegalArgumentException("Total must not be less than the number of elements given!");
         }
         this.content.addAll(content);

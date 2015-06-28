@@ -13,28 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.umbrella;
+package com.harmony.umbrella.json.serializer;
+
+import static com.harmony.umbrella.json.JsonTest.*;
+
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.serializer.SerializerFeature;
+import com.harmony.umbrella.json.serializer.SimplePropertyNameFilter.FilterPolicy;
 
 /**
  * @author wuxii@foxmail.com
  */
-public abstract class Constant {
+public class SimplePropertyNameFilterTest {
 
-    private static final String defaultPackage = "com.harmony";
+    public static void main(String[] args) {
 
-    public static final String GLOBAL_CONFIG = "META-INF/application.properties";
+        SimplePropertyNameFilter filter = new SimplePropertyNameFilter(FilterPolicy.INCLUDE, "*.id", "*.new", "*.parent");
+        String json = JSON.toJSONString(child1, filter, SerializerFeature.PrettyFormat);
+        System.out.println(json);
 
-    public static final String DEFAULT_PACKAGE = defaultPackage;
-
-    // public static final Properties GLOBAL_PROPERTIES;
-    //
-    // static {
-    // Properties props = new Properties();
-    // try {
-    // props.putAll(PropUtils.loadProperties(GLOBAL_CONFIG));
-    // } catch (IOException e) {
-    // }
-    //
-    // }
-
+    }
 }

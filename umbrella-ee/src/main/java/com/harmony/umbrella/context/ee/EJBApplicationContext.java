@@ -25,7 +25,7 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
-import com.harmony.umbrella.Constant;
+import com.harmony.umbrella.Constants;
 import com.harmony.umbrella.context.ApplicationContext;
 import com.harmony.umbrella.context.ApplicationContextException;
 import com.harmony.umbrella.context.ee.impl.ContextBeanImpl;
@@ -49,7 +49,7 @@ public class EJBApplicationContext extends ApplicationContext implements EJBCont
 	/**
 	 * jndi默认配置文件地址
 	 */
-	public static final String JNDI_PROPERTIES_FILE_LOCATION = Constant.GLOBAL_CONFIG;
+	public static final String JNDI_PROPERTIES_FILE_LOCATION = Constants.GLOBAL_CONFIG;
 
 	/**
 	 * jndi文件地址

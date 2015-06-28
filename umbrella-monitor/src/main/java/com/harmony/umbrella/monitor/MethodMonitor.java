@@ -17,7 +17,7 @@ package com.harmony.umbrella.monitor;
 
 import java.lang.reflect.Method;
 
-import com.harmony.umbrella.Constant;
+import com.harmony.umbrella.Constants;
 import com.harmony.umbrella.monitor.support.MethodExpressionMatcher;
 
 /**
@@ -32,7 +32,7 @@ import com.harmony.umbrella.monitor.support.MethodExpressionMatcher;
  */
 public interface MethodMonitor extends Monitor<Method> {
 
-    String DEFAULT_METHOD_PATTERN = "execution(* " + Constant.DEFAULT_PACKAGE + "..*.*(..))";
+    String DEFAULT_METHOD_PATTERN = "execution(* " + Constants.DEFAULT_PACKAGE + "..*.*(..))";
 
     /**
      * 方法监控结果

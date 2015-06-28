@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2014 the original author or authors.
+ * Copyright 2002-2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,25 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.umbrella.json;
+package com.harmony.umbrella.web.support;
 
-import static com.harmony.umbrella.json.JsonTest.*;
+import java.util.Collection;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.serializer.SerializerFeature;
+import com.alibaba.fastjson.annotation.JSONField;
+import com.harmony.umbrella.data.domain.Page;
 
 /**
  * @author wuxii@foxmail.com
  */
-public class FastJsonTest {
+public class FrontPage {
 
-    public static void main(String[] args) {
+    private final Page<?> page;
 
-//        String json = JSON.toJSONString(child1, new SimpleExcludeFilter("parent"), SerializerFeature.PrettyFormat);
-//        System.out.println(json);
-        JSON.DUMP_CLASS = "./target";
-        String json2 = JSON.toJSONString(parent, SerializerFeature.PrettyFormat);
-        System.out.println(json2);
-
+    public FrontPage(Page<?> page) {
+        this.page = page;
     }
+
+    @JSONField(ordinal = 0)
+    public long getTotalCount() {
+        return page.getNumberOfElements();
+    }
+
+    @JSONField(ordinal = 1)
+    public Collection<?> getRecords() {
+        return page.getContent();
+    }
+
 }
