@@ -22,7 +22,7 @@ import com.alibaba.fastjson.serializer.SerializerFeature;
 /**
  * @author wuxii@foxmail.com
  */
-public class Json {
+public abstract class Json {
 
     /**
      * 将Object对象序列化为json文本

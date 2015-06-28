@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.harmony.umbrella</groupId>
   <artifactId>harmony-umbrella</artifactId>
-  <version>0.0.2-SNAPSHOT</version>
+  <version>0.0.3-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>Harmony Umbrella :: Framework Parent</name>
   <modules>
@@ -13,18 +13,17 @@
     <module>umbrella-scheduler</module>
     <module>umbrella-data</module>
     <module>umbrella-validator</module>
-    <module>umbrella-jaxws</module>
     <module>umbrella-ee</module>
     <module>umbrella-resources</module>
     <module>umbrella-plugins</module>
     <module>umbrella-spring</module>
     <module>umbrella-json</module>
-    <!-- <module>umbrella-jaxrs</module> -->
     <!-- <module>umbrella-security</module> -->
     <!-- <module>umbrella-mapper</module> -->
     <!-- <module>examples</module> -->
     <!-- <module>umbrella-cache</module> -->
     <!-- <module>umbrella-web</module> -->
+    <module>umbrella-ws</module>
   </modules>
   <properties>
 
@@ -98,11 +97,6 @@
       </dependency>
       <dependency>
         <groupId>com.harmony.umbrella</groupId>
-        <artifactId>umbrella-jaxws</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.harmony.umbrella</groupId>
         <artifactId>umbrella-message</artifactId>
         <version>${project.version}</version>
       </dependency>
@@ -118,7 +112,7 @@
       </dependency>
       <dependency>
         <groupId>com.harmony.umbrella</groupId>
-        <artifactId>umbrella-jaxrs</artifactId>
+        <artifactId>umbrella-ws</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>

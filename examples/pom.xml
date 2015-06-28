@@ -18,7 +18,6 @@
     </dependency>
   </dependencies>
   <modules>
-    <module>example-jaxws</module>
     <module>example-ear</module>
     <module>example-data</module>
     <module>example-ee</module>

@@ -1,2 +1,0 @@
-#com.harmony.umbrella.jaxws.support.PropertiesFileJaxWsContextReceiver default handlerLocation
-com.harmony.umbrella.jaxws.visitor.JaxWsPhaseValidationVisitor=true
