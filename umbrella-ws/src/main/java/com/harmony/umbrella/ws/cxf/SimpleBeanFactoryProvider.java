@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 wuxii@foxmail.com.
+ * Copyright 2002-2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,32 +15,55 @@
  */
 package com.harmony.umbrella.ws.cxf;
 
-import org.apache.cxf.message.Exchange;
-import org.apache.cxf.service.invoker.AbstractInvoker;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.cxf.message.Message;
 
 import com.harmony.umbrella.core.BeanFactory;
 import com.harmony.umbrella.core.NoSuchBeanFindException;
 import com.harmony.umbrella.core.SimpleBeanFactory;
-import com.harmony.umbrella.ws.jaxws.JaxWsServerBuilder.BeanFactoryInvoker;
+import com.harmony.umbrella.ws.jaxrs.JaxRsServerBuilder.BeanFactoryProvider;
 
 /**
  * @author wuxii@foxmail.com
  */
-public class SimpleBeanFactoryInvoker extends AbstractInvoker implements BeanFactoryInvoker {
+public class SimpleBeanFactoryProvider implements BeanFactoryProvider {
 
-    private static final Logger log = LoggerFactory.getLogger(SimpleBeanFactoryInvoker.class);
-    protected final Class<?> serviceClass;
+    private final Class<?> resourceClass;
+    private boolean singleton;
+
     private BeanFactory beanFactory;
 
-    public SimpleBeanFactoryInvoker(Class<?> serviceClass) {
-        this(serviceClass, new SimpleBeanFactory());
+    public SimpleBeanFactoryProvider(Class<?> resourceClass) {
+        this(resourceClass, new SimpleBeanFactory(), false);
     }
 
-    public SimpleBeanFactoryInvoker(Class<?> serviceClass, BeanFactory beanFactory) {
+    public SimpleBeanFactoryProvider(Class<?> resourceClass, BeanFactory beanFactory) {
+        this(resourceClass, beanFactory, false);
+    }
+
+    public SimpleBeanFactoryProvider(Class<?> resourceClass, BeanFactory beanFactory, boolean singleton) {
+        this.resourceClass = resourceClass;
         this.beanFactory = beanFactory;
-        this.serviceClass = serviceClass;
+        this.singleton = singleton;
+    }
+
+    @Override
+    public Object getInstance(Message m) {
+        return getBean(resourceClass, isSingleton() ? SINGLETON : PROTOTYPE);
+    }
+
+    @Override
+    public void releaseInstance(Message m, Object o) {
+        // nothing
+    }
+
+    @Override
+    public Class<?> getResourceClass() {
+        return resourceClass;
+    }
+
+    @Override
+    public boolean isSingleton() {
+        return singleton;
     }
 
     @Override
@@ -61,12 +84,6 @@ public class SimpleBeanFactoryInvoker extends AbstractInvoker implements BeanFac
     @Override
     public <T> T getBean(Class<T> beanClass, String scope) throws NoSuchBeanFindException {
         return beanFactory.getBean(beanClass, scope);
-    }
-
-    @Override
-    public Object getServiceObject(Exchange context) {
-        log.debug("get instance [{}({})] from [{}]", serviceClass.getName(), PROTOTYPE, beanFactory);
-        return getBean(serviceClass, PROTOTYPE);
     }
 
 }

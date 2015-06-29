@@ -30,7 +30,6 @@ import org.slf4j.LoggerFactory;
 
 import com.harmony.umbrella.util.Assert;
 import com.harmony.umbrella.util.Exceptions;
-import com.harmony.umbrella.ws.Metadata;
 import com.harmony.umbrella.ws.MetadataLoader;
 import com.harmony.umbrella.ws.jaxws.JaxWsServerBuilder.BeanFactoryInvoker;
 import com.harmony.umbrella.ws.jaxws.JaxWsServerBuilder.JaxWsServerFactoryConfig;
@@ -62,7 +61,7 @@ public class JaxWsServerManager {
 	 * @see org.apache.cxf.service.invoker.Invoker
 	 */
 	private BeanFactoryInvoker beanFactoryInvoker;
-
+	
 	/**
 	 * 当遇到服务发布失败, 抛出异常终止发布
 	 */
@@ -133,20 +132,10 @@ public class JaxWsServerManager {
 
 	private boolean doPublish(Class<?> serviceClass, String address, JaxWsServerFactoryConfig factoryConfig) {
 		Assert.notNull(serviceClass, "service class is null");
-		Metadata metadata = metaLoader != null ? metaLoader.getMetadata(serviceClass) : null;
-		if (address == null && metadata != null) {
-			address = metadata.getAddress();
-		}
-		Assert.notNull(address, "address is null");
 		try {
-			JaxWsServerBuilder builder = newServerBuilder();
-			if (beanFactoryInvoker != null) {
-				builder.setBeanFactoryInvoker(beanFactoryInvoker);
-			}
-			if (metadata != null) {
-				builder.setUsername(metadata.getUsername());
-				builder.setPassword(metadata.getPassword());
-			}
+            JaxWsServerBuilder builder = create()
+                                            .setBeanFactoryInvoker(beanFactoryInvoker)
+                                            .setMetadataLoader(metaLoader);
 			builder.publish(serviceClass, address, factoryConfig);
 			registerServerInstance(builder);
 			log.info("success publish server[serviceClass:{},address:{}]", serviceClass.getName(), address);
@@ -264,7 +253,7 @@ public class JaxWsServerManager {
 	 * 
 	 * @author wuxii@foxmail.com
 	 */
-	private class JaxWsServer {
+	protected class JaxWsServer {
 
 		private final Class<?> serviceClass;
 		// 用链式的结构获取对应的资源.根元素为服务的地址

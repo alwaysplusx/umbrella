@@ -4,8 +4,6 @@ import static org.junit.Assert.*;
 
 import java.io.IOException;
 
-import org.apache.cxf.jaxrs.JAXRSServerFactoryBean;
-import org.apache.cxf.jaxrs.lifecycle.SingletonResourceProvider;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -22,11 +20,14 @@ public class JaxRsServerTest {
 
     @BeforeClass
     public static void setUp() {
-        JAXRSServerFactoryBean sf = new JAXRSServerFactoryBean();
-        sf.setResourceClasses(HelloRESTService.class);
-        sf.setResourceProvider(HelloRESTService.class, new SingletonResourceProvider(new HelloRESTService()));
-        sf.setAddress(address);
-        sf.create();
+        // JAXRSServerFactoryBean sf = new JAXRSServerFactoryBean();
+        // sf.setResourceClasses(HelloRESTService.class);
+        // sf.setResourceProvider(HelloRESTService.class, new
+        // SingletonResourceProvider(new HelloRESTService()));
+        // sf.setAddress(address);
+        // sf.create();
+        JaxRsServerBuilder.create().setAddress(address).publish(HelloRESTService.class);
+
     }
 
     @Test

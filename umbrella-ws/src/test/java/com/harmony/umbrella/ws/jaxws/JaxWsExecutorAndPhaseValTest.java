@@ -43,7 +43,7 @@ public class JaxWsExecutorAndPhaseValTest {
 
     @BeforeClass
     public static void setUp() {
-        JaxWsServerBuilder.newServerBuilder().publish(HelloWebService.class, address);
+        JaxWsServerBuilder.create().publish(HelloWebService.class, address);
     }
 
     @Test
@@ -85,7 +85,7 @@ public class JaxWsExecutorAndPhaseValTest {
     }
 
     public static void main(String[] args) {
-        JaxWsServerBuilder.newServerBuilder().publish(HelloWebService.class, address);
+        JaxWsServerBuilder.create().publish(HelloWebService.class, address);
     }
 
 }

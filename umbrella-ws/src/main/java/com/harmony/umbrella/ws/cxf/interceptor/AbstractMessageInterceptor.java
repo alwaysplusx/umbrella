@@ -105,8 +105,14 @@ public abstract class AbstractMessageInterceptor extends AbstractPhaseIntercepto
 		Object headers = message.get(Message.PROTOCOL_HEADERS);
 		if (headers != null) {
 			logMessage.getHeader().append(headers);
+			logMessage.setHeaderObject(headers);
 		}
 
+        Object requestUrl = message.get("org.apache.cxf.request.url");
+        if (requestUrl != null) {
+            logMessage.getRequestUrl().append(requestUrl);
+        }
+		
 		String payload = getPayload(message);
 		if (payload != null) {
 			logMessage.getPayload().append(payload);

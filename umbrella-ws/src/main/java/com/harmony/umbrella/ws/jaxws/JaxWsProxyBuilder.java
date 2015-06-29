@@ -66,7 +66,7 @@ public class JaxWsProxyBuilder {
     private long connectionTimeout = -1;
     private int synchronousTimeout = -1;
 
-    public static JaxWsProxyBuilder newProxyBuilder() {
+    public static JaxWsProxyBuilder create() {
         refush();
         return new JaxWsProxyBuilder();
     }

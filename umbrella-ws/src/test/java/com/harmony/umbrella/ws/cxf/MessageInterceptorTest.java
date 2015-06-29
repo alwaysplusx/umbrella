@@ -37,7 +37,7 @@ public class MessageInterceptorTest {
 	@Test
 	@Ignore
 	public void testMessageLogging() {
-		JaxWsProxyBuilder builder = JaxWsProxyBuilder.newProxyBuilder();
+		JaxWsProxyBuilder builder = JaxWsProxyBuilder.create();
 		builder.getInInterceptors().add(new MessageInInterceptor());
 		builder.getOutInterceptors().add(new MessageOutInterceptor());
 		HelloService service = builder.build(HelloService.class, address);
@@ -45,7 +45,7 @@ public class MessageInterceptorTest {
 	}
 
 	public static void main(String[] args) {
-		JaxWsServerBuilder.newServerBuilder().setServiceInterface(HelloService.class).publish(HelloWebService.class, address);
+		JaxWsServerBuilder.create().setServiceInterface(HelloService.class).publish(HelloWebService.class, address);
 	}
 
 }

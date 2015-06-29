@@ -40,6 +40,8 @@ public class LogMessage {
 	private final StringBuilder message;
 	private final StringBuilder payload;
 	private final StringBuilder responseCode;
+	private final StringBuilder requestUrl;
+	private Object headerObject;
 	private QName service;
 	private QName proxy;
 	private QName operation;
@@ -57,6 +59,7 @@ public class LogMessage {
 		this.message = new StringBuilder();
 		this.payload = new StringBuilder();
 		this.responseCode = new StringBuilder();
+		this.requestUrl = new StringBuilder();
 	}
 
 	public static String nextId() {
@@ -103,6 +106,10 @@ public class LogMessage {
 		return responseCode;
 	}
 
+	public StringBuilder getRequestUrl() {
+        return requestUrl;
+    }
+	
 	public QName getProxy() {
 		return proxy;
 	}
@@ -147,6 +154,14 @@ public class LogMessage {
         this.exception = exception;
     }
 	
+	public void setHeaderObject(Object headerObject) {
+        this.headerObject = headerObject;
+    }
+	
+	public Object getHeaderObject() {
+        return headerObject;
+    }
+	
 	public String toString() {
 		StringBuilder buffer = new StringBuilder();
 		buffer.append(heading);
@@ -171,7 +186,12 @@ public class LogMessage {
 			buffer.append("\nHttp-Method: ");
 			buffer.append(httpMethod);
 		}
-
+		
+        if (requestUrl.length() > 0) {
+            buffer.append("\nRequest-Url: ");
+            buffer.append(requestUrl);
+        }
+		
 		buffer.append("\nContent-Type: ");
 		buffer.append(contentType);
 

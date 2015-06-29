@@ -41,7 +41,7 @@ public class CXFMessageInterceptorTest {
     @Test
     @Ignore
     public void testMessageHandle() {
-        JaxWsProxyBuilder builder = JaxWsProxyBuilder.newProxyBuilder();
+        JaxWsProxyBuilder builder = JaxWsProxyBuilder.create();
         builder.getInInterceptors().add(new AbstractPhaseInterceptor<Message>(Phase.RECEIVE) {
             @Override
             public void handleMessage(Message message) throws Fault {
@@ -79,7 +79,7 @@ public class CXFMessageInterceptorTest {
     }
 
     public static void main(String[] args) {
-        JaxWsServerBuilder.newServerBuilder().setServiceInterface(HelloService.class).publish(HelloWebService.class, address, new JaxWsServerFactoryConfig() {
+        JaxWsServerBuilder.create().setServiceInterface(HelloService.class).publish(HelloWebService.class, address, new JaxWsServerFactoryConfig() {
 
             @Override
             public void config(JaxWsServerFactoryBean factoryBean) {

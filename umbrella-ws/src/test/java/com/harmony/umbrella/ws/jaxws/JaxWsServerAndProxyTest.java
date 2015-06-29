@@ -37,12 +37,12 @@ public class JaxWsServerAndProxyTest {
 
     @BeforeClass
     public static void setUp() {
-        JaxWsServerBuilder.newServerBuilder().publish(HelloWebService.class, address);
+        JaxWsServerBuilder.create().publish(HelloWebService.class, address);
     }
 
     @Test
     public void testProxyBuilder() {
-        HelloService service = JaxWsProxyBuilder.newProxyBuilder().build(HelloService.class, address);
+        HelloService service = JaxWsProxyBuilder.create().build(HelloService.class, address);
         assertEquals("Hi wuxii", service.sayHi("wuxii"));
     }
 
@@ -61,7 +61,7 @@ public class JaxWsServerAndProxyTest {
 
     public static void main(String[] args) {
         // 最好是给实现类也添加上与接口一样的annotation配置信息
-        JaxWsServerBuilder.newServerBuilder().setServiceInterface(HelloService.class).publish(HelloWebService.class, address);
+        JaxWsServerBuilder.create().setServiceInterface(HelloService.class).publish(HelloWebService.class, address);
     }
 
 }
