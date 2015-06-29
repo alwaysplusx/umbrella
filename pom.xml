@@ -50,6 +50,7 @@
     <apache.shiro.version>1.2.3</apache.shiro.version>
     <apache.jee.version>6.0-6</apache.jee.version>
     <apache.struts.version>2.3.16</apache.struts.version>
+    <apache.httpclient.version>4.5</apache.httpclient.version>
 
     <spring.version>4.1.6.RELEASE</spring.version>
     <spring.data.version>1.10.0.RELEASE</spring.data.version>
@@ -319,6 +320,12 @@
         <groupId>org.apache.struts.xwork</groupId>
         <artifactId>xwork-core</artifactId>
         <version>${apache.struts.version}</version>
+      </dependency>
+      <!-- apache commons -->
+      <dependency>
+        <groupId>org.apache.httpcomponents</groupId>
+        <artifactId>httpclient</artifactId>
+        <version>${apache.httpclient.version}</version>
       </dependency>
       <!-- apache END -->
 

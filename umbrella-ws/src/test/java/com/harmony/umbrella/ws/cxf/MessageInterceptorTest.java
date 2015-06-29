@@ -13,19 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.umbrella.jaxws.cxf;
+package com.harmony.umbrella.ws.cxf;
 
 import static org.junit.Assert.*;
 
 import org.junit.Ignore;
 import org.junit.Test;
 
-import com.harmony.umbrella.jaxws.JaxWsProxyBuilder;
-import com.harmony.umbrella.jaxws.JaxWsServerBuilder;
-import com.harmony.umbrella.jaxws.cxf.interceptor.MessageInInterceptor;
-import com.harmony.umbrella.jaxws.cxf.interceptor.MessageOutInterceptor;
-import com.harmony.umbrella.jaxws.services.HelloService;
-import com.harmony.umbrella.jaxws.services.HelloServiceImpl;
+import com.harmony.umbrella.ws.cxf.interceptor.MessageInInterceptor;
+import com.harmony.umbrella.ws.cxf.interceptor.MessageOutInterceptor;
+import com.harmony.umbrella.ws.jaxws.JaxWsProxyBuilder;
+import com.harmony.umbrella.ws.jaxws.JaxWsServerBuilder;
+import com.harmony.umbrella.ws.services.HelloService;
+import com.harmony.umbrella.ws.services.HelloWebService;
 
 /**
  * @author wuxii@foxmail.com
@@ -45,7 +45,7 @@ public class MessageInterceptorTest {
 	}
 
 	public static void main(String[] args) {
-		JaxWsServerBuilder.newServerBuilder().setServiceInterface(HelloService.class).publish(HelloServiceImpl.class, address);
+		JaxWsServerBuilder.newServerBuilder().setServiceInterface(HelloService.class).publish(HelloWebService.class, address);
 	}
 
 }

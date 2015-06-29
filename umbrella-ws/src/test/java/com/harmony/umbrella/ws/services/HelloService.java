@@ -1,4 +1,4 @@
-package com.harmony.umbrella.jaxws.services;
+package com.harmony.umbrella.ws.services;
 
 import javax.jws.WebMethod;
 import javax.jws.WebParam;

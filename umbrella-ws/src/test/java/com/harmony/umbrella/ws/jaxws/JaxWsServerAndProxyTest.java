@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.umbrella.jaxws;
+package com.harmony.umbrella.ws.jaxws;
 
 import static org.junit.Assert.*;
 
@@ -22,10 +22,10 @@ import java.util.Map;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.harmony.umbrella.jaxws.impl.JaxWsCXFExecutor;
-import com.harmony.umbrella.jaxws.impl.SimpleJaxWsContext;
-import com.harmony.umbrella.jaxws.services.HelloService;
-import com.harmony.umbrella.jaxws.services.HelloServiceImpl;
+import com.harmony.umbrella.ws.AsyncCallback;
+import com.harmony.umbrella.ws.services.HelloService;
+import com.harmony.umbrella.ws.services.HelloWebService;
+import com.harmony.umbrella.ws.support.SimpleContext;
 
 /**
  * @author wuxii@foxmail.com
@@ -37,7 +37,7 @@ public class JaxWsServerAndProxyTest {
 
     @BeforeClass
     public static void setUp() {
-        JaxWsServerBuilder.newServerBuilder().publish(HelloServiceImpl.class, address);
+        JaxWsServerBuilder.newServerBuilder().publish(HelloWebService.class, address);
     }
 
     @Test
@@ -48,9 +48,9 @@ public class JaxWsServerAndProxyTest {
 
     @Test
     public void testAsyncAndCallback() {
-        SimpleJaxWsContext context = new SimpleJaxWsContext(HelloService.class, "sayHi", new Object[] { "wuxii" });
+        SimpleContext context = new SimpleContext(HelloService.class, "sayHi", new Object[] { "wuxii" });
         context.setAddress(address);
-        executor.executeAsync(context, new JaxWsAsyncCallback<String>() {
+        executor.executeAsync(context, new AsyncCallback<String>() {
             @Override
             public void handle(String result, Map<String, Object> content) {
                 assertEquals("Hi wuxii", result);
@@ -61,7 +61,7 @@ public class JaxWsServerAndProxyTest {
 
     public static void main(String[] args) {
         // 最好是给实现类也添加上与接口一样的annotation配置信息
-        JaxWsServerBuilder.newServerBuilder().setServiceInterface(HelloService.class).publish(HelloServiceImpl.class, address);
+        JaxWsServerBuilder.newServerBuilder().setServiceInterface(HelloService.class).publish(HelloWebService.class, address);
     }
 
 }
