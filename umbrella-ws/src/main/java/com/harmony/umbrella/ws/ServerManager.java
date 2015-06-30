@@ -80,7 +80,7 @@ public class ServerManager {
      * 服务instance
      */
     private static ServerManager INSTANCE;
-    
+
     private ServerManager() {
     }
 
@@ -175,10 +175,10 @@ public class ServerManager {
     private boolean doPublish(Class<?> serviceClass, String address, JaxWsServerFactoryConfig factoryConfig) {
         Assert.notNull(serviceClass, "service class is null");
         try {
-            JaxWsServerBuilder builder = JaxWsServerBuilder.create()
-                                                .setBeanFactoryInvoker(beanFactoryInvoker)
-                                                .addInInterceptor(new MessageInInterceptor("JaxWs-Server Inbound"))
-                                                .addOutInterceptor(new MessageOutInterceptor("JaxWs-Server Outbound"));
+            JaxWsServerBuilder builder = JaxWsServerBuilder.create()//
+                    .setBeanFactoryInvoker(beanFactoryInvoker)//
+                    .addInInterceptor(new MessageInInterceptor("JaxWs-Server Inbound"))//
+                    .addOutInterceptor(new MessageOutInterceptor("JaxWs-Server Outbound"));
 
             Metadata metadata = getMetadata(serviceClass);
             if (metadata != null) {
@@ -206,10 +206,10 @@ public class ServerManager {
         Assert.notNull(resourceClass, "resource class is null");
         try {
 
-            JaxRsServerBuilder builder = JaxRsServerBuilder.create()
-                                                .setProvider(beanFactoryProvider)
-                                                .addInInterceptor(new MessageInInterceptor("REST-Server Inbound"))
-                                                .addOutInterceptor(new MessageOutInterceptor("REST-Server Outbound"));
+            JaxRsServerBuilder builder = JaxRsServerBuilder.create()//
+                    .setProvider(beanFactoryProvider)//
+                    .addInInterceptor(new MessageInInterceptor("REST-Server Inbound"))//
+                    .addOutInterceptor(new MessageOutInterceptor("REST-Server Outbound"));
 
             Metadata metadata = getMetadata(resourceClass);
             if (metadata != null) {
@@ -343,7 +343,7 @@ public class ServerManager {
     public void destory(String address, Class<?> clazz) {
         unregisterServer(getServer(address, clazz));
     }
-    
+
     /**
      * 销毁所有服务实例
      */
