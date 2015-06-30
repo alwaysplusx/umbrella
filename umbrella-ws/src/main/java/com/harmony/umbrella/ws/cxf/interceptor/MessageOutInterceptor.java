@@ -46,12 +46,16 @@ public class MessageOutInterceptor extends AbstractMessageInterceptor {
     private static final Logger log = LoggerFactory.getLogger(MessageOutInterceptor.class);
 
     public MessageOutInterceptor() {
-        this(Phase.PRE_STREAM);
+        this("Outbound Message");
     }
-
-    public MessageOutInterceptor(String phase) {
-        super(phase);
+    
+    public MessageOutInterceptor(String heading, String phase) {
+        super(heading, phase);
         addBefore(StaxOutInterceptor.class.getName());
+    }
+    
+    public MessageOutInterceptor(String heading) {
+        this(heading, Phase.PRE_STREAM);
     }
 
     @Override
@@ -137,11 +141,6 @@ public class MessageOutInterceptor extends AbstractMessageInterceptor {
 
     public void setHandler(LogMessageHandler handler) {
         this.handler = handler;
-    }
-
-    @Override
-    protected String getMessageHeading() {
-        return "\n--------------------------------------\nOutbound Message\n--------------------------------------";
     }
 
 }

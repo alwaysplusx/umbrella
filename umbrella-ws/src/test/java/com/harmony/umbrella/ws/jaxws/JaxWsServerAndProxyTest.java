@@ -23,6 +23,8 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.harmony.umbrella.ws.AsyncCallback;
+import com.harmony.umbrella.ws.cxf.interceptor.MessageInInterceptor;
+import com.harmony.umbrella.ws.cxf.interceptor.MessageOutInterceptor;
 import com.harmony.umbrella.ws.services.HelloService;
 import com.harmony.umbrella.ws.services.HelloWebService;
 import com.harmony.umbrella.ws.support.SimpleContext;
@@ -37,7 +39,10 @@ public class JaxWsServerAndProxyTest {
 
     @BeforeClass
     public static void setUp() {
-        JaxWsServerBuilder.create().publish(HelloWebService.class, address);
+        JaxWsServerBuilder.create()
+                .addInInterceptor(new MessageInInterceptor())
+                .addOutInterceptor(new MessageOutInterceptor())
+                .publish(HelloWebService.class, address);
     }
 
     @Test

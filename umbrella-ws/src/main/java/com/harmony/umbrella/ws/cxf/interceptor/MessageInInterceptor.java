@@ -42,11 +42,15 @@ public class MessageInInterceptor extends AbstractMessageInterceptor {
     private static final Logger log = LoggerFactory.getLogger(MessageInInterceptor.class);
 
     public MessageInInterceptor() {
-        this(Phase.RECEIVE);
+        this("Inbound Message");
     }
 
-    public MessageInInterceptor(String phase) {
-        super(phase);
+    public MessageInInterceptor(String heading) {
+        this(heading, Phase.RECEIVE);
+    }
+    
+    public MessageInInterceptor(String heading, String phase) {
+        super(heading, phase);
     }
 
     @Override
@@ -121,11 +125,6 @@ public class MessageInInterceptor extends AbstractMessageInterceptor {
 
     public void setHandler(LogMessageHandler handler) {
         this.handler = handler;
-    }
-
-    @Override
-    protected String getMessageHeading() {
-        return "\n--------------------------------------\nInbound Message\n--------------------------------------";
     }
 
 }

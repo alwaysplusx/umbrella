@@ -29,7 +29,7 @@ import com.harmony.umbrella.Constants;
 import com.harmony.umbrella.io.util.ResourceScaner;
 import com.harmony.umbrella.util.ClassUtils.ClassFilter;
 import com.harmony.umbrella.util.ClassUtils.ClassFilterFeature;
-import com.harmony.umbrella.ws.jaxws.JaxWsServerManager;
+import com.harmony.umbrella.ws.ServerManager;
 
 /**
  * @author wuxii@foxmail.com
@@ -52,7 +52,7 @@ public class WebServiceServlet extends CXFNonSpringServlet {
     /**
      * 服务管理实例
      */
-    private JaxWsServerManager serverManager = JaxWsServerManager.getInstance();
+    private ServerManager serverManager = ServerManager.getServerManager();
 
     /**
      * 资源扫描实例

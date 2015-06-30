@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.jws.WebService;
 import javax.ws.rs.Path;
@@ -31,21 +32,23 @@ import org.slf4j.LoggerFactory;
 import com.harmony.umbrella.util.Assert;
 import com.harmony.umbrella.util.ClassUtils;
 import com.harmony.umbrella.util.Exceptions;
+import com.harmony.umbrella.util.StringUtils;
 import com.harmony.umbrella.ws.cxf.ServerImpl;
+import com.harmony.umbrella.ws.cxf.interceptor.MessageInInterceptor;
+import com.harmony.umbrella.ws.cxf.interceptor.MessageOutInterceptor;
 import com.harmony.umbrella.ws.jaxrs.JaxRsServerBuilder;
 import com.harmony.umbrella.ws.jaxrs.JaxRsServerBuilder.BeanFactoryProvider;
 import com.harmony.umbrella.ws.jaxrs.JaxRsServerBuilder.JaxRsServerFactoryConfig;
 import com.harmony.umbrella.ws.jaxws.JaxWsServerBuilder;
 import com.harmony.umbrella.ws.jaxws.JaxWsServerBuilder.BeanFactoryInvoker;
 import com.harmony.umbrella.ws.jaxws.JaxWsServerBuilder.JaxWsServerFactoryConfig;
-import com.harmony.umbrella.ws.jaxws.JaxWsServerManager;
 
 /**
  * @author wuxii@foxmail.com
  */
-public abstract class ServerManager {
+public class ServerManager {
 
-    private static final Logger log = LoggerFactory.getLogger(JaxWsServerManager.class);
+    private static final Logger log = LoggerFactory.getLogger(ServerManager.class);
     /**
      */
     private static final Map<ServerKey, ServerImpl> servers = new HashMap<ServerKey, ServerImpl>();
@@ -70,13 +73,26 @@ public abstract class ServerManager {
      */
     private boolean failFast = false;
 
-    protected ServerManager() {
+    private static ServerManager INSTANCE;
+    
+    private ServerManager() {
+    }
+
+    public static ServerManager getServerManager() {
+        if (INSTANCE == null) {
+            synchronized (ServerManager.class) {
+                if (INSTANCE == null) {
+                    INSTANCE = new ServerManager();
+                }
+            }
+        }
+        return INSTANCE;
     }
 
     /**
      * 发布一个服务实例为{@code serviceClass}的服务，地址依赖{@link #metaLoader}
      * 来加载。所以在使用这个方法时候请注意需要先设置{@link #metaLoader}
-     * 
+     *
      * @param clazz
      *            服务实例类型
      */
@@ -92,7 +108,7 @@ public abstract class ServerManager {
 
     /**
      * 在指定地址发布一个服务
-     * 
+     *
      * @param clazz
      *            服务类型
      * @param address
@@ -110,7 +126,7 @@ public abstract class ServerManager {
 
     /**
      * 可配置的发布服务
-     * 
+     *
      * @param serviceClass
      *            服务类型
      * @param factoryConfig
@@ -122,7 +138,7 @@ public abstract class ServerManager {
 
     /**
      * 可配置的发布服务
-     * 
+     *
      * @param resourceClass
      *            服务类型
      * @param factoryConfig
@@ -134,7 +150,7 @@ public abstract class ServerManager {
 
     /**
      * 在指定地址发布服务，发布前提供配置服务
-     * 
+     *
      * @param serviceClass
      *            服务类型
      * @param address
@@ -150,10 +166,20 @@ public abstract class ServerManager {
         return doPublish(resourceClass, address, factoryConfig);
     }
 
-    protected boolean doPublish(Class<?> serviceClass, String address, JaxWsServerFactoryConfig factoryConfig) {
+    private boolean doPublish(Class<?> serviceClass, String address, JaxWsServerFactoryConfig factoryConfig) {
         Assert.notNull(serviceClass, "service class is null");
         try {
-            JaxWsServerBuilder builder = JaxWsServerBuilder.create().setBeanFactoryInvoker(beanFactoryInvoker).setMetadataLoader(metaLoader);
+            JaxWsServerBuilder builder = JaxWsServerBuilder.create()
+                                                .setBeanFactoryInvoker(beanFactoryInvoker)
+                                                .addInInterceptor(new MessageInInterceptor("JaxWs-Server Inbound"))
+                                                .addOutInterceptor(new MessageOutInterceptor("JaxWs-Server Outbound"));
+
+            Metadata metadata = getMetadata(serviceClass);
+            if (metadata != null) {
+                address = StringUtils.isNotBlank(address) ? address : metadata.getAddress();
+                builder.setUsername(metadata.getUsername()).setPassword(metadata.getPassword());
+            }
+
             Server server = builder.publish(serviceClass, address, factoryConfig);
 
             // register server
@@ -170,10 +196,21 @@ public abstract class ServerManager {
         return true;
     }
 
-    protected boolean doPublish(Class<?> resourceClass, String address, JaxRsServerFactoryConfig factoryConfig) {
+    private boolean doPublish(Class<?> resourceClass, String address, JaxRsServerFactoryConfig factoryConfig) {
         Assert.notNull(resourceClass, "resource class is null");
         try {
-            JaxRsServerBuilder builder = JaxRsServerBuilder.create().setProvider(beanFactoryProvider).setMetadataLoader(metaLoader);
+
+            JaxRsServerBuilder builder = JaxRsServerBuilder.create()
+                                                .setProvider(beanFactoryProvider)
+                                                .addInInterceptor(new MessageInInterceptor("REST-Server Inbound"))
+                                                .addOutInterceptor(new MessageOutInterceptor("REST-Server Outbound"));
+
+            Metadata metadata = getMetadata(resourceClass);
+            if (metadata != null) {
+                address = StringUtils.isNotBlank(address) ? address : metadata.getAddress();
+                builder.setUsername(metadata.getUsername()).setPassword(metadata.getPassword());
+            }
+
             Server server = builder.publish(resourceClass, address, factoryConfig);
 
             // register server
@@ -188,6 +225,10 @@ public abstract class ServerManager {
             return false;
         }
         return true;
+    }
+
+    private Metadata getMetadata(Class<?> clazz) {
+        return metaLoader == null ? null : metaLoader.getMetadata(clazz);
     }
 
     /**
@@ -217,7 +258,7 @@ public abstract class ServerManager {
 
     /**
      * 检测地址是否已经发布了服务
-     * 
+     *
      * @param address
      * @return
      */
@@ -233,7 +274,7 @@ public abstract class ServerManager {
 
     /**
      * 检查是否在地址上发布了指定类型的服务
-     * 
+     *
      * @param clazz
      * @param address
      * @return
@@ -255,70 +296,86 @@ public abstract class ServerManager {
         servers.put(key, server);
     }
 
-    private void unregisterServer(Class<?> clazz, String address) {
-        ServerImpl server = getServer(address);
-        if (server != null) {
+    private void unregisterServer(Map<ServerKey, ServerImpl> serverMap) {
+        Iterator<Entry<ServerKey, ServerImpl>> it = serverMap.entrySet().iterator();
+        while (it.hasNext()) {
+            Entry<ServerKey, ServerImpl> entry = it.next();
+            ServerKey key = entry.getKey();
+            ServerImpl server = entry.getValue();
             server.stop();
             server.destroy();
+            if (servers == serverMap) {
+                it.remove();
+            } else {
+                servers.remove(key);
+            }
         }
     }
 
     /**
      * 销毁指定地址的服务实例
-     * 
+     *
      * @param serviceClass
      * @param address
      */
     public void destory(String address) {
-        // TODO
-        unregisterServer(null, address);
-    }
-
-    private ServerImpl getServer(String address) {
-        Iterator<ServerKey> it = servers.keySet().iterator();
-        while (it.hasNext()) {
-            ServerKey key = it.next();
-            if (key.address.equals(address)) {
-                return servers.get(key);
-            }
-        }
-        return null;
-    }
-
-    private List<ServerImpl> getServer(Class<?> clazz) {
-        List<ServerImpl> serverList = new ArrayList<ServerImpl>();
-        Iterator<ServerKey> it = servers.keySet().iterator();
-        while (it.hasNext()) {
-            ServerKey key = it.next();
-            if (key.clazz == clazz) {
-                serverList.add(servers.get(key));
-            }
-        }
-        return serverList;
+        unregisterServer(getServer(address));
     }
 
     /**
      * 销毁所有serviceClass的服务实例
-     * 
+     *
      * @param clazz
      */
     public void destory(Class<?> clazz) {
-        // TODO
-        for (ServerImpl server : getServer(clazz)) {
-            server.stop();
-            server.destroy();
+        unregisterServer(getServer(clazz));
+    }
+
+    public void destory(String address, Class<?> clazz) {
+        unregisterServer(getServer(address, clazz));
+    }
+
+    private Map<ServerKey, ServerImpl> getServer(String address) {
+        Map<ServerKey, ServerImpl> result = new HashMap<ServerKey, ServerImpl>();
+        Iterator<ServerKey> it = servers.keySet().iterator();
+        while (it.hasNext()) {
+            ServerKey key = it.next();
+            if (key.address.equals(address)) {
+                result.put(key, servers.get(key));
+            }
         }
+        return result;
+    }
+
+    private Map<ServerKey, ServerImpl> getServer(Class<?> clazz) {
+        Map<ServerKey, ServerImpl> result = new HashMap<ServerKey, ServerImpl>();
+        Iterator<ServerKey> it = servers.keySet().iterator();
+        while (it.hasNext()) {
+            ServerKey key = it.next();
+            if (key.clazz == clazz) {
+                result.put(key, servers.get(key));
+            }
+        }
+        return result;
+    }
+
+    private Map<ServerKey, ServerImpl> getServer(String address, Class<?> clazz) {
+        Map<ServerKey, ServerImpl> result = new HashMap<ServerKey, ServerImpl>();
+        ServerKey key = new ServerKey(clazz, address);
+        Iterator<ServerKey> it = servers.keySet().iterator();
+        while (it.hasNext()) {
+            if (key.equals(it.next())) {
+                result.put(key, servers.get(key));
+            }
+        }
+        return result;
     }
 
     /**
      * 销毁所有服务实例
      */
     public void destoryAll() {
-        // TODO
-        for (Server server : servers.values()) {
-            server.stop();
-            server.destroy();
-        }
+        unregisterServer(servers);
     }
 
     public static boolean isJaxRsService(Class<?> clazz) {

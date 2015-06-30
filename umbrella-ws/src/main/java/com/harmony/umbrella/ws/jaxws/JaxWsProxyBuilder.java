@@ -32,11 +32,7 @@ import org.slf4j.LoggerFactory;
 
 import com.harmony.umbrella.util.Assert;
 import com.harmony.umbrella.util.StringUtils;
-import com.harmony.umbrella.ws.Metadata;
 import com.harmony.umbrella.ws.MetadataLoader;
-import com.harmony.umbrella.ws.cxf.interceptor.MessageInInterceptor;
-import com.harmony.umbrella.ws.cxf.interceptor.MessageOutInterceptor;
-import com.harmony.umbrella.ws.support.SimpleMetadata;
 
 /**
  * Proxy Builder 创建代理实例
@@ -45,17 +41,15 @@ import com.harmony.umbrella.ws.support.SimpleMetadata;
  */
 public class JaxWsProxyBuilder {
 
-    public static final long defaultTimeout = 1000 * 60 * 3;
+    private static final Logger log = LoggerFactory.getLogger(JaxWsProxyBuilder.class);
+
+    public static final long DEFAULT_TIMEOUT = 1000 * 60 * 3;
 
     private static final ThreadLocal<JaxWsProxyFactoryBean> factoryBeans = new ThreadLocal<JaxWsProxyFactoryBean>();
-
-    private static final Logger log = LoggerFactory.getLogger(JaxWsProxyBuilder.class);
 
     private String address;
     private String username;
     private String password;
-
-    private MetadataLoader metaLoader;
 
     /**
      * 实际的代理服务类
@@ -80,8 +74,6 @@ public class JaxWsProxyBuilder {
         factoryBean.getInInterceptors().clear();
         factoryBean.getOutFaultInterceptors().clear();
         factoryBean.getOutInterceptors().clear();
-        factoryBean.getInInterceptors().add(new MessageInInterceptor());
-        factoryBean.getOutInterceptors().add(new MessageOutInterceptor());
     }
 
     /**
@@ -110,6 +102,26 @@ public class JaxWsProxyBuilder {
      */
     public List<Interceptor<? extends Message>> getOutInterceptors() {
         return factoryBeans.get().getOutInterceptors();
+    }
+
+    public JaxWsProxyBuilder addInInterceptor(Interceptor<? extends Message> interceptor) {
+        getInInterceptors().add(interceptor);
+        return this;
+    }
+
+    public JaxWsProxyBuilder addOutInterceptor(Interceptor<? extends Message> interceptor) {
+        getOutInterceptors().add(interceptor);
+        return this;
+    }
+
+    public JaxWsProxyBuilder addInFaultInterceptor(Interceptor<? extends Message> interceptor) {
+        getInFaultInterceptors().add(interceptor);
+        return this;
+    }
+
+    public JaxWsProxyBuilder addOutFaultInterceptor(Interceptor<? extends Message> interceptor) {
+        getOutFaultInterceptors().add(interceptor);
+        return this;
     }
 
     /**
@@ -188,72 +200,36 @@ public class JaxWsProxyBuilder {
      */
     public <T> T build(Class<T> serviceClass, JaxWsProxyFactoryConfig proxyConfig) {
         Assert.notNull(serviceClass, "service class must be not null");
-        Metadata metadata = getMetadata(serviceClass);
-        Assert.isTrue(StringUtils.isNotBlank(metadata.getAddress()), "proxy address is null or blank");
+        Assert.isTrue(StringUtils.isNotBlank(address), "proxy address is null or blank");
 
         JaxWsProxyFactoryBean factoryBean = factoryBeans.get();
-        if (proxyConfig != null)
+        if (proxyConfig != null) {
             proxyConfig.config(factoryBean);
+        }
 
-        factoryBean.setAddress(metadata.getAddress());
-        factoryBean.setUsername(metadata.getUsername());
-        factoryBean.setPassword(metadata.getPassword());
+        factoryBean.setAddress(address);
+        factoryBean.setUsername(username);
+        factoryBean.setPassword(password);
 
         target = factoryBean.create(serviceClass);
 
         // 设置最长超时时间按
-        long connTimeout = metadata.getConnectionTimeout();
-        if (connTimeout > 0) {
-            setConnectionTimeout(target, connTimeout);
+        if (connectionTimeout > 0) {
+            setConnectionTimeout(target, connectionTimeout);
         }
 
         // 设置最长超时时间
-        long recTimeout = metadata.getReceiveTimeout();
-        if (recTimeout > 0) {
-            setReceiveTimeout(target, recTimeout);
+        if (receiveTimeout > 0) {
+            setReceiveTimeout(target, receiveTimeout);
         }
 
         // 设置返回等待时间
-        int syncTimeout = metadata.getSynchronousTimeout();
         if (synchronousTimeout > 0) {
-            setSynchronousTimeout(target, syncTimeout);
+            setSynchronousTimeout(target, synchronousTimeout);
         }
 
         log.debug("build proxy[{}] successfully", serviceClass.getName());
         return serviceClass.cast(target);
-    }
-
-    /**
-     * 如果{@linkplain #metaLoader}不为空则先从loader中加载元数据.
-     * <p>
-     * 另,如果当前 {@linkplain JaxWsProxyBuilder}中:
-     * <li>{@linkplain #address}不为空则覆盖元数据中的地址
-     * <li>{@linkplain #username}不为空则覆盖元数据中的用户名
-     * <li>{@linkplain #password} 不为空则覆盖元数据中的密码
-     * 
-     * @param serviceClass
-     * @return
-     */
-    protected Metadata getMetadata(Class<?> serviceClass) {
-        SimpleMetadata result = new SimpleMetadata(serviceClass);
-        if (metaLoader == null) {
-            result.setAddress(address);
-            result.setUsername(username);
-            result.setPassword(password);
-            result.setConnectionTimeout(connectionTimeout);
-            result.setReceiveTimeout(receiveTimeout);
-            result.setSynchronousTimeout(synchronousTimeout);
-        } else {
-            Metadata temp = metaLoader.getMetadata(serviceClass);
-            result.setAddress(StringUtils.isBlank(address) ? temp.getAddress() : address);
-            result.setUsername(StringUtils.isBlank(username) ? temp.getUsername() : username);
-            result.setPassword(StringUtils.isBlank(password) ? temp.getPassword() : password);
-            result.setServiceName(temp.getServiceName());
-            result.setConnectionTimeout(connectionTimeout > temp.getConnectionTimeout() ? connectionTimeout : temp.getConnectionTimeout());
-            result.setReceiveTimeout(receiveTimeout > temp.getReceiveTimeout() ? receiveTimeout : temp.getReceiveTimeout());
-            result.setSynchronousTimeout(synchronousTimeout > temp.getSynchronousTimeout() ? synchronousTimeout : temp.getSynchronousTimeout());
-        }
-        return result;
     }
 
     /**
@@ -279,18 +255,6 @@ public class JaxWsProxyBuilder {
     }
 
     /**
-     * 创建代理服务, 并使用指定的元数据加载工具加载元数据信息(地址/用户名/密码).
-     * 
-     * @param serviceClass
-     * @param metaLoader
-     * @return
-     */
-    public <T> T build(Class<T> serviceClass, MetadataLoader metaLoader) {
-        this.metaLoader = metaLoader;
-        return build(serviceClass, (JaxWsProxyFactoryConfig) null);
-    }
-
-    /**
      * 创建代理服务. 并设置超时时间
      * 
      * @param serviceClass
@@ -301,17 +265,6 @@ public class JaxWsProxyBuilder {
         this.connectionTimeout = connectionTimeout;
         T target = build(serviceClass);
         return target;
-    }
-
-    /**
-     * 设置元数据加载工具
-     * 
-     * @param loader
-     * @return
-     */
-    public JaxWsProxyBuilder setMetadataLoader(MetadataLoader loader) {
-        this.metaLoader = loader;
-        return this;
     }
 
     /**

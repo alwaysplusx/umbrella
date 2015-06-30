@@ -17,7 +17,6 @@ package com.harmony.umbrella.ws.support;
 
 import com.harmony.umbrella.ws.Metadata;
 
-
 /**
  * 服务的基础元数据
  * 
@@ -30,28 +29,31 @@ public class SimpleMetadata implements Metadata {
     private String address;
     private String username;
     private String password;
-    private long connectionTimeout = -1;
-    private long receiveTimeout = -1;
-    private int synchronousTimeout = -1;
-    
-    
+    private long connectionTimeout;
+    private long receiveTimeout;
+    private int synchronousTimeout;
+
     public SimpleMetadata(Class<?> serviceClass) {
-        this.serviceClass = serviceClass;
-        this.serviceName = serviceClass.getName();
+        this(serviceClass, null);
     }
 
     public SimpleMetadata(Class<?> serviceClass, String address) {
-        this.serviceClass = serviceClass;
-        this.address = address;
-        this.serviceName = serviceClass.getName();
+        this(serviceClass, address, null, null);
     }
 
     public SimpleMetadata(Class<?> serviceClass, String address, String username, String password) {
+        this(serviceClass, address, username, password, -1, -1, -1);
+    }
+
+    public SimpleMetadata(Class<?> serviceClass, String address, String username, String password, long ctime, long rtime, int stime) {
         this.serviceClass = serviceClass;
         this.address = address;
         this.username = username;
         this.password = password;
         this.serviceName = serviceClass.getName();
+        this.connectionTimeout = ctime;
+        this.receiveTimeout = rtime;
+        this.synchronousTimeout = stime;
     }
 
     @Override
@@ -121,7 +123,7 @@ public class SimpleMetadata implements Metadata {
     public void setSynchronousTimeout(int synchronousTimeout) {
         this.synchronousTimeout = synchronousTimeout;
     }
-    
+
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -168,12 +170,10 @@ public class SimpleMetadata implements Metadata {
     @Override
     public String toString() {
         StringBuilder result = new StringBuilder("{\n");
-        result.append("  serviceName  -> ").append(serviceName).append("\n")
-              .append("  serviceClass -> ").append(serviceClass != null ? "unknow" : serviceClass.getName()).append("\n")
-              .append("  address  -> ").append(address).append("\n")
-              .append("  password -> ").append(password).append("\n")
-              .append("  ctimeout -> ").append(connectionTimeout).append("\n")
-              .append("  rtimeout -> ").append(receiveTimeout).append("\n");
+        result.append("  serviceName  -> ").append(serviceName).append("\n").append("  serviceClass -> ")
+                .append(serviceClass != null ? "unknow" : serviceClass.getName()).append("\n").append("  address  -> ").append(address).append("\n")
+                .append("  password -> ").append(password).append("\n").append("  ctimeout -> ").append(connectionTimeout).append("\n")
+                .append("  rtimeout -> ").append(receiveTimeout).append("\n");
         result.append("\n}");
         return result.toString();
     }

@@ -12,11 +12,13 @@ import org.apache.http.util.EntityUtils;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.harmony.umbrella.ws.cxf.interceptor.MessageInInterceptor;
+import com.harmony.umbrella.ws.cxf.interceptor.MessageOutInterceptor;
 import com.harmony.umbrella.ws.services.HelloRESTService;
 
 public class JaxRsServerTest {
 
-    private static final String address = "http://localhost:9000";
+    private static final String address = "http://localhost:9000/demo";
 
     @BeforeClass
     public static void setUp() {
@@ -26,14 +28,16 @@ public class JaxRsServerTest {
         // SingletonResourceProvider(new HelloRESTService()));
         // sf.setAddress(address);
         // sf.create();
-        JaxRsServerBuilder.create().setAddress(address).publish(HelloRESTService.class);
-
+        JaxRsServerBuilder.create().setAddress(address)
+                .addInInterceptor(new MessageInInterceptor())
+                .addOutInterceptor(new MessageOutInterceptor())
+                .publish(HelloRESTService.class);
     }
 
     @Test
     public void testCall() throws IOException {
         CloseableHttpClient client = HttpClientBuilder.create().build();
-        HttpResponse response = client.execute(new HttpGet("http://localhost:9000/hi/wuxii"));
+        HttpResponse response = client.execute(new HttpGet(address + "/hi/wuxii"));
         assertEquals(200, response.getStatusLine().getStatusCode());
         assertEquals("Hi wuxii", EntityUtils.toString(response.getEntity()));
     }

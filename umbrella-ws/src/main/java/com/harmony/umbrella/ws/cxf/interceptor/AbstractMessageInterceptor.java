@@ -40,11 +40,21 @@ import com.harmony.umbrella.ws.cxf.log.LogMessage;
  */
 public abstract class AbstractMessageInterceptor extends AbstractPhaseInterceptor<Message> {
 
+    protected static final String HEADING_TEMPLAGE = "\n--------------------------------------\n%s\n--------------------------------------";
+    
 	protected boolean prettyLogging = true;
+	
+	private final String heading;
 
-	public AbstractMessageInterceptor(String phase) {
-		super(phase);
-	}
+    public AbstractMessageInterceptor(String phase) {
+        this("Logging Message", phase);
+    }
+	
+    public AbstractMessageInterceptor(String heading, String phase) {
+        super(phase);
+        this.heading = String.format(HEADING_TEMPLAGE, heading);
+    }
+
 
 	@Override
 	public void handleMessage(Message message) throws Fault {
@@ -196,9 +206,9 @@ public abstract class AbstractMessageInterceptor extends AbstractPhaseIntercepto
 		}
 	}
 
-	protected String getMessageHeading() {
-		return "\n--------------------------------------\nLogging Message\n--------------------------------------";
-	}
+    protected String getMessageHeading() {
+        return heading;
+    }
 
 	public boolean isPrettyLogging() {
 		return prettyLogging;

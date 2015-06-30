@@ -15,23 +15,20 @@
  */
 package com.harmony.umbrella.ws.jaxrs;
 
+import java.util.List;
+
 import org.apache.cxf.endpoint.Server;
+import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.jaxrs.JAXRSServerFactoryBean;
 import org.apache.cxf.jaxrs.lifecycle.ResourceProvider;
+import org.apache.cxf.message.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.harmony.umbrella.core.BeanFactory;
-import com.harmony.umbrella.core.NoSuchBeanFindException;
 import com.harmony.umbrella.util.Assert;
 import com.harmony.umbrella.util.StringUtils;
-import com.harmony.umbrella.ws.Metadata;
-import com.harmony.umbrella.ws.MetadataLoader;
-import com.harmony.umbrella.ws.WebServiceException;
 import com.harmony.umbrella.ws.cxf.SimpleBeanFactoryProvider;
-import com.harmony.umbrella.ws.cxf.interceptor.MessageInInterceptor;
-import com.harmony.umbrella.ws.cxf.interceptor.MessageOutInterceptor;
-import com.harmony.umbrella.ws.support.SimpleMetadata;
 
 /**
  * @author wuxii@foxmail.com
@@ -39,6 +36,8 @@ import com.harmony.umbrella.ws.support.SimpleMetadata;
 public class JaxRsServerBuilder {
 
     private static final Logger log = LoggerFactory.getLogger(JaxRsServerBuilder.class);
+
+    private final JAXRSServerFactoryBean serverFactoryBean;
 
     protected Class<?> resourceClass;
 
@@ -57,21 +56,50 @@ public class JaxRsServerBuilder {
      */
     protected String password;
 
-    private JAXRSServerFactoryBean serverFactoryBean;
-
     private BeanFactoryProvider provider;
 
-    /**
-     * JaxWs服务元数据加载器
-     */
-    private MetadataLoader metaLoader;
-
     protected JaxRsServerBuilder() {
-
+        this.serverFactoryBean = new JAXRSServerFactoryBean();
     }
 
     public static JaxRsServerBuilder create() {
         return new JaxRsServerBuilder();
+    }
+
+    private List<Interceptor<? extends Message>> getInInterceptors() {
+        return serverFactoryBean.getInInterceptors();
+    }
+
+    private List<Interceptor<? extends Message>> getOutInterceptors() {
+        return serverFactoryBean.getOutInterceptors();
+    }
+
+    private List<Interceptor<? extends Message>> getInFaultInterceptors() {
+        return serverFactoryBean.getInFaultInterceptors();
+    }
+
+    private List<Interceptor<? extends Message>> getOutFaultInterceptors() {
+        return serverFactoryBean.getOutFaultInterceptors();
+    }
+
+    public JaxRsServerBuilder addInInterceptor(Interceptor<? extends Message> interceptor) {
+        getInInterceptors().add(interceptor);
+        return this;
+    }
+
+    public JaxRsServerBuilder addOutInterceptor(Interceptor<? extends Message> interceptor) {
+        getOutInterceptors().add(interceptor);
+        return this;
+    }
+
+    public JaxRsServerBuilder addInFaultInterceptor(Interceptor<? extends Message> interceptor) {
+        getInFaultInterceptors().add(interceptor);
+        return this;
+    }
+
+    public JaxRsServerBuilder addOutFaultInterceptor(Interceptor<? extends Message> interceptor) {
+        getOutFaultInterceptors().add(interceptor);
+        return this;
     }
 
     public Server publish() {
@@ -94,27 +122,22 @@ public class JaxRsServerBuilder {
 
     protected Server doPublish(Class<?> resourceClass, JaxRsServerFactoryConfig factoryConfig) {
         Assert.notNull(resourceClass, "resource class is null");
-        Metadata metadata = getMetadata(resourceClass);
-        Assert.isTrue(StringUtils.isNotBlank(metadata.getAddress()), "server address is null or blank");
-        try {
-            serverFactoryBean = new JAXRSServerFactoryBean();
-            if (factoryConfig != null) {
-                factoryConfig.config(serverFactoryBean);
-                if (serverFactoryBean.getServer() != null) {
-                    throw new IllegalStateException("config factory not allow call create method");
-                }
+        Assert.isTrue(StringUtils.isNotBlank(address), "server address is null or blank");
+
+        if (factoryConfig != null) {
+            factoryConfig.config(serverFactoryBean);
+            if (serverFactoryBean.getServer() != null) {
+                throw new IllegalStateException("config factory not allow call create method");
             }
-            serverFactoryBean.getInInterceptors().add(new MessageInInterceptor());
-            serverFactoryBean.getOutInterceptors().add(new MessageOutInterceptor());
-            serverFactoryBean.setAddress(address);
-            serverFactoryBean.setResourceClasses(resourceClass);
-            serverFactoryBean.setResourceProvider(getProvider());
-            Server server = serverFactoryBean.create();
-            log.debug("create server success");
-            return server;
-        } catch (NoSuchBeanFindException e) {
-            throw new WebServiceException("no target bean of class " + resourceClass.getName() + " find");
         }
+
+        serverFactoryBean.setAddress(address);
+        serverFactoryBean.setResourceClasses(resourceClass);
+        serverFactoryBean.setResourceProvider(getProvider());
+        Server server = serverFactoryBean.create();
+
+        log.debug("create server[{}@{}] success", resourceClass.getName(), address);
+        return server;
     }
 
     /**
@@ -159,7 +182,6 @@ public class JaxRsServerBuilder {
     }
 
     public JaxRsServerBuilder setProvider(BeanFactoryProvider provider) {
-        Assert.notNull(provider, "resource provider must not be null");
         this.provider = provider;
         return this;
     }
@@ -169,24 +191,6 @@ public class JaxRsServerBuilder {
             provider = new SimpleBeanFactoryProvider(resourceClass);
         }
         return provider;
-    }
-
-    protected Metadata getMetadata(Class<?> serviceClass) {
-        if (metaLoader == null) {
-            return new SimpleMetadata(serviceClass, address, username, password);
-        }
-        SimpleMetadata result = new SimpleMetadata(serviceClass);
-        Metadata temp = metaLoader.getMetadata(serviceClass);
-        result.setAddress(StringUtils.isBlank(address) ? temp.getAddress() : address);
-        result.setUsername(StringUtils.isNotBlank(username) ? temp.getUsername() : username);
-        result.setPassword(StringUtils.isNotBlank(password) ? temp.getPassword() : password);
-        result.setServiceName(temp.getServiceName());
-        return result;
-    }
-
-    public JaxRsServerBuilder setMetadataLoader(MetadataLoader metaLoader) {
-        this.metaLoader = metaLoader;
-        return this;
     }
 
     /**
