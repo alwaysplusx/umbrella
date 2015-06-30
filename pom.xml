@@ -6,24 +6,28 @@
   <version>0.0.3-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>Harmony Umbrella :: Framework Parent</name>
+
   <modules>
     <module>umbrella-core</module>
+    <module>umbrella-data</module>
     <module>umbrella-message</module>
     <module>umbrella-monitor</module>
-    <module>umbrella-scheduler</module>
-    <module>umbrella-data</module>
-    <module>umbrella-validator</module>
-    <module>umbrella-ee</module>
-    <module>umbrella-resources</module>
-    <module>umbrella-plugins</module>
-    <module>umbrella-spring</module>
+    <module>umbrella-ws</module>
     <module>umbrella-json</module>
+    <module>umbrella-validator</module>
+    
+    <!-- <module>umbrella-scheduler</module> -->
+    <!-- <module>umbrella-spring</module> -->
+    <!-- <module>umbrella-ee</module> -->
     <!-- <module>umbrella-security</module> -->
     <!-- <module>umbrella-mapper</module> -->
-    <!-- <module>examples</module> -->
     <!-- <module>umbrella-cache</module> -->
     <!-- <module>umbrella-web</module> -->
-    <module>umbrella-ws</module>
+    
+    <!-- <module>umbrella-plugins</module> -->
+    <!-- <module>umbrella-resources</module> -->
+    <!-- <module>examples</module> -->
+
   </modules>
   <properties>
 
@@ -83,11 +87,6 @@
       <!-- umbrella START -->
       <dependency>
         <groupId>com.harmony.umbrella</groupId>
-        <artifactId>umbrella-monitor</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.harmony.umbrella</groupId>
         <artifactId>umbrella-core</artifactId>
         <version>${project.version}</version>
       </dependency>
@@ -103,17 +102,27 @@
       </dependency>
       <dependency>
         <groupId>com.harmony.umbrella</groupId>
+        <artifactId>umbrella-monitor</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.harmony.umbrella</groupId>
+        <artifactId>umbrella-ws</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.harmony.umbrella</groupId>
+        <artifactId>umbrella-json</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.harmony.umbrella</groupId>
         <artifactId>umbrella-scheduler</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
         <groupId>com.harmony.umbrella</groupId>
         <artifactId>umbrella-security</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.harmony.umbrella</groupId>
-        <artifactId>umbrella-ws</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
@@ -131,11 +140,6 @@
         <artifactId>umbrella-ee</artifactId>
         <version>${project.version}</version>
       </dependency>
-      <dependency>
-        <groupId>com.harmony.umbrella</groupId>
-        <artifactId>umbrella-json</artifactId>
-        <version>${project.version}</version>
-      </dependency>      
       <!-- umbrella END -->
 
       <!-- slf4j START -->
