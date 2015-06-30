@@ -4,6 +4,7 @@ import static org.junit.Assert.*;
 
 import java.io.IOException;
 
+import org.apache.cxf.jaxrs.client.JAXRSClientFactory;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -15,6 +16,7 @@ import org.junit.Test;
 import com.harmony.umbrella.ws.cxf.interceptor.MessageInInterceptor;
 import com.harmony.umbrella.ws.cxf.interceptor.MessageOutInterceptor;
 import com.harmony.umbrella.ws.services.HelloRESTService;
+import com.harmony.umbrella.ws.services.HelloService;
 
 public class JaxRsServerTest {
 
@@ -42,4 +44,10 @@ public class JaxRsServerTest {
         assertEquals("Hi wuxii", EntityUtils.toString(response.getEntity()));
     }
 
+    @Test
+    public void testClient() {
+        HelloService service = JAXRSClientFactory.create(address, HelloService.class);
+        assertEquals("Hi wuxii", service.sayHi("wuxii"));
+    }
+    
 }

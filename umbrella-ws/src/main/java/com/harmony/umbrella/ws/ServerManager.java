@@ -44,12 +44,15 @@ import com.harmony.umbrella.ws.jaxws.JaxWsServerBuilder.BeanFactoryInvoker;
 import com.harmony.umbrella.ws.jaxws.JaxWsServerBuilder.JaxWsServerFactoryConfig;
 
 /**
+ * 服务管理实例
+ * 
  * @author wuxii@foxmail.com
  */
 public class ServerManager {
 
     private static final Logger log = LoggerFactory.getLogger(ServerManager.class);
     /**
+     * 所有的服务
      */
     private static final Map<ServerKey, ServerImpl> servers = new HashMap<ServerKey, ServerImpl>();
 
@@ -73,6 +76,9 @@ public class ServerManager {
      */
     private boolean failFast = false;
 
+    /**
+     * 服务instance
+     */
     private static ServerManager INSTANCE;
     
     private ServerManager() {
@@ -216,9 +222,9 @@ public class ServerManager {
             // register server
             registerServer(new ServerImpl(resourceClass, server), address);
 
-            log.info("success publish server[resourceClass:{},address:{}]", resourceClass.getName(), address);
+            log.info("success publish server[{}@{}]", resourceClass.getName(), address);
         } catch (Exception e) {
-            log.error("failed publish server[resourceClass:{},address:{}]", resourceClass.getName(), address, e);
+            log.error("failed publish server[{}@{}]", resourceClass.getName(), address, e);
             if (failFast) {
                 throw Exceptions.unchecked(e);
             }
@@ -245,6 +251,9 @@ public class ServerManager {
         this.beanFactoryInvoker = beanFactoryInvoker;
     }
 
+    /**
+     * @see org.apache.cxf.jaxrs.lifecycle.ResourceProvider
+     */
     public void setBeanFactoryProvider(BeanFactoryProvider beanFactoryProvider) {
         this.beanFactoryProvider = beanFactoryProvider;
     }
@@ -260,7 +269,7 @@ public class ServerManager {
      * 检测地址是否已经发布了服务
      *
      * @param address
-     * @return
+     *            检测的地址
      */
     public boolean inUse(String address) {
         Iterator<ServerKey> it = servers.keySet().iterator();
@@ -273,11 +282,11 @@ public class ServerManager {
     }
 
     /**
-     * 检查是否在地址上发布了指定类型的服务
-     *
+     * 获取类所发布的所有服务地址
+     * 
      * @param clazz
-     * @param address
-     * @return
+     *            服务类
+     * @return 所发布的所有地址
      */
     public String[] publishAddresses(Class<?> clazz) {
         List<String> addresses = new ArrayList<String>();
@@ -304,6 +313,7 @@ public class ServerManager {
             ServerImpl server = entry.getValue();
             server.stop();
             server.destroy();
+            log.info("stop service[{}@{}]", key.clazz.getName(), key.address);
             if (servers == serverMap) {
                 it.remove();
             } else {
@@ -315,7 +325,6 @@ public class ServerManager {
     /**
      * 销毁指定地址的服务实例
      *
-     * @param serviceClass
      * @param address
      */
     public void destory(String address) {
@@ -323,7 +332,7 @@ public class ServerManager {
     }
 
     /**
-     * 销毁所有serviceClass的服务实例
+     * 销毁所有clazz的服务实例
      *
      * @param clazz
      */
@@ -333,6 +342,13 @@ public class ServerManager {
 
     public void destory(String address, Class<?> clazz) {
         unregisterServer(getServer(address, clazz));
+    }
+    
+    /**
+     * 销毁所有服务实例
+     */
+    public void destoryAll() {
+        unregisterServer(servers);
     }
 
     private Map<ServerKey, ServerImpl> getServer(String address) {
@@ -369,13 +385,6 @@ public class ServerManager {
             }
         }
         return result;
-    }
-
-    /**
-     * 销毁所有服务实例
-     */
-    public void destoryAll() {
-        unregisterServer(servers);
     }
 
     public static boolean isJaxRsService(Class<?> clazz) {

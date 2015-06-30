@@ -61,4 +61,9 @@ public class ServerManagerTest {
         assertEquals("Hi wuxii", service.sayHi("wuxii"));
     }
 
+    public static void main(String[] args) {
+        // http://localhost:8080/rest/hi?_wadl
+        sm.publish(HelloRESTService.class, "http://localhost:8080/rest/");
+    }
+    
 }

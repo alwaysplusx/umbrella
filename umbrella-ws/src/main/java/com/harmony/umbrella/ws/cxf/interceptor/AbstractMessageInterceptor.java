@@ -122,6 +122,11 @@ public abstract class AbstractMessageInterceptor extends AbstractPhaseIntercepto
         if (requestUrl != null) {
             logMessage.getRequestUrl().append(requestUrl);
         }
+        
+        Object queryString = message.get(Message.QUERY_STRING);
+        if (queryString != null) {
+            logMessage.getQueryString().append(queryString);
+        }
 		
 		String payload = getPayload(message);
 		if (payload != null) {

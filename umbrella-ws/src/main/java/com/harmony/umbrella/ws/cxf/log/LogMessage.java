@@ -41,6 +41,7 @@ public class LogMessage {
 	private final StringBuilder payload;
 	private final StringBuilder responseCode;
 	private final StringBuilder requestUrl;
+	private final StringBuilder queryString;
 	private Object headerObject;
 	private QName service;
 	private QName proxy;
@@ -60,6 +61,7 @@ public class LogMessage {
 		this.payload = new StringBuilder();
 		this.responseCode = new StringBuilder();
 		this.requestUrl = new StringBuilder();
+		this.queryString = new StringBuilder();
 	}
 
 	public static String nextId() {
@@ -108,6 +110,10 @@ public class LogMessage {
 
 	public StringBuilder getRequestUrl() {
         return requestUrl;
+    }
+	
+	public StringBuilder getQueryString() {
+        return queryString;
     }
 	
 	public QName getProxy() {
@@ -190,6 +196,11 @@ public class LogMessage {
         if (requestUrl.length() > 0) {
             buffer.append("\nRequest-Url: ");
             buffer.append(requestUrl);
+        }
+        
+        if (queryString.length() > 0) {
+            buffer.append("\nQuery-String: ");
+            buffer.append(queryString);
         }
 		
 		buffer.append("\nContent-Type: ");
