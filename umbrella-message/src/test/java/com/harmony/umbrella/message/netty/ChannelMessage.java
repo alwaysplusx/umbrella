@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 wuxii@foxmail.com.
+ * Copyright 2002-2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,29 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.umbrella.message.tcp;
+package com.harmony.umbrella.message.netty;
 
 import com.harmony.umbrella.message.Message;
-import com.harmony.umbrella.message.MessageSender;
 
 /**
  * @author wuxii@foxmail.com
  */
-public abstract class TcpMessageSender implements MessageSender {
+public class ChannelMessage implements Message {
 
-	protected final String address;
-
-	public TcpMessageSender(String address) {
-		this.address = address;
-	}
-
-	@Override
-	public boolean send(Message message) {
-		return false;
-	}
-
-	public boolean keepAlive() {
-		return true;
-	}
+    private static final long serialVersionUID = 8306554032512496777L;
 
 }
