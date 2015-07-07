@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * one class one jmx bean
- * 
+ *
  * @author wuxii@foxmail.com
  */
 public class JmxManager {
@@ -64,11 +64,12 @@ public class JmxManager {
 
     /**
      * 将一个对象注册到JMS中
-     * <p>
+     * <p/>
      * 自动生成一个objectName
-     * 
+     *
      * @param object
-     * @return
+     *         待绑定的对象
+     * @return 返回{@code true}绑定成功
      */
     public boolean registerMBean(Object object) {
         return registerMBean(object, toJMXObjectName(object.getClass()));
@@ -76,12 +77,14 @@ public class JmxManager {
 
     /**
      * 将一个对象注册到指定的objectName
-     * <p>
+     * <p/>
      * 注册mbean的最终入口
-     * 
+     *
      * @param object
+     *         待绑定的对象
      * @param objectName
-     * @return
+     *         绑定的名称
+     * @return 返回{@code true}绑定成功
      */
     public boolean registerMBean(Object object, String objectName) {
         try {
@@ -99,9 +102,10 @@ public class JmxManager {
 
     /**
      * 反注册jmx对象
-     * 
-     * @param object
-     * @return
+     *
+     * @param clazz
+     *         解除绑定
+     * @return 返回{@code true}解除成功
      */
     public boolean unregisterMBean(Class<?> clazz) {
         return unregisterMBean(toJMXObjectName(clazz));
@@ -109,11 +113,12 @@ public class JmxManager {
 
     /**
      * 反注册objectName对象
-     * <p>
+     * <p/>
      * 反注册的最终入口
-     * 
+     *
      * @param objectName
-     * @return
+     *         待解除的名称
+     * @return 返回{@code true}解除成功
      */
     public boolean unregisterMBean(String objectName) {
         try {
@@ -135,9 +140,10 @@ public class JmxManager {
 
     /**
      * 查看对象是否已经注册
-     * 
-     * @param object
-     * @return
+     *
+     * @param clazz
+     *         检查的对象类
+     * @return 返回{@code true}表示已经注册
      */
     public boolean isRegistered(Class<?> clazz) {
         return isRegistered(toJMXObjectName(clazz));
@@ -145,9 +151,10 @@ public class JmxManager {
 
     /**
      * 查看objectName是否已经注册
-     * 
+     *
      * @param objectName
-     * @return
+     *         检查的名称
+     * @return 返回{@code true}表示已经注册
      */
     public boolean isRegistered(String objectName) {
         try {
@@ -159,9 +166,10 @@ public class JmxManager {
 
     /**
      * 注册jmx http功能
-     * 
+     *
      * @param port
-     * @return
+     *         注册网页适配
+     * @return 返回{@code true}注册成功
      */
     public boolean registerHtmlAdaptorServer(int port) {
         if (!isRegistered(JMX_HTML_MBEAN_NAME)) {
@@ -169,7 +177,7 @@ public class JmxManager {
                 Class<?> adaptorClass = Class.forName("com.sun.jdmk.comm.HtmlAdaptorServer");
                 Constructor<?> constructor = adaptorClass.getConstructor(Integer.TYPE);
                 Object object = constructor.newInstance(port);
-                Method startMethod = adaptorClass.getMethod("start", new Class[] {});
+                Method startMethod = adaptorClass.getMethod("start", new Class[]{});
                 startMethod.invoke(object);
                 registerMBean(object, JMX_HTML_MBEAN_NAME);
                 log.debug("register html adaptor {} successfully", JMX_HTML_MBEAN_NAME);

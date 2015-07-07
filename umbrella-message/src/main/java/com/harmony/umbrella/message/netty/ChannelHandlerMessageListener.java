@@ -15,7 +15,11 @@
  */
 package com.harmony.umbrella.message.netty;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.netty.bootstrap.ServerBootstrap;
+import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInitializer;
@@ -24,6 +28,9 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.handler.codec.serialization.ClassResolvers;
+import io.netty.handler.codec.serialization.ObjectDecoder;
+import io.netty.handler.codec.serialization.ObjectEncoder;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 
@@ -39,6 +46,8 @@ public class ChannelHandlerMessageListener extends ChannelHandlerAdapter impleme
 
     private boolean initialed;
 
+    private static final Logger log = LoggerFactory.getLogger(ChannelHandlerMessageListener.class);
+
     public ChannelHandlerMessageListener() {
     }
 
@@ -48,11 +57,12 @@ public class ChannelHandlerMessageListener extends ChannelHandlerAdapter impleme
         if (initialed) {
             return;
         }
-        
+
         initialed = true;
 
-        new Thread(new Runnable() {
+        final ChannelHandler messageHandler = this;
 
+        new Thread("ChannelHandler-Thread") {
             @Override
             public void run() {
 
@@ -68,21 +78,24 @@ public class ChannelHandlerMessageListener extends ChannelHandlerAdapter impleme
                                 @Override
                                 public void initChannel(SocketChannel ch) throws Exception {
                                     ChannelPipeline p = ch.pipeline();
-                                    p.addLast(this);
+                                    p.addLast(new ObjectEncoder(),//
+                                            new ObjectDecoder(ClassResolvers.cacheDisabled(null)),//
+                                            messageHandler);
                                 }
                             });
 
                     // Bind and start to accept incoming connections.
                     b.bind(port).sync().channel().closeFuture().sync();
 
+                    System.out.println(">>>>>>>>>>>> start");
                 } catch (InterruptedException e) {
                 } finally {
                     bossGroup.shutdownGracefully();
                     workerGroup.shutdownGracefully();
                 }
-            }
 
-        }).start();
+            }
+        }.start();
 
     }
 
@@ -92,13 +105,26 @@ public class ChannelHandlerMessageListener extends ChannelHandlerAdapter impleme
     }
 
     @Override
-    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        System.out.println(msg);
+    public void channelRead(ChannelHandlerContext ctx, Object msg) {
+        // Echo back the received object to the client.
+        log.info("Echo back the received object to the client -> {}", msg);
+        // ctx.write(msg);
+    }
+
+    @Override
+    public void channelReadComplete(ChannelHandlerContext ctx) {
+        ctx.flush();
+    }
+
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
+        cause.printStackTrace();
+        ctx.close();
     }
 
     @Override
     public void destory() {
-        
+
     }
 
 }

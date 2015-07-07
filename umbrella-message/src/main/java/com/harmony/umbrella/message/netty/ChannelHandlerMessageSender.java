@@ -16,7 +16,6 @@
 package com.harmony.umbrella.message.netty;
 
 import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
@@ -26,6 +25,12 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.handler.codec.serialization.ClassResolvers;
+import io.netty.handler.codec.serialization.ObjectDecoder;
+import io.netty.handler.codec.serialization.ObjectEncoder;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.harmony.umbrella.message.Message;
 import com.harmony.umbrella.message.MessageSender;
@@ -34,6 +39,8 @@ import com.harmony.umbrella.message.MessageSender;
  * @author wuxii@foxmail.com
  */
 public class ChannelHandlerMessageSender implements MessageSender {
+
+    private static final Logger log = LoggerFactory.getLogger(ChannelHandlerMessageSender.class);
 
     protected final String host;
     protected final int port;
@@ -54,13 +61,16 @@ public class ChannelHandlerMessageSender implements MessageSender {
                         @Override
                         public void initChannel(SocketChannel ch) throws Exception {
                             ChannelPipeline p = ch.pipeline();
-                            p.addLast(new ChannelMessageHandler(message));
+                            p.addLast(new ObjectEncoder(),//
+                                    new ObjectDecoder(ClassResolvers.cacheDisabled(null)),//
+                                    new ChannelMessageHandler(message));
                         }
                     });
 
-            // Start the connection attempt.
-            ChannelFuture future = b.connect(host, port).sync().channel().closeFuture();
-            future.addListener(ChannelFutureListener.CLOSE);
+            b.connect(host, port)//
+                    .sync()//
+                    .channel()//
+                    .closeFuture().addListener(ChannelFutureListener.CLOSE);
 
         } catch (InterruptedException e) {
         } finally {
@@ -71,16 +81,38 @@ public class ChannelHandlerMessageSender implements MessageSender {
 
     private class ChannelMessageHandler extends ChannelHandlerAdapter {
 
-        private Object message;
+        private Message message;
 
         public ChannelMessageHandler(Message message) {
             this.message = message;
         }
 
         @Override
-        public void channelActive(ChannelHandlerContext ctx) throws Exception {
+        public void channelActive(ChannelHandlerContext ctx) {
+            // Send the first message if this handler is a client-side handler.
+            log.info("send message on channel active");
             ctx.writeAndFlush(message);
+            log.info(">>>>");
         }
+
+        @Override
+        public void channelRead(ChannelHandlerContext ctx, Object msg) {
+            // Echo back the received object to the server.
+            log.info("Echo back the received object to the server -> {}", msg);
+            // ctx.write(msg);
+        }
+
+        @Override
+        public void channelReadComplete(ChannelHandlerContext ctx) {
+            ctx.flush();
+        }
+
+        @Override
+        public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
+            cause.printStackTrace();
+            ctx.close();
+        }
+
     }
 
 }
