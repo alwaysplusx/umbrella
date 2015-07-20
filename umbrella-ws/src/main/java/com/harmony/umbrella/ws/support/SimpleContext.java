@@ -43,7 +43,7 @@ public class SimpleContext implements Context, Serializable {
     private String password;
     private long connectionTimeout = -1;
     private long receiveTimeout = -1;
-    private int synchronousTimeout;
+    private int synchronousTimeout = -1;
 
     public SimpleContext(Class<?> serviceInterface, String methodName) {
         this(serviceInterface, methodName, null);

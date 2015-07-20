@@ -23,7 +23,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * 消息监听抽象类
- * 
+ *
  * @author wuxii
  */
 public abstract class AbstractMessageListener implements MessageListener {
@@ -43,9 +43,9 @@ public abstract class AbstractMessageListener implements MessageListener {
      * 接受到的消息, 使用{@linkplain MessageResolver#support(Message)}判定当前有哪些是符合条件的
      * {@linkplain MessageResolver}. 再经由
      * {@linkplain MessageResolver#handle(Message)}处理该消息.
-     * 
+     * <p/>
      * <p>消息是可以被多个{@linkplain MessageResolver}按顺序处理的
-     * 
+     *
      * @see MessageResolver
      */
     @Override
@@ -60,7 +60,7 @@ public abstract class AbstractMessageListener implements MessageListener {
 
     /**
      * 动态增加{@linkplain MessageResolver}
-     * 
+     *
      * @param messageResolver
      * @return
      */
@@ -70,7 +70,7 @@ public abstract class AbstractMessageListener implements MessageListener {
 
     /**
      * 动态删除{@linkplain MessageResolver}
-     * 
+     *
      * @param messageResolver
      * @return
      */
@@ -80,8 +80,8 @@ public abstract class AbstractMessageListener implements MessageListener {
 
     /**
      * 检测是否包含{@linkplain MessageResolver}. 重写{@linkplain Object#hashCode()}
-     * {@linkplain Object#equals()}方法
-     * 
+     * {@linkplain Object#equals(Object)}方法
+     *
      * @param messageResolver
      * @return
      */

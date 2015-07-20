@@ -21,10 +21,11 @@ package com.harmony.umbrella.message;
 public interface MessageSender {
 
     /**
-     * 发送消息给消息中心, 或脱离{@linkplain MessageCenter}作为JMS使用
-     * 
+     * 发送消息给消息中心, 作为JMS使用
+     *
      * @param message
-     * @return
+     *         需要发送的消息
+     * @return if return {@code true} 发送成功
      * @see javax.jms.MessageProducer#send(javax.jms.Message)
      */
     boolean send(Message message);

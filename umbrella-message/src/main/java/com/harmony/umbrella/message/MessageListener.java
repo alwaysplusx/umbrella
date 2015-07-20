@@ -17,7 +17,7 @@ package com.harmony.umbrella.message;
 
 /**
  * 监听消息
- * 
+ *
  * @author wuxii
  * @see javax.jms.MessageListener
  */
@@ -29,17 +29,17 @@ public interface MessageListener {
     void init();
 
     /**
-     * 由消息中心{@linkplain MessageCenter}传入，调用{@link #onMessage(Message)}方法.
-     * 
+     * 当消息到达时候触发
+     *
      * @param message
+     *         接受的消息
      * @see javax.jms.MessageListener#onMessage(javax.jms.Message)
-     * @see ApplicationMessageListener#onMessage(javax.jms.Message)
      */
     void onMessage(Message message);
 
     /**
      * 清空占用的资源
      */
-    void destory();
+    void destroy();
 
 }

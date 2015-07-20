@@ -18,7 +18,7 @@ package com.harmony.umbrella.ws;
 import java.util.Map;
 
 /**
- * 基于{@linkplain JaxWsExecutor}的结果回调支持
+ * 基于{@linkplain com.harmony.umbrella.ws.jaxws.JaxWsExecutor}的结果回调支持
  * 
  * @author wuxii@foxmail.com
  */

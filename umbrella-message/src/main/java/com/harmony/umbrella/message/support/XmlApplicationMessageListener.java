@@ -54,7 +54,7 @@ public class XmlApplicationMessageListener extends AbstractMessageListener imple
     }
 
     @Override
-    public void destory() {
+    public void destroy() {
     }
 
     public List<MessageResolver> getMessageResolvers() {

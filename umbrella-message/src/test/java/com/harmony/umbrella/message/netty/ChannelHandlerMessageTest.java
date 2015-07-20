@@ -40,8 +40,4 @@ public class ChannelHandlerMessageTest {
         // Thread.sleep(Long.MAX_VALUE);
     }
 
-    public static void main(String[] args) throws Exception {
-        new ChannelHandlerMessageListener().init();
-        Thread.sleep(Long.MAX_VALUE);
-    }
 }

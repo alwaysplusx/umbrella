@@ -15,11 +15,8 @@
  */
 package com.harmony.umbrella.message.netty;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.ChannelHandler;
+import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInitializer;
@@ -34,6 +31,9 @@ import io.netty.handler.codec.serialization.ObjectEncoder;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.harmony.umbrella.message.Message;
 import com.harmony.umbrella.message.MessageListener;
 
@@ -42,73 +42,76 @@ import com.harmony.umbrella.message.MessageListener;
  */
 public class ChannelHandlerMessageListener extends ChannelHandlerAdapter implements MessageListener {
 
-    private int port = 8080;
+    public static final int DEFAULT_PORT = 18160;
 
-    private boolean initialed;
+    private int port = DEFAULT_PORT;
 
     private static final Logger log = LoggerFactory.getLogger(ChannelHandlerMessageListener.class);
 
+    private ChannelFuture channelFuture;
+
     public ChannelHandlerMessageListener() {
+        this(DEFAULT_PORT);
+    }
+
+    public ChannelHandlerMessageListener(int port) {
+        this.port = port;
     }
 
     @Override
     public void init() {
+        if (channelFuture == null) {
+            synchronized (ChannelHandlerMessageListener.class) {
+                if (channelFuture == null) {
+                    new Thread("ChannelHandler-Thread") {
+                        @Override
+                        public void run() {
 
-        if (initialed) {
-            return;
-        }
+                            EventLoopGroup bossGroup = new NioEventLoopGroup(1);
+                            EventLoopGroup workerGroup = new NioEventLoopGroup();
+                            try {
 
-        initialed = true;
+                                ServerBootstrap b = new ServerBootstrap();
+                                b.group(bossGroup, workerGroup)//
+                                        .channel(NioServerSocketChannel.class)//
+                                        .handler(new LoggingHandler(LogLevel.INFO))//
+                                        .childHandler(new ChannelInitializer<SocketChannel>() {
+                                            @Override
+                                            public void initChannel(SocketChannel ch) throws Exception {
+                                                ChannelPipeline p = ch.pipeline();
+                                                p.addLast(new ObjectEncoder(),//
+                                                        new ObjectDecoder(ClassResolvers.cacheDisabled(null)),//
+                                                        ChannelHandlerMessageListener.this);
+                                            }
+                                        });
 
-        final ChannelHandler messageHandler = this;
+                                channelFuture = b.bind(port);
+                                channelFuture.sync().channel().closeFuture().sync();
 
-        new Thread("ChannelHandler-Thread") {
-            @Override
-            public void run() {
+                            } catch (InterruptedException e) {
+                            } finally {
+                                bossGroup.shutdownGracefully();
+                                workerGroup.shutdownGracefully();
+                            }
 
-                EventLoopGroup bossGroup = new NioEventLoopGroup(1);
-                EventLoopGroup workerGroup = new NioEventLoopGroup();
-                try {
-
-                    ServerBootstrap b = new ServerBootstrap();
-                    b.group(bossGroup, workerGroup)//
-                            .channel(NioServerSocketChannel.class)//
-                            .handler(new LoggingHandler(LogLevel.INFO))//
-                            .childHandler(new ChannelInitializer<SocketChannel>() {
-                                @Override
-                                public void initChannel(SocketChannel ch) throws Exception {
-                                    ChannelPipeline p = ch.pipeline();
-                                    p.addLast(new ObjectEncoder(),//
-                                            new ObjectDecoder(ClassResolvers.cacheDisabled(null)),//
-                                            messageHandler);
-                                }
-                            });
-
-                    // Bind and start to accept incoming connections.
-                    b.bind(port).sync().channel().closeFuture().sync();
-
-                    System.out.println(">>>>>>>>>>>> start");
-                } catch (InterruptedException e) {
-                } finally {
-                    bossGroup.shutdownGracefully();
-                    workerGroup.shutdownGracefully();
+                        }
+                    }.start();
                 }
-
             }
-        }.start();
+        }
 
     }
 
     @Override
     public void onMessage(Message message) {
-
+        log.info("{}", message);
     }
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) {
-        // Echo back the received object to the client.
-        log.info("Echo back the received object to the client -> {}", msg);
-        // ctx.write(msg);
+        if (msg instanceof Message) {
+            onMessage((Message) msg);
+        }
     }
 
     @Override
@@ -123,8 +126,9 @@ public class ChannelHandlerMessageListener extends ChannelHandlerAdapter impleme
     }
 
     @Override
-    public void destory() {
-
+    public void destroy() {
+        channelFuture.channel().close();
+        channelFuture = null;
     }
 
 }
