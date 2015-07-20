@@ -25,6 +25,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.harmony.umbrella.ws.jaxws.JaxWsProxyBuilder;
@@ -35,6 +36,7 @@ import com.harmony.umbrella.ws.services.HelloWebService;
 /**
  * @author wuxii@foxmail.com
  */
+@Ignore
 public class ServerManagerTest {
 
     private static final String address1 = "http://localhost:9001/demo";
