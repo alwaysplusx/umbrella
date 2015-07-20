@@ -17,6 +17,7 @@ package com.harmony.umbrella.ws.jaxrs;
 
 import static org.junit.Assert.*;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.harmony.umbrella.ws.cxf.interceptor.MessageInInterceptor;
@@ -32,6 +33,7 @@ public class JaxRsClientBuilderBatchTest {
     private static final String address = "http://localhost:9000/demo/batch";
 
     @Test
+    @Ignore
     public void test() {
         for (final int index : new int[] { 1, 2, 3, 4, 5 }) {
             new Thread(new Runnable() {

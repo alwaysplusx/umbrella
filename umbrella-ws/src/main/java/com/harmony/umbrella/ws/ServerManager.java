@@ -45,6 +45,7 @@ import com.harmony.umbrella.ws.jaxws.JaxWsServerBuilder.JaxWsServerFactoryConfig
 
 /**
  * 服务管理实例
+ * FIXME 修改服务发布时候不能准确定位到是何种类型的服务
  * 
  * @author wuxii@foxmail.com
  */
@@ -121,13 +122,24 @@ public class ServerManager {
      *            服务地址
      */
     public boolean publish(Class<?> clazz, String address) {
-        if (isJaxRsService(clazz)) {
-            return publish(clazz, address, (JaxRsServerFactoryConfig) null);
-        } else if (isJaxWsService(clazz)) {
-            return publish(clazz, address, (JaxWsServerFactoryConfig) null);
-        } else {
-            throw new IllegalArgumentException("service class neither jaxws service nor jaxrs service");
+        try {
+            if (isJaxRsService(clazz) && isJaxWsService(clazz)) {
+                publish(clazz, address, (JaxRsServerFactoryConfig) null);
+                publish(clazz, address, (JaxWsServerFactoryConfig) null);
+                return true;
+            } else if (isJaxWsService(clazz)) {
+                return publish(clazz, address, (JaxWsServerFactoryConfig) null);
+            } else if (isJaxRsService(clazz)) {
+                return publish(clazz, address, (JaxRsServerFactoryConfig) null);
+            }
+        } catch (Exception e) {
+            try {
+                destory(address);
+            } catch (Exception e1) {
+            }
+            throw Exceptions.unchecked(e);
         }
+        throw new IllegalArgumentException("service class neither jaxws service nor jaxrs service");
     }
 
     /**
@@ -387,8 +399,16 @@ public class ServerManager {
         return result;
     }
 
+    protected static boolean isJaxRsClass(Class<?> clazz) {
+        return clazz.getAnnotation(Path.class) != null ? true : false;
+    }
+
+    protected static boolean isJaxWsClass(Class<?> clazz) {
+        return clazz.getAnnotation(WebService.class) != null ? true : false;
+    }
+
     public static boolean isJaxRsService(Class<?> clazz) {
-        if (clazz.getAnnotation(Path.class) != null) {
+        if (isJaxRsClass(clazz)) {
             return true;
         }
         Class<?>[] classes = ClassUtils.getAllInterfaces(clazz);
@@ -401,7 +421,7 @@ public class ServerManager {
     }
 
     public static boolean isJaxWsService(Class<?> clazz) {
-        if (clazz.getAnnotation(WebService.class) != null) {
+        if (isJaxWsClass(clazz)) {
             return true;
         }
         Class<?>[] classes = ClassUtils.getAllInterfaces(clazz);
