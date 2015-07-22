@@ -45,7 +45,6 @@ import com.harmony.umbrella.ws.jaxws.JaxWsServerBuilder.JaxWsServerFactoryConfig
 
 /**
  * 服务管理实例
- * FIXME 修改服务发布时候不能准确定位到是何种类型的服务
  * 
  * @author wuxii@foxmail.com
  */
@@ -104,13 +103,7 @@ public class ServerManager {
      *            服务实例类型
      */
     public boolean publish(Class<?> clazz) {
-        if (isJaxRsService(clazz)) {
-            return publish(clazz, null, (JaxRsServerFactoryConfig) null);
-        } else if (isJaxWsService(clazz)) {
-            return publish(clazz, null, (JaxWsServerFactoryConfig) null);
-        } else {
-            throw new IllegalArgumentException("service class neither jaxws service nor jaxrs service");
-        }
+        return publish(clazz, (String) null);
     }
 
     /**
@@ -122,22 +115,18 @@ public class ServerManager {
      *            服务地址
      */
     public boolean publish(Class<?> clazz, String address) {
-        try {
-            if (isJaxRsService(clazz) && isJaxWsService(clazz)) {
-                publish(clazz, address, (JaxRsServerFactoryConfig) null);
-                publish(clazz, address, (JaxWsServerFactoryConfig) null);
-                return true;
-            } else if (isJaxWsService(clazz)) {
-                return publish(clazz, address, (JaxWsServerFactoryConfig) null);
-            } else if (isJaxRsService(clazz)) {
+        if (isJaxWsService(clazz) && isJaxRsService(clazz)) {
+            if (isJaxRsClass(clazz)) {
                 return publish(clazz, address, (JaxRsServerFactoryConfig) null);
+            } else if (isJaxWsClass(clazz)) {
+                return publish(clazz, address, (JaxWsServerFactoryConfig) null);
+            } else {
+                throw new IllegalArgumentException("service class is jaxws service and is also jaxrs service");
             }
-        } catch (Exception e) {
-            try {
-                destory(address);
-            } catch (Exception e1) {
-            }
-            throw Exceptions.unchecked(e);
+        } else if (isJaxRsService(clazz)) {
+            return publish(clazz, address, (JaxRsServerFactoryConfig) null);
+        } else if (isJaxWsService(clazz)) {
+            return publish(clazz, address, (JaxWsServerFactoryConfig) null);
         }
         throw new IllegalArgumentException("service class neither jaxws service nor jaxrs service");
     }
@@ -203,9 +192,9 @@ public class ServerManager {
             // register server
             registerServer(new ServerImpl(serviceClass, server), address);
 
-            log.info("success publish server[serviceClass:{},address:{}]", serviceClass.getName(), address);
+            log.info("Publish JaxWs Service {{}@{}}", serviceClass.getName(), address);
         } catch (Exception e) {
-            log.error("failed publish server[serviceClass:{},address:{}]", serviceClass.getName(), address, e);
+            log.error("Can't Publish JaxWs Service {{}@{}}", serviceClass.getName(), address, e);
             if (failFast) {
                 throw Exceptions.unchecked(e);
             }
@@ -228,15 +217,15 @@ public class ServerManager {
                 address = StringUtils.isNotBlank(address) ? address : metadata.getAddress();
                 builder.setUsername(metadata.getUsername()).setPassword(metadata.getPassword());
             }
-
+            
             Server server = builder.publish(resourceClass, address, factoryConfig);
 
             // register server
             registerServer(new ServerImpl(resourceClass, server), address);
 
-            log.info("success publish server[{}@{}]", resourceClass.getName(), address);
+            log.info("Publish JaxRs Service {{}@{}}", resourceClass.getName(), address);
         } catch (Exception e) {
-            log.error("failed publish server[{}@{}]", resourceClass.getName(), address, e);
+            log.error("Can't Publish JaxRs Service {{}@{}}", resourceClass.getName(), address, e);
             if (failFast) {
                 throw Exceptions.unchecked(e);
             }
