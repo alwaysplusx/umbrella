@@ -18,7 +18,6 @@ package com.harmony.umbrella.ws.visitor;
 import com.harmony.umbrella.ws.Context;
 import com.harmony.umbrella.ws.PhaseVisitor;
 import com.harmony.umbrella.ws.WebServiceAbortException;
-import com.harmony.umbrella.ws.WebServiceGraph;
 
 /**
  * @author wuxii@foxmail.com
@@ -42,10 +41,6 @@ public class AbstractPhaseVisitor implements PhaseVisitor {
 
     @Override
     public void visitThrowing(Throwable throwable, Context context) {
-    }
-
-    @Override
-    public void visitFinally(Object result, Throwable throwable, WebServiceGraph graph, Context context) {
     }
 
 }

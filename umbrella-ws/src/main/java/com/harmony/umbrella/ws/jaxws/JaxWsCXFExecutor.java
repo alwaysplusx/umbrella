@@ -53,31 +53,32 @@ public class JaxWsCXFExecutor extends JaxWsPhaseExecutor {
     @Override
     public <T> T executeQuite(Context context, Class<T> resultType) {
         T result = null;
-        WebServiceGraphImpl graph = null;
-        Object[] parameters = context.getParameters();
-        
+        Exception ex = null;
+        Method method = null;
+        Object proxy = null;
+        final Calendar startTime = Calendar.getInstance();
         try {
-            Method method = context.getMethod();
-            Object proxy = loadProxy(context);
-
-            graph = new WebServiceGraphImpl(method);
-            graph.setTarget(proxy);
+            method = context.getMethod();
+            proxy = loadProxy(context);
 
             log.info("使用代理[{}]执行交互{}, invoker is [{}]", proxy, context, invoker);
-            result = (T) invoker.invoke(proxy, method, parameters);
+            result = (T) invoker.invoke(proxy, method, context.getParameters());
 
         } catch (NoSuchMethodException e) {
-            graph = new WebServiceGraphImpl(null);
-            graph.setException(e);
+            ex = e;
             throw new WebServiceException("未找到接口方法" + context, e);
         } catch (InvokeException e) {
-            graph.setException(e);
+            ex = e;
             throw new WebServiceException("执行交互失败", Exceptions.getRootCause(e));
         } finally {
-            graph.setArguments(parameters);
-            graph.setResult(result);
+            WebServiceGraphImpl graph = new WebServiceGraphImpl(method);
+            graph.setRequestTime(startTime);
             graph.setResponseTime(Calendar.getInstance());
-            context.put(WebServiceGraph.JAXWS_CONTEXT_GRAPH, graph);
+            graph.setTarget(proxy);
+            graph.setResult(result);
+            graph.setArguments(context.getParameters());
+            graph.setException(ex);
+            context.put(WebServiceGraph.WS_CONTEXT_GRAPH, graph);
         }
         return result;
     }
@@ -130,13 +131,8 @@ public class JaxWsCXFExecutor extends JaxWsPhaseExecutor {
      */
     protected Object createProxy(Context context) {
         log.debug("创建代理服务, {}", context);
-        return create()
-                .setAddress(context.getAddress())
-                .setUsername(context.getUsername())
-                .setPassword(context.getPassword())
-                .setReceiveTimeout(context.getReceiveTimeout())
-                .setConnectionTimeout(context.getConnectionTimeout())
-                .build(context.getServiceInterface());
+        return create().setAddress(context.getAddress()).setUsername(context.getUsername()).setPassword(context.getPassword())
+                .setReceiveTimeout(context.getReceiveTimeout()).setConnectionTimeout(context.getConnectionTimeout()).build(context.getServiceInterface());
     }
 
     /**

@@ -27,7 +27,6 @@ import com.harmony.umbrella.core.SimpleBeanFactory;
 import com.harmony.umbrella.util.Exceptions;
 import com.harmony.umbrella.ws.Context;
 import com.harmony.umbrella.ws.WebServiceAbortException;
-import com.harmony.umbrella.ws.WebServiceGraph;
 import com.harmony.umbrella.ws.util.HandleMethodInvoker;
 import com.harmony.umbrella.ws.util.HandlerMethodFinder;
 
@@ -134,29 +133,6 @@ public class PhaseValidationVisitor extends AbstractPhaseVisitor {
                     if (invoker.isEndWithMap()) {
                         invoker.setContextMap(context.getContextMap());
                     }
-                    invoker.setThrowable(throwable);
-                    Object bean = beanFactory.getBean(invoker.getHandlerClass());
-                    invoker.invokeHandleMethod(bean, context.getParameters());
-                } catch (InvokeException e) {
-                    log.error("执行handleMethodInvoker[{}]方法失败", invoker, e);
-                    return;
-                }
-            }
-        } catch (NoSuchMethodException e) {
-            log.error("{}方法不存在", context, e);
-        }
-    }
-
-    @Override
-    public void visitFinally(Object result, Throwable throwable, WebServiceGraph graph, Context context) {
-        try {
-            HandleMethodInvoker[] invokers = finder.findHandleMethods(context.getMethod(), FINALLY);
-            for (HandleMethodInvoker invoker : invokers) {
-                try {
-                    if (invoker.isEndWithMap()) {
-                        invoker.setContextMap(context.getContextMap());
-                    }
-                    invoker.setResult(result);
                     invoker.setThrowable(throwable);
                     Object bean = beanFactory.getBean(invoker.getHandlerClass());
                     invoker.invokeHandleMethod(bean, context.getParameters());

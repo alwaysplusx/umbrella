@@ -65,18 +65,4 @@ public interface PhaseVisitor extends Serializable {
      */
     void visitThrowing(Throwable throwable, Context context);
 
-    /**
-     * 总是在执行最后被调用
-     * 
-     * @param result
-     *            执行结果
-     * @param throwable
-     *            异常信息
-     * @param webServiceGraph
-     *            执行的结果视图
-     * @param context
-     *            执行的上下文
-     */
-    void visitFinally(Object result, Throwable throwable, WebServiceGraph webServiceGraph, Context context);
-
 }

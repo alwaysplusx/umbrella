@@ -137,6 +137,12 @@ public abstract class ClassUtils {
      * @return
      */
     public static boolean canonicalNameEquals(Class<?> c1, Class<?> c2) {
+        if (c1 == null || c2 == null) {
+            return false;
+        }
+        if (c1 == c2) {
+            return true;
+        }
         return c1.getCanonicalName().equals(c2.getCanonicalName());
     }
 

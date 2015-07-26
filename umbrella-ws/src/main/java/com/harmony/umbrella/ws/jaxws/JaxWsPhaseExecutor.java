@@ -53,28 +53,21 @@ public abstract class JaxWsPhaseExecutor implements JaxWsExecutor {
 
     @Override
     public <T> T execute(Context context, Class<T> resultType, PhaseVisitor... visitors) {
-        Exception ex = null;
         T result = null;
         try {
-            LOG.debug("执行交互{}", context);
             if (!doBefore(context, visitors)) {
                 return null;
             }
-            long start = System.currentTimeMillis();
             result = executeQuite(context, resultType);
-            LOG.debug("交互成功{}, 返回结果[{}], 交互耗时:{}ms", context, result, System.currentTimeMillis() - start);
             doCompletion(result, context, visitors);
         } catch (WebServiceAbortException e) {
-            LOG.info("交互取消{}", context, e);
-            doAbort((WebServiceAbortException) (ex = e), context, visitors);
+            doAbort((WebServiceAbortException) e, context, visitors);
         } catch (Exception e) {
-            LOG.warn("交互失败{}", context, e);
-            doThrowing(ex = e, context, visitors);
+            doThrowing(e, context, visitors);
             throwOrHide(e);
         } finally {
-            doFinally(result, ex, context, visitors);
-            if (context.contains(WebServiceGraph.JAXWS_CONTEXT_GRAPH)) {
-                Object graph = context.get(WebServiceGraph.JAXWS_CONTEXT_GRAPH);
+            if (context.contains(WebServiceGraph.WS_CONTEXT_GRAPH)) {
+                Object graph = context.get(WebServiceGraph.WS_CONTEXT_GRAPH);
                 LOG.info("执行情况概要如下:{}", graph);
             }
         }
@@ -171,14 +164,6 @@ public abstract class JaxWsPhaseExecutor implements JaxWsExecutor {
         if (visitors != null && visitors.length > 0) {
             for (PhaseVisitor visitor : visitors) {
                 visitor.visitThrowing(throwable, context);
-            }
-        }
-    }
-
-    protected void doFinally(Object result, Exception throwable, Context context, PhaseVisitor[] visitors) {
-        if (visitors != null && visitors.length > 0) {
-            for (PhaseVisitor visitor : visitors) {
-                visitor.visitFinally(result, throwable, (WebServiceGraph) context.get(WebServiceGraph.JAXWS_CONTEXT_GRAPH), context);
             }
         }
     }

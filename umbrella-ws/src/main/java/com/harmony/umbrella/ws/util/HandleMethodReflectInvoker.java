@@ -85,10 +85,6 @@ public class HandleMethodReflectInvoker extends DefaultInvoker implements Handle
         case THROWING:
             arguments.add(0, getThrowable());
             break;
-        case FINALLY:
-            arguments.add(0, getResult());
-            arguments.add(0, getThrowable());
-            break;
         }
         return invoke(target, getHandleMethod(), arguments.toArray(new Object[arguments.size()]));
     }

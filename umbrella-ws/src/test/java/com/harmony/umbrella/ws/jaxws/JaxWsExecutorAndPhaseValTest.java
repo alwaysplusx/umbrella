@@ -53,7 +53,7 @@ public class JaxWsExecutorAndPhaseValTest {
         Object result = executor.execute(context, new PhaseValidationVisitor());
         assertNotNull(result);
         assertEquals("Hi wuxii", result);
-        assertEquals(3, count);
+        assertEquals(2, count);
     }
 
     @Handler(HelloService.class)
@@ -78,10 +78,6 @@ public class JaxWsExecutorAndPhaseValTest {
         public void sayHi(Throwable e, String message, Map<String, Object> content) {
         }
 
-        @HandleMethod(phase = Phase.FINALLY)
-        public void sayHi(Throwable e, String result, String message, Map<String, Object> content) {
-            count++;
-        }
     }
 
     public static void main(String[] args) {

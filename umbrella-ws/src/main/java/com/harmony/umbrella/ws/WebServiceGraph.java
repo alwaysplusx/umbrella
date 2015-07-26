@@ -24,6 +24,6 @@ import com.harmony.umbrella.monitor.MethodMonitor.MethodGraph;
  */
 public interface WebServiceGraph extends MethodGraph {
 
-    String JAXWS_CONTEXT_GRAPH = WebServiceGraph.class.getName() + ".graph";
+    String WS_CONTEXT_GRAPH = WebServiceGraph.class.getName() + ".graph";
 
 }

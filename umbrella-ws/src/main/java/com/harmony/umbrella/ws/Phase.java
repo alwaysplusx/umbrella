@@ -1,4 +1,5 @@
 package com.harmony.umbrella.ws;
+
 /*
  * Copyright 2002-2014 the original author or authors.
  *
@@ -14,7 +15,6 @@ package com.harmony.umbrella.ws;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 
 /**
  * 服务交互的执行周期
@@ -54,15 +54,6 @@ public enum Phase {
      * 执行异常
      */
     THROWING {
-        @Override
-        public String render() {
-            return null;
-        }
-    },
-    /**
-     * 执行的finally块中
-     */
-    FINALLY {
         @Override
         public String render() {
             return null;

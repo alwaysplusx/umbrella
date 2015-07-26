@@ -61,7 +61,7 @@ public class XmlApplicationMessageListener extends AbstractMessageListener imple
         return this.messageResolvers;
     }
 
-    public void getMessageResolvers(List<MessageResolver> messageResolvers) {
+    public void setMessageResolvers(List<MessageResolver> messageResolvers) {
         this.messageResolvers = messageResolvers;
     }
 

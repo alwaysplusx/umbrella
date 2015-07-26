@@ -56,12 +56,15 @@ public abstract class AbstractJmsMessageSender implements MessageSender {
             return false;
         } finally {
             try {
-                if (producer != null)
+                if (producer != null) {
                     producer.close();
-                if (session != null)
+                }
+                if (session != null) {
                     session.close();
-                if (connection != null)
+                }
+                if (connection != null) {
                     connection.close();
+                }
             } catch (JMSException e) {
                 log.debug("", e);
             }
