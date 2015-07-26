@@ -47,8 +47,6 @@ public abstract class ReflectionUtils {
 	 * @param args
 	 *            the constructor arguments to apply
 	 * @return the new instance
-	 * @throws BeanInstantiationException
-	 *             if the bean cannot be instantiated
 	 */
 	public static <T> T instantiateClass(Constructor<T> ctor, Object... args) {
 		Assert.notNull(ctor, "Constructor must not be null");

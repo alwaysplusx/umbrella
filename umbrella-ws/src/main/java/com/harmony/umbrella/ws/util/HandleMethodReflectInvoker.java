@@ -145,7 +145,7 @@ public class HandleMethodReflectInvoker extends DefaultInvoker implements Handle
 
     @Override
     public String toString() {
-        return StringUtils.getMethodIdentifiteName(handleMethod) + "." + phase;
+        return StringUtils.getMethodId(handleMethod) + "." + phase;
     }
 
     @Override

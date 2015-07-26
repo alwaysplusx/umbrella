@@ -73,7 +73,7 @@ public abstract class ApplicationContext implements BeanFactory {
     /**
      * 销毁应用上下文
      */
-    public abstract void destory();
+    public abstract void destroy();
 
     /**
      * 检入{@linkplain InheritableThreadLocal}
@@ -132,7 +132,7 @@ public abstract class ApplicationContext implements BeanFactory {
             }
         }
         if (context == null) {
-            throw new ApplicationContextException("can't find any application context privider to create context");
+            throw new ApplicationContextException("can't find any application context provider to create context");
         }
         return context;
     }
@@ -142,7 +142,7 @@ public abstract class ApplicationContext implements BeanFactory {
      * 
      * @return jvm信息
      */
-    public JVMInformation getInforamtionOfJVM() {
+    public JVMInformation getInformationOfJVM() {
         return JVMINFO;
     }
 
@@ -221,7 +221,7 @@ public abstract class ApplicationContext implements BeanFactory {
             .append("\n\"os\":")
             .append(getInformationOfOS()).append(",\n")
             .append("\"jvm\":")
-            .append(getInforamtionOfJVM()).append(",\n")
+            .append(getInformationOfJVM()).append(",\n")
             .append("\"db\":")
             .append(getInformationOfDB() == null ? "{}" : getInformationOfDB()).append(",\n")
             .append("\"server\":")

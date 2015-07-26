@@ -146,17 +146,6 @@ public class PhaseValidationVisitor extends AbstractPhaseVisitor {
         }
     }
 
-    /**
-     * 修改扫描包
-     * 
-     * @param scanPackage
-     */
-    public void changeScanPackage(String scanPackage) {
-        log.info("修改JaxWSHandlerFinder的扫描路径[{} -> {}]", this.scanPackage, scanPackage);
-        this.scanPackage = scanPackage;
-        this.finder = new HandlerMethodFinder(scanPackage);
-    }
-
     public String getScanPackage() {
         return scanPackage;
     }

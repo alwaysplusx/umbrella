@@ -285,22 +285,6 @@ public abstract class Formats {
         }
 
         /**
-         * @param obj
-         * @return
-         * @throws IllegalArgumentException
-         *             如果不是{@linkplain Date}或者{@linkplain Calendar}
-         */
-        /*public String format(Object obj) {
-            if (obj instanceof Date) {
-                return format((Date) obj);
-            } else if (obj instanceof Calendar) {
-                return format((Calendar) obj);
-            } else {
-                throw new IllegalArgumentException("unsupport format type of " + obj);
-            }
-        }*/
-
-        /**
          * 格式化时间
          * 
          * @param date

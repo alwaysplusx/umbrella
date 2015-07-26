@@ -56,12 +56,12 @@ public class JaxWsCXFExecutor extends JaxWsPhaseExecutor {
         Exception ex = null;
         Method method = null;
         Object proxy = null;
-        final Calendar startTime = Calendar.getInstance();
+        Calendar startTime = null;
         try {
             method = context.getMethod();
             proxy = loadProxy(context);
-
             log.info("使用代理[{}]执行交互{}, invoker is [{}]", proxy, context, invoker);
+            startTime = Calendar.getInstance();
             result = (T) invoker.invoke(proxy, method, context.getParameters());
 
         } catch (NoSuchMethodException e) {
@@ -79,6 +79,7 @@ public class JaxWsCXFExecutor extends JaxWsPhaseExecutor {
             graph.setArguments(context.getParameters());
             graph.setException(ex);
             context.put(WebServiceGraph.WS_CONTEXT_GRAPH, graph);
+            LOG.info("执行情况概要如下:{}", graph);
         }
         return result;
     }
@@ -130,9 +131,16 @@ public class JaxWsCXFExecutor extends JaxWsPhaseExecutor {
      * @return
      */
     protected Object createProxy(Context context) {
-        log.debug("创建代理服务, {}", context);
-        return create().setAddress(context.getAddress()).setUsername(context.getUsername()).setPassword(context.getPassword())
-                .setReceiveTimeout(context.getReceiveTimeout()).setConnectionTimeout(context.getConnectionTimeout()).build(context.getServiceInterface());
+        long start = System.currentTimeMillis();
+        Object proxy = create()//
+                .setAddress(context.getAddress())//
+                .setUsername(context.getUsername())//
+                .setPassword(context.getPassword())//
+                .setReceiveTimeout(context.getReceiveTimeout())//
+                .setConnectionTimeout(context.getConnectionTimeout())//
+                .build(context.getServiceInterface());
+        log.debug("创建代理{}服务, 耗时{}ms", context, System.currentTimeMillis() - start);
+        return proxy;
     }
 
     /**
@@ -144,6 +152,7 @@ public class JaxWsCXFExecutor extends JaxWsPhaseExecutor {
     }
 
     private Object loadProxy(Context context) {
+        log.debug("创建代理[{}]耗时{}ms");
         Object proxy = null;
         if (cacheable) {
             proxy = getProxy(context);

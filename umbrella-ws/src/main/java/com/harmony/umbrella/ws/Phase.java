@@ -33,7 +33,7 @@ public enum Phase {
         }
     },
     /**
-     * 有{@linkplain JaxWsAbortException} 取消执行
+     * 有{@linkplain WebServiceAbortException} 取消执行
      */
     ABORT {
         @Override

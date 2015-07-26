@@ -574,7 +574,7 @@ public abstract class StringUtils {
         return hasLength(str);
     }
 
-    public static String getMethodIdentifiteName(Method method) {
+    public static String getMethodId(Method method) {
         if (method == null)
             return "";
         String args = typeArrayString(Arrays.asList(method.getParameterTypes()), ", ");

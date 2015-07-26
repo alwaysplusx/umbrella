@@ -32,8 +32,8 @@ import com.harmony.umbrella.message.ee.AbstractJmsMessageSender;
 /**
  * @author wuxii@foxmail.com
  */
-@Stateless(mappedName = "ApplicationMessageSender")
 @Remote({ MessageSender.class })
+@Stateless(mappedName = "ApplicationMessageSender")
 public class ApplicationMessageSender extends AbstractJmsMessageSender implements MessageSender {
 
     @Resource

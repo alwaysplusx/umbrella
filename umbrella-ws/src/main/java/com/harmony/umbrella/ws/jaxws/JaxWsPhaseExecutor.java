@@ -25,7 +25,6 @@ import org.slf4j.LoggerFactory;
 import com.harmony.umbrella.util.Exceptions;
 import com.harmony.umbrella.ws.AsyncCallback;
 import com.harmony.umbrella.ws.Context;
-import com.harmony.umbrella.ws.WebServiceGraph;
 import com.harmony.umbrella.ws.PhaseVisitor;
 import com.harmony.umbrella.ws.WebServiceAbortException;
 import com.harmony.umbrella.ws.WebServiceException;
@@ -65,11 +64,6 @@ public abstract class JaxWsPhaseExecutor implements JaxWsExecutor {
         } catch (Exception e) {
             doThrowing(e, context, visitors);
             throwOrHide(e);
-        } finally {
-            if (context.contains(WebServiceGraph.WS_CONTEXT_GRAPH)) {
-                Object graph = context.get(WebServiceGraph.WS_CONTEXT_GRAPH);
-                LOG.info("执行情况概要如下:{}", graph);
-            }
         }
         return result;
     }

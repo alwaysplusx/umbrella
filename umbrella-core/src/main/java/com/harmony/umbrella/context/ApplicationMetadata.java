@@ -65,27 +65,27 @@ public class ApplicationMetadata {
             this.serverType = serverType(serverName);
         }
 
-        public static final int Unknow = 0;
-        public static final int WebLogic = 1;
-        public static final int WebSphere = 2;
-        public static final int Glassfish = 3;
-        public static final int JBoss = 4;
-        public static final int Tomcat = 5;
+        public static final int UNKNOW = 0;
+        public static final int WEBLOGIC = 1;
+        public static final int WEBSPHERE = 2;
+        public static final int GLASSFISH = 3;
+        public static final int JBOSS = 4;
+        public static final int TOMCAT = 5;
 
         private int serverType(String serverName) {
             serverName = serverName.toLowerCase();
             if (serverName.indexOf("weblogic") != -1) {
-                return WebLogic;
+                return WEBLOGIC;
             } else if (serverName.indexOf("websphere") != -1) {
-                return WebSphere;
+                return WEBSPHERE;
             } else if (serverName.indexOf("glassfish") != -1) {
-                return Glassfish;
+                return GLASSFISH;
             } else if (serverName.indexOf("jboss") != -1) {
-                return JBoss;
+                return JBOSS;
             } else if (serverName.indexOf("tomcat") != -1) {
-                return Tomcat;
+                return TOMCAT;
             }
-            return Unknow;
+            return UNKNOW;
         }
 
         @Override

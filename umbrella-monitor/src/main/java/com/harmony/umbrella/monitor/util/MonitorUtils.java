@@ -35,7 +35,7 @@ public abstract class MonitorUtils {
      * @return
      */
     public static String methodIdentifie(Method method) {
-        return method == null ? "" : StringUtils.getMethodIdentifiteName(method);
+        return method == null ? "" : StringUtils.getMethodId(method);
     }
 
     /**

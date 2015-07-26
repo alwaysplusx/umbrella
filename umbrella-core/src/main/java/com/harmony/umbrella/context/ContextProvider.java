@@ -70,7 +70,7 @@ public class ContextProvider {
         }
 
         @Override
-        public void destory() {
+        public void destroy() {
         }
 
     }

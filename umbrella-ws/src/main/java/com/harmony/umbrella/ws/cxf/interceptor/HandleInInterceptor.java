@@ -36,7 +36,7 @@ public class HandleInInterceptor extends AbstractHandleInterceptor {
 
     @Override
     protected void handleServer(Message message, Object resourceInstance, Method method, Object[] args) {
-        log.debug("handle server {} parameters {}", StringUtils.getMethodIdentifiteName(method), args);
+        log.debug("handle server {} parameters {}", StringUtils.getMethodId(method), args);
         try {
             HandleMethodInvoker[] hms = finder.findHandleMethods(method, getJaxWsPhase());
             for (HandleMethodInvoker hm : hms) {

@@ -18,9 +18,6 @@ package com.harmony.umbrella.ws;
 /**
  * 
  * 加载服务的元数据信息
- * <p>
- * [{@linkplain #getAddress(Class)}, {@linkplain #getPassword(Class)},
- * {@linkplain #getUsername(Class)}]可用 {@linkplain #getMetadata(Class)}替代
  * 
  * @author wuxii@foxmail.com
  */

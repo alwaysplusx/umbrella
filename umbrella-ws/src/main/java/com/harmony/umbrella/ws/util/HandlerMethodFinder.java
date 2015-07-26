@@ -158,7 +158,7 @@ public class HandlerMethodFinder {
         for (Class<?> clazz : getAllHandlerClass()) {
             Collections.addAll(result, findHandleMethods(serviceMethod, clazz, phase));
         }
-        log.debug("{}.{} handle method {}", getMethodIdentifiteName(serviceMethod), phase, result);
+        log.debug("{}.{} handle method {}", getMethodId(serviceMethod), phase, result);
         return result.toArray(new HandleMethodInvoker[result.size()]);
     }
 
@@ -210,8 +210,8 @@ public class HandlerMethodFinder {
         List<Class<?>> types = new LinkedList<Class<?>>();
         Collections.addAll(types, serviceParamTypes);
         if (log.isDebugEnabled()) {
-            log.debug("test handle method match\n{\n  {}.{}\n  service->{}\n  {}\n  handler->{}\n}", getMethodIdentifiteName(serviceMethod), phase,
-                    typeString(serviceParamTypes), getMethodIdentifiteName(handleMethod), typeString(handleParamTypes));
+            log.debug("test handle method match\n{\n  {}.{}\n  service->{}\n  {}\n  handler->{}\n}", getMethodId(serviceMethod), phase,
+                    typeString(serviceParamTypes), getMethodId(handleMethod), typeString(handleParamTypes));
         }
         switch (phase) {
         case PRE_INVOKE:

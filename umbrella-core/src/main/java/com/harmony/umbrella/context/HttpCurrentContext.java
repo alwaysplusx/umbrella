@@ -26,9 +26,9 @@ import javax.servlet.http.HttpSession;
 
 /**
  * http的用户操作上下文
- * <p>
+ * <p/>
  * scope current< param < request < session < cookie
- * 
+ *
  * @author wuxii@foxmail.com
  */
 public interface HttpCurrentContext extends CurrentContext {
@@ -52,57 +52,57 @@ public interface HttpCurrentContext extends CurrentContext {
 
     /**
      * 当前的字符集
-     * 
+     *
      * @return 字符集
      */
     String getCharacterEncoding();
 
     /**
      * 当前的本地化
-     * 
+     *
      * @return {@linkplain Locale}
      */
     Locale getLocale();
 
     /**
      * 设置用户环境的本地化
-     * 
+     *
      * @param locale
-     *            {@linkplain Locale}
+     *         {@linkplain Locale}
      */
     void setLocale(Locale locale);
 
     /**
      * 当前的http请求
-     * 
+     *
      * @return http-request
      */
     HttpServletRequest getHttpRequest();
 
     /**
      * 当前的http应答
-     * 
+     *
      * @return http-response
      */
     HttpServletResponse getHttpResponse();
 
     /**
      * 当前环境中是否已经创建了http-session
-     * 
+     *
      * @return if {@code true} has been created
      */
     boolean sessionCreated();
 
     /**
      * 获取当前的http-session
-     * 
+     *
      * @return http-session
      */
     HttpSession getHttpSession();
 
     /**
      * 获取session的id
-     * 
+     *
      * @return session id
      */
     String getSessionId();
@@ -114,38 +114,39 @@ public interface HttpCurrentContext extends CurrentContext {
 
     /**
      * 在指定的范围获取值
-     * 
+     *
      * @param name
-     *            key of value
+     *         key of value
      * @param scope
-     *            作用域
+     *         作用域
      * @return if not exists return {@code null}
      */
     <T> T get(String name, int scope);
 
     /**
-     * 获取作用域为{@linkplain #SCOPE_PARAM}的值
-     * 
+     * 获取request中的params
+     *
      * @param name
-     *            key of value
+     *         key of value
      * @return if not exists return {@code null}
+     * @see javax.servlet.http.HttpServletRequest#getParameter(String)
      */
     String getParameter(String name);
 
     /**
      * 获取作用域为{@linkplain #SCOPE_REQUEST}的值
-     * 
+     *
      * @param name
-     *            key of value
+     *         key of value
      * @return if not exists return {@code null}
      */
     <T> T getAttribute(String name);
 
     /**
      * 获取作用域为{@linkplain #SCOPE_SESSION}的值
-     * 
+     *
      * @param name
-     *            key of value
+     *         key of value
      * @return if not exists return {@code null}
      */
     <T> T getSessionAttribute(String name);
@@ -154,9 +155,9 @@ public interface HttpCurrentContext extends CurrentContext {
 
     /**
      * 获取作用域为{@linkplain #SCOPE_COOKIE}的值
-     * 
+     *
      * @param name
-     *            key of value
+     *         key of value
      * @return if not exists return {@code null}
      */
     String getHttpCookie(String name);
@@ -168,53 +169,53 @@ public interface HttpCurrentContext extends CurrentContext {
 
     /**
      * 在指定的范围设置值
-     * 
+     *
      * @param name
-     *            key of value
+     *         key of value
      * @param o
-     *            value
+     *         value
      * @param scope
-     *            作用域
+     *         作用域
      */
     void put(String name, Object o, int scope);
 
     /**
      * 设置scope为{@linkplain #SCOPE_REQUEST}的值
-     * 
+     *
      * @param name
-     *            key of value
+     *         key of value
      * @param value
-     *            value
+     *         value
      */
     void setAttribute(String name, Object value);
 
     /**
      * 设置scope为{@linkplain #SCOPE_SESSION}的值
-     * 
+     *
      * @param name
-     *            key of value
+     *         key of value
      * @param value
-     *            value
+     *         value
      */
     void setSessionAttribute(String name, Object value);
 
     /**
      * 设置scope为{@linkplain #SCOPE_COOKIE}的值
-     * 
+     *
      * @param cookie
-     *            {@linkplain HttpCookie}
+     *         {@linkplain HttpCookie}
      */
     void addCookie(Cookie cookie);
 
     /**
      * 设置scope为{@linkplain #SCOPE_COOKIE}的值，并指定最大生存时间{@code maxAge}
-     * 
+     *
      * @param name
-     *            key of cookies
+     *         key of cookies
      * @param value
-     *            value
+     *         value
      * @param maxAge
-     *            max age
+     *         max age
      */
     void addCookie(String name, String value, int maxAge);
 
@@ -224,17 +225,17 @@ public interface HttpCurrentContext extends CurrentContext {
     boolean contains(String name);
 
     /**
-     * 判断是否存在scope为{@linkplain #SCOPE_PARAM}的key为{@code name}的值
-     * 
+     * 判断request中{@linkplain javax.servlet.http.HttpServletRequest#getParameter(java.lang.String)}是否存在对应值
+     *
      * @param name
-     *            key
+     *         key
      * @return {@code true} exists
      */
     boolean containsParameter(String name);
 
     /**
      * 判断是否存在scope为{@linkplain #SCOPE_REQUEST}的key为{@code name}的值
-     * 
+     *
      * @param name
      * @return
      */
@@ -242,7 +243,7 @@ public interface HttpCurrentContext extends CurrentContext {
 
     /**
      * 判断是否存在scope为{@linkplain #SCOPE_SESSION}的key为{@code name}的值
-     * 
+     *
      * @param name
      * @return
      */
@@ -250,7 +251,7 @@ public interface HttpCurrentContext extends CurrentContext {
 
     /**
      * 判断是否存在scope为{@linkplain #SCOPE_COOKIE}的key为{@code name}的值
-     * 
+     *
      * @param name
      * @return
      */

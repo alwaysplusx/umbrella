@@ -260,7 +260,7 @@ public class SimpleContext implements Context, Serializable {
         String methodId = null;
         
         try {
-            methodId = StringUtils.getMethodIdentifiteName(getMethod());
+            methodId = StringUtils.getMethodId(getMethod());
         } catch (NoSuchMethodException e) {
         }
         
