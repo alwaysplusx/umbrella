@@ -4,7 +4,7 @@
   <parent>
     <groupId>com.harmony.umbrella</groupId>
     <artifactId>harmony-umbrella</artifactId>
-    <version>0.0.2-SNAPSHOT</version>
+    <version>0.0.3-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   <name>Harmony Umbrella :: Plugins</name>
@@ -12,11 +12,11 @@
   <artifactId>umbrella-plugins</artifactId>
   <packaging>pom</packaging>
   <modules>
+    <module>message-ee-plugin</module>
     <!-- <module>jaxws-jms-plugin</module> -->
     <!-- <module>message-mail-plugin</module> -->
     <!-- <module>message-sms-plugin</module> -->
     <!-- <module>jaxws-bus-plugin</module> -->
     <!-- <module>scheduler-ejb-plugin</module> -->
-    <!-- <module>message-ee-plugin</module> -->
   </modules>
 </project>

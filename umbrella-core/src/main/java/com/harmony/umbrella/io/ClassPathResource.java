@@ -174,7 +174,7 @@ public class ClassPathResource extends AbstractFileResolvingResource {
             is = ClassLoader.getSystemResourceAsStream(this.path);
         }
         if (is == null) {
-            throw new FileNotFoundException(getDescription() + " cannot be opened because it does not exist");
+            throw new FileNotFoundException(getDescription() + " can't be opened because it does not exist");
         }
         return is;
     }

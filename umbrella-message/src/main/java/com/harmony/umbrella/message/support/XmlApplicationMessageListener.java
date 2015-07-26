@@ -16,7 +16,6 @@
 package com.harmony.umbrella.message.support;
 
 import java.io.Serializable;
-import java.util.List;
 
 import javax.jms.JMSException;
 import javax.jms.Message;
@@ -24,7 +23,6 @@ import javax.jms.MessageListener;
 import javax.jms.ObjectMessage;
 
 import com.harmony.umbrella.message.AbstractMessageListener;
-import com.harmony.umbrella.message.MessageResolver;
 
 /**
  * for spring
@@ -44,9 +42,9 @@ public class XmlApplicationMessageListener extends AbstractMessageListener imple
                 Serializable object = ((ObjectMessage) message).getObject();
                 if (object instanceof com.harmony.umbrella.message.Message) {
                     onMessage((com.harmony.umbrella.message.Message) object);
-                    return;
+                } else {
+                    LOG.warn("接受的消息{}不能转化为目标类型[{}], 忽略该消息", message, com.harmony.umbrella.message.Message.class);
                 }
-                LOG.warn("接受的消息{}不能转化为目标类型[{}], 忽略该消息", message, com.harmony.umbrella.message.Message.class);
             } catch (JMSException e) {
                 LOG.error("", e);
             }
@@ -55,14 +53,6 @@ public class XmlApplicationMessageListener extends AbstractMessageListener imple
 
     @Override
     public void destroy() {
-    }
-
-    public List<MessageResolver> getMessageResolvers() {
-        return this.messageResolvers;
-    }
-
-    public void setMessageResolvers(List<MessageResolver> messageResolvers) {
-        this.messageResolvers = messageResolvers;
     }
 
 }

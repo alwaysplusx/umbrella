@@ -15,6 +15,12 @@
  */
 package com.harmony.umbrella;
 
+import java.io.IOException;
+import java.util.Iterator;
+import java.util.Properties;
+
+import com.harmony.umbrella.util.PropUtils;
+
 /**
  * @author wuxii@foxmail.com
  */
@@ -26,15 +32,24 @@ public abstract class Constants {
 
     public static final String DEFAULT_PACKAGE = defaultPackage;
 
-    // public static final Properties GLOBAL_PROPERTIES;
-    //
-    // static {
-    // Properties props = new Properties();
-    // try {
-    // props.putAll(PropUtils.loadProperties(GLOBAL_CONFIG));
-    // } catch (IOException e) {
-    // }
-    //
-    // }
+    private static final Properties globalProperties = new Properties();
 
+    static {
+        try {
+            globalProperties.putAll(PropUtils.loadProperties(GLOBAL_CONFIG));
+        } catch (IOException e) {
+        }
+    }
+
+    public static final Properties getPropertiesStartWith(String prefix) {
+        Iterator<String> iterator = globalProperties.stringPropertyNames().iterator();
+        Properties props = new Properties();
+        while (iterator.hasNext()) {
+            String key = iterator.next();
+            if (key.startsWith(prefix)) {
+                props.setProperty(key, globalProperties.getProperty(key));
+            }
+        }
+        return props;
+    }
 }

@@ -17,6 +17,7 @@ package com.harmony.umbrella.util;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Iterator;
 import java.util.Properties;
 
 import com.harmony.umbrella.io.ClassPathResource;
@@ -77,4 +78,36 @@ public abstract class PropUtils {
     public static String getSystemProperty(String key, String defaultValue) {
         return System.getProperty(key, defaultValue);
     }
+
+    public static Properties filterStartWith(String prefix, Properties props) {
+        Properties result = new Properties();
+        if (props == null || props.isEmpty()) {
+            return result;
+        }
+
+        Iterator<String> iterator = props.stringPropertyNames().iterator();
+        while (iterator.hasNext()) {
+            String key = iterator.next();
+            if (key.startsWith(prefix)) {
+                result.put(key, props.get(key));
+            }
+        }
+        return result;
+    }
+
+//    public static Map<String, Object> filterStartWith(String prefix, Map<String, Object> props) {
+//        Map<String, Object> result = new HashMap<String, Object>();
+//        if (props == null || props.isEmpty()) {
+//            return result;
+//        }
+//
+//        Iterator<String> iterator = props.keySet().iterator();
+//        while (iterator.hasNext()) {
+//            String key = iterator.next();
+//            if (key.startsWith(prefix)) {
+//                result.put(key, props.get(key));
+//            }
+//        }
+//        return result;
+//    }
 }
