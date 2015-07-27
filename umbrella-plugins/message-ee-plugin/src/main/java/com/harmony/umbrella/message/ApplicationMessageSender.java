@@ -51,7 +51,6 @@ public class ApplicationMessageSender extends AbstractJmsMessageSender implement
             connection = getConnectionFactory().createConnection();
             connection.start();
             session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-            log.info("message listener -> {}", session.getMessageListener());
             producer = session.createProducer(getDestination());
             ObjectMessage om = session.createObjectMessage();
             om.setObject(message);
