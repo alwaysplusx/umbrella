@@ -69,7 +69,7 @@ E:\Temp>wsimport -encoding utf-8 -p com.harmony.test.ws -keep http://localhost:8
 
 E:\Temp>
 ```
-[生成的代码](docs/com/harmony/test/ws)
+[生成的代码](docs/jaxws/com/harmony/test/ws)
 
 ```java
 @Test
@@ -89,6 +89,8 @@ E:\Temp>wsdl2java -p com.harmony.test.ws -encoding utf-8 http://localhost:8080/h
 
 E:\Temp>
 ```
+[生成的代码](docs/cxf/com/harmony/test/ws)
+
 ```java
 @Test
 public void testCXF() {
@@ -101,7 +103,7 @@ public void testCXF() {
 ## 简易使用法
 
 ### 生成客户端
-[与CXF相同](/)
+>[与CXF相同](#生成客户端-1)
 
 ```java
 @Test
