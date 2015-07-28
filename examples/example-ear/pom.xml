@@ -4,31 +4,29 @@
   <parent>
     <groupId>com.harmony.umbrella.examples</groupId>
     <artifactId>examples</artifactId>
-    <version>0.0.2-SNAPSHOT</version>
+    <version>0.0.3-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   <name>Harmony Example :: Example Ear</name>
   <artifactId>example-ear</artifactId>
   <packaging>ear</packaging>
   <dependencies>
-    <!-- <dependency>
-      <groupId>com.harmony.umbrella.examples</groupId>
-      <artifactId>example-jaxws</artifactId>
-      <version>${project.version}</version>
-      <type>ejb</type>
-    </dependency>
     <dependency>
-      <groupId>com.harmony.umbrella.plugins</groupId>
-      <artifactId>jaxws-jms-plugin</artifactId>
+      <groupId>com.harmony.umbrella.examples</groupId>
+      <artifactId>example-ejb</artifactId>
       <version>${project.version}</version>
       <type>ejb</type>
     </dependency>
     <dependency>
       <groupId>com.harmony.umbrella.examples</groupId>
-      <artifactId>example-ee</artifactId>
+      <artifactId>example-war</artifactId>
       <version>${project.version}</version>
-      <type>ejb</type>
-    </dependency> -->
+      <type>war</type>
+    </dependency>
+    <dependency>
+      <groupId>com.harmony.umbrella</groupId>
+      <artifactId>umbrella-core</artifactId>
+    </dependency>
   </dependencies>
   <build>
     <plugins>
@@ -40,25 +38,22 @@
           <defaultLibBundleDir>APP-INF/lib</defaultLibBundleDir>
           <generateApplicationXml>true</generateApplicationXml>
           <version>6</version>
-          <!-- <modules>
+          <modules>
             <webModule>
               <groupId>com.harmony.umbrella.examples</groupId>
-              <artifactId>example-jaxws</artifactId>
-              <contextRoot>/example-jaxws</contextRoot>
+              <artifactId>example-war</artifactId>
+              <contextRoot>/example-war</contextRoot>
             </webModule>
             <ejbModule>
               <groupId>com.harmony.umbrella.examples</groupId>
-              <artifactId>example-jaxws</artifactId>
+              <artifactId>example-ejb</artifactId>
             </ejbModule>
-            <ejbModule>
-              <groupId>com.harmony.umbrella.plugins</groupId>
-              <artifactId>jaxws-jms-plugin</artifactId>
-            </ejbModule>
-            <ejbModule>
-              <groupId>com.harmony.umbrella.examples</groupId>
-              <artifactId>example-ee</artifactId>
-            </ejbModule>
-          </modules> -->
+            <jarModule>
+              <groupId>com.harmony.umbrella</groupId>
+              <artifactId>umbrella-core</artifactId>
+              <bundleDir>APP-INF/lib</bundleDir>
+            </jarModule>
+          </modules>
         </configuration>
       </plugin>
     </plugins>
