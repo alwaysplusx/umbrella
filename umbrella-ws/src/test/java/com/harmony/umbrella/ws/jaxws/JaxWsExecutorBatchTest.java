@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2014 the original author or authors.
+ * Copyright 2002-2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@ package com.harmony.umbrella.ws.jaxws;
 
 import static org.junit.Assert.*;
 
-import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -25,22 +24,17 @@ import com.harmony.umbrella.ws.cxf.interceptor.MessageInInterceptor;
 import com.harmony.umbrella.ws.cxf.interceptor.MessageOutInterceptor;
 import com.harmony.umbrella.ws.services.HelloService;
 import com.harmony.umbrella.ws.services.HelloWebService;
+import com.harmony.umbrella.ws.support.SimpleContext;
 
 /**
  * @author wuxii@foxmail.com
  */
 @Ignore
-public class JaxWsProxyBuilderBatchTest {
+public class JaxWsExecutorBatchTest {
 
-    private static final String address = "http://localhost:8081/hello/batch/builder";
+    private static final String address = "http://localhost:8081/hello/batch/executor";
 
-    @BeforeClass
-    public static void setUp() {
-        // JaxWsServerBuilder.create()//
-        // .addInInterceptor(new MessageInInterceptor())//
-        // .addOutInterceptor(new MessageOutInterceptor())//
-        // .publish(HelloWebService.class, address);
-    }
+    private JaxWsExecutor executor = new JaxWsCXFExecutor();
 
     @Test
     public void test() {
@@ -52,8 +46,9 @@ public class JaxWsProxyBuilderBatchTest {
                 public void run() {
                     while (true) {
                         try {
-                            HelloService service = JaxWsProxyBuilder.create().build(HelloService.class, address);
-                            assertEquals("Hi abc" + index, service.sayHi("abc" + index));
+                            SimpleContext context = new SimpleContext(HelloService.class, "sayHi", new Object[] { "abc" + index });
+                            context.setAddress(address);
+                            assertEquals("Hi abc" + index, executor.execute(context));
                             Thread.sleep(200);
                         } catch (InterruptedException e) {
                             break;
@@ -67,8 +62,9 @@ public class JaxWsProxyBuilderBatchTest {
 
         while (true) {
             try {
-                HelloService service = JaxWsProxyBuilder.create().build(HelloService.class, address);
-                assertEquals("Hi def", service.sayHi("def"));
+                SimpleContext context = new SimpleContext(HelloService.class, "sayHi", new Object[] { "wuxii" });
+                context.setAddress(address);
+                assertEquals("Hi wuxii", executor.execute(context));
                 Thread.sleep(400);
             } catch (InterruptedException e) {
             }

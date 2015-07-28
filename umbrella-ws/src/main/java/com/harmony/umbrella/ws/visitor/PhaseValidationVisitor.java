@@ -38,24 +38,26 @@ public class PhaseValidationVisitor extends AbstractPhaseVisitor {
     private static final long serialVersionUID = 3905871275755920058L;
 
     private final static Logger log = LoggerFactory.getLogger(PhaseValidationVisitor.class);
-
+    
     protected static final String defaultPackage = Constants.DEFAULT_PACKAGE;
 
-    private BeanFactory beanFactory = new SimpleBeanFactory();
+    private final HandlerMethodFinder finder;
 
-    private HandlerMethodFinder finder;
-
-    private String scanPackage;
+    private BeanFactory beanFactory;
 
     public PhaseValidationVisitor() {
         this(defaultPackage);
     }
 
     public PhaseValidationVisitor(String scanPackage) {
-        this.scanPackage = scanPackage;
-        this.finder = new HandlerMethodFinder(scanPackage);
+        this(scanPackage, new SimpleBeanFactory());
     }
 
+    public PhaseValidationVisitor(String scanPackage, BeanFactory beanFactory) {
+        this.beanFactory = beanFactory;
+        this.finder = new HandlerMethodFinder(scanPackage);
+    }
+    
     @Override
     public boolean visitBefore(Context context) throws WebServiceAbortException {
         try {
@@ -144,10 +146,6 @@ public class PhaseValidationVisitor extends AbstractPhaseVisitor {
         } catch (NoSuchMethodException e) {
             log.error("{}方法不存在", context, e);
         }
-    }
-
-    public String getScanPackage() {
-        return scanPackage;
     }
 
     public void setBeanFactory(BeanFactory beanFactory) {

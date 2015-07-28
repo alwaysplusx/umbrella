@@ -39,9 +39,9 @@ public class JaxWsServerAndProxyTest {
 
     @BeforeClass
     public static void setUp() {
-        JaxWsServerBuilder.create()
-                .addInInterceptor(new MessageInInterceptor())
-                .addOutInterceptor(new MessageOutInterceptor())
+        JaxWsServerBuilder.create()//
+                .addInInterceptor(new MessageInInterceptor())//
+                .addOutInterceptor(new MessageOutInterceptor())//
                 .publish(HelloWebService.class, address);
     }
 

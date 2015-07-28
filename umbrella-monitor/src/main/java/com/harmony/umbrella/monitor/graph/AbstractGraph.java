@@ -44,7 +44,7 @@ public abstract class AbstractGraph implements Graph {
     
     protected Object result;
 
-    protected Calendar requestTime = Calendar.getInstance();
+    protected Calendar requestTime;
 
     protected Calendar responseTime;
 

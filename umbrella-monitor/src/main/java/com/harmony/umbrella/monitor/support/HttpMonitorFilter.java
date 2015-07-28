@@ -65,7 +65,7 @@ public class HttpMonitorFilter extends AbstractMonitor<String> implements HttpMo
     public void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain) throws IOException, ServletException {
         HttpServletRequest request = (HttpServletRequest) req;
         HttpServletResponse response = (HttpServletResponse) resp;
-        String resource = MonitorUtils.requestIdentifie(request);
+        String resource = MonitorUtils.requestId(request);
         if (!isMonitored(resource)) {
             chain.doFilter(request, response);
             return;

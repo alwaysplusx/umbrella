@@ -28,12 +28,18 @@ import com.harmony.umbrella.core.InvokeException;
 import com.harmony.umbrella.core.Invoker;
 
 /**
+ * 对于接口动态调用的封装，考虑到接口的{@linkplain Mode#INOUT}, {@linkplain Mode#OUT}
+ * 也可以作为返回值，故作此扩展
+ * 
  * @author wuxii@foxmail.com
  */
 public class JaxWsInvoker extends DefaultInvoker implements Invoker {
 
     private static final long serialVersionUID = 8613526886152167871L;
 
+    /**
+     * 只有一个返回值时候将直接放回该值对象， 不在使用List包裹
+     */
     private boolean extractValueFromSingleResult = true;
 
     @Override

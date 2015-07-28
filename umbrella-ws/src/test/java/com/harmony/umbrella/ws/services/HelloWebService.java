@@ -13,8 +13,7 @@ public class HelloWebService implements HelloService {
     @Override
     @WebResult(name = "result")
     @WebMethod(operationName = "sayHi")
-    public String sayHi(@WebParam(name = "namea") String name) {
+    public String sayHi(@WebParam(name = "name") String name) {
         return "Hi " + name;
     }
-
 }

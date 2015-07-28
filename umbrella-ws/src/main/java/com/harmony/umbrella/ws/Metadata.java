@@ -17,64 +17,64 @@ package com.harmony.umbrella.ws;
 
 /**
  * 可将jaxws属性保存到数据库或者其他地方做的扩展
- * 
+ *
  * @author wuxii@foxmail.com
  */
 public interface Metadata {
 
     /**
      * 服务名
-     * 
-     * @return
+     *
+     * @return 服务名
      */
     String getServiceName();
 
     /**
      * 服务接口类
-     * 
-     * @return
+     *
+     * @return 服务接口类
      */
     Class<?> getServiceClass();
 
     /**
      * 服务所在的地址
-     * 
-     * @return
+     *
+     * @return 服务地址
      */
     String getAddress();
 
     /**
      * 访问服务所需要使用的用户名. 非必须
-     * 
-     * @return
+     *
+     * @return 用户名
      */
     String getUsername();
 
     /**
      * 范文服务所需要的密码. 非必须
-     * 
-     * @return
+     *
+     * @return 密码
      */
     String getPassword();
 
     /**
      * 代理服务的连接超时时间
-     * 
-     * @return
+     *
+     * @return 连接超时时间
      */
     long getConnectionTimeout();
 
     /**
      * 代理服务的接收超时时间
-     * 
-     * @return
+     *
+     * @return 接收超时时间
      */
     long getReceiveTimeout();
 
     /**
      * 设置客户端等待时间
-     * 
-     * @return
+     *
+     * @return 等待时间
      */
     int getSynchronousTimeout();
 

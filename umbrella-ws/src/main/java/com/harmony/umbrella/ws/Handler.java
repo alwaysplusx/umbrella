@@ -98,8 +98,16 @@ public @interface Handler {
     @Retention(RetentionPolicy.RUNTIME)
     public @interface HandleMethod {
 
+        /**
+         * 接口的方法名，在
+         * {@linkplain com.harmony.umbrella.ws.visitor.PhaseValidationVisitor}
+         * 默认为注解在方法体上的方法名
+         */
         String methodName() default "";
 
+        /**
+         * 执行的周期{@linkplain Phase}
+         */
         Phase phase();
 
     }

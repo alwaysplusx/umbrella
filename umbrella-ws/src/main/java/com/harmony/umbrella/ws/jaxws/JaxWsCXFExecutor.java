@@ -22,6 +22,8 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.xml.ws.WebServiceException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,7 +32,6 @@ import com.harmony.umbrella.core.Invoker;
 import com.harmony.umbrella.util.Exceptions;
 import com.harmony.umbrella.ws.Context;
 import com.harmony.umbrella.ws.WebServiceGraph;
-import com.harmony.umbrella.ws.WebServiceException;
 import com.harmony.umbrella.ws.support.WebServiceGraphImpl;
 import com.harmony.umbrella.ws.util.JaxWsInvoker;
 
@@ -60,8 +61,10 @@ public class JaxWsCXFExecutor extends JaxWsPhaseExecutor {
         try {
             method = context.getMethod();
             proxy = loadProxy(context);
+
             log.info("使用代理[{}]执行交互{}, invoker is [{}]", proxy, context, invoker);
             startTime = Calendar.getInstance();
+
             result = (T) invoker.invoke(proxy, method, context.getParameters());
 
         } catch (NoSuchMethodException e) {
@@ -69,6 +72,7 @@ public class JaxWsCXFExecutor extends JaxWsPhaseExecutor {
             throw new WebServiceException("未找到接口方法" + context, e);
         } catch (InvokeException e) {
             ex = e;
+            this.removeProxy(context);
             throw new WebServiceException("执行交互失败", Exceptions.getRootCause(e));
         } finally {
             WebServiceGraphImpl graph = new WebServiceGraphImpl(method);
@@ -93,8 +97,12 @@ public class JaxWsCXFExecutor extends JaxWsPhaseExecutor {
     protected Object getProxy(Context context) {
         JaxWsContextKey contextKey = new JaxWsContextKey(context);
         if (!proxyCache.containsKey(contextKey)) {
-            Object proxy = createProxy(context);
-            proxyCache.put(contextKey, proxy);
+            synchronized (proxyCache) {
+                if (!proxyCache.containsKey(contextKey)) {
+                    Object proxy = createProxy(context);
+                    proxyCache.put(contextKey, proxy);
+                }
+            }
         }
         return proxyCache.get(contextKey);
     }
@@ -138,11 +146,16 @@ public class JaxWsCXFExecutor extends JaxWsPhaseExecutor {
                 .setPassword(context.getPassword())//
                 .setReceiveTimeout(context.getReceiveTimeout())//
                 .setConnectionTimeout(context.getConnectionTimeout())//
+                .setSynchronousTimeout(context.getSynchronousTimeout())//
                 .build(context.getServiceInterface());
         log.debug("创建代理{}服务, 耗时{}ms", context, System.currentTimeMillis() - start);
         return proxy;
     }
 
+    public void removeProxy(Context context) {
+        proxyCache.remove(new JaxWsContextKey(context));
+    }
+    
     /**
      * 清除已经缓存的服务代理
      */
@@ -152,7 +165,6 @@ public class JaxWsCXFExecutor extends JaxWsPhaseExecutor {
     }
 
     private Object loadProxy(Context context) {
-        log.debug("创建代理[{}]耗时{}ms");
         Object proxy = null;
         if (cacheable) {
             proxy = getProxy(context);

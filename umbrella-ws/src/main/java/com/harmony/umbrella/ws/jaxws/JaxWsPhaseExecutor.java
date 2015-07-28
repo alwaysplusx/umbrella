@@ -19,6 +19,8 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 
+import javax.xml.ws.WebServiceException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,7 +29,6 @@ import com.harmony.umbrella.ws.AsyncCallback;
 import com.harmony.umbrella.ws.Context;
 import com.harmony.umbrella.ws.PhaseVisitor;
 import com.harmony.umbrella.ws.WebServiceAbortException;
-import com.harmony.umbrella.ws.WebServiceException;
 
 /**
  * 将{@linkplain JaxWsExecutor}的执行分为各个周期的抽象类

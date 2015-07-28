@@ -34,7 +34,7 @@ public abstract class MonitorUtils {
      * @param method
      * @return
      */
-    public static String methodIdentifie(Method method) {
+    public static String methodId(Method method) {
         return method == null ? "" : StringUtils.getMethodId(method);
     }
 
@@ -44,7 +44,7 @@ public abstract class MonitorUtils {
      * @param request
      * @return
      */
-    public static String requestIdentifie(HttpServletRequest request) {
+    public static String requestId(HttpServletRequest request) {
         return request == null ? null : request.getRequestURI();
     }
 

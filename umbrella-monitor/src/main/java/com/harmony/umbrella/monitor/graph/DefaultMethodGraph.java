@@ -34,7 +34,7 @@ public class DefaultMethodGraph extends AbstractGraph implements MethodGraph {
     }
 
     public DefaultMethodGraph(Object target, Method method, Object[] args) {
-        super(methodIdentifie(method));
+        super(methodId(method));
         this.target = target;
         this.method = method;
         this.setArguments(args);

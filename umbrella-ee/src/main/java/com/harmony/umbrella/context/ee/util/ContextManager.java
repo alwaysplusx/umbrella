@@ -35,13 +35,13 @@ public class ContextManager {
         if (resolverClassName != null) {
             return createResolverFromClassName(resolverClassName, serverInfo, props, ContextResolver.class);
         }
-        int serverType = serverInfo == null ? Unknow : serverInfo.serverType;
+        int serverType = serverInfo == null ? UNKNOW : serverInfo.serverType;
         switch (serverType) {
-        case WebLogic:
-        case WebSphere:
-        case Glassfish:
-        case JBoss:
-        case Tomcat:
+        case WEBLOGIC:
+        case WEBSPHERE:
+        case GLASSFISH:
+        case JBOSS:
+        case TOMCAT:
         default:
             return new GenericContextResolver(props);
         }
@@ -52,14 +52,14 @@ public class ContextManager {
         if (resolverClassName != null) {
             return createResolverFromClassName(resolverClassName, serverInfo, props, ContextBeanResolver.class);
         }
-        int serverType = serverInfo == null ? Unknow : serverInfo.serverType;
+        int serverType = serverInfo == null ? UNKNOW : serverInfo.serverType;
         switch (serverType) {
-        case WebLogic:
+        case WEBLOGIC:
             // return new WebLogicContextBeanResolver(props);
-        case WebSphere:
-        case Glassfish:
-        case JBoss:
-        case Tomcat:
+        case WEBSPHERE:
+        case GLASSFISH:
+        case JBOSS:
+        case TOMCAT:
         default:
             return new GenericContextBeanResolver(props);
         }

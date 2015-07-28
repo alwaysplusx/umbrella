@@ -18,12 +18,15 @@ package com.harmony.umbrella.ws;
 import com.harmony.umbrella.monitor.MethodMonitor.MethodGraph;
 
 /**
- * 监视扩展，将jaxws的运行情况保存到数据库或者其他方式存储起来
+ * 监控扩展，将WebService的运行情况保存到数据库或者其他方式存储起来
  * 
  * @author wuxii@foxmail.com
  */
 public interface WebServiceGraph extends MethodGraph {
 
+    /**
+     * 可作为{@link Context#get(String)}对应的Key
+     */
     String WS_CONTEXT_GRAPH = WebServiceGraph.class.getName() + ".graph";
 
 }

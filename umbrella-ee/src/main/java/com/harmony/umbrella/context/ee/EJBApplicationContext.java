@@ -271,14 +271,6 @@ public class EJBApplicationContext extends ApplicationContext implements EJBCont
 		}
 	}
 
-	public void destory() {
-		if (INITIALIZED == status) {
-			jmxManager.unregisterMBean(EJBContext.class);
-			this.cleanProperties();
-			status = DESTROY;
-		}
-	}
-
 	/**
 	 * 在指定上下文属性中查找对于jndi名称的对象
 	 * 
@@ -384,5 +376,14 @@ public class EJBApplicationContext extends ApplicationContext implements EJBCont
 	public void applyProperties(Properties props) {
 		this.applicationProperties.putAll(props);
 	}
+
+    @Override
+    public void destroy() {
+        if (INITIALIZED == status) {
+            jmxManager.unregisterMBean(EJBContext.class);
+            this.cleanProperties();
+            status = DESTROY;
+        }
+    }
 
 }

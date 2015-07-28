@@ -44,15 +44,15 @@ import com.harmony.umbrella.ws.jaxws.JaxWsServerBuilder.BeanFactoryInvoker;
 import com.harmony.umbrella.ws.jaxws.JaxWsServerBuilder.JaxWsServerFactoryConfig;
 
 /**
- * 服务管理实例
- * 
+ * 服务管理, 负责管理所有的服务实例
+ *
  * @author wuxii@foxmail.com
  */
 public class ServerManager {
 
     private static final Logger log = LoggerFactory.getLogger(ServerManager.class);
     /**
-     * 所有的服务
+     * 所有的服务实例
      */
     private static final Map<ServerKey, ServerImpl> servers = new HashMap<ServerKey, ServerImpl>();
 
@@ -77,13 +77,18 @@ public class ServerManager {
     private boolean failFast = false;
 
     /**
-     * 服务instance
+     * 服务管理instance
      */
     private static ServerManager INSTANCE;
 
     private ServerManager() {
     }
 
+    /**
+     * 获取管理服务的实例
+     *
+     * @return 管理实例
+     */
     public static ServerManager getServerManager() {
         if (INSTANCE == null) {
             synchronized (ServerManager.class) {
@@ -96,23 +101,27 @@ public class ServerManager {
     }
 
     /**
-     * 发布一个服务实例为{@code serviceClass}的服务，地址依赖{@link #metaLoader}
-     * 来加载。所以在使用这个方法时候请注意需要先设置{@link #metaLoader}
+     * 发布一个服务实例为{@code clazz}的服务，地址依赖{@link #metaLoader} 来加载。
+     * <p>
+     * <b>使用本方法时候确保先设置{@link #metaLoader}，否则无法正确设置要发布服务的地址
+     * </p>
      *
      * @param clazz
-     *            服务实例类型
+     *         服务实例类型
      */
     public boolean publish(Class<?> clazz) {
         return publish(clazz, (String) null);
     }
 
     /**
-     * 在指定地址发布一个服务
+     * 在指定地址发布一个服务， 发布服务的类型取决于{@code clazz}标注的注解
+     * <p/>
+     * 不允许同时标注JAX-WS{@linkplain WebService}, JAX-RS的服务注解{@linkplain Path}
      *
      * @param clazz
-     *            服务类型
+     *         服务类型
      * @param address
-     *            服务地址
+     *         服务地址
      */
     public boolean publish(Class<?> clazz, String address) {
         if (isJaxWsService(clazz) && isJaxRsService(clazz)) {
@@ -132,24 +141,24 @@ public class ServerManager {
     }
 
     /**
-     * 可配置的发布服务
+     * 可配置的发布JaxWs服务
      *
      * @param serviceClass
-     *            服务类型
+     *         服务类型
      * @param factoryConfig
-     *            服务配置回调
+     *         服务配置回调
      */
     public boolean publish(Class<?> serviceClass, JaxWsServerFactoryConfig factoryConfig) {
         return publish(serviceClass, null, factoryConfig);
     }
 
     /**
-     * 可配置的发布服务
+     * 可配置的发布JaxRs服务
      *
      * @param resourceClass
-     *            服务类型
+     *         服务类型
      * @param factoryConfig
-     *            服务配置回调
+     *         服务配置回调
      */
     public boolean publish(Class<?> resourceClass, JaxRsServerFactoryConfig factoryConfig) {
         return publish(resourceClass, null, factoryConfig);
@@ -159,16 +168,26 @@ public class ServerManager {
      * 在指定地址发布服务，发布前提供配置服务
      *
      * @param serviceClass
-     *            服务类型
+     *         服务类型
      * @param address
-     *            服务地址
+     *         服务地址
      * @param factoryConfig
-     *            服务配置回调
+     *         服务配置回调
      */
     public boolean publish(Class<?> serviceClass, String address, JaxWsServerFactoryConfig factoryConfig) {
         return doPublish(serviceClass, address, factoryConfig);
     }
 
+    /**
+     * 在指定的地址发布JaxRs服务， 发布前提供配置服务
+     *
+     * @param resourceClass
+     *         服务类型
+     * @param address
+     *         服务地址
+     * @param factoryConfig
+     *         服务的配置回调
+     */
     public boolean publish(Class<?> resourceClass, String address, JaxRsServerFactoryConfig factoryConfig) {
         return doPublish(resourceClass, address, factoryConfig);
     }
@@ -217,7 +236,7 @@ public class ServerManager {
                 address = StringUtils.isNotBlank(address) ? address : metadata.getAddress();
                 builder.setUsername(metadata.getUsername()).setPassword(metadata.getPassword());
             }
-            
+
             Server server = builder.publish(resourceClass, address, factoryConfig);
 
             // register server
@@ -270,7 +289,7 @@ public class ServerManager {
      * 检测地址是否已经发布了服务
      *
      * @param address
-     *            检测的地址
+     *         检测的地址
      */
     public boolean inUse(String address) {
         Iterator<ServerKey> it = servers.keySet().iterator();
@@ -284,9 +303,9 @@ public class ServerManager {
 
     /**
      * 获取类所发布的所有服务地址
-     * 
+     *
      * @param clazz
-     *            服务类
+     *         服务类
      * @return 所发布的所有地址
      */
     public String[] publishAddresses(Class<?> clazz) {
@@ -328,7 +347,7 @@ public class ServerManager {
      *
      * @param address
      */
-    public void destory(String address) {
+    public void destroy(String address) {
         unregisterServer(getServer(address));
     }
 
@@ -337,18 +356,26 @@ public class ServerManager {
      *
      * @param clazz
      */
-    public void destory(Class<?> clazz) {
+    public void destroy(Class<?> clazz) {
         unregisterServer(getServer(clazz));
     }
 
-    public void destory(String address, Class<?> clazz) {
+    /**
+     * 销毁服务实例
+     *
+     * @param address
+     *         服务地址
+     * @param clazz
+     *         服务类型
+     */
+    public void destroy(String address, Class<?> clazz) {
         unregisterServer(getServer(address, clazz));
     }
 
     /**
      * 销毁所有服务实例
      */
-    public void destoryAll() {
+    public void destroyAll() {
         unregisterServer(servers);
     }
 

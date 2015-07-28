@@ -16,7 +16,7 @@
 package com.harmony.umbrella.ws;
 
 /**
- * 在执行前如果有异常则抛出取消异常
+ * 在执行前 {@linkplain PhaseVisitor#visitBefore(Context)}抛出异常
  * 
  * @author wuxii@foxmail.com
  */
