@@ -316,8 +316,4 @@ public class JaxWsExecutorAndPhaseValTest {
 
 #### 基于实际业务的扩展
 
-<<<<<<< HEAD
 [Go to](../../../dark/tree/master/dark-ws/)
-=======
-[Go to](../../../wuxii/dark/dark-ws/)
->>>>>>> branch 'master' of ssh://git@git.oschina.net/wuxii/umbrella.git
