@@ -317,3 +317,7 @@ public class JaxWsExecutorAndPhaseValTest {
 #### 基于实际业务的扩展
 
 [Go to](../../../dark/tree/master/dark-ws/)
+
+[Link 1](http://git.oschina.net/wuxii/dark/tree/master/dark-ws)
+
+[Link 2](https://github.com/wuxii//dark/tree/master/dark-ws)
