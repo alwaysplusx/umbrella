@@ -16,13 +16,15 @@
 package com.harmony.umbrella.validator.util;
 
 import java.util.Iterator;
-import java.util.Set;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 import javax.validation.groups.Default;
+
+import com.harmony.umbrella.util.StringUtils;
+import com.harmony.umbrella.validator.ValidVisitor;
 
 /**
  * 用于做一些简单的检验
@@ -74,16 +76,38 @@ public abstract class ValidatorUtils {
      * @return
      */
     public static String getViolationMessage(Object object, Class<?>... groups) {
+        return getViolationMessage(object, null, groups);
+    }
+
+    public static <T> String getViolationMessage(T object, ValidVisitor<T> visitor, Class<?>... groups) {
         StringBuilder buf = new StringBuilder();
-        Set<ConstraintViolation<Object>> cvs = getValidator().validate(object, groups);
-        Iterator<ConstraintViolation<Object>> it = cvs.iterator();
+
+        Iterator<ConstraintViolation<T>> it = getValidator().validate(object, groups).iterator();
         while (it.hasNext()) {
             buf.append(it.next().getMessage());
             if (it.hasNext()) {
                 buf.append(", ");
             }
         }
-        return buf.toString();
+
+        if (visitor != null) {
+            String message = visitor.valid(object);
+            if (StringUtils.isBlank(message)) {
+                buf.append(", ").append(message);
+            }
+        }
+
+        return buf.length() == 0 ? null : buf.toString();
+    }
+
+    /**
+     * 检查bean的违规信息条数
+     * 
+     * @param object
+     * @return
+     */
+    public static int getNumberOfViolations(Object object) {
+        return getValidator().validate(object).size();
     }
 
     /**
