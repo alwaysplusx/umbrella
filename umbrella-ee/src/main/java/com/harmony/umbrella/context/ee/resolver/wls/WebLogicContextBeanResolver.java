@@ -30,9 +30,9 @@ import org.slf4j.LoggerFactory;
 
 import com.harmony.umbrella.context.ee.BeanDefinition;
 import com.harmony.umbrella.context.ee.ContextBean;
+import com.harmony.umbrella.context.ee.WrappedBeanHandler;
 import com.harmony.umbrella.context.ee.impl.ContextBeanImpl;
 import com.harmony.umbrella.context.ee.resolver.AbstractContextBeanResolver;
-import com.harmony.umbrella.context.ee.util.WrappedBeanHandler;
 
 /**
  * @author wuxii@foxmail.com

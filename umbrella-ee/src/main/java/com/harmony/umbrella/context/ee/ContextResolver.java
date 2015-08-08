@@ -15,7 +15,6 @@
  */
 package com.harmony.umbrella.context.ee;
 
-import com.harmony.umbrella.context.ee.BeanDefinition;
 
 /**
  * JavaEE 环境中的内容解析
@@ -26,36 +25,38 @@ import com.harmony.umbrella.context.ee.BeanDefinition;
  */
 public interface ContextResolver {
 
-	String BEAN_JNDI_SEPARATOR = "#";
+    String BEAN_JNDI_SEPARATOR = "#";
 
-	String SUFFIX_BEAN = "Bean";
-	String SUFFIX_REMOTE = "Remote";
-	String SUFFIX_LOCAL = "Local";
+    String SUFFIX_BEAN = "Bean";
 
-	/**
-	 * 格式化jndi名称
-	 * 
-	 * @param beanDefinition
-	 * @return
-	 */
-	String resolveBeanName(BeanDefinition beanDefinition);
+    String SUFFIX_REMOTE = "Remote";
 
-	/**
-	 * 查看bean是否与声明的类型匹配
-	 * 
-	 * @param declaer
-	 * @param bean
-	 * @return
-	 */
-	boolean isDeclareBean(BeanDefinition declaer, Object bean);
+    String SUFFIX_LOCAL = "Local";
 
-	/**
-	 * 将环境中的bean解分装为真实的bean
-	 * 
-	 * @param bean
-	 *            环境中的bean
-	 * @return 真是的bean
-	 */
-	Object unwrap(Object bean);
+    /**
+     * 格式化jndi名称
+     * 
+     * @param beanDefinition
+     * @return
+     */
+    String resolveBeanName(BeanDefinition beanDefinition);
+
+    /**
+     * 查看bean是否与声明的类型匹配
+     * 
+     * @param declaer
+     * @param bean
+     * @return
+     */
+    boolean isDeclareBean(BeanDefinition declaer, Object bean);
+
+    /**
+     * 将环境中的bean解分装为真实的bean
+     * 
+     * @param bean
+     *            环境中的bean
+     * @return 真是的bean
+     */
+    Object unwrap(Object bean);
 
 }

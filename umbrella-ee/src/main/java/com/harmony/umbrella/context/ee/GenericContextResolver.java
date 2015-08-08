@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.umbrella.context.ee.util;
+package com.harmony.umbrella.context.ee;
 
 import java.util.Properties;
 
@@ -22,12 +22,10 @@ import javax.naming.Context;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.harmony.umbrella.context.ee.BeanDefinition;
-import com.harmony.umbrella.context.ee.ContextResolver;
 import com.harmony.umbrella.util.StringUtils;
 
 /**
- * 通用的BeanContextResolver
+ * 基础ContextResolver
  * 
  * @author wuxii@foxmail.com
  */
@@ -35,10 +33,11 @@ public class GenericContextResolver implements ContextResolver {
 
     private static final Logger log = LoggerFactory.getLogger(GenericContextResolver.class);
 
+    protected final String beanSeparator;
+
     protected final String beanSuffix;
     protected final String remoteSuffix;
     protected final String localSuffix;
-    protected final String beanSeparator;
 
     public GenericContextResolver(Properties props) {
         this.beanSuffix = props.getProperty("jndi.format.bean", SUFFIX_BEAN);
@@ -50,11 +49,18 @@ public class GenericContextResolver implements ContextResolver {
     @Override
     public String resolveBeanName(BeanDefinition beanDefinition) {
         if (beanDefinition.isSessionBean()) {
-            return resolveSessionBeanName(beanDefinition.getMappedName(), beanDefinition.getBeanClass(), beanDefinition.getSuitableRemoteClass());
+            return resolveSessionBeanName(beanDefinition.getMappedName(),//
+                    beanDefinition.getBeanClass(),//
+                    beanDefinition.getSuitableRemoteClass());
+
         } else if (beanDefinition.isRemoteClass()) {
-            return resolveRemoteClassBeanName(beanDefinition.getMappedName(), beanDefinition.getSuitableRemoteClass());
+            return resolveRemoteClassBeanName(beanDefinition.getMappedName(),//
+                    beanDefinition.getSuitableRemoteClass());
+            
         } else if (beanDefinition.isLocalClass()) {
-            return resolveLocalClassBeanName(beanDefinition.getMappedName(), beanDefinition.getSuitableLocalClass());
+            return resolveLocalClassBeanName(beanDefinition.getMappedName(),//
+                    beanDefinition.getSuitableLocalClass());
+            
         }
         throw new RuntimeException("unsupport bean definition");
     }
@@ -69,9 +75,8 @@ public class GenericContextResolver implements ContextResolver {
                 return false;
             }
         }
-        Class<?> beanClass = declaer.getBeanClass();
         Class<?> suitableRemoteClass = declaer.getSuitableRemoteClass();
-        return beanClass.isInstance(bean) || (suitableRemoteClass != null && suitableRemoteClass.isInstance(bean));
+        return declaer.getBeanClass().isInstance(bean) || (suitableRemoteClass != null && suitableRemoteClass.isInstance(bean));
     }
 
     private boolean isSameMappedName(BeanDefinition declaer, Class<?> beanClass) {

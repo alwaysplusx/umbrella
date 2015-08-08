@@ -21,9 +21,11 @@ import com.harmony.umbrella.context.ApplicationContext;
 import com.harmony.umbrella.context.ContextProvider;
 
 /**
+ * {@linkplain ContextProvider}EJB环境支持
+ * 
  * @author wuxii@foxmail.com
  */
-public class JeeContextProvider extends ContextProvider {
+public class EJBContextProvider extends ContextProvider {
 
     @Override
     public ApplicationContext createApplicationContext() {

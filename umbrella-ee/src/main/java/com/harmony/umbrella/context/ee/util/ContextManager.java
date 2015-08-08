@@ -21,7 +21,9 @@ import java.lang.reflect.Constructor;
 import java.util.Properties;
 
 import com.harmony.umbrella.context.ApplicationMetadata.ServerInformation;
+import com.harmony.umbrella.context.ee.BeanResolver;
 import com.harmony.umbrella.context.ee.ContextResolver;
+import com.harmony.umbrella.context.ee.GenericContextResolver;
 import com.harmony.umbrella.context.ee.resolver.GenericContextBeanResolver;
 import com.harmony.umbrella.util.ReflectionUtils;
 
@@ -47,10 +49,10 @@ public class ContextManager {
         }
     }
 
-    public static ContextBeanResolver getContextBeanResolver(ServerInformation serverInfo, Properties props) {
+    public static BeanResolver getContextBeanResolver(ServerInformation serverInfo, Properties props) {
         String resolverClassName = props.getProperty("jndi.context.resolver");
         if (resolverClassName != null) {
-            return createResolverFromClassName(resolverClassName, serverInfo, props, ContextBeanResolver.class);
+            return createResolverFromClassName(resolverClassName, serverInfo, props, BeanResolver.class);
         }
         int serverType = serverInfo == null ? UNKNOW : serverInfo.serverType;
         switch (serverType) {

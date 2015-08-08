@@ -24,13 +24,13 @@ import org.slf4j.LoggerFactory;
 
 import com.harmony.umbrella.context.ee.BeanDefinition;
 import com.harmony.umbrella.context.ee.ContextBean;
-import com.harmony.umbrella.context.ee.util.ContextBeanResolver;
-import com.harmony.umbrella.context.ee.util.GenericContextResolver;
+import com.harmony.umbrella.context.ee.BeanResolver;
+import com.harmony.umbrella.context.ee.GenericContextResolver;
 
 /**
  * @author wuxii@foxmail.com
  */
-public abstract class AbstractContextBeanResolver extends GenericContextResolver implements ContextBeanResolver {
+public abstract class AbstractContextBeanResolver extends GenericContextResolver implements BeanResolver {
 
     protected static final Logger LOG = LoggerFactory.getLogger(AbstractContextBeanResolver.class);
 

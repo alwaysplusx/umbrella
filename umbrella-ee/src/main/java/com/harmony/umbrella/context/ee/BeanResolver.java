@@ -13,18 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.umbrella.context.ee.util;
+package com.harmony.umbrella.context.ee;
 
 import javax.naming.Context;
-
-import com.harmony.umbrella.context.ee.BeanDefinition;
-import com.harmony.umbrella.context.ee.ContextBean;
-import com.harmony.umbrella.context.ee.ContextResolver;
 
 /**
  * @author wuxii@foxmail.com
  */
-public interface ContextBeanResolver extends ContextResolver {
+public interface BeanResolver extends ContextResolver {
 
 	/**
 	 * 在context中查找指定类型的bean

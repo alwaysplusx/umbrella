@@ -43,9 +43,15 @@ import com.harmony.umbrella.util.StringUtils;
 public class BeanDefinition {
 
     @SuppressWarnings("unchecked")
-    private static final List<Class<? extends Annotation>> sessionClass = Arrays.asList(Stateless.class, Stateful.class, Singleton.class);
-
+    private static final List<Class<? extends Annotation>> sessionClasses = Arrays.asList(Stateless.class, Stateful.class, Singleton.class);
+    /**
+     * beanClass 会话bean的类
+     */
     private final Class<?> beanClass;
+
+    /**
+     * @see {@linkplain Stateless#mappedName()}
+     */
     private String mappedName;
 
     public BeanDefinition(Class<?> beanClass) {
@@ -128,7 +134,7 @@ public class BeanDefinition {
      * 从所有RemoteClass中获取一个最合适的
      */
     public Class<?> getSuitableRemoteClass() {
-        Class<?>[] classes = getRemoteClass();
+        Class<?>[] classes = getRemoteClasses();
         return classes.length > 0 ? classes[0] : null;
     }
 
@@ -136,7 +142,7 @@ public class BeanDefinition {
      * 从所有LocalClass中获取一个最合适的
      */
     public Class<?> getSuitableLocalClass() {
-        Class<?>[] classes = getLocalClass();
+        Class<?>[] classes = getLocalClasses();
         return classes.length > 0 ? classes[0] : null;
     }
 
@@ -144,7 +150,7 @@ public class BeanDefinition {
      * 获取sessionBean中所有的remote class
      */
     @SuppressWarnings("rawtypes")
-    public Class<?>[] getRemoteClass() {
+    public Class<?>[] getRemoteClasses() {
         Set<Class> result = new HashSet<Class>();
         Remote ann = beanClass.getAnnotation(Remote.class);
         if (isRemoteClass()) {
@@ -164,7 +170,7 @@ public class BeanDefinition {
      * 获取sessionBean中所有的local class
      */
     @SuppressWarnings("rawtypes")
-    public Class<?>[] getLocalClass() {
+    public Class<?>[] getLocalClasses() {
         Set<Class> result = new HashSet<Class>();
         Local ann = beanClass.getAnnotation(Local.class);
         if (isLocalClass()) {
@@ -184,14 +190,14 @@ public class BeanDefinition {
      * session Bean 是否存在{@linkplain Remote}注解的类,或其实现的接口中
      */
     public boolean hasRemoteClass() {
-        return getRemoteClass() != null && getRemoteClass().length > 0;
+        return getRemoteClasses() != null && getRemoteClasses().length > 0;
     }
 
     /**
      * session Bean 是否存在{@linkplain Local}注解的类,或其实现的接口中
      */
     public boolean hasLocalClass() {
-        return getLocalClass() != null && getLocalClass().length > 0;
+        return getLocalClasses() != null && getLocalClasses().length > 0;
     }
 
     /**
@@ -248,14 +254,23 @@ public class BeanDefinition {
         return true;
     }
 
+    /**
+     * 工具方法, 判断是否标有{@linkplain Remote}
+     */
     public static boolean isRemoteClass(Class<?> clazz) {
         return clazz.isInterface() && clazz.getAnnotation(Remote.class) != null;
     }
 
+    /**
+     * 工具方法, 判断是否标有{@linkplain Local}
+     */
     public static boolean isLocalClass(Class<?> clazz) {
         return clazz.isInterface() && clazz.getAnnotation(Local.class) != null;
     }
 
+    /**
+     * 工具方法, 获取会话bean的mappedName
+     */
     public static final String getMappedName(Class<?> clazz) {
         Annotation ann = getSessionBeanAnnotation(clazz);
         if (ann != null) {
@@ -267,12 +282,15 @@ public class BeanDefinition {
         return null;
     }
 
+    /**
+     * 判断是否为会话bean
+     */
     public static boolean isSessionBean(Class<?> clazz) {
         return getSessionBeanAnnotation(clazz) != null;
     }
 
     private static Annotation getSessionBeanAnnotation(Class<?> clazz) {
-        for (Class<? extends Annotation> sc : sessionClass) {
+        for (Class<? extends Annotation> sc : sessionClasses) {
             Annotation ann = clazz.getAnnotation(sc);
             if (ann != null) {
                 return ann;

@@ -31,7 +31,6 @@ import com.harmony.umbrella.context.ApplicationContextException;
 import com.harmony.umbrella.context.ee.impl.ContextBeanImpl;
 import com.harmony.umbrella.context.ee.jmx.EJBContext;
 import com.harmony.umbrella.context.ee.jmx.EJBContextMBean;
-import com.harmony.umbrella.context.ee.util.ContextBeanResolver;
 import com.harmony.umbrella.context.ee.util.ContextManager;
 import com.harmony.umbrella.core.NoSuchBeanFindException;
 import com.harmony.umbrella.util.ClassUtils;
@@ -74,7 +73,7 @@ public class EJBApplicationContext extends ApplicationContext implements EJBCont
 	/**
 	 * 根据实际环境加载不同的{@linkplain BeanContextResolver}
 	 */
-	private final ContextBeanResolver contextBeanResolver;
+	private final BeanResolver beanResolver;
 
 	private static EJBApplicationContext instance;
 
@@ -84,7 +83,7 @@ public class EJBApplicationContext extends ApplicationContext implements EJBCont
 		this.jndiPropertiesFileLocation = props.getProperty("jndi.properties.file", JNDI_PROPERTIES_FILE_LOCATION);
 		this.loadProperties();
 		this.applicationProperties.putAll(props);
-		this.contextBeanResolver = ContextManager.getContextBeanResolver(getInformationOfServer(), applicationProperties);
+		this.beanResolver = ContextManager.getContextBeanResolver(getInformationOfServer(), applicationProperties);
 	}
 
 	public static EJBApplicationContext getInstance() {
@@ -194,7 +193,7 @@ public class EJBApplicationContext extends ApplicationContext implements EJBCont
 			contextBean = tryLookup(bd);
 			LOG.info("lookup bean typeof {} by jndi[{}]", clazz, contextBean.getJndi());
 		} catch (Exception e) {
-			contextBean = contextBeanResolver.search(getContext(), bd);
+			contextBean = beanResolver.search(getContext(), bd);
 			if (contextBean == null) {
 				StringBuilder message = new StringBuilder("can't find bean type of ");
 				message.append(clazz).append(" ");
@@ -223,10 +222,10 @@ public class EJBApplicationContext extends ApplicationContext implements EJBCont
 	protected ContextBean tryLookup(BeanDefinition bd) throws Exception {
 		String jndi = null;
 		try {
-			jndi = contextBeanResolver.resolveBeanName(bd);
+			jndi = beanResolver.resolveBeanName(bd);
 			Object bean = getContext().lookup(jndi);
-			if (contextBeanResolver.isDeclareBean(bd, bean)) {
-				Object unwrapBean = contextBeanResolver.unwrap(bean);
+			if (beanResolver.isDeclareBean(bd, bean)) {
+				Object unwrapBean = beanResolver.unwrap(bean);
 				return new ContextBeanImpl(bd, jndi, unwrapBean, bean == unwrapBean);
 			}
 		} catch (Exception e) {
