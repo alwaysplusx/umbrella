@@ -20,26 +20,25 @@ import javax.naming.Context;
 /**
  * @author wuxii@foxmail.com
  */
-public interface BeanResolver extends ContextResolver {
+public interface BeanResolver {
 
-	/**
-	 * 在context中查找指定类型的bean
-	 * 
-	 * @param beanDefinition
-	 *            bean的描述
-	 * @return 如果没有找到返回{@code null}
-	 */
-	ContextBean search(Context context, BeanDefinition beanDefinition);
+    /**
+     * 根据配置的上下文的信息猜想环境中对应的bean jndi名称
+     * 
+     * @param beanDefinition
+     *            bean定义
+     * @return 所有猜想并在{@linkplain Context}中存在的jndi名称
+     */
+    String[] guessNames(BeanDefinition beanDefinition, Context root);
 
-	// /**
-	// * context中查找bean
-	// *
-	// * @param clazz
-	// * bean的类型
-	// * @param mappedName
-	// * bean的映射名
-	// * @return 如果没有找到返回{@code null}
-	// */
-	// ContextBean lookup(Context context, Class<?> clazz, String mappedName);
-
+    /**
+     * 查看bean是否与声明的类型匹配
+     * 
+     * @param declaer
+     *            声明的bean定义
+     * @param bean
+     *            待检验的bean
+     * @return 符合定义的bean返回true
+     */
+    boolean isDeclareBean(BeanDefinition declaer, Object bean);
 }

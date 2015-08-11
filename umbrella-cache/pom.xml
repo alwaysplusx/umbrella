@@ -9,4 +9,10 @@
   </parent>
   <name>Harmony Umbrella :: Module of Cache</name>
   <artifactId>umbrella-cache</artifactId>
+  <dependencies>
+      <dependency>
+          <groupId>net.sf.ehcache</groupId>
+          <artifactId>ehcache</artifactId>
+      </dependency>  
+  </dependencies>
 </project>

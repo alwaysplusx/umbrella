@@ -22,7 +22,7 @@ import java.util.Properties;
 
 import com.harmony.umbrella.context.ApplicationMetadata.ServerInformation;
 import com.harmony.umbrella.context.ee.BeanResolver;
-import com.harmony.umbrella.context.ee.ContextResolver;
+import com.harmony.umbrella.context.ee.ContextConfigurationResolver;
 import com.harmony.umbrella.context.ee.GenericContextResolver;
 import com.harmony.umbrella.context.ee.resolver.GenericContextBeanResolver;
 import com.harmony.umbrella.util.ReflectionUtils;
@@ -32,10 +32,10 @@ import com.harmony.umbrella.util.ReflectionUtils;
  */
 public class ContextManager {
 
-    public static ContextResolver getContextResolver(ServerInformation serverInfo, Properties props) {
+    public static ContextConfigurationResolver getContextResolver(ServerInformation serverInfo, Properties props) {
         String resolverClassName = props.getProperty("jndi.context.resolver");
         if (resolverClassName != null) {
-            return createResolverFromClassName(resolverClassName, serverInfo, props, ContextResolver.class);
+            return createResolverFromClassName(resolverClassName, serverInfo, props, ContextConfigurationResolver.class);
         }
         int serverType = serverInfo == null ? UNKNOW : serverInfo.serverType;
         switch (serverType) {
@@ -68,7 +68,7 @@ public class ContextManager {
     }
 
     @SuppressWarnings("unchecked")
-    private static <T extends ContextResolver> T createResolverFromClassName(String resolverClassName, ServerInformation serverInfo, Properties props,
+    private static <T extends ContextConfigurationResolver> T createResolverFromClassName(String resolverClassName, ServerInformation serverInfo, Properties props,
             Class<T> targetClass) {
         try {
             Class<?> resolverClass = Class.forName(resolverClassName);
