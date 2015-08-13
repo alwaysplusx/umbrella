@@ -15,9 +15,11 @@
  */
 package com.harmony.umbrella.context;
 
+import com.harmony.umbrella.context.bean.JeeSessionBean;
 import com.harmony.umbrella.context.bean.JeeSessionLocal;
-import com.harmony.umbrella.context.ee.AbstractBeanResolver;
+import com.harmony.umbrella.context.bean.JeeSessionRemote;
 import com.harmony.umbrella.context.ee.BeanDefinition;
+import com.harmony.umbrella.context.ee.support.ConfigurationBeanResolver;
 
 /**
  * @author wuxii@foxmail.com
@@ -25,15 +27,28 @@ import com.harmony.umbrella.context.ee.BeanDefinition;
 public class BeanResolverTest {
 
     public static void main(String[] args) {
-        AbstractBeanResolver resolver = new AbstractBeanResolver();
+        ConfigurationBeanResolver resolver = new ConfigurationBeanResolver();
+        // resolver.setTransformLocal(true);
         resolver.getBeanSeparators().add("#");
         resolver.getBeanSuffixs().add("Bean");
         resolver.getLocalSuffixs().add("Local");
         resolver.getRemoteSuffixs().add("Remote");
-        String[] names = resolver.guessNames(new BeanDefinition(JeeSessionLocal.class), null);
+
+        String[] names = resolver.guessNames(new BeanDefinition(JeeSessionLocal.class));
         for (String jndi : names) {
             System.out.println(jndi);
         }
+
+        names = resolver.guessNames(new BeanDefinition(JeeSessionRemote.class));
+        for (String jndi : names) {
+            System.out.println(jndi);
+        }
+
+        names = resolver.guessNames(new BeanDefinition(JeeSessionBean.class));
+        for (String jndi : names) {
+            System.out.println(jndi);
+        }
+
     }
 
 }

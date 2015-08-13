@@ -53,19 +53,6 @@ public abstract class ApplicationContext implements BeanFactory {
     private static DBInformation dbInfo;
 
     /**
-     * 应用上下文状态：新建
-     */
-    protected static final int CREATE = 0;
-    /**
-     * 应用上下文状态：以初始化
-     */
-    protected static final int INITIALIZED = 1;
-    /**
-     * 应用上下文状态：销毁
-     */
-    protected static final int DESTROY = 2;
-
-    /**
      * 初始化应用上下文
      */
     public abstract void init();
@@ -100,7 +87,9 @@ public abstract class ApplicationContext implements BeanFactory {
     }
 
     /**
-     * 获取当前应用的应用上下文 <p> 加载
+     * 获取当前应用的应用上下文
+     * <p>
+     * 加载
      * {@code META-INF/services/com.harmony.umbrella.context.spi.ApplicationContextProvider}
      * 文件中的实际类型来创建
      * 
@@ -174,7 +163,9 @@ public abstract class ApplicationContext implements BeanFactory {
     }
 
     /**
-     * 注册应用的web服务信息 <p> 一经注册就不在更改
+     * 注册应用的web服务信息
+     * <p>
+     * 一经注册就不在更改
      * 
      * @param servletContext
      *            web上下文
@@ -187,7 +178,9 @@ public abstract class ApplicationContext implements BeanFactory {
     }
 
     /**
-     * 初始化应用的数据源信息 <p> 一经初始化就不在更改
+     * 初始化应用的数据源信息
+     * <p>
+     * 一经初始化就不在更改
      * 
      * @param conn
      *            数据源的一个连接
@@ -217,16 +210,9 @@ public abstract class ApplicationContext implements BeanFactory {
      */
     public String getDescription() {
         StringBuilder sb = new StringBuilder();
-        sb.append("{")
-            .append("\n\"os\":")
-            .append(getInformationOfOS()).append(",\n")
-            .append("\"jvm\":")
-            .append(getInformationOfJVM()).append(",\n")
-            .append("\"db\":")
-            .append(getInformationOfDB() == null ? "{}" : getInformationOfDB()).append(",\n")
-            .append("\"server\":")
-            .append(getInformationOfServer() == null ? "{}" : getInformationOfServer()).append("\n")
-            .append("}");
+        sb.append("{").append("\n\"os\":").append(getInformationOfOS()).append(",\n").append("\"jvm\":").append(getInformationOfJVM()).append(",\n")
+                .append("\"db\":").append(getInformationOfDB() == null ? "{}" : getInformationOfDB()).append(",\n").append("\"server\":")
+                .append(getInformationOfServer() == null ? "{}" : getInformationOfServer()).append("\n").append("}");
         return sb.toString();
     }
 

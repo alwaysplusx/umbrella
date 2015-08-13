@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 wuxii@foxmail.com.
+ * Copyright 2002-2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,13 +15,15 @@
  */
 package com.harmony.umbrella.context.ee;
 
+import javax.naming.Context;
+
 /**
  * @author wuxii@foxmail.com
  */
-public interface WrappedBeanHandler {
+public interface ContextBeanResolver extends BeanResolver {
 
-    boolean isWrappedBean(Object bean);
+    SessionBean search(BeanDefinition beanDefinition, Context context);
 
-    Object unwrap(Object bean);
+    Object tryLookup(String jndi, Context context);
 
 }

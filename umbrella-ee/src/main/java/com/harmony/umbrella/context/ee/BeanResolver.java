@@ -32,6 +32,15 @@ public interface BeanResolver {
     String[] guessNames(BeanDefinition beanDefinition, Context root);
 
     /**
+     * 通过配置的信息获取可猜想出的jndi
+     * 
+     * @param beanDefinition
+     *            bean定义
+     * @return jndis
+     */
+    String[] guessNames(BeanDefinition beanDefinition);
+
+    /**
      * 查看bean是否与声明的类型匹配
      * 
      * @param declaer
@@ -41,4 +50,5 @@ public interface BeanResolver {
      * @return 符合定义的bean返回true
      */
     boolean isDeclareBean(BeanDefinition declaer, Object bean);
+
 }

@@ -27,7 +27,7 @@ package com.harmony.umbrella.context.ee;
  * 
  * @author wuxii@foxmail.com
  */
-public interface ContextBean {
+public interface SessionBean {
 
     /**
      * 缓存着的bean
