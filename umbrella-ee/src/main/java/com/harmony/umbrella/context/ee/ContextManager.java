@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.umbrella.context.ee.util;
+package com.harmony.umbrella.context.ee;
 
 import static com.harmony.umbrella.context.ApplicationMetadata.ServerInformation.*;
 
@@ -21,21 +21,21 @@ import java.lang.reflect.Constructor;
 import java.util.Properties;
 
 import com.harmony.umbrella.context.ApplicationMetadata.ServerInformation;
-import com.harmony.umbrella.context.ee.BeanResolver;
-import com.harmony.umbrella.context.ee.ContextConfigurationResolver;
-import com.harmony.umbrella.context.ee.GenericContextResolver;
-import com.harmony.umbrella.context.ee.resolver.GenericContextBeanResolver;
+import com.harmony.umbrella.context.ee.support.ConfigurationBeanResolver;
+import com.harmony.umbrella.context.ee.support.InternalContextResolver;
+import com.harmony.umbrella.util.ClassUtils;
 import com.harmony.umbrella.util.ReflectionUtils;
+import com.harmony.umbrella.util.StringUtils;
 
 /**
  * @author wuxii@foxmail.com
  */
 public class ContextManager {
 
-    public static ContextConfigurationResolver getContextResolver(ServerInformation serverInfo, Properties props) {
+    public static BeanResolver createBeanResolver(ServerInformation serverInfo, Properties props) {
         String resolverClassName = props.getProperty("jndi.context.resolver");
-        if (resolverClassName != null) {
-            return createResolverFromClassName(resolverClassName, serverInfo, props, ContextConfigurationResolver.class);
+        if (StringUtils.isNotBlank(resolverClassName)) {
+            return createResolver(resolverClassName, serverInfo, props, ContextResolver.class);
         }
         int serverType = serverInfo == null ? UNKNOW : serverInfo.serverType;
         switch (serverType) {
@@ -45,14 +45,14 @@ public class ContextManager {
         case JBOSS:
         case TOMCAT:
         default:
-            return new GenericContextResolver(props);
+            return new ConfigurationBeanResolver(props);
         }
     }
 
-    public static BeanResolver getContextBeanResolver(ServerInformation serverInfo, Properties props) {
+    public static ContextResolver createContextResolver(ServerInformation serverInfo, Properties props) {
         String resolverClassName = props.getProperty("jndi.context.resolver");
-        if (resolverClassName != null) {
-            return createResolverFromClassName(resolverClassName, serverInfo, props, BeanResolver.class);
+        if (StringUtils.isNotBlank(resolverClassName)) {
+            return createResolver(resolverClassName, serverInfo, props, ContextResolver.class);
         }
         int serverType = serverInfo == null ? UNKNOW : serverInfo.serverType;
         switch (serverType) {
@@ -63,25 +63,26 @@ public class ContextManager {
         case JBOSS:
         case TOMCAT:
         default:
-            return new GenericContextBeanResolver(props);
+            return new InternalContextResolver(props);
         }
     }
 
     @SuppressWarnings("unchecked")
-    private static <T extends ContextConfigurationResolver> T createResolverFromClassName(String resolverClassName, ServerInformation serverInfo, Properties props,
-            Class<T> targetClass) {
+    private static <T extends ContextResolver> T createResolver(String resolverClassName, ServerInformation serverInfo, //
+            Properties props, Class<T> targetClass) {
         try {
-            Class<?> resolverClass = Class.forName(resolverClassName);
+            Class<?> resolverClass = Class.forName(resolverClassName, false, ClassUtils.getDefaultClassLoader());
             if (targetClass.isAssignableFrom(resolverClass)) {
-                Constructor<?> constructor = resolverClass.getConstructor(Properties.class);
-                if (constructor != null) {
-                    return (T) constructor.newInstance(props);
-                } else {
+                Constructor<?> constructor;
+                try {
+                    constructor = resolverClass.getConstructor(Properties.class);
+                    return (T) ReflectionUtils.instantiateClass(constructor, props);
+                } catch (NoSuchMethodException e) {
                     return (T) ReflectionUtils.instantiateClass(resolverClass);
                 }
             }
             throw new IllegalArgumentException("class " + resolverClassName + " not assignable from " + targetClass.getName());
-        } catch (Exception e) {
+        } catch (ClassNotFoundException e) {
             throw new IllegalArgumentException("class " + resolverClassName + " cant't resolver", e);
         }
     }

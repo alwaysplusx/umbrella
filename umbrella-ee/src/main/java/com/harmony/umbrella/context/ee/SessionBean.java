@@ -56,4 +56,11 @@ public interface SessionBean {
      */
     boolean isWrapped();
 
+    /**
+     * sessionBean对于的beanDefinition定义
+     * 
+     * @return bean定义信息
+     */
+    BeanDefinition getBeanDefinition();
+
 }

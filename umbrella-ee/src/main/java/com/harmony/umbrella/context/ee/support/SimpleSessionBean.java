@@ -23,17 +23,17 @@ import com.harmony.umbrella.context.ee.SessionBean;
  */
 public class SimpleSessionBean implements SessionBean {
 
-    final BeanDefinition bd;
+    final BeanDefinition beanDefinition;
     Object bean;
     String jndi;
     boolean wrapped;
 
-    protected SimpleSessionBean(BeanDefinition bd) {
-        this.bd = bd;
+    protected SimpleSessionBean(BeanDefinition beanDefinition) {
+        this.beanDefinition = beanDefinition;
     }
 
-    protected SimpleSessionBean(BeanDefinition bd, String jndi, Object bean, boolean wrapped) {
-        this.bd = bd;
+    protected SimpleSessionBean(BeanDefinition beanDefinition, String jndi, Object bean, boolean wrapped) {
+        this.beanDefinition = beanDefinition;
         this.bean = bean;
         this.jndi = jndi;
         this.wrapped = wrapped;
@@ -51,7 +51,7 @@ public class SimpleSessionBean implements SessionBean {
 
     @Override
     public boolean isCacheable() {
-        return bd.isSessionBean();
+        return beanDefinition.isSessionBean();
     }
 
     @Override
@@ -60,10 +60,15 @@ public class SimpleSessionBean implements SessionBean {
     }
 
     @Override
+    public BeanDefinition getBeanDefinition() {
+        return this.beanDefinition;
+    }
+
+    @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((bd == null) ? 0 : bd.hashCode());
+        result = prime * result + ((beanDefinition == null) ? 0 : beanDefinition.hashCode());
         result = prime * result + ((bean == null) ? 0 : bean.hashCode());
         result = prime * result + ((jndi == null) ? 0 : jndi.hashCode());
         return result;
@@ -78,10 +83,10 @@ public class SimpleSessionBean implements SessionBean {
         if (getClass() != obj.getClass())
             return false;
         SimpleSessionBean other = (SimpleSessionBean) obj;
-        if (bd == null) {
-            if (other.bd != null)
+        if (beanDefinition == null) {
+            if (other.beanDefinition != null)
                 return false;
-        } else if (!bd.equals(other.bd))
+        } else if (!beanDefinition.equals(other.beanDefinition))
             return false;
         if (bean == null) {
             if (other.bean != null)

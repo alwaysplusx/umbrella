@@ -49,6 +49,30 @@ public interface BeanResolver {
      *            待检验的bean
      * @return 符合定义的bean返回true
      */
-    boolean isDeclareBean(BeanDefinition declaer, Object bean);
+    boolean isDeclareBean(BeanDefinition declare, Object bean);
 
+    /**
+     * @param beanDefinition
+     * @param context
+     * @param filter
+     * @return
+     */
+    Object guessBean(BeanDefinition beanDefinition, Context context, BeanFilter filter);
+
+    /**
+     * @author wuxii@foxmail.com
+     */
+    public interface BeanFilter {
+
+        /**
+         * 判断jndi对应的bean是否为所需要的bean
+         * 
+         * @param jndi
+         *            jndi名称
+         * @param bean
+         *            bean实例
+         */
+        boolean accept(String jndi, Object bean);
+
+    }
 }

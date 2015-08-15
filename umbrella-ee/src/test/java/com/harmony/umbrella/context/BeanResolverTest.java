@@ -20,19 +20,16 @@ import com.harmony.umbrella.context.bean.JeeSessionLocal;
 import com.harmony.umbrella.context.bean.JeeSessionRemote;
 import com.harmony.umbrella.context.ee.BeanDefinition;
 import com.harmony.umbrella.context.ee.support.ConfigurationBeanResolver;
+import com.harmony.umbrella.util.PropUtils;
 
 /**
  * @author wuxii@foxmail.com
  */
 public class BeanResolverTest {
 
-    public static void main(String[] args) {
-        ConfigurationBeanResolver resolver = new ConfigurationBeanResolver();
-        // resolver.setTransformLocal(true);
-        resolver.getBeanSeparators().add("#");
-        resolver.getBeanSuffixs().add("Bean");
-        resolver.getLocalSuffixs().add("Local");
-        resolver.getRemoteSuffixs().add("Remote");
+    public static void main(String[] args) throws Exception {
+
+        ConfigurationBeanResolver resolver = new ConfigurationBeanResolver(PropUtils.loadProperties("META-INF/application.properties"));
 
         String[] names = resolver.guessNames(new BeanDefinition(JeeSessionLocal.class));
         for (String jndi : names) {

@@ -56,7 +56,7 @@ public class EJBApplicationContext extends ApplicationContext implements EJBCont
     /**
      * 应用的配置属性
      */
-    private Properties applicationProperties = new Properties();
+    private final Properties applicationProperties = new Properties();
 
     /**
      * JMX管理
@@ -66,11 +66,11 @@ public class EJBApplicationContext extends ApplicationContext implements EJBCont
     /**
      * 存放与class对应的Context的bean信息，信息中包含jndi, bean definition, 和一个被缓存着的实例(可以做单例使用)
      */
-    private Map<Class<?>, SessionBean> sessionBeanMap = new HashMap<Class<?>, SessionBean>();
+    private Map<String, SessionBean> sessionBeanMap = new HashMap<String, SessionBean>();
 
     private static EJBApplicationContext instance;
 
-    private ContextBeanResolver contextBeanResolver;
+    private ContextResolver contextResolver;
 
     private int lifeCycle = STANDBY;
 
@@ -158,6 +158,24 @@ public class EJBApplicationContext extends ApplicationContext implements EJBCont
     /**
      * 从JavaEE环境中获取指定类实例
      * <p>
+     * <li>首先根据类型将解析clazz对应的jndi名称
+     * <li>如果解析的jndi名称未找到对应类型的bean， 则通过递归 {@linkplain javax.naming.Context}
+     * 中的内容查找
+     * <li>若以上方式均为找到则返回{@code null}
+     * 
+     * @param clazz
+     *            待查找的类
+     * @return 指定类型的bean, 如果为找到返回{@code null}
+     * @throws ApplicationContextException
+     *             初始化JavaEE环境失败
+     */
+    public <T> T lookup(Class<T> clazz) throws ApplicationContextException {
+        return lookup(clazz, null);
+    }
+
+    /**
+     * 从JavaEE环境中获取指定类实例
+     * <p>
      * <li>首先根据所运行的容器不同通过 {@linkplain BeanContextResolver} 将 {@code clazz}
      * 格式化为特定的{@code jndi}
      * <li>如果格式化后的jndi名称未找到对应类型的bean， 则通过 {@linkplain ContextReader}
@@ -174,86 +192,33 @@ public class EJBApplicationContext extends ApplicationContext implements EJBCont
      */
     @SuppressWarnings("unchecked")
     public <T> T lookup(Class<T> clazz, String mappedName) throws ApplicationContextException {
-        SessionBean sessionBean = sessionBeanMap.get(clazz);
+        String key = sessionKey(clazz, mappedName);
+        
+        SessionBean sessionBean = sessionBeanMap.get(key);
         if (sessionBean != null) {
             LOG.debug("lookup bean[{}] use cached session bean {}", sessionBean.getJndi(), sessionBean);
-            // 已经将clazz解析过，明确clazz对应的一个jndi能找到指定类型的bean
             if (sessionBean.isCacheable()) {
                 return (T) sessionBean.getBean();
             } else {
                 try {
                     return (T) lookup(sessionBean.getJndi());
                 } catch (Exception e) {
-                    // jndi changed
-                    sessionBeanMap.remove(clazz);
+                    sessionBeanMap.remove(key);
                 }
             }
         }
-        // 初次解析
-        BeanDefinition bd = new BeanDefinition(clazz, mappedName);
-        try {
-            sessionBean = tryLookup(bd);
-            LOG.info("lookup bean typeof {} by jndi[{}]", clazz, sessionBean.getJndi());
-        } catch (Exception e) {
-            sessionBean = contextBeanResolver.search(bd, getContext());
-            if (sessionBean == null) {
-                StringBuilder message = new StringBuilder("can't find bean type of ");
-                message.append(clazz).append(" ");
-                if (!StringUtils.isBlank(bd.getMappedName())) {
-                    message.append("and mappend name is ").append(bd.getMappedName());
-                }
-                LOG.error(message.toString());
-                throw new ApplicationContextException(message.toString());
-            }
-            LOG.info("find bean[{}], with jndi[{}]", clazz.getName(), sessionBean.getJndi());
-        }
-        sessionBeanMap.put(clazz, sessionBean);
-        LOG.debug("put session bean[{}] in cached", sessionBean);
+        
+        sessionBean = contextResolver.search(new BeanDefinition(clazz, mappedName), getContext());
+        LOG.info("lookup bean typeof {} by jndi[{}]", clazz, sessionBean.getJndi());
+        sessionBeanMap.put(key, sessionBean);
+
         return (T) sessionBean.getBean();
     }
 
-    /**
-     * 尝试使用jndi去加载bean
-     * 
-     * @param bd
-     *            beanDefinition
-     * @return SessionBean
-     * @throws Exception
-     *             如果未找到bean
-     */
-    protected SessionBean tryLookup(BeanDefinition bd) throws Exception {
-        /*String jndi = null;
-        try {
-            jndi = contextBeanResolver.resolveBeanName(bd);
-            Object bean = getContext().lookup(jndi);
-            if (contextBeanResolver.isDeclareBean(bd, bean)) {
-                Object unwrapBean = contextBeanResolver.unwrap(bean);
-                return new ContextBeanImpl(bd, jndi, unwrapBean, bean == unwrapBean);
-            }
-        } catch (Exception e) {
-            LOG.debug("can't lookup jndi[{}], try to iterator context find bean of {}", jndi, bd.getBeanClass(), e);
-            throw e;
-        }
-        throw new Exception("for entry catch block");*/
-        return null;
-    }
-
-    /**
-     * 从JavaEE环境中获取指定类实例
-     * <p>
-     * <li>首先根据类型将解析clazz对应的jndi名称
-     * <li>如果解析的jndi名称未找到对应类型的bean， 则通过递归 {@linkplain javax.naming.Context}
-     * 中的内容查找
-     * <li>若以上方式均为找到则返回{@code null}
-     * 
-     * @param clazz
-     *            待查找的类
-     * @return 指定类型的bean, 如果为找到返回{@code null}
-     * @throws ApplicationContextException
-     *             初始化JavaEE环境失败
-     */
-    public <T> T lookup(Class<T> clazz) throws ApplicationContextException {
-        return lookup(clazz, null);
+    private String sessionKey(Class<?> clazz, String mappedName) {
+        return new StringBuilder(clazz.getName()).append(".")//
+                .append(StringUtils.isBlank(mappedName) ? "" : mappedName)//
+                .toString();
     }
 
     /**
