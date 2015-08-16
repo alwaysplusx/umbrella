@@ -27,7 +27,10 @@ import javax.servlet.ServletContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.harmony.umbrella.context.ApplicationMetadata.*;
+import com.harmony.umbrella.context.ApplicationMetadata.DBInformation;
+import com.harmony.umbrella.context.ApplicationMetadata.JVMInformation;
+import com.harmony.umbrella.context.ApplicationMetadata.OSInformation;
+import com.harmony.umbrella.context.ApplicationMetadata.ServerInformation;
 import com.harmony.umbrella.core.BeanFactory;
 
 /**
@@ -37,7 +40,7 @@ import com.harmony.umbrella.core.BeanFactory;
  */
 public abstract class ApplicationContext implements BeanFactory {
 
-    protected static final InheritableThreadLocal<CurrentContext> current = new InheritableThreadLocal<CurrentContext>();
+    protected static final ThreadLocal<CurrentContext> current = new InheritableThreadLocal<CurrentContext>();
 
     protected static final Logger LOG = LoggerFactory.getLogger(ApplicationContext.class);
 
@@ -63,27 +66,22 @@ public abstract class ApplicationContext implements BeanFactory {
     public abstract void destroy();
 
     /**
-     * 检入{@linkplain InheritableThreadLocal}
+     * 设置当前线程的用户环境
      * 
      * @param currentCtx
+     *            用户环境
      */
-    public void checkIn(CurrentContext currentCtx) {
+    public void setCurrentContext(CurrentContext currentCtx) {
         current.set(currentCtx);
     }
 
-    public CurrentContext getCurrent() {
-        return current.get();
-    }
-
     /**
-     * {@linkplain InheritableThreadLocal}中设置为空
+     * 获取当前线程的用户环境
      * 
-     * @return
+     * @return 用户环境
      */
-    public CurrentContext checkOut() {
-        CurrentContext cur = current.get();
-        current.set(null);
-        return cur;
+    public CurrentContext getCurrentContext() {
+        return current.get();
     }
 
     /**
@@ -113,7 +111,7 @@ public abstract class ApplicationContext implements BeanFactory {
             try {
                 context = provider.createApplicationContext(props);
                 if (context != null) {
-                    LOG.info("create context [{}] by [{}]", context, provider);
+                    LOG.debug("create context [{}] by [{}]", context, provider);
                     break;
                 }
             } catch (Exception e) {
@@ -210,9 +208,12 @@ public abstract class ApplicationContext implements BeanFactory {
      */
     public String getDescription() {
         StringBuilder sb = new StringBuilder();
-        sb.append("{").append("\n\"os\":").append(getInformationOfOS()).append(",\n").append("\"jvm\":").append(getInformationOfJVM()).append(",\n")
-                .append("\"db\":").append(getInformationOfDB() == null ? "{}" : getInformationOfDB()).append(",\n").append("\"server\":")
-                .append(getInformationOfServer() == null ? "{}" : getInformationOfServer()).append("\n").append("}");
+        sb.append("{\n")//
+                .append("\"os\":").append(getInformationOfOS()).append(",\n")//
+                .append("\"jvm\":").append(getInformationOfJVM()).append(",\n")//
+                .append("\"db\":").append(getInformationOfDB() == null ? "{}" : getInformationOfDB()).append(",\n")//
+                .append("\"server\":").append(getInformationOfServer() == null ? "{}" : getInformationOfServer()).append("\n")//
+                .append("}");
         return sb.toString();
     }
 

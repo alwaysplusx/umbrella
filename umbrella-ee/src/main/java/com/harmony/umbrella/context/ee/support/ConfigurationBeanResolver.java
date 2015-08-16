@@ -87,23 +87,26 @@ public class ConfigurationBeanResolver implements BeanResolver {
         this.remoteSuffixs.addAll(fromProps(props, "jndi.format.remote"));
         this.localSuffixs.addAll(fromProps(props, "jndi.format.local"));
         this.separators.addAll(fromProps(props, "jndi.format.separator"));
-        this.warppedBeanHandlers.addAll(createFromProps(props, "jndi.wrapped.handler"));
+        this.warppedBeanHandlers.addAll(createFromProps(props, "jndi.wrapped.handler", WrappedBeanHandler.class));
     }
 
+    /**
+     * 读取资源文件中的值， 根据值对于的内容创建需要的实例
+     */
     @SuppressWarnings("unchecked")
-    private Set<WrappedBeanHandler> createFromProps(Properties props, String key) {
+    protected <T> Set<T> createFromProps(Properties props, String key, Class<T> requireType) {
         String value = props.getProperty(key);
         if (StringUtils.isBlank(value)) {
             return Collections.emptySet();
         }
         StringTokenizer st = new StringTokenizer(value, ",");
-        Set<WrappedBeanHandler> result = new HashSet<WrappedBeanHandler>(st.countTokens());
+        Set<T> result = new HashSet<T>(st.countTokens());
         while (st.hasMoreTokens()) {
             String className = st.nextToken().trim();
-            Class<WrappedBeanHandler> handlerClass;
+            Class<T> clazz;
             try {
-                handlerClass = (Class<WrappedBeanHandler>) Class.forName(className, false, ClassUtils.getDefaultClassLoader());
-                result.add(ReflectionUtils.instantiateClass(handlerClass));
+                clazz = (Class<T>) Class.forName(className, false, ClassUtils.getDefaultClassLoader());
+                result.add(ReflectionUtils.instantiateClass(clazz));
             } catch (Exception e) {
                 log.warn("", e);
             }
@@ -111,7 +114,10 @@ public class ConfigurationBeanResolver implements BeanResolver {
         return result;
     }
 
-    private Set<String> fromProps(Properties props, String key) {
+    /**
+     * 读取资源文件的内容， 并将内容分割问set对象
+     */
+    protected Set<String> fromProps(Properties props, String key) {
         String value = props.getProperty(key);
         if (StringUtils.isBlank(value)) {
             return Collections.emptySet();

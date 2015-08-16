@@ -15,6 +15,8 @@
  */
 package com.harmony.umbrella.context.ee;
 
+import static com.harmony.umbrella.context.ee.ResolverManager.*;
+
 import java.io.IOException;
 import java.net.URL;
 import java.util.HashMap;
@@ -81,7 +83,7 @@ public class EJBApplicationContext extends ApplicationContext implements EJBCont
     private EJBApplicationContext(Properties props) {
         this.jndiPropertiesFileLocation = props.getProperty("jndi.properties.file", JNDI_PROPERTIES_FILE_LOCATION);
         this.loadProperties();
-        this.applicationProperties.putAll(props);
+        this.applyProperties(props);
     }
 
     public static EJBApplicationContext getInstance() {
@@ -95,6 +97,8 @@ public class EJBApplicationContext extends ApplicationContext implements EJBCont
                     instance = new EJBApplicationContext(props == null ? new Properties() : props);
                 }
             }
+        } else if (props != null && !props.isEmpty()) {
+            instance.applyProperties(props);
         }
         return instance;
     }
@@ -193,7 +197,7 @@ public class EJBApplicationContext extends ApplicationContext implements EJBCont
     @SuppressWarnings("unchecked")
     public <T> T lookup(Class<T> clazz, String mappedName) throws ApplicationContextException {
         String key = sessionKey(clazz, mappedName);
-        
+
         SessionBean sessionBean = sessionBeanMap.get(key);
         if (sessionBean != null) {
             LOG.debug("lookup bean[{}] use cached session bean {}", sessionBean.getJndi(), sessionBean);
@@ -207,9 +211,9 @@ public class EJBApplicationContext extends ApplicationContext implements EJBCont
                 }
             }
         }
-        
+
         sessionBean = contextResolver.search(new BeanDefinition(clazz, mappedName), getContext());
-        LOG.info("lookup bean typeof {} by jndi[{}]", clazz, sessionBean.getJndi());
+        LOG.info("lookup bean typeof {} by jndi {}", clazz.getName(), sessionBean.getJndi());
         sessionBeanMap.put(key, sessionBean);
 
         return (T) sessionBean.getBean();
@@ -258,6 +262,10 @@ public class EJBApplicationContext extends ApplicationContext implements EJBCont
     }
 
     // ################### BeanFactory #################
+
+    public void setContextResolver(ContextResolver contextResolver) {
+        this.contextResolver = contextResolver;
+    }
 
     @SuppressWarnings("unchecked")
     @Override
@@ -340,8 +348,13 @@ public class EJBApplicationContext extends ApplicationContext implements EJBCont
         return getBean(className) != null;
     }
 
-    public void applyProperties(Properties props) {
-        this.applicationProperties.putAll(props);
+    protected void applyProperties(Properties props) {
+        if (props != null && !props.isEmpty()) {
+            this.applicationProperties.putAll(props);
+            if (props.containsKey("jndi.context.resolver")) {
+                this.contextResolver = createContextResolver(getInformationOfServer(), applicationProperties);
+            }
+        }
     }
 
     @Override

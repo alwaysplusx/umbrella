@@ -30,8 +30,17 @@ import com.harmony.umbrella.util.StringUtils;
 /**
  * @author wuxii@foxmail.com
  */
-public class ContextManager {
+public class ResolverManager {
 
+    /**
+     * 创建beanResolver
+     * 
+     * @param serverInfo
+     *            服务的信息
+     * @param props
+     *            创建的附属资源
+     * @return beanResolver
+     */
     public static BeanResolver createBeanResolver(ServerInformation serverInfo, Properties props) {
         String resolverClassName = props.getProperty("jndi.context.resolver");
         if (StringUtils.isNotBlank(resolverClassName)) {
@@ -49,6 +58,15 @@ public class ContextManager {
         }
     }
 
+    /**
+     * 创建ContextResolver
+     * 
+     * @param serverInfo
+     *            服务的信息
+     * @param props
+     *            创建的附属资源
+     * @return contextResolver
+     */
     public static ContextResolver createContextResolver(ServerInformation serverInfo, Properties props) {
         String resolverClassName = props.getProperty("jndi.context.resolver");
         if (StringUtils.isNotBlank(resolverClassName)) {

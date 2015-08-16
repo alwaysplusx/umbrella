@@ -23,18 +23,39 @@ import java.lang.reflect.UndeclaredThrowableException;
  */
 public abstract class ReflectionUtils {
 
-	public static <T> T instantiateClass(Class<T> clazz) {
-		Assert.notNull(clazz, "Class must not be null");
-		if (clazz.isInterface()) {
-			throw new IllegalArgumentException("Specified class is an interface");
-		}
-		try {
-			return instantiateClass(clazz.getDeclaredConstructor());
-		} catch (NoSuchMethodException ex) {
-			handleReflectionException(ex);
-		}
-		throw new IllegalStateException("");
-	}
+    /**
+     * 通过类名实例化对象
+     * 
+     * @param className
+     *            待实例化的类名
+     * @return 实例对象
+     * @throws ClassNotFoundException
+     *             if class name not found
+     */
+    public static Object instantiateClass(String className) throws ClassNotFoundException {
+        Class<?> clazz = Class.forName(className, false, ClassUtils.getDefaultClassLoader());
+        return instantiateClass(clazz);
+    }
+    
+    /**
+     * 实例化对象
+     * 
+     * @param clazz
+     *            待实例化的对象
+     * @return 实例对象
+     */
+    public static <T> T instantiateClass(Class<T> clazz) {
+        Assert.notNull(clazz, "Class must not be null");
+        if (clazz.isInterface()) {
+            throw new IllegalArgumentException("Specified class is an interface");
+        }
+        try {
+            return instantiateClass(clazz.getDeclaredConstructor());
+        } catch (NoSuchMethodException ex) {
+            handleReflectionException(ex);
+        }
+        throw new IllegalStateException("");
+    }
 
 	/**
 	 * Convenience method to instantiate a class using the given constructor. As this

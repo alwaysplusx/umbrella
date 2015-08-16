@@ -27,7 +27,7 @@ import com.harmony.umbrella.util.Formats;
 import com.harmony.umbrella.util.Formats.NullableDateFormat;
 
 /**
- * 监视结果基础抽象类
+ * 监控结果基础抽象类
  * 
  * @author wuxii@foxmail.com
  */
@@ -41,7 +41,7 @@ public abstract class AbstractGraph implements Graph {
     protected final String identifier;
 
     protected final Map<String, Object> arguments = new HashMap<String, Object>();
-    
+
     protected Object result;
 
     protected Calendar requestTime;
@@ -76,22 +76,19 @@ public abstract class AbstractGraph implements Graph {
 
     @Override
     public long use() {
-        if (requestTime != null && responseTime != null) {
-            return responseTime.getTimeInMillis() - requestTime.getTimeInMillis();
-        }
-        return -1;
+        return (requestTime != null || responseTime != null) ? -1 : responseTime.getTimeInMillis() - requestTime.getTimeInMillis();
     }
-    
+
     @Override
     public Map<String, Object> getArguments() {
         return Collections.unmodifiableMap(arguments);
     }
-    
+
     @Override
     public Object getResult() {
         return result;
     }
-    
+
     public void setResult(Object result) {
         this.result = result;
     }
@@ -105,6 +102,18 @@ public abstract class AbstractGraph implements Graph {
         this.exception = exception;
     }
 
+    public void setRequestTime(long requestTime) {
+        Calendar c = Calendar.getInstance();
+        c.setTimeInMillis(requestTime);
+        this.requestTime = c;
+    }
+
+    public void setResponseTime(long responseTime) {
+        Calendar c = Calendar.getInstance();
+        c.setTimeInMillis(responseTime);
+        this.responseTime = c;
+    }
+
     public void setRequestTime(Calendar requestTime) {
         this.requestTime = requestTime;
     }
@@ -112,23 +121,23 @@ public abstract class AbstractGraph implements Graph {
     public void setResponseTime(Calendar responseTime) {
         this.responseTime = responseTime;
     }
-    
+
     @Override
     public String getDescription() {
         StringBuilder buffer = new StringBuilder();
-        buffer.append("{\n")
-            .append("  id:").append(identifier).append("\n")
-            .append("  requestTime:").append(ndf.format(requestTime)).append("\n")
-            .append("  use:").append(use()).append("\n")
-            .append("  arguments:").append(formatObjectValue(getArguments())).append("\n")
-            .append("  result:").append(formatObjectValue(getResult())).append("\n")
-            .append("  exception:").append(isException()).append("\n");
+        buffer.append("{\n")//
+                .append("  id:").append(identifier).append("\n")//
+                .append("  requestTime:").append(ndf.format(requestTime)).append("\n")//
+                .append("  use:").append(use()).append("\n")//
+                .append("  arguments:").append(formatObjectValue(getArguments())).append("\n")//
+                .append("  result:").append(formatObjectValue(getResult())).append("\n")//
+                .append("  exception:").append(isException()).append("\n");
         if (isException()) {
             buffer.append("  exceptionMessage:").append(exception).append("\n");
         }
         return buffer.append("}").toString();
     }
-    
+
     @SuppressWarnings("rawtypes")
     protected String formatObjectValue(Object value) {
         if (value instanceof Map) {
@@ -136,7 +145,7 @@ public abstract class AbstractGraph implements Graph {
         }
         return String.valueOf(value);
     }
-    
+
     @SuppressWarnings({ "rawtypes", "unchecked" })
     protected String formatMap(Map obj) {
         if (obj == null)

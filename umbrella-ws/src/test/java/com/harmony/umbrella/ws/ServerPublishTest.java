@@ -25,6 +25,8 @@ import javax.xml.ws.Service;
 
 import org.apache.cxf.jaxws.JaxWsProxyFactoryBean;
 import org.apache.cxf.jaxws.JaxWsServerFactoryBean;
+import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.harmony.umbrella.ws.jaxws.JaxWsProxyBuilder;
@@ -46,6 +48,11 @@ public class ServerPublishTest {
         Endpoint.publish(address, new HelloWebService());
     }
 
+    @BeforeClass
+    public static void beforeClass() {
+        ServerManager.getServerManager().publish(HelloWebService.class, ADDRESS);
+    }
+
     @Test
     public void testJAXWS() throws Exception {
         Service service = Service.create(new URL("http://localhost:8080/hi?wsdl"), new QName("http://www.harmony.com/test/hi", "HelloService"));
@@ -62,6 +69,7 @@ public class ServerPublishTest {
     }
 
     @Test
+    @Ignore
     public void testCXFPublish() {
         JaxWsServerFactoryBean serverFactoryBean = new JaxWsServerFactoryBean();
         serverFactoryBean.setAddress(ADDRESS);
@@ -74,8 +82,8 @@ public class ServerPublishTest {
     @Test
     public void test() {
         HelloService helloService = JaxWsProxyBuilder.create()//
-                                                        .setAddress(ADDRESS)//
-                                                        .build(HelloService.class);
+                .setAddress(ADDRESS)//
+                .build(HelloService.class);
         assertEquals("Hi wuxii", helloService.sayHi("wuxii"));
     }
 

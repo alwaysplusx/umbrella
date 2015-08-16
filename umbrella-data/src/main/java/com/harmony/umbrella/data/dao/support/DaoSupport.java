@@ -46,16 +46,21 @@ public abstract class DaoSupport implements Dao {
 
     private static final Object[] EMPTY_ARRAY = new Object[0];
 
+    private PersistenceProvider provider;
+
     protected abstract EntityManager getEntityManager();
 
     protected PersistenceProvider getPersistenceProvider() {
-        return PersistenceProvider.fromEntityManager(getEntityManager());
+        if (provider == null) {
+            provider = PersistenceProvider.fromEntityManager(getEntityManager());
+        }
+        return provider;
     }
 
     @Override
     public <T> T save(T entity) {
 
-        EntityInformation<Object, ? extends Serializable> entityInfo = getEntityInformation(entity);
+        EntityInformation<T, ? extends Serializable> entityInfo = getEntityInformation(entity);
 
         if (entityInfo.isNew(entity)) {
             getEntityManager().persist(entity);
@@ -84,7 +89,7 @@ public abstract class DaoSupport implements Dao {
     @Override
     public <T> T update(T entity) {
 
-        EntityInformation<Object, ? extends Serializable> entityInfo = getEntityInformation(entity);
+        EntityInformation<T, ? extends Serializable> entityInfo = getEntityInformation(entity);
 
         if (!entityInfo.isNew(entity)) {
             return getEntityManager().merge(entity);
@@ -113,11 +118,11 @@ public abstract class DaoSupport implements Dao {
     public boolean isNew(Object entity) {
         return getEntityInformation(entity).isNew(entity);
     }
-    
+
     @Override
     public <T> T saveOrUpdate(T entity) {
 
-        EntityInformation<Object, ? extends Serializable> entityInfo = getEntityInformation(entity);
+        EntityInformation<T, ? extends Serializable> entityInfo = getEntityInformation(entity);
 
         if (entityInfo.isNew(entity)) {
             getEntityManager().persist(entity);
@@ -512,9 +517,7 @@ public abstract class DaoSupport implements Dao {
         return (Class) obj.getClass();
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    protected <T> EntityInformation<T, ? extends Serializable> getEntityInformation(Object entity) {
-        Class domainClass = getDomainClass(entity);
-        return new JpaEntityInformation<T, Serializable>(domainClass, getEntityManager().getMetamodel());
+    protected <T> EntityInformation<T, ? extends Serializable> getEntityInformation(T entity) {
+        return new JpaEntityInformation<T, Serializable>(this.<T> getDomainClass(entity), getEntityManager().getMetamodel());
     }
 }

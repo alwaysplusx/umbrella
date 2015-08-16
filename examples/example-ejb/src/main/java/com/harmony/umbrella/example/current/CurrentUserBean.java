@@ -28,7 +28,7 @@ public class CurrentUserBean implements CurrentUserRemote {
 
     @Override
     public String getUser() {
-        CurrentContext current = ApplicationContext.getApplicationContext().getCurrent();
+        CurrentContext current = ApplicationContext.getApplicationContext().getCurrentContext();
         return current.getUserCode();
     }
 

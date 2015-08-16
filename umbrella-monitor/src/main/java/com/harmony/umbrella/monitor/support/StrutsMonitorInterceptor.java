@@ -18,12 +18,13 @@ package com.harmony.umbrella.monitor.support;
 import java.lang.reflect.Method;
 
 import com.opensymphony.xwork2.ActionInvocation;
+import com.opensymphony.xwork2.ActionProxy;
 import com.opensymphony.xwork2.interceptor.Interceptor;
 
 /**
  * @author wuxii@foxmail.com
  */
-public class StrutsInterceptorMethodMonitor extends MethodMonitorInterceptor<ActionInvocation> implements Interceptor {
+public class StrutsMonitorInterceptor extends MethodMonitorInterceptor<ActionInvocation> implements Interceptor {
 
     private static final long serialVersionUID = -6402962474792262484L;
 
@@ -33,21 +34,29 @@ public class StrutsInterceptorMethodMonitor extends MethodMonitorInterceptor<Act
 
     @Override
     public String intercept(ActionInvocation invocation) throws Exception {
-        return null;
-    }
-
-    @Override
-    public void destroy() {
+        if (getMethod(invocation) != null) {
+            return (String) monitor(invocation);
+        }
+        return invocation.invoke();
     }
 
     @Override
     protected Method getMethod(ActionInvocation ctx) {
-        return null;
+        ActionProxy proxy = ctx.getProxy();
+        String methodName = proxy.getMethod();
+        if (methodName == null) {
+            methodName = proxy.getConfig().getMethodName();
+        }
+        try {
+            return ctx.getAction().getClass().getMethod(methodName);
+        } catch (NoSuchMethodException e) {
+            return null;
+        }
     }
 
     @Override
     protected Object getTarget(ActionInvocation ctx) {
-        return null;
+        return ctx.getAction();
     }
 
     @Override
@@ -57,7 +66,10 @@ public class StrutsInterceptorMethodMonitor extends MethodMonitorInterceptor<Act
 
     @Override
     protected Object[] getParameters(ActionInvocation ctx) {
-        return null;
+        return new Object[] {};
     }
 
+    @Override
+    public void destroy() {
+    }
 }

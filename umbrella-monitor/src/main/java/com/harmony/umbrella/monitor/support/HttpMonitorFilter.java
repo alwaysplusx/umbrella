@@ -16,6 +16,9 @@
 package com.harmony.umbrella.monitor.support;
 
 import java.io.IOException;
+import java.util.Calendar;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -33,12 +36,17 @@ import com.harmony.umbrella.monitor.GraphAnalyzer;
 import com.harmony.umbrella.monitor.HttpMonitor;
 import com.harmony.umbrella.monitor.ResourceMatcher;
 import com.harmony.umbrella.monitor.graph.DefaultHttpGraph;
+import com.harmony.umbrella.monitor.matcher.ResourcePathMatcher;
 import com.harmony.umbrella.monitor.util.MonitorUtils;
 import com.harmony.umbrella.util.Exceptions;
 import com.harmony.umbrella.util.ReflectionUtils;
+import com.harmony.umbrella.util.StringUtils;
 
 /**
+ * 基于Http监控的Filter
+ * 
  * @author wuxii@foxmail.com
+ * @see javax.servlet.Filter
  */
 public class HttpMonitorFilter extends AbstractMonitor<String> implements HttpMonitor {
 
@@ -46,15 +54,22 @@ public class HttpMonitorFilter extends AbstractMonitor<String> implements HttpMo
 
     private static final Logger log = LoggerFactory.getLogger(HttpMonitorFilter.class);
 
+    private final Map<String, ResourceMatcher<String>> matcherMap = new ConcurrentHashMap<String, ResourceMatcher<String>>();
+
+    /**
+     * 在{@linkplain #init(FilterConfig)}时候通过配置形式创建
+     */
     private GraphAnalyzer<HttpGraph> analyzer;
 
     @SuppressWarnings("unchecked")
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
         String analyzerClassName = filterConfig.getInitParameter(ANALYZER_CLASS);
+        if (StringUtils.isBlank(analyzerClassName)) {
+            throw new ServletException("please config analyzer-class in HttpMonitorFilter");
+        }
         try {
-            Class<?> analyzerClass = Class.forName(analyzerClassName);
-            analyzer = (GraphAnalyzer<HttpGraph>) ReflectionUtils.instantiateClass(analyzerClass);
+            analyzer = (GraphAnalyzer<HttpGraph>) ReflectionUtils.instantiateClass(analyzerClassName);
         } catch (Exception e) {
             log.error("error analyzer class {}", analyzerClassName, e);
             throw new ServletException(e);
@@ -71,12 +86,16 @@ public class HttpMonitorFilter extends AbstractMonitor<String> implements HttpMo
             return;
         }
         DefaultHttpGraph graph = new DefaultHttpGraph(resource);
-        // graph.setRequestArguments(request);
         try {
+            graph.setRequest(request, response);
+            graph.setRequestTime(Calendar.getInstance());
+            // do filter
             chain.doFilter(request, response);
-            // graph.setResponseResult(request, response);
+            //
+            graph.setResponseTime(Calendar.getInstance());
+            graph.setResponse(request, response);
         } catch (Exception e) {
-            // graph.setException(e);
+            graph.setException(e);
             if (e instanceof IOException) {
                 throw (IOException) e;
             }
@@ -85,14 +104,16 @@ public class HttpMonitorFilter extends AbstractMonitor<String> implements HttpMo
             }
             throw Exceptions.unchecked(e);
         } finally {
-            // graph.setResponseTime(Calendar.getInstance());
             analyzer.analyze(graph);
         }
     }
 
     @Override
     protected ResourceMatcher<String> createMatcher(String pattern) {
-        return new ResourcePathMatcher(pattern);
+        if (!matcherMap.containsKey(pattern)) {
+            matcherMap.put(pattern, new ResourcePathMatcher(pattern));
+        }
+        return matcherMap.get(pattern);
     }
 
     public GraphAnalyzer<HttpGraph> getAnalyzer() {
@@ -105,6 +126,9 @@ public class HttpMonitorFilter extends AbstractMonitor<String> implements HttpMo
 
     @Override
     public void destroy() {
+        this.cleanAll();
+        matcherMap.clear();
+        analyzer = null;
     }
 
 }

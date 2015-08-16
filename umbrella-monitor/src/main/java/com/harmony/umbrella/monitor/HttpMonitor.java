@@ -25,9 +25,15 @@ import javax.servlet.Filter;
  */
 public interface HttpMonitor extends Monitor<String>, Filter {
 
-    String DEFAULT_PATHSEPARATOR = "/";
+    /**
+     * 默认url分割符号
+     */
+    String DEFAULT_PATH_SEPARATOR = "/";
 
-    String DEFAULT_PATH_PATTERN = DEFAULT_PATHSEPARATOR + "*/**";
+    /**
+     * 默认连接监控的路径
+     */
+    String DEFAULT_PATH_PATTERN = DEFAULT_PATH_SEPARATOR + "*/**";
 
     /**
      * http监视结果
@@ -37,7 +43,7 @@ public interface HttpMonitor extends Monitor<String>, Filter {
         /**
          * 对应请求的http方法 GET, POST, PUT, DELETE, HEAD, OPTIONS, TRACE
          * 
-         * @return
+         * @return Http的方法名称
          * @see javax.servlet.http.HttpServletRequest#getMethod()
          */
         String getMethod();
@@ -45,7 +51,7 @@ public interface HttpMonitor extends Monitor<String>, Filter {
         /**
          * 发起请求的地址
          * 
-         * @return
+         * @return remote address
          * @see javax.servlet.http.HttpServletRequest#getRemoteAddr()
          */
         String getRemoteAddr();
@@ -53,7 +59,7 @@ public interface HttpMonitor extends Monitor<String>, Filter {
         /**
          * 相应的地址
          * 
-         * @return
+         * @return local server address
          * @see javax.servlet.http.HttpServletRequest#getLocalAddr()
          */
         String getLocalAddr();
@@ -61,7 +67,7 @@ public interface HttpMonitor extends Monitor<String>, Filter {
         /**
          * 请求时候带的查询字符串
          * 
-         * @return
+         * @return query string, url after '?'
          * @see javax.servlet.http.HttpServletRequest#getQueryString()
          */
         String getQueryString();
@@ -69,7 +75,7 @@ public interface HttpMonitor extends Monitor<String>, Filter {
         /**
          * 应答的状态码
          * 
-         * @return
+         * @return response code
          * @see javax.servlet.http.HttpServletResponse#getStatus()
          */
         int getStatus();

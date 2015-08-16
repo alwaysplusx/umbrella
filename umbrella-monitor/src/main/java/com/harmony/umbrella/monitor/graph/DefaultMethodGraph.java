@@ -22,6 +22,8 @@ import java.lang.reflect.Method;
 import com.harmony.umbrella.monitor.MethodMonitor.MethodGraph;
 
 /**
+ * 基于方法监控的结果视图
+ * 
  * @author wuxii@foxmail.com
  */
 public class DefaultMethodGraph extends AbstractGraph implements MethodGraph {

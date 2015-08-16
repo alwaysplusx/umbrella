@@ -29,7 +29,7 @@ public class EJBContextProvider extends ContextProvider {
 
     @Override
     public ApplicationContext createApplicationContext() {
-        return createApplicationContext(new Properties());
+        return createApplicationContext(null);
     }
 
     @Override

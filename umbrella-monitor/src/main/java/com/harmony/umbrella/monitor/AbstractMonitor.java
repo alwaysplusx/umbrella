@@ -15,13 +15,13 @@
  */
 package com.harmony.umbrella.monitor;
 
-import java.util.Collections;
-import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.harmony.umbrella.util.Assert;
 
 /**
  * 监控基础抽象类
@@ -32,19 +32,18 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class AbstractMonitor<T> implements Monitor<T> {
 
-    protected final static Object DEFAULT_RESOURCE_VALUE = new Object();
-
     protected static final Logger LOG = LoggerFactory.getLogger(AbstractMonitor.class);
 
     /**
      * 受到监控的模版名单
      */
-    protected Map<String, ResourceMatcher<T>> patternList = new ConcurrentHashMap<String, ResourceMatcher<T>>();
+    protected final Set<String> patternList = new CopyOnWriteArraySet<String>();
 
     /**
      * 资源名单，综合{@link #getPolicy()}定性资源名单的意义
      */
-    protected Map<T, Object> resourceList = new ConcurrentHashMap<T, Object>();
+    protected final Set<T> resourceList = new CopyOnWriteArraySet<T>();
+
     /**
      * 监控策略
      */
@@ -54,7 +53,8 @@ public abstract class AbstractMonitor<T> implements Monitor<T> {
      * 创建资源匹配器
      * 
      * @param pattern
-     * @return
+     *            通过模版路径创建资源匹配工具
+     * @return 模版资源匹配工具
      */
     protected abstract ResourceMatcher<T> createMatcher(String pattern);
 
@@ -62,42 +62,19 @@ public abstract class AbstractMonitor<T> implements Monitor<T> {
     public MonitorPolicy getPolicy() {
         return policy;
     }
-    
+
     @Override
     public void setPolicy(MonitorPolicy policy) {
         this.policy = policy;
     }
 
-    @Override
-    public void excludePattern(String pattern) {
-        patternList.remove(pattern);
-    }
-
-    @Override
-    public void includePattern(String pattern) {
-        if (!patternList.containsKey(pattern)) {
-            patternList.put(pattern, createMatcher(pattern));
-        }
-    }
-
-    @Override
-    public void excludeResource(T resource) {
-        resourceList.remove(resource);
-    }
-
-    @Override
-    public void includeResource(T resource) {
-        resourceList.put(resource, DEFAULT_RESOURCE_VALUE);
-    }
-
-    @Override
     public Set<T> getResources() {
-        return Collections.unmodifiableSet(resourceList.keySet());
+        return resourceList;
     }
 
     @Override
     public Set<String> getPatterns() {
-        return Collections.unmodifiableSet(patternList.keySet());
+        return patternList;
     }
 
     @Override
@@ -107,24 +84,48 @@ public abstract class AbstractMonitor<T> implements Monitor<T> {
             return false;
         case All:
             return true;
-        case BlockList:
-            for (String pattern : patternList.keySet()) {
-                ResourceMatcher<T> matcher = patternList.get(pattern);
-                if (matcher.matches(resource) && resourceList.containsKey(resource)) {
-                    return true;
-                }
-            }
-            return false;
         case WhiteList:
-            for (String pattern : patternList.keySet()) {
-                ResourceMatcher<T> matcher = patternList.get(pattern);
-                if (matcher.matches(resource) && !resourceList.containsKey(resource)) {
+            // resource 表示白名单， 排除白名单中的所有
+            if (resourceList.contains(resource)) {
+                return false;
+            }
+        case BlockList:
+            // resource 表示黑名单， 监控黑名单中所有
+            if (resourceList.contains(resource)) {
+                return true;
+            }
+        default:
+            for (String pattern : patternList) {
+                ResourceMatcher<T> matcher = createMatcher(pattern);
+                if (matcher.matches(resource)) {
                     return true;
                 }
             }
-            return false;
         }
         return false;
+    }
+
+    public void removePattern(String pattern) {
+        patternList.remove(pattern);
+    }
+
+    public void addPattern(String pattern) {
+        Assert.notBlank(pattern, "can't monitor blank or null pattern");
+        patternList.add(pattern);
+    }
+
+    public void removeResource(T resource) {
+        resourceList.remove(resource);
+    }
+
+    public void addResource(T resource) {
+        Assert.notNull(resource, "can't monitor null resource");
+        resourceList.add(resource);
+    }
+
+    public void cleanAll() {
+        patternList.clear();
+        resourceList.clear();
     }
 
 }

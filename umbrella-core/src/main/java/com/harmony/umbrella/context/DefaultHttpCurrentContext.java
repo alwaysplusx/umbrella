@@ -234,7 +234,7 @@ public class DefaultHttpCurrentContext implements HttpCurrentContext {
     }
 
     @Override
-    public boolean contains(String name) {
+    public boolean containsKey(String name) {
         return currentMap.containsKey(name);
     }
 

@@ -16,27 +16,35 @@
 package com.harmony.umbrella.monitor.support;
 
 import java.lang.reflect.Method;
+import java.util.Calendar;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.harmony.umbrella.monitor.AbstractMonitor;
 import com.harmony.umbrella.monitor.GraphAnalyzer;
 import com.harmony.umbrella.monitor.MethodMonitor;
 import com.harmony.umbrella.monitor.ResourceMatcher;
 import com.harmony.umbrella.monitor.graph.DefaultMethodGraph;
+import com.harmony.umbrella.monitor.matcher.MethodExpressionMatcher;
+import com.harmony.umbrella.util.Assert;
 
 /**
- * 基于拦截器的实现，默认来接{@link MethodMonitor#DEFAULT_METHOD_PATTERN}
- * 表达式的方法.<p>当然要连接器能拦截到方法
+ * 基于拦截器的实现，默认来接{@link MethodMonitor#DEFAULT_METHOD_PATTERN} 表达式的方法.
+ * <p>
+ * 当然要连接器能拦截到方法
  * 
  * @author wuxii@foxmail.com
  */
 public abstract class MethodMonitorInterceptor<I> extends AbstractMonitor<Method> implements MethodMonitor {
 
-    private GraphAnalyzer<MethodGraph> analyzer;
-
-    @Override
-    protected ResourceMatcher<Method> createMatcher(String pattern) {
-        return new MethodExpressionMatcher(pattern);
-    }
+    /**
+     * 资源模版匹配工具
+     */
+    protected final Map<String, ResourceMatcher<Method>> matcherMap = new ConcurrentHashMap<String, ResourceMatcher<Method>>();
+    /**
+     * 监控结果分析工具, 不可为空
+     */
+    protected GraphAnalyzer<MethodGraph> analyzer;
 
     /**
      * 监控的方法
@@ -94,16 +102,27 @@ public abstract class MethodMonitorInterceptor<I> extends AbstractMonitor<Method
         LOG.debug("interceptor method [{}] of [{}]", method, target);
         DefaultMethodGraph graph = new DefaultMethodGraph(target, method, parameters);
         try {
+            graph.setRequestTime(Calendar.getInstance());
+            // process
             result = process(ctx);
-            // graph.setResponseResult(result);
+            //
+            graph.setResponseTime(Calendar.getInstance());
+            graph.setResult(result);
         } catch (Exception e) {
-            // graph.setException(e);
+            graph.setException(e);
             throw e;
         } finally {
-            // graph.setResponseTime(Calendar.getInstance());
             analyzer.analyze(graph);
         }
         return result;
+    }
+
+    @Override
+    protected ResourceMatcher<Method> createMatcher(String pattern) {
+        if (matcherMap.containsKey(pattern)) {
+            matcherMap.put(pattern, new MethodExpressionMatcher(pattern));
+        }
+        return matcherMap.get(pattern);
     }
 
     public GraphAnalyzer<MethodGraph> getAnalyzer() {
@@ -111,7 +130,14 @@ public abstract class MethodMonitorInterceptor<I> extends AbstractMonitor<Method
     }
 
     public void setAnalyzer(GraphAnalyzer<MethodGraph> analyzer) {
+        Assert.notNull(analyzer, "ananlyzer can't set to null");
         this.analyzer = analyzer;
+    }
+
+    @Override
+    public void cleanAll() {
+        super.cleanAll();
+        matcherMap.clear();
     }
 
 }

@@ -28,6 +28,7 @@ public interface GraphAnalyzer<T extends Graph> {
      * 分析结果
      * 
      * @param graph
+     *            监控的结果
      */
     void analyze(T graph);
 

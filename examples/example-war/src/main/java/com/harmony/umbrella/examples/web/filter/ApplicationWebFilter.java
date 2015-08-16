@@ -28,6 +28,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.harmony.umbrella.context.ApplicationContext;
+import com.harmony.umbrella.context.CurrentContext;
 import com.harmony.umbrella.context.DefaultHttpCurrentContext;
 
 /**
@@ -36,16 +37,26 @@ import com.harmony.umbrella.context.DefaultHttpCurrentContext;
 @WebFilter(urlPatterns = "/*")
 public class ApplicationWebFilter implements Filter {
 
+    private ApplicationContext context;
+
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
+        context = ApplicationContext.getApplicationContext();
     }
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         HttpServletRequest req = (HttpServletRequest) request;
         HttpServletResponse resp = (HttpServletResponse) response;
-        ApplicationContext.getApplicationContext().checkIn(new DefaultHttpCurrentContext(req, resp));
-        chain.doFilter(request, response);
+
+        CurrentContext occ = context.getCurrentContext();
+
+        try {
+            context.setCurrentContext(new DefaultHttpCurrentContext(req, resp));
+            chain.doFilter(request, response);
+        } finally {
+            context.setCurrentContext(occ);
+        }
     }
 
     @Override

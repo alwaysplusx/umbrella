@@ -222,7 +222,7 @@ public interface HttpCurrentContext extends CurrentContext {
     /**
      * 判断是否存在scope为{@linkplain #SCOPE_CURRENT}的key为{@code name}的值
      */
-    boolean contains(String name);
+    boolean containsKey(String name);
 
     /**
      * 判断request中{@linkplain javax.servlet.http.HttpServletRequest#getParameter(java.lang.String)}是否存在对应值

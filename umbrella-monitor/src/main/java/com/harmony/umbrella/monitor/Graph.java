@@ -19,14 +19,14 @@ import java.util.Calendar;
 import java.util.Map;
 
 /**
- * 监视记录
+ * 监控记录
  * 
  * @author wuxii@foxmail.com
  */
 public interface Graph {
 
     /**
-     * 监视的资源标识
+     * 监控的资源标识
      * 
      * @return 资源id
      */

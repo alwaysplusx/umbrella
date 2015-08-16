@@ -15,7 +15,9 @@
  */
 package com.harmony.umbrella.context.ee.support;
 
+import java.util.HashSet;
 import java.util.Properties;
+import java.util.Set;
 
 import javax.naming.Context;
 import javax.naming.NameClassPair;
@@ -35,16 +37,21 @@ import com.harmony.umbrella.context.ee.SessionBean;
 public class InternalContextResolver extends ConfigurationBeanResolver implements ContextResolver {
 
     private static final Logger log = LoggerFactory.getLogger(InternalContextResolver.class);
+    private final Set<String> roots = new HashSet<String>();
     private final int deeps;
 
     public InternalContextResolver(Properties props) {
         super(props);
         this.deeps = Integer.valueOf(props.getProperty("jndi.searcg.deeps", "10"));
+        this.roots.addAll(fromProps(props, "jndi.context.root"));
     }
 
     protected SimpleSessionBean deepSearch(SimpleSessionBean bean, Context context) {
-        doDeepSearch("", bean, context, 0);
-        return bean.bean == null ? null : bean;
+        for (String root : roots) {
+            doDeepSearch(root, bean, context, 0);
+            return bean.bean == null ? null : bean;
+        }
+        return null;
     }
 
     private void doDeepSearch(String root, SimpleSessionBean sessionBean, Context context, int deeps) {

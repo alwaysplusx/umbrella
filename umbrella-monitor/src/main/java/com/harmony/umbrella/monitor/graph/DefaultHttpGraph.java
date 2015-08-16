@@ -28,6 +28,8 @@ import javax.servlet.http.HttpSession;
 import com.harmony.umbrella.monitor.HttpMonitor.HttpGraph;
 
 /**
+ * 基于http请求监控的结果视图
+ * 
  * @author wuxii@foxmail.com
  */
 public class DefaultHttpGraph extends AbstractGraph implements HttpGraph {
@@ -102,7 +104,7 @@ public class DefaultHttpGraph extends AbstractGraph implements HttpGraph {
         }
     }
 
-    public void setRequest(HttpServletRequest request) {
+    public void setRequest(HttpServletRequest request, HttpServletResponse response) {
         this.remoteAddr = request.getRemoteAddr();
         this.localAddr = request.getLocalAddr();
         this.method = request.getMethod();
@@ -122,7 +124,7 @@ public class DefaultHttpGraph extends AbstractGraph implements HttpGraph {
             String name = names.nextElement();
             sessionAttrMap.put(name, session.getAttribute(name));
         }
-        
+
         // set parameter
         arguments.put("parameter", request.getParameterMap());
         arguments.put("requestAttribute", reqAttrMap);
@@ -142,8 +144,7 @@ public class DefaultHttpGraph extends AbstractGraph implements HttpGraph {
         Map<String, Object> responseAttrMap = new HashMap<String, Object>();
         for (Enumeration<String> names = request.getAttributeNames(); names.hasMoreElements();) {
             String name = names.nextElement();
-            if (requestAttrMap != null && requestAttrMap.containsKey(name) 
-                    && nullSafeEquals(request.getAttribute(name), requestAttrMap.get(name))) {
+            if (requestAttrMap != null && requestAttrMap.containsKey(name) && nullSafeEquals(request.getAttribute(name), requestAttrMap.get(name))) {
                 continue;
             }
             responseAttrMap.put(name, request.getAttribute(name));
@@ -151,18 +152,18 @@ public class DefaultHttpGraph extends AbstractGraph implements HttpGraph {
 
         // 请求时候的session中的attribute
         Map<String, Object> requestSessionAttrMap = (Map<String, Object>) arguments.get("sessionAttribute");
-        
+
         Map<String, Object> responseSessionAttrMap = new HashMap<String, Object>();
         HttpSession session = request.getSession();
         for (Enumeration<String> names = session.getAttributeNames(); names.hasMoreElements();) {
             String name = names.nextElement();
-            if (requestSessionAttrMap != null && requestSessionAttrMap.containsKey(name) 
+            if (requestSessionAttrMap != null && requestSessionAttrMap.containsKey(name)
                     && nullSafeEquals(session.getAttribute(name), requestSessionAttrMap.get(name))) {
                 continue;
             }
             responseSessionAttrMap.put(name, session.getAttribute(name));
         }
-        
+
         result.put("requestAttribute", responseAttrMap);
         result.put("sessionAttribute", responseSessionAttrMap);
 

@@ -50,7 +50,16 @@ public abstract class JpaDaoSupport<E, ID extends Serializable> extends DaoSuppo
 
     public static final String DELETE_ALL_QUERY_STRING = "delete from %s x";
 
-    protected abstract EntityInformation<E, ID> getEntityInformation();
+    private EntityInformation<E, ID> ei;
+
+    protected abstract Class<E> getEntityClass();
+
+    protected EntityInformation<E, ID> getEntityInformation() {
+        if (ei == null) {
+            ei = new JpaEntityInformation<E, ID>(getEntityClass(), getEntityManager().getMetamodel());
+        }
+        return ei;
+    }
 
     @Override
     public Page<E> findAll(Pageable pageable) {

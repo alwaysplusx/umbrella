@@ -99,7 +99,7 @@ public interface CurrentContext extends Serializable {
      * @param name
      *            key of value
      */
-    boolean contains(String name);
+    boolean containsKey(String name);
 
     /**
      * 获取{@code name}对应的值， 如果不存在返回{@code null}
