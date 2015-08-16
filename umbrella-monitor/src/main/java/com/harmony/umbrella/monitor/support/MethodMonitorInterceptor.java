@@ -17,15 +17,12 @@ package com.harmony.umbrella.monitor.support;
 
 import java.lang.reflect.Method;
 import java.util.Calendar;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import com.harmony.umbrella.monitor.AbstractMonitor;
 import com.harmony.umbrella.monitor.GraphAnalyzer;
 import com.harmony.umbrella.monitor.MethodMonitor;
 import com.harmony.umbrella.monitor.ResourceMatcher;
 import com.harmony.umbrella.monitor.graph.DefaultMethodGraph;
-import com.harmony.umbrella.monitor.matcher.MethodExpressionMatcher;
 import com.harmony.umbrella.util.Assert;
 
 /**
@@ -40,7 +37,7 @@ public abstract class MethodMonitorInterceptor<I> extends AbstractMonitor<Method
     /**
      * 资源模版匹配工具
      */
-    protected final Map<String, ResourceMatcher<Method>> matcherMap = new ConcurrentHashMap<String, ResourceMatcher<Method>>();
+    protected ResourceMatcher<Method> resourceMatcher;
     /**
      * 监控结果分析工具, 不可为空
      */
@@ -118,11 +115,8 @@ public abstract class MethodMonitorInterceptor<I> extends AbstractMonitor<Method
     }
 
     @Override
-    protected ResourceMatcher<Method> createMatcher(String pattern) {
-        if (matcherMap.containsKey(pattern)) {
-            matcherMap.put(pattern, new MethodExpressionMatcher(pattern));
-        }
-        return matcherMap.get(pattern);
+    protected ResourceMatcher<Method> getMatcher() {
+        return resourceMatcher;
     }
 
     public GraphAnalyzer<MethodGraph> getAnalyzer() {
@@ -137,7 +131,6 @@ public abstract class MethodMonitorInterceptor<I> extends AbstractMonitor<Method
     @Override
     public void cleanAll() {
         super.cleanAll();
-        matcherMap.clear();
     }
 
 }

@@ -17,8 +17,6 @@ package com.harmony.umbrella.monitor.support;
 
 import java.io.IOException;
 import java.util.Calendar;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -36,7 +34,7 @@ import com.harmony.umbrella.monitor.GraphAnalyzer;
 import com.harmony.umbrella.monitor.HttpMonitor;
 import com.harmony.umbrella.monitor.ResourceMatcher;
 import com.harmony.umbrella.monitor.graph.DefaultHttpGraph;
-import com.harmony.umbrella.monitor.matcher.ResourcePathMatcher;
+import com.harmony.umbrella.monitor.matcher.UrlPathMatcher;
 import com.harmony.umbrella.monitor.util.MonitorUtils;
 import com.harmony.umbrella.util.Exceptions;
 import com.harmony.umbrella.util.ReflectionUtils;
@@ -54,7 +52,7 @@ public class HttpMonitorFilter extends AbstractMonitor<String> implements HttpMo
 
     private static final Logger log = LoggerFactory.getLogger(HttpMonitorFilter.class);
 
-    private final Map<String, ResourceMatcher<String>> matcherMap = new ConcurrentHashMap<String, ResourceMatcher<String>>();
+    private ResourceMatcher<String> resourceMatcher = new UrlPathMatcher();
 
     /**
      * 在{@linkplain #init(FilterConfig)}时候通过配置形式创建
@@ -109,11 +107,8 @@ public class HttpMonitorFilter extends AbstractMonitor<String> implements HttpMo
     }
 
     @Override
-    protected ResourceMatcher<String> createMatcher(String pattern) {
-        if (!matcherMap.containsKey(pattern)) {
-            matcherMap.put(pattern, new ResourcePathMatcher(pattern));
-        }
-        return matcherMap.get(pattern);
+    protected ResourceMatcher<String> getMatcher() {
+        return resourceMatcher;
     }
 
     public GraphAnalyzer<HttpGraph> getAnalyzer() {
@@ -127,7 +122,6 @@ public class HttpMonitorFilter extends AbstractMonitor<String> implements HttpMo
     @Override
     public void destroy() {
         this.cleanAll();
-        matcherMap.clear();
         analyzer = null;
     }
 

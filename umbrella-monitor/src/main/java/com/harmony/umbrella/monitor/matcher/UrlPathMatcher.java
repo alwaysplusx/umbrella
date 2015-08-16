@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2014 the original author or authors.
+ * Copyright 2002-2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,24 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.umbrella.monitor;
+package com.harmony.umbrella.monitor.matcher;
+
+import com.harmony.umbrella.io.util.AntPathMatcher;
+import com.harmony.umbrella.monitor.ResourceMatcher;
 
 /**
- * 资源匹配器
- * 
  * @author wuxii@foxmail.com
  */
-public interface ResourceMatcher<T> {
-
-    /**
-     * 匹配资源是否符合当前定义的规则
-     * 
-     * @param pattern
-     *            资源的模版
-     * @param resource
-     *            待检查的资源
-     * @return true匹配成功
-     */
-    boolean match(String pattern, T resource);
+public class UrlPathMatcher extends AntPathMatcher implements ResourceMatcher<String> {
 
 }

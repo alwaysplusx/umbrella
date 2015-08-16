@@ -72,4 +72,5 @@ public class StrutsMonitorInterceptor extends MethodMonitorInterceptor<ActionInv
     @Override
     public void destroy() {
     }
+
 }

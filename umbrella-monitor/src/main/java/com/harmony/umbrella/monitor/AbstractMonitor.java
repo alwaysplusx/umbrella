@@ -56,7 +56,7 @@ public abstract class AbstractMonitor<T> implements Monitor<T> {
      *            通过模版路径创建资源匹配工具
      * @return 模版资源匹配工具
      */
-    protected abstract ResourceMatcher<T> createMatcher(String pattern);
+    protected abstract ResourceMatcher<T> getMatcher();
 
     @Override
     public MonitorPolicy getPolicy() {
@@ -96,8 +96,7 @@ public abstract class AbstractMonitor<T> implements Monitor<T> {
             }
         default:
             for (String pattern : patternList) {
-                ResourceMatcher<T> matcher = createMatcher(pattern);
-                if (matcher.matches(resource)) {
+                if (getMatcher().match(pattern, resource)) {
                     return true;
                 }
             }
