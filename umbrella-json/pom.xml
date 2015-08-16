@@ -4,7 +4,7 @@
   <parent>
     <groupId>com.harmony.umbrella</groupId>
     <artifactId>harmony-umbrella</artifactId>
-    <version>0.0.3-SNAPSHOT</version>
+    <version>0.0.4-SNAPSHOT</version>
   </parent>
   <artifactId>umbrella-json</artifactId>
   <name>Harmony Umbrella :: Module of Json</name>
