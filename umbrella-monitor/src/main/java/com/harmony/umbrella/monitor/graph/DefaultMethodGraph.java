@@ -55,6 +55,11 @@ public class DefaultMethodGraph extends AbstractGraph implements MethodGraph {
         this.target = target;
     }
 
+    public void setResult(Object result) {
+        this.result.clear();
+        this.result.put(result.getClass().getName(), result);
+    }
+
     public void setArguments(Object[] args) {
         this.arguments.clear();
         if (args != null && args.length > 0) {

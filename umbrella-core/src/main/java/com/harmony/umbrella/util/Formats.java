@@ -52,8 +52,6 @@ public abstract class Formats {
 
     private final static Map<String, NullableNumberFormat> numberFormatMap = new HashMap<String, NullableNumberFormat>();
 
-    private static final DecimalFormat sdf = new DecimalFormat("#");
-
     /**
      * 创建一个日期格式工具
      * 
@@ -62,11 +60,24 @@ public abstract class Formats {
      * @return
      */
     public static NullableDateFormat createDateFormat(String pattern) {
-        NullableDateFormat ndf = dateFormatMap.get(pattern);
-        if (ndf == null) {
-            dateFormatMap.put(pattern, ndf = new NullableDateFormat(pattern));
+        if (!dateFormatMap.containsKey(pattern)) {
+            synchronized (dateFormatMap) {
+                if (!dateFormatMap.containsKey(pattern)) {
+                    dateFormatMap.put(pattern, new NullableDateFormat(pattern));
+                }
+            }
         }
-        return ndf;
+        return dateFormatMap.get(pattern);
+    }
+
+    /**
+     * 创建数字格式化工具, 默认禁止四舍五入
+     * 
+     * @param pattern
+     *            模版
+     */
+    public static NullableNumberFormat createNumberFormat(String pattern) {
+        return createNumberFormat(pattern, RoundingMode.HALF_UP);
     }
 
     /**
@@ -79,55 +90,35 @@ public abstract class Formats {
      * @return
      */
     public static NullableNumberFormat createNumberFormat(String pattern, RoundingMode mode) {
-        String key = pattern + "." + mode;
-        NullableNumberFormat ndf = numberFormatMap.get(key);
-        if (ndf == null) {
-            numberFormatMap.put(key, ndf = new NullableNumberFormat(pattern, mode));
-        }
-        return ndf;
-    }
-
-    /**
-     * 格式化为Long
-     */
-    public static Long longValue(Number number, RoundingMode mode) {
-        if (number == null)
-            return null;
-        RoundingMode oldMode = sdf.getRoundingMode();
-        try {
-            synchronized (sdf) {
-                sdf.setRoundingMode(mode);
-                return Long.valueOf(sdf.format(number));
+        String key = patternKey(pattern, mode);
+        if (!numberFormatMap.containsKey(key)) {
+            synchronized (numberFormatMap) {
+                if (!numberFormatMap.containsKey(key)) {
+                    numberFormatMap.put(key, new NullableNumberFormat(pattern, mode));
+                }
             }
-        } finally {
-            sdf.setRoundingMode(oldMode);
         }
+        return numberFormatMap.get(key);
     }
 
-    public static Long longValue(String source, RoundingMode mode) throws ParseException {
-        if (source == null)
-            return null;
-        return longValue(sdf.parse(source), mode);
+    public static Calendar toCalendar(long millis) {
+        Calendar c = Calendar.getInstance();
+        c.setTimeInMillis(millis);
+        return c;
     }
 
-    public static Integer intValue(Number number, RoundingMode mode) {
-        if (number == null)
+    public static Calendar toCalendar(Date date) {
+        if (date == null)
             return null;
-        RoundingMode oldMode = sdf.getRoundingMode();
-        try {
-            synchronized (sdf) {
-                sdf.setRoundingMode(mode);
-                return Integer.valueOf(sdf.format(number));
-            }
-        } finally {
-            sdf.setRoundingMode(oldMode);
+        return toCalendar(date.getTime());
+    }
+
+    private static String patternKey(Object... keys) {
+        StringBuilder sb = new StringBuilder();
+        for (Object key : keys) {
+            sb.append(".").append(key);
         }
-    }
-
-    public static Integer intValue(String source, RoundingMode mode) throws ParseException {
-        if (source == null)
-            return null;
-        return intValue(sdf.parse(source), mode);
+        return sb.substring(1);
     }
 
     private abstract static class NullableFormat extends Format {
@@ -191,8 +182,26 @@ public abstract class Formats {
             return str != null ? Double.valueOf(str) : null;
         }
 
+        public Integer intValue(Number number) {
+            String str = format(number);
+            if (str == null) {
+                return null;
+            }
+            if ("#".endsWith(pattern)) {
+                return Integer.valueOf(str);
+            }
+            return createNumberFormat("#", mode).intValue(number);
+        }
+
         public Long longValue(Number number) {
-            return Formats.longValue(number, mode);
+            String str = format(number);
+            if (str == null) {
+                return null;
+            }
+            if ("#".equals(pattern)) {
+                return Long.valueOf(str);
+            }
+            return createNumberFormat("#", mode).longValue(number);
         }
 
         /**
@@ -204,7 +213,7 @@ public abstract class Formats {
         }
 
         /**
-         * 数字的字符转为Number
+         * 数字的字符转为Number, 并作对应的{@linkplain RoundingMode}转化
          */
         public Number parse(String source) throws ParseException {
             if (source == null || "".equals(source))
@@ -231,6 +240,13 @@ public abstract class Formats {
          */
         public Long parseLong(String source) throws ParseException {
             return longValue(parse(source));
+        }
+
+        /**
+         * 数字字符转为int
+         */
+        public Integer parseInteger(String source) throws ParseException {
+            return intValue(parse(source));
         }
 
         @Override
@@ -314,34 +330,6 @@ public abstract class Formats {
         }
 
         /**
-         * 将Date转为Calendar
-         * 
-         * @param date
-         *            Date
-         * @return
-         */
-        public Calendar toCalendar(Date date) {
-            if (date == null)
-                return null;
-            Calendar c = Calendar.getInstance();
-            c.setTime(date);
-            return c;
-        }
-
-        /**
-         * 将Calendar转为Date
-         * 
-         * @param c
-         *            Calendar
-         * @return
-         */
-        public Date toDate(Calendar c) {
-            if (c == null)
-                return null;
-            return c.getTime();
-        }
-
-        /**
          * 解析时间
          * 
          * @param source
@@ -367,12 +355,7 @@ public abstract class Formats {
          */
         public Calendar parseCalendar(String source) throws ParseException {
             Date date = parseDate(source);
-            if (date != null) {
-                Calendar c = Calendar.getInstance();
-                c.setTime(date);
-                return c;
-            }
-            return null;
+            return date != null ? toCalendar(date) : null;
         }
 
         /**

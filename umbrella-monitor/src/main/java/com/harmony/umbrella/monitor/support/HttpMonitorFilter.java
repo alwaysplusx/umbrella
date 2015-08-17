@@ -85,13 +85,13 @@ public class HttpMonitorFilter extends AbstractMonitor<String> implements HttpMo
         }
         DefaultHttpGraph graph = new DefaultHttpGraph(resource);
         try {
-            graph.setRequest(request, response);
+            MonitorUtils.applyRequest(graph, request);
             graph.setRequestTime(Calendar.getInstance());
             // do filter
             chain.doFilter(request, response);
             //
             graph.setResponseTime(Calendar.getInstance());
-            graph.setResponse(request, response);
+            MonitorUtils.applyResponse(graph, request, response);
         } catch (Exception e) {
             graph.setException(e);
             if (e instanceof IOException) {

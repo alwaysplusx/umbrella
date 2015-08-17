@@ -16,12 +16,10 @@
 package com.harmony.umbrella.monitor.graph;
 
 import java.util.Calendar;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 
+import com.harmony.umbrella.json.Json;
 import com.harmony.umbrella.monitor.Graph;
 import com.harmony.umbrella.util.Formats;
 import com.harmony.umbrella.util.Formats.NullableDateFormat;
@@ -40,9 +38,9 @@ public abstract class AbstractGraph implements Graph {
      */
     protected final String identifier;
 
-    protected final Map<String, Object> arguments = new HashMap<String, Object>();
+    protected final Map<String, Object> arguments = new LinkedHashMap<String, Object>();
 
-    protected Object result;
+    protected final Map<String, Object> result = new LinkedHashMap<String, Object>();
 
     protected Calendar requestTime;
 
@@ -81,16 +79,20 @@ public abstract class AbstractGraph implements Graph {
 
     @Override
     public Map<String, Object> getArguments() {
-        return Collections.unmodifiableMap(arguments);
+        return arguments;
     }
 
     @Override
-    public Object getResult() {
+    public Map<String, Object> getResult() {
         return result;
     }
 
-    public void setResult(Object result) {
-        this.result = result;
+    @Override
+    public Object getSingleResult() {
+        if (result.keySet().size() == 1) {
+            return result.values().iterator().next();
+        }
+        return Json.toJson(result);
     }
 
     @Override
@@ -103,15 +105,11 @@ public abstract class AbstractGraph implements Graph {
     }
 
     public void setRequestTime(long requestTime) {
-        Calendar c = Calendar.getInstance();
-        c.setTimeInMillis(requestTime);
-        this.requestTime = c;
+        this.requestTime = Formats.toCalendar(requestTime);
     }
 
     public void setResponseTime(long responseTime) {
-        Calendar c = Calendar.getInstance();
-        c.setTimeInMillis(responseTime);
-        this.responseTime = c;
+        this.responseTime = Formats.toCalendar(responseTime);
     }
 
     public void setRequestTime(Calendar requestTime) {
@@ -129,35 +127,11 @@ public abstract class AbstractGraph implements Graph {
                 .append("  id:").append(identifier).append("\n")//
                 .append("  requestTime:").append(ndf.format(requestTime)).append("\n")//
                 .append("  use:").append(use()).append("\n")//
-                .append("  arguments:").append(formatObjectValue(getArguments())).append("\n")//
-                .append("  result:").append(formatObjectValue(getResult())).append("\n")//
+                .append("  arguments:").append(Json.toJson(getArguments())).append("\n")//
+                .append("  result:").append(Json.toJson(getResult())).append("\n")//
                 .append("  exception:").append(isException()).append("\n");
         if (isException()) {
             buffer.append("  exceptionMessage:").append(exception).append("\n");
-        }
-        return buffer.append("}").toString();
-    }
-
-    @SuppressWarnings("rawtypes")
-    protected String formatObjectValue(Object value) {
-        if (value instanceof Map) {
-            return formatMap((Map) value);
-        }
-        return String.valueOf(value);
-    }
-
-    @SuppressWarnings({ "rawtypes", "unchecked" })
-    protected String formatMap(Map obj) {
-        if (obj == null)
-            return "";
-        StringBuilder buffer = new StringBuilder("{");
-        Iterator<Entry> iterator = obj.entrySet().iterator();
-        while (iterator.hasNext()) {
-            Entry entry = iterator.next();
-            buffer.append(entry.getKey()).append(":").append(formatObjectValue(entry.getValue()));
-            if (iterator.hasNext()) {
-                buffer.append(", ");
-            }
         }
         return buffer.append("}").toString();
     }

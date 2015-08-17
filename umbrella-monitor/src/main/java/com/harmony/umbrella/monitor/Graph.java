@@ -58,7 +58,14 @@ public interface Graph {
      * 
      * @return 监控返回的结果
      */
-    Object getResult();
+    Map<String, Object> getResult();
+
+    /**
+     * 得到唯一的结果
+     * 
+     * @return 监控结果
+     */
+    Object getSingleResult();
 
     /**
      * 请求参数

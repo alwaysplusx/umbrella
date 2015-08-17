@@ -16,9 +16,15 @@
 package com.harmony.umbrella.monitor.util;
 
 import java.lang.reflect.Method;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
+import com.harmony.umbrella.monitor.graph.DefaultHttpGraph;
 import com.harmony.umbrella.util.StringUtils;
 
 /**
@@ -46,6 +52,57 @@ public abstract class MonitorUtils {
      */
     public static String requestId(HttpServletRequest request) {
         return request == null ? null : request.getRequestURI();
+    }
+
+    public static void applyRequest(DefaultHttpGraph httpGraph, HttpServletRequest request) {
+        httpGraph.setHttpMethod(request.getMethod());
+        httpGraph.setRemoteAddr(request.getRemoteAddr());
+        httpGraph.setLocalAddr(request.getLocalAddr());
+        httpGraph.setQueryString(request.getQueryString());
+
+        // apply parameter
+        httpGraph.getArguments().put("parameter", request.getParameterMap());
+
+        // apply attribute
+        Map<String, Object> reqAttrMap = new HashMap<String, Object>();
+        for (Enumeration<String> names = request.getAttributeNames(); names.hasMoreElements();) {
+            String name = names.nextElement();
+            reqAttrMap.put(name, request.getAttribute(name));
+        }
+        httpGraph.getArguments().put("requestAttribute", reqAttrMap);
+
+        // apply session
+        Map<String, Object> sessionAttrMap = new HashMap<String, Object>();
+        HttpSession session = request.getSession();
+        for (Enumeration<String> names = session.getAttributeNames(); names.hasMoreElements();) {
+            String name = names.nextElement();
+            sessionAttrMap.put(name, session.getAttribute(name));
+        }
+        httpGraph.getArguments().put("sessionAttribute", sessionAttrMap);
+
+    }
+
+    public static void applyResponse(DefaultHttpGraph httpGraph, HttpServletRequest request, HttpServletResponse response) {
+        Map<String, Object> arguments = httpGraph.getArguments();
+        // apply parameter
+        arguments.put("parameter", request.getParameterMap());
+
+        // apply attribute
+        Map<String, Object> reqAttrMap = new HashMap<String, Object>();
+        for (Enumeration<String> names = request.getAttributeNames(); names.hasMoreElements();) {
+            String name = names.nextElement();
+            reqAttrMap.put(name, request.getAttribute(name));
+        }
+        arguments.put("requestAttribute", reqAttrMap);
+
+        // apply session
+        Map<String, Object> sessionAttrMap = new HashMap<String, Object>();
+        HttpSession session = request.getSession();
+        for (Enumeration<String> names = session.getAttributeNames(); names.hasMoreElements();) {
+            String name = names.nextElement();
+            sessionAttrMap.put(name, session.getAttribute(name));
+        }
+        arguments.put("sessionAttribute", sessionAttrMap);
     }
 
 }

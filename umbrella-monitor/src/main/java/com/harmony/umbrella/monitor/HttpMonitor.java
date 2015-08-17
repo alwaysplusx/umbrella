@@ -46,7 +46,7 @@ public interface HttpMonitor extends Monitor<String>, Filter {
          * @return Http的方法名称
          * @see javax.servlet.http.HttpServletRequest#getMethod()
          */
-        String getMethod();
+        String getHttpMethod();
 
         /**
          * 发起请求的地址

@@ -19,6 +19,7 @@ import static org.junit.Assert.*;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.text.DecimalFormat;
 import java.text.ParseException;
 
 import org.junit.Test;
@@ -30,42 +31,52 @@ import com.harmony.umbrella.util.Formats.NullableNumberFormat;
  */
 public class FormatsTest {
 
-	@Test
-	public void testNullableNumberFormat() throws ParseException {
+    @Test
+    public void testNullableNumberFormat() throws ParseException {
 
-		BigDecimal value = new BigDecimal("0.231");
+        BigDecimal value = new BigDecimal("0.231");
 
-		NullableNumberFormat nnf = Formats.createNumberFormat("#.##", RoundingMode.HALF_UP);
+        NullableNumberFormat nnf = Formats.createNumberFormat("#.##", RoundingMode.HALF_UP);
 
-		BigDecimal v1 = nnf.bigDecimalValue(value);
-		assertEquals(new BigDecimal("0.23"), v1);
+        BigDecimal v1 = nnf.bigDecimalValue(value);
+        assertEquals(new BigDecimal("0.23"), v1);
 
-		Double v2 = nnf.doubleValue(value);
-		assertEquals(new Double(0.23), v2);
+        Double v2 = nnf.doubleValue(value);
+        assertEquals(new Double(0.23), v2);
 
-		String v3 = nnf.format(value);
-		assertEquals("0.23", v3);
+        String v3 = nnf.format(value);
+        assertEquals("0.23", v3);
 
-		Long v4 = nnf.longValue(value);
-		assertEquals(Long.valueOf(0), v4);
+        Long v4 = nnf.longValue(value);
+        assertEquals(Long.valueOf(0), v4);
 
-		String source = "0.231";
+        String source = "0.231";
 
-		Number v5 = nnf.parse(source);
-		assertEquals(0.23, v5);
+        Number v5 = nnf.parse(source);
+        assertEquals(0.23, v5);
 
-		BigDecimal v6 = nnf.parseBigDecimal(source);
-		assertEquals(new BigDecimal("0.23"), v6);
+        BigDecimal v6 = nnf.parseBigDecimal(source);
+        assertEquals(new BigDecimal("0.23"), v6);
 
-		Double v7 = nnf.parseDouble(source);
-		assertEquals(new Double("0.23"), v7);
+        Double v7 = nnf.parseDouble(source);
+        assertEquals(new Double("0.23"), v7);
 
-		Long v8 = nnf.parseLong(source);
-		assertEquals(Long.valueOf(0), v8);
+        Long v8 = nnf.parseLong(source);
+        assertEquals(Long.valueOf(0), v8);
 
-		assertEquals(Long.valueOf(1), Formats.longValue(0.53, RoundingMode.HALF_UP));
+    }
 
-		assertEquals(Long.valueOf(1), Formats.longValue("0.53", RoundingMode.HALF_UP));
+    public static void main(String[] args) throws Exception {
+        DecimalFormat df = new DecimalFormat("#.##");
+        Number number = df.parse("1.22222222");
+        System.out.println(number);
+        NullableNumberFormat nnf = Formats.createNumberFormat("#.##");
+        Number number2 = nnf.parse("1.12123123123");
+        System.out.println(number2);
 
-	}
+        Number num = new Double(1.12312312312d);
+        System.out.println(df.format(num));
+        System.out.println(nnf.format(num));
+
+    }
 }
