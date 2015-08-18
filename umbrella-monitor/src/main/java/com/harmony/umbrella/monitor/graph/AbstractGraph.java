@@ -40,8 +40,6 @@ public abstract class AbstractGraph implements Graph {
 
     protected final Map<String, Object> arguments = new LinkedHashMap<String, Object>();
 
-    protected final Map<String, Object> result = new LinkedHashMap<String, Object>();
-
     protected Calendar requestTime;
 
     protected Calendar responseTime;
@@ -78,21 +76,18 @@ public abstract class AbstractGraph implements Graph {
     }
 
     @Override
+    public String getJsonResult() {
+        return Json.toJson(getResult());
+    }
+
+    @Override
+    public String getJsonArguments() {
+        return Json.toJson(getArguments());
+    }
+
+    @Override
     public Map<String, Object> getArguments() {
         return arguments;
-    }
-
-    @Override
-    public Map<String, Object> getResult() {
-        return result;
-    }
-
-    @Override
-    public Object getSingleResult() {
-        if (result.keySet().size() == 1) {
-            return result.values().iterator().next();
-        }
-        return Json.toJson(result);
     }
 
     @Override

@@ -58,14 +58,21 @@ public interface Graph {
      * 
      * @return 监控返回的结果
      */
-    Map<String, Object> getResult();
+    Object getResult();
 
     /**
-     * 得到唯一的结果
+     * 得到json格式的结果
      * 
      * @return 监控结果
      */
-    Object getSingleResult();
+    String getJsonResult();
+
+    /**
+     * 得到json格式的请求参数
+     * 
+     * @return 监控的请求参数
+     */
+    String getJsonArguments();
 
     /**
      * 请求参数

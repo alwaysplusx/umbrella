@@ -15,27 +15,53 @@
  */
 package com.harmony.umbrella.monitor.graph;
 
+import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
 import com.harmony.umbrella.monitor.HttpMonitor.HttpGraph;
+import com.harmony.umbrella.monitor.MethodMonitor.MethodGraph;
 
 /**
- * 基于http请求监控的结果视图
+ * 混合视图, 既包括了Http部分信息, 也包括了方法拦截的信息
+ * <p>
+ * 适用场景如:Struts2 的拦截器, 既可以包括Http部分信息, 也可以包括拦截的方法信息
  * 
  * @author wuxii@foxmail.com
  */
-public class DefaultHttpGraph extends AbstractGraph implements HttpGraph {
+public class HybridGraph extends AbstractGraph implements HttpGraph, MethodGraph {
+
+    public static final String METHOD_RESULT = HybridGraph.class.getName() + ".METHOD_RESULT";
+    public static final String METHOD_ARGUMENT = HybridGraph.class.getName() + ".METHOD_ARGUMENT";
 
     private final Map<String, Object> result = new HashMap<String, Object>();
+
+    protected Method method;
+    protected Object target;
+
     protected String httpMethod;
     protected String remoteAddr;
     protected String localAddr;
     protected String queryString;
     protected int status;
 
-    public DefaultHttpGraph(String resource) {
-        super(resource);
+    public HybridGraph(String identifier) {
+        super(identifier);
+    }
+
+    @Override
+    public Object getTarget() {
+        return target;
+    }
+
+    @Override
+    public Method getMethod() {
+        return method;
+    }
+
+    @Override
+    public Map<String, Object> getResult() {
+        return result;
     }
 
     @Override
@@ -63,6 +89,14 @@ public class DefaultHttpGraph extends AbstractGraph implements HttpGraph {
         return status;
     }
 
+    public void setMethod(Method method) {
+        this.method = method;
+    }
+
+    public void setTarget(Object target) {
+        this.target = target;
+    }
+
     public void setHttpMethod(String httpMethod) {
         this.httpMethod = httpMethod;
     }
@@ -83,11 +117,6 @@ public class DefaultHttpGraph extends AbstractGraph implements HttpGraph {
         this.status = status;
     }
 
-    @Override
-    public Map<String, Object> getResult() {
-        return result;
-    }
-
     public void addAllResult(Map<String, Object> result) {
         if (result != null && !result.isEmpty()) {
             this.result.putAll(result);
@@ -98,6 +127,30 @@ public class DefaultHttpGraph extends AbstractGraph implements HttpGraph {
         if (argument != null && !argument.isEmpty()) {
             this.arguments.putAll(argument);
         }
+    }
+
+    public Object getMethodResult() {
+        return result.get(METHOD_RESULT);
+    }
+
+    public void setMethodResult(Object result) {
+        this.result.put(METHOD_RESULT, result);
+    }
+
+    public Object[] getMethodArguments() {
+        return (Object[]) this.arguments.get(METHOD_ARGUMENT);
+    }
+
+    public void setMethodArguments(Object[] arguments) {
+        this.arguments.put(METHOD_ARGUMENT, arguments);
+    }
+
+    public boolean hasMethodGraph() {
+        return method != null;
+    }
+
+    public boolean hasHttpGraph() {
+        return httpMethod != null;
     }
 
 }

@@ -93,8 +93,11 @@ public interface Monitor<T> {
      */
     Set<String> getPatterns();
 
+    /**
+     * 销毁资源
+     */
     void destroy();
-    
+
     /**
      * 资源的监控策略, 该监控策略一般是对于{@code Resources}而言
      * 

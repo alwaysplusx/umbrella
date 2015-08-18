@@ -30,6 +30,7 @@ public class DefaultMethodGraph extends AbstractGraph implements MethodGraph {
 
     protected final Method method;
     protected Object target;
+    protected Object result;
 
     public DefaultMethodGraph(Method method) {
         this(null, method, null);
@@ -55,16 +56,20 @@ public class DefaultMethodGraph extends AbstractGraph implements MethodGraph {
         this.target = target;
     }
 
+    @Override
+    public Object getResult() {
+        return result;
+    }
+
     public void setResult(Object result) {
-        this.result.clear();
-        this.result.put(result.getClass().getName(), result);
+        this.result = result;
     }
 
     public void setArguments(Object[] args) {
         this.arguments.clear();
         if (args != null && args.length > 0) {
             for (int i = 0, max = args.length; i < max; i++) {
-                arguments.put(i + 1 + "", args[i]);
+                arguments.put(String.valueOf(i + 1), args[i]);
             }
         }
     }
