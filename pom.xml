@@ -1,10 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+-->
+
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
+
   <groupId>com.harmony.umbrella</groupId>
   <artifactId>harmony-umbrella</artifactId>
   <version>0.0.4-SNAPSHOT</version>
   <packaging>pom</packaging>
+
   <name>Harmony Umbrella :: Framework Parent</name>
 
   <modules>
@@ -16,27 +39,25 @@
     <module>umbrella-ee</module>
     <module>umbrella-json</module>
     <module>umbrella-validator</module>
-
     <!-- <module>umbrella-scheduler</module> -->
     <!-- <module>umbrella-spring</module> -->
     <!-- <module>umbrella-security</module> -->
     <!-- <module>umbrella-mapper</module> -->
     <!-- <module>umbrella-cache</module> -->
     <!-- <module>umbrella-web</module> -->
-
     <module>umbrella-plugins</module>
     <!-- <module>umbrella-resources</module> -->
     <!-- <module>examples</module> -->
-
   </modules>
-  <properties>
 
+  <properties>
+    <!-- basic property -->
     <project.compile.jdkversion>1.6</project.compile.jdkversion>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-
-    <slf4j.version>1.7.7</slf4j.version>
-    <log4j.version>1.2.17</log4j.version>
-
+    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+    <maven.compiler.source>1.4</maven.compiler.source>
+    <maven.compiler.target>1.4</maven.compiler.target>
+    <!-- javax api -->
     <javax.ejb.version>3.2</javax.ejb.version>
     <javax.persistence.version>2.1.0</javax.persistence.version>
     <javax.jms.version>1.1</javax.jms.version>
@@ -47,7 +68,7 @@
     <javax.validation.version>1.1.0.Final</javax.validation.version>
     <javax.ws.rs.version>2.0</javax.ws.rs.version>
     <javax.annotation.version>1.2</javax.annotation.version>
-
+    <!-- apache -->
     <apache.cxf.version>3.0.2</apache.cxf.version>
     <apache.openejb.version>4.7.1</apache.openejb.version>
     <apache.log4j2.version>2.2</apache.log4j2.version>
@@ -55,25 +76,23 @@
     <apache.jee.version>6.0-6</apache.jee.version>
     <apache.struts.version>2.3.16</apache.struts.version>
     <apache.httpclient.version>4.5</apache.httpclient.version>
-
+    <!-- spring -->
     <spring.version>4.1.6.RELEASE</spring.version>
     <spring.data.version>1.10.0.RELEASE</spring.data.version>
     <spring.data.jpa.version>1.8.0.RELEASE</spring.data.jpa.version>
     <spring.security.version>4.0.0.RELEASE</spring.security.version>
-
-    <aspect.version>1.8.1</aspect.version>
-
+    <!-- hibernate -->
     <hibernate.version>4.3.8.Final</hibernate.version>
     <hibernate.validator.version>5.1.3.Final</hibernate.validator.version>
-
+    <!-- others -->
     <h2.version>1.4.187</h2.version>
     <mysql.version>5.1.35</mysql.version>
     <oracle.version>11.2.0.1.0</oracle.version>
-
+    <log4j.version>1.2.17</log4j.version>
+    <slf4j.version>1.7.7</slf4j.version>
+    <aspect.version>1.8.1</aspect.version>
     <eclipselink.version>2.6.1-RC1</eclipselink.version>
-
     <glassfish.el.version>2.2.6</glassfish.el.version>
-
     <ehcache.version>2.8.6</ehcache.version>
     <asm.version>5.0.3</asm.version>
     <joda.time.version>2.7</joda.time.version>
@@ -81,8 +100,8 @@
     <dozer.version>5.5.1</dozer.version>
     <netty.version>5.0.0.Alpha2</netty.version>
     <junit.version>4.11</junit.version>
-
   </properties>
+
   <dependencyManagement>
     <dependencies>
       <!-- umbrella START -->
@@ -142,7 +161,6 @@
         <version>${project.version}</version>
       </dependency>
       <!-- umbrella END -->
-
       <!-- slf4j START -->
       <dependency>
         <groupId>org.slf4j</groupId>
@@ -155,7 +173,6 @@
         <version>${slf4j.version}</version>
       </dependency>
       <!-- slf4j END -->
-
       <!-- springframework START -->
       <dependency>
         <groupId>org.springframework</groupId>
@@ -230,7 +247,6 @@
         <version>${spring.security.version}</version>
       </dependency>
       <!-- springframework END -->
-
       <!-- hibernate START -->
       <dependency>
         <groupId>org.hibernate</groupId>
@@ -243,7 +259,6 @@
         <version>${hibernate.validator.version}</version>
       </dependency>
       <!-- hibernate END -->
-
       <!-- apache START -->
       <!-- cxf -->
       <dependency>
@@ -333,7 +348,6 @@
         <version>${apache.httpclient.version}</version>
       </dependency>
       <!-- apache END -->
-
       <!-- javax START -->
       <dependency>
         <groupId>javax.ejb</groupId>
@@ -386,8 +400,7 @@
         <version>${javax.el.version}</version>
       </dependency>
       <!-- javax END -->
-
-      <!-- other START -->
+      <!-- others -->
       <dependency>
         <groupId>org.ow2.asm</groupId>
         <artifactId>asm</artifactId>
@@ -463,16 +476,11 @@
         <artifactId>netty-all</artifactId>
         <version>${netty.version}</version>
       </dependency>
-      <!-- other END -->
-
-      <!-- test START -->
       <dependency>
         <groupId>junit</groupId>
         <artifactId>junit</artifactId>
         <version>${junit.version}</version>
       </dependency>
-      <!-- test END -->
-
     </dependencies>
   </dependencyManagement>
 
@@ -496,25 +504,21 @@
   </pluginRepositories>
 
   <distributionManagement>
-
     <repository>
       <id>company-releases</id>
       <name>Company Nexus Release Repository</name>
       <url>http://192.168.1.22:8081/nexus/content/repositories/releases/</url>
       <layout>default</layout>
     </repository>
-
     <snapshotRepository>
       <id>company-snapshots</id>
       <name>Company Nexus Snapshot Repository</name>
       <url>http://192.168.1.22:8081/nexus/content/repositories/snapshots/</url>
       <layout>default</layout>
     </snapshotRepository>
-
   </distributionManagement>
 
   <build>
-
     <resources>
       <resource>
         <filtering>true</filtering>
@@ -529,7 +533,6 @@
         <directory>src/main/resources</directory>
       </resource>
     </resources>
-
     <testResources>
       <testResource>
         <filtering>true</filtering>
@@ -544,9 +547,7 @@
         </includes>
       </testResource>
     </testResources>
-
     <plugins>
-
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
@@ -560,7 +561,6 @@
           </excludes>
         </configuration>
       </plugin>
-
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-source-plugin</artifactId>
@@ -580,7 +580,6 @@
           <docencoding>${project.build.sourceEncoding}</docencoding>
         </configuration>
       </plugin>
-
       <!-- <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
@@ -601,7 +600,6 @@
           <docencoding>${project.build.sourceEncoding}</docencoding>
         </configuration>
       </plugin> -->
-
     </plugins>
   </build>
 </project>

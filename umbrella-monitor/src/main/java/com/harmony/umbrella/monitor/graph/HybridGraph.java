@@ -21,6 +21,7 @@ import java.util.Map;
 
 import com.harmony.umbrella.monitor.HttpMonitor.HttpGraph;
 import com.harmony.umbrella.monitor.MethodMonitor.MethodGraph;
+import com.harmony.umbrella.monitor.util.MonitorUtils;
 
 /**
  * 混合视图, 既包括了Http部分信息, 也包括了方法拦截的信息
@@ -44,6 +45,10 @@ public class HybridGraph extends AbstractGraph implements HttpGraph, MethodGraph
     protected String localAddr;
     protected String queryString;
     protected int status;
+
+    public HybridGraph(Method method) {
+        this(MonitorUtils.methodId(method));
+    }
 
     public HybridGraph(String identifier) {
         super(identifier);

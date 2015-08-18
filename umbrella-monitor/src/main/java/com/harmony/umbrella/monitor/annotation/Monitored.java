@@ -7,15 +7,9 @@ import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
-import javax.interceptor.InterceptorBinding;
-
 import com.harmony.umbrella.monitor.Attacker;
 
-/**
- * 此注解配合CDI使用. /META-INF/beans.xml
- */
 @Inherited
-@InterceptorBinding
 @Target({ TYPE, METHOD })
 @Retention(RUNTIME)
 public @interface Monitored {
@@ -34,6 +28,16 @@ public @interface Monitored {
      * 对应日志的级别
      */
     Level level() default Level.INFO;
+
+    /**
+     * 用于支持Http监控中http中的请求参数获取
+     */
+    String[] requestType() default {};
+
+    /**
+     * 用于支持Http监控中http中的返回参数获取
+     */
+    String[] responseType() default {};
 
     /**
      * 对监控对象内部数据的获取工具
@@ -56,7 +60,7 @@ public @interface Monitored {
         /**
          * 监控对象内容处理工具类
          */
-        Class<? extends Attacker> attacker();
+        Class<? extends Attacker<?>> attacker();
 
         /**
          * 监控的内部属性或无参get方法的名称

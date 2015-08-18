@@ -40,7 +40,7 @@ public abstract class AbstractGraph implements Graph {
 
     protected final Map<String, Object> arguments = new LinkedHashMap<String, Object>();
 
-    protected Calendar requestTime;
+    protected Calendar requestTime = Calendar.getInstance();
 
     protected Calendar responseTime;
 

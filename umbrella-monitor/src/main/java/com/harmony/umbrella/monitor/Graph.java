@@ -33,7 +33,7 @@ public interface Graph {
     String getIdentifier();
 
     /**
-     * 请求时间
+     * 请求时间, 默认为创建Graph对象时间
      * 
      * @return 请求时间
      */

@@ -29,18 +29,19 @@ import org.slf4j.LoggerFactory;
 
 import com.harmony.umbrella.core.InvokeException;
 import com.harmony.umbrella.core.Invoker;
+import com.harmony.umbrella.monitor.graph.DefaultMethodGraph;
 import com.harmony.umbrella.util.Exceptions;
 import com.harmony.umbrella.ws.Context;
-import com.harmony.umbrella.ws.WebServiceGraph;
-import com.harmony.umbrella.ws.support.WebServiceGraphImpl;
 import com.harmony.umbrella.ws.util.JaxWsInvoker;
 
 /**
- * jaxWs CXF执行方式实现
+ * JaxWs CXF执行方式实现
  * 
  * @author wuxii@foxmail.com
  */
 public class JaxWsCXFExecutor extends JaxWsPhaseExecutor {
+
+    public static final String WS_CONTEXT_GRAPH = JaxWsCXFExecutor.class.getName() + ".WS_CONTEXT_GRAPH";
 
     private static final Logger log = LoggerFactory.getLogger(JaxWsCXFExecutor.class);
 
@@ -53,37 +54,33 @@ public class JaxWsCXFExecutor extends JaxWsPhaseExecutor {
     @SuppressWarnings("unchecked")
     @Override
     public <T> T executeQuite(Context context, Class<T> resultType) {
+        DefaultMethodGraph graph = null;
         T result = null;
-        Exception ex = null;
-        Method method = null;
-        Object proxy = null;
-        Calendar startTime = null;
         try {
-            method = context.getMethod();
-            proxy = loadProxy(context);
+            Method method = context.getMethod();
+            graph = new DefaultMethodGraph(method);
 
+            Object proxy = loadProxy(context);
             log.info("使用代理[{}]执行交互{}, invoker is [{}]", proxy, context, invoker);
-            startTime = Calendar.getInstance();
+            graph.setTarget(proxy);
+            graph.setArguments(context.getParameters());
 
+            graph.setRequestTime(Calendar.getInstance());
             result = (T) invoker.invoke(proxy, method, context.getParameters());
+            graph.setResponseTime(Calendar.getInstance());
 
+            graph.setResult(result);
         } catch (NoSuchMethodException e) {
-            ex = e;
             throw new WebServiceException("未找到接口方法" + context, e);
         } catch (InvokeException e) {
-            ex = e;
+            graph.setException(e);
             this.removeProxy(context);
             throw new WebServiceException("执行交互失败", Exceptions.getRootCause(e));
         } finally {
-            WebServiceGraphImpl graph = new WebServiceGraphImpl(method);
-            graph.setRequestTime(startTime);
-            graph.setResponseTime(Calendar.getInstance());
-            graph.setTarget(proxy);
-            graph.setResult(result);
-            graph.setArguments(context.getParameters());
-            graph.setException(ex);
-            context.put(WebServiceGraph.WS_CONTEXT_GRAPH, graph);
-            LOG.info("执行情况概要如下:{}", graph);
+            if (graph != null) {
+                LOG.info("执行情况概要如下:{}", graph);
+                context.put(WS_CONTEXT_GRAPH, graph);
+            }
         }
         return result;
     }
@@ -155,7 +152,7 @@ public class JaxWsCXFExecutor extends JaxWsPhaseExecutor {
     public void removeProxy(Context context) {
         proxyCache.remove(new JaxWsContextKey(context));
     }
-    
+
     /**
      * 清除已经缓存的服务代理
      */

@@ -53,7 +53,7 @@ public interface Monitor<T> {
     MonitorPolicy getPolicy();
 
     /**
-     * 更改监控策略
+     * 更改监控策略, 不允许设置空
      * 
      * @param policy
      *            监控策略
