@@ -33,12 +33,12 @@ import com.harmony.umbrella.monitor.matcher.MethodExpressionMatcher;
 public interface MethodMonitor extends Monitor<Method> {
 
     /**
-     * 默认监控的方法
+     * 默认监控的方法模版
      */
     String DEFAULT_METHOD_PATTERN = "execution(* " + Constants.DEFAULT_PACKAGE + "..*.*(..))";
 
     /**
-     * 方法监控结果
+     * 方法监控结果视图
      */
     public interface MethodGraph extends Graph {
 

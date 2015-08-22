@@ -88,16 +88,33 @@ public class DefaultHttpGraph extends AbstractGraph implements HttpGraph {
         return result;
     }
 
+    public void addResult(String key, Object value) {
+        this.result.put(key, value);
+    }
+
     public void addAllResult(Map<String, Object> result) {
         if (result != null && !result.isEmpty()) {
             this.result.putAll(result);
         }
     }
 
-    public void addAllArgument(Map<String, Object> argument) {
-        if (argument != null && !argument.isEmpty()) {
-            this.arguments.putAll(argument);
+    @Override
+    public String getDescription() {
+        StringBuilder buffer = new StringBuilder();
+        buffer.append("{\n")//
+                .append("  url:").append(identifier).append("\n")//
+                .append("  remoteAddr:").append(remoteAddr).append("\n")//
+                .append("  httpMethod:").append(httpMethod).append("\n")//
+                .append("  requestTime:").append(ndf.format(requestTime)).append("\n")//
+                .append("  use:").append(use()).append("\n")//
+                .append("  status:").append(status).append("\n")//
+                .append("  arguments:").append(getJsonArguments()).append("\n")//
+                .append("  result:").append(getJsonResult()).append("\n")//
+                .append("  exception:").append(isException()).append("\n");
+        if (isException()) {
+            buffer.append("  exceptionMessage:").append(exception).append("\n");
         }
+        return buffer.append("}").toString();
     }
 
 }

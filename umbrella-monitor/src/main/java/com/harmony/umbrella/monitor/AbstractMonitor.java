@@ -26,9 +26,9 @@ import com.harmony.umbrella.util.Assert;
 /**
  * 监控基础抽象类
  * 
- * @author wuxii@foxmail.com
  * @param <T>
- *            监控的资源，由子类指定
+ *            监控的资源类型，由子类指定
+ * @author wuxii@foxmail.com
  */
 public abstract class AbstractMonitor<T> implements Monitor<T> {
 

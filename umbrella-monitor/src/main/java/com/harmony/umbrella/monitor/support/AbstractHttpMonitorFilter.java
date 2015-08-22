@@ -46,6 +46,9 @@ public abstract class AbstractHttpMonitorFilter extends AbstractMonitor<String> 
 
     private ResourceMatcher<String> resourceMatcher;
 
+    /**
+     * 如果不在监控列表中直接跳过监控， 执行chain
+     */
     @Override
     public void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain) throws IOException, ServletException {
         HttpServletRequest request = (HttpServletRequest) req;
@@ -62,6 +65,18 @@ public abstract class AbstractHttpMonitorFilter extends AbstractMonitor<String> 
         return MonitorUtils.requestId(request);
     }
 
+    /**
+     * 环绕chain执行，对chain执行监控
+     * 
+     * @param resourceId
+     *            资源唯一键
+     * @param req
+     *            http请求
+     * @param resp
+     *            http应答
+     * @param chain
+     *            FilterChain
+     */
     protected abstract void aroundMonitor(String resourceId, HttpServletRequest req, HttpServletResponse resp, FilterChain chain);
 
     public void setResourceMatcher(ResourceMatcher<String> resourceMatcher) {

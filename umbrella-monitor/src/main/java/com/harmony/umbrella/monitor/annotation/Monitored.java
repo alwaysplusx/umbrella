@@ -7,8 +7,11 @@ import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
-import com.harmony.umbrella.monitor.Attacker;
-
+/**
+ * 用于标注方法或类， 表示该方法或类需要被监控
+ * 
+ * @author wuxii@foxmail.com
+ */
 @Inherited
 @Target({ TYPE, METHOD })
 @Retention(RUNTIME)
@@ -30,19 +33,14 @@ public @interface Monitored {
     Level level() default Level.INFO;
 
     /**
-     * 用于支持Http监控中http中的请求参数获取
+     * 代理对象的内部参数获取工具
      */
-    String[] requestType() default {};
+    InternalProperty[] internalProperties() default {};
 
     /**
-     * 用于支持Http监控中http中的返回参数获取
+     * http监控获取request中的信息
      */
-    String[] responseType() default {};
-
-    /**
-     * 对监控对象内部数据的获取工具
-     */
-    AttackerProperty[] assist() default {};
+    HttpProperty[] httpProperties() default {};
 
     /**
      * 日志级别
@@ -51,22 +49,6 @@ public @interface Monitored {
      */
     enum Level {
         TRACE, INFO, WARN, ERROR
-    }
-
-    @Target({ TYPE, METHOD })
-    @Retention(RUNTIME)
-    public @interface AttackerProperty {
-
-        /**
-         * 监控对象内容处理工具类
-         */
-        Class<? extends Attacker<?>> attacker();
-
-        /**
-         * 监控的内部属性或无参get方法的名称
-         */
-        String[] names() default {};
-
     }
 
 }

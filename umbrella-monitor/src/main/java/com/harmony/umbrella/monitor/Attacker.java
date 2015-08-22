@@ -21,7 +21,7 @@ import java.util.Map;
  * 获取监控对象的内部属性
  * 
  * @param <T>
- *            需要获取内部结果的实例
+ *            需要获取内部结果的实例类型
  * @author wuxii@foxmail.com
  */
 public interface Attacker<T> {
@@ -31,10 +31,10 @@ public interface Attacker<T> {
      * 
      * @param target
      *            目标监控对象
-     * @param innerNames
+     * @param names
      *            内部对象名称. 如: 字段名称, 方法名称
      * @return 内部对象的键值对
      */
-    Map<String, Object> attack(T target, String... innerNames);
+    Map<String, Object> attack(T target, String... names);
 
 }

@@ -32,7 +32,13 @@ import com.harmony.umbrella.monitor.util.MonitorUtils;
  */
 public class HybridGraph extends AbstractGraph implements HttpGraph, MethodGraph {
 
+    /**
+     * 拦截方法的返回值
+     */
     public static final String METHOD_RESULT = HybridGraph.class.getName() + ".METHOD_RESULT";
+    /**
+     * 拦截方法的请求参数
+     */
     public static final String METHOD_ARGUMENT = HybridGraph.class.getName() + ".METHOD_ARGUMENT";
 
     private final Map<String, Object> result = new HashMap<String, Object>();
@@ -122,15 +128,13 @@ public class HybridGraph extends AbstractGraph implements HttpGraph, MethodGraph
         this.status = status;
     }
 
+    public void addResult(String key, Object value) {
+        this.result.put(key, value);
+    }
+
     public void addAllResult(Map<String, Object> result) {
         if (result != null && !result.isEmpty()) {
             this.result.putAll(result);
-        }
-    }
-
-    public void addAllArgument(Map<String, Object> argument) {
-        if (argument != null && !argument.isEmpty()) {
-            this.arguments.putAll(argument);
         }
     }
 
@@ -158,4 +162,25 @@ public class HybridGraph extends AbstractGraph implements HttpGraph, MethodGraph
         return httpMethod != null;
     }
 
+    @Override
+    public String getDescription() {
+        StringBuilder buffer = new StringBuilder();
+        buffer.append("{\n")//
+                .append("  url:").append(identifier).append("\n");//
+        if (method != null) {
+            buffer.append("  method:").append(MonitorUtils.methodId(method)).append("\n");
+        }
+        buffer.append("  remoteAddr:").append(remoteAddr).append("\n")//
+                .append("  httpMethod:").append(httpMethod).append("\n")//
+                .append("  requestTime:").append(ndf.format(requestTime)).append("\n")//
+                .append("  use:").append(use()).append("\n")//
+                .append("  status:").append(status).append("\n")//
+                .append("  arguments:").append(getJsonArguments()).append("\n")//
+                .append("  result:").append(getJsonResult()).append("\n")//
+                .append("  exception:").append(isException()).append("\n");
+        if (isException()) {
+            buffer.append("  exceptionMessage:").append(exception).append("\n");
+        }
+        return buffer.append("}").toString();
+    }
 }

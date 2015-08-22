@@ -18,53 +18,27 @@ package com.harmony.umbrella.monitor.annotation;
 import static java.lang.annotation.ElementType.*;
 import static java.lang.annotation.RetentionPolicy.*;
 
-import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
-
-import javax.interceptor.InterceptorBinding;
-
-import com.harmony.umbrella.monitor.annotation.Monitored.AttackerProperty;
-import com.harmony.umbrella.monitor.annotation.Monitored.Level;
+import com.harmony.umbrella.monitor.Attacker;
 
 /**
- * 此注解配合CDI使用. /META-INF/beans.xml
+ * 获取代理对象的内部数据
+ * 
+ * @author wuxii@foxmail.com
  */
-@Inherited
-@Monitored
-@InterceptorBinding
-@Retention(RUNTIME)
 @Target({ TYPE, METHOD })
-public @interface MonitoredInterceptor {
+@Retention(RUNTIME)
+public @interface InternalProperty {
 
     /**
-     * 模块名称
+     * 监控对象内容处理工具类
      */
-    String module() default "";
+    Class<? extends Attacker<?>> attacker();
 
     /**
-     * 操作类型
+     * 监控的内部属性或无参get方法的名称
      */
-    String operator() default "";
-
-    /**
-     * 对应日志的级别
-     */
-    Level level() default Level.INFO;
-
-    /**
-     * 用于支持Http监控中http中的请求参数获取
-     */
-    String[] requestType() default {};
-
-    /**
-     * 用于支持Http监控中http中的返回参数获取
-     */
-    String[] responseType() default {};
-
-    /**
-     * 对监控对象内部数据的获取工具
-     */
-    AttackerProperty[] assist() default {};
+    String[] properties() default {};
 
 }

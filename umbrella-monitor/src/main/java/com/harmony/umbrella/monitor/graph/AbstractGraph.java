@@ -72,7 +72,7 @@ public abstract class AbstractGraph implements Graph {
 
     @Override
     public long use() {
-        return (requestTime != null || responseTime != null) ? -1 : responseTime.getTimeInMillis() - requestTime.getTimeInMillis();
+        return (requestTime == null || responseTime == null) ? -1 : responseTime.getTimeInMillis() - requestTime.getTimeInMillis();
     }
 
     @Override
@@ -115,6 +115,16 @@ public abstract class AbstractGraph implements Graph {
         this.responseTime = responseTime;
     }
 
+    public void addArgument(String key, Object value) {
+        this.arguments.put(key, value);
+    }
+
+    public void addAllArgument(Map<String, Object> argument) {
+        if (argument != null && !argument.isEmpty()) {
+            this.arguments.putAll(argument);
+        }
+    }
+
     @Override
     public String getDescription() {
         StringBuilder buffer = new StringBuilder();
@@ -122,8 +132,8 @@ public abstract class AbstractGraph implements Graph {
                 .append("  id:").append(identifier).append("\n")//
                 .append("  requestTime:").append(ndf.format(requestTime)).append("\n")//
                 .append("  use:").append(use()).append("\n")//
-                .append("  arguments:").append(Json.toJson(getArguments())).append("\n")//
-                .append("  result:").append(Json.toJson(getResult())).append("\n")//
+                .append("  arguments:").append(getJsonArguments()).append("\n")//
+                .append("  result:").append(getJsonResult()).append("\n")//
                 .append("  exception:").append(isException()).append("\n");
         if (isException()) {
             buffer.append("  exceptionMessage:").append(exception).append("\n");
