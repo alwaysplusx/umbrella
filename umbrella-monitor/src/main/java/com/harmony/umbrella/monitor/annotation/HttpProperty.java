@@ -25,7 +25,7 @@ public @interface HttpProperty {
     /**
      * http的参数作用域
      */
-    Scope scope() default Scope.REQUEST;
+    Scope scope() default Scope.PARAMETER;
 
     /**
      * 需要获取的值
