@@ -1,4 +1,4 @@
-package com.harmony.umbrella.data.domain;
+package com.harmony.umbrella.data;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;

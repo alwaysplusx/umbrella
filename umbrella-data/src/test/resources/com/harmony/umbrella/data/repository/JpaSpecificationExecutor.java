@@ -5,7 +5,7 @@ import java.util.List;
 import com.harmony.umbrella.data.domain.Page;
 import com.harmony.umbrella.data.domain.Pageable;
 import com.harmony.umbrella.data.domain.Sort;
-import com.harmony.umbrella.data.domain.Specification;
+import com.harmony.umbrella.data.Specification;
 
 public interface JpaSpecificationExecutor<T> {
 

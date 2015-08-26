@@ -18,7 +18,7 @@ package com.harmony.umbrella.data.repository;
 import java.io.Serializable;
 import java.util.List;
 
-import com.harmony.umbrella.data.domain.Specification;
+import com.harmony.umbrella.data.Specification;
 
 /**
  * @author wuxii@foxmail.com

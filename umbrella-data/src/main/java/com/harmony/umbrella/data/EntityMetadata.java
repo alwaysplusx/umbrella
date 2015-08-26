@@ -13,30 +13,37 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.umbrella.data.domain;
+package com.harmony.umbrella.data;
 
 import java.io.Serializable;
 
 /**
- * Simple interface for entities.
+ * JPA specific extension of {@link EntityMetadata}.
+ * <p>一个Entity对应一个元数据<p>基础元数据有<li>Entity的名称<li>Entity的java类型
  * 
- * @param <ID>
- *            the type of the identifier
  * @author Oliver Gierke
  */
-public interface Persistable<ID extends Serializable> extends Serializable {
+public interface EntityMetadata<T, ID extends Serializable> {
 
 	/**
-	 * Returns the id of the entity.
+	 * Returns the name of the entity.
 	 * 
-	 * @return the id
+	 * @return
 	 */
-	ID getId();
+	String getEntityName();
 
 	/**
-	 * Returns if the {@code Persistable} is new or was persisted already.
+	 * Returns the table name of entity
 	 * 
-	 * @return if the object is new
+	 * @return
 	 */
-	boolean isNew();
+	String getTableName();
+
+	/**
+	 * Returns the actual domain class type.
+	 * 
+	 * @return
+	 */
+	Class<T> getJavaType();
+
 }

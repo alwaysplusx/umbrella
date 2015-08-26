@@ -17,6 +17,8 @@ package com.harmony.umbrella.data.bond;
 
 import java.util.Arrays;
 
+import com.harmony.umbrella.data.Bond;
+
 /**
  * Bond辅助工具类
  * 

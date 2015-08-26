@@ -15,13 +15,13 @@
  */
 package com.harmony.umbrella.data.bond;
 
-import static com.harmony.umbrella.data.bond.Bond.Link.*;
+import static com.harmony.umbrella.data.Bond.Link.*;
 
 import java.util.Arrays;
 import java.util.Collection;
 
-import com.harmony.umbrella.data.bond.Bond.Link;
-import com.harmony.umbrella.data.bond.JunctionBond.Operator;
+import com.harmony.umbrella.data.Bond;
+import com.harmony.umbrella.data.Bond.Link;
 import com.harmony.umbrella.data.domain.Sort;
 import com.harmony.umbrella.data.domain.Sort.Direction;
 

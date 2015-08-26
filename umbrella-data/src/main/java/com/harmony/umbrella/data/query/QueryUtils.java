@@ -15,7 +15,7 @@
  */
 package com.harmony.umbrella.data.query;
 
-import static com.harmony.umbrella.data.bond.Bond.Link.*;
+import static com.harmony.umbrella.data.Bond.Link.*;
 import static java.util.regex.Pattern.*;
 import static javax.persistence.metamodel.Attribute.PersistentAttributeType.*;
 
@@ -54,8 +54,8 @@ import javax.persistence.metamodel.PluralAttribute;
 
 import org.springframework.core.annotation.AnnotationUtils;
 
+import com.harmony.umbrella.data.Bond;
 import com.harmony.umbrella.data.bond.AbstractBond;
-import com.harmony.umbrella.data.bond.Bond;
 import com.harmony.umbrella.data.domain.Sort;
 import com.harmony.umbrella.data.domain.Sort.Order;
 import com.harmony.umbrella.util.Assert;
