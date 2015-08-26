@@ -169,12 +169,15 @@ public class SimpleMetadata implements Metadata {
 
     @Override
     public String toString() {
-        StringBuilder result = new StringBuilder("{\n");
-        result.append("  serviceName  -> ").append(serviceName).append("\n").append("  serviceClass -> ")
-                .append(serviceClass != null ? "unknow" : serviceClass.getName()).append("\n").append("  address  -> ").append(address).append("\n")
-                .append("  password -> ").append(password).append("\n").append("  ctimeout -> ").append(connectionTimeout).append("\n")
-                .append("  rtimeout -> ").append(receiveTimeout).append("\n");
-        result.append("\n}");
+        StringBuilder result = new StringBuilder();
+        result.append("{\n")//
+                .append("  serviceName  -> ").append(serviceName).append("\n")//
+                .append("  serviceClass -> ").append(serviceClass != null ? "unknow" : serviceClass.getName()).append("\n")//
+                .append("  address  -> ").append(address).append("\n")//
+                .append("  password -> ").append(password).append("\n")//
+                .append("  ctimeout -> ").append(connectionTimeout).append("\n")//
+                .append("  rtimeout -> ").append(receiveTimeout).append("\n")//
+                .append("\n}");
         return result.toString();
     }
 

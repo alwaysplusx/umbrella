@@ -29,6 +29,6 @@ public interface MetadataLoader {
      * @param serviceClass
      * @return
      */
-    Metadata getMetadata(Class<?> serviceClass);
+    Metadata loadMetadata(Class<?> serviceClass);
 
 }
