@@ -31,6 +31,15 @@ import com.harmony.umbrella.util.Formats.NullableDateFormat;
  */
 public abstract class AbstractGraph implements Graph {
 
+    /**
+     * 拦截方法的返回值
+     */
+    public static final String METHOD_RESULT = HybridGraph.class.getName() + ".METHOD_RESULT";
+    /**
+     * 拦截方法的请求参数
+     */
+    public static final String METHOD_ARGUMENT = HybridGraph.class.getName() + ".METHOD_ARGUMENT";
+
     protected static final NullableDateFormat ndf = Formats.createDateFormat(Formats.FULL_DATE_PATTERN);
 
     /**
@@ -39,6 +48,8 @@ public abstract class AbstractGraph implements Graph {
     protected final String identifier;
 
     protected final Map<String, Object> arguments = new LinkedHashMap<String, Object>();
+
+    protected final Map<String, Object> result = new LinkedHashMap<String, Object>();
 
     protected Calendar requestTime = Calendar.getInstance();
 
@@ -123,6 +134,32 @@ public abstract class AbstractGraph implements Graph {
         if (argument != null && !argument.isEmpty()) {
             this.arguments.putAll(argument);
         }
+    }
+
+    public void addResult(String key, Object value) {
+        this.result.put(key, value);
+    }
+
+    public void addAllResult(Map<String, Object> result) {
+        if (result != null && !result.isEmpty()) {
+            this.result.putAll(result);
+        }
+    }
+
+    public Object getMethodResult() {
+        return result.get(METHOD_RESULT);
+    }
+
+    public Object[] getMethodArguments() {
+        return (Object[]) this.arguments.get(METHOD_ARGUMENT);
+    }
+
+    public void setMethodResult(Object result) {
+        this.result.put(METHOD_RESULT, result);
+    }
+
+    public void setMethodArguments(Object[] arguments) {
+        this.arguments.put(METHOD_ARGUMENT, arguments);
     }
 
     @Override

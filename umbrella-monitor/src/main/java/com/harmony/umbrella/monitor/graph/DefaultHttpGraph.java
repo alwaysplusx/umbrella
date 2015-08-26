@@ -88,16 +88,6 @@ public class DefaultHttpGraph extends AbstractGraph implements HttpGraph {
         return result;
     }
 
-    public void addResult(String key, Object value) {
-        this.result.put(key, value);
-    }
-
-    public void addAllResult(Map<String, Object> result) {
-        if (result != null && !result.isEmpty()) {
-            this.result.putAll(result);
-        }
-    }
-
     @Override
     public String getDescription() {
         StringBuilder buffer = new StringBuilder();

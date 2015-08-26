@@ -16,10 +16,7 @@
 package com.harmony.umbrella.monitor.graph;
 
 import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.Map;
 
-import com.harmony.umbrella.monitor.HttpMonitor.HttpGraph;
 import com.harmony.umbrella.monitor.MethodMonitor.MethodGraph;
 import com.harmony.umbrella.monitor.util.MonitorUtils;
 
@@ -30,7 +27,7 @@ import com.harmony.umbrella.monitor.util.MonitorUtils;
  * 
  * @author wuxii@foxmail.com
  */
-public class HybridGraph extends AbstractGraph implements HttpGraph, MethodGraph {
+public class HybridGraph extends DefaultHttpGraph implements MethodGraph {
 
     /**
      * 拦截方法的返回值
@@ -41,16 +38,8 @@ public class HybridGraph extends AbstractGraph implements HttpGraph, MethodGraph
      */
     public static final String METHOD_ARGUMENT = HybridGraph.class.getName() + ".METHOD_ARGUMENT";
 
-    private final Map<String, Object> result = new HashMap<String, Object>();
-
     protected Method method;
     protected Object target;
-
-    protected String httpMethod;
-    protected String remoteAddr;
-    protected String localAddr;
-    protected String queryString;
-    protected int status;
 
     public HybridGraph(Method method) {
         this(MonitorUtils.methodId(method));
@@ -70,88 +59,12 @@ public class HybridGraph extends AbstractGraph implements HttpGraph, MethodGraph
         return method;
     }
 
-    @Override
-    public Map<String, Object> getResult() {
-        return result;
-    }
-
-    @Override
-    public String getHttpMethod() {
-        return httpMethod;
-    }
-
-    @Override
-    public String getRemoteAddr() {
-        return remoteAddr;
-    }
-
-    @Override
-    public String getLocalAddr() {
-        return localAddr;
-    }
-
-    @Override
-    public String getQueryString() {
-        return queryString;
-    }
-
-    @Override
-    public int getStatus() {
-        return status;
-    }
-
     public void setMethod(Method method) {
         this.method = method;
     }
 
     public void setTarget(Object target) {
         this.target = target;
-    }
-
-    public void setHttpMethod(String httpMethod) {
-        this.httpMethod = httpMethod;
-    }
-
-    public void setRemoteAddr(String remoteAddr) {
-        this.remoteAddr = remoteAddr;
-    }
-
-    public void setLocalAddr(String localAddr) {
-        this.localAddr = localAddr;
-    }
-
-    public void setQueryString(String queryString) {
-        this.queryString = queryString;
-    }
-
-    public void setStatus(int status) {
-        this.status = status;
-    }
-
-    public void addResult(String key, Object value) {
-        this.result.put(key, value);
-    }
-
-    public void addAllResult(Map<String, Object> result) {
-        if (result != null && !result.isEmpty()) {
-            this.result.putAll(result);
-        }
-    }
-
-    public Object getMethodResult() {
-        return result.get(METHOD_RESULT);
-    }
-
-    public void setMethodResult(Object result) {
-        this.result.put(METHOD_RESULT, result);
-    }
-
-    public Object[] getMethodArguments() {
-        return (Object[]) this.arguments.get(METHOD_ARGUMENT);
-    }
-
-    public void setMethodArguments(Object[] arguments) {
-        this.arguments.put(METHOD_ARGUMENT, arguments);
     }
 
     public boolean hasMethodGraph() {

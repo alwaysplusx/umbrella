@@ -15,14 +15,11 @@
  */
 package com.harmony.umbrella.monitor.support;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 
 import com.harmony.umbrella.monitor.AbstractMonitor;
 import com.harmony.umbrella.monitor.MethodMonitor;
 import com.harmony.umbrella.monitor.ResourceMatcher;
-import com.harmony.umbrella.monitor.annotation.InternalProperty;
-import com.harmony.umbrella.monitor.annotation.Monitored;
 import com.harmony.umbrella.monitor.matcher.MethodExpressionMatcher;
 
 /**
@@ -70,6 +67,11 @@ public abstract class AbstractMethodMonitorInterceptor<IC> extends AbstractMonit
      */
     protected abstract Object process(IC ctx) throws Exception;
 
+    protected Object monitor(IC ctx) throws Exception {
+        Method method = getMethod(ctx);
+        return preMonitor(ctx) ? aroundMonitor(method, ctx) : process(ctx);
+    }
+
     /**
      * 监控的入口(拦截器的入口)
      * 
@@ -77,9 +79,9 @@ public abstract class AbstractMethodMonitorInterceptor<IC> extends AbstractMonit
      *            执行的上下文
      * @see {@linkplain javax.interceptor.AroundInvoke}
      */
-    protected Object preMonitor(IC ctx) throws Exception {
+    protected boolean preMonitor(IC ctx) {
         Method method = getMethod(ctx);
-        return method == null || !isMonitored(method) ? process(ctx) : aroundMonitor(method, ctx);
+        return method != null && !isMonitored(method);
     }
 
     /**
@@ -93,18 +95,4 @@ public abstract class AbstractMethodMonitorInterceptor<IC> extends AbstractMonit
      */
     protected abstract Object aroundMonitor(Method method, IC ctx) throws Exception;
 
-    /**
-     * 获取method上的{@linkplain Monitored}注解，并获取注解内对于的属性(传入的propertyType)
-     * 
-     * @param method
-     *            过滤的方法
-     * @param propertyType
-     *            要获取的属性值
-     * @return 对于propertyType的属性
-     */
-    @SuppressWarnings("unchecked")
-    protected <T extends Annotation> T[] getMonitorProperty(Method method, Class<T> propertyType) {
-        Monitored ann = method.getAnnotation(Monitored.class);
-        return (T[]) (ann == null ? null : propertyType == InternalProperty.class ? ann.internalProperties() : ann.httpProperties());
-    }
 }

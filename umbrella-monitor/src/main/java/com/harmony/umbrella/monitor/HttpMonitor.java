@@ -25,7 +25,7 @@ import javax.servlet.Filter;
  * @author wuxii@foxmail.com
  * @see Filter
  */
-public interface HttpMonitor extends Monitor<String>, Filter {
+public interface HttpMonitor extends Monitor<String> {
 
     /**
      * 默认url分割符号
@@ -42,6 +42,9 @@ public interface HttpMonitor extends Monitor<String>, Filter {
      */
     public interface HttpGraph extends Graph {
 
+        /*
+         * @see com.harmony.umbrella.monitor.Graph#getResult()
+         */
         Map<String, Object> getResult();
 
         /**

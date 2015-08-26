@@ -53,12 +53,29 @@ public interface Graph {
      */
     long use();
 
+    Object getArgument(String key);
+
+    void putArgument(String key, Object value);
+
+    /**
+     * 请求参数
+     * 
+     * @return 请求参数
+     */
+    Map<String, Object> getArguments();
+
     /**
      * 返回结果
      * 
+     * @param key
+     *            结果key
      * @return 监控返回的结果
      */
-    Object getResult();
+    Object getResult(String key);
+
+    void putResult(String key, Object value);
+
+    Map<String, Object> getResults();
 
     /**
      * 得到json格式的结果
@@ -73,13 +90,6 @@ public interface Graph {
      * @return 监控的请求参数
      */
     String getJsonArguments();
-
-    /**
-     * 请求参数
-     * 
-     * @return 请求参数
-     */
-    Map<String, Object> getArguments();
 
     /**
      * 请求中是否有异常
