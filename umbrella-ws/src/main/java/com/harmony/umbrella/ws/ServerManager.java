@@ -24,6 +24,7 @@ import java.util.Map.Entry;
 
 import javax.jws.WebService;
 import javax.ws.rs.Path;
+import javax.xml.ws.WebServiceException;
 
 import org.apache.cxf.endpoint.Server;
 import org.slf4j.Logger;
@@ -31,7 +32,6 @@ import org.slf4j.LoggerFactory;
 
 import com.harmony.umbrella.util.Assert;
 import com.harmony.umbrella.util.ClassUtils;
-import com.harmony.umbrella.util.Exceptions;
 import com.harmony.umbrella.util.StringUtils;
 import com.harmony.umbrella.ws.cxf.ServerImpl;
 import com.harmony.umbrella.ws.cxf.interceptor.MessageInInterceptor;
@@ -101,13 +101,13 @@ public class ServerManager {
     }
 
     /**
-     * 发布一个服务实例为{@code clazz}的服务，地址依赖{@link #metaLoader} 来加载。
+     * 发布一个类型为为{@code clazz}的服务，地址依赖{@link #metaLoader} 来加载。
      * <p>
      * <b>使用本方法时候确保先设置{@link #metaLoader}，否则无法正确设置要发布服务的地址
      * </p>
      *
      * @param clazz
-     *         服务实例类型
+     *            服务实例类型
      */
     public boolean publish(Class<?> clazz) {
         return publish(clazz, (String) null);
@@ -119,9 +119,9 @@ public class ServerManager {
      * 不允许同时标注JAX-WS{@linkplain WebService}, JAX-RS的服务注解{@linkplain Path}
      *
      * @param clazz
-     *         服务类型
+     *            服务类型
      * @param address
-     *         服务地址
+     *            服务地址
      */
     public boolean publish(Class<?> clazz, String address) {
         if (isJaxWsService(clazz) && isJaxRsService(clazz)) {
@@ -144,9 +144,9 @@ public class ServerManager {
      * 可配置的发布JaxWs服务
      *
      * @param serviceClass
-     *         服务类型
+     *            服务类型
      * @param factoryConfig
-     *         服务配置回调
+     *            服务配置回调
      */
     public boolean publish(Class<?> serviceClass, JaxWsServerFactoryConfig factoryConfig) {
         return publish(serviceClass, null, factoryConfig);
@@ -156,9 +156,9 @@ public class ServerManager {
      * 可配置的发布JaxRs服务
      *
      * @param resourceClass
-     *         服务类型
+     *            服务类型
      * @param factoryConfig
-     *         服务配置回调
+     *            服务配置回调
      */
     public boolean publish(Class<?> resourceClass, JaxRsServerFactoryConfig factoryConfig) {
         return publish(resourceClass, null, factoryConfig);
@@ -168,11 +168,11 @@ public class ServerManager {
      * 在指定地址发布服务，发布前提供配置服务
      *
      * @param serviceClass
-     *         服务类型
+     *            服务类型
      * @param address
-     *         服务地址
+     *            服务地址
      * @param factoryConfig
-     *         服务配置回调
+     *            服务配置回调
      */
     public boolean publish(Class<?> serviceClass, String address, JaxWsServerFactoryConfig factoryConfig) {
         return doPublish(serviceClass, address, factoryConfig);
@@ -182,16 +182,19 @@ public class ServerManager {
      * 在指定的地址发布JaxRs服务， 发布前提供配置服务
      *
      * @param resourceClass
-     *         服务类型
+     *            服务类型
      * @param address
-     *         服务地址
+     *            服务地址
      * @param factoryConfig
-     *         服务的配置回调
+     *            服务的配置回调
      */
     public boolean publish(Class<?> resourceClass, String address, JaxRsServerFactoryConfig factoryConfig) {
         return doPublish(resourceClass, address, factoryConfig);
     }
 
+    /**
+     * 发布jaxws服务
+     */
     private boolean doPublish(Class<?> serviceClass, String address, JaxWsServerFactoryConfig factoryConfig) {
         Assert.notNull(serviceClass, "service class is null");
         try {
@@ -200,10 +203,11 @@ public class ServerManager {
                     .addInInterceptor(new MessageInInterceptor("JaxWs-Server Inbound"))//
                     .addOutInterceptor(new MessageOutInterceptor("JaxWs-Server Outbound"));
 
-            Metadata metadata = getMetadata(serviceClass);
+            Metadata metadata = loadMetadata(serviceClass);
             if (metadata != null) {
+                builder.setUsername(metadata.getUsername())//
+                        .setPassword(metadata.getPassword());
                 address = StringUtils.isNotBlank(address) ? address : metadata.getAddress();
-                builder.setUsername(metadata.getUsername()).setPassword(metadata.getPassword());
             }
 
             Server server = builder.publish(serviceClass, address, factoryConfig);
@@ -215,13 +219,16 @@ public class ServerManager {
         } catch (Exception e) {
             log.error("Can't Publish JaxWs Service {{}@{}}", serviceClass.getName(), address, e);
             if (failFast) {
-                throw Exceptions.unchecked(e);
+                throw new WebServiceException(e);
             }
             return false;
         }
         return true;
     }
 
+    /**
+     * 发布jaxrs服务
+     */
     private boolean doPublish(Class<?> resourceClass, String address, JaxRsServerFactoryConfig factoryConfig) {
         Assert.notNull(resourceClass, "resource class is null");
         try {
@@ -231,10 +238,11 @@ public class ServerManager {
                     .addInInterceptor(new MessageInInterceptor("REST-Server Inbound"))//
                     .addOutInterceptor(new MessageOutInterceptor("REST-Server Outbound"));
 
-            Metadata metadata = getMetadata(resourceClass);
+            Metadata metadata = loadMetadata(resourceClass);
             if (metadata != null) {
                 address = StringUtils.isNotBlank(address) ? address : metadata.getAddress();
-                builder.setUsername(metadata.getUsername()).setPassword(metadata.getPassword());
+                builder.setUsername(metadata.getUsername())//
+                        .setPassword(metadata.getPassword());
             }
 
             Server server = builder.publish(resourceClass, address, factoryConfig);
@@ -246,15 +254,15 @@ public class ServerManager {
         } catch (Exception e) {
             log.error("Can't Publish JaxRs Service {{}@{}}", resourceClass.getName(), address, e);
             if (failFast) {
-                throw Exceptions.unchecked(e);
+                throw new WebServiceException(e);
             }
             return false;
         }
         return true;
     }
 
-    private Metadata getMetadata(Class<?> clazz) {
-        return metaLoader == null ? null : metaLoader.getMetadata(clazz);
+    private Metadata loadMetadata(Class<?> clazz) {
+        return metaLoader == null ? null : metaLoader.loadMetadata(clazz);
     }
 
     /**
@@ -289,7 +297,7 @@ public class ServerManager {
      * 检测地址是否已经发布了服务
      *
      * @param address
-     *         检测的地址
+     *            检测的地址
      */
     public boolean inUse(String address) {
         Iterator<ServerKey> it = servers.keySet().iterator();
@@ -305,7 +313,7 @@ public class ServerManager {
      * 获取类所发布的所有服务地址
      *
      * @param clazz
-     *         服务类
+     *            服务类
      * @return 所发布的所有地址
      */
     public String[] publishAddresses(Class<?> clazz) {
@@ -364,9 +372,9 @@ public class ServerManager {
      * 销毁服务实例
      *
      * @param address
-     *         服务地址
+     *            服务地址
      * @param clazz
-     *         服务类型
+     *            服务类型
      */
     public void destroy(String address, Class<?> clazz) {
         unregisterServer(getServer(address, clazz));

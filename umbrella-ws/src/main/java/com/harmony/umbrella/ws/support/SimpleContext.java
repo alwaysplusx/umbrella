@@ -18,7 +18,6 @@ package com.harmony.umbrella.ws.support;
 import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -48,7 +47,7 @@ public class SimpleContext implements Context, Serializable {
     public SimpleContext(Class<?> serviceInterface, String methodName) {
         this(serviceInterface, methodName, null);
     }
-    
+
     public SimpleContext(Class<?> serviceInterface, String methodName, Object[] parameters) {
         this.serviceInterface = serviceInterface;
         this.methodName = methodName;
@@ -139,7 +138,7 @@ public class SimpleContext implements Context, Serializable {
 
     @Override
     public Map<String, Object> getContextMap() {
-        return Collections.unmodifiableMap(contextMap);
+        return contextMap;
     }
 
     @Override
@@ -201,7 +200,7 @@ public class SimpleContext implements Context, Serializable {
     public void setSynchronousTimeout(int synchronousTimeout) {
         this.synchronousTimeout = synchronousTimeout;
     }
-    
+
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -256,19 +255,17 @@ public class SimpleContext implements Context, Serializable {
 
     @Override
     public String toString() {
-        
+
         String methodId = null;
-        
+
         try {
             methodId = StringUtils.getMethodId(getMethod());
         } catch (NoSuchMethodException e) {
         }
-        
-        if(methodId == null){
+
+        if (methodId == null) {
             StringBuilder sb = new StringBuilder();
-            sb.append(serviceInterface == null ? "unknow" : serviceInterface.getName())
-              .append("#").append(methodName)
-              .append("(");
+            sb.append(serviceInterface == null ? "unknow" : serviceInterface.getName()).append("#").append(methodName).append("(");
             if (parameters != null) {
                 for (Object param : parameters) {
                     sb.append(param != null ? param.getClass().getName() : "unknow").append(", ");
@@ -279,17 +276,18 @@ public class SimpleContext implements Context, Serializable {
             }
             methodId = sb.append(")").toString();
         }
-        
-        StringBuilder result = new StringBuilder("{\n");
-        result.append("  address  <-> ").append(address).append("\n")
-              .append("  methodId <-> ").append(methodId).append("\n")
-              .append("  username <-> ").append(username).append("\n")
-              .append("  password <-> ").append(password).append("\n")
-              .append("  ctimeout <-> ").append(connectionTimeout).append("\n")
-              .append("  rtimeout <-> ").append(receiveTimeout).append("\n")
-              .append("  stimeout <-> ").append(synchronousTimeout).append("\n");
-        result.append("}");
-        
+
+        StringBuilder result = new StringBuilder();
+        result.append("{\n")//
+                .append("  address  <-> ").append(address).append("\n")//
+                .append("  methodId <-> ").append(methodId).append("\n")//
+                .append("  username <-> ").append(username).append("\n")//
+                .append("  password <-> ").append(password).append("\n")//
+                .append("  ctimeout <-> ").append(connectionTimeout).append("\n")//
+                .append("  rtimeout <-> ").append(receiveTimeout).append("\n")//
+                .append("  stimeout <-> ").append(synchronousTimeout).append("\n")//
+                .append("}");
+
         return result.toString();
     }
 

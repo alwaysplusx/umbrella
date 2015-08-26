@@ -33,8 +33,8 @@ import javax.persistence.criteria.Root;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.harmony.umbrella.data.domain.Specification;
-import com.harmony.umbrella.data.query.EntityInformation;
+import com.harmony.umbrella.data.Specification;
+import com.harmony.umbrella.data.EntityInformation;
 import com.harmony.umbrella.data.query.JpaEntityInformation;
 import com.harmony.umbrella.data.repository.BaseRepository;
 import com.harmony.umbrella.util.Assert;

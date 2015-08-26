@@ -17,6 +17,8 @@ package com.harmony.umbrella.data.bond;
 
 import java.util.List;
 
+import com.harmony.umbrella.data.Bond;
+
 /**
  * 对内部的{@linkplain #getBonds()}通过{@linkplain Operator#OR}关联关系关联
  * 

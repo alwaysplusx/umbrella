@@ -28,6 +28,7 @@ import javax.persistence.metamodel.ManagedType;
 import javax.persistence.metamodel.Metamodel;
 import javax.persistence.metamodel.SingularAttribute;
 
+import com.harmony.umbrella.data.EntityInformation;
 import com.harmony.umbrella.util.FieldUtils;
 import com.harmony.umbrella.util.ReflectionUtils;
 

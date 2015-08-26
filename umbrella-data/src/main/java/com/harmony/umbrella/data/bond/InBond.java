@@ -15,8 +15,9 @@
  */
 package com.harmony.umbrella.data.bond;
 
-import static com.harmony.umbrella.data.bond.Bond.Link.*;
+import static com.harmony.umbrella.data.Bond.Link.*;
 
+import com.harmony.umbrella.data.Bond;
 import com.harmony.umbrella.util.StringUtils;
 
 /**

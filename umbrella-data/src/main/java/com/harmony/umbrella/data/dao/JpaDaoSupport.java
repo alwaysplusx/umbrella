@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.umbrella.data.dao.support;
+package com.harmony.umbrella.data.dao;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -32,13 +32,13 @@ import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
-import com.harmony.umbrella.data.dao.JpaDao;
+import com.harmony.umbrella.data.EntityInformation;
+import com.harmony.umbrella.data.JpaDao;
+import com.harmony.umbrella.data.Specification;
 import com.harmony.umbrella.data.domain.Page;
 import com.harmony.umbrella.data.domain.PageImpl;
 import com.harmony.umbrella.data.domain.Pageable;
 import com.harmony.umbrella.data.domain.Sort;
-import com.harmony.umbrella.data.domain.Specification;
-import com.harmony.umbrella.data.query.EntityInformation;
 import com.harmony.umbrella.data.query.JpaEntityInformation;
 import com.harmony.umbrella.data.query.QueryUtils;
 import com.harmony.umbrella.util.Assert;

@@ -15,6 +15,8 @@
  */
 package com.harmony.umbrella.data.bond;
 
+import com.harmony.umbrella.data.Bond;
+
 /**
  * 可比较的{@linkplain Bond}. 一般通用型Bond, 可用于表示{@linkplain Link#EQUAL},
  * {@linkplain Link#GREATER_THAN}等

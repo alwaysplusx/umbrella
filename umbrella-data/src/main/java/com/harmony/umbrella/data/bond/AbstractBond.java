@@ -15,6 +15,7 @@
  */
 package com.harmony.umbrella.data.bond;
 
+import com.harmony.umbrella.data.Bond;
 import com.harmony.umbrella.data.sql.SQLFormat;
 import com.harmony.umbrella.util.Assert;
 import com.harmony.umbrella.util.StringUtils;

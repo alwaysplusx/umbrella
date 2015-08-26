@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.umbrella.data.dao;
+package com.harmony.umbrella.data;
 
 import java.io.Serializable;
 import java.util.List;
@@ -24,7 +24,6 @@ import javax.persistence.EntityManager;
 import com.harmony.umbrella.data.domain.Page;
 import com.harmony.umbrella.data.domain.Pageable;
 import com.harmony.umbrella.data.domain.Sort;
-import com.harmony.umbrella.data.domain.Specification;
 
 /**
  * {@linkplain Dao}的JPA扩展接口

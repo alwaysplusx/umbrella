@@ -17,6 +17,7 @@ package com.harmony.umbrella.data.bond;
 
 import java.util.List;
 
+import com.harmony.umbrella.data.Bond;
 import com.harmony.umbrella.data.bond.JunctionBond.Operator;
 
 /**

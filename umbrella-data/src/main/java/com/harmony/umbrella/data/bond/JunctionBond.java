@@ -22,6 +22,7 @@ import java.util.List;
 
 import org.springframework.util.Assert;
 
+import com.harmony.umbrella.data.Bond;
 import com.harmony.umbrella.data.query.QueryUtils;
 import com.harmony.umbrella.util.StringUtils;
 

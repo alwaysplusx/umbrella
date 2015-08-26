@@ -20,6 +20,7 @@ import java.io.Serializable;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 
+import com.harmony.umbrella.data.EntityMetadata;
 import com.harmony.umbrella.util.StringUtils;
 
 /**
