@@ -41,11 +41,13 @@ import com.harmony.umbrella.ws.MetadataLoader;
  */
 public class JaxWsProxyBuilder {
 
+    // TODO JaxWsProxyFactoryBean's reflectionServiceFactory#serviceConfigurations add configuration all the time when call create method
+    private static final ThreadLocal<JaxWsProxyFactoryBean> factoryBeans = new ThreadLocal<JaxWsProxyFactoryBean>();
+    
     private static final Logger log = LoggerFactory.getLogger(JaxWsProxyBuilder.class);
 
     public static final long DEFAULT_TIMEOUT = 1000 * 60 * 3;
 
-    private static final ThreadLocal<JaxWsProxyFactoryBean> factoryBeans = new ThreadLocal<JaxWsProxyFactoryBean>();
 
     private String address;
     private String username;
