@@ -15,9 +15,6 @@
  */
 package com.harmony.umbrella.monitor.graph;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import com.harmony.umbrella.monitor.HttpMonitor.HttpGraph;
 
 /**
@@ -27,7 +24,6 @@ import com.harmony.umbrella.monitor.HttpMonitor.HttpGraph;
  */
 public class DefaultHttpGraph extends AbstractGraph implements HttpGraph {
 
-    private final Map<String, Object> result = new HashMap<String, Object>();
     protected String httpMethod;
     protected String remoteAddr;
     protected String localAddr;
@@ -81,11 +77,6 @@ public class DefaultHttpGraph extends AbstractGraph implements HttpGraph {
 
     public void setStatus(int status) {
         this.status = status;
-    }
-
-    @Override
-    public Map<String, Object> getResult() {
-        return result;
     }
 
     @Override

@@ -43,6 +43,15 @@ public interface MethodMonitor extends Monitor<Method> {
     public interface MethodGraph extends Graph {
 
         /**
+         * 拦截方法的返回值
+         */
+        public static final String METHOD_RESULT = MethodGraph.class.getName() + ".METHOD_RESULT";
+        /**
+         * 拦截方法的请求参数
+         */
+        public static final String METHOD_ARGUMENT = MethodGraph.class.getName() + ".METHOD_ARGUMENT";
+
+        /**
          * 方法的执行目标
          * 
          * @return target
@@ -55,6 +64,14 @@ public interface MethodMonitor extends Monitor<Method> {
          * @return method
          */
         Method getMethod();
+
+        Object[] getMethodArguments();
+
+        void setMethodArgumets(Object... arguments);
+
+        Object getMethodResult();
+
+        void setMethodResult(Object result);
 
     }
 

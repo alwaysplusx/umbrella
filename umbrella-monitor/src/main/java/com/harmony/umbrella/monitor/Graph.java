@@ -53,8 +53,23 @@ public interface Graph {
      */
     long use();
 
+    /**
+     * 根据key获取请求graph中的请求参数
+     * 
+     * @param key
+     *            请求参数key
+     * @return value
+     */
     Object getArgument(String key);
 
+    /**
+     * 设置请求参数的key和对应值
+     * 
+     * @param key
+     *            请求参数的key
+     * @param value
+     *            请求参数的value
+     */
     void putArgument(String key, Object value);
 
     /**
@@ -73,8 +88,21 @@ public interface Graph {
      */
     Object getResult(String key);
 
+    /**
+     * 设置监控结果值
+     * 
+     * @param key
+     *            结果key
+     * @param value
+     *            结果value
+     */
     void putResult(String key, Object value);
 
+    /**
+     * 获取监控结果
+     * 
+     * @return 监控结果
+     */
     Map<String, Object> getResults();
 
     /**

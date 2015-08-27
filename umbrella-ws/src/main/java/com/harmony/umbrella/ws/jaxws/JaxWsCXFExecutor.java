@@ -45,8 +45,14 @@ public class JaxWsCXFExecutor extends JaxWsPhaseExecutor {
 
     private static final Logger log = LoggerFactory.getLogger(JaxWsCXFExecutor.class);
 
+    /**
+     * 代理对象缓存池
+     */
     private Map<JaxWsContextKey, Object> proxyCache = new HashMap<JaxWsContextKey, Object>();
 
+    /**
+     * 配置是否接受缓存的代理对象
+     */
     private boolean cacheable = true;
 
     private Invoker invoker = new JaxWsInvoker();
@@ -63,13 +69,13 @@ public class JaxWsCXFExecutor extends JaxWsPhaseExecutor {
             Object proxy = loadProxy(context);
             log.info("使用代理[{}]执行交互{}, invoker is [{}]", proxy, context, invoker);
             graph.setTarget(proxy);
-            graph.setArguments(context.getParameters());
+            graph.setMethodArgumets(context.getParameters());
 
             graph.setRequestTime(Calendar.getInstance());
             result = (T) invoker.invoke(proxy, method, context.getParameters());
             graph.setResponseTime(Calendar.getInstance());
 
-            graph.setResult(result);
+            graph.setMethodResult(result);
         } catch (NoSuchMethodException e) {
             throw new WebServiceException("未找到接口方法" + context, e);
         } catch (InvokeException e) {
@@ -101,7 +107,22 @@ public class JaxWsCXFExecutor extends JaxWsPhaseExecutor {
                 }
             }
         }
-        return proxyCache.get(contextKey);
+        return configurationProxy(proxyCache.get(contextKey), context);
+    }
+
+    /**
+     * 根据上下文配置代理对象
+     * 
+     * @param proxy
+     *            代理对象
+     * @param context
+     *            上下文
+     */
+    private Object configurationProxy(Object proxy, Context context) {
+        setConnectionTimeout(proxy, context.getConnectionTimeout());
+        setReceiveTimeout(proxy, context.getReceiveTimeout());
+        setSynchronousTimeout(proxy, context.getSynchronousTimeout());
+        return proxy;
     }
 
     public boolean isCacheable() {
@@ -141,9 +162,6 @@ public class JaxWsCXFExecutor extends JaxWsPhaseExecutor {
                 .setAddress(context.getAddress())//
                 .setUsername(context.getUsername())//
                 .setPassword(context.getPassword())//
-                .setReceiveTimeout(context.getReceiveTimeout())//
-                .setConnectionTimeout(context.getConnectionTimeout())//
-                .setSynchronousTimeout(context.getSynchronousTimeout())//
                 .build(context.getServiceInterface());
         log.debug("创建代理{}服务, 耗时{}ms", context, System.currentTimeMillis() - start);
         return proxy;

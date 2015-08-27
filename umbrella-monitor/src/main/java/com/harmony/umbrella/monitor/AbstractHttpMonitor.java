@@ -113,7 +113,7 @@ public abstract class AbstractHttpMonitor<N> extends AbstractMonitor<String> imp
             for (HttpProperty hp : property) {
                 if (Mode.INBOUND.equals(hp.mode()) && hp.properties().length > 0) {
                     Map<String, Object> result = getHttpAttacker().attack(request, hp.scope(), hp.properties());
-                    graph.addArgument(hp.scope().name(), result);
+                    graph.putArgument(hp.scope().name(), result);
                 }
             }
         }
@@ -125,7 +125,7 @@ public abstract class AbstractHttpMonitor<N> extends AbstractMonitor<String> imp
             for (HttpProperty hp : property) {
                 if (Mode.OUTBOUND.equals(hp.mode()) && hp.properties().length > 0) {
                     Map<String, Object> result = getHttpAttacker().attack(request, hp.scope(), hp.properties());
-                    graph.addResult(hp.scope().name(), result);
+                    graph.putResult(hp.scope().name(), result);
                 }
             }
         }

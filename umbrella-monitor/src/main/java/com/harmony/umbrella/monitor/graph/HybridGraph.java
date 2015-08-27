@@ -17,6 +17,7 @@ package com.harmony.umbrella.monitor.graph;
 
 import java.lang.reflect.Method;
 
+import com.harmony.umbrella.monitor.HttpMonitor.HttpGraph;
 import com.harmony.umbrella.monitor.MethodMonitor.MethodGraph;
 import com.harmony.umbrella.monitor.util.MonitorUtils;
 
@@ -27,17 +28,13 @@ import com.harmony.umbrella.monitor.util.MonitorUtils;
  * 
  * @author wuxii@foxmail.com
  */
-public class HybridGraph extends DefaultHttpGraph implements MethodGraph {
+public class HybridGraph extends AbstractGraph implements MethodGraph, HttpGraph {
 
-    /**
-     * 拦截方法的返回值
-     */
-    public static final String METHOD_RESULT = HybridGraph.class.getName() + ".METHOD_RESULT";
-    /**
-     * 拦截方法的请求参数
-     */
-    public static final String METHOD_ARGUMENT = HybridGraph.class.getName() + ".METHOD_ARGUMENT";
-
+    protected String httpMethod;
+    protected String remoteAddr;
+    protected String localAddr;
+    protected String queryString;
+    protected int status;
     protected Method method;
     protected Object target;
 
@@ -47,6 +44,51 @@ public class HybridGraph extends DefaultHttpGraph implements MethodGraph {
 
     public HybridGraph(String identifier) {
         super(identifier);
+    }
+
+    @Override
+    public String getHttpMethod() {
+        return httpMethod;
+    }
+
+    public void setHttpMethod(String httpMethod) {
+        this.httpMethod = httpMethod;
+    }
+
+    @Override
+    public String getRemoteAddr() {
+        return remoteAddr;
+    }
+
+    public void setRemoteAddr(String remoteAddr) {
+        this.remoteAddr = remoteAddr;
+    }
+
+    @Override
+    public String getLocalAddr() {
+        return localAddr;
+    }
+
+    public void setLocalAddr(String localAddr) {
+        this.localAddr = localAddr;
+    }
+
+    @Override
+    public String getQueryString() {
+        return queryString;
+    }
+
+    public void setQueryString(String queryString) {
+        this.queryString = queryString;
+    }
+
+    @Override
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
     }
 
     @Override
@@ -65,6 +107,26 @@ public class HybridGraph extends DefaultHttpGraph implements MethodGraph {
 
     public void setTarget(Object target) {
         this.target = target;
+    }
+
+    @Override
+    public Object[] getMethodArguments() {
+        return (Object[]) arguments.get(METHOD_ARGUMENT);
+    }
+
+    @Override
+    public void setMethodArgumets(Object... arguments) {
+        this.arguments.put(METHOD_ARGUMENT, arguments);
+    }
+
+    @Override
+    public Object getMethodResult() {
+        return result.get(METHOD_RESULT);
+    }
+
+    @Override
+    public void setMethodResult(Object result) {
+        this.result.put(METHOD_RESULT, result);
     }
 
     public boolean hasMethodGraph() {
@@ -96,4 +158,5 @@ public class HybridGraph extends DefaultHttpGraph implements MethodGraph {
         }
         return buffer.append("}").toString();
     }
+
 }

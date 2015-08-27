@@ -29,16 +29,7 @@ import com.harmony.umbrella.util.Formats.NullableDateFormat;
  * 
  * @author wuxii@foxmail.com
  */
-public abstract class AbstractGraph implements Graph {
-
-    /**
-     * 拦截方法的返回值
-     */
-    public static final String METHOD_RESULT = HybridGraph.class.getName() + ".METHOD_RESULT";
-    /**
-     * 拦截方法的请求参数
-     */
-    public static final String METHOD_ARGUMENT = HybridGraph.class.getName() + ".METHOD_ARGUMENT";
+public class AbstractGraph implements Graph {
 
     protected static final NullableDateFormat ndf = Formats.createDateFormat(Formats.FULL_DATE_PATTERN);
 
@@ -88,7 +79,7 @@ public abstract class AbstractGraph implements Graph {
 
     @Override
     public String getJsonResult() {
-        return Json.toJson(getResult());
+        return Json.toJson(getResults());
     }
 
     @Override
@@ -126,40 +117,29 @@ public abstract class AbstractGraph implements Graph {
         this.responseTime = responseTime;
     }
 
-    public void addArgument(String key, Object value) {
-        this.arguments.put(key, value);
+    @Override
+    public Object getArgument(String key) {
+        return arguments.get(key);
     }
 
-    public void addAllArgument(Map<String, Object> argument) {
-        if (argument != null && !argument.isEmpty()) {
-            this.arguments.putAll(argument);
-        }
+    @Override
+    public void putArgument(String key, Object value) {
+        arguments.put(key, value);
     }
 
-    public void addResult(String key, Object value) {
-        this.result.put(key, value);
+    @Override
+    public Object getResult(String key) {
+        return result.get(key);
     }
 
-    public void addAllResult(Map<String, Object> result) {
-        if (result != null && !result.isEmpty()) {
-            this.result.putAll(result);
-        }
+    @Override
+    public void putResult(String key, Object value) {
+        result.put(key, value);
     }
 
-    public Object getMethodResult() {
-        return result.get(METHOD_RESULT);
-    }
-
-    public Object[] getMethodArguments() {
-        return (Object[]) this.arguments.get(METHOD_ARGUMENT);
-    }
-
-    public void setMethodResult(Object result) {
-        this.result.put(METHOD_RESULT, result);
-    }
-
-    public void setMethodArguments(Object[] arguments) {
-        this.arguments.put(METHOD_ARGUMENT, arguments);
+    @Override
+    public Map<String, Object> getResults() {
+        return result;
     }
 
     @Override

@@ -15,8 +15,6 @@
  */
 package com.harmony.umbrella.monitor;
 
-import java.util.Map;
-
 import javax.servlet.Filter;
 
 /**
@@ -41,11 +39,6 @@ public interface HttpMonitor extends Monitor<String> {
      * http监视结果
      */
     public interface HttpGraph extends Graph {
-
-        /*
-         * @see com.harmony.umbrella.monitor.Graph#getResult()
-         */
-        Map<String, Object> getResult();
 
         /**
          * 对应请求的http方法 GET, POST, PUT, DELETE, HEAD, OPTIONS, TRACE

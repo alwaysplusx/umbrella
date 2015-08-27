@@ -34,6 +34,7 @@ import com.harmony.umbrella.ws.services.HelloService;
 import com.harmony.umbrella.ws.services.HelloWebService;
 
 /**
+ * -Xms2m -Xmx2m -XX:+HeapDumpOnOutOfMemoryError -XX:-UseGCOverheadLimit -verbose:gc -XX:+PrintGCDetails
  * @author wuxii@foxmail.com
  */
 public class ServerPublishTest {

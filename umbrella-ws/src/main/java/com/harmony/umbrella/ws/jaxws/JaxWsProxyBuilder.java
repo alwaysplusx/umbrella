@@ -41,13 +41,13 @@ import com.harmony.umbrella.ws.MetadataLoader;
  */
 public class JaxWsProxyBuilder {
 
-    // TODO JaxWsProxyFactoryBean's reflectionServiceFactory#serviceConfigurations add configuration all the time when call create method
-    private static final ThreadLocal<JaxWsProxyFactoryBean> factoryBeans = new ThreadLocal<JaxWsProxyFactoryBean>();
-    
-    private static final Logger log = LoggerFactory.getLogger(JaxWsProxyBuilder.class);
-
     public static final long DEFAULT_TIMEOUT = 1000 * 60 * 3;
 
+    // JaxWsProxyFactoryBean's reflectionServiceFactory#serviceConfigurations
+    // add configuration all the time when call create method
+    private final JaxWsProxyFactoryBean factoryBean = new JaxWsProxyFactoryBean();
+
+    private static final Logger log = LoggerFactory.getLogger(JaxWsProxyBuilder.class);
 
     private String address;
     private String username;
@@ -63,47 +63,35 @@ public class JaxWsProxyBuilder {
     private int synchronousTimeout = -1;
 
     public static JaxWsProxyBuilder create() {
-        refush();
         return new JaxWsProxyBuilder();
-    }
-
-    private static void refush() {
-        JaxWsProxyFactoryBean factoryBean;
-        if ((factoryBean = factoryBeans.get()) == null) {
-            factoryBeans.set(factoryBean = new JaxWsProxyFactoryBean());
-        }
-        factoryBean.getInFaultInterceptors().clear();
-        factoryBean.getInInterceptors().clear();
-        factoryBean.getOutFaultInterceptors().clear();
-        factoryBean.getOutInterceptors().clear();
     }
 
     /**
      * @see JaxWsProxyFactoryBean#getInInterceptors()
      */
     public List<Interceptor<? extends Message>> getInInterceptors() {
-        return factoryBeans.get().getInInterceptors();
+        return factoryBean.getInInterceptors();
     }
 
     /**
      * @see JaxWsProxyFactoryBean#getInFaultInterceptors()
      */
     public List<Interceptor<? extends Message>> getInFaultInterceptors() {
-        return factoryBeans.get().getInFaultInterceptors();
+        return factoryBean.getInFaultInterceptors();
     }
 
     /**
      * @see JaxWsProxyFactoryBean#getOutFaultInterceptors()
      */
     public List<Interceptor<? extends Message>> getOutFaultInterceptors() {
-        return factoryBeans.get().getOutFaultInterceptors();
+        return factoryBean.getOutFaultInterceptors();
     }
 
     /**
      * @see JaxWsProxyFactoryBean#getOutInterceptors()
      */
     public List<Interceptor<? extends Message>> getOutInterceptors() {
-        return factoryBeans.get().getOutInterceptors();
+        return factoryBean.getOutInterceptors();
     }
 
     public JaxWsProxyBuilder addInInterceptor(Interceptor<? extends Message> interceptor) {
@@ -130,7 +118,7 @@ public class JaxWsProxyBuilder {
      * 设置代理服务的地址，该操作发生在{@link #setMetadataLoader(MetadataLoader)} 之后则不在加载该属性
      * 
      * @param address
-     * @return
+     *            服务地址
      */
     public JaxWsProxyBuilder setAddress(String address) {
         this.address = address;
@@ -141,7 +129,7 @@ public class JaxWsProxyBuilder {
      * 设置代理服务的用户密码，该操作发生在{@link #setMetadataLoader(MetadataLoader)} 之后则不在加载该属性
      * 
      * @param username
-     * @return
+     *            用户名
      */
     public JaxWsProxyBuilder setUsername(String username) {
         this.username = username;
@@ -152,7 +140,7 @@ public class JaxWsProxyBuilder {
      * 设置代理服务的密码，该操作发生在{@link #setMetadataLoader(MetadataLoader)} 之后则不在加载该属性
      * 
      * @param password
-     * @return
+     *            用户密码
      */
     public JaxWsProxyBuilder setPassword(String password) {
         this.password = password;
@@ -163,7 +151,7 @@ public class JaxWsProxyBuilder {
      * 设置接收超时时间，单位毫秒
      * 
      * @param receiveTimeout
-     * @return
+     *            接收超时时间
      */
     public JaxWsProxyBuilder setReceiveTimeout(long receiveTimeout) {
         this.receiveTimeout = receiveTimeout;
@@ -174,7 +162,7 @@ public class JaxWsProxyBuilder {
      * 设置连接超时时间，单位毫秒
      * 
      * @param connectionTimeout
-     * @return
+     *            连接超时时间
      * @see HTTPConduit#set
      */
     public JaxWsProxyBuilder setConnectionTimeout(long connectionTimeout) {
@@ -186,7 +174,7 @@ public class JaxWsProxyBuilder {
      * 设置{@linkplain ClientImpl#setSynchronousTimeout(int)}
      * 
      * @param synchronousTimeout
-     * @return
+     *            线程同步等待时间
      */
     public JaxWsProxyBuilder setSynchronousTimeout(int synchronousTimeout) {
         this.synchronousTimeout = synchronousTimeout;
@@ -197,14 +185,14 @@ public class JaxWsProxyBuilder {
      * 创建代理服务，并创建前提供{@linkplain JaxWsProxyFactoryConfig}配置工厂属性
      * 
      * @param serviceClass
+     *            代理服务类型
      * @param proxyConfig
-     * @return
+     *            服务配置项
      */
     public <T> T build(Class<T> serviceClass, JaxWsProxyFactoryConfig proxyConfig) {
         Assert.notNull(serviceClass, "service class must be not null");
         Assert.isTrue(StringUtils.isNotBlank(address), "proxy address is null or blank");
 
-        JaxWsProxyFactoryBean factoryBean = factoryBeans.get();
         if (proxyConfig != null) {
             proxyConfig.config(factoryBean);
         }
@@ -212,7 +200,8 @@ public class JaxWsProxyBuilder {
         factoryBean.setAddress(address);
         factoryBean.setUsername(username);
         factoryBean.setPassword(password);
-
+        factoryBean.setServiceClass(serviceClass);
+        
         target = factoryBean.create(serviceClass);
 
         // 设置最长超时时间按
@@ -238,7 +227,8 @@ public class JaxWsProxyBuilder {
      * 创建代理服务
      * 
      * @param serviceClass
-     * @return
+     *            代理服务类型
+     * @return 代理服务
      */
     public <T> T build(Class<T> serviceClass) {
         return build(serviceClass, (JaxWsProxyFactoryConfig) null);
@@ -248,8 +238,10 @@ public class JaxWsProxyBuilder {
      * 创建代理服务. 并连接到指定的服务地址
      * 
      * @param serviceClass
+     *            代理服务类型
      * @param address
-     * @return
+     *            代理服务连接的地址
+     * @return 代理服务
      */
     public <T> T build(Class<T> serviceClass, String address) {
         this.address = address;
@@ -260,8 +252,9 @@ public class JaxWsProxyBuilder {
      * 创建代理服务. 并设置超时时间
      * 
      * @param serviceClass
+     *            代理服务类型
      * @param connectionTimeout
-     * @return
+     *            连接超时时间
      */
     public <T> T build(Class<T> serviceClass, long connectionTimeout) {
         this.connectionTimeout = connectionTimeout;
@@ -279,16 +272,18 @@ public class JaxWsProxyBuilder {
     @SuppressWarnings("unchecked")
     public <T> T unwrap(Class<T> cls) {
         if (ClientProxyFactoryBean.class.isAssignableFrom(cls)) {
-            return (T) factoryBeans.get();
+            return (T) factoryBean;
         }
         if (ClientProxy.class.isAssignableFrom(cls)) {
-            if (target == null)
+            if (target == null) {
                 throw new IllegalStateException("proxy not yet build");
+            }
             return (T) Proxy.getInvocationHandler(target);
         }
         if (Client.class.isAssignableFrom(cls)) {
-            if (target == null)
+            if (target == null) {
                 throw new IllegalStateException("proxy not yet build");
+            }
             return (T) ClientProxy.getClient(target);
         }
         throw new IllegalArgumentException("Unsupported unwrap target type [" + cls.getName() + "]");
@@ -298,10 +293,15 @@ public class JaxWsProxyBuilder {
      * 设置Http接收超时时间
      * 
      * @param target
+     *            待设置的代理对象
      * @param receiveTimeout
+     *            接收等待时间
      * @see HTTPClientPolicy#setReceiveTimeout(long)
      */
     public static void setReceiveTimeout(Object target, long receiveTimeout) {
+        if (receiveTimeout < 0) {
+            return;
+        }
         Client proxy = ClientProxy.getClient(target);
         HTTPConduit conduit = (HTTPConduit) proxy.getConduit();
         HTTPClientPolicy policy = new HTTPClientPolicy();
@@ -313,10 +313,15 @@ public class JaxWsProxyBuilder {
      * 设置Http连接超时时间
      * 
      * @param target
+     *            待设置的代理对象
      * @param connectionTimeout
+     *            连接等待时间
      * @see HTTPClientPolicy#setConnectionTimeout(long)
      */
     public static void setConnectionTimeout(Object target, long connectionTimeout) {
+        if (connectionTimeout < 0) {
+            return;
+        }
         Client proxy = ClientProxy.getClient(target);
         HTTPConduit conduit = (HTTPConduit) proxy.getConduit();
         HTTPClientPolicy policy = new HTTPClientPolicy();
@@ -328,10 +333,15 @@ public class JaxWsProxyBuilder {
      * 设置Client的同步等待时间
      * 
      * @param target
+     *            待设置的代理对象
      * @param synchronousTimeout
+     *            同步等待时间
      * @see ClientImpl#setSynchronousTimeout(int)
      */
     public static void setSynchronousTimeout(Object target, int synchronousTimeout) {
+        if (synchronousTimeout < 0) {
+            return;
+        }
         Client client = ClientProxy.getClient(target);
         if (client instanceof ClientImpl) {
             ClientImpl clientImpl = (ClientImpl) client;
@@ -347,6 +357,12 @@ public class JaxWsProxyBuilder {
      */
     public interface JaxWsProxyFactoryConfig {
 
+        /**
+         * 配置工厂
+         * 
+         * @param factoryBean
+         *            factory bean
+         */
         void config(JaxWsProxyFactoryBean factoryBean);
 
     }
