@@ -15,11 +15,19 @@
  */
 package com.harmony.umbrella.monitor.annotation;
 
+import static java.lang.annotation.ElementType.*;
+import static java.lang.annotation.RetentionPolicy.*;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
+
 /**
  * 需要监控的Http内部信息
  * 
  * @author wuxii@foxmail.com
  */
+@Target({ TYPE, METHOD })
+@Retention(RUNTIME)
 public @interface HttpProperty {
 
     /**
@@ -35,7 +43,7 @@ public @interface HttpProperty {
     /**
      * 何时拦截
      */
-    Mode mode() default Mode.INBOUND;
+    Mode mode() default Mode.INOUT;
 
     /**
      * 对应Http的作用域
@@ -57,17 +65,6 @@ public @interface HttpProperty {
          * 对应于{@linkplain javax.servlet.http.HttpServletRequest#getSession()}
          */
         SESSION
-    }
-
-    public enum Mode {
-        /**
-         * Http请求
-         */
-        INBOUND,
-        /**
-         * Http应答
-         */
-        OUTBOUND
     }
 
 }

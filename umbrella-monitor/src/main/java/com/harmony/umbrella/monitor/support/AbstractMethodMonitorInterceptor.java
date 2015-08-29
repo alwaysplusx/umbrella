@@ -16,10 +16,13 @@
 package com.harmony.umbrella.monitor.support;
 
 import java.lang.reflect.Method;
+import java.util.Map;
 
 import com.harmony.umbrella.monitor.AbstractMonitor;
 import com.harmony.umbrella.monitor.MethodMonitor;
 import com.harmony.umbrella.monitor.ResourceMatcher;
+import com.harmony.umbrella.monitor.annotation.Mode;
+import com.harmony.umbrella.monitor.graph.AbstractGraph;
 import com.harmony.umbrella.monitor.matcher.MethodExpressionMatcher;
 
 /**
@@ -67,10 +70,24 @@ public abstract class AbstractMethodMonitorInterceptor<IC> extends AbstractMonit
      */
     protected abstract Object process(IC ctx) throws Exception;
 
+    /**
+     * 上层入口， 监控的适配方法
+     */
     protected Object monitor(IC ctx) throws Exception {
         Method method = getMethod(ctx);
         return preMonitor(ctx) ? aroundMonitor(method, ctx) : process(ctx);
     }
+
+    /**
+     * 环绕Method执行监控
+     * 
+     * @param method
+     *            监控的方法， 唯一键
+     * @param ctx
+     *            执行的上下文
+     * @return 执行返回的结果
+     */
+    protected abstract Object aroundMonitor(Method method, IC ctx) throws Exception;
 
     /**
      * 监控的入口(拦截器的入口)
@@ -84,15 +101,18 @@ public abstract class AbstractMethodMonitorInterceptor<IC> extends AbstractMonit
         return method != null && !isMonitored(method);
     }
 
-    /**
-     * 环绕Method执行监控
-     * 
-     * @param method
-     *            监控的方法， 唯一键
-     * @param ctx
-     *            执行的上下文
-     * @return 执行返回的结果
-     */
-    protected abstract Object aroundMonitor(Method method, IC ctx) throws Exception;
+    protected void applyMethodRequestProperty(AbstractGraph graph, Object target, Method method) {
+        Map<String, Object> property = attackProperty(target, method, Mode.IN);
+        if (property != null && !property.isEmpty()) {
+            graph.putArgument(MethodGraph.METHOD_PROPERTY, property);
+        }
+    }
+
+    protected void applyMethodResponseProperty(AbstractGraph graph, Object target, Method method) {
+        Map<String, Object> property = attackProperty(target, method, Mode.OUT);
+        if (property != null && !property.isEmpty()) {
+            graph.putResult(MethodGraph.METHOD_PROPERTY, property);
+        }
+    }
 
 }

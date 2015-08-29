@@ -15,35 +15,24 @@
  */
 package com.harmony.umbrella.monitor.annotation;
 
-import static java.lang.annotation.ElementType.*;
-import static java.lang.annotation.RetentionPolicy.*;
-
-import java.lang.annotation.Retention;
-import java.lang.annotation.Target;
-
-import com.harmony.umbrella.monitor.Attacker;
-
 /**
- * 获取代理对象的内部数据
- * 
  * @author wuxii@foxmail.com
  */
-@Target({ TYPE, METHOD })
-@Retention(RUNTIME)
-public @interface InternalProperty {
-
+public enum Mode {
     /**
-     * 监控对象内容处理工具类
+     * 请求
      */
-    Class<? extends Attacker<?>> attacker();
-
+    IN,
     /**
-     * 监控的内部属性或无参get方法的名称
+     * 应答
      */
-    String[] properties() default {};
-
+    OUT,
     /**
-     * 何时拦截
+     * 请求+应答
      */
-    Mode mode() default Mode.IN;
+    INOUT;
+
+    public boolean inRange(Mode mode) {
+        return this == mode || INOUT == mode;
+    }
 }

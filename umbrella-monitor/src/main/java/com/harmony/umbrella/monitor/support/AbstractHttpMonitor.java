@@ -13,9 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.umbrella.monitor;
+package com.harmony.umbrella.monitor.support;
 
 import java.lang.reflect.Method;
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -24,10 +25,15 @@ import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.harmony.umbrella.monitor.AbstractMonitor;
+import com.harmony.umbrella.monitor.HttpAttacker;
+import com.harmony.umbrella.monitor.HttpMonitor;
+import com.harmony.umbrella.monitor.ResourceMatcher;
 import com.harmony.umbrella.monitor.annotation.HttpProperty;
-import com.harmony.umbrella.monitor.annotation.HttpProperty.Mode;
+import com.harmony.umbrella.monitor.annotation.Mode;
 import com.harmony.umbrella.monitor.graph.AbstractGraph;
 import com.harmony.umbrella.monitor.graph.DefaultHttpGraph;
+import com.harmony.umbrella.monitor.graph.HybridGraph;
 import com.harmony.umbrella.monitor.matcher.UrlPathMatcher;
 import com.harmony.umbrella.monitor.util.MonitorUtils;
 
@@ -96,6 +102,40 @@ public abstract class AbstractHttpMonitor<N> extends AbstractMonitor<String> imp
         this.resourceMatcher = resourceMatcher;
     }
 
+    protected void applyHttpRequestProperty(AbstractGraph graph, HttpServletRequest request, Method method) {
+        Map<String, Object> property = attackHttpProperty(request, method, Mode.IN);
+        if (property != null && !property.isEmpty()) {
+            graph.putArgument(HttpGraph.HTTP_PROPERTY, property);
+        }
+    }
+
+    protected void applyHttpResponseProperty(AbstractGraph graph, HttpServletRequest request, Method method) {
+        Map<String, Object> property = attackHttpProperty(request, method, Mode.OUT);
+        if (property != null && !property.isEmpty()) {
+            graph.putArgument(HttpGraph.HTTP_PROPERTY, property);
+        }
+    }
+
+    public Map<String, Object> attackHttpProperty(HttpServletRequest request, Method method, Mode mode) {
+        Map<String, Object> result = new HashMap<String, Object>();
+        HttpProperty[] properties = getMonitorProperty(method, HttpProperty.class);
+        if (properties != null && properties.length > 0) {
+            for (HttpProperty hp : properties) {
+                if (mode.inRange(hp.mode())) {
+                    result.put(hp.scope().name(), getHttpAttacker().attack(request, hp.scope(), hp.properties()));
+                }
+            }
+        }
+        return result;
+    }
+
+    protected void applyHttpRequestFeature(HybridGraph graph, HttpServletRequest request) {
+        graph.setHttpMethod(request.getMethod());
+        graph.setRemoteAddr(request.getRemoteAddr());
+        graph.setLocalAddr(request.getLocalAddr());
+        graph.setQueryString(request.getQueryString());
+    }
+
     protected void applyHttpRequestFeature(DefaultHttpGraph graph, HttpServletRequest request) {
         graph.setHttpMethod(request.getMethod());
         graph.setRemoteAddr(request.getRemoteAddr());
@@ -103,32 +143,12 @@ public abstract class AbstractHttpMonitor<N> extends AbstractMonitor<String> imp
         graph.setQueryString(request.getQueryString());
     }
 
-    protected void applyHttpResponseFeature(DefaultHttpGraph graph, HttpServletResponse response) {
+    protected void applyHttpResponseFeature(HybridGraph graph, HttpServletResponse response) {
         graph.setStatus(response.getStatus());
     }
 
-    protected void applyHttpRequestArgument(AbstractGraph graph, HttpServletRequest request, Method method) {
-        HttpProperty[] property = getMonitorProperty(method, HttpProperty.class);
-        if (property != null && property.length > 0) {
-            for (HttpProperty hp : property) {
-                if (Mode.INBOUND.equals(hp.mode()) && hp.properties().length > 0) {
-                    Map<String, Object> result = getHttpAttacker().attack(request, hp.scope(), hp.properties());
-                    graph.putArgument(hp.scope().name(), result);
-                }
-            }
-        }
-    }
-
-    protected void applyHttpResponseArgument(AbstractGraph graph, HttpServletRequest request, Method method) {
-        HttpProperty[] property = getMonitorProperty(method, HttpProperty.class);
-        if (property != null && property.length > 0) {
-            for (HttpProperty hp : property) {
-                if (Mode.OUTBOUND.equals(hp.mode()) && hp.properties().length > 0) {
-                    Map<String, Object> result = getHttpAttacker().attack(request, hp.scope(), hp.properties());
-                    graph.putResult(hp.scope().name(), result);
-                }
-            }
-        }
+    protected void applyHttpResponseFeature(DefaultHttpGraph graph, HttpServletResponse response) {
+        graph.setStatus(response.getStatus());
     }
 
     protected String getRequestId(HttpServletRequest request) {

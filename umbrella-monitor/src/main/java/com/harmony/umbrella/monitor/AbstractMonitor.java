@@ -17,7 +17,6 @@ package com.harmony.umbrella.monitor;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -27,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.harmony.umbrella.monitor.annotation.InternalProperty;
+import com.harmony.umbrella.monitor.annotation.Mode;
 import com.harmony.umbrella.monitor.annotation.Monitored;
 import com.harmony.umbrella.util.Assert;
 import com.harmony.umbrella.util.ReflectionUtils;
@@ -137,21 +137,18 @@ public abstract class AbstractMonitor<T> implements Monitor<T> {
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    public Map<String, Object> attackMonitorProperty(Object target, Method montiorMethod) {
-        Map<String, Object> result = null;
-        InternalProperty[] property = getMonitorProperty(montiorMethod, InternalProperty.class);
-        if (property != null && property.length > 0) {
-            result = new HashMap<String, Object>();
-            for (InternalProperty ip : property) {
-                Attacker attacker = getAttacker(ip.attacker());
-                result.putAll(attacker.attack(target, ip.properties()));
+    public Map<String, Object> attackProperty(Object target, Method method, Mode mode) {
+        Map<String, Object> result = new HashMap<String, Object>();
+        InternalProperty[] properties = getMonitorProperty(method, InternalProperty.class);
+        if (properties != null && properties.length > 0) {
+            for (InternalProperty ip : properties) {
+                if (mode.inRange(ip.mode())) {
+                    Attacker attacker = getAttacker(ip.attacker());
+                    result.putAll(attacker.attack(target, ip.properties()));
+                }
             }
         }
-        return result == null ? Collections.<String, Object> emptyMap() : result;
-    }
-
-    protected Attacker<?> getAttacker(Class<? extends Attacker<?>> attackerClass) {
-        return ReflectionUtils.instantiateClass(attackerClass);
+        return result;
     }
 
     /**
@@ -167,5 +164,9 @@ public abstract class AbstractMonitor<T> implements Monitor<T> {
     protected final <E extends Annotation> E[] getMonitorProperty(Method method, Class<E> propertyType) {
         Monitored ann = method.getAnnotation(Monitored.class);
         return (E[]) (ann == null ? null : propertyType == InternalProperty.class ? ann.internalProperties() : ann.httpProperties());
+    }
+
+    protected Attacker<?> getAttacker(Class<? extends Attacker<?>> attackerClass) {
+        return ReflectionUtils.instantiateClass(attackerClass);
     }
 }

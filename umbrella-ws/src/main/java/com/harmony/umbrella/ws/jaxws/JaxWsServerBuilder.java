@@ -47,7 +47,7 @@ public class JaxWsServerBuilder {
     /**
      * 创建服务的服务工厂
      */
-    private final JaxWsServerFactoryBean serverFactoryBean;
+    private final JaxWsServerFactoryBean serverFactoryBean = new JaxWsServerFactoryBean();
 
     /**
      * 服务的接口,可为空
@@ -80,7 +80,6 @@ public class JaxWsServerBuilder {
     private BeanFactoryInvoker beanFactoryInvoker;
 
     protected JaxWsServerBuilder() {
-        this.serverFactoryBean = new JaxWsServerFactoryBean();
     }
 
     public static JaxWsServerBuilder create() {

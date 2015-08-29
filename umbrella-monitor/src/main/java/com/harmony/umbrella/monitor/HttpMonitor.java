@@ -40,6 +40,8 @@ public interface HttpMonitor extends Monitor<String> {
      */
     public interface HttpGraph extends Graph {
 
+        String HTTP_PROPERTY = HttpGraph.class.getName() + ".HTTP_PROPERTY";
+
         /**
          * 对应请求的http方法 GET, POST, PUT, DELETE, HEAD, OPTIONS, TRACE
          * 
