@@ -16,7 +16,9 @@
 package com.harmony.umbrella.monitor;
 
 /**
- * 监控结果视图分析处理工具
+ * 监控结果视图分析处理工具，可用于处理分析结果信息，或将监控结果保存做二次处理等。
+ * <p>
+ * 监控的结果信息由{@linkplain Monitor}生成
  * 
  * @param <T>
  *            被解析的监控视图类型

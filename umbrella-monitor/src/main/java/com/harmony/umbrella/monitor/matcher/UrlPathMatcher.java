@@ -19,8 +19,16 @@ import com.harmony.umbrella.io.util.AntPathMatcher;
 import com.harmony.umbrella.monitor.ResourceMatcher;
 
 /**
+ * AntPathMatcher adapter
+ * 
  * @author wuxii@foxmail.com
+ * @see AntPathMatcher
  */
 public class UrlPathMatcher extends AntPathMatcher implements ResourceMatcher<String> {
+
+    @Override
+    public boolean match(String pattern, String path) {
+        return super.match(pattern, path);
+    }
 
 }

@@ -23,6 +23,7 @@ import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.harmony.umbrella.json.Json;
 import com.harmony.umbrella.monitor.Graph;
 import com.harmony.umbrella.util.Formats;
+import com.harmony.umbrella.util.StringUtils;
 import com.harmony.umbrella.util.Formats.NullableDateFormat;
 
 /**
@@ -30,7 +31,7 @@ import com.harmony.umbrella.util.Formats.NullableDateFormat;
  * 
  * @author wuxii@foxmail.com
  */
-public class AbstractGraph implements Graph {
+public abstract class AbstractGraph implements Graph {
 
     protected static final NullableDateFormat ndf = Formats.createDateFormat(Formats.FULL_DATE_PATTERN);
 
@@ -48,6 +49,12 @@ public class AbstractGraph implements Graph {
     protected Calendar responseTime;
 
     protected Exception exception;
+
+    protected String module;
+
+    protected String operator;
+
+    protected Level level;
 
     public AbstractGraph(String identifier) {
         this.identifier = identifier;
@@ -96,6 +103,33 @@ public class AbstractGraph implements Graph {
     @Override
     public Exception getException() {
         return exception;
+    }
+
+    @Override
+    public String getModule() {
+        return module;
+    }
+
+    public void setModule(String module) {
+        this.module = module;
+    }
+
+    @Override
+    public String getOperator() {
+        return operator;
+    }
+
+    @Override
+    public Level getLevel() {
+        return level;
+    }
+
+    public void setLevel(Level level) {
+        this.level = level;
+    }
+
+    public void setOperator(String operator) {
+        this.operator = operator;
     }
 
     public void setException(Exception exception) {
@@ -147,8 +181,17 @@ public class AbstractGraph implements Graph {
     public String getDescription() {
         StringBuilder buffer = new StringBuilder();
         buffer.append("{\n")//
-                .append("  id:").append(identifier).append("\n")//
-                .append("  requestTime:").append(ndf.format(requestTime)).append("\n")//
+                .append("  id:").append(identifier).append("\n");//
+        if (StringUtils.isNotBlank(module)) {
+            buffer.append("  module:").append(module);
+        }
+        if (StringUtils.isNotBlank(operator)) {
+            buffer.append("  operator:").append(operator);
+        }
+        if (level != null) {
+            buffer.append("  level:").append(level);
+        }
+        buffer.append("  requestTime:").append(ndf.format(requestTime)).append("\n")//
                 .append("  use:").append(use()).append("\n")//
                 .append("  arguments:").append(getJsonArguments()).append("\n")//
                 .append("  result:").append(getJsonResult()).append("\n")//

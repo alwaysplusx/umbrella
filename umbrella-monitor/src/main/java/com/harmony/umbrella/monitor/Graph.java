@@ -33,6 +33,27 @@ public interface Graph {
     String getIdentifier();
 
     /**
+     * 监控的模块
+     * 
+     * @return 模块名称
+     */
+    String getModule();
+
+    /**
+     * 监控的操作
+     * 
+     * @return 操作名称
+     */
+    String getOperator();
+
+    /**
+     * 监控的级别
+     * 
+     * @return 监控级
+     */
+    Level getLevel();
+
+    /**
      * 请求时间, 默认为创建Graph对象时间
      * 
      * @return 请求时间
@@ -140,4 +161,15 @@ public interface Graph {
      */
     String getDescription();
 
+    /**
+     * 监控级别
+     * 
+     * @author wuxii@foxmail.com
+     */
+    public enum Level {
+        TRACE, //
+        INFO, //
+        WARN, //
+        ERROR
+    }
 }

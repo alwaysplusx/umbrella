@@ -31,6 +31,7 @@ import com.harmony.umbrella.monitor.HttpGraph;
 import com.harmony.umbrella.monitor.HttpMonitor;
 import com.harmony.umbrella.monitor.ResourceMatcher;
 import com.harmony.umbrella.monitor.annotation.HttpProperty;
+import com.harmony.umbrella.monitor.annotation.HttpProperty.Scope;
 import com.harmony.umbrella.monitor.annotation.Mode;
 import com.harmony.umbrella.monitor.graph.AbstractGraph;
 import com.harmony.umbrella.monitor.graph.DefaultHttpGraph;
@@ -117,19 +118,35 @@ public abstract class AbstractHttpMonitor<N> extends AbstractMonitor<String> imp
         }
     }
 
+    /**
+     * 通过方法上的注解获取request中的属性
+     * 
+     * @param request
+     *            http request
+     */
     public Map<String, Object> attackHttpProperty(HttpServletRequest request, Method method, Mode mode) {
         Map<String, Object> result = new HashMap<String, Object>();
         HttpProperty[] properties = getMonitorProperty(method, HttpProperty.class);
         if (properties != null && properties.length > 0) {
             for (HttpProperty hp : properties) {
-                if (mode.inRange(hp.mode())) {
-                    result.put(hp.scope().name(), getHttpAttacker().attack(request, hp.scope(), hp.properties()));
+                Scope scope = hp.scope();
+                if (!result.containsKey(scope.name()) && mode.inRange(hp.mode())) {
+                    Map<String, Object> property = getHttpAttacker().attack(request, scope, hp.properties());
+                    result.put(scope.name(), property);
                 }
             }
         }
         return result;
     }
 
+    /**
+     * 设置http请求属性, http method, remote address, local address
+     * 
+     * @param graph
+     *            graph
+     * @param request
+     *            http request
+     */
     protected void applyHttpRequestFeature(HybridGraph graph, HttpServletRequest request) {
         graph.setHttpMethod(request.getMethod());
         graph.setRemoteAddr(request.getRemoteAddr());

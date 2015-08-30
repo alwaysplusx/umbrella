@@ -31,7 +31,7 @@ import java.lang.annotation.Target;
 public @interface HttpProperty {
 
     /**
-     * http的参数作用域
+     * http的参数作用域, 一个方法上至多配置一个scope，如果有重复的则最先配置的生效
      */
     Scope scope() default Scope.PARAMETER;
 
@@ -43,7 +43,7 @@ public @interface HttpProperty {
     /**
      * 何时拦截
      */
-    Mode mode() default Mode.INOUT;
+    Mode mode() default Mode.IN;
 
     /**
      * 对应Http的作用域

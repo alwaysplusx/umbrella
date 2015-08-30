@@ -42,18 +42,24 @@ public interface MethodGraph extends Graph {
     Object getTarget();
 
     /**
-     * 方法
+     * 拦截的方法
      * 
      * @return method
      */
     Method getMethod();
 
+    /**
+     * 拦截方法的请求参数
+     * 
+     * @return 方法的参数
+     */
     Object[] getMethodArguments();
 
-    void setMethodArgumets(Object... arguments);
-
+    /**
+     * 方法的返回值
+     * 
+     * @return 返回值
+     */
     Object getMethodResult();
-
-    void setMethodResult(Object result);
 
 }

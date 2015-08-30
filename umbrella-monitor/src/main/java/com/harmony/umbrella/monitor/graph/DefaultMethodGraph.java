@@ -64,12 +64,10 @@ public class DefaultMethodGraph extends AbstractGraph implements MethodGraph {
         return (Object[]) this.arguments.get(METHOD_ARGUMENT);
     }
 
-    @Override
     public void setMethodResult(Object result) {
         this.result.put(METHOD_RESULT, result);
     }
 
-    @Override
     public void setMethodArgumets(Object... arguments) {
         this.arguments.put(METHOD_ARGUMENT, arguments);
     }

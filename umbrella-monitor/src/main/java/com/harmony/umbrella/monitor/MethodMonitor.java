@@ -28,7 +28,7 @@ import com.harmony.umbrella.monitor.matcher.MethodExpressionMatcher;
  * 该表达式解析如 {@linkplain MethodExpressionMatcher}
  * 
  * @author wuxii@foxmail.com
- * 
+ * @see Monitor
  */
 public interface MethodMonitor extends Monitor<Method> {
 

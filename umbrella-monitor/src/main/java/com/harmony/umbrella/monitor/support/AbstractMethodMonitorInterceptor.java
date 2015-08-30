@@ -103,6 +103,16 @@ public abstract class AbstractMethodMonitorInterceptor<IC> extends AbstractMonit
         return method != null && !isMonitored(method);
     }
 
+    /**
+     * 通过方法的信息获取监控对象的内部信息，并设置在graph上
+     * 
+     * @param graph
+     *            监控结果视图
+     * @param target
+     *            监控对象
+     * @param method
+     *            监控的方法
+     */
     protected void applyMethodRequestProperty(AbstractGraph graph, Object target, Method method) {
         Map<String, Object> property = new HashMap<String, Object>();
         property.putAll(attackClassProperty(target, Mode.IN));
@@ -112,6 +122,16 @@ public abstract class AbstractMethodMonitorInterceptor<IC> extends AbstractMonit
         }
     }
 
+    /**
+     * 通过方法信息获取监控对象的内部信息，并设置在graph上
+     * 
+     * @param graph
+     *            监控结果视图
+     * @param target
+     *            监控对象
+     * @param method
+     *            监控的方法
+     */
     protected void applyMethodResponseProperty(AbstractGraph graph, Object target, Method method) {
         Map<String, Object> property = new HashMap<String, Object>();
         property.putAll(attackClassProperty(target, Mode.OUT));

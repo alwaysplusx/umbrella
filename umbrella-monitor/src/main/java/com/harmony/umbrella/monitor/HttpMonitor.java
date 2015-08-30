@@ -15,13 +15,11 @@
  */
 package com.harmony.umbrella.monitor;
 
-import javax.servlet.Filter;
-
 /**
  * http请求监视
  * 
  * @author wuxii@foxmail.com
- * @see Filter
+ * @see Monitor
  */
 public interface HttpMonitor extends Monitor<String> {
 

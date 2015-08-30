@@ -16,10 +16,13 @@
 package com.harmony.umbrella.monitor;
 
 /**
- * http监视结果
+ * http监控结果，包含http请求的参数，url, 客户端地址等信息
  */
 public interface HttpGraph extends Graph {
 
+    /**
+     * 监控{@link javax.servlet.http.HttpServletRequest}中对于的属性key
+     */
     String HTTP_PROPERTY = HttpGraph.class.getName() + ".HTTP_PROPERTY";
 
     /**
