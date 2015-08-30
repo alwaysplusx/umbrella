@@ -15,7 +15,7 @@
  */
 package com.harmony.umbrella.monitor.graph;
 
-import com.harmony.umbrella.monitor.HttpMonitor.HttpGraph;
+import com.harmony.umbrella.monitor.HttpGraph;
 
 /**
  * 基于http请求监控的结果视图

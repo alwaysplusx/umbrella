@@ -16,9 +16,11 @@
 package com.harmony.umbrella.monitor.support;
 
 import java.lang.reflect.Method;
+import java.util.HashMap;
 import java.util.Map;
 
 import com.harmony.umbrella.monitor.AbstractMonitor;
+import com.harmony.umbrella.monitor.MethodGraph;
 import com.harmony.umbrella.monitor.MethodMonitor;
 import com.harmony.umbrella.monitor.ResourceMatcher;
 import com.harmony.umbrella.monitor.annotation.Mode;
@@ -102,15 +104,19 @@ public abstract class AbstractMethodMonitorInterceptor<IC> extends AbstractMonit
     }
 
     protected void applyMethodRequestProperty(AbstractGraph graph, Object target, Method method) {
-        Map<String, Object> property = attackProperty(target, method, Mode.IN);
-        if (property != null && !property.isEmpty()) {
+        Map<String, Object> property = new HashMap<String, Object>();
+        property.putAll(attackClassProperty(target, Mode.IN));
+        property.putAll(attackMethodProperty(target, method, Mode.IN));
+        if (!property.isEmpty()) {
             graph.putArgument(MethodGraph.METHOD_PROPERTY, property);
         }
     }
 
     protected void applyMethodResponseProperty(AbstractGraph graph, Object target, Method method) {
-        Map<String, Object> property = attackProperty(target, method, Mode.OUT);
-        if (property != null && !property.isEmpty()) {
+        Map<String, Object> property = new HashMap<String, Object>();
+        property.putAll(attackClassProperty(target, Mode.OUT));
+        property.putAll(attackMethodProperty(target, method, Mode.OUT));
+        if (!property.isEmpty()) {
             graph.putResult(MethodGraph.METHOD_PROPERTY, property);
         }
     }

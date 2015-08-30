@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 
 import com.harmony.umbrella.monitor.AbstractMonitor;
 import com.harmony.umbrella.monitor.HttpAttacker;
+import com.harmony.umbrella.monitor.HttpGraph;
 import com.harmony.umbrella.monitor.HttpMonitor;
 import com.harmony.umbrella.monitor.ResourceMatcher;
 import com.harmony.umbrella.monitor.annotation.HttpProperty;

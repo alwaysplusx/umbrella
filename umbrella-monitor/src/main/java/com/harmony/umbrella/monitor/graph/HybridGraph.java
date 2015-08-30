@@ -17,8 +17,8 @@ package com.harmony.umbrella.monitor.graph;
 
 import java.lang.reflect.Method;
 
-import com.harmony.umbrella.monitor.HttpMonitor.HttpGraph;
-import com.harmony.umbrella.monitor.MethodMonitor.MethodGraph;
+import com.harmony.umbrella.monitor.HttpGraph;
+import com.harmony.umbrella.monitor.MethodGraph;
 import com.harmony.umbrella.monitor.util.MonitorUtils;
 
 /**

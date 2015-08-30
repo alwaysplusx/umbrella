@@ -17,6 +17,7 @@ package com.harmony.umbrella.monitor;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -136,19 +137,29 @@ public abstract class AbstractMonitor<T> implements Monitor<T> {
         resourceList.clear();
     }
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
-    public Map<String, Object> attackProperty(Object target, Method method, Mode mode) {
-        Map<String, Object> result = new HashMap<String, Object>();
+    public Map<String, Object> attackMethodProperty(Object target, Method method, Mode mode) {
         InternalProperty[] properties = getMonitorProperty(method, InternalProperty.class);
+        return attackProperty(target, properties, mode);
+    }
+
+    public Map<String, Object> attackClassProperty(Object target, Mode mode) {
+        InternalProperty[] properties = getMonitorProperty(target.getClass(), InternalProperty.class);
+        return attackProperty(target, properties, mode);
+    }
+
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    public Map<String, Object> attackProperty(Object target, InternalProperty[] properties, Mode mode) {
+        Map<String, Object> result = null;
         if (properties != null && properties.length > 0) {
-            for (InternalProperty ip : properties) {
-                if (mode.inRange(ip.mode())) {
-                    Attacker attacker = getAttacker(ip.attacker());
-                    result.putAll(attacker.attack(target, ip.properties()));
+            result = new HashMap<String, Object>();
+            for (InternalProperty internalProperty : properties) {
+                if (mode.inRange(internalProperty.mode())) {
+                    Attacker attacker = getAttacker(internalProperty.attacker());
+                    result.putAll(attacker.attack(target, internalProperty.properties()));
                 }
             }
         }
-        return result;
+        return result == null ? Collections.<String, Object> emptyMap() : result;
     }
 
     /**
@@ -163,6 +174,12 @@ public abstract class AbstractMonitor<T> implements Monitor<T> {
     @SuppressWarnings("unchecked")
     protected final <E extends Annotation> E[] getMonitorProperty(Method method, Class<E> propertyType) {
         Monitored ann = method.getAnnotation(Monitored.class);
+        return (E[]) (ann == null ? null : propertyType == InternalProperty.class ? ann.internalProperties() : ann.httpProperties());
+    }
+
+    @SuppressWarnings("unchecked")
+    protected final <E extends Annotation> E[] getMonitorProperty(Class<?> clazz, Class<E> propertyType) {
+        Monitored ann = clazz.getAnnotation(Monitored.class);
         return (E[]) (ann == null ? null : propertyType == InternalProperty.class ? ann.internalProperties() : ann.httpProperties());
     }
 

@@ -19,6 +19,7 @@ import java.util.Calendar;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.harmony.umbrella.json.Json;
 import com.harmony.umbrella.monitor.Graph;
 import com.harmony.umbrella.util.Formats;
@@ -79,12 +80,12 @@ public class AbstractGraph implements Graph {
 
     @Override
     public String getJsonResult() {
-        return Json.toJson(getResults());
+        return Json.toJson(getResults(), SerializerFeature.WriteMapNullValue);
     }
 
     @Override
     public String getJsonArguments() {
-        return Json.toJson(getArguments());
+        return Json.toJson(getArguments(), SerializerFeature.WriteMapNullValue);
     }
 
     @Override
