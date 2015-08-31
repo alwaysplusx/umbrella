@@ -198,6 +198,7 @@ public abstract class AbstractMonitor<T> implements Monitor<T> {
      *            监控的环节
      * @return 监控的内部属性
      */
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     public Map<String, Object> attackProperty(Object target, InternalProperty[] properties, Mode mode) {
         Map<String, Object> result = null;
         if (properties != null && properties.length > 0) {
@@ -249,7 +250,8 @@ public abstract class AbstractMonitor<T> implements Monitor<T> {
      *            attacker class
      * @return attacker instance
      */
-    protected Attacker getAttacker(Class<? extends Attacker> attackerClass) {
+    @SuppressWarnings("rawtypes")
+    protected Attacker<?> getAttacker(Class<? extends Attacker> attackerClass) {
         return ReflectionUtils.instantiateClass(attackerClass);
     }
 }

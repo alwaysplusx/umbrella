@@ -35,7 +35,7 @@ public @interface InternalProperty {
     /**
      * 监控对象内容处理工具类
      */
-    Class<? extends Attacker> attacker();
+    Class<? extends Attacker<?>> attacker();
 
     /**
      * 监控的内部属性或无参get方法的名称

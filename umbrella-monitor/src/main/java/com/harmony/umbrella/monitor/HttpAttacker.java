@@ -26,7 +26,7 @@ import com.harmony.umbrella.monitor.annotation.HttpProperty.Scope;
  * 
  * @author wuxii@foxmail.com
  */
-public interface HttpAttacker extends Attacker {
+public interface HttpAttacker extends Attacker<HttpServletRequest> {
 
     /**
      * 根据scop以及属性的名称，获取Http内部的信息
