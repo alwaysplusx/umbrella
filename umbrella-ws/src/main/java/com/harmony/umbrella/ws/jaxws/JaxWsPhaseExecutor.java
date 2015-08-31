@@ -54,6 +54,7 @@ public abstract class JaxWsPhaseExecutor implements JaxWsExecutor {
     @Override
     public <T> T execute(Context context, Class<T> resultType, PhaseVisitor... visitors) {
         T result = null;
+        Exception ex = null;
         try {
             if (!doBefore(context, visitors)) {
                 return null;
@@ -61,10 +62,13 @@ public abstract class JaxWsPhaseExecutor implements JaxWsExecutor {
             result = executeQuite(context, resultType);
             doCompletion(result, context, visitors);
         } catch (WebServiceAbortException e) {
+            ex = e;
             doAbort((WebServiceAbortException) e, context, visitors);
         } catch (Exception e) {
-            doThrowing(e, context, visitors);
+            doThrowing(ex = e, context, visitors);
             throwOrHide(e);
+        } finally {
+            doFinally(result, ex, context, visitors);
         }
         return result;
     }
@@ -159,6 +163,14 @@ public abstract class JaxWsPhaseExecutor implements JaxWsExecutor {
         if (visitors != null && visitors.length > 0) {
             for (PhaseVisitor visitor : visitors) {
                 visitor.visitThrowing(throwable, context);
+            }
+        }
+    }
+
+    protected void doFinally(Object result, Exception throwable, Context context, PhaseVisitor[] visitors) {
+        if (visitors != null && visitors.length > 0) {
+            for (PhaseVisitor visitor : visitors) {
+                visitor.visitFinally(result, throwable, context);
             }
         }
     }

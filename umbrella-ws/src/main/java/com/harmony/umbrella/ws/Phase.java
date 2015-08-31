@@ -58,6 +58,14 @@ public enum Phase {
         public String render() {
             return null;
         }
+    },
+    FINALLY {
+
+        @Override
+        public String render() {
+            return null;
+        }
+
     };
 
     /**

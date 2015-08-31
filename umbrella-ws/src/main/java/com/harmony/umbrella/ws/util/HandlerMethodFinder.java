@@ -241,6 +241,14 @@ public class HandlerMethodFinder {
                 return isAssignable(types.toArray(new Class[types.size()]), handleParamTypes);
             }
             return true;
+        case FINALLY:
+            types.add(0, Exception.class);
+            types.add(1, getReturnType(serviceMethod));
+            if (!isAssignable(types.toArray(new Class[types.size()]), handleParamTypes)) {
+                types.add(Map.class);
+                return isAssignable(types.toArray(new Class[types.size()]), handleParamTypes);
+            }
+            return true;
         }
         return false;
     }

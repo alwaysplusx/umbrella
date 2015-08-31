@@ -22,7 +22,7 @@ import com.harmony.umbrella.ws.WebServiceAbortException;
 /**
  * @author wuxii@foxmail.com
  */
-public class AbstractPhaseVisitor implements PhaseVisitor {
+public abstract class AbstractPhaseVisitor implements PhaseVisitor {
 
     private static final long serialVersionUID = 1L;
 
@@ -41,6 +41,10 @@ public class AbstractPhaseVisitor implements PhaseVisitor {
 
     @Override
     public void visitThrowing(Throwable throwable, Context context) {
+    }
+
+    @Override
+    public void visitFinally(Object result, Throwable throwable, Context context) {
     }
 
 }

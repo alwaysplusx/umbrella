@@ -38,7 +38,7 @@ public class PhaseValidationVisitor extends AbstractPhaseVisitor {
     private static final long serialVersionUID = 3905871275755920058L;
 
     private final static Logger log = LoggerFactory.getLogger(PhaseValidationVisitor.class);
-    
+
     protected static final String defaultPackage = Constants.DEFAULT_PACKAGE;
 
     private final HandlerMethodFinder finder;
@@ -57,7 +57,7 @@ public class PhaseValidationVisitor extends AbstractPhaseVisitor {
         this.beanFactory = beanFactory;
         this.finder = new HandlerMethodFinder(scanPackage);
     }
-    
+
     @Override
     public boolean visitBefore(Context context) throws WebServiceAbortException {
         try {
@@ -135,6 +135,29 @@ public class PhaseValidationVisitor extends AbstractPhaseVisitor {
                     if (invoker.isEndWithMap()) {
                         invoker.setContextMap(context.getContextMap());
                     }
+                    invoker.setThrowable(throwable);
+                    Object bean = beanFactory.getBean(invoker.getHandlerClass());
+                    invoker.invokeHandleMethod(bean, context.getParameters());
+                } catch (InvokeException e) {
+                    log.error("执行handleMethodInvoker[{}]方法失败", invoker, e);
+                    return;
+                }
+            }
+        } catch (NoSuchMethodException e) {
+            log.error("{}方法不存在", context, e);
+        }
+    }
+
+    @Override
+    public void visitFinally(Object result, Throwable throwable, Context context) {
+        try {
+            HandleMethodInvoker[] invokers = finder.findHandleMethods(context.getMethod(), FINALLY);
+            for (HandleMethodInvoker invoker : invokers) {
+                try {
+                    if (invoker.isEndWithMap()) {
+                        invoker.setContextMap(context.getContextMap());
+                    }
+                    invoker.setResult(result);
                     invoker.setThrowable(throwable);
                     Object bean = beanFactory.getBean(invoker.getHandlerClass());
                     invoker.invokeHandleMethod(bean, context.getParameters());

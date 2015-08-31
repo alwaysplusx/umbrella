@@ -29,6 +29,8 @@ import com.harmony.umbrella.ws.PhaseVisitor;
  */
 public interface JaxWsExecutor {
 
+    public static final String WS_CONTEXT_GRAPH = JaxWsExecutor.class.getName() + ".WS_CONTEXT_GRAPH";
+
     /**
      * 执行交互, 提供visitor的各时段的访问
      * 

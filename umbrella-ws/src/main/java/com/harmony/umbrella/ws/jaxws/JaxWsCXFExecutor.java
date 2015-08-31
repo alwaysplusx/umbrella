@@ -41,8 +41,6 @@ import com.harmony.umbrella.ws.util.JaxWsInvoker;
  */
 public class JaxWsCXFExecutor extends JaxWsPhaseExecutor {
 
-    public static final String WS_CONTEXT_GRAPH = JaxWsCXFExecutor.class.getName() + ".WS_CONTEXT_GRAPH";
-
     private static final Logger log = LoggerFactory.getLogger(JaxWsCXFExecutor.class);
 
     /**
@@ -84,7 +82,7 @@ public class JaxWsCXFExecutor extends JaxWsPhaseExecutor {
             throw new WebServiceException("执行交互失败", Exceptions.getRootCause(e));
         } finally {
             if (graph != null) {
-                LOG.info("执行情况概要如下:{}", graph);
+                LOG.debug("执行情况概要如下:{}", graph);
                 context.put(WS_CONTEXT_GRAPH, graph);
             }
         }

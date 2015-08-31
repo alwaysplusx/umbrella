@@ -65,4 +65,9 @@ public interface PhaseVisitor extends Serializable {
      */
     void visitThrowing(Throwable throwable, Context context);
 
+    /**
+     * 
+     */
+    void visitFinally(Object result, Throwable throwable, Context context);
+
 }
