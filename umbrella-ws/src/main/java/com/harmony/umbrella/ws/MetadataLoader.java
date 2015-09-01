@@ -27,7 +27,7 @@ public interface MetadataLoader {
      * 根据指定的serviceClass加载指定的元数据
      * 
      * @param serviceClass
-     * @return
+     * @return {@linkplain Metadata}
      */
     Metadata loadMetadata(Class<?> serviceClass);
 

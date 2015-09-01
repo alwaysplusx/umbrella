@@ -183,13 +183,13 @@ public abstract class AbstractGraph implements Graph {
         buffer.append("{\n")//
                 .append("  id:").append(identifier).append("\n");//
         if (StringUtils.isNotBlank(module)) {
-            buffer.append("  module:").append(module);
+            buffer.append("  module:").append(module).append("\n");
         }
         if (StringUtils.isNotBlank(operator)) {
-            buffer.append("  operator:").append(operator);
+            buffer.append("  operator:").append(operator).append("\n");
         }
         if (level != null) {
-            buffer.append("  level:").append(level);
+            buffer.append("  level:").append(level).append("\n");
         }
         buffer.append("  requestTime:").append(ndf.format(requestTime)).append("\n")//
                 .append("  use:").append(use()).append("\n")//

@@ -28,6 +28,8 @@ import com.harmony.umbrella.util.StringUtils;
 import com.harmony.umbrella.ws.Context;
 
 /**
+ * {@linkplain Context}基础实现
+ * 
  * @author wuxii@foxmail.com
  */
 public class SimpleContext implements Context, Serializable {

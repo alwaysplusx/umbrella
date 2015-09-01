@@ -75,6 +75,8 @@ public interface Metadata {
      * 设置客户端等待时间
      *
      * @return 等待时间
+     * @see com.harmony.umbrella.ws.jaxws.JaxWsProxyBuilder#setSynchronousTimeout(Object,
+     *      int)
      */
     int getSynchronousTimeout();
 

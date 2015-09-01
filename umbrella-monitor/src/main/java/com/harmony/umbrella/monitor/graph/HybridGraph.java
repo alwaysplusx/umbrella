@@ -145,13 +145,13 @@ public class HybridGraph extends AbstractGraph implements MethodGraph, HttpGraph
             buffer.append("  method:").append(MonitorUtils.methodId(method)).append("\n");
         }
         if (StringUtils.isNotBlank(module)) {
-            buffer.append("  module:").append(module);
+            buffer.append("  module:").append(module).append("\n");
         }
         if (StringUtils.isNotBlank(operator)) {
-            buffer.append("  operator:").append(operator);
+            buffer.append("  operator:").append(operator).append("\n");
         }
         if (level != null) {
-            buffer.append("  level:").append(level);
+            buffer.append("  level:").append(level).append("\n");
         }
         buffer.append("  remoteAddr:").append(remoteAddr).append("\n")//
                 .append("  httpMethod:").append(httpMethod).append("\n")//

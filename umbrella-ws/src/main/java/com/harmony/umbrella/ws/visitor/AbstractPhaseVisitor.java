@@ -24,8 +24,6 @@ import com.harmony.umbrella.ws.WebServiceAbortException;
  */
 public abstract class AbstractPhaseVisitor implements PhaseVisitor {
 
-    private static final long serialVersionUID = 1L;
-
     @Override
     public boolean visitBefore(Context context) throws WebServiceAbortException {
         return true;

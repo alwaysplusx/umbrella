@@ -182,10 +182,10 @@ public abstract class AbstractMonitor<T> implements Monitor<T> {
      *            监控的环节
      * @return 被监控对象的内部属性
      */
-    public Map<String, Object> attackClassProperty(Object target, Mode mode) {
+    /*public Map<String, Object> attackClassProperty(Object target, Mode mode) {
         InternalProperty[] properties = getMonitorProperty(target.getClass(), InternalProperty.class);
         return attackProperty(target, properties, mode);
-    }
+    }*/
 
     /**
      * 根据注解信息获取监控对象的信息

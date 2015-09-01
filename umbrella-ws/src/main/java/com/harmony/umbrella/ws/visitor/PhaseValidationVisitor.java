@@ -17,6 +17,8 @@ package com.harmony.umbrella.ws.visitor;
 
 import static com.harmony.umbrella.ws.Phase.*;
 
+import java.io.Serializable;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,7 +35,7 @@ import com.harmony.umbrella.ws.util.HandlerMethodFinder;
 /**
  * @author wuxii@foxmail.com
  */
-public class PhaseValidationVisitor extends AbstractPhaseVisitor {
+public class PhaseValidationVisitor extends AbstractPhaseVisitor implements Serializable {
 
     private static final long serialVersionUID = 3905871275755920058L;
 

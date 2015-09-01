@@ -115,7 +115,7 @@ public abstract class AbstractMethodMonitorInterceptor<IC> extends AbstractMonit
      */
     protected void applyMethodRequestProperty(AbstractGraph graph, Object target, Method method) {
         Map<String, Object> property = new HashMap<String, Object>();
-        property.putAll(attackClassProperty(target, Mode.IN));
+        // property.putAll(attackClassProperty(target, Mode.IN));
         property.putAll(attackMethodProperty(target, method, Mode.IN));
         if (!property.isEmpty()) {
             graph.putArgument(MethodGraph.METHOD_PROPERTY, property);
@@ -134,7 +134,7 @@ public abstract class AbstractMethodMonitorInterceptor<IC> extends AbstractMonit
      */
     protected void applyMethodResponseProperty(AbstractGraph graph, Object target, Method method) {
         Map<String, Object> property = new HashMap<String, Object>();
-        property.putAll(attackClassProperty(target, Mode.OUT));
+        // property.putAll(attackClassProperty(target, Mode.OUT));
         property.putAll(attackMethodProperty(target, method, Mode.OUT));
         if (!property.isEmpty()) {
             graph.putResult(MethodGraph.METHOD_PROPERTY, property);

@@ -57,7 +57,6 @@ public class JaxWsExecutorAndPhaseValTest {
         SimpleContext context = new SimpleContext(HelloService.class, "sayHi", new Object[] { "wuxii" });
         context.setAddress(address);
         executor.execute(context, new AbstractPhaseVisitor() {
-            private static final long serialVersionUID = 1L;
 
             @Override
             public void visitFinally(Object result, Throwable throwable, Context context) {

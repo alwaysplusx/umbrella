@@ -15,14 +15,12 @@
  */
 package com.harmony.umbrella.ws;
 
-import java.io.Serializable;
-
 /**
  * 执行的各个周期的访问者.
  * 
  * @author wuxii@foxmail.com
  */
-public interface PhaseVisitor extends Serializable {
+public interface PhaseVisitor {
 
     /**
      * 在执行前被调用
@@ -66,7 +64,14 @@ public interface PhaseVisitor extends Serializable {
     void visitThrowing(Throwable throwable, Context context);
 
     /**
+     * 在调用的finally块中被调用
      * 
+     * @param result
+     *            执行结果
+     * @param throwable
+     *            执行异常内容， 如果执行没有异常则为null
+     * @param context
+     *            执行上下文
      */
     void visitFinally(Object result, Throwable throwable, Context context);
 

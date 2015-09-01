@@ -56,20 +56,28 @@ public abstract class AbstractHttpMonitor<N> extends AbstractMonitor<String> imp
         return preMonitor(resourceId) ? aroundMonitor(resourceId, request, response, nexus) : process(request, response, nexus);
     }
 
+    /**
+     * 监控前置方法， 用于判断资源是否需要监控。该方法服务于
+     * {@linkplain #monitor(HttpServletRequest, HttpServletResponse, Object)}
+     * 
+     * @param resourceId
+     *            监视的资源
+     */
     protected boolean preMonitor(String resourceId) {
         return isMonitored(resourceId);
     }
 
     /**
-     * 环绕chain执行，对chain执行监控
+     * 环绕chain执行，对chain执行监控。该方法服务于
+     * {@linkplain #monitor(HttpServletRequest, HttpServletResponse, Object)}
      * 
      * @param resourceId
      *            资源唯一键
-     * @param req
+     * @param request
      *            http请求
-     * @param resp
+     * @param response
      *            http应答
-     * @param chain
+     * @param nexus
      *            FilterChain
      * @throws Exception
      */
@@ -104,6 +112,16 @@ public abstract class AbstractHttpMonitor<N> extends AbstractMonitor<String> imp
         this.resourceMatcher = resourceMatcher;
     }
 
+    /**
+     * 通过方法上的注解设置graph的监控内容
+     * 
+     * @param graph
+     *            监控的视图
+     * @param request
+     *            监控请求
+     * @param method
+     *            监控的方法
+     */
     protected void applyHttpRequestProperty(AbstractGraph graph, HttpServletRequest request, Method method) {
         Map<String, Object> property = attackHttpProperty(request, method, Mode.IN);
         if (property != null && !property.isEmpty()) {
@@ -111,6 +129,16 @@ public abstract class AbstractHttpMonitor<N> extends AbstractMonitor<String> imp
         }
     }
 
+    /**
+     * 通过方法上的注解信息设置graph的监控内容
+     * 
+     * @param graph
+     *            graph的视图
+     * @param request
+     *            监控请求
+     * @param method
+     *            监控方法
+     */
     protected void applyHttpResponseProperty(AbstractGraph graph, HttpServletRequest request, Method method) {
         Map<String, Object> property = attackHttpProperty(request, method, Mode.OUT);
         if (property != null && !property.isEmpty()) {
@@ -154,6 +182,14 @@ public abstract class AbstractHttpMonitor<N> extends AbstractMonitor<String> imp
         graph.setQueryString(request.getQueryString());
     }
 
+    /**
+     * 设置http请求属性, http method, remote address, local address
+     * 
+     * @param graph
+     *            graph
+     * @param request
+     *            http request
+     */
     protected void applyHttpRequestFeature(DefaultHttpGraph graph, HttpServletRequest request) {
         graph.setHttpMethod(request.getMethod());
         graph.setRemoteAddr(request.getRemoteAddr());
@@ -161,14 +197,23 @@ public abstract class AbstractHttpMonitor<N> extends AbstractMonitor<String> imp
         graph.setQueryString(request.getQueryString());
     }
 
+    /**
+     * 设置http返回属性
+     */
     protected void applyHttpResponseFeature(HybridGraph graph, HttpServletResponse response) {
         graph.setStatus(response.getStatus());
     }
 
+    /**
+     * 设置http返回属性
+     */
     protected void applyHttpResponseFeature(DefaultHttpGraph graph, HttpServletResponse response) {
         graph.setStatus(response.getStatus());
     }
 
+    /**
+     * 通过request获取请求唯一路径
+     */
     protected String getRequestId(HttpServletRequest request) {
         return MonitorUtils.requestId(request);
     }
