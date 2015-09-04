@@ -35,9 +35,9 @@ import com.harmony.umbrella.util.ReflectionUtils;
 
 /**
  * 监控基础抽象类
- * 
+ *
  * @param <T>
- *            监控的资源类型，由子类指定
+ *         监控的资源类型，由子类指定
  * @author wuxii@foxmail.com
  */
 public abstract class AbstractMonitor<T> implements Monitor<T> {
@@ -61,9 +61,9 @@ public abstract class AbstractMonitor<T> implements Monitor<T> {
 
     /**
      * 创建资源匹配器
-     * 
-     * @param pattern
-     *            通过模版路径创建资源匹配工具
+     * <p/>
+     * 通过模版路径创建资源匹配工具
+     *
      * @return 模版资源匹配工具
      */
     protected abstract ResourceMatcher<T> getResourceMatcher();
@@ -91,26 +91,26 @@ public abstract class AbstractMonitor<T> implements Monitor<T> {
     @Override
     public boolean isMonitored(T resource) {
         switch (policy) {
-        case Skip:
-            return false;
-        case All:
-            return true;
-        case WhiteList:
-            // resource 表示白名单， 排除白名单中的所有
-            if (resourceList.contains(resource)) {
+            case Skip:
                 return false;
-            }
-        case BlockList:
-            // resource 表示黑名单， 监控黑名单中所有
-            if (resourceList.contains(resource)) {
+            case All:
                 return true;
-            }
-        default:
-            for (String pattern : patternList) {
-                if (getResourceMatcher().match(pattern, resource)) {
+            case WhiteList:
+                // resource 表示白名单， 排除白名单中的所有
+                if (resourceList.contains(resource)) {
+                    return false;
+                }
+            case BlockList:
+                // resource 表示黑名单， 监控黑名单中所有
+                if (resourceList.contains(resource)) {
                     return true;
                 }
-            }
+            default:
+                for (String pattern : patternList) {
+                    if (getResourceMatcher().match(pattern, resource)) {
+                        return true;
+                    }
+                }
         }
         return false;
     }
@@ -145,11 +145,11 @@ public abstract class AbstractMonitor<T> implements Monitor<T> {
      * <li>{@linkplain Graph#getOperator() operator}监控的操作
      * <li>{@linkplain Graph#getLevel() level}监控的级别
      * </ul>
-     * 
+     *
      * @param graph
-     *            监控结果视图
+     *         监控结果视图
      * @param monitored
-     *            被监控对象的注解信息
+     *         被监控对象的注解信息
      */
     protected void applyMonitorInformation(AbstractGraph graph, Monitored monitored) {
         graph.setLevel(monitored.level());
@@ -159,13 +159,13 @@ public abstract class AbstractMonitor<T> implements Monitor<T> {
 
     /**
      * 根据方法上的注解获取需要监控的内部信息属性
-     * 
+     *
      * @param target
-     *            被监控的对象
+     *         被监控的对象
      * @param method
-     *            当前监控的方法
+     *         当前监控的方法
      * @param mode
-     *            监控的环节
+     *         监控的环节
      * @return 被监控对象的内部属性
      */
     public Map<String, Object> attackMethodProperty(Object target, Method method, Mode mode) {
@@ -175,7 +175,7 @@ public abstract class AbstractMonitor<T> implements Monitor<T> {
 
     /**
      * 根据类上的注解获取监控的内部属性
-     * 
+     *
      * @param target
      *            被监控的对象
      * @param mode
@@ -189,16 +189,16 @@ public abstract class AbstractMonitor<T> implements Monitor<T> {
 
     /**
      * 根据注解信息获取监控对象的信息
-     * 
+     *
      * @param target
-     *            被监控对象
+     *         被监控对象
      * @param properties
-     *            需要监控的内部属性注解
+     *         需要监控的内部属性注解
      * @param mode
-     *            监控的环节
+     *         监控的环节
      * @return 监控的内部属性
      */
-    @SuppressWarnings({ "rawtypes", "unchecked" })
+    @SuppressWarnings({"rawtypes", "unchecked"})
     public Map<String, Object> attackProperty(Object target, InternalProperty[] properties, Mode mode) {
         Map<String, Object> result = null;
         if (properties != null && properties.length > 0) {
@@ -210,16 +210,16 @@ public abstract class AbstractMonitor<T> implements Monitor<T> {
                 }
             }
         }
-        return result == null ? Collections.<String, Object> emptyMap() : result;
+        return result == null ? Collections.<String, Object>emptyMap() : result;
     }
 
     /**
      * 获取method上的{@linkplain Monitored}注解，并获取注解内对于的属性(传入的propertyType)
-     * 
+     *
      * @param method
-     *            监控的方法
+     *         监控的方法
      * @param propertyType
-     *            要获取的属性类型
+     *         要获取的属性类型
      * @return 对应propertyType的属性， if not have monitor annotation return null
      */
     @SuppressWarnings("unchecked")
@@ -230,11 +230,11 @@ public abstract class AbstractMonitor<T> implements Monitor<T> {
 
     /**
      * 获取clazz上的{@linkplain Monitored}注解，并获取注解内对于的属性(传入的propertyType)
-     * 
+     *
      * @param clazz
-     *            监控的类
+     *         监控的类
      * @param propertyType
-     *            需要获取的属性类型
+     *         需要获取的属性类型
      * @return 对应propertyType的属性， if not have monitor annotation return null
      */
     @SuppressWarnings("unchecked")
@@ -245,9 +245,9 @@ public abstract class AbstractMonitor<T> implements Monitor<T> {
 
     /**
      * 根据attacker class创建attacker
-     * 
+     *
      * @param attackerClass
-     *            attacker class
+     *         attacker class
      * @return attacker instance
      */
     @SuppressWarnings("rawtypes")

@@ -69,7 +69,7 @@ public class ResourceScaner {
      * @throws IOException
      */
     @SuppressWarnings("unchecked")
-    public Class<?>[] scanPackage(String basePackage) throws IOException {
+    public Class<?>[] scanPackage(String basePackage) {
         String key = antPackage(basePackage) + ".CLASS";
         Set<Class<?>> classes = scanCache.get(key);
         if (classes == null) {
@@ -112,7 +112,7 @@ public class ResourceScaner {
      * @return
      * @throws IOException
      */
-    public Class<?>[] scanPackage(String basePackage, ClassFilter filter) throws IOException {
+    public Class<?>[] scanPackage(String basePackage, ClassFilter filter) {
         Set<Class<?>> classes = new LinkedHashSet<Class<?>>();
         for (Class<?> clazz : scanPackage(basePackage)) {
             try {

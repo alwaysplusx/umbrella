@@ -25,8 +25,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import com.harmony.umbrella.data.Bond;
+import com.harmony.umbrella.data.BondParser;
 import com.harmony.umbrella.data.JpaDao;
+import com.harmony.umbrella.data.Specification;
+import com.harmony.umbrella.data.bond.BondBuilder;
 import com.harmony.umbrella.data.persistence.User;
+import com.harmony.umbrella.data.query.SpecificationTransform;
 
 /**
  * @author wuxii@foxmail.com
@@ -35,18 +40,26 @@ import com.harmony.umbrella.data.persistence.User;
 @ContextConfiguration(locations = { "classpath:/applicationContext.xml" })
 public class SimpleJpaDaoTest {
 
-	@Autowired
-	private JpaDao<User, Long> userJpaDao;
+    @Autowired
+    private JpaDao<User, Long> userJpaDao;
 
-	@Test
-	public void testJpaDao() {
-		assertNotNull(userJpaDao);
-	}
+    @Test
+    public void testJpaDao() {
+        assertNotNull(userJpaDao);
+    }
 
-	@Test
-	public void testDeleteAllInBatch() {
-		Iterable<User> users = userJpaDao.save(Arrays.asList(new User("wuxii-a"), new User("wuxii-b"), new User("wuxii-c"), new User("wuxii-d")));
-		userJpaDao.deleteInBatch(users);
-	}
+    @Test
+    public void testDeleteAllInBatch() {
+        Iterable<User> users = userJpaDao.save(Arrays.asList(new User("wuxii-a"), new User("wuxii-b"), new User("wuxii-c"), new User("wuxii-d")));
+        userJpaDao.deleteInBatch(users);
+    }
 
+    @Test
+    public void testDelete() {
+        BondBuilder builder = BondBuilder.newInstance();
+        Bond bond = builder.in("userId", 1l);
+        BondParser parser = SpecificationTransform.getInstance();
+        Specification<User> spec = parser.toSpecification(User.class, bond);
+        userJpaDao.delete(spec);
+    }
 }

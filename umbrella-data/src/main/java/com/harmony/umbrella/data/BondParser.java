@@ -121,6 +121,8 @@ public interface BondParser {
      */
     Predicate toPredicate(Root<?> root, CriteriaBuilder cb, Bond... bond);
 
+    <T> Specification<T> toSpecification(Class<T> entityClass, Bond...bond);
+    
     /**
      * 带排序条件的{@linkplain Bond}SQL转化
      * 

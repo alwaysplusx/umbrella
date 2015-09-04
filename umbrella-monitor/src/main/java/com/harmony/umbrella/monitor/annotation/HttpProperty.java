@@ -23,7 +23,7 @@ import java.lang.annotation.Target;
 
 /**
  * 需要监控的Http内部信息
- * 
+ *
  * @author wuxii@foxmail.com
  */
 @Target({ TYPE, METHOD })
@@ -47,7 +47,7 @@ public @interface HttpProperty {
 
     /**
      * 对应Http的作用域
-     * 
+     *
      * @author wuxii@foxmail.com
      */
     public enum Scope {

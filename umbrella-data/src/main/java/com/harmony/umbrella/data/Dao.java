@@ -142,7 +142,7 @@ public interface Dao {
      * @throws IllegalArgumentException
      *             if not entity class
      */
-    <T> T delete(Class<T> entityClass, Serializable id);
+    <T> T deleteById(Class<T> entityClass, Serializable id);
 
     /**
      * 批量删除指定id的entity
@@ -153,7 +153,7 @@ public interface Dao {
      *            指定的id组
      * @return 被删除的entity
      */
-    <T> Iterable<T> delete(Class<T> entityClass, Iterable<? extends Serializable> ids);
+    <T> Iterable<T> deleteByIds(Class<T> entityClass, Iterable<? extends Serializable> ids);
 
     /**
      * 通过id查询对应的entity
@@ -415,12 +415,32 @@ public interface Dao {
     int executeUpdate(String jpql);
 
     /**
+     * 使用jpql执行语句
+     * 
+     * @param jpql
+     *            jpql语句
+     * @param parameters
+     *            jpql中的待设定参数
+     * @return 受影响的数据条数
+     */
+    int executeUpdate(String jpql, Map<String, Object> parameters);
+
+    /**
      * 执行sql语句
      * 
      * @param sql
      *            sql语句
-     * @return 守影响的数据条数
+     * @return 受影响的数据条数
      */
     int executeUpdateBySQL(String sql);
+
+    /**
+     * 执行sql语句
+     * 
+     * @param sql
+     *            sql语句
+     * @return 受影响的数据条数
+     */
+    int executeUpdateBySQL(String sql, Map<String, Object> parameters);
 
 }

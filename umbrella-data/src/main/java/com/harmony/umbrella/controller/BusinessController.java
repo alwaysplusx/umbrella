@@ -13,25 +13,44 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.umbrella.message;
+package com.harmony.umbrella.controller;
+
+import java.io.Serializable;
+import java.util.List;
+
+import com.harmony.umbrella.data.Bond;
 
 /**
  * @author wuxii@foxmail.com
  */
-public class TextMessage implements Message {
+public interface BusinessController<T extends Serializable, ID extends Serializable> {
 
-    private static final long serialVersionUID = 5174116595429944889L;
+    T save(T entity);
 
-    private String text;
+    T update(T entity);
 
-    public TextMessage() {
-    }
+    void delete(T entity);
 
-    public TextMessage(String text) {
-        this.text = text;
-    }
+    void delete(Iterable<T> entities);
 
-    public String getText() {
-        return text;
-    }
+    void deleteById(ID id);
+
+    void deleteByIds(Iterable<ID> ids);
+
+    int delete(Bond bond);
+
+    T findById(ID id);
+
+    T findOne(Bond bond);
+
+    List<T> findList(Bond bond);
+
+    List<T> findAll();
+
+    long count(Bond bond);
+
+    long countAll();
+
+    boolean isNew(T entity);
+
 }

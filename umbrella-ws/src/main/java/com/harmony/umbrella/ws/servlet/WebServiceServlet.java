@@ -15,8 +15,6 @@
  */
 package com.harmony.umbrella.ws.servlet;
 
-import java.io.IOException;
-
 import javax.jws.WebService;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -72,19 +70,15 @@ public class WebServiceServlet extends CXFNonSpringServlet {
                 if (clazz.getAnnotation(WebService.class) == null)
                     return false;
                 // do publish in filter
+                log.info("publish service {}", clazz.getName());
                 serverManager.publish(clazz, buildServicePath(sc, clazz));
                 return true;
             }
         };
 
-        try {
-            String[] packages = getPackages(sc);
-            for (String pkg : packages) {
-                scaner.scanPackage(pkg, filter);
-            }
-        } catch (IOException e) {
-            log.error("", e);
-            throw new ServletException(e);
+        String[] packages = getPackages(sc);
+        for (String pkg : packages) {
+            scaner.scanPackage(pkg, filter);
         }
     }
 

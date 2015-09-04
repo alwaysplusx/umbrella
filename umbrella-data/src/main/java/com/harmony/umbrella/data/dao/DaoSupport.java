@@ -57,6 +57,22 @@ public abstract class DaoSupport implements Dao {
         return provider;
     }
 
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    protected <T> Class<T> getDomainClass(Object obj) {
+        if (obj instanceof Class) {
+            return (Class) obj;
+        }
+        Class clazz = obj.getClass();
+        if (Proxy.isProxyClass(clazz)) {
+            return (Class) Proxy.getInvocationHandler(obj).getClass();
+        }
+        return (Class) obj.getClass();
+    }
+
+    protected <T> EntityInformation<T, ? extends Serializable> getEntityInformation(T entity) {
+        return new JpaEntityInformation<T, Serializable>(this.<T> getDomainClass(entity), getEntityManager().getMetamodel());
+    }
+
     @Override
     public <T> T save(T entity) {
 
@@ -65,9 +81,10 @@ public abstract class DaoSupport implements Dao {
         if (entityInfo.isNew(entity)) {
             getEntityManager().persist(entity);
             return entity;
+        } else {
+            return getEntityManager().merge(entity);
         }
-
-        throw new IllegalStateException("save failed! " + entity + " is not new entity");
+        
     }
 
     @Override
@@ -169,7 +186,7 @@ public abstract class DaoSupport implements Dao {
     }
 
     @Override
-    public <T> T delete(Class<T> entityClass, Serializable id) {
+    public <T> T deleteById(Class<T> entityClass, Serializable id) {
 
         T entity = findOne(entityClass, id);
 
@@ -181,7 +198,7 @@ public abstract class DaoSupport implements Dao {
     }
 
     @Override
-    public <T> Iterable<T> delete(Class<T> entityClass, Iterable<? extends Serializable> ids) {
+    public <T> Iterable<T> deleteByIds(Class<T> entityClass, Iterable<? extends Serializable> ids) {
 
         List<T> result = new ArrayList<T>();
 
@@ -190,7 +207,7 @@ public abstract class DaoSupport implements Dao {
         }
 
         for (Serializable id : ids) {
-            result.add(delete(entityClass, id));
+            result.add(deleteById(entityClass, id));
         }
 
         return result;
@@ -463,18 +480,36 @@ public abstract class DaoSupport implements Dao {
 
     @Override
     public int executeUpdate(String jpql) {
-        if (jpql == null)
+        if (jpql == null) {
             throw new IllegalArgumentException("execute query must not be null");
+        }
 
         return getEntityManager().createQuery(jpql).executeUpdate();
     }
 
     @Override
-    public int executeUpdateBySQL(String sql) {
-        if (sql == null)
+    public int executeUpdate(String jpql, Map<String, Object> parameters) {
+        if (jpql == null) {
             throw new IllegalArgumentException("execute query must not be null");
+        }
+        return applyParameterToQuery(getEntityManager().createQuery(jpql), parameters).executeUpdate();
+    }
+
+    @Override
+    public int executeUpdateBySQL(String sql) {
+        if (sql == null) {
+            throw new IllegalArgumentException("execute query must not be null");
+        }
 
         return getEntityManager().createNativeQuery(sql).executeUpdate();
+    }
+
+    @Override
+    public int executeUpdateBySQL(String sql, Map<String, Object> parameters) {
+        if (sql == null) {
+            throw new IllegalArgumentException("execute query must not be null");
+        }
+        return applyParameterToQuery(getEntityManager().createNativeQuery(sql), parameters).executeUpdate();
     }
 
     protected <T extends Query> T applyParameterToQuery(T query, Object[] parameters) {
@@ -505,19 +540,4 @@ public abstract class DaoSupport implements Dao {
         return query;
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    protected <T> Class<T> getDomainClass(Object obj) {
-        if (obj instanceof Class) {
-            return (Class) obj;
-        }
-        Class clazz = obj.getClass();
-        if (Proxy.isProxyClass(clazz)) {
-            return (Class) Proxy.getInvocationHandler(obj).getClass();
-        }
-        return (Class) obj.getClass();
-    }
-
-    protected <T> EntityInformation<T, ? extends Serializable> getEntityInformation(T entity) {
-        return new JpaEntityInformation<T, Serializable>(this.<T> getDomainClass(entity), getEntityManager().getMetamodel());
-    }
 }

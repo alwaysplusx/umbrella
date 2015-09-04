@@ -40,6 +40,8 @@ import com.harmony.umbrella.monitor.matcher.UrlPathMatcher;
 import com.harmony.umbrella.monitor.util.MonitorUtils;
 
 /**
+ * 适应http请求与应答的监控抽象类
+ *
  * @author wuxii@foxmail.com
  */
 public abstract class AbstractHttpMonitor<N> extends AbstractMonitor<String> implements HttpMonitor {
@@ -59,9 +61,9 @@ public abstract class AbstractHttpMonitor<N> extends AbstractMonitor<String> imp
     /**
      * 监控前置方法， 用于判断资源是否需要监控。该方法服务于
      * {@linkplain #monitor(HttpServletRequest, HttpServletResponse, Object)}
-     * 
+     *
      * @param resourceId
-     *            监视的资源
+     *         监视的资源
      */
     protected boolean preMonitor(String resourceId) {
         return isMonitored(resourceId);
@@ -70,28 +72,28 @@ public abstract class AbstractHttpMonitor<N> extends AbstractMonitor<String> imp
     /**
      * 环绕chain执行，对chain执行监控。该方法服务于
      * {@linkplain #monitor(HttpServletRequest, HttpServletResponse, Object)}
-     * 
+     *
      * @param resourceId
-     *            资源唯一键
+     *         资源唯一键
      * @param request
-     *            http请求
+     *         http请求
      * @param response
-     *            http应答
+     *         http应答
      * @param nexus
-     *            FilterChain
+     *         FilterChain
      * @throws Exception
      */
     protected abstract Object aroundMonitor(String resourceId, HttpServletRequest request, HttpServletResponse response, N nexus) throws Exception;
 
     /**
      * 连接执行过程
-     * 
+     *
      * @param request
-     *            http请求
+     *         http请求
      * @param response
-     *            http应答
+     *         http应答
      * @param nexus
-     *            连接
+     *         连接
      */
     protected abstract Object process(HttpServletRequest request, HttpServletResponse response, N nexus) throws Exception;
 
@@ -114,13 +116,13 @@ public abstract class AbstractHttpMonitor<N> extends AbstractMonitor<String> imp
 
     /**
      * 通过方法上的注解设置graph的监控内容
-     * 
+     *
      * @param graph
-     *            监控的视图
+     *         监控的视图
      * @param request
-     *            监控请求
+     *         监控请求
      * @param method
-     *            监控的方法
+     *         监控的方法
      */
     protected void applyHttpRequestProperty(AbstractGraph graph, HttpServletRequest request, Method method) {
         Map<String, Object> property = attackHttpProperty(request, method, Mode.IN);
@@ -131,13 +133,13 @@ public abstract class AbstractHttpMonitor<N> extends AbstractMonitor<String> imp
 
     /**
      * 通过方法上的注解信息设置graph的监控内容
-     * 
+     *
      * @param graph
-     *            graph的视图
+     *         graph的视图
      * @param request
-     *            监控请求
+     *         监控请求
      * @param method
-     *            监控方法
+     *         监控方法
      */
     protected void applyHttpResponseProperty(AbstractGraph graph, HttpServletRequest request, Method method) {
         Map<String, Object> property = attackHttpProperty(request, method, Mode.OUT);
@@ -148,9 +150,9 @@ public abstract class AbstractHttpMonitor<N> extends AbstractMonitor<String> imp
 
     /**
      * 通过方法上的注解获取request中的属性
-     * 
+     *
      * @param request
-     *            http request
+     *         http request
      */
     public Map<String, Object> attackHttpProperty(HttpServletRequest request, Method method, Mode mode) {
         Map<String, Object> result = new HashMap<String, Object>();
@@ -169,11 +171,11 @@ public abstract class AbstractHttpMonitor<N> extends AbstractMonitor<String> imp
 
     /**
      * 设置http请求属性, http method, remote address, local address
-     * 
+     *
      * @param graph
-     *            graph
+     *         graph
      * @param request
-     *            http request
+     *         http request
      */
     protected void applyHttpRequestFeature(HybridGraph graph, HttpServletRequest request) {
         graph.setHttpMethod(request.getMethod());
@@ -184,11 +186,11 @@ public abstract class AbstractHttpMonitor<N> extends AbstractMonitor<String> imp
 
     /**
      * 设置http请求属性, http method, remote address, local address
-     * 
+     *
      * @param graph
-     *            graph
+     *         graph
      * @param request
-     *            http request
+     *         http request
      */
     protected void applyHttpRequestFeature(DefaultHttpGraph graph, HttpServletRequest request) {
         graph.setHttpMethod(request.getMethod());

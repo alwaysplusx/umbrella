@@ -115,11 +115,12 @@ public abstract class ApplicationContext implements BeanFactory {
                     break;
                 }
             } catch (Exception e) {
-                LOG.error("", e);
+                LOG.warn("", e);
             }
         }
         if (context == null) {
-            throw new ApplicationContextException("can't find any application context provider to create context");
+            LOG.warn("can't find any application context provider to create context, use default {}", ContextProvider.SimpleApplicationContext.class.getName());
+            context = new ContextProvider.SimpleApplicationContext();
         }
         return context;
     }

@@ -41,7 +41,7 @@ public class ContextProvider {
         return new SimpleApplicationContext();
     }
 
-    private static final class SimpleApplicationContext extends ApplicationContext {
+    static final class SimpleApplicationContext extends ApplicationContext {
 
         private BeanFactory beanFactory = new SimpleBeanFactory();
 

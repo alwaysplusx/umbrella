@@ -24,14 +24,14 @@ import com.harmony.umbrella.ws.Metadata;
  */
 public class SimpleMetadata implements Metadata {
 
-    private final Class<?> serviceClass;
-    private String serviceName;
-    private String address;
-    private String username;
-    private String password;
-    private long connectionTimeout;
-    private long receiveTimeout;
-    private int synchronousTimeout;
+    protected Class<?> serviceClass;
+    protected String serviceName;
+    protected String address;
+    protected String username;
+    protected String password;
+    protected long connectionTimeout;
+    protected long receiveTimeout;
+    protected int synchronousTimeout;
 
     public SimpleMetadata(Class<?> serviceClass) {
         this(serviceClass, null);
@@ -47,10 +47,10 @@ public class SimpleMetadata implements Metadata {
 
     public SimpleMetadata(Class<?> serviceClass, String address, String username, String password, long ctime, long rtime, int stime) {
         this.serviceClass = serviceClass;
+        this.serviceName = serviceClass == null ? null : serviceClass.getName();
         this.address = address;
         this.username = username;
         this.password = password;
-        this.serviceName = serviceClass.getName();
         this.connectionTimeout = ctime;
         this.receiveTimeout = rtime;
         this.synchronousTimeout = stime;

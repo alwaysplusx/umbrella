@@ -136,9 +136,14 @@ public class SpecificationTransform implements BondParser {
         return predicate == null ? cb.conjunction() : predicate;
     }
 
-    public static <T> Specification<T> toSpecification(Class<T> resultClass, final Bond... bond) {
+    @Override
+    public <T> Specification<T> toSpecification(Class<T> resultClass, Bond... bond) {
         return toSpecification(resultClass, null, bond);
     }
+    
+    /*public static <T> Specification<T> toSpecification(Class<T> resultClass, final Bond... bond) {
+        return toSpecification(resultClass, null, bond);
+    }*/
 
     public static <T> Specification<T> toSpecification(Class<?> resultClass, final QueryProcessor processor, final Bond... bond) {
         return new Specification<T>() {

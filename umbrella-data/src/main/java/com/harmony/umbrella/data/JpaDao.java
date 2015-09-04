@@ -35,6 +35,60 @@ import com.harmony.umbrella.data.domain.Sort;
  *            entity的id类型
  */
 public interface JpaDao<T, ID extends Serializable> extends Dao {
+    /**
+     * 保存entity, 并刷新context
+     * 
+     * @param entity
+     *            带保存的entity
+     * @return 保存后的entity
+     * @see #flush()
+     */
+    T saveAndFlush(T entity);
+    
+    int delete(Specification<T> spec);
+
+    /**
+     * 删除所有entity
+     */
+    void deleteAll();
+
+    /**
+     * 根据id删除
+     * 
+     * @param id
+     *            主键id
+     */
+    void deleteById(ID id);
+
+    /**
+     * 根据id批量删除
+     * 
+     * @param ids
+     *            entity的主键id
+     */
+    void deleteByIds(Iterable<ID> ids);
+
+    /**
+     * 批量删除entity
+     * 
+     * @param entities
+     *            待删除的entity
+     */
+    void deleteInBatch(Iterable<T> entities);
+
+    /**
+     * 删除所有entity
+     */
+    void deleteAllInBatch();
+
+    /**
+     * 通过id查询entity
+     * 
+     * @param id
+     *            entity的id
+     * @return entity object if not find return null
+     */
+    T findById(ID id);
 
     /**
      * 带分页的查询所有数据
@@ -53,37 +107,6 @@ public interface JpaDao<T, ID extends Serializable> extends Dao {
      * @return 所有entity数据
      */
     Iterable<T> findAll(Sort sort);
-
-    /**
-     * 统计entity的数据量
-     * 
-     * @return 数据条数
-     */
-    long count();
-
-    /**
-     * Returns the number of instances that the given {@link Specification} will
-     * return.
-     * 
-     * @param spec
-     *            the {@link Specification} to count instances for
-     * @return the number of instances
-     */
-    long count(Specification<T> spec);
-
-    /**
-     * 删除所有entity
-     */
-    void deleteAll();
-
-    /**
-     * 通过id查询entity
-     * 
-     * @param id
-     *            entity的id
-     * @return entity object if not find return null
-     */
-    T findOne(ID id);
 
     /**
      * 查询所有entity
@@ -109,27 +132,21 @@ public interface JpaDao<T, ID extends Serializable> extends Dao {
     void flush();
 
     /**
-     * 保存entity, 并刷新context
+     * 统计entity的数据量
      * 
-     * @param entity
-     *            带保存的entity
-     * @return 保存后的entity
-     * @see #flush()
+     * @return 数据条数
      */
-    T saveAndFlush(T entity);
+    long count();
 
     /**
-     * 批量删除entity
+     * Returns the number of instances that the given {@link Specification} will
+     * return.
      * 
-     * @param entities
-     *            待删除的entity
+     * @param spec
+     *            the {@link Specification} to count instances for
+     * @return the number of instances
      */
-    void deleteInBatch(Iterable<T> entities);
-
-    /**
-     * 删除所有entity
-     */
-    void deleteAllInBatch();
+    long count(Specification<T> spec);
 
     /**
      * 通过id验证是否存在entity

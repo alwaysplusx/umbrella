@@ -16,11 +16,11 @@
 package com.harmony.umbrella.validator.validators;
 
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
+import com.harmony.umbrella.util.Formats;
 import com.harmony.umbrella.validator.constraints.FormatDate;
 
 /**
@@ -28,11 +28,11 @@ import com.harmony.umbrella.validator.constraints.FormatDate;
  */
 public class FormatDateValidator implements ConstraintValidator<FormatDate, String> {
 
-    private SimpleDateFormat sdf;
+    private Formats.NullableDateFormat ndf;
 
     @Override
     public void initialize(FormatDate annotation) {
-        this.sdf = new SimpleDateFormat(annotation.pattern());
+        this.ndf = Formats.createDateFormat(annotation.pattern());
     }
 
     @Override
@@ -40,7 +40,7 @@ public class FormatDateValidator implements ConstraintValidator<FormatDate, Stri
         if (value == null)
             return true;
         try {
-            sdf.parse(value);
+            ndf.parseDate(value);
         } catch (ParseException e) {
             return false;
         }

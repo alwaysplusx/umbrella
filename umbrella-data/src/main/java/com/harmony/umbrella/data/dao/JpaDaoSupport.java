@@ -16,6 +16,7 @@
 package com.harmony.umbrella.data.dao;
 
 import java.io.Serializable;
+import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -26,6 +27,7 @@ import javax.persistence.NoResultException;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaDelete;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.ParameterExpression;
 import javax.persistence.criteria.Path;
@@ -42,6 +44,7 @@ import com.harmony.umbrella.data.domain.Sort;
 import com.harmony.umbrella.data.query.JpaEntityInformation;
 import com.harmony.umbrella.data.query.QueryUtils;
 import com.harmony.umbrella.util.Assert;
+import com.harmony.umbrella.util.ClassUtils;
 
 /**
  * @author wuxii@foxmail.com
@@ -52,7 +55,28 @@ public abstract class JpaDaoSupport<E, ID extends Serializable> extends DaoSuppo
 
     private EntityInformation<E, ID> ei;
 
-    protected abstract Class<E> getEntityClass();
+    private Class<E> entityClass;
+
+    @SuppressWarnings("unchecked")
+    protected Class<E> getEntityClass() {
+        if (entityClass == null) {
+            ParameterizedType pt = findParameterizedType(getClass());
+            if (pt != null) {
+                entityClass = (Class<E>) pt.getActualTypeArguments()[0];
+            }
+        }
+        return entityClass;
+    }
+
+    protected ParameterizedType findParameterizedType(Class<?> subClass) {
+        Class<?> superclass = subClass.getSuperclass();
+        if (superclass == Object.class) {
+            return null;
+        } else if (ClassUtils.canonicalNameEquals(JpaDaoSupport.class, superclass)) {
+            return (ParameterizedType) subClass.getGenericSuperclass();
+        }
+        return findParameterizedType(superclass);
+    }
 
     protected EntityInformation<E, ID> getEntityInformation() {
         if (ei == null) {
@@ -82,12 +106,7 @@ public abstract class JpaDaoSupport<E, ID extends Serializable> extends DaoSuppo
     }
 
     @Override
-    public void deleteAll() {
-        deleteAll(getEntityInformation().getJavaType());
-    }
-
-    @Override
-    public E findOne(ID id) {
+    public E findById(ID id) {
         return findOne(getEntityInformation().getJavaType(), id);
     }
 
@@ -105,7 +124,7 @@ public abstract class JpaDaoSupport<E, ID extends Serializable> extends DaoSuppo
         if (getEntityInformation().hasCompositeId()) {
             List<E> results = new ArrayList<E>();
             for (ID id : ids) {
-                results.add(findOne(id));
+                results.add(findById(id));
             }
             return results;
         }
@@ -128,6 +147,20 @@ public abstract class JpaDaoSupport<E, ID extends Serializable> extends DaoSuppo
         flush();
 
         return result;
+    }
+
+    @Override
+    public int delete(Specification<E> spec) {
+        CriteriaBuilder builder = getEntityManager().getCriteriaBuilder();
+        CriteriaDelete<E> critDel = builder.createCriteriaDelete(getEntityClass());
+        Root<E> root = critDel.from(getEntityClass());
+        critDel.where(spec.toPredicate(root, null, builder));
+        return getEntityManager().createQuery(critDel).executeUpdate();
+    }
+
+    @Override
+    public void deleteAll() {
+        deleteAll(getEntityInformation().getJavaType());
     }
 
     @Override
@@ -169,6 +202,18 @@ public abstract class JpaDaoSupport<E, ID extends Serializable> extends DaoSuppo
 
         query.executeUpdate();
 
+    }
+
+    @Override
+    public void deleteById(ID id) {
+        deleteById(getEntityClass(), id);
+    }
+
+    @Override
+    public void deleteByIds(Iterable<ID> ids) {
+        for (ID id : ids) {
+            deleteById(id);
+        }
     }
 
     @Override
@@ -220,7 +265,7 @@ public abstract class JpaDaoSupport<E, ID extends Serializable> extends DaoSuppo
         if (id == null)
             return false;
 
-        return findOne(id) != null;
+        return findById(id) != null;
     }
 
     @Override

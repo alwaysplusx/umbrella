@@ -18,7 +18,6 @@ package com.harmony.umbrella.ws.util;
 import static com.harmony.umbrella.util.ClassUtils.*;
 import static com.harmony.umbrella.util.StringUtils.*;
 
-import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.HashMap;
@@ -31,6 +30,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.harmony.umbrella.Constants;
 import com.harmony.umbrella.io.util.ResourceScaner;
 import com.harmony.umbrella.util.ClassUtils.ClassFilter;
 import com.harmony.umbrella.util.ClassUtils.ClassFilterFeature;
@@ -58,7 +58,7 @@ public class HandlerMethodFinder {
      * basePackage为当前classpath
      */
     public HandlerMethodFinder() {
-        this("");
+        this(Constants.DEFAULT_PACKAGE);
     }
 
     /**
@@ -74,32 +74,28 @@ public class HandlerMethodFinder {
             return classes.toArray(new Class[classes.size()]);
         }
         Set<Class<?>> handlerClasses = new LinkedHashSet<Class<?>>();
-        try {
-            Class<?>[] classes = ResourceScaner.getInstance().scanPackage(basePackage, new ClassFilter() {
-                @Override
-                public boolean accept(Class<?> clazz) {
-                    try {
-                        if (!ClassFilterFeature.NEWABLE.accept(clazz))
-                            return false;
-                        if (clazz.getAnnotation(Handler.class) == null)
-                            return false;
-                        Handler handler = clazz.getAnnotation(Handler.class);
-                        if (handler.value().length == 0 && handler.handles().length == 0)
-                            return false;
-                        return true;
-                    } catch (Throwable e) {
+        Class<?>[] classes = ResourceScaner.getInstance().scanPackage(basePackage, new ClassFilter() {
+            @Override
+            public boolean accept(Class<?> clazz) {
+                try {
+                    if (!ClassFilterFeature.NEWABLE.accept(clazz))
                         return false;
-                    }
+                    if (clazz.getAnnotation(Handler.class) == null)
+                        return false;
+                    Handler handler = clazz.getAnnotation(Handler.class);
+                    if (handler.value().length == 0 && handler.handles().length == 0)
+                        return false;
+                    return true;
+                } catch (Throwable e) {
+                    return false;
                 }
-            });
-            if (classes.length > 0) {
-                Collections.addAll(handlerClasses, classes);
-                handlerCache.put(ALL_HANDLER_CLASS, handlerClasses);
             }
-            log.info("all @Handler classes {}", handlerClasses);
-        } catch (IOException e) {
-            log.error("", e);
+        });
+        if (classes.length > 0) {
+            Collections.addAll(handlerClasses, classes);
+            handlerCache.put(ALL_HANDLER_CLASS, handlerClasses);
         }
+        log.info("all @Handler classes {}", handlerClasses);
         return handlerClasses.toArray(new Class[handlerClasses.size()]);
     }
 

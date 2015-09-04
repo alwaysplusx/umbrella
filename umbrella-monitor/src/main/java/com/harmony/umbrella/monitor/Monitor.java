@@ -37,7 +37,7 @@ import java.util.Set;
  * {@code Policy}的控制参见{@linkplain MonitorPolicy}
  * 
  * @author wuxii@foxmail.com
- * @param T
+ * @param <T>
  *            监控的资源类型
  * @see MonitorPolicy
  */
