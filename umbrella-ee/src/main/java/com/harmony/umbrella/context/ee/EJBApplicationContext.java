@@ -84,6 +84,7 @@ public class EJBApplicationContext extends ApplicationContext implements EJBCont
         this.jndiPropertiesFileLocation = props.getProperty("jndi.properties.file", JNDI_PROPERTIES_FILE_LOCATION);
         this.loadProperties();
         this.applyProperties(props);
+        this.contextResolver = createContextResolver(getInformationOfServer(), applicationProperties);
     }
 
     public static EJBApplicationContext getInstance() {
@@ -351,9 +352,6 @@ public class EJBApplicationContext extends ApplicationContext implements EJBCont
     protected void applyProperties(Properties props) {
         if (props != null && !props.isEmpty()) {
             this.applicationProperties.putAll(props);
-            if (props.containsKey("jndi.context.resolver")) {
-                this.contextResolver = createContextResolver(getInformationOfServer(), applicationProperties);
-            }
         }
     }
 

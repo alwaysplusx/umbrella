@@ -44,7 +44,6 @@ import com.harmony.umbrella.data.domain.Sort;
 import com.harmony.umbrella.data.query.JpaEntityInformation;
 import com.harmony.umbrella.data.query.QueryUtils;
 import com.harmony.umbrella.util.Assert;
-import com.harmony.umbrella.util.ClassUtils;
 
 /**
  * @author wuxii@foxmail.com
@@ -68,11 +67,15 @@ public abstract class JpaDaoSupport<E, ID extends Serializable> extends DaoSuppo
         return entityClass;
     }
 
-    protected ParameterizedType findParameterizedType(Class<?> subClass) {
+    protected Class<?> getGenericsSuperClass() {
+        return JpaDaoSupport.class;
+    }
+
+    protected final ParameterizedType findParameterizedType(Class<?> subClass) {
         Class<?> superclass = subClass.getSuperclass();
         if (superclass == Object.class) {
             return null;
-        } else if (ClassUtils.canonicalNameEquals(JpaDaoSupport.class, superclass)) {
+        } else if (getGenericsSuperClass().equals(superclass)) {
             return (ParameterizedType) subClass.getGenericSuperclass();
         }
         return findParameterizedType(superclass);

@@ -16,9 +16,9 @@
 package com.harmony.umbrella.context.ee.support;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
@@ -39,6 +39,8 @@ import com.harmony.umbrella.util.ReflectionUtils;
 import com.harmony.umbrella.util.StringUtils;
 
 /**
+ * 通过配置配置的属性，来组合定义的bean
+ * 
  * @author wuxii@foxmail.com
  */
 public class ConfigurationBeanResolver implements BeanResolver {
@@ -46,9 +48,14 @@ public class ConfigurationBeanResolver implements BeanResolver {
     private static final Logger log = LoggerFactory.getLogger(ConfigurationBeanResolver.class);
 
     /**
-     * mappedName与之后的连接符号
+     * jndi的全局前缀
      */
-    private final Set<String> separators = new HashSet<String>(Arrays.asList("#"));
+    private final String globalPrefix;
+
+    /**
+     * jndi名称与remoteClass中间的分割符, default '#'
+     */
+    private final String separator;
 
     /**
      * 组装mappedName需要添加的后缀
@@ -66,11 +73,6 @@ public class ConfigurationBeanResolver implements BeanResolver {
     private final Set<String> localSuffixs = new HashSet<String>();
 
     /**
-     * jndi的全局前缀
-     */
-    private final String globalPrefix;
-
-    /**
      * lookup到的bean如果是对应于应用服务器的封装类的解析工具
      */
     private final List<WrappedBeanHandler> warppedBeanHandlers = new ArrayList<WrappedBeanHandler>();
@@ -82,11 +84,11 @@ public class ConfigurationBeanResolver implements BeanResolver {
 
     public ConfigurationBeanResolver(Properties props) {
         this.globalPrefix = props.getProperty("jndi.format.globlal.prefix", "");
+        this.separator = props.getProperty("jndi.format.separator", "#");
         this.transformLocal = Boolean.valueOf(props.getProperty("jndi.format.transformLocal"));
         this.beanSuffixs.addAll(fromProps(props, "jndi.format.bean"));
         this.remoteSuffixs.addAll(fromProps(props, "jndi.format.remote"));
         this.localSuffixs.addAll(fromProps(props, "jndi.format.local"));
-        this.separators.addAll(fromProps(props, "jndi.format.separator"));
         this.warppedBeanHandlers.addAll(createFromProps(props, "jndi.wrapped.handler", WrappedBeanHandler.class));
     }
 
@@ -208,16 +210,12 @@ public class ConfigurationBeanResolver implements BeanResolver {
         return warppedBeanHandlers;
     }
 
-    public Set<String> getBeanSeparators() {
-        return separators;
-    }
-
     public Set<String> getBeanSuffixs() {
         return beanSuffixs;
     }
 
     public Set<String> getRemoteSuffixs() {
-        return remoteSuffixs;
+        return beanSuffixs;
     }
 
     public Set<String> getLocalSuffixs() {
@@ -237,56 +235,31 @@ public class ConfigurationBeanResolver implements BeanResolver {
         return index > 0 ? target.substring(0, index) : target;
     }
 
-    private static final Set<String> blankSet = Collections.unmodifiableSet(new HashSet<String>(Arrays.asList("")));
-
     public abstract class ConcreteBeanResolver {
 
         protected final BeanDefinition beanDefinition;
         protected final Context context;
         protected final Set<String> jndis = new HashSet<String>();
 
-        private String removedSuffix;
-        private String prefix;
-        private String _package;
-
         public ConcreteBeanResolver(BeanDefinition beanDefinition, Context context) {
             this.beanDefinition = beanDefinition;
             this.context = context;
         }
 
-        public abstract String[] resolve();
+        public String[] resolve() {
 
-        protected abstract Set<String> getRemovedSuffixs();
-
-        /**
-         * beanDefinition的bean的package
-         */
-        public String getPackage() {
-            if (_package == null) {
-                this._package = beanDefinition.getBeanClass().getPackage().getName();
-            }
-            return _package;
-        }
-
-        /**
-         * 对beanDefinition的类名通过{@linkplain #getRemovedSuffixs()}
-         * 比对如果类名是以后缀结尾则移除对应的结尾，并记录移除的结尾。
-         * 
-         * @return 去除对应后缀的bean名称
-         */
-        public String prefix() {
-            if (prefix == null) {
-                prefix = hasMappedName() ? beanDefinition.getMappedName() : beanDefinition.getBeanClass().getSimpleName();
-                for (String suffix : getRemovedSuffixs()) {
-                    if (prefix.endsWith(suffix)) {
-                        removedSuffix = suffix;
-                        prefix = removeSuffix(prefix, suffix);
-                        break;
-                    }
+            for (String mappedName : mappedNames()) {
+                for (Class<?> remoteClass : remoteClasses()) {
+                    addIfNotExists(mappedName, remoteClass);
                 }
             }
-            return prefix;
+
+            return jndis.toArray(new String[jndis.size()]);
         }
+
+        protected abstract Set<Class<?>> remoteClasses();
+
+        protected abstract Set<String> mappedNames();
 
         /**
          * 格式划jndi, 再判断jndi是否存在于上下文中
@@ -300,41 +273,23 @@ public class ConfigurationBeanResolver implements BeanResolver {
          * @param remoteSuffix
          *            结尾的后缀
          */
-        protected void addIfExists(String beanSuffix, String remoteSuffix) {
-            for (String separator : separators) {
-                String jndi = toJndi(beanSuffix, separator, remoteSuffix);
-                if (!jndis.contains(jndi) && (context == null || existsInContext(jndi, context))) {
-                    jndis.add(jndi);
-                }
-            }
-        }
-
-        private String toJndi(String bean, String separator, String remote) {
+        protected void addIfNotExists(String mappedName, Class<?> remoteClass) {
             StringBuilder sb = new StringBuilder();
-            sb.append(prefix()).append(bean)//
-                    .append(separator).append(getPackage()).append(".")//
-                    .append(prefix()).append(remote);
-            return sb.toString();
-        }
-
-        /**
-         * 被移除的后缀
-         */
-        protected String getRemovedSuffix() {
-            if (removedSuffix == null) {
-                prefix();
-                if (removedSuffix == null) {
-                    removedSuffix = "";
-                }
+            sb.append(globalPrefix);
+            if (StringUtils.isNotBlank(globalPrefix) //
+                    && !globalPrefix.endsWith("/") //
+                    && !mappedName.startsWith("/")) {
+                sb.append("/");
             }
-            return removedSuffix;
-        }
+            sb.append(mappedName)//
+                    .append(separator)//
+                    .append(remoteClass.getName());
+            String jndi = sb.toString();
 
-        /**
-         * beanDefinition是否存在原始的映射名称
-         */
-        protected boolean hasMappedName() {
-            return StringUtils.isNotBlank(beanDefinition.getMappedName());
+            if (!jndis.contains(jndi) && (context == null || existsInContext(jndi, context))) {
+                jndis.add(jndi);
+            }
+
         }
 
     }
@@ -371,23 +326,56 @@ public class ConfigurationBeanResolver implements BeanResolver {
         }
 
         @Override
-        protected Set<String> getRemovedSuffixs() {
-            return localSuffixs;
+        protected Set<String> mappedNames() {
+            Set<String> result = new LinkedHashSet<String>();
+
+            String mappedName = beanDefinition.getMappedName();
+
+            if (StringUtils.isNotBlank(mappedName)) {
+                result.add(mappedName);
+            } else {
+                Class<?>[] localClasses = beanDefinition.getLocalClasses();
+
+                for (Class<?> localClass : localClasses) {
+                    String name = localClass.getSimpleName();
+                    for (String localSuffix : localSuffixs) {
+                        name = removeSuffix(name, localSuffix);
+                        for (String beanSuffix : beanSuffixs) {
+                            result.add(name + beanSuffix);
+                        }
+                    }
+                }
+            }
+            return result;
         }
 
-        @Override
-        public String[] resolve() {
+        protected Set<Class<?>> remoteClasses() {
+            Class<?>[] localClasses = beanDefinition.getLocalClasses();
+            Set<Class<?>> result = new LinkedHashSet<Class<?>>(localClasses.length);
 
-            Set<String> bss = hasMappedName() ? blankSet : beanSuffixs;
-            Set<String> rss = !this.transformLocal ? new HashSet<String>(Arrays.asList(getRemovedSuffix())) : remoteSuffixs;
+            if (!this.transformLocal) {
 
-            for (String bs : bss) {
-                for (String rs : rss) {
-                    addIfExists(bs, rs);
+                Collections.addAll(result, localClasses);
+
+            } else {
+
+                for (Class<?> localClass : localClasses) {
+                    String name = localClass.getName();
+                    for (String localSuffix : localSuffixs) {
+                        if (name.endsWith(localSuffix)) {
+                            name = removeSuffix(name, localSuffix);
+                            for (String remoteSuffix : beanSuffixs) {
+                                try {
+                                    result.add(Class.forName(name + remoteSuffix, false, ClassUtils.getDefaultClassLoader()));
+                                } catch (ClassNotFoundException e) {
+                                }
+                            }
+                        }
+                    }
                 }
             }
 
-            return jndis.toArray(new String[jndis.size()]);
+            return result;
         }
     }
 
@@ -414,20 +402,39 @@ public class ConfigurationBeanResolver implements BeanResolver {
             super(beanDefinition, context);
         }
 
-        @Override
-        public String[] resolve() {
-            Set<String> bss = hasMappedName() ? blankSet : beanSuffixs;
+        protected Set<String> mappedNames() {
+            Set<String> result = new LinkedHashSet<String>();
+            String mappedName = beanDefinition.getMappedName();
 
-            for (String bs : bss) {
-                addIfExists(bs, getRemovedSuffix());
+            if (StringUtils.isNotBlank(mappedName)) {
+                result.add(mappedName);
+            } else {
+
+                Class<?>[] remoteClasses = beanDefinition.getRemoteClasses();
+
+                for (Class<?> remoteClass : remoteClasses) {
+                    String name = remoteClass.getSimpleName();
+
+                    for (String remoteSuffix : remoteSuffixs) {
+                        if (name.endsWith(remoteSuffix)) {
+                            name = removeSuffix(name, remoteSuffix);
+                            for (String beanSuffix : beanSuffixs) {
+                                result.add(name + beanSuffix);
+                            }
+                        }
+                    }
+
+                }
+
             }
-
-            return jndis.toArray(new String[jndis.size()]);
+            return result;
         }
 
-        @Override
-        protected Set<String> getRemovedSuffixs() {
-            return remoteSuffixs;
+        protected Set<Class<?>> remoteClasses() {
+            Class<?>[] remoteClasses = beanDefinition.getRemoteClasses();
+            Set<Class<?>> result = new LinkedHashSet<Class<?>>(remoteClasses.length);
+            Collections.addAll(result, remoteClasses);
+            return result;
         }
 
     }
@@ -451,25 +458,52 @@ public class ConfigurationBeanResolver implements BeanResolver {
      */
     final class SessionResolver extends ConcreteBeanResolver {
 
+        private final boolean transformLocal;
+
         public SessionResolver(BeanDefinition beanDefinition, Context context) {
             super(beanDefinition, context);
+            this.transformLocal = ConfigurationBeanResolver.this.transformLocal;
         }
 
         @Override
-        public String[] resolve() {
+        protected Set<String> mappedNames() {
 
-            for (String rs : remoteSuffixs) {
-                addIfExists(getRemovedSuffix(), rs);
+            Set<String> result = new LinkedHashSet<String>();
+            String mappedName = beanDefinition.getMappedName();
+
+            if (StringUtils.isNotBlank(mappedName)) {
+                result.add(mappedName);
+            } else {
+                result.add(beanDefinition.getBeanClass().getSimpleName());
             }
 
-            return jndis.toArray(new String[jndis.size()]);
+            return result;
         }
 
         @Override
-        protected Set<String> getRemovedSuffixs() {
-            return beanSuffixs;
+        protected Set<Class<?>> remoteClasses() {
+            Class<?>[] remoteClasses = beanDefinition.getRemoteClasses();
+            Set<Class<?>> result = new LinkedHashSet<Class<?>>();
+            Collections.addAll(result, remoteClasses);
+            if (this.transformLocal) {
+                Class<?>[] localClasses = beanDefinition.getLocalClasses();
+                for (Class<?> localClass : localClasses) {
+                    String name = localClass.getName();
+                    for (String localSuffix : localSuffixs) {
+                        if (name.endsWith(localSuffix)) {
+                            name = removeSuffix(name, localSuffix);
+                            for (String remoteSuffix : beanSuffixs) {
+                                try {
+                                    result.add(Class.forName(name + remoteSuffix, false, ClassUtils.getDefaultClassLoader()));
+                                } catch (ClassNotFoundException e) {
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            return result;
         }
-
     }
 
 }

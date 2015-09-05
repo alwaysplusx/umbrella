@@ -42,7 +42,7 @@ public class InternalContextResolver extends ConfigurationBeanResolver implement
 
     public InternalContextResolver(Properties props) {
         super(props);
-        this.deeps = Integer.valueOf(props.getProperty("jndi.searcg.deeps", "10"));
+        this.deeps = Integer.valueOf(props.getProperty("jndi.search.deeps", "10"));
         this.roots.addAll(fromProps(props, "jndi.context.root"));
     }
 
@@ -67,15 +67,17 @@ public class InternalContextResolver extends ConfigurationBeanResolver implement
                 while (subCtxs.hasMoreElements()) {
                     NameClassPair subNcp = subCtxs.nextElement();
                     String subRoot = root + ("".equals(root) ? "" : "/") + subNcp.getName();
+                    log.info("{}", subRoot);
                     doDeepSearch(subRoot, sessionBean, context, deeps++);
                 }
-            }
-            Object unwrapBean = unwrap(bean);
-            if (isDeclare(beanDefinition, unwrapBean)) {
-                sessionBean.bean = bean;
-                sessionBean.jndi = root;
-                sessionBean.wrapped = bean != unwrapBean;
-                return;
+            } else {
+                Object unwrapBean = unwrap(bean);
+                if (isDeclare(beanDefinition, unwrapBean)) {
+                    sessionBean.bean = bean;
+                    sessionBean.jndi = root;
+                    sessionBean.wrapped = bean != unwrapBean;
+                    return;
+                }
             }
         } catch (NamingException e) {
             log.debug("", e);
