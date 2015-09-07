@@ -60,7 +60,7 @@ public class InternalContextResolver extends ConfigurationBeanResolver implement
         if (deeps > this.deeps) {
             return;
         }
-        log.info("deep search in context [{}], deep index {}", root, deeps);
+        log.debug("deep search in context [{}], deep index {}", root, deeps);
         BeanDefinition beanDefinition = sessionBean.getBeanDefinition();
         try {
             Object bean = context.lookup(root);

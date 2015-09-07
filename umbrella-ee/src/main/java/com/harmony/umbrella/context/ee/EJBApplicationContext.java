@@ -198,7 +198,7 @@ public class EJBApplicationContext extends ApplicationContext implements EJBCont
     @SuppressWarnings("unchecked")
     public <T> T lookup(Class<T> clazz, String mappedName) throws ApplicationContextException {
         String key = sessionKey(clazz, mappedName);
-
+        T result = null;
         SessionBean sessionBean = sessionBeanMap.get(key);
         if (sessionBean != null) {
             LOG.debug("lookup bean[{}] use cached session bean {}", sessionBean.getJndi(), sessionBean);
@@ -214,10 +214,15 @@ public class EJBApplicationContext extends ApplicationContext implements EJBCont
         }
 
         sessionBean = contextResolver.search(new BeanDefinition(clazz, mappedName), getContext());
-        LOG.info("lookup bean typeof {} by jndi {}", clazz.getName(), sessionBean.getJndi());
-        sessionBeanMap.put(key, sessionBean);
+        if (sessionBean != null) {
+            LOG.info("lookup bean typeof {} by jndi {}", clazz.getName(), sessionBean.getJndi());
+            sessionBeanMap.put(key, sessionBean);
+            result = (T) sessionBean.getBean();
+        } else {
+            LOG.warn("can't lookup bean typeof {}", clazz.getName());
+        }
 
-        return (T) sessionBean.getBean();
+        return result;
     }
 
     private String sessionKey(Class<?> clazz, String mappedName) {

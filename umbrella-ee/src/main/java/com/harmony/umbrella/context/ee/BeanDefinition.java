@@ -42,6 +42,7 @@ import com.harmony.umbrella.util.StringUtils;
  */
 public class BeanDefinition {
 
+    @SuppressWarnings("unchecked")
     private static final List<Class<? extends Annotation>> sessionClasses = Arrays.asList(Stateless.class, Stateful.class, Singleton.class);
     /**
      * beanClass 会话bean的类

@@ -55,7 +55,7 @@ public class ConfigurationBeanResolver implements BeanResolver {
     /**
      * jndi名称与remoteClass中间的分割符, default '#'
      */
-    private final String separator;
+    private final Set<String> separators = new HashSet<String>();
 
     /**
      * 组装mappedName需要添加的后缀
@@ -84,9 +84,9 @@ public class ConfigurationBeanResolver implements BeanResolver {
 
     public ConfigurationBeanResolver(Properties props) {
         this.globalPrefix = props.getProperty("jndi.format.globlal.prefix", "");
-        this.separator = props.getProperty("jndi.format.separator", "#");
         this.transformLocal = Boolean.valueOf(props.getProperty("jndi.format.transformLocal"));
         this.beanSuffixs.addAll(fromProps(props, "jndi.format.bean"));
+        this.separators.addAll(fromProps(props, "jndi.format.separator"));
         this.remoteSuffixs.addAll(fromProps(props, "jndi.format.remote"));
         this.localSuffixs.addAll(fromProps(props, "jndi.format.local"));
         this.warppedBeanHandlers.addAll(createFromProps(props, "jndi.wrapped.handler", WrappedBeanHandler.class));
@@ -274,24 +274,24 @@ public class ConfigurationBeanResolver implements BeanResolver {
          *            结尾的后缀
          */
         protected void addIfNotExists(String mappedName, Class<?> remoteClass) {
-            StringBuilder sb = new StringBuilder();
-            sb.append(globalPrefix);
-            if (StringUtils.isNotBlank(globalPrefix) //
-                    && !globalPrefix.endsWith("/") //
-                    && !mappedName.startsWith("/")) {
-                sb.append("/");
-            }
-            sb.append(mappedName)//
-                    .append(separator)//
-                    .append(remoteClass.getName());
-            String jndi = sb.toString();
+            for (String separator : separators) {
+                StringBuilder sb = new StringBuilder();
+                sb.append(globalPrefix);
+                if (StringUtils.isNotBlank(globalPrefix) //
+                        && !globalPrefix.endsWith("/") //
+                        && !mappedName.startsWith("/")) {
+                    sb.append("/");
+                }
+                sb.append(mappedName)//
+                        .append(separator)//
+                        .append(remoteClass.getName());
+                String jndi = sb.toString();
 
-            if (!jndis.contains(jndi) && (context == null || existsInContext(jndi, context))) {
-                jndis.add(jndi);
+                if (!jndis.contains(jndi) && (context == null || existsInContext(jndi, context))) {
+                    jndis.add(jndi);
+                }
             }
-
         }
-
     }
 
     /**

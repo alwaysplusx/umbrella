@@ -56,7 +56,7 @@ public class ApplicationMetadata {
          * web application server 的服务名e.g:Tomcat
          */
         public final String serverName;
-        
+
         public final int serverType;
 
         ServerInformation(ServletContext context) {
@@ -90,8 +90,15 @@ public class ApplicationMetadata {
 
         @Override
         public String toString() {
-            return "{\n  \"servletVersion\":\"" + servletVersion + "\", \n  \"serverName\":\"" + serverName + "\", \n  \"serverType\":\"" + serverType
-                    + "\"\n}";
+            StringBuilder builder = new StringBuilder();
+            builder.append("{\"servletVersion\":\"");
+            builder.append(servletVersion);
+            builder.append("\", \"serverName\":\"");
+            builder.append(serverName);
+            builder.append("\", \"serverType\":\"");
+            builder.append(serverType);
+            builder.append("\"}");
+            return builder.toString();
         }
 
     }
@@ -161,9 +168,23 @@ public class ApplicationMetadata {
 
         @Override
         public String toString() {
-            return "{\n  \"productName\":\"" + productName + "\", \n  \"productVersion\":\"" + productVersion + "\", \n  \"url\":\"" + url
-                    + "\", \n  \"userName\":\"" + userName + "\", \n  \"driverName\":\"" + driverName + "\", \n  \"driverVersion\":\"" + driverVersion
-                    + "\", \n  \"databaseType\":\"" + databaseType + "\"\n}";
+            StringBuilder builder = new StringBuilder();
+            builder.append("{\"productName\":\"");
+            builder.append(productName);
+            builder.append("\", \"productVersion\":\"");
+            builder.append(productVersion);
+            builder.append("\", \"url\":\"");
+            builder.append(url);
+            builder.append("\", \"userName\":\"");
+            builder.append(userName);
+            builder.append("\", \"driverName\":\"");
+            builder.append(driverName);
+            builder.append("\", \"driverVersion\":\"");
+            builder.append(driverVersion);
+            builder.append("\", \"databaseType\":\"");
+            builder.append(databaseType);
+            builder.append("\"}");
+            return builder.toString();
         }
 
     }
