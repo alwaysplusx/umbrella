@@ -42,7 +42,6 @@ import com.harmony.umbrella.util.StringUtils;
  */
 public class BeanDefinition {
 
-    @SuppressWarnings("unchecked")
     private static final List<Class<? extends Annotation>> sessionClasses = Arrays.asList(Stateless.class, Stateful.class, Singleton.class);
     /**
      * beanClass 会话bean的类
@@ -120,7 +119,7 @@ public class BeanDefinition {
      * 是接口并标记了{@linkplain Remote}注解
      */
     public boolean isRemoteClass() {
-        return beanClass.isInterface() && beanClass.getAnnotation(Remote.class) != null;
+        return beanClass.getAnnotation(Remote.class) != null || (beanClass.isInterface() && !isLocalClass());
     }
 
     /**
@@ -152,13 +151,15 @@ public class BeanDefinition {
     @SuppressWarnings("rawtypes")
     public Class<?>[] getRemoteClasses() {
         Set<Class> result = new HashSet<Class>();
-        Remote ann = beanClass.getAnnotation(Remote.class);
-        if (isRemoteClass()) {
+        if (isRemoteClass() || beanClass.isInterface()) {
             result.add(beanClass);
+        }
+        Remote ann = beanClass.getAnnotation(Remote.class);
+        if (ann != null) {
             Collections.addAll(result, ann.value());
-            return result.toArray(new Class[result.size()]);
         }
         for (Class clazz : ClassUtils.getAllInterfaces(beanClass)) {
+            // 当前类的所有接口, 如果接口上标注了remote注解则表示是一个remote class
             if (isRemoteClass(clazz)) {
                 result.add(clazz);
             }
@@ -172,11 +173,12 @@ public class BeanDefinition {
     @SuppressWarnings("rawtypes")
     public Class<?>[] getLocalClasses() {
         Set<Class> result = new HashSet<Class>();
-        Local ann = beanClass.getAnnotation(Local.class);
         if (isLocalClass()) {
             result.add(beanClass);
+        }
+        Local ann = beanClass.getAnnotation(Local.class);
+        if (ann != null) {
             Collections.addAll(result, ann.value());
-            return result.toArray(new Class[result.size()]);
         }
         for (Class clazz : ClassUtils.getAllInterfaces(beanClass)) {
             if (isLocalClass(clazz)) {
@@ -252,6 +254,18 @@ public class BeanDefinition {
         } else if (!mappedName.equals(other.mappedName))
             return false;
         return true;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append(getClass().getName());
+        builder.append(" : {beanClass:");
+        builder.append(beanClass != null ? beanClass.getName() : null);
+        builder.append(", mappedName:");
+        builder.append(mappedName);
+        builder.append("}");
+        return builder.toString();
     }
 
     /**

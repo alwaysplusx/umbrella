@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.umbrella.context.ee.support;
+package com.harmony.umbrella.context.ee.resolver;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -215,7 +215,7 @@ public class ConfigurationBeanResolver implements BeanResolver {
     }
 
     public Set<String> getRemoteSuffixs() {
-        return beanSuffixs;
+        return remoteSuffixs;
     }
 
     public Set<String> getLocalSuffixs() {
@@ -325,6 +325,9 @@ public class ConfigurationBeanResolver implements BeanResolver {
             this.transformLocal = ConfigurationBeanResolver.this.transformLocal;
         }
 
+        /*
+         * 去除localClass上的后缀, 添加上beanSuffix组合成一个mappedName
+         */
         @Override
         protected Set<String> mappedNames() {
             Set<String> result = new LinkedHashSet<String>();
@@ -339,8 +342,10 @@ public class ConfigurationBeanResolver implements BeanResolver {
                 for (Class<?> localClass : localClasses) {
                     String name = localClass.getSimpleName();
                     for (String localSuffix : localSuffixs) {
+                        // 去除后缀, 如果没有对应的后缀则忽略
                         name = removeSuffix(name, localSuffix);
                         for (String beanSuffix : beanSuffixs) {
+                            // 给去除后缀后的localClass SimpleName增加上bean的名称后缀
                             result.add(name + beanSuffix);
                         }
                     }
@@ -364,7 +369,7 @@ public class ConfigurationBeanResolver implements BeanResolver {
                     for (String localSuffix : localSuffixs) {
                         if (name.endsWith(localSuffix)) {
                             name = removeSuffix(name, localSuffix);
-                            for (String remoteSuffix : beanSuffixs) {
+                            for (String remoteSuffix : remoteSuffixs) {
                                 try {
                                     result.add(Class.forName(name + remoteSuffix, false, ClassUtils.getDefaultClassLoader()));
                                 } catch (ClassNotFoundException e) {
@@ -492,7 +497,7 @@ public class ConfigurationBeanResolver implements BeanResolver {
                     for (String localSuffix : localSuffixs) {
                         if (name.endsWith(localSuffix)) {
                             name = removeSuffix(name, localSuffix);
-                            for (String remoteSuffix : beanSuffixs) {
+                            for (String remoteSuffix : remoteSuffixs) {
                                 try {
                                     result.add(Class.forName(name + remoteSuffix, false, ClassUtils.getDefaultClassLoader()));
                                 } catch (ClassNotFoundException e) {

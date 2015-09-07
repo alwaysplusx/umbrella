@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.umbrella.context.ee.support;
+package com.harmony.umbrella.context.ee.resolver;
 
 import java.util.HashSet;
 import java.util.Properties;
@@ -49,7 +49,9 @@ public class InternalContextResolver extends ConfigurationBeanResolver implement
     protected SimpleSessionBean deepSearch(SimpleSessionBean bean, Context context) {
         for (String root : roots) {
             doDeepSearch(root, bean, context, 0);
-            return bean.bean == null ? null : bean;
+            if (bean.bean != null && bean.jndi != null) {
+                return bean;
+            }
         }
         return null;
     }
@@ -58,7 +60,7 @@ public class InternalContextResolver extends ConfigurationBeanResolver implement
         if (deeps > this.deeps) {
             return;
         }
-        log.debug("deep search context [{}]", root);
+        log.info("deep search in context [{}], deep index {}", root, deeps);
         BeanDefinition beanDefinition = sessionBean.getBeanDefinition();
         try {
             Object bean = context.lookup(root);
@@ -67,8 +69,10 @@ public class InternalContextResolver extends ConfigurationBeanResolver implement
                 while (subCtxs.hasMoreElements()) {
                     NameClassPair subNcp = subCtxs.nextElement();
                     String subRoot = root + ("".equals(root) ? "" : "/") + subNcp.getName();
-                    log.info("{}", subRoot);
                     doDeepSearch(subRoot, sessionBean, context, deeps++);
+                    if (sessionBean.bean != null && sessionBean.jndi != null) {
+                        return;
+                    }
                 }
             } else {
                 Object unwrapBean = unwrap(bean);
@@ -80,7 +84,7 @@ public class InternalContextResolver extends ConfigurationBeanResolver implement
                 }
             }
         } catch (NamingException e) {
-            log.debug("", e);
+            log.warn("context [{}] not find in {}", root, context);
         }
     }
 
@@ -111,7 +115,10 @@ public class InternalContextResolver extends ConfigurationBeanResolver implement
     }
 
     protected boolean filter(BeanDefinition beanDefinition) {
-        return !(beanDefinition.isRemoteClass() || beanDefinition.isSessionBean() || beanDefinition.isLocalClass());
+        return !(beanDefinition.isRemoteClass() //
+                || beanDefinition.isSessionBean() //
+                || beanDefinition.isLocalClass() //
+        || beanDefinition.getBeanClass().isInterface());
     }
 
 }

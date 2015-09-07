@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.umbrella.context.ee.support;
+package com.harmony.umbrella.context.ee.resolver;
 
 import com.harmony.umbrella.context.ee.BeanDefinition;
 import com.harmony.umbrella.context.ee.SessionBean;
@@ -21,7 +21,7 @@ import com.harmony.umbrella.context.ee.SessionBean;
 /**
  * @author wuxii@foxmail.com
  */
-public class SimpleSessionBean implements SessionBean {
+public final class SimpleSessionBean implements SessionBean {
 
     final BeanDefinition beanDefinition;
     Object bean;
@@ -99,6 +99,20 @@ public class SimpleSessionBean implements SessionBean {
         } else if (!jndi.equals(other.jndi))
             return false;
         return true;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append(getClass().getName());
+        builder.append(" : {beanDefinition:");
+        builder.append(beanDefinition);
+        builder.append(", jndi:");
+        builder.append(jndi);
+        builder.append(", bean:");
+        builder.append(bean);
+        builder.append("}");
+        return builder.toString();
     }
 
 }

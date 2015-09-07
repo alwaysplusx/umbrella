@@ -19,7 +19,7 @@ import com.harmony.umbrella.context.bean.JeeSessionBean;
 import com.harmony.umbrella.context.bean.JeeSessionLocal;
 import com.harmony.umbrella.context.bean.JeeSessionRemote;
 import com.harmony.umbrella.context.ee.BeanDefinition;
-import com.harmony.umbrella.context.ee.support.ConfigurationBeanResolver;
+import com.harmony.umbrella.context.ee.resolver.ConfigurationBeanResolver;
 import com.harmony.umbrella.util.PropUtils;
 
 /**
@@ -31,16 +31,17 @@ public class BeanResolverTest {
 
         ConfigurationBeanResolver resolver = new ConfigurationBeanResolver(PropUtils.loadProperties("META-INF/application.properties"));
 
+        System.out.println("local :");
         String[] names = resolver.guessNames(new BeanDefinition(JeeSessionLocal.class));
         for (String jndi : names) {
             System.out.println(jndi);
         }
-
+        System.out.println("remote :");
         names = resolver.guessNames(new BeanDefinition(JeeSessionRemote.class));
         for (String jndi : names) {
             System.out.println(jndi);
         }
-
+        System.out.println("bean :");
         names = resolver.guessNames(new BeanDefinition(JeeSessionBean.class));
         for (String jndi : names) {
             System.out.println(jndi);

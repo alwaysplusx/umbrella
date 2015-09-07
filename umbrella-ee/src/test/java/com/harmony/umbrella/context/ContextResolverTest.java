@@ -26,7 +26,7 @@ import org.junit.Test;
 import com.harmony.umbrella.context.bean.JeeSessionRemote;
 import com.harmony.umbrella.context.ee.BeanDefinition;
 import com.harmony.umbrella.context.ee.SessionBean;
-import com.harmony.umbrella.context.ee.support.InternalContextResolver;
+import com.harmony.umbrella.context.ee.resolver.InternalContextResolver;
 import com.harmony.umbrella.util.PropUtils;
 
 /**
@@ -45,7 +45,7 @@ public class ContextResolverTest {
     public void testContextResolver() throws Exception {
         Properties props = PropUtils.loadProperties("META-INF/application.properties");
         InternalContextResolver contextResolver = new InternalContextResolver(props);
-        InitialContext context = new InitialContext();
+        InitialContext context = new InitialContext(props);
         BeanDefinition bd = new BeanDefinition(JeeSessionRemote.class);
         String[] names = contextResolver.guessNames(bd);
         for (String name : names) {

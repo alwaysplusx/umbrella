@@ -36,7 +36,7 @@ public interface BeanResolver {
      * 
      * @param beanDefinition
      *            bean定义
-     * @return jndis
+     * @return jndis 猜想结果
      */
     String[] guessNames(BeanDefinition beanDefinition);
 

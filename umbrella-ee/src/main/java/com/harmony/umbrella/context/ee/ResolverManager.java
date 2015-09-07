@@ -21,8 +21,8 @@ import java.lang.reflect.Constructor;
 import java.util.Properties;
 
 import com.harmony.umbrella.context.ApplicationMetadata.ServerInformation;
-import com.harmony.umbrella.context.ee.support.ConfigurationBeanResolver;
-import com.harmony.umbrella.context.ee.support.InternalContextResolver;
+import com.harmony.umbrella.context.ee.resolver.ConfigurationBeanResolver;
+import com.harmony.umbrella.context.ee.resolver.InternalContextResolver;
 import com.harmony.umbrella.util.ClassUtils;
 import com.harmony.umbrella.util.ReflectionUtils;
 import com.harmony.umbrella.util.StringUtils;
