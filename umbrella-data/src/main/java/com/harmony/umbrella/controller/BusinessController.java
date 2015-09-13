@@ -19,6 +19,8 @@ import java.io.Serializable;
 import java.util.List;
 
 import com.harmony.umbrella.data.Bond;
+import com.harmony.umbrella.data.domain.Page;
+import com.harmony.umbrella.data.domain.PageRequest;
 
 /**
  * @author wuxii@foxmail.com
@@ -53,4 +55,7 @@ public interface BusinessController<T extends Serializable, ID extends Serializa
 
     boolean isNew(T entity);
 
+    Page<T> page(Bond bond, PageRequest pageRequest);
+
+    Page<T> page(PageRequest pageRequest);
 }

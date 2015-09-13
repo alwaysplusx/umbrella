@@ -175,16 +175,16 @@ public abstract class JunctionBond implements Bond {
 
     @Override
     public String toXQL(String tableAlias, final String aliasPrefix) {
-        
+
         final String prefix = StringUtils.isBlank(aliasPrefix) ? "" : aliasPrefix.trim() + "_";
-        
+
         return toXQL(tableAlias, new AliasGenerator() {
             int i = 0;
-            
+
             @Override
             public String generateAlias(Bond bond) {
                 String name = StringUtils.isBlank(bond.getName()) ? "" : bond.getName().replace(".", "");
-                
+
                 return prefix + name + "_" + i++;
             }
 
@@ -216,11 +216,21 @@ public abstract class JunctionBond implements Bond {
             protected Operator negated() {
                 return OR;
             }
+
+            @Override
+            public String shortName() {
+                return "a";
+            }
         },
         OR("or") {
             @Override
             protected Operator negated() {
                 return AND;
+            }
+
+            @Override
+            public String shortName() {
+                return "o";
             }
         };
 
@@ -236,6 +246,8 @@ public abstract class JunctionBond implements Bond {
         public String desc() {
             return desc;
         }
+
+        public abstract String shortName();
 
         /**
          * 对当前的{@linkplain Operator}取反

@@ -117,6 +117,11 @@ public interface Bond extends Serializable {
             public String desc() {
                 return "=";
             }
+
+            @Override
+            public String shortName() {
+                return "eq";
+            }
         },
         NOT_EQUAL {
 
@@ -128,6 +133,11 @@ public interface Bond extends Serializable {
             @Override
             public String desc() {
                 return "<>";
+            }
+
+            @Override
+            public String shortName() {
+                return "ne";
             }
         },
         LESS_THAN {
@@ -141,6 +151,11 @@ public interface Bond extends Serializable {
             public String desc() {
                 return "<";
             }
+
+            @Override
+            public String shortName() {
+                return "lt";
+            }
         },
         LESS_THAN_OR_EQUAL {
 
@@ -152,6 +167,11 @@ public interface Bond extends Serializable {
             @Override
             public String desc() {
                 return "<=";
+            }
+
+            @Override
+            public String shortName() {
+                return "le";
             }
         },
         GREATER_THAN {
@@ -165,6 +185,11 @@ public interface Bond extends Serializable {
             public String desc() {
                 return ">";
             }
+
+            @Override
+            public String shortName() {
+                return "gt";
+            }
         },
         GREATER_THAN_OR_EQUAL {
 
@@ -177,6 +202,11 @@ public interface Bond extends Serializable {
             public String desc() {
                 return ">=";
             }
+
+            @Override
+            public String shortName() {
+                return "ge";
+            }
         },
         IN {
 
@@ -187,6 +217,11 @@ public interface Bond extends Serializable {
 
             @Override
             public String desc() {
+                return "in";
+            }
+
+            @Override
+            public String shortName() {
                 return "in";
             }
         },
@@ -201,6 +236,11 @@ public interface Bond extends Serializable {
             public String desc() {
                 return "not in";
             }
+
+            @Override
+            public String shortName() {
+                return "ni";
+            }
         },
         NULL {
 
@@ -212,6 +252,11 @@ public interface Bond extends Serializable {
             @Override
             public String desc() {
                 return "is null";
+            }
+
+            @Override
+            public String shortName() {
+                return "uu";
             }
         },
         NOT_NULL {
@@ -225,6 +270,11 @@ public interface Bond extends Serializable {
             public String desc() {
                 return "is not null";
             }
+
+            @Override
+            public String shortName() {
+                return "nu";
+            }
         },
         LIKE {
 
@@ -237,6 +287,11 @@ public interface Bond extends Serializable {
             public String desc() {
                 return "like";
             }
+
+            @Override
+            public String shortName() {
+                return "ll";
+            }
         },
         NOT_LIKE {
 
@@ -248,6 +303,11 @@ public interface Bond extends Serializable {
             @Override
             public String desc() {
                 return "not like";
+            }
+
+            @Override
+            public String shortName() {
+                return "nl";
             }
         };
 
@@ -264,6 +324,8 @@ public interface Bond extends Serializable {
          * @return 连接字符
          */
         public abstract String desc();
+
+        public abstract String shortName();
 
     }
 

@@ -24,7 +24,6 @@ import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.harmony.umbrella.data.domain.Page;
 import com.harmony.umbrella.json.Json;
 import com.harmony.umbrella.json.serializer.SimplePropertyNameFilter;
-import com.harmony.umbrella.web.support.FrontPage;
 
 /**
  * @author wuxii@foxmail.com

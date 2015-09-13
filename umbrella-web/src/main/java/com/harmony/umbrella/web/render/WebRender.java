@@ -18,7 +18,6 @@ package com.harmony.umbrella.web.render;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -45,6 +44,7 @@ public class WebRender extends AbstractRender implements HttpTextRender, HttpBin
     protected static final Map<String, String> HTTP_RESPONSE_TEXT_HEADER = new HashMap<String, String>();
 
     static {
+
         HTTP_RESPONSE_JSON_HEADER.put(Content_Type, MediaType.TEXT_JSON);
 
         HTTP_RESPONSE_XML_HEADER.put(Content_Type, MediaType.TEXT_XML);
@@ -52,6 +52,12 @@ public class WebRender extends AbstractRender implements HttpTextRender, HttpBin
         HTTP_RESPONSE_HTML_HEADER.put(Content_Type, MediaType.TEXT_HTML);
 
         HTTP_RESPONSE_TEXT_HEADER.put(Content_Type, MediaType.TEXT_PLAIN);
+    }
+
+    private final Map<String, String> headerProperties = new HashMap<String, String>();
+
+    public WebRender(Map<String, String> headProperties) {
+        headerProperties.putAll(headProperties);
     }
 
     @Override
@@ -70,42 +76,41 @@ public class WebRender extends AbstractRender implements HttpTextRender, HttpBin
             if (fis != null)
                 fis.close();
         }
-        Map<String, String> header = createHeader(Collections.<String, String> emptyMap());
-        header.put(Content_Length, String.valueOf(buf.length));
-        header.put(Content_Disposition, "attachment;filename=" + file.getName() + "." + getFileExtensions(file.getName()));
-        applyHeaders(header, response);
+        headerProperties.put(Content_Length, String.valueOf(buf.length));
+        headerProperties.put(Content_Disposition, "attachment;filename=" + file.getName() + "." + getFileExtensions(file.getName()));
+        applyHeaders(headerProperties, response);
         render(buf, response.getOutputStream());
     }
 
     @Override
     public void renderJson(String text, HttpServletResponse response) throws IOException {
-        Map<String, String> header = createHeader(HTTP_RESPONSE_JSON_HEADER);
-        header.put(Content_Length, String.valueOf(text.getBytes().length));
-        applyHeaders(header, response);
+        headerProperties.putAll(HTTP_RESPONSE_JSON_HEADER);
+        headerProperties.put(Content_Length, String.valueOf(text.getBytes().length));
+        applyHeaders(headerProperties, response);
         render(text, response.getWriter());
     }
 
     @Override
     public void renderXml(String text, HttpServletResponse response) throws IOException {
-        Map<String, String> header = createHeader(HTTP_RESPONSE_XML_HEADER);
-        header.put(Content_Length, String.valueOf(text.getBytes().length));
-        applyHeaders(header, response);
+        headerProperties.putAll(HTTP_RESPONSE_XML_HEADER);
+        headerProperties.put(Content_Length, String.valueOf(text.getBytes().length));
+        applyHeaders(headerProperties, response);
         render(text, response.getWriter());
     }
 
     @Override
     public void renderHtml(String text, HttpServletResponse response) throws IOException {
-        Map<String, String> header = createHeader(HTTP_RESPONSE_HTML_HEADER);
-        header.put(Content_Length, String.valueOf(text.getBytes().length));
-        applyHeaders(header, response);
+        headerProperties.putAll(HTTP_RESPONSE_HTML_HEADER);
+        headerProperties.put(Content_Length, String.valueOf(text.getBytes().length));
+        applyHeaders(headerProperties, response);
         render(text, response.getWriter());
     }
 
     @Override
     public void renderText(String text, HttpServletResponse response) throws IOException {
-        Map<String, String> header = createHeader(HTTP_RESPONSE_TEXT_HEADER);
-        header.put(Content_Length, String.valueOf(text.getBytes().length));
-        applyHeaders(header, response);
+        headerProperties.putAll(HTTP_RESPONSE_TEXT_HEADER);
+        headerProperties.put(Content_Length, String.valueOf(text.getBytes().length));
+        applyHeaders(headerProperties, response);
         render(text, response.getWriter());
     }
 
@@ -118,10 +123,6 @@ public class WebRender extends AbstractRender implements HttpTextRender, HttpBin
             Entry<String, String> entry = it.next();
             response.setHeader(entry.getKey(), entry.getValue());
         }
-    }
-
-    private Map<String, String> createHeader(Map<String, String> header) {
-        return new HashMap<String, String>(header);
     }
 
     private static String getFileExtensions(String fileName) {

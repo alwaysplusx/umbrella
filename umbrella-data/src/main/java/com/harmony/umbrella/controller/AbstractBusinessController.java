@@ -23,6 +23,8 @@ import com.harmony.umbrella.data.Bond;
 import com.harmony.umbrella.data.BondParser;
 import com.harmony.umbrella.data.JpaDao;
 import com.harmony.umbrella.data.Specification;
+import com.harmony.umbrella.data.domain.Page;
+import com.harmony.umbrella.data.domain.PageRequest;
 import com.harmony.umbrella.data.query.SpecificationTransform;
 
 /**
@@ -126,6 +128,11 @@ public abstract class AbstractBusinessController<T extends Serializable, ID exte
     @Override
     public boolean isNew(T entity) {
         return getJpaDao().isNew(entity);
+    }
+
+    @Override
+    public Page<T> page(Bond bond, PageRequest pageRequest) {
+        return getJpaDao().findAll(toSpec(bond), pageRequest);
     }
 
     protected Specification<T> toSpec(Bond... bond) {
