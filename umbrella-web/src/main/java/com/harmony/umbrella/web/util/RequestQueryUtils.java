@@ -15,6 +15,7 @@
  */
 package com.harmony.umbrella.web.util;
 
+import java.lang.reflect.Field;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
@@ -35,6 +36,7 @@ public class RequestQueryUtils {
 
     private static final Map<String, Link> linkMap = new HashMap<String, Link>();
     private static final Map<String, Operator> operatorMap = new HashMap<String, Operator>();
+
     static {
 
         for (Link link : Link.values()) {
@@ -70,6 +72,23 @@ public class RequestQueryUtils {
         return null;
     }
 
+    private static Class<?> parameterType(Class<?> modelType, String parameterName) {
+        Class<?> parameterType = null;
+        int pointIndex = parameterName.indexOf(".");
+        try {
+            if (pointIndex > 0) {
+                String name = parameterName.substring(0, pointIndex);
+                Field field = modelType.getDeclaredField(name);
+                parameterType = parameterType(field.getType(), parameterName.substring(pointIndex));
+            } else {
+                return modelType.getDeclaredField(parameterName).getType();
+            }
+        } catch (NoSuchFieldException e) {
+            return null;
+        }
+        return parameterType;
+    }
+
     /**
      * f_o_eq_name_xx
      * <p>
@@ -77,7 +96,7 @@ public class RequestQueryUtils {
      * 
      * @author wuxii@foxmail.com
      */
-    public static class FilterParameter {
+    static class FilterParameter {
 
         private final Class<?> modelType;
         private final String originalName;
@@ -88,13 +107,14 @@ public class RequestQueryUtils {
         private Operator operator;
         private String parameterName;
         private Class<?> classType;
+        private Object value;
 
         public FilterParameter(String originalName, String prefix, String split, Class<?> modelType) {
             this.originalName = originalName;
             this.modelType = modelType;
             this.prefix = prefix;
             this.split = split;
-            this.readProperties(originalName.split(prefix));
+            this.readProperties(originalName.split(split));
         }
 
         private void readProperties(String[] names) {
@@ -103,57 +123,61 @@ public class RequestQueryUtils {
 
             if (operatorMap.containsKey(name_1)) {
                 this.operator = operatorMap.get(name_1);
+            } else {
+                this.operator = Operator.AND;
+                if (linkMap.containsKey(name_1)) {
+                    this.link = linkMap.get(name_1);
+                }
             }
 
-            if (operator == null && linkMap.containsKey(name_1)) {
-                this.link = linkMap.get(name_1);
-            } else if (linkMap.containsKey(name_2)) {
+            if (link == null && linkMap.containsKey(name_2)) {
                 this.link = linkMap.get(name_2);
             }
 
-            this.parameterName = names[1];
-
-            for (int index = 1; index < names.length; index++) {
-            }
-            boolean firstPicked = false;
-            boolean secondPicked = false;
-
-            for (int index = 1; index < names.length; index++) {
-
-                String name = names[index];
-
-                if (!firstPicked) {
-                    for (Operator op : Operator.values()) {
-                        if (op.shortName().equals(name)) {
-                            this.operator = op;
-                            firstPicked = true;
-                            break;
-                        }
-                    }
-                }
-
-                if (index > 1 && operator == null) {
-                    this.operator = Operator.AND;
-                }
-
-                if (!firstPicked || !secondPicked) {
-                    for (Link link : Link.values()) {
-                        if (link.shortName().equals(name)) {
-                            this.link = link;
-                            firstPicked = true;
-                            secondPicked = true;
-                            break;
-                        }
-                    }
-                }
-
+            if (link == null) {
+                throw new IllegalArgumentException(originalName + " link parameter is wrong");
             }
 
-            if (operator == null) {
-                this.operator = Operator.AND;
-            }
+            int linkIndex = originalName.indexOf(link.shortName()) + link.shortName().length() + split.length();
+
+            this.parameterName = originalName.substring(linkIndex, originalName.length()).replace(split, ".");
+
+            this.classType = parameterType(modelType, parameterName);
 
         }
+
+        @Override
+        public String toString() {
+            StringBuilder builder = new StringBuilder();
+            builder.append("{\"modelType\":\"");
+            builder.append(modelType);
+            builder.append("\", \"originalName\":\"");
+            builder.append(originalName);
+            builder.append("\", \"prefix\":\"");
+            builder.append(prefix);
+            builder.append("\", \"split\":\"");
+            builder.append(split);
+            builder.append("\", \"link\":\"");
+            builder.append(link);
+            builder.append("\", \"operator\":\"");
+            builder.append(operator);
+            builder.append("\", \"parameterName\":\"");
+            builder.append(parameterName);
+            builder.append("\", \"classType\":\"");
+            builder.append(classType);
+            builder.append("\", \"value\":\"");
+            builder.append(value);
+            builder.append("\"}");
+            return builder.toString();
+        }
+
     }
 
+    public static void main(String[] args) {
+
+        System.out.println(new FilterParameter("f_a_eq_name", "f", "_", Object.class));
+
+        System.out.println(new FilterParameter("f_lk_user_age", "f", "_", Object.class));
+
+    }
 }
