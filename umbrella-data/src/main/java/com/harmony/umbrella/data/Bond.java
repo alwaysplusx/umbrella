@@ -104,7 +104,7 @@ public interface Bond extends Serializable {
      * 
      * @author wuxii@foxmail.com
      */
-    enum Link {
+    public static enum Link {
 
         EQUAL {
 
@@ -290,7 +290,7 @@ public interface Bond extends Serializable {
 
             @Override
             public String shortName() {
-                return "ll";
+                return "lk";
             }
         },
         NOT_LIKE {

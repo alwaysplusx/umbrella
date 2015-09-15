@@ -16,15 +16,19 @@
 package com.harmony.umbrella.web.util;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.harmony.umbrella.context.ApplicationContext;
 import com.harmony.umbrella.data.Bond;
 import com.harmony.umbrella.data.Bond.Link;
 import com.harmony.umbrella.data.bond.JunctionBond.Operator;
@@ -34,24 +38,77 @@ import com.harmony.umbrella.data.bond.JunctionBond.Operator;
  */
 public class RequestQueryUtils {
 
+    private static final Logger log = LoggerFactory.getLogger(RequestQueryUtils.class);
+
     private static final Map<String, Link> linkMap = new HashMap<String, Link>();
     private static final Map<String, Operator> operatorMap = new HashMap<String, Operator>();
 
+    private static String filter;
+    private static String split;
+
     static {
 
+        Properties applicationProperties = ApplicationContext.getApplicationContext().getApplicationProperties();
+
+        String linkClassName = Link.class.getName();
         for (Link link : Link.values()) {
-            linkMap.put(link.shortName(), link);
+            String key = applicationProperties.getProperty(linkClassName + link.name(), link.shortName());
+            linkMap.put(key.toLowerCase(), link);
         }
 
+        String opClassName = Operator.class.getName();
         for (Operator op : Operator.values()) {
-            operatorMap.put(op.shortName(), op);
+            String key = applicationProperties.getProperty(opClassName + op.name(), op.shortName());
+            operatorMap.put(key.toLowerCase(), op);
         }
+
+        filter = applicationProperties.getProperty("application.web.front.filter", "f");
+        split = applicationProperties.getProperty("application.web.front.split", "_");
+
     }
 
-    private static final Logger log = LoggerFactory.getLogger(RequestQueryUtils.class);
+    public static FilterParameter[] filterRequest(Class<?> modelType, HttpServletRequest request) {
+        List<FilterParameter> result = new ArrayList<FilterParameter>();
+        final String prefix = RequestQueryUtils.filter;
+        final String split = RequestQueryUtils.split;
+        final String filterPrefix = prefix + split;
+
+        Enumeration<String> names = request.getParameterNames();
+        while (names.hasMoreElements()) {
+            String name = names.nextElement();
+            if (name.startsWith(filterPrefix) && name.split(split).length > 2) {
+
+            }
+        }
+
+        return result.toArray(new FilterParameter[result.size()]);
+    }
 
     public static Bond filterRequest(String filterPrefix, String filterSplit, Class<?> modelType, HttpServletRequest request) {
         String filterName = filterPrefix + filterSplit;
+
+        Enumeration<String> names = request.getParameterNames();
+        while (names.hasMoreElements()) {
+            String name = names.nextElement();
+            if (name.startsWith(filterName)) {
+                if (name.split(filterPrefix).length < 3) {
+                    log.warn("http request parameter name {} start with {}, but split with {} not enough", name, filterName, filterSplit);
+                    continue;
+                }
+                FilterParameter param = new FilterParameter(name, filterPrefix, filterSplit, modelType);
+                param.value = request.getParameter(name);
+            }
+        }
+
+        return null;
+    }
+
+    public static FilterParameter filter(String prefix, String split, String name, Class<?> modelType, Object value) {
+
+        return null;
+    }
+
+    /*public static Bond filterRequest(Class<?> modelType, HttpServletRequest request) {
         Enumeration<String> names = request.getParameterNames();
 
         while (names.hasMoreElements()) {
@@ -65,12 +122,7 @@ public class RequestQueryUtils {
             }
         }
         return null;
-    }
-
-    public static Bond filterParameter(String name, Class<?> modelType, Object value) {
-
-        return null;
-    }
+    }*/
 
     private static Class<?> parameterType(Class<?> modelType, String parameterName) {
         Class<?> parameterType = null;
@@ -96,7 +148,7 @@ public class RequestQueryUtils {
      * 
      * @author wuxii@foxmail.com
      */
-    static class FilterParameter {
+    public final static class FilterParameter {
 
         private final Class<?> modelType;
         private final String originalName;
@@ -118,8 +170,8 @@ public class RequestQueryUtils {
         }
 
         private void readProperties(String[] names) {
-            String name_1 = names[1];
-            String name_2 = names[2];
+            String name_1 = names[1].toLowerCase();
+            String name_2 = names[2].toLowerCase();
 
             if (operatorMap.containsKey(name_1)) {
                 this.operator = operatorMap.get(name_1);
@@ -146,25 +198,51 @@ public class RequestQueryUtils {
 
         }
 
+        public Class<?> getModelType() {
+            return modelType;
+        }
+
+        public String getOriginalName() {
+            return originalName;
+        }
+
+        public String getPrefix() {
+            return prefix;
+        }
+
+        public String getSplit() {
+            return split;
+        }
+
+        public Link getLink() {
+            return link;
+        }
+
+        public Operator getOperator() {
+            return operator;
+        }
+
+        public String getParameterName() {
+            return parameterName;
+        }
+
+        public Class<?> getClassType() {
+            return classType;
+        }
+
+        public Object getValue() {
+            return value;
+        }
+
         @Override
         public String toString() {
             StringBuilder builder = new StringBuilder();
-            builder.append("{\"modelType\":\"");
-            builder.append(modelType);
-            builder.append("\", \"originalName\":\"");
+            builder.append("{\"originalName\":\"");
             builder.append(originalName);
-            builder.append("\", \"prefix\":\"");
-            builder.append(prefix);
-            builder.append("\", \"split\":\"");
-            builder.append(split);
             builder.append("\", \"link\":\"");
             builder.append(link);
             builder.append("\", \"operator\":\"");
             builder.append(operator);
-            builder.append("\", \"parameterName\":\"");
-            builder.append(parameterName);
-            builder.append("\", \"classType\":\"");
-            builder.append(classType);
             builder.append("\", \"value\":\"");
             builder.append(value);
             builder.append("\"}");

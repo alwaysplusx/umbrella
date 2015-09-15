@@ -38,12 +38,16 @@ public class ContextProvider {
      * @return 应用上下文
      */
     public ApplicationContext createApplicationContext(Properties props) {
-        return new SimpleApplicationContext();
+        return new SimpleApplicationContext(props);
     }
 
     static final class SimpleApplicationContext extends ApplicationContext {
 
         private BeanFactory beanFactory = new SimpleBeanFactory();
+
+        public SimpleApplicationContext(Properties props) {
+            super(props);
+        }
 
         @Override
         public <T> T getBean(String beanName) throws NoSuchBeanFindException {

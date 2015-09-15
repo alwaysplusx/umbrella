@@ -15,7 +15,6 @@
  */
 package com.harmony.umbrella.scheduling.support;
 
-import java.io.IOException;
 import java.lang.reflect.Modifier;
 import java.util.Properties;
 import java.util.Set;
@@ -64,7 +63,6 @@ public class PropertiesFileJobFactory implements JobFactory {
             } else {
                 throw new IllegalArgumentException(jobClassName + "class not " + Job.class.getName() + " sub class");
             }
-        } catch (IOException e) {
         } catch (ClassNotFoundException e) {
             throw new IllegalArgumentException("job class not find");
         }
@@ -73,12 +71,10 @@ public class PropertiesFileJobFactory implements JobFactory {
 
     @Override
     public Trigger getJobTrigger(String jobName) {
-        try {
-            Properties props = PropUtils.loadProperties(triggerFileLocation);
-            String expression = props.getProperty(jobName);
-            if (expression != null)
-                return new ExpressionTrigger(expression);
-        } catch (IOException e) {
+        Properties props = PropUtils.loadProperties(triggerFileLocation);
+        String expression = props.getProperty(jobName);
+        if (expression != null) {
+            return new ExpressionTrigger(expression);
         }
         return null;
     }
@@ -99,11 +95,7 @@ public class PropertiesFileJobFactory implements JobFactory {
 
     @Override
     public Set<String> getAllJobNames() {
-        Properties props = null;
-        try {
-            props = PropUtils.loadProperties(jobFileLocation);
-        } catch (IOException e) {
-        }
+        Properties props = PropUtils.loadProperties(jobFileLocation);
         return props.stringPropertyNames();
     }
 }

@@ -20,6 +20,9 @@ import java.io.InputStream;
 import java.util.Iterator;
 import java.util.Properties;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.harmony.umbrella.io.ClassPathResource;
 
 /**
@@ -29,6 +32,8 @@ import com.harmony.umbrella.io.ClassPathResource;
  */
 public abstract class PropUtils {
 
+    private static final Logger log = LoggerFactory.getLogger(PropUtils.class);
+
     /**
      * 加载指定文件下的资源文件
      * 
@@ -36,24 +41,30 @@ public abstract class PropUtils {
      * @return
      * @throws IOException
      */
-    public static Properties loadProperties(String... paths) throws IOException {
+    public static Properties loadProperties(String... paths) {
         Properties props = new Properties();
-        if (paths == null || paths.length == 0)
+        if (paths == null || paths.length == 0) {
             return props;
+        }
         for (String path : paths) {
             loadProperties(path, props);
         }
         return props;
     }
 
-    private static void loadProperties(String path, Properties props) throws IOException {
+    private static void loadProperties(String path, Properties props) {
         InputStream inStream = null;
         try {
             inStream = new ClassPathResource(path).getInputStream();
             props.load(inStream);
+        } catch (IOException e) {
+            log.warn("properties file {} not exists", path);
         } finally {
             if (inStream != null) {
-                inStream.close();
+                try {
+                    inStream.close();
+                } catch (IOException e) {
+                }
             }
         }
     }
@@ -95,19 +106,4 @@ public abstract class PropUtils {
         return result;
     }
 
-//    public static Map<String, Object> filterStartWith(String prefix, Map<String, Object> props) {
-//        Map<String, Object> result = new HashMap<String, Object>();
-//        if (props == null || props.isEmpty()) {
-//            return result;
-//        }
-//
-//        Iterator<String> iterator = props.keySet().iterator();
-//        while (iterator.hasNext()) {
-//            String key = iterator.next();
-//            if (key.startsWith(prefix)) {
-//                result.put(key, props.get(key));
-//            }
-//        }
-//        return result;
-//    }
 }

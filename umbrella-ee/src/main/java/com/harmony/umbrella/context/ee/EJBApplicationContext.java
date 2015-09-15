@@ -17,7 +17,6 @@ package com.harmony.umbrella.context.ee;
 
 import static com.harmony.umbrella.context.ee.ResolverManager.*;
 
-import java.io.IOException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
@@ -27,7 +26,6 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
-import com.harmony.umbrella.Constants;
 import com.harmony.umbrella.context.ApplicationContext;
 import com.harmony.umbrella.context.ApplicationContextException;
 import com.harmony.umbrella.context.ee.jmx.EJBContext;
@@ -46,19 +44,9 @@ import com.harmony.umbrella.util.StringUtils;
 public class EJBApplicationContext extends ApplicationContext implements EJBContextMBean {
 
     /**
-     * jndi默认配置文件地址
-     */
-    public static final String JNDI_PROPERTIES_FILE_LOCATION = Constants.GLOBAL_CONFIG;
-
-    /**
      * jndi文件地址
      */
     private final String jndiPropertiesFileLocation;
-
-    /**
-     * 应用的配置属性
-     */
-    private final Properties applicationProperties = new Properties();
 
     /**
      * JMX管理
@@ -81,7 +69,7 @@ public class EJBApplicationContext extends ApplicationContext implements EJBCont
     private static final int SHUTDOWN = 3;
 
     private EJBApplicationContext(Properties props) {
-        this.jndiPropertiesFileLocation = props.getProperty("jndi.properties.file", JNDI_PROPERTIES_FILE_LOCATION);
+        this.jndiPropertiesFileLocation = props.getProperty("jndi.properties.file", APPLICATION_PROPERTIES_LOCATION);
         this.loadProperties();
         this.applyProperties(props);
         this.contextResolver = createContextResolver(getInformationOfServer(), applicationProperties);
@@ -318,11 +306,7 @@ public class EJBApplicationContext extends ApplicationContext implements EJBCont
      */
     @Override
     public void loadProperties() {
-        try {
-            applicationProperties.putAll(PropUtils.loadProperties(jndiPropertiesFileLocation));
-        } catch (IOException e) {
-            LOG.warn("can't load jndi properties file", e);
-        }
+        applicationProperties.putAll(PropUtils.loadProperties(jndiPropertiesFileLocation));
     }
 
     /*

@@ -15,12 +15,6 @@
  */
 package com.harmony.umbrella;
 
-import java.io.IOException;
-import java.util.Iterator;
-import java.util.Properties;
-
-import com.harmony.umbrella.util.PropUtils;
-
 /**
  * @author wuxii@foxmail.com
  */
@@ -28,13 +22,11 @@ public abstract class Constants {
 
     private static final String defaultPackage = "com.harmony";
 
-    public static final String GLOBAL_CONFIG = "META-INF/application.properties";
-
     public static final String DEFAULT_PACKAGE = defaultPackage;
 
-    private static final Properties globalProperties = new Properties();
+    // private static final Properties globalProperties = new Properties();
 
-    static {
+    /*static {
         try {
             globalProperties.putAll(PropUtils.loadProperties(GLOBAL_CONFIG));
         } catch (IOException e) {
@@ -51,5 +43,5 @@ public abstract class Constants {
             }
         }
         return props;
-    }
+    }*/
 }

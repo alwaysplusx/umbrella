@@ -32,6 +32,7 @@ import com.harmony.umbrella.context.ApplicationMetadata.JVMInformation;
 import com.harmony.umbrella.context.ApplicationMetadata.OSInformation;
 import com.harmony.umbrella.context.ApplicationMetadata.ServerInformation;
 import com.harmony.umbrella.core.BeanFactory;
+import com.harmony.umbrella.util.PropUtils;
 
 /**
  * 运行的应用的上下文
@@ -40,11 +41,21 @@ import com.harmony.umbrella.core.BeanFactory;
  */
 public abstract class ApplicationContext implements BeanFactory {
 
+    /**
+     * jndi默认配置文件地址
+     */
+    public static final String APPLICATION_PROPERTIES_LOCATION = "META-INF/application.properties";
+
     protected static final ThreadLocal<CurrentContext> current = new InheritableThreadLocal<CurrentContext>();
 
     protected static final Logger LOG = LoggerFactory.getLogger(ApplicationContext.class);
 
     private static final ServiceLoader<ContextProvider> providers = ServiceLoader.load(ContextProvider.class);
+
+    /**
+     * 应用的配置属性
+     */
+    protected final Properties applicationProperties = new Properties();
 
     /**
      * 运行的web服务信息，未初始化则为{@code null}
@@ -54,6 +65,13 @@ public abstract class ApplicationContext implements BeanFactory {
      * 所连接的数据库信息, 未初始化则为{@code null}
      */
     private static DBInformation dbInfo;
+
+    public ApplicationContext() {
+    }
+
+    public ApplicationContext(Properties props) {
+        this.applicationProperties.putAll(props);
+    }
 
     /**
      * 初始化应用上下文
@@ -94,7 +112,7 @@ public abstract class ApplicationContext implements BeanFactory {
      * @return 应用上下文
      */
     public static final ApplicationContext getApplicationContext() {
-        return getApplicationContext(new Properties());
+        return getApplicationContext0(new Properties());
     }
 
     /**
@@ -105,11 +123,26 @@ public abstract class ApplicationContext implements BeanFactory {
      * @return 应用上下文
      */
     public static final ApplicationContext getApplicationContext(Properties props) {
+        return getApplicationContext0(props);
+    }
+
+    /**
+     * 获取当前应用的上下文, 并使用初始化属性{@code props}对应用进行初始化
+     * 
+     * @param props
+     *            引用的初始化属性
+     * @return 应用上下文
+     */
+    private static final ApplicationContext getApplicationContext0(Properties props) {
+
+        Properties applicationProperties = PropUtils.loadProperties(APPLICATION_PROPERTIES_LOCATION);
+        applicationProperties.putAll(props);
+
         ApplicationContext context = null;
         providers.reload();
         for (ContextProvider provider : providers) {
             try {
-                context = provider.createApplicationContext(props);
+                context = provider.createApplicationContext(applicationProperties);
                 if (context != null) {
                     LOG.debug("create context [{}] by [{}]", context, provider);
                     break;
@@ -120,9 +153,13 @@ public abstract class ApplicationContext implements BeanFactory {
         }
         if (context == null) {
             LOG.warn("can't find any application context provider to create context, use default {}", ContextProvider.SimpleApplicationContext.class.getName());
-            context = new ContextProvider.SimpleApplicationContext();
+            context = new ContextProvider.SimpleApplicationContext(applicationProperties);
         }
         return context;
+    }
+
+    public Properties getApplicationProperties() {
+        return applicationProperties;
     }
 
     /**
