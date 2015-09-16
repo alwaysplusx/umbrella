@@ -26,8 +26,11 @@ import java.util.Properties;
 import javax.servlet.http.HttpServletRequest;
 
 import com.harmony.umbrella.context.ApplicationContext;
+import com.harmony.umbrella.data.Bond;
 import com.harmony.umbrella.data.Bond.Link;
+import com.harmony.umbrella.data.bond.BondBuilder;
 import com.harmony.umbrella.data.bond.JunctionBond.Operator;
+import com.harmony.umbrella.util.Assert;
 import com.harmony.umbrella.util.StringUtils;
 
 /**
@@ -62,6 +65,60 @@ public class RequestQueryUtils {
         filter = applicationProperties.getProperty("application.web.front.filter", "f");
         split = applicationProperties.getProperty("application.web.front.split", "_");
 
+    }
+
+    public static Bond toBond(FilterParameter[] filterParameters) {
+        BondBuilder builder = BondBuilder.newInstance();
+        Bond bond = null;
+        for (FilterParameter fp : filterParameters) {
+            switch (fp.link) {
+            case EQUAL:
+                bond = builder.equal(fp.parameterName, fp.value);
+                break;
+            case GREATER_THAN:
+                bond = builder.gt(fp.parameterName, fp.value);
+                break;
+            case GREATER_THAN_OR_EQUAL:
+                bond = builder.ge(fp.parameterName, fp.value);
+                break;
+            case IN:
+                bond = builder.in(fp.parameterName, fp.value);
+                break;
+            case LESS_THAN:
+                bond = builder.lt(fp.parameterName, fp.value);
+                break;
+            case LESS_THAN_OR_EQUAL:
+                bond = builder.le(fp.parameterName, fp.value);
+                break;
+            case LIKE:
+                bond = builder.like(fp.parameterName, (String) fp.value);
+                break;
+            case NOT_EQUAL:
+                bond = builder.notEqual(fp.parameterName, fp.value);
+                break;
+            case NOT_IN:
+                bond = builder.notIn(fp.parameterName, fp.value);
+                break;
+            case NOT_LIKE:
+                bond = builder.notLike(fp.parameterName, (String) fp.value);
+                break;
+            case NOT_NULL:
+                bond = builder.isNotNull(fp.parameterName);
+                break;
+            case NULL:
+                bond = builder.isNull(fp.parameterName);
+                break;
+            default:
+                throw new IllegalArgumentException("request is illegal link " + fp.link);
+            }
+
+            if (Operator.AND == fp.operator) {
+                bond = builder.and(bond);
+            } else {
+                bond = builder.or(bond);
+            }
+        }
+        return null;
     }
 
     public static FilterParameter[] filterRequest(Class<?> modelType, HttpServletRequest request) {
@@ -174,37 +231,52 @@ public class RequestQueryUtils {
         private Object value;
 
         public FilterParameter(String originalName, String prefix, String split, Class<?> modelType) {
+            Assert.isTrue(originalName.split(split).length > 2, originalName + " not a request parameter");
+            Assert.isTrue(originalName.startsWith(prefix), originalName + " not start with " + prefix);
             this.originalName = originalName;
-            this.modelType = modelType;
             this.prefix = prefix;
             this.split = split;
+            this.modelType = modelType;
             this.readProperties(originalName.split(split));
         }
 
+        /**
+         * e.g.: f_a_eq_name, f_eq_name, f_eq_user_name
+         */
         private void readProperties(String[] names) {
-            String name_1 = names[1].toLowerCase();
-            String name_2 = names[2].toLowerCase();
 
-            if (operatorMap.containsKey(name_1)) {
-                this.operator = operatorMap.get(name_1);
+            int parameterNameIndex = 0;
+
+            String name1 = names[1];// may be a or eq
+            String name2 = names[2];// may be eq or name
+
+            String name1LowerCase = names[1].toLowerCase();
+            String name2LowerCase = names[2].toLowerCase();
+
+            if (operatorMap.containsKey(name1LowerCase)) {
+                this.operator = operatorMap.get(name1LowerCase);
             } else {
                 this.operator = Operator.AND;
-                if (linkMap.containsKey(name_1)) {
-                    this.link = linkMap.get(name_1);
+                if (linkMap.containsKey(name1LowerCase)) {
+                    this.link = linkMap.get(name1LowerCase);
+                    parameterNameIndex = originalName.indexOf(name1) + name1.length() + split.length();
                 }
             }
 
-            if (link == null && linkMap.containsKey(name_2)) {
-                this.link = linkMap.get(name_2);
+            if (link == null && linkMap.containsKey(name2LowerCase)) {
+                this.link = linkMap.get(name2LowerCase);
+                parameterNameIndex = originalName.indexOf(name2) + name2.length() + split.length();
             }
 
             if (link == null) {
                 throw new IllegalArgumentException(originalName + " link parameter is wrong");
             }
 
-            int linkIndex = originalName.indexOf(link.shortName()) + link.shortName().length() + split.length();
+            if (originalName.length() <= parameterNameIndex) {
+                throw new IllegalArgumentException(originalName + " not contains any parameter name");
+            }
 
-            this.parameterName = originalName.substring(linkIndex, originalName.length()).replace(split, ".");
+            this.parameterName = originalName.substring(parameterNameIndex).replace(split, ".");
 
             this.classType = parameterType(modelType, parameterName);
 
@@ -244,6 +316,19 @@ public class RequestQueryUtils {
 
         public Object getValue() {
             return value;
+        }
+
+        @Override
+        public String toString() {
+            StringBuilder builder = new StringBuilder();
+            builder.append("{link:");
+            builder.append(link);
+            builder.append(", operator:");
+            builder.append(operator);
+            builder.append(", parameterName:");
+            builder.append(parameterName);
+            builder.append("}");
+            return builder.toString();
         }
 
     }

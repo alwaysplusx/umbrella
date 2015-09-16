@@ -24,7 +24,6 @@ import com.harmony.umbrella.data.bond.JunctionBond.Operator;
  * 对内部的{@linkplain #getBonds()}通过{@linkplain Operator#AND}关联关系关联
  * 
  * @author wuxii@foxmail.com
- * @author wuxii@foxmail.com
  */
 public class DisjunctionBond extends JunctionBond {
 
