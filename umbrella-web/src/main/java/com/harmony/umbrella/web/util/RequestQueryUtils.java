@@ -25,20 +25,17 @@ import java.util.Properties;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.harmony.umbrella.context.ApplicationContext;
-import com.harmony.umbrella.data.Bond;
 import com.harmony.umbrella.data.Bond.Link;
 import com.harmony.umbrella.data.bond.JunctionBond.Operator;
+import com.harmony.umbrella.util.StringUtils;
 
 /**
  * @author wuxii@foxmail.com
  */
 public class RequestQueryUtils {
 
-    private static final Logger log = LoggerFactory.getLogger(RequestQueryUtils.class);
+    //private static final Logger log = LoggerFactory.getLogger(RequestQueryUtils.class);
 
     private static final Map<String, Link> linkMap = new HashMap<String, Link>();
     private static final Map<String, Operator> operatorMap = new HashMap<String, Operator>();
@@ -68,7 +65,12 @@ public class RequestQueryUtils {
     }
 
     public static FilterParameter[] filterRequest(Class<?> modelType, HttpServletRequest request) {
+        return filterRequest(modelType, request, true);
+    }
+
+    public static FilterParameter[] filterRequest(Class<?> modelType, HttpServletRequest request, boolean ignoreBlankValue) {
         List<FilterParameter> result = new ArrayList<FilterParameter>();
+
         final String prefix = RequestQueryUtils.filter;
         final String split = RequestQueryUtils.split;
         final String filterPrefix = prefix + split;
@@ -76,15 +78,30 @@ public class RequestQueryUtils {
         Enumeration<String> names = request.getParameterNames();
         while (names.hasMoreElements()) {
             String name = names.nextElement();
-            if (name.startsWith(filterPrefix) && name.split(split).length > 2) {
-
+            String[] values = request.getParameterValues(name);
+            if (name.startsWith(filterPrefix) && name.split(split).length > 2 && (ignoreBlankValue || !isBlankArray(values))) {
+                FilterParameter fp = new FilterParameter(name, prefix, split, modelType);
+                fp.value = values.length > 1 ? values : values[0];
+                result.add(fp);
             }
         }
 
         return result.toArray(new FilterParameter[result.size()]);
     }
 
-    public static Bond filterRequest(String filterPrefix, String filterSplit, Class<?> modelType, HttpServletRequest request) {
+    private static boolean isBlankArray(String[] array) {
+        if (array == null || array.length == 0) {
+            return true;
+        }
+        for (String str : array) {
+            if (StringUtils.isNotBlank(str)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /*public static Bond filterRequest(String filterPrefix, String filterSplit, Class<?> modelType, HttpServletRequest request) {
         String filterName = filterPrefix + filterSplit;
 
         Enumeration<String> names = request.getParameterNames();
@@ -101,12 +118,7 @@ public class RequestQueryUtils {
         }
 
         return null;
-    }
-
-    public static FilterParameter filter(String prefix, String split, String name, Class<?> modelType, Object value) {
-
-        return null;
-    }
+    }*/
 
     /*public static Bond filterRequest(Class<?> modelType, HttpServletRequest request) {
         Enumeration<String> names = request.getParameterNames();
@@ -232,21 +244,6 @@ public class RequestQueryUtils {
 
         public Object getValue() {
             return value;
-        }
-
-        @Override
-        public String toString() {
-            StringBuilder builder = new StringBuilder();
-            builder.append("{\"originalName\":\"");
-            builder.append(originalName);
-            builder.append("\", \"link\":\"");
-            builder.append(link);
-            builder.append("\", \"operator\":\"");
-            builder.append(operator);
-            builder.append("\", \"value\":\"");
-            builder.append(value);
-            builder.append("\"}");
-            return builder.toString();
         }
 
     }
