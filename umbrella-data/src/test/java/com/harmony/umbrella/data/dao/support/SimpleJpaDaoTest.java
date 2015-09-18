@@ -19,6 +19,12 @@ import static org.junit.Assert.*;
 
 import java.util.Arrays;
 
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Path;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,5 +67,22 @@ public class SimpleJpaDaoTest {
         BondParser parser = SpecificationTransform.getInstance();
         Specification<User> spec = parser.toSpecification(User.class, bond);
         userJpaDao.delete(spec);
+    }
+
+    @Test
+    @SuppressWarnings("rawtypes")
+    public void testNoRealTypeWithValue() {
+        User user = userJpaDao.findOne(new Specification<User>() {
+
+            @Override
+            public Predicate toPredicate(Root<User> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+                Path path = root.get("userId");
+                Path path2 = root.get("birthday");
+                Path path3 = root.get("age");
+                return cb.and(cb.equal(path, "1"), cb.equal(path3, "18"), cb.equal(path2, "2015-09-08 10:10:10"));
+            }
+        });
+
+        System.out.println(user);
     }
 }

@@ -19,6 +19,8 @@ import java.io.IOException;
 
 import javax.servlet.http.HttpServletResponse;
 
+import com.harmony.umbrella.web.Render;
+
 /**
  * 文本渲染
  * 

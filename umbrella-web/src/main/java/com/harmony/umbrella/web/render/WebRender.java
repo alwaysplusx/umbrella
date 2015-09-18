@@ -27,6 +27,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.harmony.umbrella.util.Assert;
 import com.harmony.umbrella.util.StringUtils;
+import com.harmony.umbrella.web.AbstractRender;
 import com.harmony.umbrella.web.WebConstants.MediaType;
 
 /**

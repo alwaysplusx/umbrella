@@ -16,6 +16,8 @@
 package com.harmony.umbrella.data.persistence;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
+import java.util.Calendar;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -24,6 +26,8 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 /**
  * @author wuxii@foxmail.com
@@ -37,6 +41,9 @@ public class User implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long userId;
     private String username;
+    @Temporal(TemporalType.TIMESTAMP)
+    private Calendar birthday;
+    private BigDecimal age;
     @ManyToOne
     @JoinColumn(name = "personId", referencedColumnName = "personId")
     private Person person;
@@ -56,6 +63,14 @@ public class User implements Serializable {
         this.userId = userId;
     }
 
+    public BigDecimal getAge() {
+        return age;
+    }
+
+    public void setAge(BigDecimal age) {
+        this.age = age;
+    }
+
     public String getUsername() {
         return username;
     }
@@ -70,6 +85,14 @@ public class User implements Serializable {
 
     public void setPerson(Person person) {
         this.person = person;
+    }
+
+    public Calendar getBirthday() {
+        return birthday;
+    }
+
+    public void setBirthday(Calendar birthday) {
+        this.birthday = birthday;
     }
 
     @Override

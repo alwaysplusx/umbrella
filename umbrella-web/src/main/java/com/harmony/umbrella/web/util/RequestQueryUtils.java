@@ -143,12 +143,28 @@ public class RequestQueryUtils {
             String[] values = request.getParameterValues(name);
             if (name.startsWith(filterPrefix) && name.split(split).length > 2 && (ignoreBlankValue || !isBlankArray(values))) {
                 FilterParameter fp = new FilterParameter(name, prefix, split, modelType);
-                fp.value = values.length > 1 ? values : values[0];
+                applyValue(fp, values);
                 result.add(fp);
             }
         }
 
         return result.toArray(new FilterParameter[result.size()]);
+    }
+
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    private static void applyValue(FilterParameter fp, String[] values) {
+        if (values.length > 1) {
+            List valueList = new ArrayList();
+            for (String value : values) {
+                valueList.add(convert(fp.javaType, value.trim()));
+            }
+        } else {
+            fp.value = convert(fp.javaType, values[0].trim());
+        }
+    }
+
+    private static Object convert(Class<?> requireType, String value) {
+        return value;
     }
 
     private static boolean isBlankArray(String[] array) {
@@ -163,41 +179,9 @@ public class RequestQueryUtils {
         return true;
     }
 
-    /*public static Bond filterRequest(String filterPrefix, String filterSplit, Class<?> modelType, HttpServletRequest request) {
-        String filterName = filterPrefix + filterSplit;
-
-        Enumeration<String> names = request.getParameterNames();
-        while (names.hasMoreElements()) {
-            String name = names.nextElement();
-            if (name.startsWith(filterName)) {
-                if (name.split(filterPrefix).length < 3) {
-                    log.warn("http request parameter name {} start with {}, but split with {} not enough", name, filterName, filterSplit);
-                    continue;
-                }
-                FilterParameter param = new FilterParameter(name, filterPrefix, filterSplit, modelType);
-                param.value = request.getParameter(name);
-            }
-        }
-
-        return null;
-    }*/
-
-    /*public static Bond filterRequest(Class<?> modelType, HttpServletRequest request) {
-        Enumeration<String> names = request.getParameterNames();
-
-        while (names.hasMoreElements()) {
-            String name = names.nextElement();
-            if (name.startsWith(filterName)) {
-                if (name.split(filterPrefix).length < 3) {
-                    log.warn("http request parameter name {} start with {}, but split with {} not enough", name, filterName, filterSplit);
-                    continue;
-                }
-                FilterParameter param = new FilterParameter(name, filterPrefix, filterSplit, modelType);
-            }
-        }
-        return null;
-    }*/
-
+    /**
+     * 查询请求参数对应的java类型
+     */
     private static Class<?> parameterType(Class<?> modelType, String parameterName) {
         Class<?> parameterType = null;
         int pointIndex = parameterName.indexOf(".");
@@ -224,15 +208,21 @@ public class RequestQueryUtils {
      */
     public final static class FilterParameter {
 
+        // 查询的对象 
         private final Class<?> modelType;
+        // request中的请求名称
         private final String originalName;
         private final String prefix;
         private final String split;
 
+        //and or
         private Link link;
+        // equal and so on
         private Operator operator;
+        // 需要查询的字段
         private String parameterName;
-        private Class<?> classType;
+        // 查询的字段java类型
+        private Class<?> javaType;
         private Object value;
 
         public FilterParameter(String originalName, String prefix, String split, Class<?> modelType) {
@@ -283,7 +273,7 @@ public class RequestQueryUtils {
 
             this.parameterName = originalName.substring(parameterNameIndex).replace(split, ".");
 
-            this.classType = parameterType(modelType, parameterName);
+            this.javaType = parameterType(modelType, parameterName);
 
         }
 
@@ -315,8 +305,8 @@ public class RequestQueryUtils {
             return parameterName;
         }
 
-        public Class<?> getClassType() {
-            return classType;
+        public Class<?> getJavaType() {
+            return javaType;
         }
 
         public Object getValue() {

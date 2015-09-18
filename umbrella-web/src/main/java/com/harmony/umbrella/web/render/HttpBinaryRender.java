@@ -20,6 +20,8 @@ import java.io.IOException;
 
 import javax.servlet.http.HttpServletResponse;
 
+import com.harmony.umbrella.web.Render;
+
 /**
  * 前台二进制输出
  * 
