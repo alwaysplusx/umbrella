@@ -23,8 +23,9 @@ import com.harmony.umbrella.web.util.RequestQueryUtils.FilterParameter;
 public class RequestQueryUtilsTest {
 
     public static void main(String[] args) {
-        FilterParameter fp = new RequestQueryUtils.FilterParameter("f_lk_eq_username", "f", "_", User.class);
-        System.out.println(fp);
-    }
+        FilterParameter fp1 = new FilterParameter("f_a_eq_name", "f", "_", User.class);
+        FilterParameter fp2 = new FilterParameter("f_lk_user_age", "f", "_", User.class);
+        System.out.println(RequestQueryUtils.toBond(fp1, fp2));
 
+    }
 }

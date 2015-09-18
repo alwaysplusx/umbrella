@@ -67,10 +67,12 @@ public class RequestQueryUtils {
 
     }
 
-    public static Bond toBond(FilterParameter[] filterParameters) {
+    public static Bond toBond(FilterParameter... filterParameters) {
         BondBuilder builder = BondBuilder.newInstance();
-        Bond bond = null;
+        Bond result = null;
+
         for (FilterParameter fp : filterParameters) {
+            Bond bond = null;
             switch (fp.link) {
             case EQUAL:
                 bond = builder.equal(fp.parameterName, fp.value);
@@ -112,13 +114,16 @@ public class RequestQueryUtils {
                 throw new IllegalArgumentException("request is illegal link " + fp.link);
             }
 
-            if (Operator.AND == fp.operator) {
-                bond = builder.and(bond);
+            if (result == null) {
+                result = bond;
+            } else if (Operator.AND == fp.operator) {
+                result = builder.and(result, bond);
             } else {
-                bond = builder.or(bond);
+                result = builder.or(result, bond);
             }
         }
-        return null;
+
+        return result == null ? BondBuilder.yes() : result;
     }
 
     public static FilterParameter[] filterRequest(Class<?> modelType, HttpServletRequest request) {
@@ -333,11 +338,4 @@ public class RequestQueryUtils {
 
     }
 
-    public static void main(String[] args) {
-
-        System.out.println(new FilterParameter("f_a_eq_name", "f", "_", Object.class));
-
-        System.out.println(new FilterParameter("f_lk_user_age", "f", "_", Object.class));
-
-    }
 }
