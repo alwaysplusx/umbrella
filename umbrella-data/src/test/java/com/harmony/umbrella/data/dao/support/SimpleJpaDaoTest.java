@@ -25,6 +25,7 @@ import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,6 +72,7 @@ public class SimpleJpaDaoTest {
 
     @Test
     @SuppressWarnings("rawtypes")
+    @Ignore
     public void testNoRealTypeWithValue() {
         User user = userJpaDao.findOne(new Specification<User>() {
 

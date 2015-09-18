@@ -95,9 +95,9 @@ public abstract class Json {
         return JSON.toJSONString(object, filters, features);
     }
 
-    public static String toJson(Object object, SerializeFilter filter, SerializerFeature... features) {
+    /*public static String toJson(Object object, SerializeFilter[] filter, SerializerFeature... features) {
         return toJson(object, new SerializeFilter[] { filter }, features);
-    }
+    }*/
 
     /**
      * 将Object序列化为Json文本， 并对列出的{@code excludes}不在json中显示出来
