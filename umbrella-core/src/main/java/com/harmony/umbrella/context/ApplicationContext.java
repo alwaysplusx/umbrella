@@ -139,16 +139,19 @@ public abstract class ApplicationContext implements BeanFactory {
         applicationProperties.putAll(props);
 
         ApplicationContext context = null;
-        providers.reload();
-        for (ContextProvider provider : providers) {
-            try {
-                context = provider.createApplicationContext(applicationProperties);
-                if (context != null) {
-                    LOG.debug("create context [{}] by [{}]", context, provider);
-                    break;
+        synchronized (providers) {
+            providers.reload();
+            LOG.debug("current providers -> {}", providers);
+            for (ContextProvider provider : providers) {
+                try {
+                    context = provider.createApplicationContext(applicationProperties);
+                    if (context != null) {
+                        LOG.debug("create context [{}] by [{}]", context, provider);
+                        break;
+                    }
+                } catch (Exception e) {
+                    LOG.warn("", e);
                 }
-            } catch (Exception e) {
-                LOG.warn("", e);
             }
         }
         if (context == null) {

@@ -30,6 +30,7 @@ import com.harmony.umbrella.context.ApplicationContext;
 import com.harmony.umbrella.context.ApplicationContextException;
 import com.harmony.umbrella.context.ee.jmx.EJBContext;
 import com.harmony.umbrella.context.ee.jmx.EJBContextMBean;
+import com.harmony.umbrella.core.BeanFactory;
 import com.harmony.umbrella.core.NoSuchBeanFindException;
 import com.harmony.umbrella.util.ClassUtils;
 import com.harmony.umbrella.util.JmxManager;
@@ -186,7 +187,6 @@ public class EJBApplicationContext extends ApplicationContext implements EJBCont
     @SuppressWarnings("unchecked")
     public <T> T lookup(Class<T> clazz, String mappedName) throws ApplicationContextException {
         String key = sessionKey(clazz, mappedName);
-        T result = null;
         SessionBean sessionBean = sessionBeanMap.get(key);
         if (sessionBean != null) {
             LOG.debug("lookup bean[{}] use cached session bean {}", sessionBean.getJndi(), sessionBean);
@@ -201,16 +201,20 @@ public class EJBApplicationContext extends ApplicationContext implements EJBCont
             }
         }
 
-        sessionBean = contextResolver.search(new BeanDefinition(clazz, mappedName), getContext());
-        if (sessionBean != null) {
-            LOG.info("lookup bean typeof {} by jndi {}", clazz.getName(), sessionBean.getJndi());
-            sessionBeanMap.put(key, sessionBean);
-            result = (T) sessionBean.getBean();
-        } else {
-            LOG.warn("can't lookup bean typeof {}", clazz.getName());
+        synchronized (sessionBeanMap) {
+            sessionBean = sessionBeanMap.get(key);
+            if (sessionBean == null) {
+                sessionBean = contextResolver.search(new BeanDefinition(clazz, mappedName), getContext());
+                if (sessionBean != null) {
+                    LOG.info("lookup bean typeof {} by jndi {}", clazz.getName(), sessionBean.getJndi());
+                    sessionBeanMap.put(key, sessionBean);
+                } else {
+                    LOG.warn("can't lookup bean typeof {}", clazz.getName());
+                }
+            }
         }
 
-        return result;
+        return (T) (sessionBean != null ? sessionBean.getBean() : null);
     }
 
     private String sessionKey(Class<?> clazz, String mappedName) {
@@ -261,9 +265,14 @@ public class EJBApplicationContext extends ApplicationContext implements EJBCont
         this.contextResolver = contextResolver;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public <T> T getBean(String beanName) throws NoSuchBeanFindException {
+        return getBean(beanName, BeanFactory.PROTOTYPE);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public <T> T getBean(String beanName, String scope) throws NoSuchBeanFindException {
         Object bean = null;
         try {
             bean = lookup(beanName);
@@ -280,24 +289,28 @@ public class EJBApplicationContext extends ApplicationContext implements EJBCont
     }
 
     @Override
-    public <T> T getBean(String beanName, String scope) throws NoSuchBeanFindException {
-        return getBean(beanName);
+    public <T> T getBean(Class<T> beanClass) throws NoSuchBeanFindException {
+        return getBean(beanClass, BeanFactory.PROTOTYPE);
     }
 
     @Override
-    public <T> T getBean(Class<T> beanClass) throws NoSuchBeanFindException {
+    public <T> T getBean(Class<T> beanClass, String scope) throws NoSuchBeanFindException {
         T bean = null;
         try {
             bean = lookup(beanClass);
         } catch (ApplicationContextException e) {
             throw new NoSuchBeanFindException(beanClass + " not find!", e);
         }
+        if (bean == null) {
+            throw new NoSuchBeanFindException(beanClass + " not find!");
+        }
         return bean;
     }
 
-    @Override
-    public <T> T getBean(Class<T> beanClass, String scope) throws NoSuchBeanFindException {
-        return getBean(beanClass);
+    protected void applyProperties(Properties props) {
+        if (props != null && !props.isEmpty()) {
+            this.applicationProperties.putAll(props);
+        }
     }
 
     // ############## JMX ############
@@ -336,12 +349,6 @@ public class EJBApplicationContext extends ApplicationContext implements EJBCont
     @Override
     public boolean exixts(String className) {
         return getBean(className) != null;
-    }
-
-    protected void applyProperties(Properties props) {
-        if (props != null && !props.isEmpty()) {
-            this.applicationProperties.putAll(props);
-        }
     }
 
     @Override
