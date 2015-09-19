@@ -112,7 +112,7 @@ public class SimplePropertyNameFilter extends PropertyNameFilter {
         return patterns;
     }
 
-    public enum FilterPolicy {
+    public static enum FilterPolicy {
         EXCLUDE, INCLUDE
     }
 

@@ -18,6 +18,7 @@ package com.harmony.umbrella.json;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializeFilter;
 import com.alibaba.fastjson.serializer.SerializerFeature;
+import com.harmony.umbrella.json.serializer.SimplePropertyNameFilter;
 
 /**
  * @author wuxii@foxmail.com
@@ -95,10 +96,6 @@ public abstract class Json {
         return JSON.toJSONString(object, filters, features);
     }
 
-    /*public static String toJson(Object object, SerializeFilter[] filter, SerializerFeature... features) {
-        return toJson(object, new SerializeFilter[] { filter }, features);
-    }*/
-
     /**
      * 将Object序列化为Json文本， 并对列出的{@code excludes}不在json中显示出来
      * 
@@ -113,7 +110,7 @@ public abstract class Json {
     }
 
     public static String toJson(final Object object, final String[] excludes, SerializerFeature... features) {
-        return null;
+        return JSON.toJSONString(object, new SimplePropertyNameFilter(excludes), features);
     }
 
     public static <T> T fromJson(String json, Class<T> clazz) {

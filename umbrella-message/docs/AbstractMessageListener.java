@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2015 the original author or authors.
+ * Copyright 2002-2014 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,37 +21,40 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.harmony.umbrella.message.Message;
+import com.harmony.umbrella.message.MessageListener;
+import com.harmony.umbrella.message.MessageResolver;
+
 /**
- * @author wuxii@foxmail.com
+ * 消息监听抽象类
+ *
+ * @author wuxii
  */
 public abstract class AbstractMessageListener implements MessageListener {
 
     protected final static Logger LOG = LoggerFactory.getLogger(AbstractMessageListener.class);
 
-    protected final List<Class<? extends MessageResolver>> resolverClasses = new ArrayList<Class<? extends MessageResolver>>();
+    protected List<MessageResolver> messageResolvers = new ArrayList<MessageResolver>();
 
     public AbstractMessageListener() {
     }
 
-    public AbstractMessageListener(List<Class<? extends MessageResolver>> resolverClasses) {
-        this.resolverClasses.addAll(resolverClasses);
+    public AbstractMessageListener(List<MessageResolver> messageResolvers) {
+        this.messageResolvers = messageResolvers;
     }
-
-    protected abstract List<MessageResolver> getMessageResolvers();
 
     /**
      * 接受到的消息, 使用{@linkplain MessageResolver#support(Message)}判定当前有哪些是符合条件的
      * {@linkplain MessageResolver}. 再经由
      * {@linkplain MessageResolver#handle(Message)}处理该消息.
      * <p/>
-     * <p>
-     * 消息是可以被多个{@linkplain MessageResolver}按顺序处理的
+     * <p>消息是可以被多个{@linkplain MessageResolver}按顺序处理的
      *
      * @see MessageResolver
      */
     @Override
     public void onMessage(Message message) {
-        for (MessageResolver mr : getMessageResolvers()) {
+        for (MessageResolver mr : messageResolvers) {
             if (mr.support(message)) {
                 LOG.debug("{}处理消息{}", mr, message);
                 mr.handle(message);
@@ -65,8 +68,8 @@ public abstract class AbstractMessageListener implements MessageListener {
      * @param messageResolver
      * @return
      */
-    public boolean addResolverClass(Class<? extends MessageResolver> resolverClass) {
-        return resolverClasses.add(resolverClass);
+    public boolean addMessageResolver(MessageResolver messageResolver) {
+        return messageResolvers.add(messageResolver);
     }
 
     /**
@@ -75,17 +78,27 @@ public abstract class AbstractMessageListener implements MessageListener {
      * @param messageResolver
      * @return
      */
-    public boolean removeResolverClass(Class<? extends MessageResolver> resolverClass) {
-        return resolverClasses.remove(resolverClass);
+    public boolean removeMessageResolver(MessageResolver messageResolver) {
+        return messageResolvers.remove(messageResolver);
     }
 
-    public void removeAllResolverClass() {
-        this.resolverClasses.clear();
+    /**
+     * 检测是否包含{@linkplain MessageResolver}. 重写{@linkplain Object#hashCode()}
+     * {@linkplain Object#equals(Object)}方法
+     *
+     * @param messageResolver
+     * @return
+     */
+    public boolean containsMessageResolver(MessageResolver messageResolver) {
+        return messageResolvers.contains(messageResolver);
     }
 
-    @Override
-    public void destroy() {
-        this.removeAllResolverClass();
+    public List<MessageResolver> getMessageResolvers() {
+        return messageResolvers;
+    }
+
+    public void setMessageResolvers(List<MessageResolver> messageResolvers) {
+        this.messageResolvers = messageResolvers;
     }
 
 }

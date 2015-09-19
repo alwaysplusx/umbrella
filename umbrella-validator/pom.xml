@@ -26,8 +26,7 @@
     <dependency>
       <groupId>org.glassfish.web</groupId>
       <artifactId>javax.el</artifactId>
-      <scope>compile</scope>
-      <optional>true</optional>
+      <scope>test</scope>
       <exclusions>
         <exclusion>
           <artifactId>javax.el-api</artifactId>

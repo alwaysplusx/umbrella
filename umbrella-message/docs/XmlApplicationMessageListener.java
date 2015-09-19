@@ -22,7 +22,7 @@ import javax.jms.Message;
 import javax.jms.MessageListener;
 import javax.jms.ObjectMessage;
 
-import com.harmony.umbrella.message.AbstractMessageListener;
+import com.harmony.dark.message.AbstractMessageListener;
 
 /**
  * for spring
