@@ -206,10 +206,10 @@ public class EJBApplicationContext extends ApplicationContext implements EJBCont
             if (sessionBean == null) {
                 sessionBean = contextResolver.search(new BeanDefinition(clazz, mappedName), getContext());
                 if (sessionBean != null) {
-                    LOG.info("lookup bean typeof {} by jndi {}", clazz.getName(), sessionBean.getJndi());
+                    LOG.info("lookup {} by jndi [{}]", clazz.getName(), sessionBean.getJndi());
                     sessionBeanMap.put(key, sessionBean);
                 } else {
-                    LOG.warn("can't lookup bean typeof {}", clazz.getName());
+                    LOG.warn("can't lookup {}", clazz.getName());
                 }
             }
         }
@@ -349,6 +349,12 @@ public class EJBApplicationContext extends ApplicationContext implements EJBCont
     @Override
     public boolean exixts(String className) {
         return getBean(className) != null;
+    }
+
+    @Override
+    public void clear() {
+        sessionBeanMap.clear();
+        contextResolver.clear();
     }
 
     @Override

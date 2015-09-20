@@ -50,32 +50,32 @@ public class ConfigurationBeanResolver implements BeanResolver {
     /**
      * jndi的全局前缀
      */
-    private final String globalPrefix;
+    protected final String globalPrefix;
 
     /**
      * jndi名称与remoteClass中间的分割符, default '#'
      */
-    private final Set<String> separators = new HashSet<String>();
+    protected final Set<String> separators = new HashSet<String>();
 
     /**
      * 组装mappedName需要添加的后缀
      */
-    private final Set<String> beanSuffixs = new HashSet<String>();
+    protected final Set<String> beanSuffixs = new HashSet<String>();
 
     /**
      * jndi需要添加的class后缀
      */
-    private final Set<String> remoteSuffixs = new HashSet<String>();
+    protected final Set<String> remoteSuffixs = new HashSet<String>();
 
     /**
      * local对于的后缀
      */
-    private final Set<String> localSuffixs = new HashSet<String>();
+    protected final Set<String> localSuffixs = new HashSet<String>();
 
     /**
      * lookup到的bean如果是对应于应用服务器的封装类的解析工具
      */
-    private final List<WrappedBeanHandler> warppedBeanHandlers = new ArrayList<WrappedBeanHandler>();
+    protected final List<WrappedBeanHandler> warppedBeanHandlers = new ArrayList<WrappedBeanHandler>();
 
     /**
      * 开启local接口转化
@@ -139,6 +139,7 @@ public class ConfigurationBeanResolver implements BeanResolver {
 
     protected boolean isDeclare(BeanDefinition declare, Object bean) {
         Class<?> remoteClass = declare.getSuitableRemoteClass();
+        log.info("remoteClass->{}, beanClass->{}, bean->{}", remoteClass, declare.getBeanClass(), bean);
         return declare.getBeanClass().isInstance(bean) || (remoteClass != null && remoteClass.isInstance(bean));
     }
 

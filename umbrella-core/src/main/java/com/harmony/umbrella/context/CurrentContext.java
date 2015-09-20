@@ -17,6 +17,7 @@ package com.harmony.umbrella.context;
 
 import java.io.Serializable;
 import java.util.Enumeration;
+import java.util.Locale;
 
 /**
  * 用户所能操作信息以及用户的信息将会在保存在{@linkplain CurrentContext}中
@@ -87,6 +88,11 @@ public interface CurrentContext extends Serializable {
      * @return 用户的客户端地址
      */
     String getRemoteHost();
+
+    /**
+     * 客户端的本地化
+     */
+    Locale getLocale();
 
     /**
      * 当前是否是http发起的请求

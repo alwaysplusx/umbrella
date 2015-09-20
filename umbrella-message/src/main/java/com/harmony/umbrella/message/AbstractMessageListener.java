@@ -15,7 +15,6 @@
  */
 package com.harmony.umbrella.message;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -28,13 +27,7 @@ public abstract class AbstractMessageListener implements MessageListener {
 
     protected final static Logger LOG = LoggerFactory.getLogger(AbstractMessageListener.class);
 
-    protected final List<Class<? extends MessageResolver>> resolverClasses = new ArrayList<Class<? extends MessageResolver>>();
-
     public AbstractMessageListener() {
-    }
-
-    public AbstractMessageListener(List<Class<? extends MessageResolver>> resolverClasses) {
-        this.resolverClasses.addAll(resolverClasses);
     }
 
     protected abstract List<MessageResolver> getMessageResolvers();
@@ -57,35 +50,6 @@ public abstract class AbstractMessageListener implements MessageListener {
                 mr.handle(message);
             }
         }
-    }
-
-    /**
-     * 动态增加{@linkplain MessageResolver}
-     *
-     * @param messageResolver
-     * @return
-     */
-    public boolean addResolverClass(Class<? extends MessageResolver> resolverClass) {
-        return resolverClasses.add(resolverClass);
-    }
-
-    /**
-     * 动态删除{@linkplain MessageResolver}
-     *
-     * @param messageResolver
-     * @return
-     */
-    public boolean removeResolverClass(Class<? extends MessageResolver> resolverClass) {
-        return resolverClasses.remove(resolverClass);
-    }
-
-    public void removeAllResolverClass() {
-        this.resolverClasses.clear();
-    }
-
-    @Override
-    public void destroy() {
-        this.removeAllResolverClass();
     }
 
 }

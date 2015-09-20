@@ -46,4 +46,9 @@ public class EJBContext implements EJBContextMBean {
         return context.exixts(className);
     }
 
+    @Override
+    public void clear() {
+        context.clear();
+    }
+
 }

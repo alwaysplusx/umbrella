@@ -19,6 +19,7 @@ import static com.harmony.umbrella.context.ApplicationMetadata.*;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Locale;
 import java.util.Properties;
 import java.util.ServiceLoader;
 
@@ -56,6 +57,8 @@ public abstract class ApplicationContext implements BeanFactory {
      * 应用的配置属性
      */
     protected final Properties applicationProperties = new Properties();
+
+    protected Locale locale;
 
     /**
      * 运行的web服务信息，未初始化则为{@code null}
@@ -163,6 +166,14 @@ public abstract class ApplicationContext implements BeanFactory {
 
     public Properties getApplicationProperties() {
         return applicationProperties;
+    }
+
+    public Locale getLocale() {
+        return this.locale;
+    }
+
+    public void setLocale(Locale locale) {
+        this.locale = locale;
     }
 
     /**

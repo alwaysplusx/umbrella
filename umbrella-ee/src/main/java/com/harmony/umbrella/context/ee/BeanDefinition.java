@@ -16,11 +16,11 @@
 package com.harmony.umbrella.context.ee;
 
 import java.lang.annotation.Annotation;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
+import java.util.Comparator;
 import java.util.List;
-import java.util.Set;
 
 import javax.ejb.Local;
 import javax.ejb.Remote;
@@ -120,7 +120,7 @@ public class BeanDefinition {
      * 是接口并标记了{@linkplain Remote}注解
      */
     public boolean isRemoteClass() {
-        return beanClass.getAnnotation(Remote.class) != null || (beanClass.isInterface() && !isLocalClass());
+        return beanClass.isInterface() && (beanClass.getAnnotation(Remote.class) != null || !isLocalClass());
     }
 
     /**
@@ -135,6 +135,13 @@ public class BeanDefinition {
      */
     public Class<?> getSuitableRemoteClass() {
         Class<?>[] classes = getRemoteClasses();
+        /*        if (isRemoteClass() || isLocalClass()) {
+                    return beanClass;
+                }
+                double ratio = 0.0;
+                for (Class<?> clazz : classes) {
+                    TextMatchCalculator.matchingRate(text1, text2);
+                }*/
         return classes.length > 0 ? classes[0] : null;
     }
 
@@ -151,7 +158,7 @@ public class BeanDefinition {
      */
     @SuppressWarnings("rawtypes")
     public Class<?>[] getRemoteClasses() {
-        Set<Class> result = new HashSet<Class>();
+        List<Class> result = new ArrayList<Class>();
         if (isRemoteClass() || beanClass.isInterface()) {
             result.add(beanClass);
         }
@@ -161,9 +168,17 @@ public class BeanDefinition {
         }
         for (Class clazz : ClassUtils.getAllInterfaces(beanClass)) {
             // 当前类的所有接口, 如果接口上标注了remote注解则表示是一个remote class
-            if (isRemoteClass(clazz)) {
+            if (isRemoteClass(clazz) && !result.contains(clazz)) {
                 result.add(clazz);
             }
+        }
+        if (result.size() > 1) {
+            Collections.sort(result, new Comparator<Class>() {
+                @Override
+                public int compare(Class o1, Class o2) {
+                    return o1.getName().compareTo(o2.getName());
+                }
+            });
         }
         return result.toArray(new Class[result.size()]);
     }
@@ -173,8 +188,8 @@ public class BeanDefinition {
      */
     @SuppressWarnings("rawtypes")
     public Class<?>[] getLocalClasses() {
-        Set<Class> result = new HashSet<Class>();
-        if (isLocalClass()) {
+        List<Class> result = new ArrayList<Class>();
+        if (isLocalClass() || (!isRemoteClass() && beanClass.isInterface())) {
             result.add(beanClass);
         }
         Local ann = beanClass.getAnnotation(Local.class);
@@ -182,10 +197,11 @@ public class BeanDefinition {
             Collections.addAll(result, ann.value());
         }
         for (Class clazz : ClassUtils.getAllInterfaces(beanClass)) {
-            if (isLocalClass(clazz)) {
+            if (isLocalClass(clazz) && !result.contains(clazz)) {
                 result.add(clazz);
             }
         }
+
         return result.toArray(new Class[result.size()]);
     }
 

@@ -58,13 +58,6 @@ public interface HttpCurrentContext extends CurrentContext {
     String getCharacterEncoding();
 
     /**
-     * 当前的本地化
-     *
-     * @return {@linkplain Locale}
-     */
-    Locale getLocale();
-
-    /**
      * 设置用户环境的本地化
      *
      * @param locale

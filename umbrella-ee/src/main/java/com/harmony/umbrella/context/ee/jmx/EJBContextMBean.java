@@ -44,4 +44,9 @@ public interface EJBContextMBean {
      */
     String jndiPropertiesFilePath();
 
+    /**
+     * 清楚缓存资源
+     */
+    void clear();
+
 }

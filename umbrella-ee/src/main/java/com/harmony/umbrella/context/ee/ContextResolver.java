@@ -46,4 +46,9 @@ public interface ContextResolver extends BeanResolver {
      */
     Object tryLookup(String jndi, Context context);
 
+    /**
+     * 清除查找到的结果缓存
+     */
+    void clear();
+
 }

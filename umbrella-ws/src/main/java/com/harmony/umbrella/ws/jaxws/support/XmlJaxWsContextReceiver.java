@@ -85,19 +85,19 @@ public class XmlJaxWsContextReceiver implements JaxWsContextReceiver {
         return context;
     }
 
-    public JaxWsExecutor getExecutor() {
+    public JaxWsExecutor getJaxWsExecutor() {
         return executor;
     }
 
-    public void setExecutor(JaxWsExecutor executor) {
+    public void getJaxWsExecutor(JaxWsExecutor executor) {
         this.executor = executor;
     }
 
-    public MetadataLoader getMetaLoader() {
+    public MetadataLoader getMetadataLoader() {
         return metaLoader;
     }
 
-    public void setMetaLoader(MetadataLoader metaLoader) {
+    public void setMetadataLoader(MetadataLoader metaLoader) {
         this.metaLoader = metaLoader;
     }
 
@@ -109,11 +109,11 @@ public class XmlJaxWsContextReceiver implements JaxWsContextReceiver {
         this.reload = reload;
     }
 
-    public List<PhaseVisitor> getVisitors() {
+    public List<PhaseVisitor> getPhaseVisitors() {
         return visitors;
     }
 
-    public void setVisitors(List<PhaseVisitor> visitors) {
+    public void setPhaseVisitors(List<PhaseVisitor> visitors) {
         this.visitors = visitors;
     }
 

@@ -15,7 +15,11 @@
  */
 package com.harmony.umbrella.context.ee.resolver;
 
+import static com.harmony.umbrella.context.ee.util.TextMatchCalculator.*;
+
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
@@ -30,6 +34,7 @@ import org.slf4j.LoggerFactory;
 import com.harmony.umbrella.context.ee.BeanDefinition;
 import com.harmony.umbrella.context.ee.ContextResolver;
 import com.harmony.umbrella.context.ee.SessionBean;
+import com.harmony.umbrella.util.ClassUtils;
 
 /**
  * @author wuxii@foxmail.com
@@ -37,6 +42,8 @@ import com.harmony.umbrella.context.ee.SessionBean;
 public class InternalContextResolver extends ConfigurationBeanResolver implements ContextResolver {
 
     private static final Logger log = LoggerFactory.getLogger(InternalContextResolver.class);
+    // class - jndi
+    private final Map<Class<?>, Set<String>> fastCache = new HashMap<Class<?>, Set<String>>();
     private final Set<String> roots = new HashSet<String>();
     private final int deeps;
 
@@ -46,6 +53,9 @@ public class InternalContextResolver extends ConfigurationBeanResolver implement
         this.roots.addAll(fromProps(props, "jndi.context.root"));
     }
 
+    /**
+     * 深度查找BeanDefinition对应的类以及jndi
+     */
     protected SimpleSessionBean deepSearch(SimpleSessionBean bean, Context context) {
         for (String root : roots) {
             doDeepSearch(root, bean, context, 0);
@@ -68,13 +78,14 @@ public class InternalContextResolver extends ConfigurationBeanResolver implement
                 NamingEnumeration<NameClassPair> subCtxs = ((Context) bean).list("");
                 while (subCtxs.hasMoreElements()) {
                     NameClassPair subNcp = subCtxs.nextElement();
-                    String subRoot = root + ("".equals(root) ? "" : "/") + subNcp.getName();
-                    doDeepSearch(subRoot, sessionBean, context, deeps++);
+                    // 迭代查找
+                    doDeepSearch(toJndi(root, subNcp), sessionBean, context, deeps++);
                     if (sessionBean.bean != null && sessionBean.jndi != null) {
                         return;
                     }
                 }
             } else {
+                recordBeanWithJndi(beanDefinition, bean, root);
                 Object unwrapBean = unwrap(bean);
                 if (isDeclare(beanDefinition, unwrapBean)) {
                     sessionBean.bean = bean;
@@ -88,16 +99,91 @@ public class InternalContextResolver extends ConfigurationBeanResolver implement
         }
     }
 
+    /**
+     * root + NameClassPair 组合生成下一个jndi名称
+     */
+    private String toJndi(String root, NameClassPair subNcp) {
+        // root + ("".equals(root) ? "" : "/") + subNcp.getName();
+        StringBuilder jndi = new StringBuilder(root);
+        if (!"".equals(root)) {
+            jndi.append("/");
+        }
+        jndi.append(subNcp.getName());
+        return jndi.toString();
+    }
+
+    /**
+     * 记录jndi以及bean到缓存中
+     */
+    private void recordBeanWithJndi(BeanDefinition bd, Object bean, String root) {
+        Class<? extends Object> beanClass = bean.getClass();
+        Class<?>[] interfaces = ClassUtils.getAllInterfaces(beanClass);
+        for (Class<?> interfce : interfaces) {
+            String className = interfce.getName();
+            if (!className.startsWith("java.") //
+                    && !className.startsWith("javax.")//
+                    && !className.startsWith("org.apache.") //
+                    && !className.startsWith("com.weblogic") //
+                    && !className.startsWith("org.glassfish")//
+                    && !className.startsWith("org.jboss")) {
+                putIntoCache(interfce, root);
+            }
+        }
+    }
+
+    @Override
+    public void clear() {
+        fastCache.clear();
+    }
+
+    /**
+     * 将 interface 以及对应的jndi到缓存中
+     */
+    private void putIntoCache(Class<?> interfce, String root) {
+        Set<String> jndis = fastCache.get(interfce);
+        if (jndis == null) {
+            synchronized (fastCache) {
+                if (!fastCache.containsKey(interfce)) {
+                    jndis = new HashSet<String>();
+                    fastCache.put(interfce, jndis);
+                }
+            }
+        }
+        jndis.add(root);
+    }
+
     @Override
     public SessionBean search(final BeanDefinition beanDefinition, Context context) {
         final SimpleSessionBean result = new SimpleSessionBean(beanDefinition);
+        Class<?> beanClass = beanDefinition.getBeanClass();
         Object bean = null;
+
+        Set<String> jndis = fastCache.get(beanClass);
+        if (jndis != null) {
+            double currentRatio = 0;
+            for (String jndi : jndis) {
+                bean = tryLookup(jndi, context);
+                Object unwrapBean = unwrap(bean);
+                if (isDeclare(beanDefinition, bean)) {
+                    double ratio = matchingRate(jndi, beanClass.getName());
+                    if (ratio >= currentRatio) {
+                        currentRatio = ratio;
+                        result.bean = bean;
+                        result.jndi = jndi;
+                        result.wrapped = bean != unwrapBean;
+                    }
+                }
+            }
+            if (result.bean != null && result.jndi != null) {
+                return result;
+            }
+        }
 
         if (!filter(beanDefinition)) {
             bean = guessBean(beanDefinition, context, new BeanFilter() {
-
                 @Override
                 public boolean accept(String jndi, Object bean) {
+                    recordBeanWithJndi(beanDefinition, bean, jndi);
                     Object unwrapBean = unwrap(bean);
                     if (isDeclare(beanDefinition, unwrapBean)) {
                         result.bean = bean;
@@ -107,7 +193,6 @@ public class InternalContextResolver extends ConfigurationBeanResolver implement
                     }
                     return false;
                 }
-
             });
         }
 

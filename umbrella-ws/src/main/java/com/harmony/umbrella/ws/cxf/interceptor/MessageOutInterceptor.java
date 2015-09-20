@@ -42,18 +42,23 @@ import com.harmony.umbrella.ws.cxf.log.LogMessageHandler;
 public class MessageOutInterceptor extends AbstractMessageInterceptor {
 
     private LogMessageHandler handler;
-
     private static final Logger log = LoggerFactory.getLogger(MessageOutInterceptor.class);
 
     public MessageOutInterceptor() {
         this("Outbound Message");
     }
-    
+
     public MessageOutInterceptor(String heading, String phase) {
         super(heading, phase);
         addBefore(StaxOutInterceptor.class.getName());
     }
-    
+
+    public MessageOutInterceptor(String heading, LogMessageHandler handler) {
+        super(heading, Phase.PRE_STREAM);
+        this.handler = handler;
+        addBefore(StaxOutInterceptor.class.getName());
+    }
+
     public MessageOutInterceptor(String heading) {
         this(heading, Phase.PRE_STREAM);
     }
@@ -96,9 +101,11 @@ public class MessageOutInterceptor extends AbstractMessageInterceptor {
         try {
             if (handler != null) {
                 handler.handle(logMessage);
+            } else {
+                log.info("{}", logMessage);
             }
-        } finally {
-            log.info("{}", logMessage);
+        } catch (Exception e) {
+            log.warn("handle log message throw exception", e.toString());
         }
     }
 

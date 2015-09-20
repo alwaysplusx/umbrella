@@ -48,7 +48,12 @@ public class MessageInInterceptor extends AbstractMessageInterceptor {
     public MessageInInterceptor(String heading) {
         this(heading, Phase.RECEIVE);
     }
-    
+
+    public MessageInInterceptor(String heading, LogMessageHandler handler) {
+        super(heading, Phase.RECEIVE);
+        this.handler = handler;
+    }
+
     public MessageInInterceptor(String heading, String phase) {
         super(heading, phase);
     }
@@ -58,9 +63,11 @@ public class MessageInInterceptor extends AbstractMessageInterceptor {
         try {
             if (handler != null) {
                 handler.handle(logMessage);
+            } else {
+                log.info("{}", logMessage);
             }
-        } finally {
-            log.info("{}", logMessage);
+        } catch (Exception e) {
+            log.warn("handle log message throw exception", e.toString());
         }
     }
 
