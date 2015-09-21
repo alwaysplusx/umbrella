@@ -15,6 +15,8 @@
  */
 package com.harmony.umbrella.context.ee;
 
+import static com.harmony.umbrella.context.ee.util.TextMatchCalculator.*;
+
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -42,7 +44,7 @@ import com.harmony.umbrella.util.StringUtils;
  */
 public class BeanDefinition {
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings("all")
     private static final List<Class<? extends Annotation>> sessionClasses = Arrays.asList(Stateless.class, Stateful.class, Singleton.class);
     /**
      * beanClass 会话bean的类
@@ -55,13 +57,13 @@ public class BeanDefinition {
     private String mappedName;
 
     public BeanDefinition(Class<?> beanClass) {
-        this.beanClass = beanClass;
-        this.mappedName = getMappedName(beanClass);
+        this(beanClass, getMappedName(beanClass));
     }
 
     public BeanDefinition(Class<?> beanClass, String mappedName) {
+        validBeanClass(beanClass);
         this.beanClass = beanClass;
-        this.mappedName = StringUtils.isEmpty(mappedName) ? getMappedName(beanClass) : mappedName;
+        this.mappedName = StringUtils.isBlank(mappedName) ? getMappedName(beanClass) : mappedName;
     }
 
     /**
@@ -77,11 +79,13 @@ public class BeanDefinition {
      * @see Stateless#description()
      */
     public String getDescription() {
-        Annotation ann = getSessionBeanAnnotation(beanClass);
-        if (ann != null) {
-            try {
-                return (String) MethodUtils.invokeMethod("description", ann);
-            } catch (NoSuchMethodException e) {
+        if (isSessionBean()) {
+            Annotation ann = getSessionBeanAnnotation(beanClass);
+            if (ann != null) {
+                try {
+                    return (String) MethodUtils.invokeMethod("description", ann);
+                } catch (NoSuchMethodException e) {
+                }
             }
         }
         return null;
@@ -91,14 +95,23 @@ public class BeanDefinition {
      * @see Stateless#name()
      */
     public String getName() {
-        Annotation ann = getSessionBeanAnnotation(beanClass);
-        if (ann != null) {
-            try {
-                return (String) MethodUtils.invokeMethod("name", ann);
-            } catch (NoSuchMethodException e) {
+        if (isSessionBean()) {
+            Annotation ann = getSessionBeanAnnotation(beanClass);
+            if (ann != null) {
+                try {
+                    return (String) MethodUtils.invokeMethod("name", ann);
+                } catch (NoSuchMethodException e) {
+                }
             }
         }
         return null;
+    }
+
+    /**
+     * @see Stateless#mappedName()
+     */
+    public String getMappedName() {
+        return mappedName;
     }
 
     /**
@@ -110,14 +123,7 @@ public class BeanDefinition {
     }
 
     /**
-     * @see Stateless#mappedName()
-     */
-    public String getMappedName() {
-        return mappedName;
-    }
-
-    /**
-     * 是接口并标记了{@linkplain Remote}注解
+     * 是接口标记了{@linkplain Remote}注解, 默认将不是local的接口定义为remote接口
      */
     public boolean isRemoteClass() {
         return beanClass.isInterface() && (beanClass.getAnnotation(Remote.class) != null || !isLocalClass());
@@ -135,14 +141,23 @@ public class BeanDefinition {
      */
     public Class<?> getSuitableRemoteClass() {
         Class<?>[] classes = getRemoteClasses();
-        /*        if (isRemoteClass() || isLocalClass()) {
-                    return beanClass;
+        if (isRemoteClass() || isLocalClass()) {
+            return beanClass;
+        }
+        Class<?> remoteClass = null;
+        if (classes.length > 1) {
+            remoteClass = classes[0];
+            double ratio = 0.0;
+            for (int i = 1, max = classes.length; i < max; i++) {
+                double currentRatio = matchingRate(beanClass.getSimpleName(), classes[i].getSimpleName());
+                if (currentRatio > ratio) {
+                    remoteClass = classes[i];
                 }
-                double ratio = 0.0;
-                for (Class<?> clazz : classes) {
-                    TextMatchCalculator.matchingRate(text1, text2);
-                }*/
-        return classes.length > 0 ? classes[0] : null;
+            }
+        } else if (classes.length == 1) {
+            remoteClass = classes[0];
+        }
+        return remoteClass;
     }
 
     /**
@@ -150,7 +165,23 @@ public class BeanDefinition {
      */
     public Class<?> getSuitableLocalClass() {
         Class<?>[] classes = getLocalClasses();
-        return classes.length > 0 ? classes[0] : null;
+        if (isLocalClass()) {
+            return beanClass;
+        }
+        Class<?> localClass = null;
+        if (classes.length > 1) {
+            localClass = classes[0];
+            double ratio = 0.0;
+            for (int i = 0, max = classes.length; i < max; i++) {
+                double currentRatio = matchingRate(beanClass.getSimpleName(), classes[i].getSimpleName());
+                if (currentRatio > ratio) {
+                    localClass = classes[i];
+                }
+            }
+        } else if (classes.length == 1) {
+            localClass = classes[0];
+        }
+        return localClass;
     }
 
     /**
@@ -283,6 +314,12 @@ public class BeanDefinition {
         builder.append(mappedName);
         builder.append("}");
         return builder.toString();
+    }
+
+    protected static void validBeanClass(Class<?> clazz) {
+        if (!(clazz.isInterface() || isRemoteClass(clazz) || isLocalClass(clazz) || isSessionBean(clazz))) {
+            throw new IllegalArgumentException("class " + clazz.getName() + " not a javaee bean or interface");
+        }
     }
 
     /**

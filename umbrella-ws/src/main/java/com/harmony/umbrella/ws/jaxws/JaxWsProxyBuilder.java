@@ -182,48 +182,6 @@ public class JaxWsProxyBuilder {
     }
 
     /**
-     * 创建代理服务，并创建前提供{@linkplain JaxWsProxyFactoryConfig}配置工厂属性
-     * 
-     * @param serviceClass
-     *            代理服务类型
-     * @param proxyConfig
-     *            服务配置项
-     */
-    public <T> T build(Class<T> serviceClass, JaxWsProxyFactoryConfig proxyConfig) {
-        Assert.notNull(serviceClass, "service class must be not null");
-        Assert.isTrue(StringUtils.isNotBlank(address), "proxy address is null or blank");
-
-        if (proxyConfig != null) {
-            proxyConfig.config(factoryBean);
-        }
-
-        factoryBean.setAddress(address);
-        factoryBean.setUsername(username);
-        factoryBean.setPassword(password);
-        factoryBean.setServiceClass(serviceClass);
-        
-        target = factoryBean.create(serviceClass);
-
-        // 设置最长超时时间按
-        if (connectionTimeout > 0) {
-            setConnectionTimeout(target, connectionTimeout);
-        }
-
-        // 设置最长超时时间
-        if (receiveTimeout > 0) {
-            setReceiveTimeout(target, receiveTimeout);
-        }
-
-        // 设置返回等待时间
-        if (synchronousTimeout > 0) {
-            setSynchronousTimeout(target, synchronousTimeout);
-        }
-
-        log.debug("build proxy[{}] successfully", serviceClass.getName());
-        return serviceClass.cast(target);
-    }
-
-    /**
      * 创建代理服务
      * 
      * @param serviceClass
@@ -260,6 +218,48 @@ public class JaxWsProxyBuilder {
         this.connectionTimeout = connectionTimeout;
         T target = build(serviceClass);
         return target;
+    }
+
+    /**
+     * 创建代理服务，并创建前提供{@linkplain JaxWsProxyFactoryConfig}配置工厂属性
+     * 
+     * @param serviceClass
+     *            代理服务类型
+     * @param proxyConfig
+     *            服务配置项
+     */
+    public <T> T build(Class<T> serviceClass, JaxWsProxyFactoryConfig proxyConfig) {
+        Assert.notNull(serviceClass, "service class must be not null");
+        Assert.isTrue(StringUtils.isNotBlank(address), "proxy address is null or blank");
+
+        if (proxyConfig != null) {
+            proxyConfig.config(factoryBean);
+        }
+
+        factoryBean.setAddress(address);
+        factoryBean.setUsername(username);
+        factoryBean.setPassword(password);
+        factoryBean.setServiceClass(serviceClass);
+
+        target = factoryBean.create(serviceClass);
+
+        // 设置最长超时时间按
+        if (connectionTimeout > 0) {
+            setConnectionTimeout(target, connectionTimeout);
+        }
+
+        // 设置最长超时时间
+        if (receiveTimeout > 0) {
+            setReceiveTimeout(target, receiveTimeout);
+        }
+
+        // 设置返回等待时间
+        if (synchronousTimeout > 0) {
+            setSynchronousTimeout(target, synchronousTimeout);
+        }
+
+        log.debug("build proxy[{}] successfully", serviceClass.getName());
+        return serviceClass.cast(target);
     }
 
     /**

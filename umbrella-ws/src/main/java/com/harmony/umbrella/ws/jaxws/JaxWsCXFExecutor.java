@@ -90,12 +90,32 @@ public class JaxWsCXFExecutor extends JaxWsPhaseExecutor {
     }
 
     /**
-     * 重缓存中获取执行上下文对应的代理服务
+     * 加载代理对象， 如果{@linkplain #cacheable}
+     * 允许从缓存中加载泽加载缓存中的代理对象，如果缓存中不存在则新建一个代理对象，并将代理对象放置在缓存中
      * 
      * @param context
-     * @return
+     *            执行的上下文
+     * @return 代理对象
+     */
+    private Object loadProxy(Context context) {
+        Object proxy = null;
+        if (cacheable) {
+            proxy = getProxy(context);
+        } else {
+            proxy = createProxy(context);
+        }
+        return configurationProxy(proxy, context);
+    }
+
+    /**
+     * 缓存中获取执行上下文对应的代理服务
+     * 
+     * @param context
+     *            执行的上下文
+     * @return 代理对象， 如果不存在缓存中不存在则创建
      */
     protected Object getProxy(Context context) {
+        // 代理的超时设置是次要因素，不考虑在代理对象的key中
         JaxWsContextKey contextKey = new JaxWsContextKey(context);
         if (!proxyCache.containsKey(contextKey)) {
             synchronized (proxyCache) {
@@ -105,16 +125,44 @@ public class JaxWsCXFExecutor extends JaxWsPhaseExecutor {
                 }
             }
         }
-        return configurationProxy(proxyCache.get(contextKey), context);
+        return proxyCache.get(contextKey);
     }
 
     /**
-     * 根据上下文配置代理对象
+     * 创建当前{@linkplain Context}对应的服务代理
      * 
-     * @param proxy
-     *            代理对象
      * @param context
-     *            上下文
+     *            执行上下文
+     * @return 代理对象
+     */
+    protected Object createProxy(Context context) {
+        long start = System.currentTimeMillis();
+        Object proxy = create()//
+                .setAddress(context.getAddress())//
+                .setUsername(context.getUsername())//
+                .setPassword(context.getPassword())//
+                .build(context.getServiceInterface());
+        log.debug("创建代理{}服务, 耗时{}ms", context, System.currentTimeMillis() - start);
+        return proxy;
+    }
+
+    /**
+     * 移除缓存的代理对象
+     */
+    public void removeProxy(Context context) {
+        proxyCache.remove(new JaxWsContextKey(context));
+    }
+
+    /**
+     * 清除已经缓存的服务代理
+     */
+    public void cleanPool() {
+        log.info("清除已经缓冲的代理对象");
+        proxyCache.clear();
+    }
+
+    /**
+     * 根据上下文配置代理对象,超时的时间设置
      */
     private Object configurationProxy(Object proxy, Context context) {
         setConnectionTimeout(proxy, context.getConnectionTimeout());
@@ -145,46 +193,6 @@ public class JaxWsCXFExecutor extends JaxWsPhaseExecutor {
      */
     public void setInvoker(Invoker invoker) {
         this.invoker = invoker;
-    }
-
-    /**
-     * 创建当前{@linkplain Context}对应的服务代理
-     * 
-     * @param context
-     *            执行上下文
-     * @return
-     */
-    protected Object createProxy(Context context) {
-        long start = System.currentTimeMillis();
-        Object proxy = create()//
-                .setAddress(context.getAddress())//
-                .setUsername(context.getUsername())//
-                .setPassword(context.getPassword())//
-                .build(context.getServiceInterface());
-        log.debug("创建代理{}服务, 耗时{}ms", context, System.currentTimeMillis() - start);
-        return proxy;
-    }
-
-    public void removeProxy(Context context) {
-        proxyCache.remove(new JaxWsContextKey(context));
-    }
-
-    /**
-     * 清除已经缓存的服务代理
-     */
-    public void cleanPool() {
-        log.info("清除已经缓冲的代理对象");
-        proxyCache.clear();
-    }
-
-    private Object loadProxy(Context context) {
-        Object proxy = null;
-        if (cacheable) {
-            proxy = getProxy(context);
-        } else {
-            proxy = createProxy(context);
-        }
-        return proxy;
     }
 
     private static class JaxWsContextKey {

@@ -24,7 +24,6 @@ import javax.xml.ws.WebServiceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.harmony.umbrella.util.Exceptions;
 import com.harmony.umbrella.ws.AsyncCallback;
 import com.harmony.umbrella.ws.Context;
 import com.harmony.umbrella.ws.PhaseVisitor;
@@ -42,9 +41,14 @@ public abstract class JaxWsPhaseExecutor implements JaxWsExecutor {
     /**
      * 标记执行出现错误是抛出还是隐藏
      */
-    private boolean hideTrowable = false;
+    private boolean throwOrHide = false;
 
     public abstract <T> T executeQuite(Context context, Class<T> resultType);
+
+    @Override
+    public Object execute(Context context) {
+        return execute(context, Object.class);
+    }
 
     @Override
     public <T> T execute(Context context, Class<T> resultType) {
@@ -79,15 +83,11 @@ public abstract class JaxWsPhaseExecutor implements JaxWsExecutor {
     }
 
     @Override
-    public Object execute(Context context) {
-        return execute(context, Object.class);
-    }
-
-    @Override
     public <T> Future<T> executeAsync(final Context context, final Class<T> resultType) {
         FutureTask<T> task = new FutureTask<T>(new Callable<T>() {
             @Override
             public T call() throws Exception {
+                LOG.info("start other thread execute context {}", context);
                 return execute(context, resultType);
             }
         });
@@ -106,27 +106,27 @@ public abstract class JaxWsPhaseExecutor implements JaxWsExecutor {
      * @param e
      */
     protected void throwOrHide(Exception e) {
-        if (!hideTrowable) {
+        if (!throwOrHide) {
             if (e instanceof RuntimeException) {
                 throw (RuntimeException) e;
             }
             throw new WebServiceException(e);
         }
+        LOG.debug("ignore exception {}", e.toString());
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public <V> void executeAsync(final Context context, AsyncCallback<V> callback) throws WebServiceException {
         Future<V> future = (Future<V>) executeAsync(context);
-        while (!future.isCancelled()) {
-            if (future.isDone()) {
-                try {
-                    V result = future.get();
-                    if (callback != null)
-                        callback.handle(result, context.getContextMap());
-                    break;
-                } catch (Exception e) {
-                    throw Exceptions.unchecked(e);
+        if (callback != null) {
+            while (!future.isCancelled()) {
+                if (future.isDone()) {
+                    try {
+                        callback.handle(future.get(), context.getContextMap());
+                    } catch (Exception e) {
+                        throw new WebServiceException(e.getMessage(), e.getCause());
+                    }
                 }
             }
         }

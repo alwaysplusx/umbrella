@@ -18,6 +18,7 @@ package com.harmony.umbrella.ws.cxf.interceptor;
 import javax.xml.ws.Endpoint;
 
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.harmony.umbrella.ws.jaxws.JaxWsProxyBuilder;
@@ -41,6 +42,7 @@ public class BeanInjectInterceptorTest {
     }
 
     @Test
+    @Ignore
     public void test() {
         HelloService helloService = JaxWsProxyBuilder.create()//
                 .setAddress(ADDRESS)//

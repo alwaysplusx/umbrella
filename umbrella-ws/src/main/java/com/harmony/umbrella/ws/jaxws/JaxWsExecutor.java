@@ -32,28 +32,15 @@ public interface JaxWsExecutor {
     public static final String WS_CONTEXT_GRAPH = JaxWsExecutor.class.getName() + ".WS_CONTEXT_GRAPH";
 
     /**
-     * 执行交互, 提供visitor的各时段的访问
+     * 执行交互
+     * <p>
+     * <em>tips:如果接口中包含不定参数一定要特别注意，将不定参数当作数组一并输入</em>
      * 
      * @param context
      *            执行上下文
-     * @param resultType
-     *            返回类型
-     * @param visitors
-     *            执行的访问者
-     * @return
+     * @return 执行结果,如果web service返回参数为void则返回null
      */
-    <T> T execute(Context context, Class<T> resultType, PhaseVisitor... visitors);
-
-    /**
-     * 执行交互, 提供各时段的visitor
-     * 
-     * @param context
-     *            执行上下文
-     * @param visitors
-     *            执行的访问者
-     * @return
-     */
-    Object execute(Context context, PhaseVisitor... visitors);
+    Object execute(Context context);
 
     /**
      * 执行交互，并返回指定类型的返回值
@@ -67,15 +54,37 @@ public interface JaxWsExecutor {
     <T> T execute(Context context, Class<T> resultType);
 
     /**
-     * 执行交互
-     * <p>
-     * <em>tips:如果接口中包含不定参数一定要特别注意，将不定参数当作数组一并输入</em>
+     * 执行交互, 提供各时段的visitor
      * 
      * @param context
      *            执行上下文
-     * @return 执行结果,如果web service返回参数为void则返回null
+     * @param visitors
+     *            执行的访问者
+     * @return
      */
-    Object execute(Context context);
+    Object execute(Context context, PhaseVisitor... visitors);
+
+    /**
+     * 执行交互, 提供visitor的各时段的访问
+     * 
+     * @param context
+     *            执行上下文
+     * @param resultType
+     *            返回类型
+     * @param visitors
+     *            执行的访问者
+     * @return
+     */
+    <T> T execute(Context context, Class<T> resultType, PhaseVisitor... visitors);
+
+    /**
+     * 异步调用web service
+     * 
+     * @param context
+     *            执行 上下文
+     * @return 执行结果
+     */
+    Future<?> executeAsync(Context context);
 
     /**
      * 异步执行交互
@@ -87,15 +96,6 @@ public interface JaxWsExecutor {
      * @return 执行结果
      */
     <T> Future<T> executeAsync(Context context, Class<T> resultType);
-
-    /**
-     * 异步调用web service
-     * 
-     * @param context
-     *            执行 上下文
-     * @return 执行结果
-     */
-    Future<?> executeAsync(Context context);
 
     /**
      * 异步调用,并提供对于结果的回调

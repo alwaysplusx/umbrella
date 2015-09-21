@@ -259,11 +259,11 @@ public class EJBApplicationContext extends ApplicationContext implements EJBCont
         }
     }
 
-    // ################### BeanFactory #################
-
     public void setContextResolver(ContextResolver contextResolver) {
         this.contextResolver = contextResolver;
     }
+
+    // ################### BeanFactory #################
 
     @Override
     public <T> T getBean(String beanName) throws NoSuchBeanFindException {
