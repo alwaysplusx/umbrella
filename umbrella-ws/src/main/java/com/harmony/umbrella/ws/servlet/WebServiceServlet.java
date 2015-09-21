@@ -52,11 +52,6 @@ public class WebServiceServlet extends CXFNonSpringServlet {
      */
     private ServerManager serverManager = ServerManager.getServerManager();
 
-    /**
-     * 资源扫描实例
-     */
-    private ResourceScaner scaner = ResourceScaner.getInstance();
-
     @Override
     public void init(final ServletConfig sc) throws ServletException {
         super.init(sc);
@@ -78,7 +73,7 @@ public class WebServiceServlet extends CXFNonSpringServlet {
 
         String[] packages = getPackages(sc);
         for (String pkg : packages) {
-            scaner.scanPackage(pkg, filter);
+            ResourceScaner.scanPackage(pkg, filter);
         }
     }
 

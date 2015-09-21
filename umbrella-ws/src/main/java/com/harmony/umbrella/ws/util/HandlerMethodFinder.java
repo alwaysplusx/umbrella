@@ -74,7 +74,7 @@ public class HandlerMethodFinder {
             return classes.toArray(new Class[classes.size()]);
         }
         Set<Class<?>> handlerClasses = new LinkedHashSet<Class<?>>();
-        Class<?>[] classes = ResourceScaner.getInstance().scanPackage(basePackage, new ClassFilter() {
+        Class<?>[] classes = ResourceScaner.scanPackage(basePackage, new ClassFilter() {
             @Override
             public boolean accept(Class<?> clazz) {
                 try {
