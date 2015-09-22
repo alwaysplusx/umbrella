@@ -31,12 +31,15 @@ public abstract class ContextValidatorUtils {
      * @throws IllegalArgumentException
      */
     public static void validation(Context context) throws IllegalArgumentException {
-        if (context.getServiceInterface() == null)
+        if (context.getServiceInterface() == null) {
             throw new IllegalArgumentException("service interface not set");
-        if (context.getAddress() == null)
+        }
+        if (context.getAddress() == null) {
             throw new IllegalArgumentException("service address not set");
-        if (context.getMethodName() == null)
+        }
+        if (context.getMethodName() == null) {
             throw new IllegalArgumentException("service method not set");
+        }
     }
 
 }

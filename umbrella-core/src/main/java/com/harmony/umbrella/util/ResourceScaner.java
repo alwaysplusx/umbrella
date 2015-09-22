@@ -18,8 +18,10 @@ package com.harmony.umbrella.util;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -77,12 +79,11 @@ public abstract class ResourceScaner {
      * @return 包扫描到的所有类
      */
     public static Class<?>[] scanPackage(String[] packageNames, ClassFilter filter) {
-        return filterResource(scanPath(packageNames), filter);
+        return filterResource(scanClass(packageNames), filter);
     }
 
-    @SuppressWarnings("rawtypes")
     private static Class<?>[] filterResource(Resource[] resources, ClassFilter filter) {
-        List<Class<?>> classes = new ArrayList<Class<?>>(resources.length);
+        Collection<Class<?>> classes = new HashSet<Class<?>>(resources.length);
         for (Resource resource : resources) {
             InputStream inStream = null;
             try {
@@ -105,12 +106,11 @@ public abstract class ResourceScaner {
                 }
             }
         }
-        Collections.sort(classes, new Comparator<Class>() {
-            @Override
-            public int compare(Class o1, Class o2) {
-                return o1.getName().compareTo(o2.getName());
-            }
-        });
+
+        if (classes.size() > 1) {
+            classes = sortClass(classes);
+        }
+
         return classes.toArray(new Class[classes.size()]);
     }
 
@@ -123,20 +123,13 @@ public abstract class ResourceScaner {
      * @see AntPathMatcher
      */
     public static Resource[] scanPath(String... paths) {
-        List<Resource> resources = new ArrayList<Resource>();
+        Collection<Resource> resources = new HashSet<Resource>();
         for (String path : paths) {
             Collections.addAll(resources, scan(allResourcePath(path)));
         }
-        Collections.sort(resources, new Comparator<Resource>() {
-            @Override
-            public int compare(Resource o1, Resource o2) {
-                try {
-                    return o1.getFile().compareTo(o2.getFile());
-                } catch (IOException e) {
-                    return 0;
-                }
-            }
-        });
+        if (resources.size() > 1) {
+            resources = sortResource(resources);
+        }
         return resources.toArray(new Resource[resources.size()]);
     }
 
@@ -148,11 +141,22 @@ public abstract class ResourceScaner {
      * @return 所有以{@code *.class}结尾的资源
      */
     public static Resource[] scanClass(String... paths) {
-        List<Resource> resources = new ArrayList<Resource>();
+        Collection<Resource> resources = new HashSet<Resource>();
+
         for (String path : paths) {
             Collections.addAll(resources, scan(allClassPath(path)));
         }
-        Collections.sort(resources, new Comparator<Resource>() {
+
+        if (resources.size() > 1) {
+            resources = sortResource(resources);
+        }
+
+        return resources.toArray(new Resource[resources.size()]);
+    }
+
+    private static Collection<Resource> sortResource(Collection<Resource> resources) {
+        List<Resource> result = new ArrayList<Resource>(resources);
+        Collections.sort(result, new Comparator<Resource>() {
             @Override
             public int compare(Resource o1, Resource o2) {
                 try {
@@ -162,7 +166,19 @@ public abstract class ResourceScaner {
                 }
             }
         });
-        return resources.toArray(new Resource[resources.size()]);
+        return result;
+    }
+
+    @SuppressWarnings("rawtypes")
+    private static Collection<Class<?>> sortClass(Collection<Class<?>> classes) {
+        List<Class<?>> result = new ArrayList<Class<?>>(classes);
+        Collections.sort(result, new Comparator<Class>() {
+            @Override
+            public int compare(Class o1, Class o2) {
+                return o1.getName().compareTo(o2.getName());
+            }
+        });
+        return result;
     }
 
     /**

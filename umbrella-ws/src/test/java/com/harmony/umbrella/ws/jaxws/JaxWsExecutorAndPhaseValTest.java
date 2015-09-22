@@ -17,6 +17,7 @@ package com.harmony.umbrella.ws.jaxws;
 
 import static org.junit.Assert.*;
 
+import java.lang.reflect.Method;
 import java.util.Map;
 
 import org.junit.BeforeClass;
@@ -32,6 +33,8 @@ import com.harmony.umbrella.ws.WebServiceAbortException;
 import com.harmony.umbrella.ws.services.HelloService;
 import com.harmony.umbrella.ws.services.HelloWebService;
 import com.harmony.umbrella.ws.support.SimpleContext;
+import com.harmony.umbrella.ws.util.HandleMethodInvoker;
+import com.harmony.umbrella.ws.util.HandlerMethodFinder;
 import com.harmony.umbrella.ws.visitor.AbstractPhaseVisitor;
 import com.harmony.umbrella.ws.visitor.PhaseValidationVisitor;
 
@@ -152,8 +155,14 @@ public class JaxWsExecutorAndPhaseValTest {
 
     }
 
-    public static void main(String[] args) {
-        JaxWsServerBuilder.create().publish(HelloWebService.class, address);
+    public static void main(String[] args) throws Exception {
+        // JaxWsServerBuilder.create().publish(HelloWebService.class, address);
+        Method method = HelloService.class.getMethod("sayHi", String.class);
+        HandlerMethodFinder finder = new HandlerMethodFinder();
+        HandleMethodInvoker[] methods = finder.findHandleMethods(method, Phase.PRE_INVOKE);
+        for (HandleMethodInvoker handleMethodInvoker : methods) {
+            System.out.println(handleMethodInvoker);
+        }
     }
 
 }

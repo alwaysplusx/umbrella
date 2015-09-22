@@ -16,8 +16,8 @@
 package com.harmony.umbrella.ws.util;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -67,7 +67,7 @@ public class HandleMethodReflectInvoker extends DefaultInvoker implements Handle
 
     @Override
     public Object invokeHandleMethod(Object target, Object[] args, Map<String, Object> contextMap) throws InvokeException {
-        List<Object> arguments = new LinkedList<Object>();
+        List<Object> arguments = new ArrayList<Object>(args.length + 2);
         Collections.addAll(arguments, args);
         if (endWithMap) {
             arguments.add(contextMap);

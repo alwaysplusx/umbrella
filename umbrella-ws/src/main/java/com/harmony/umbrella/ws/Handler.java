@@ -42,6 +42,11 @@ public @interface Handler {
     String[] handles() default {};
 
     /**
+     * class的排序信息，放在第几个回调位置
+     */
+    int ordinal() default 0;
+
+    /**
      * 为方法标记{@linkplain HandleMethod}，表示为一个{@linkplain Handler}处理方法.
      * <p>
      * 并支持各个周期中获取执行上下文的context各个Phase对应的方法说明(该参数是可选项)
