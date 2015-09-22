@@ -91,13 +91,13 @@ public class ApplicationMetadata {
         @Override
         public String toString() {
             StringBuilder builder = new StringBuilder();
-            builder.append("{\"servletVersion\":\"");
+            builder.append("{servletVersion:");
             builder.append(servletVersion);
-            builder.append("\", \"serverName\":\"");
+            builder.append(", serverName:");
             builder.append(serverName);
-            builder.append("\", \"serverType\":\"");
+            builder.append(", serverType:");
             builder.append(serverType);
-            builder.append("\"}");
+            builder.append("}");
             return builder.toString();
         }
 
@@ -169,21 +169,21 @@ public class ApplicationMetadata {
         @Override
         public String toString() {
             StringBuilder builder = new StringBuilder();
-            builder.append("{\"productName\":\"");
+            builder.append("{productName:");
             builder.append(productName);
-            builder.append("\", \"productVersion\":\"");
+            builder.append(", productVersion:");
             builder.append(productVersion);
-            builder.append("\", \"url\":\"");
+            builder.append(", url:");
             builder.append(url);
-            builder.append("\", \"userName\":\"");
+            builder.append(", userName:");
             builder.append(userName);
-            builder.append("\", \"driverName\":\"");
+            builder.append(", driverName:");
             builder.append(driverName);
-            builder.append("\", \"driverVersion\":\"");
+            builder.append(", driverVersion:");
             builder.append(driverVersion);
-            builder.append("\", \"databaseType\":\"");
+            builder.append(", databaseType:");
             builder.append(databaseType);
-            builder.append("\"}");
+            builder.append("}");
             return builder.toString();
         }
 
@@ -228,11 +228,35 @@ public class ApplicationMetadata {
 
         @Override
         public String toString() {
-            return "{\n  \"specificationName\":\"" + specificationName + "\", \n  \"specificationVersion\":\"" + specificationVersion
-                    + "\", \n  \"runtimeName\":\"" + runtimeName + "\", \n  \"runtimeVersion\":\"" + runtimeVersion + "\", \n  \"vmName\":\"" + vmName
-                    + "\", \n  \"vmVersion\":\"" + vmVersion + "\", \n  \"vmVendor\":\"" + vmVendor + "\", \n  \"classVersion\":\"" + classVersion
-                    + "\", \n  \"libraryPath\":\"" + libraryPath + "\", \n  \"classPath\":\"" + classPath + "\", \n  \"javaVersion\":\"" + javaVersion
-                    + "\", \n  \"javaHome\":\"" + javaHome + "\", \n  \"javaVendor\":\"" + javaVendor + "\"\n}";
+            StringBuilder builder = new StringBuilder();
+            builder.append("{specificationName:");
+            builder.append(specificationName);
+            builder.append(", specificationVersion:");
+            builder.append(specificationVersion);
+            builder.append(", runtimeName:");
+            builder.append(runtimeName);
+            builder.append(", runtimeVersion:");
+            builder.append(runtimeVersion);
+            builder.append(", vmName:");
+            builder.append(vmName);
+            builder.append(", vmVersion:");
+            builder.append(vmVersion);
+            builder.append(", vmVendor:");
+            builder.append(vmVendor);
+            builder.append(", classVersion:");
+            builder.append(classVersion);
+            builder.append(", libraryPath:");
+            builder.append(libraryPath);
+            builder.append(", classPath:");
+            builder.append(classPath);
+            builder.append(", javaVersion:");
+            builder.append(javaVersion);
+            builder.append(", javaHome:");
+            builder.append(javaHome);
+            builder.append(", javaVendor:");
+            builder.append(javaVendor);
+            builder.append("}");
+            return builder.toString();
         }
 
     }
@@ -272,10 +296,31 @@ public class ApplicationMetadata {
 
         @Override
         public String toString() {
-            return "{\n  \"osName\":\"" + osName + "\", \n  \"osVersion\":\"" + osVersion + "\", \n  \"osPatchLevel\":\"" + osPatchLevel
-                    + "\", \n  \"userHome\":\"" + userHome + "\", \n  \"userName\":\"" + userName + "\", \n  \"language\":\"" + language
-                    + "\", \n  \"timeZone\":\"" + timeZone + "\", \n  \"fileEncoding\":\"" + fileEncoding + "\", \n  \"fileSeparator\":\"" + fileSeparator
-                    + "\", \n  \"cpu\":\"" + cpu + "\", \n  \"cpuModel\":\"" + cpuModel + "\"\n}";
+            StringBuilder builder = new StringBuilder();
+            builder.append("{osName:");
+            builder.append(osName);
+            builder.append(", osVersion:");
+            builder.append(osVersion);
+            builder.append(", osPatchLevel:");
+            builder.append(osPatchLevel);
+            builder.append(", userHome:");
+            builder.append(userHome);
+            builder.append(", userName:");
+            builder.append(userName);
+            builder.append(", language:");
+            builder.append(language);
+            builder.append(", timeZone:");
+            builder.append(timeZone);
+            builder.append(", fileEncoding:");
+            builder.append(fileEncoding);
+            builder.append(", fileSeparator:");
+            builder.append(fileSeparator);
+            builder.append(", cpu:");
+            builder.append(cpu);
+            builder.append(", cpuModel:");
+            builder.append(cpuModel);
+            builder.append("}");
+            return builder.toString();
         }
 
     }

@@ -16,11 +16,11 @@
     </dependency>
     <dependency>
       <groupId>com.harmony.umbrella</groupId>
-      <artifactId>umbrella-data</artifactId>
+      <artifactId>umbrella-ee</artifactId>
     </dependency>
     <dependency>
       <groupId>com.harmony.umbrella</groupId>
-      <artifactId>umbrella-jaxws</artifactId>
+      <artifactId>umbrella-json</artifactId>
     </dependency>
     <dependency>
       <groupId>com.harmony.umbrella</groupId>
@@ -29,22 +29,6 @@
     <dependency>
       <groupId>com.harmony.umbrella</groupId>
       <artifactId>umbrella-monitor</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.harmony.umbrella</groupId>
-      <artifactId>umbrella-scheduler</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.harmony.umbrella</groupId>
-      <artifactId>umbrella-security</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.harmony.umbrella</groupId>
-      <artifactId>umbrella-jaxrs</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.harmony.umbrella</groupId>
-      <artifactId>umbrella-mapper</artifactId>
     </dependency>
     <dependency>
       <groupId>com.harmony.umbrella</groupId>
@@ -101,14 +85,10 @@
               <artifactSet>
                 <includes>
                   <include>com.harmony.umbrella:umbrella-core</include>
-                  <include>com.harmony.umbrella:umbrella-data</include>
-                  <include>com.harmony.umbrella:umbrella-jaxws</include>
+                  <include>com.harmony.umbrella:umbrella-ee</include>
+                  <include>com.harmony.umbrella:umbrella-json</include>
                   <include>com.harmony.umbrella:umbrella-message</include>
                   <include>com.harmony.umbrella:umbrella-monitor</include>
-                  <include>com.harmony.umbrella:umbrella-scheduler</include>
-                  <include>com.harmony.umbrella:umbrella-security</include>
-                  <include>com.harmony.umbrella:umbrella-jaxrs</include>
-                  <include>com.harmony.umbrella:umbrella-mapper</include>
                   <include>com.harmony.umbrella:umbrella-validator</include>
                 </includes>
               </artifactSet>
