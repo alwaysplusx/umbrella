@@ -13,9 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.umbrella.io;
+package com.harmony.umbrella.io.support;
 
 import java.io.IOException;
+
+import com.harmony.umbrella.io.Resource;
+import com.harmony.umbrella.io.ResourceLoader;
 
 /**
  * Strategy interface for resolving a location pattern (for example,

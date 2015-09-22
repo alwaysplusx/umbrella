@@ -25,7 +25,8 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
 
-import com.harmony.umbrella.io.util.ResourceUtils;
+import com.harmony.umbrella.io.support.AbstractFileResolvingResource;
+import com.harmony.umbrella.util.ResourceUtils;
 import com.harmony.umbrella.util.StringUtils;
 
 /**
@@ -214,7 +215,7 @@ public class UrlResource extends AbstractFileResolvingResource {
      * This implementation returns a File reference for the underlying URL/URI,
      * provided that it refers to a file in the file system.
      * 
-     * @see org.springframework.util.ResourceUtils#getFile(java.net.URL, String)
+     * @see com.harmony.umbrella.util.springframework.util.ResourceUtils#getFile(java.net.URL, String)
      */
     @Override
     public File getFile() throws IOException {

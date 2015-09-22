@@ -15,6 +15,8 @@
  */
 package com.harmony.umbrella.context;
 
+import com.harmony.umbrella.io.ResourceManager;
+
 /**
  * @author wuxii@foxmail.com
  */

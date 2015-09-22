@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.umbrella.context;
+package com.harmony.umbrella.io;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -21,8 +21,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.harmony.umbrella.io.Resource;
-import com.harmony.umbrella.io.util.ResourceScaner;
+import com.harmony.umbrella.util.ResourceScaner;
 import com.harmony.umbrella.util.ClassUtils.ClassFilter;
 
 /**
@@ -90,7 +89,6 @@ public class ResourceManager {
                 }
             }
         }
-        resources = resourcesCache.get(path);
         return resources.toArray(new Resource[resources.size()]);
     }
 

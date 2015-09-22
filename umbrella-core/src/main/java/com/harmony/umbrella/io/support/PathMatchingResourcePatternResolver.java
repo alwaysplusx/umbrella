@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.umbrella.io;
+package com.harmony.umbrella.io.support;
 
 import java.io.File;
 import java.io.IOException;
@@ -33,9 +33,14 @@ import java.util.jar.JarFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.harmony.umbrella.io.util.AntPathMatcher;
-import com.harmony.umbrella.io.util.PathMatcher;
-import com.harmony.umbrella.io.util.ResourceUtils;
+import com.harmony.umbrella.io.DefaultResourceLoader;
+import com.harmony.umbrella.io.FileSystemResource;
+import com.harmony.umbrella.io.Resource;
+import com.harmony.umbrella.io.ResourceLoader;
+import com.harmony.umbrella.io.UrlResource;
+import com.harmony.umbrella.util.AntPathMatcher;
+import com.harmony.umbrella.util.PathMatcher;
+import com.harmony.umbrella.util.ResourceUtils;
 import com.harmony.umbrella.util.StringUtils;
 
 /**
@@ -45,7 +50,7 @@ import com.harmony.umbrella.util.StringUtils;
  * {@link org.springframework.core.io.Resource}, or alternatively may contain
  * the special "{@code classpath*:}" prefix and/or internal Ant-style regular
  * expressions (matched using Spring's
- * {@link org.springframework.util.AntPathMatcher} utility). Both of the latter
+ * {@link com.harmony.umbrella.util.springframework.util.AntPathMatcher} utility). Both of the latter
  * are effectively wildcards.
  *
  * <p><b>No Wildcards:</b>
@@ -149,7 +154,7 @@ import com.harmony.umbrella.util.StringUtils;
  * @author Costin Leau
  * @since 1.0.2
  * @see #CLASSPATH_ALL_URL_PREFIX
- * @see org.springframework.util.AntPathMatcher
+ * @see com.harmony.umbrella.util.springframework.util.AntPathMatcher
  * @see org.springframework.core.io.ResourceLoader#getResource(String)
  * @see ClassLoader#getResources(String)
  */
@@ -214,7 +219,7 @@ public class PathMatchingResourcePatternResolver implements ResourcePatternResol
      * Set the PathMatcher implementation to use for this resource pattern
      * resolver. Default is AntPathMatcher.
      * 
-     * @see org.springframework.util.AntPathMatcher
+     * @see com.harmony.umbrella.util.springframework.util.AntPathMatcher
      */
     public void setPathMatcher(PathMatcher pathMatcher) {
         this.pathMatcher = pathMatcher;
@@ -376,7 +381,7 @@ public class PathMatchingResourcePatternResolver implements ResourcePatternResol
      *             in case of I/O errors
      * @see #doFindPathMatchingJarResources
      * @see #doFindPathMatchingFileResources
-     * @see org.springframework.util.PathMatcher
+     * @see com.harmony.umbrella.util.springframework.util.PathMatcher
      */
     protected Resource[] findPathMatchingResources(String locationPattern) throws IOException {
         String rootDirPath = determineRootDir(locationPattern);
@@ -453,7 +458,7 @@ public class PathMatchingResourcePatternResolver implements ResourcePatternResol
      *            the resource handle to check (usually the root directory to
      *            start path matching from)
      * @see #doFindPathMatchingJarResources
-     * @see org.springframework.util.ResourceUtils#isJarURL
+     * @see com.harmony.umbrella.util.springframework.util.ResourceUtils#isJarURL
      */
     protected boolean isJarResource(Resource resource) throws IOException {
         return ResourceUtils.isJarURL(resource.getURL());
@@ -471,7 +476,7 @@ public class PathMatchingResourcePatternResolver implements ResourcePatternResol
      * @throws IOException
      *             in case of I/O errors
      * @see java.net.JarURLConnection
-     * @see org.springframework.util.PathMatcher
+     * @see com.harmony.umbrella.util.springframework.util.PathMatcher
      */
     protected Set<Resource> doFindPathMatchingJarResources(Resource rootDirResource, String subPattern) throws IOException {
 
@@ -570,7 +575,7 @@ public class PathMatchingResourcePatternResolver implements ResourcePatternResol
      * @throws IOException
      *             in case of I/O errors
      * @see #retrieveMatchingFiles
-     * @see org.springframework.util.PathMatcher
+     * @see com.harmony.umbrella.util.springframework.util.PathMatcher
      */
     protected Set<Resource> doFindPathMatchingFileResources(Resource rootDirResource, String subPattern) throws IOException {
 
@@ -599,7 +604,7 @@ public class PathMatchingResourcePatternResolver implements ResourcePatternResol
      * @throws IOException
      *             in case of I/O errors
      * @see #retrieveMatchingFiles
-     * @see org.springframework.util.PathMatcher
+     * @see com.harmony.umbrella.util.springframework.util.PathMatcher
      */
     protected Set<Resource> doFindMatchingFileSystemResources(File rootDir, String subPattern) throws IOException {
         if (logger.isDebugEnabled()) {

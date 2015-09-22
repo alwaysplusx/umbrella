@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.umbrella.io.util;
+package com.harmony.umbrella.util;
 
 import java.util.Comparator;
 import java.util.LinkedHashMap;
@@ -23,8 +23,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import com.harmony.umbrella.util.StringUtils;
 
 /**
  * PathMatcher implementation for Ant-style path patterns. Examples are provided

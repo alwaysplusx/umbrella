@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 
+import com.harmony.umbrella.io.support.AbstractFileResolvingResource;
 import com.harmony.umbrella.util.ClassUtils;
 import com.harmony.umbrella.util.ObjectUtils;
 import com.harmony.umbrella.util.StringUtils;

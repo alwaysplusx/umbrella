@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.umbrella.io;
+package com.harmony.umbrella.io.support;
 
 import java.io.File;
 import java.io.IOException;
@@ -23,7 +23,10 @@ import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
 
-import com.harmony.umbrella.io.util.ResourceUtils;
+import com.harmony.umbrella.io.AbstractResource;
+import com.harmony.umbrella.io.ClassPathResource;
+import com.harmony.umbrella.io.UrlResource;
+import com.harmony.umbrella.util.ResourceUtils;
 
 /**
  * Abstract base class for resources which resolve URLs into File references,
@@ -41,7 +44,7 @@ public abstract class AbstractFileResolvingResource extends AbstractResource {
      * This implementation returns a File reference for the underlying class
      * path resource, provided that it refers to a file in the file system.
      * 
-     * @see org.springframework.util.ResourceUtils#getFile(java.net.URL, String)
+     * @see com.harmony.umbrella.util.springframework.util.ResourceUtils#getFile(java.net.URL, String)
      */
     @Override
     public File getFile() throws IOException {
@@ -68,7 +71,7 @@ public abstract class AbstractFileResolvingResource extends AbstractResource {
      * This implementation returns a File reference for the underlying class
      * path resource, provided that it refers to a file in the file system.
      * 
-     * @see org.springframework.util.ResourceUtils#getFile(java.net.URI, String)
+     * @see com.harmony.umbrella.util.springframework.util.ResourceUtils#getFile(java.net.URI, String)
      */
     protected File getFile(URI uri) throws IOException {
         return ResourceUtils.getFile(uri, getDescription());

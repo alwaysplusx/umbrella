@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.umbrella.io.util;
+package com.harmony.umbrella.util;
 
 import java.util.Comparator;
 import java.util.Map;
@@ -22,7 +22,7 @@ import java.util.Map;
  * Strategy interface for {@code String}-based path matching.
  *
  * <p>Used by
- * {@link org.springframework.core.io.support.PathMatchingResourcePatternResolver}
+ * {@link com.harmony.umbrella.io.support.springframework.core.io.support.PathMatchingResourcePatternResolver}
  * , {@link org.springframework.web.servlet.handler.AbstractUrlHandlerMapping},
  * {@link org.springframework.web.servlet.mvc.multiaction.PropertiesMethodNameResolver}
  * , and {@link org.springframework.web.servlet.mvc.WebContentInterceptor}.

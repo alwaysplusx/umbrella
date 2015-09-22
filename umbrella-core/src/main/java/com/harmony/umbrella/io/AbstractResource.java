@@ -23,7 +23,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 
-import com.harmony.umbrella.io.util.ResourceUtils;
+import com.harmony.umbrella.util.ResourceUtils;
 
 /**
  * Convenience base class for {@link Resource} implementations, pre-implementing
