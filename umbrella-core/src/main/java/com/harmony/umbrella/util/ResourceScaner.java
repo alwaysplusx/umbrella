@@ -18,6 +18,7 @@ package com.harmony.umbrella.util;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -34,14 +35,20 @@ import com.harmony.umbrella.io.support.ResourcePatternResolver;
 import com.harmony.umbrella.util.ClassUtils.ClassFilter;
 
 /**
+ * 扫描的资源都是位于类路径下的
+ * <p>
+ * 对于非类路径下的资源扫描危险性较大，故不在工具类中整理
+ * 
  * @author wuxii@foxmail.com
  */
 public abstract class ResourceScaner {
 
     private final static Logger log = LoggerFactory.getLogger(ResourceScaner.class);
 
-    private static final String RESOURCE_PATTERN = ResourcePatternResolver.ALL_RESOURCE_PATTERN;
-    private static final String CLASS_PATTERN = ResourcePatternResolver.ALL_CLASS_PATTERN;
+    private static final List<String> extensions = Arrays.asList(".class", ".xml", ".properties");
+
+    private static final String RESOURCE_PATTERN = ResourcePatternResolver.ALL_RESOURCE_PATTERN_SUFFIX;
+    private static final String CLASS_PATTERN = ResourcePatternResolver.ALL_CLASS_PATTERN_SUFFIX;
 
     private static ResourcePatternResolver resourcePatternResolver = new PathMatchingResourcePatternResolver();
 
@@ -203,11 +210,20 @@ public abstract class ResourceScaner {
      *            资源路径
      * @return 所有资源匹配路径
      */
-    private static String allResourcePath(String path) {
-        if (path != null && path.endsWith(RESOURCE_PATTERN)) {
-            return path;
+    private static String allResourcePath(final String path) {
+        Assert.notNull(path, "scan path is null");
+
+        String pattern, extension = getExtension(path);
+
+        if ("".equals(extension)) {
+            // 没有以扩展名结尾
+            pattern = toPath(path) + (path.endsWith("/") ? "" : "/") + RESOURCE_PATTERN;
+        } else {
+            // 以扩展名结尾
+            pattern = toPath(path.substring(0, path.lastIndexOf(extension))) + extension;
         }
-        return ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX + toPath(path) + "/" + RESOURCE_PATTERN;
+
+        return pattern.startsWith(ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX) ? pattern : ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX + pattern;
     }
 
     /**
@@ -218,11 +234,35 @@ public abstract class ResourceScaner {
      * com/harmony -> classpath*:com/harmony<span>/**</span>/*.class
      * </pre>
      */
-    private static String allClassPath(String pkg) {
-        if (pkg != null && pkg.endsWith(CLASS_PATTERN)) {
-            return pkg;
+    private static String allClassPath(final String path) {
+        Assert.notNull(path, "scan package is null");
+
+        String pattern, extension = getExtension(path);
+
+        if ("".equals(extension)) {
+            // 没有以扩展名结尾
+            pattern = toPath(path) + (path.endsWith("/") ? "" : "/") + CLASS_PATTERN;
+        } else if (".class".equals(extension)) {
+            // 以扩展名结尾
+            pattern = toPath(path.substring(0, path.lastIndexOf(extension))) + extension;
+        } else {
+            throw new IllegalArgumentException("scan class but package[" + path + "] end with other extension");
         }
-        return ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX + toPath(pkg) + "/" + CLASS_PATTERN;
+
+        return pattern.startsWith(ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX) ? pattern : ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX + pattern;
+    }
+
+    private static String getExtension(String text) {
+        text = text.toLowerCase();
+        int i, max;
+        for (i = 0, max = extensions.size(); i < max; i++) {
+            // 以扩展名结尾
+            String ext = extensions.get(i);
+            if (text.endsWith(ext)) {
+                return ext;
+            }
+        }
+        return "";
     }
 
     private static String toPath(String basePackage) {

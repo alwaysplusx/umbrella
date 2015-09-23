@@ -21,24 +21,31 @@ import com.harmony.umbrella.io.Resource;
 import com.harmony.umbrella.io.ResourceLoader;
 
 /**
- * Strategy interface for resolving a location pattern (for example,
- * an Ant-style path pattern) into Resource objects.
+ * Strategy interface for resolving a location pattern (for example, an
+ * Ant-style path pattern) into Resource objects.
  *
- * <p>This is an extension to the {@link org.springframework.core.io.ResourceLoader}
- * interface. A passed-in ResourceLoader (for example, an
+ * <p>
+ * This is an extension to the
+ * {@link org.springframework.core.io.ResourceLoader} interface. A passed-in
+ * ResourceLoader (for example, an
  * {@link org.springframework.context.ApplicationContext} passed in via
- * {@link org.springframework.context.ResourceLoaderAware} when running in a context)
- * can be checked whether it implements this extended interface too.
+ * {@link org.springframework.context.ResourceLoaderAware} when running in a
+ * context) can be checked whether it implements this extended interface too.
  *
- * <p>{@link PathMatchingResourcePatternResolver} is a standalone implementation
+ * <p>
+ * {@link PathMatchingResourcePatternResolver} is a standalone implementation
  * that is usable outside an ApplicationContext, also used by
- * {@link ResourceArrayPropertyEditor} for populating Resource array bean properties.
+ * {@link ResourceArrayPropertyEditor} for populating Resource array bean
+ * properties.
  *
- * <p>Can be used with any sort of location pattern (e.g. "/WEB-INF/*-context.xml"):
- * Input patterns have to match the strategy implementation. This interface just
- * specifies the conversion method rather than a specific pattern format.
+ * <p>
+ * Can be used with any sort of location pattern (e.g.
+ * "/WEB-INF/*-context.xml"): Input patterns have to match the strategy
+ * implementation. This interface just specifies the conversion method rather
+ * than a specific pattern format.
  *
- * <p>This interface also suggests a new resource prefix "classpath*:" for all
+ * <p>
+ * This interface also suggests a new resource prefix "classpath*:" for all
  * matching resources from the class path. Note that the resource location is
  * expected to be a path without placeholders in this case (e.g. "/beans.xml");
  * JAR files or classes directories can contain multiple files of the same name.
@@ -55,13 +62,13 @@ public interface ResourcePatternResolver extends ResourceLoader {
     /**
      * 路径下的所有资源, for ant path matcher
      */
-    String ALL_RESOURCE_PATTERN = "**/*";
+    String ALL_RESOURCE_PATTERN_SUFFIX = "**/*";
 
     /**
      * 路径下的所有class， for ant path matcher
      */
-    String ALL_CLASS_PATTERN = "**/*.class";
-	
+    String ALL_CLASS_PATTERN_SUFFIX = "**/*.class";
+
     /**
      * Pseudo URL prefix for all matching resources from the class path:
      * "classpath*:" This differs from ResourceLoader's classpath URL prefix in
@@ -73,9 +80,16 @@ public interface ResourcePatternResolver extends ResourceLoader {
     String CLASSPATH_ALL_URL_PREFIX = "classpath*:";
 
     /**
-     * Resolve the given location pattern into Resource objects. <p>Overlapping
-     * resource entries that point to the same physical resource should be
-     * avoided, as far as possible. The result should have set semantics.
+     * 文件系统下的前缀
+     */
+    String FILE_SYSTEM_ALL_PREFIX = "file*:";
+
+    /**
+     * Resolve the given location pattern into Resource objects.
+     * <p>
+     * Overlapping resource entries that point to the same physical resource
+     * should be avoided, as far as possible. The result should have set
+     * semantics.
      * 
      * @param locationPattern
      *            the location pattern to resolve

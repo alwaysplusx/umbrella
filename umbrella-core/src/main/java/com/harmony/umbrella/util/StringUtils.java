@@ -19,8 +19,6 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -618,7 +616,7 @@ public abstract class StringUtils {
      *            待排序的对象
      * @return 生成的唯一键
      */
-    public static String specificationKey(Object... objects) {
+    /*public static String specificationKey(Object... objects) {
         if (objects == null || objects.length == 0) {
             return "";
         }
@@ -640,6 +638,6 @@ public abstract class StringUtils {
         }
         
         return sb.toString();
-    }
+    }*/
 
 }
