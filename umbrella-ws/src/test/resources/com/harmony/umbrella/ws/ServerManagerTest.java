@@ -28,6 +28,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.harmony.umbrella.ws.jaxws.JaxWsProxyBuilder;
+import com.harmony.umbrella.ws.jaxws.JaxWsServerManager;
 import com.harmony.umbrella.ws.services.HelloRESTService;
 import com.harmony.umbrella.ws.services.HelloService;
 import com.harmony.umbrella.ws.services.HelloWebService;
@@ -39,7 +40,7 @@ public class ServerManagerTest {
 
     private static final String address1 = "http://localhost:9001/demo";
     private static final String address2 = "http://localhost:9002/demo";
-    private static final ServerManager sm = ServerManager.getServerManager();
+    private static final ServerManager<?> sm = JaxWsServerManager.getInstance();
 
     @BeforeClass
     public static void setUp() {

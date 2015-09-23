@@ -30,11 +30,14 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import com.harmony.umbrella.ws.jaxws.JaxWsProxyBuilder;
+import com.harmony.umbrella.ws.jaxws.JaxWsServerManager;
 import com.harmony.umbrella.ws.services.HelloService;
 import com.harmony.umbrella.ws.services.HelloWebService;
 
 /**
- * -Xms2m -Xmx2m -XX:+HeapDumpOnOutOfMemoryError -XX:-UseGCOverheadLimit -verbose:gc -XX:+PrintGCDetails
+ * -Xms2m -Xmx2m -XX:+HeapDumpOnOutOfMemoryError -XX:-UseGCOverheadLimit
+ * -verbose:gc -XX:+PrintGCDetails
+ * 
  * @author wuxii@foxmail.com
  */
 public class ServerPublishTest {
@@ -51,7 +54,7 @@ public class ServerPublishTest {
 
     @BeforeClass
     public static void beforeClass() {
-        ServerManager.getServerManager().publish(HelloWebService.class, ADDRESS);
+        JaxWsServerManager.getInstance().publish(HelloWebService.class, ADDRESS);
     }
 
     @Test

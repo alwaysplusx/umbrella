@@ -87,13 +87,11 @@ public abstract class ResourceScaner {
         for (Resource resource : resources) {
             InputStream inStream = null;
             try {
-                if (resource.getFile().isFile()) {
-                    inStream = resource.getInputStream();
-                    ClassReader cr = new ClassReader(inStream);
-                    Class<?> clazz = forName(toClassName(cr.getClassName()));
-                    if (clazz != null && (filter == null || filter.accept(clazz))) {
-                        classes.add(clazz);
-                    }
+                inStream = resource.getInputStream();
+                ClassReader cr = new ClassReader(inStream);
+                Class<?> clazz = forName(toClassName(cr.getClassName()));
+                if (clazz != null && (filter == null || filter.accept(clazz))) {
+                    classes.add(clazz);
                 }
             } catch (IOException e) {
                 log.warn("can't open resource {} ", resource, e);
@@ -159,11 +157,7 @@ public abstract class ResourceScaner {
         Collections.sort(result, new Comparator<Resource>() {
             @Override
             public int compare(Resource o1, Resource o2) {
-                try {
-                    return o1.getFile().compareTo(o2.getFile());
-                } catch (IOException e) {
-                    return 0;
-                }
+                return o1.toString().compareTo(o2.toString());
             }
         });
         return result;

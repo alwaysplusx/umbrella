@@ -124,6 +124,7 @@ public abstract class JaxWsPhaseExecutor implements JaxWsExecutor {
                 if (future.isDone()) {
                     try {
                         callback.handle(future.get(), context.getContextMap());
+                        break;
                     } catch (Exception e) {
                         throw new WebServiceException(e.getMessage(), e.getCause());
                     }

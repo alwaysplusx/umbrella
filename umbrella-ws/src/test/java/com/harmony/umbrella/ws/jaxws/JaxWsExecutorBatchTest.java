@@ -18,7 +18,6 @@ package com.harmony.umbrella.ws.jaxws;
 import static org.junit.Assert.*;
 
 import org.junit.Ignore;
-import org.junit.Test;
 
 import com.harmony.umbrella.ws.cxf.interceptor.MessageInInterceptor;
 import com.harmony.umbrella.ws.cxf.interceptor.MessageOutInterceptor;
@@ -34,10 +33,17 @@ public class JaxWsExecutorBatchTest {
 
     private static final String address = "http://localhost:8081/hello/batch/executor";
 
-    private JaxWsExecutor executor = new JaxWsCXFExecutor();
+    private static JaxWsExecutor executor = new JaxWsCXFExecutor();
 
-    @Test
-    public void test() {
+    public static void main(String[] args) {
+        JaxWsServerBuilder.create()//
+                .addInInterceptor(new MessageInInterceptor())//
+                .addOutInterceptor(new MessageOutInterceptor())//
+                .publish(HelloWebService.class, address);
+        test();
+    }
+
+    public static void test() {
 
         for (final int index : new int[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20 }) {
             new Thread(new Runnable() {
@@ -70,13 +76,6 @@ public class JaxWsExecutorBatchTest {
             }
         }
 
-    }
-
-    public static void main(String[] args) {
-        JaxWsServerBuilder.create()//
-                .addInInterceptor(new MessageInInterceptor())//
-                .addOutInterceptor(new MessageOutInterceptor())//
-                .publish(HelloWebService.class, address);
     }
 
 }

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.umbrella.ws.cxf;
+package com.harmony.umbrella.ws;
 
 import java.util.Set;
 
@@ -22,12 +22,13 @@ import org.apache.cxf.jaxws.JaxWsServerFactoryBean;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
-import org.junit.Ignore;
 import org.junit.Test;
 
+import com.harmony.umbrella.io.Resource;
+import com.harmony.umbrella.io.ResourceManager;
+import com.harmony.umbrella.ws.FactoryConfig;
 import com.harmony.umbrella.ws.jaxws.JaxWsProxyBuilder;
 import com.harmony.umbrella.ws.jaxws.JaxWsServerBuilder;
-import com.harmony.umbrella.ws.jaxws.JaxWsServerBuilder.JaxWsServerFactoryConfig;
 import com.harmony.umbrella.ws.services.HelloService;
 import com.harmony.umbrella.ws.services.HelloWebService;
 
@@ -38,48 +39,8 @@ public class CXFMessageInterceptorTest {
 
     private static final String address = "http://localhost:8081/hello";
 
-    @Test
-    @Ignore
-    public void testMessageHandle() {
-        JaxWsProxyBuilder builder = JaxWsProxyBuilder.create();
-        builder.getInInterceptors().add(new AbstractPhaseInterceptor<Message>(Phase.RECEIVE) {
-            @Override
-            public void handleMessage(Message message) throws Fault {
-                Set<String> keySet = message.keySet();
-                for (String string : keySet) {
-                    Object obj = message.get(string);
-                    Class<?> claz = obj != null ? obj.getClass() : null;
-                    System.out.println(">>>>>>>>> " + string + ", " + obj + ", " + claz);
-                }
-                System.out.println();
-                Set<Class<?>> contentFormats = message.getContentFormats();
-                for (Class<?> class1 : contentFormats) {
-                    Object obj = message.getContent(class1);
-                    Class<?> claz = obj != null ? obj.getClass() : null;
-                    System.out.println("******** " + class1 + ", " + obj + ", " + claz);
-                }
-                System.out.println();
-                Set<String> contextualPropertyKeys = message.getContextualPropertyKeys();
-                for (String string : contextualPropertyKeys) {
-                    Object obj = message.getContextualProperty(string);
-                    Class<?> claz = obj != null ? obj.getClass() : null;
-                    System.out.println("######## " + string + ", " + obj + ", " + claz);
-                }
-            }
-
-            @Override
-            public void handleFault(Message message) {
-            }
-
-        });
-
-        HelloService service = builder.build(HelloService.class, address);
-
-        service.sayHi("wuxii");
-    }
-
     public static void main(String[] args) {
-        JaxWsServerBuilder.create().setServiceInterface(HelloService.class).publish(HelloWebService.class, address, new JaxWsServerFactoryConfig() {
+        JaxWsServerBuilder.create().publish(HelloWebService.class, address, new FactoryConfig<JaxWsServerFactoryBean>() {
 
             @Override
             public void config(JaxWsServerFactoryBean factoryBean) {
@@ -116,5 +77,47 @@ public class CXFMessageInterceptorTest {
             }
 
         });
+        JaxWsProxyBuilder builder = JaxWsProxyBuilder.create();
+        builder.getInInterceptors().add(new AbstractPhaseInterceptor<Message>(Phase.RECEIVE) {
+            @Override
+            public void handleMessage(Message message) throws Fault {
+                Set<String> keySet = message.keySet();
+                for (String string : keySet) {
+                    Object obj = message.get(string);
+                    Class<?> claz = obj != null ? obj.getClass() : null;
+                    System.out.println(">>>>>>>>> " + string + ", " + obj + ", " + claz);
+                }
+                System.out.println();
+                Set<Class<?>> contentFormats = message.getContentFormats();
+                for (Class<?> class1 : contentFormats) {
+                    Object obj = message.getContent(class1);
+                    Class<?> claz = obj != null ? obj.getClass() : null;
+                    System.out.println("******** " + class1 + ", " + obj + ", " + claz);
+                }
+                System.out.println();
+                Set<String> contextualPropertyKeys = message.getContextualPropertyKeys();
+                for (String string : contextualPropertyKeys) {
+                    Object obj = message.getContextualProperty(string);
+                    Class<?> claz = obj != null ? obj.getClass() : null;
+                    System.out.println("######## " + string + ", " + obj + ", " + claz);
+                }
+            }
+
+        });
+
+        HelloService service = builder.build(HelloService.class, address);
+
+        service.sayHi("wuxii");
+
+        System.exit(0);
+
+    }
+
+    @Test
+    public void testGetResources() {
+        Resource[] resources = ResourceManager.getInstance().getResources("com.harmony");
+        for (Resource resource : resources) {
+            System.out.println(resource.toString());
+        }
     }
 }

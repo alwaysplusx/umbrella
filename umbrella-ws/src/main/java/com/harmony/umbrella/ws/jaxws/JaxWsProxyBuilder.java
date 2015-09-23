@@ -31,7 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.harmony.umbrella.util.Assert;
-import com.harmony.umbrella.util.StringUtils;
+import com.harmony.umbrella.ws.FactoryConfig;
 import com.harmony.umbrella.ws.MetadataLoader;
 
 /**
@@ -189,7 +189,7 @@ public class JaxWsProxyBuilder {
      * @return 代理服务
      */
     public <T> T build(Class<T> serviceClass) {
-        return build(serviceClass, (JaxWsProxyFactoryConfig) null);
+        return doBuild(serviceClass, null);
     }
 
     /**
@@ -203,7 +203,7 @@ public class JaxWsProxyBuilder {
      */
     public <T> T build(Class<T> serviceClass, String address) {
         this.address = address;
-        return build(serviceClass, (JaxWsProxyFactoryConfig) null);
+        return doBuild(serviceClass, null);
     }
 
     /**
@@ -216,24 +216,27 @@ public class JaxWsProxyBuilder {
      */
     public <T> T build(Class<T> serviceClass, long connectionTimeout) {
         this.connectionTimeout = connectionTimeout;
-        T target = build(serviceClass);
-        return target;
+        return doBuild(serviceClass, null);
     }
 
     /**
-     * 创建代理服务，并创建前提供{@linkplain JaxWsProxyFactoryConfig}配置工厂属性
+     * 创建代理服务，并创建前提供{@linkplain ProxyFactoryConfig<JaxWsProxyFactoryBean>}配置工厂属性
      * 
      * @param serviceClass
      *            代理服务类型
-     * @param proxyConfig
+     * @param factoryConfig
      *            服务配置项
      */
-    public <T> T build(Class<T> serviceClass, JaxWsProxyFactoryConfig proxyConfig) {
-        Assert.notNull(serviceClass, "service class must be not null");
-        Assert.isTrue(StringUtils.isNotBlank(address), "proxy address is null or blank");
+    public <T> T build(Class<T> serviceClass, FactoryConfig<JaxWsProxyFactoryBean> factoryConfig) {
+        return doBuild(serviceClass, factoryConfig);
+    }
 
-        if (proxyConfig != null) {
-            proxyConfig.config(factoryBean);
+    private <T> T doBuild(Class<T> serviceClass, FactoryConfig<JaxWsProxyFactoryBean> factoryConfig) {
+        Assert.notNull(serviceClass, "service class must be not null");
+        Assert.notBlank(address, "proxy address is null or blank");
+
+        if (factoryConfig != null) {
+            factoryConfig.config(factoryBean);
         }
 
         factoryBean.setAddress(address);
@@ -347,24 +350,6 @@ public class JaxWsProxyBuilder {
             ClientImpl clientImpl = (ClientImpl) client;
             clientImpl.setSynchronousTimeout(synchronousTimeout);
         }
-    }
-
-    /**
-     * 创建时候的回调方法，负责创建前配置{@linkplain JaxWsProxyFactoryBean}
-     * <p>
-     * 不允许在 {@link #config(JaxWsProxyFactoryBean)}中调用
-     * {@linkplain JaxWsProxyFactoryBean#create()}方法
-     */
-    public interface JaxWsProxyFactoryConfig {
-
-        /**
-         * 配置工厂
-         * 
-         * @param factoryBean
-         *            factory bean
-         */
-        void config(JaxWsProxyFactoryBean factoryBean);
-
     }
 
 }

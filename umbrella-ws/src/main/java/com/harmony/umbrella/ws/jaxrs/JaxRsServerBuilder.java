@@ -17,6 +17,8 @@ package com.harmony.umbrella.ws.jaxrs;
 
 import java.util.List;
 
+import javax.xml.ws.WebServiceException;
+
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.jaxrs.JAXRSServerFactoryBean;
@@ -26,8 +28,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.harmony.umbrella.core.BeanFactory;
+import com.harmony.umbrella.core.NoSuchBeanFindException;
 import com.harmony.umbrella.util.Assert;
-import com.harmony.umbrella.util.StringUtils;
+import com.harmony.umbrella.ws.FactoryConfig;
 import com.harmony.umbrella.ws.cxf.SimpleBeanFactoryProvider;
 
 /**
@@ -39,26 +42,23 @@ public class JaxRsServerBuilder {
 
     private final JAXRSServerFactoryBean serverFactoryBean;
 
-    protected Class<?> resourceClass;
+    private Class<?> resourceClass;
+
+    private Object resourceBean;
 
     /**
      * 发布的地址
      */
-    protected String address;
+    private String address;
 
     /**
-     * 访问服务的用户名
+     * 是否单个服务实例, default is true
      */
-    protected String username;
+    private boolean singleInstance = true;
 
-    /**
-     * 访问服务的密码
-     */
-    protected String password;
+    private BeanFactoryProvider beanFactoryProvider;
 
-    private BeanFactoryProvider provider;
-
-    protected JaxRsServerBuilder() {
+    private JaxRsServerBuilder() {
         this.serverFactoryBean = new JAXRSServerFactoryBean();
     }
 
@@ -102,44 +102,6 @@ public class JaxRsServerBuilder {
         return this;
     }
 
-    public Server publish() {
-        return publish(resourceClass, address, null);
-    }
-
-    public Server publish(Class<?> resourceClass) {
-        return publish(resourceClass, address, null);
-    }
-
-    public Server publish(Class<?> resourceClass, String address) {
-        return publish(resourceClass, address, null);
-    }
-
-    public Server publish(Class<?> resourceClass, String address, JaxRsServerFactoryConfig factoryConfig) {
-        this.resourceClass = resourceClass;
-        this.address = address;
-        return doPublish(resourceClass, factoryConfig);
-    }
-
-    protected Server doPublish(Class<?> resourceClass, JaxRsServerFactoryConfig factoryConfig) {
-        Assert.notNull(resourceClass, "resource class is null");
-        Assert.isTrue(StringUtils.isNotBlank(address), "server address is null or blank");
-
-        if (factoryConfig != null) {
-            factoryConfig.config(serverFactoryBean);
-            if (serverFactoryBean.getServer() != null) {
-                throw new IllegalStateException("config factory not allow call create method");
-            }
-        }
-
-        serverFactoryBean.setAddress(address);
-        serverFactoryBean.setResourceClasses(resourceClass);
-        serverFactoryBean.setResourceProvider(getProvider());
-        Server server = serverFactoryBean.create();
-
-        log.debug("create server[{}@{}] success", resourceClass.getName(), address);
-        return server;
-    }
-
     /**
      * 设置服务地址
      * 
@@ -152,45 +114,95 @@ public class JaxRsServerBuilder {
         return this;
     }
 
-    /**
-     * 设置服务用户名
-     * 
-     * @param username
-     *            用户名
-     * @return current builder
-     */
-    public JaxRsServerBuilder setUsername(String username) {
-        this.username = username;
-        return this;
-    }
-
-    /**
-     * 设置服务密码
-     * 
-     * @param password
-     *            用户密码
-     * @return current builder
-     */
-    public JaxRsServerBuilder setPassword(String password) {
-        this.password = password;
-        return this;
-    }
-
     public JaxRsServerBuilder setResourceClass(Class<?> resourceClass) {
         this.resourceClass = resourceClass;
         return this;
     }
 
-    public JaxRsServerBuilder setProvider(BeanFactoryProvider provider) {
-        this.provider = provider;
+    public JaxRsServerBuilder setBeanFactoryProvider(BeanFactoryProvider provider) {
+        this.beanFactoryProvider = provider;
         return this;
     }
 
-    protected BeanFactoryProvider getProvider() {
-        if (provider == null) {
-            provider = new SimpleBeanFactoryProvider(resourceClass);
+    public JaxRsServerBuilder setResourceBean(Object resourceBean) {
+        this.resourceBean = resourceBean;
+        return this;
+    }
+
+    public JaxRsServerBuilder setSingleInstance(boolean singleInstance) {
+        this.singleInstance = singleInstance;
+        return this;
+    }
+
+    // above is server basic properties
+
+    public Server publish() {
+        return doPublish(null);
+    }
+
+    public Server publish(Object resourceBean) {
+        this.resourceBean = resourceBean;
+        return doPublish(null);
+    }
+
+    public Server publish(Object resourceBean, String address) {
+        this.resourceBean = resourceBean;
+        this.address = address;
+        return doPublish(null);
+    }
+
+    public Server publish(Object resourceBean, FactoryConfig<JAXRSServerFactoryBean> factoryConfig) {
+        this.resourceBean = resourceBean;
+        return doPublish(factoryConfig);
+    }
+
+    public Server publish(Class<?> resourceClass) {
+        this.resourceClass = resourceClass;
+        return doPublish(null);
+    }
+
+    public Server publish(Class<?> resourceClass, String address) {
+        this.resourceClass = resourceClass;
+        this.address = address;
+        return doPublish(null);
+    }
+
+    public Server publish(Class<?> resourceClass, FactoryConfig<JAXRSServerFactoryBean> factoryConfig) {
+        this.resourceClass = resourceClass;
+        return doPublish(factoryConfig);
+    }
+
+    private Server doPublish(FactoryConfig<JAXRSServerFactoryBean> factoryConfig) {
+        Assert.isTrue(resourceClass != null || resourceBean != null, "please set at least one service properties bean or class");
+        Assert.notBlank(address, "server address is null or blank");
+
+        if (factoryConfig != null) {
+            factoryConfig.config(serverFactoryBean);
+            if (serverFactoryBean.getServer() != null) {
+                throw new IllegalStateException("config factory not allow call create method");
+            }
         }
-        return provider;
+
+        if (resourceBean != null || singleInstance) {
+            if (resourceBean == null) {
+                try {
+                    resourceBean = getBeanFactoryProvider().getBean(resourceClass);
+                } catch (NoSuchBeanFindException e) {
+                    throw new WebServiceException("can't create service bean", e);
+                }
+            }
+            serverFactoryBean.setServiceBean(resourceBean);
+        } else {
+            serverFactoryBean.setResourceClasses(resourceClass);
+            serverFactoryBean.setResourceProvider(getBeanFactoryProvider());
+        }
+
+        serverFactoryBean.setAddress(address);
+        Server server = serverFactoryBean.create();
+
+        log.debug("create jaxrs server [{}@{}] success", resourceBean == null ? resourceClass.getName() : resourceBean, address);
+
+        return server;
     }
 
     /**
@@ -210,10 +222,11 @@ public class JaxRsServerBuilder {
         throw new IllegalArgumentException("Unsupported unwrap target type [" + cls.getName() + "]");
     }
 
-    public interface JaxRsServerFactoryConfig {
-
-        void config(JAXRSServerFactoryBean factoryBean);
-
+    private BeanFactoryProvider getBeanFactoryProvider() {
+        if (beanFactoryProvider == null) {
+            beanFactoryProvider = new SimpleBeanFactoryProvider(resourceClass);
+        }
+        return beanFactoryProvider;
     }
 
     public interface BeanFactoryProvider extends ResourceProvider, BeanFactory {

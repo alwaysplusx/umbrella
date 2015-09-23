@@ -42,7 +42,7 @@ public class JaxRsClientBuilderBatchTest {
                 public void run() {
                     while (true) {
                         try {
-                            HelloService service = JaxRsClientBuilder.create().build(HelloService.class, address);
+                            HelloService service = JaxRsProxyBuilder.create().build(HelloService.class, address);
                             assertEquals("Hi abc" + index, service.sayHi("abc" + index));
                             Thread.sleep(200);
                         } catch (InterruptedException e) {
@@ -55,7 +55,7 @@ public class JaxRsClientBuilderBatchTest {
 
         while (true) {
             try {
-                HelloService service = JaxRsClientBuilder.create().build(HelloService.class, address);
+                HelloService service = JaxRsProxyBuilder.create().build(HelloService.class, address);
                 assertEquals("Hi def", service.sayHi("def"));
                 Thread.sleep(400);
             } catch (InterruptedException e) {

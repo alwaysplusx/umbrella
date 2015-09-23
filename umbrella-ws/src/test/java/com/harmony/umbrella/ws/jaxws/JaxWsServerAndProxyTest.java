@@ -37,6 +37,8 @@ public class JaxWsServerAndProxyTest {
     private static final String address = "http://localhost:8080/hello";
     private static final JaxWsExecutor executor = new JaxWsCXFExecutor();
 
+    private static int count = 0;
+
     @BeforeClass
     public static void setUp() {
         JaxWsServerBuilder.create()//
@@ -58,15 +60,12 @@ public class JaxWsServerAndProxyTest {
         executor.executeAsync(context, new AsyncCallback<String>() {
             @Override
             public void handle(String result, Map<String, Object> content) {
+                count++;
                 assertEquals("Hi wuxii", result);
                 // System.out.println("jaxws content is " + content);
             }
         });
-    }
-
-    public static void main(String[] args) {
-        // 最好是给实现类也添加上与接口一样的annotation配置信息
-        JaxWsServerBuilder.create().setServiceInterface(HelloService.class).publish(HelloWebService.class, address);
+        assertEquals(1, count);
     }
 
 }

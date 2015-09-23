@@ -28,16 +28,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.harmony.umbrella.util.Assert;
-import com.harmony.umbrella.util.StringUtils;
+import com.harmony.umbrella.ws.FactoryConfig;
 
 /**
  * @author wuxii@foxmail.com
  */
-public class JaxRsClientBuilder {
+public class JaxRsProxyBuilder {
 
-    private static final Logger log = LoggerFactory.getLogger(JaxRsClientBuilder.class);
+    private static final Logger log = LoggerFactory.getLogger(JaxRsProxyBuilder.class);
 
-    private final JAXRSClientFactoryBean clientFactoryBean;
+    private final JAXRSClientFactoryBean clientFactoryBean = new JAXRSClientFactoryBean();
 
     private String address;
     private String username;
@@ -53,12 +53,11 @@ public class JaxRsClientBuilder {
 
     private Object target;
 
-    public JaxRsClientBuilder() {
-        this.clientFactoryBean = new JAXRSClientFactoryBean();
+    public JaxRsProxyBuilder() {
     }
 
-    public static JaxRsClientBuilder create() {
-        return new JaxRsClientBuilder();
+    public static JaxRsProxyBuilder create() {
+        return new JaxRsProxyBuilder();
     }
 
     public List<Interceptor<? extends Message>> getInInterceptors() {
@@ -77,47 +76,97 @@ public class JaxRsClientBuilder {
         return clientFactoryBean.getOutInterceptors();
     }
 
-    public JaxRsClientBuilder addInInterceptor(Interceptor<? extends Message> interceptor) {
+    public JaxRsProxyBuilder addInInterceptor(Interceptor<? extends Message> interceptor) {
         getInInterceptors().add(interceptor);
         return this;
     }
 
-    public JaxRsClientBuilder addOutInterceptor(Interceptor<? extends Message> interceptor) {
+    public JaxRsProxyBuilder addOutInterceptor(Interceptor<? extends Message> interceptor) {
         getOutInterceptors().add(interceptor);
         return this;
     }
 
-    public JaxRsClientBuilder addInFaultInterceptor(Interceptor<? extends Message> interceptor) {
+    public JaxRsProxyBuilder addInFaultInterceptor(Interceptor<? extends Message> interceptor) {
         getInFaultInterceptors().add(interceptor);
         return this;
     }
 
-    public JaxRsClientBuilder addOutFaultInterceptor(Interceptor<? extends Message> interceptor) {
+    public JaxRsProxyBuilder addOutFaultInterceptor(Interceptor<? extends Message> interceptor) {
         getOutFaultInterceptors().add(interceptor);
         return this;
     }
 
+    public JaxRsProxyBuilder setAddress(String address) {
+        this.address = address;
+        return this;
+    }
+
+    public JaxRsProxyBuilder setUsername(String username) {
+        this.username = username;
+        return this;
+    }
+
+    public JaxRsProxyBuilder setPassword(String password) {
+        this.password = password;
+        return this;
+    }
+
+    public JaxRsProxyBuilder setSecondsToKeepState(long timeToKeepState) {
+        this.timeToKeepState = timeToKeepState;
+        return this;
+    }
+
+    public JaxRsProxyBuilder threadSafe() {
+        this.threadSafe = true;
+        return this;
+    }
+
+    public JaxRsProxyBuilder threadUnsafe() {
+        this.threadSafe = false;
+        return this;
+    }
+
+    public JaxRsProxyBuilder setHeaders(Map<String, String> headers) {
+        if (headers != null && !headers.isEmpty()) {
+            this.headers.putAll(headers);
+        }
+        return this;
+    }
+
+    public JaxRsProxyBuilder inheritHeaders() {
+        this.inheritHeaders = true;
+        return this;
+    }
+
+    public JaxRsProxyBuilder disinheritHeaders() {
+        this.inheritHeaders = false;
+        return this;
+    }
+
     public <T> T build(Class<T> resourceClass) {
-        return build(resourceClass, address);
+        return doBuild(resourceClass, null);
     }
 
     public <T> T build(Class<T> resourceClass, String address) {
         this.address = address;
-        return build(resourceClass, (JaxRsClientFactoryConfig) null);
+        return doBuild(resourceClass, null);
     }
 
     public <T> T build(Class<T> resourceClass, long timeToKeepState) {
         this.timeToKeepState = timeToKeepState;
-        return build(resourceClass, (JaxRsClientFactoryConfig) null);
+        return doBuild(resourceClass, null);
     }
 
-    public <T> T build(Class<T> resourceClass, JaxRsClientFactoryConfig clientConfig) {
+    public <T> T build(Class<T> resourceClass, FactoryConfig<JAXRSClientFactoryBean> factoryConfig) {
+        return doBuild(resourceClass, factoryConfig);
+    }
 
+    private <T> T doBuild(Class<T> resourceClass, FactoryConfig<JAXRSClientFactoryBean> factoryConfig) {
         Assert.notNull(resourceClass, "service class must be not null");
-        Assert.isTrue(StringUtils.isNotBlank(address), "proxy address is null or blank");
+        Assert.notBlank(address, "proxy address is null or blank");
 
-        if (clientConfig != null) {
-            clientConfig.config(clientFactoryBean);
+        if (factoryConfig != null) {
+            factoryConfig.config(clientFactoryBean);
         }
 
         clientFactoryBean.setResourceClass(resourceClass);
@@ -136,53 +185,6 @@ public class JaxRsClientBuilder {
         return resourceClass.cast(target);
     }
 
-    public JaxRsClientBuilder setAddress(String address) {
-        this.address = address;
-        return this;
-    }
-
-    public JaxRsClientBuilder setUsername(String username) {
-        this.username = username;
-        return this;
-    }
-
-    public JaxRsClientBuilder setPassword(String password) {
-        this.password = password;
-        return this;
-    }
-
-    public JaxRsClientBuilder setSecondsToKeepState(long timeToKeepState) {
-        this.timeToKeepState = timeToKeepState;
-        return this;
-    }
-
-    public JaxRsClientBuilder threadSafe() {
-        this.threadSafe = true;
-        return this;
-    }
-
-    public JaxRsClientBuilder threadUnsafe() {
-        this.threadSafe = false;
-        return this;
-    }
-
-    public JaxRsClientBuilder setHeaders(Map<String, String> headers) {
-        if (headers != null && !headers.isEmpty()) {
-            this.headers.putAll(headers);
-        }
-        return this;
-    }
-
-    public JaxRsClientBuilder inheritHeaders() {
-        this.inheritHeaders = true;
-        return this;
-    }
-
-    public JaxRsClientBuilder disinheritHeaders() {
-        this.inheritHeaders = false;
-        return this;
-    }
-
     @SuppressWarnings("unchecked")
     public <T> T unwrap(Class<T> cls) {
         if (JAXRSClientFactoryBean.class.isAssignableFrom(cls)) {
@@ -194,12 +196,6 @@ public class JaxRsClientBuilder {
             return (T) Proxy.getInvocationHandler(target);
         }
         throw new IllegalArgumentException("Unsupported unwrap target type [" + cls.getName() + "]");
-    }
-
-    public interface JaxRsClientFactoryConfig {
-
-        void config(JAXRSClientFactoryBean factoryBean);
-
     }
 
 }

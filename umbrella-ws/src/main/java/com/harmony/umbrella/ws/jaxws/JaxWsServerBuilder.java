@@ -17,6 +17,8 @@ package com.harmony.umbrella.ws.jaxws;
 
 import java.util.List;
 
+import javax.xml.ws.WebServiceException;
+
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.frontend.ServerFactoryBean;
 import org.apache.cxf.interceptor.Interceptor;
@@ -27,8 +29,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.harmony.umbrella.core.BeanFactory;
+import com.harmony.umbrella.core.NoSuchBeanFindException;
 import com.harmony.umbrella.util.Assert;
-import com.harmony.umbrella.util.StringUtils;
+import com.harmony.umbrella.ws.FactoryConfig;
 import com.harmony.umbrella.ws.cxf.SimpleBeanFactoryInvoker;
 
 /**
@@ -50,55 +53,50 @@ public class JaxWsServerBuilder {
     private final JaxWsServerFactoryBean serverFactoryBean = new JaxWsServerFactoryBean();
 
     /**
-     * 服务的接口,可为空
-     */
-    protected Class<?> serviceInterface;
-
-    /**
      * 服务的实现
      */
-    protected Class<?> serviceClass;
+    private Class<?> serviceClass;
+
+    /**
+     * 服务实例
+     */
+    private Object serviceBean;
+
+    /**
+     * 是否单个服务实例, default is true
+     */
+    private boolean singleInstance = true;
 
     /**
      * 发布的地址
      */
-    protected String address;
-
-    /**
-     * 访问服务的用户名
-     */
-    protected String username;
-
-    /**
-     * 访问服务的密码
-     */
-    protected String password;
+    private String address;
 
     /**
      * Deprecated use {@link #getBeanFactoryInvoker()} method
      */
     private BeanFactoryInvoker beanFactoryInvoker;
 
-    protected JaxWsServerBuilder() {
+    private JaxWsServerBuilder() {
     }
 
     public static JaxWsServerBuilder create() {
         return new JaxWsServerBuilder();
     }
 
-    private List<Interceptor<? extends Message>> getInInterceptors() {
+    public List<Interceptor<? extends Message>> getInInterceptors() {
         return serverFactoryBean.getInInterceptors();
     }
 
-    private List<Interceptor<? extends Message>> getOutInterceptors() {
+    public List<Interceptor<? extends Message>> getOutInterceptors() {
         return serverFactoryBean.getOutInterceptors();
     }
 
-    private List<Interceptor<? extends Message>> getInFaultInterceptors() {
+    public List<Interceptor<? extends Message>> getInFaultInterceptors() {
         return serverFactoryBean.getInFaultInterceptors();
     }
 
-    private List<Interceptor<? extends Message>> getOutFaultInterceptors() {
+    public List<Interceptor<? extends Message>> getOutFaultInterceptors() {
         return serverFactoryBean.getOutFaultInterceptors();
     }
 
@@ -122,78 +120,8 @@ public class JaxWsServerBuilder {
         return this;
     }
 
-    public Server publish() {
-        return publish(serviceClass, address, null);
-    }
-
-    public Server publish(Class<?> serviceClass) {
-        return publish(serviceClass, address, null);
-    }
-
-    public Server publish(Class<?> serviceClass, String address) {
-        return publish(serviceClass, address, null);
-    }
-
-    public Server publish(Class<?> serviceClass, String address, JaxWsServerFactoryConfig factoryConfig) {
-        this.serviceClass = serviceClass;
-        this.address = address;
-        return doPublish(serviceClass, factoryConfig);
-    }
-
-    protected Server doPublish(Class<?> serviceClass, JaxWsServerFactoryConfig factoryConfig) {
-        Assert.notNull(serviceClass, "service class is null");
-        Assert.isTrue(StringUtils.isNotBlank(address), "server address is null or blank");
-
-        if (factoryConfig != null) {
-            factoryConfig.config(serverFactoryBean);
-            if (serverFactoryBean.getServer() != null) {
-                throw new IllegalStateException("config factory not allow call create method");
-            }
-        }
-
-        applyPrefectServiceClass(serverFactoryBean, serviceClass, serviceInterface);
-
-        serverFactoryBean.setInvoker(getBeanFactoryInvoker());
-        serverFactoryBean.setAddress(address);
-        Server server = serverFactoryBean.create();
-
-        log.debug("create server success");
-        return server;
-    }
-
-    /**
-     * 给当前工厂设置最优的接口类
-     */
-    protected void applyPrefectServiceClass(JaxWsServerFactoryBean factoryBean, Class<?> serviceClass, Class<?> serviceInterface) {
-        factoryBean.setServiceClass(serviceClass);
-    }
-
-    /**
-     * 懒初始化
-     * <p>
-     * 当beanFactoryInvoker为空时候才使用默认的{@linkplain SimpleBeanFactoryInvoker}
-     */
-    protected BeanFactoryInvoker getBeanFactoryInvoker() {
-        if (beanFactoryInvoker == null) {
-            beanFactoryInvoker = new SimpleBeanFactoryInvoker(serviceClass);
-        }
-        return beanFactoryInvoker;
-    }
-
     public JaxWsServerBuilder setBeanFactoryInvoker(BeanFactoryInvoker beanFactoryInvoker) {
         this.beanFactoryInvoker = beanFactoryInvoker;
-        return this;
-    }
-
-    /**
-     * 设置服务接口
-     * 
-     * @param serviceInterface
-     *            服务接口
-     * @return current builder
-     */
-    public JaxWsServerBuilder setServiceInterface(Class<?> serviceInterface) {
-        this.serviceInterface = serviceInterface;
         return this;
     }
 
@@ -222,27 +150,105 @@ public class JaxWsServerBuilder {
     }
 
     /**
-     * 设置服务用户名
+     * 设置服务bean
      * 
-     * @param username
-     *            用户名
-     * @return current builder
+     * @param serviceBean
+     *            服务bean
      */
-    public JaxWsServerBuilder setUsername(String username) {
-        this.username = username;
+    public JaxWsServerBuilder setServiceBean(Object serviceBean) {
+        this.serviceBean = serviceBean;
         return this;
     }
 
-    /**
-     * 设置服务密码
-     * 
-     * @param password
-     *            用户密码
-     * @return current builder
-     */
-    public JaxWsServerBuilder setPassword(String password) {
-        this.password = password;
+    public JaxWsServerBuilder setSingleInstance(boolean singleInstance) {
+        this.singleInstance = singleInstance;
         return this;
+    }
+
+    // above is server basic properties
+
+    public Server publish() {
+        return doPublish(null);
+    }
+
+    public Server publish(Object serverBean) {
+        this.serviceBean = serverBean;
+        return doPublish(null);
+    }
+
+    public Server publish(Object serverBean, String address) {
+        this.serviceBean = serverBean;
+        this.address = address;
+        return doPublish(null);
+    }
+
+    public Server publish(Object serverBean, FactoryConfig<JaxWsServerFactoryBean> factoryConfig) {
+        this.serviceBean = serverBean;
+        return doPublish(factoryConfig);
+    }
+
+    public Server publish(Class<?> serviceClass) {
+        return doPublish(null);
+    }
+
+    public Server publish(Class<?> serviceClass, String address) {
+        this.serviceClass = serviceClass;
+        this.address = address;
+        return doPublish(null);
+    }
+
+    public Server publish(Class<?> serviceClass, String address, FactoryConfig<JaxWsServerFactoryBean> factoryConfig) {
+        this.serviceClass = serviceClass;
+        this.address = address;
+        return doPublish(factoryConfig);
+    }
+
+    public Server publish(String address) {
+        this.address = address;
+        return doPublish(null);
+    }
+
+    public Server publish(String address, FactoryConfig<JaxWsServerFactoryBean> factoryConfig) {
+        this.address = address;
+        return doPublish(factoryConfig);
+    }
+
+    public Server publish(FactoryConfig<JaxWsServerFactoryBean> factoryConfig) {
+        return doPublish(factoryConfig);
+    }
+
+    private Server doPublish(FactoryConfig<JaxWsServerFactoryBean> factoryConfig) {
+        Assert.isTrue(serviceBean != null || serviceClass != null, "please set at least one service properties bean or class");
+        Assert.notBlank(address, "server address is null or blank");
+
+        if (factoryConfig != null) {
+            factoryConfig.config(serverFactoryBean);
+            if (serverFactoryBean.getServer() != null) {
+                throw new WebServiceException("config factory not allow call create method");
+            }
+        }
+
+        if (serviceBean != null || singleInstance) {
+            if (serviceBean == null) {
+                try {
+                    serviceBean = getBeanFactoryInvoker().getBean(serviceClass);
+                } catch (NoSuchBeanFindException e) {
+                    throw new WebServiceException("can't create service bean", e);
+                }
+            }
+            serverFactoryBean.setServiceBean(serviceBean);
+            serverFactoryBean.setServiceClass(serviceClass);
+        } else {
+            serverFactoryBean.setServiceClass(serviceClass);
+            serverFactoryBean.setInvoker(getBeanFactoryInvoker());
+        }
+
+        serverFactoryBean.setAddress(address);
+        Server server = serverFactoryBean.create();
+
+        log.debug("create jaxws server [{}@{}] success", serviceBean == null ? serviceClass.getName() : serviceBean, address);
+
+        return server;
     }
 
     /**
@@ -263,14 +269,15 @@ public class JaxWsServerBuilder {
     }
 
     /**
-     * 服务创建前的回调配置
-     * 
-     * @author wuxii@foxmail.com
+     * 懒初始化
+     * <p>
+     * 当beanFactoryInvoker为空时候才使用默认的{@linkplain SimpleBeanFactoryInvoker}
      */
-    public interface JaxWsServerFactoryConfig {
-
-        void config(JaxWsServerFactoryBean factoryBean);
-
+    private BeanFactoryInvoker getBeanFactoryInvoker() {
+        if (beanFactoryInvoker == null) {
+            beanFactoryInvoker = new SimpleBeanFactoryInvoker(serviceClass);
+        }
+        return beanFactoryInvoker;
     }
 
     public interface BeanFactoryInvoker extends Invoker, BeanFactory {
