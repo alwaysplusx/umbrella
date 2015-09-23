@@ -15,6 +15,7 @@
  */
 package com.harmony.umbrella.ws.util;
 
+import com.harmony.umbrella.util.StringUtils;
 import com.harmony.umbrella.ws.Context;
 
 /**
@@ -34,7 +35,7 @@ public abstract class ContextValidatorUtils {
         if (context.getServiceInterface() == null) {
             throw new IllegalArgumentException("service interface not set");
         }
-        if (context.getAddress() == null) {
+        if (StringUtils.isBlank(context.getAddress())) {
             throw new IllegalArgumentException("service address not set");
         }
         if (context.getMethodName() == null) {

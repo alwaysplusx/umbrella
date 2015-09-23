@@ -24,15 +24,10 @@ public class JaxRsServerTest {
 
     @BeforeClass
     public static void setUp() {
-        // JAXRSServerFactoryBean sf = new JAXRSServerFactoryBean();
-        // sf.setResourceClasses(HelloRESTService.class);
-        // sf.setResourceProvider(HelloRESTService.class, new
-        // SingletonResourceProvider(new HelloRESTService()));
-        // sf.setAddress(address);
-        // sf.create();
-        JaxRsServerBuilder.create().setAddress(address)
-                .addInInterceptor(new MessageInInterceptor())
-                .addOutInterceptor(new MessageOutInterceptor())
+
+        JaxRsServerBuilder.create().setAddress(address)//
+                .addInInterceptor(new MessageInInterceptor())//
+                .addOutInterceptor(new MessageOutInterceptor())//
                 .publish(HelloRESTService.class);
     }
 
@@ -49,5 +44,5 @@ public class JaxRsServerTest {
         HelloService service = JAXRSClientFactory.create(address, HelloService.class);
         assertEquals("Hi wuxii", service.sayHi("wuxii"));
     }
-    
+
 }

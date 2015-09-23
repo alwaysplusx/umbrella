@@ -17,8 +17,6 @@ package com.harmony.umbrella.ws.jaxws;
 
 import static org.junit.Assert.*;
 
-import org.junit.Ignore;
-
 import com.harmony.umbrella.ws.cxf.interceptor.MessageInInterceptor;
 import com.harmony.umbrella.ws.cxf.interceptor.MessageOutInterceptor;
 import com.harmony.umbrella.ws.services.HelloService;
@@ -28,7 +26,6 @@ import com.harmony.umbrella.ws.support.SimpleContext;
 /**
  * @author wuxii@foxmail.com
  */
-@Ignore
 public class JaxWsExecutorBatchTest {
 
     private static final String address = "http://localhost:8081/hello/batch/executor";

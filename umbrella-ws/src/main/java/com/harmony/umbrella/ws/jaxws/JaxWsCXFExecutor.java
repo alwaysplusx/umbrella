@@ -20,6 +20,7 @@ import static com.harmony.umbrella.ws.jaxws.JaxWsProxyBuilder.*;
 import java.lang.reflect.Method;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 import javax.xml.ws.WebServiceException;
@@ -32,6 +33,7 @@ import com.harmony.umbrella.core.Invoker;
 import com.harmony.umbrella.monitor.graph.DefaultMethodGraph;
 import com.harmony.umbrella.util.Exceptions;
 import com.harmony.umbrella.ws.Context;
+import com.harmony.umbrella.ws.util.ContextValidatorUtils;
 import com.harmony.umbrella.ws.util.JaxWsInvoker;
 
 /**
@@ -78,7 +80,7 @@ public class JaxWsCXFExecutor extends JaxWsPhaseExecutor {
             throw new WebServiceException("未找到接口方法" + context, e);
         } catch (InvokeException e) {
             graph.setException(e);
-            this.removeProxy(context);
+            this.removeProxy(context.getServiceInterface());
             throw new WebServiceException("执行交互失败", Exceptions.getRootCause(e));
         } finally {
             if (graph != null) {
@@ -115,17 +117,32 @@ public class JaxWsCXFExecutor extends JaxWsPhaseExecutor {
      * @return 代理对象， 如果不存在缓存中不存在则创建
      */
     protected Object getProxy(Context context) {
+        ContextValidatorUtils.validation(context);
+
         // 代理的超时设置是次要因素，不考虑在代理对象的key中
         JaxWsContextKey contextKey = new JaxWsContextKey(context);
-        if (!proxyCache.containsKey(contextKey)) {
-            synchronized (proxyCache) {
-                if (!proxyCache.containsKey(contextKey)) {
-                    Object proxy = createProxy(context);
-                    proxyCache.put(contextKey, proxy);
+        Object proxy = proxyCache.get(contextKey);
+        if (proxy != null) {
+            return proxy;
+        }
+
+        Class<?> serviceInterface = context.getServiceInterface();
+
+        synchronized (proxyCache) {
+            Iterator<JaxWsContextKey> it = proxyCache.keySet().iterator();
+            while (it.hasNext()) {
+                JaxWsContextKey key = it.next();
+                // 一个serviceInterface只缓存一个
+                if (key.serviceName.equals(serviceInterface.getName())) {
+                    it.remove();
+                    break;
                 }
             }
+            proxy = createProxy(context);
+            proxyCache.put(contextKey, proxy);
         }
-        return proxyCache.get(contextKey);
+
+        return proxy;
     }
 
     /**
@@ -149,16 +166,29 @@ public class JaxWsCXFExecutor extends JaxWsPhaseExecutor {
     /**
      * 移除缓存的代理对象
      */
-    public void removeProxy(Context context) {
-        proxyCache.remove(new JaxWsContextKey(context));
+    public void removeProxy(Class<?> serviceInterface) {
+        if (serviceInterface == null) {
+            return;
+        }
+        synchronized (proxyCache) {
+            Iterator<JaxWsContextKey> it = proxyCache.keySet().iterator();
+            while (it.hasNext()) {
+                JaxWsContextKey key = it.next();
+                if (serviceInterface.getName().equals(key.serviceName)) {
+                    it.remove();
+                }
+            }
+        }
     }
 
     /**
      * 清除已经缓存的服务代理
      */
     public void cleanPool() {
+        synchronized (proxyCache) {
+            proxyCache.clear();
+        }
         log.info("清除已经缓冲的代理对象");
-        proxyCache.clear();
     }
 
     /**
@@ -197,8 +227,8 @@ public class JaxWsCXFExecutor extends JaxWsPhaseExecutor {
 
     private static class JaxWsContextKey {
 
-        private String serviceName;
         private String address;
+        private String serviceName;
         private String username;
         private String password;
 

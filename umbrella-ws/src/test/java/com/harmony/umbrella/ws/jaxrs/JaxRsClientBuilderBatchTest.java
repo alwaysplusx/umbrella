@@ -17,9 +17,6 @@ package com.harmony.umbrella.ws.jaxrs;
 
 import static org.junit.Assert.*;
 
-import org.junit.Ignore;
-import org.junit.Test;
-
 import com.harmony.umbrella.ws.cxf.interceptor.MessageInInterceptor;
 import com.harmony.umbrella.ws.cxf.interceptor.MessageOutInterceptor;
 import com.harmony.umbrella.ws.services.HelloRESTService;
@@ -32,9 +29,14 @@ public class JaxRsClientBuilderBatchTest {
 
     private static final String address = "http://localhost:9000/demo/batch";
 
-    @Test
-    @Ignore
-    public void test() {
+    public static void main(String[] args) {
+        
+        JaxRsServerBuilder.create()//
+                .setAddress(address)//
+                .addInInterceptor(new MessageInInterceptor())//
+                .addOutInterceptor(new MessageOutInterceptor())//
+                .publish(HelloRESTService.class);
+
         for (final int index : new int[] { 1, 2, 3, 4, 5 }) {
             new Thread(new Runnable() {
 
@@ -61,14 +63,7 @@ public class JaxRsClientBuilderBatchTest {
             } catch (InterruptedException e) {
             }
         }
-    }
 
-    public static void main(String[] args) {
-        JaxRsServerBuilder.create()//
-                .setAddress(address)//
-                .addInInterceptor(new MessageInInterceptor())//
-                .addOutInterceptor(new MessageOutInterceptor())//
-                .publish(HelloRESTService.class);
     }
 
 }
