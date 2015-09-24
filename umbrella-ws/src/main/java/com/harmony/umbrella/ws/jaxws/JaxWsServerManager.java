@@ -43,7 +43,7 @@ public class JaxWsServerManager extends ServerManager<JaxWsProxyFactoryBean> {
 
     public static JaxWsServerManager getInstance() {
         if (INSTANCE == null) {
-            synchronized (INSTANCE) {
+            synchronized (JaxWsServerManager.class) {
                 if (INSTANCE == null) {
                     INSTANCE = new JaxWsServerManager();
                 }

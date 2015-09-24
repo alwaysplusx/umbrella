@@ -287,6 +287,9 @@ public abstract class ResourceScaner {
             return Class.forName(className, false, ClassUtils.getDefaultClassLoader());
         } catch (Exception e) {
             return null;
+        } catch (NoClassDefFoundError e) {
+            log.warn("in classpath jar no fully configured, {}", e.toString());
+            return null;
         }
     }
 

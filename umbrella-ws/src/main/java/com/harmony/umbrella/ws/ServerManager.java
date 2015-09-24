@@ -112,8 +112,8 @@ public abstract class ServerManager<T> {
         while (addresses.hasNext()) {
             String serverAddress = addresses.next();
             // 两个地址有重叠部分则表示已经使用
-            if (serverAddress.indexOf(address) != -1 //
-                    || address.indexOf(serverAddress) > -1) {
+            if (serverAddress.startsWith(address) //
+                    || address.startsWith(serverAddress)) {
                 return true;
             }
         }
@@ -133,7 +133,11 @@ public abstract class ServerManager<T> {
         servers.put(address, server);
     }
 
-    protected MetadataLoader getMetadataLoader() {
+    public void setMetadataLoader(MetadataLoader metadataLoader) {
+        this.metadataLoader = metadataLoader;
+    }
+
+    public MetadataLoader getMetadataLoader() {
         return metadataLoader;
     }
 

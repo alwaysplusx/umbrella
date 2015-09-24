@@ -43,7 +43,7 @@ public class JaxRsServerManager extends ServerManager<JAXRSServerFactoryBean> {
 
     public static JaxRsServerManager getInstance() {
         if (INSTANCE == null) {
-            synchronized (INSTANCE) {
+            synchronized (JaxRsServerManager.class) {
                 if (INSTANCE == null) {
                     INSTANCE = new JaxRsServerManager();
                 }

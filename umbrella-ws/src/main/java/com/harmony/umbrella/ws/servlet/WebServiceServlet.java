@@ -86,6 +86,7 @@ public class WebServiceServlet extends CXFNonSpringServlet {
     private ServletConfig servletConfig;
 
     private JaxWsServerManager jaxWsServerManager = JaxWsServerManager.getInstance();
+    
     private JaxRsServerManager jaxRsServerManager = JaxRsServerManager.getInstance();
 
     @Override

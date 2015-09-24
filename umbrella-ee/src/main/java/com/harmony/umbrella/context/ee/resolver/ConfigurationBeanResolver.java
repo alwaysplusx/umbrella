@@ -139,7 +139,13 @@ public class ConfigurationBeanResolver implements BeanResolver {
 
     protected boolean isDeclare(BeanDefinition declare, Object bean) {
         Class<?> remoteClass = declare.getSuitableRemoteClass();
-        log.info("remoteClass->{}, beanClass->{}, bean->{}", remoteClass, declare.getBeanClass(), bean);
+        if (log.isDebugEnabled()) {
+            log.debug("test is declare bean? "//
+                    + "\n\tremoteClass -> {}"//
+                    + "\n\tbeanClass   -> {}"//
+                    + "\n\tbean        -> {}",//
+                    remoteClass, declare.getBeanClass(), bean);
+        }
         return declare.getBeanClass().isInstance(bean) || (remoteClass != null && remoteClass.isInstance(bean));
     }
 

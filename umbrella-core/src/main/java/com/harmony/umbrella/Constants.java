@@ -15,22 +15,30 @@
  */
 package com.harmony.umbrella;
 
+import java.util.Iterator;
+import java.util.Properties;
+
+import com.harmony.umbrella.util.PropUtils;
+
 /**
+ * umbrella工程的常量池
+ * 
  * @author wuxii@foxmail.com
  */
 public abstract class Constants {
 
-    private static final String defaultPackage = "com.harmony";
+    private static final String UMBRELLA_PROPERTIES_LOCATION = "umbrella.properties";
 
-    public static final String DEFAULT_PACKAGE = defaultPackage;
+    private static final Properties globalProperties = new Properties();
 
-    // private static final Properties globalProperties = new Properties();
+    public static final String DEFAULT_PACKAGE;
 
-    /*static {
-        try {
-            globalProperties.putAll(PropUtils.loadProperties(GLOBAL_CONFIG));
-        } catch (IOException e) {
-        }
+    static {
+
+        globalProperties.putAll(PropUtils.loadProperties(UMBRELLA_PROPERTIES_LOCATION));
+
+        DEFAULT_PACKAGE = globalProperties.getProperty("default.package", "com.harmony");
+
     }
 
     public static final Properties getPropertiesStartWith(String prefix) {
@@ -43,5 +51,14 @@ public abstract class Constants {
             }
         }
         return props;
-    }*/
+    }
+
+    public static final String getProperty(String key) {
+        return globalProperties.getProperty(key);
+    }
+
+    public static final String getProperty(String key, String defaultValue) {
+        return globalProperties.getProperty(key, defaultValue);
+    }
+
 }
