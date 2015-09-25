@@ -84,7 +84,7 @@ public abstract class DaoSupport implements Dao {
         } else {
             return getEntityManager().merge(entity);
         }
-        
+
     }
 
     @Override
@@ -167,8 +167,9 @@ public abstract class DaoSupport implements Dao {
 
     @Override
     public void delete(Object entity) {
-        if (entity == null)
+        if (entity == null) {
             return;
+        }
 
         getEntityManager().remove(getEntityManager().contains(entity) ? entity : getEntityManager().merge(entity));
     }
@@ -217,8 +218,9 @@ public abstract class DaoSupport implements Dao {
     @Override
     public int deleteAll(Class<?> entityClass) {
 
-        if (entityClass == null)
+        if (entityClass == null) {
             throw new IllegalArgumentException(ENTITY_CLASS_MUST_NOT_BE_NULL);
+        }
 
         CriteriaDelete cd = getEntityManager().getCriteriaBuilder().createCriteriaDelete(entityClass);
 
@@ -232,8 +234,9 @@ public abstract class DaoSupport implements Dao {
     public <T> T findOne(Class<T> entityClass, Serializable id) {
         Assert.notNull(entityClass, ENTITY_CLASS_MUST_NOT_BE_NULL);
 
-        if (id == null)
+        if (id == null) {
             return null;
+        }
 
         return getEntityManager().find(entityClass, id);
     }
@@ -247,8 +250,9 @@ public abstract class DaoSupport implements Dao {
     @Override
     public <T> T findOne(String jpql, Object... parameters) {
 
-        if (jpql == null)
+        if (jpql == null) {
             return null;
+        }
 
         try {
             return (T) applyParameterToQuery(getEntityManager().createQuery(jpql), parameters).getSingleResult();
@@ -262,8 +266,9 @@ public abstract class DaoSupport implements Dao {
     @Override
     public <T> T findOne(String jpql, Map<String, Object> parameters) {
 
-        if (jpql == null)
+        if (jpql == null) {
             return null;
+        }
 
         try {
             return (T) applyParameterToQuery(getEntityManager().createQuery(jpql), parameters).getSingleResult();
@@ -282,8 +287,9 @@ public abstract class DaoSupport implements Dao {
     @Override
     public <T> T findOneBySQL(String sql, Class<T> resultClass, Object... parameters) {
 
-        if (sql == null)
+        if (sql == null) {
             return null;
+        }
 
         Query query = null;
 
@@ -304,8 +310,9 @@ public abstract class DaoSupport implements Dao {
     @SuppressWarnings("unchecked")
     @Override
     public <T> T findOneBySQL(String sql, Class<T> resultClass, Map<String, Object> parameters) {
-        if (sql == null)
+        if (sql == null) {
             return null;
+        }
 
         Query query = null;
 
@@ -349,8 +356,9 @@ public abstract class DaoSupport implements Dao {
     @Override
     public <T> List<T> findAll(String jpql) {
 
-        if (jpql == null)
+        if (jpql == null) {
             return new ArrayList<T>();
+        }
 
         return getEntityManager().createQuery(jpql).getResultList();
     }
@@ -358,8 +366,9 @@ public abstract class DaoSupport implements Dao {
     @SuppressWarnings("unchecked")
     @Override
     public <T> List<T> findAll(String jpql, Object... parameters) {
-        if (jpql == null)
+        if (jpql == null) {
             return new ArrayList<T>();
+        }
 
         return applyParameterToQuery(getEntityManager().createQuery(jpql), parameters).getResultList();
     }
@@ -367,8 +376,9 @@ public abstract class DaoSupport implements Dao {
     @SuppressWarnings("unchecked")
     @Override
     public <T> List<T> findAll(String jpql, Map<String, Object> parameters) {
-        if (jpql == null)
+        if (jpql == null) {
             return new ArrayList<T>();
+        }
 
         return applyParameterToQuery(getEntityManager().createQuery(jpql), parameters).getResultList();
     }
@@ -376,8 +386,9 @@ public abstract class DaoSupport implements Dao {
     @SuppressWarnings("unchecked")
     @Override
     public <T> List<T> findAllBySQL(String sql, Class<T> resultClass) {
-        if (sql == null)
+        if (sql == null) {
             return new ArrayList<T>();
+        }
 
         if (resultClass == null) {
             return getEntityManager().createNativeQuery(sql).getResultList();
@@ -389,8 +400,9 @@ public abstract class DaoSupport implements Dao {
     @SuppressWarnings("unchecked")
     @Override
     public <T> List<T> findAllBySQL(String sql, Class<T> resultClass, Object... parameters) {
-        if (sql == null)
+        if (sql == null) {
             return new ArrayList<T>();
+        }
 
         Query query = null;
         if (resultClass == null) {
@@ -405,8 +417,9 @@ public abstract class DaoSupport implements Dao {
     @SuppressWarnings("unchecked")
     @Override
     public <T> List<T> findAllBySQL(String sql, Class<T> resultClass, Map<String, Object> parameters) {
-        if (sql == null)
+        if (sql == null) {
             return new ArrayList<T>();
+        }
 
         Query query = null;
         if (resultClass == null) {
@@ -420,8 +433,9 @@ public abstract class DaoSupport implements Dao {
 
     @Override
     public long countAll(Class<?> entityClass) {
-        if (entityClass == null)
+        if (entityClass == null) {
             throw new IllegalArgumentException(ENTITY_CLASS_MUST_NOT_BE_NULL);
+        }
 
         CriteriaBuilder builder = getEntityManager().getCriteriaBuilder();
         CriteriaQuery<Long> query = builder.createQuery(Long.class);
@@ -432,48 +446,54 @@ public abstract class DaoSupport implements Dao {
 
     @Override
     public long count(String jpql) {
-        if (jpql == null)
+        if (jpql == null) {
             throw new IllegalArgumentException("count query must not be null");
+        }
 
         return ((Number) getEntityManager().createQuery(jpql).getSingleResult()).longValue();
     }
 
     @Override
     public long count(String jpql, Object... parameters) {
-        if (jpql == null)
+        if (jpql == null) {
             throw new IllegalArgumentException("count query must not be null");
+        }
 
         return ((Number) applyParameterToQuery(getEntityManager().createQuery(jpql), parameters).getSingleResult()).longValue();
     }
 
     @Override
     public long count(String jpql, Map<String, Object> parameters) {
-        if (jpql == null)
+        if (jpql == null) {
             throw new IllegalArgumentException("count query must not be null");
+        }
 
         return ((Number) applyParameterToQuery(getEntityManager().createQuery(jpql), parameters).getSingleResult()).longValue();
     }
 
     @Override
     public long countBySQL(String sql) {
-        if (sql == null)
+        if (sql == null) {
             throw new IllegalArgumentException("count query must not be null");
+        }
 
         return ((Number) getEntityManager().createNativeQuery(sql).getSingleResult()).longValue();
     }
 
     @Override
     public long countBySQL(String sql, Object... parameters) {
-        if (sql == null)
+        if (sql == null) {
             throw new IllegalArgumentException("count query must not be null");
+        }
 
         return ((Number) getEntityManager().createNativeQuery(sql).getSingleResult()).longValue();
     }
 
     @Override
     public long countBySQL(String sql, Map<String, Object> parameters) {
-        if (sql == null)
+        if (sql == null) {
             throw new IllegalArgumentException("count query must not be null");
+        }
 
         return ((Number) applyParameterToQuery(getEntityManager().createNativeQuery(sql), parameters).getSingleResult()).longValue();
     }

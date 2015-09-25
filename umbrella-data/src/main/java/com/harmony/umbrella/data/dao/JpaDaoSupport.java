@@ -265,8 +265,9 @@ public abstract class JpaDaoSupport<E, ID extends Serializable> extends DaoSuppo
 
     @Override
     public boolean exists(ID id) {
-        if (id == null)
+        if (id == null) {
             return false;
+        }
 
         return findById(id) != null;
     }
