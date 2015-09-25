@@ -36,6 +36,13 @@ import java.util.Map;
 public interface Context extends Metadata, Serializable {
 
     /**
+     * 每次消息生成一个唯一键
+     * 
+     * @return 键
+     */
+    long getContextId();
+
+    /**
      * 接口类
      *
      * @return 接口

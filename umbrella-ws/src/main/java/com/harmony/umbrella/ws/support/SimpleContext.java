@@ -22,6 +22,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
 
 import com.harmony.umbrella.util.ClassUtils;
 import com.harmony.umbrella.util.StringUtils;
@@ -34,7 +35,11 @@ import com.harmony.umbrella.ws.Context;
  */
 public class SimpleContext implements Context, Serializable {
 
+    private static final AtomicLong CONTEXT_ID = new AtomicLong();
+
     private static final long serialVersionUID = -7702092080209756058L;
+
+    private final long contextId;
     private final Class<?> serviceInterface;
     private final String methodName;
     private final Map<String, Object> contextMap = new HashMap<String, Object>();
@@ -51,9 +56,15 @@ public class SimpleContext implements Context, Serializable {
     }
 
     public SimpleContext(Class<?> serviceInterface, String methodName, Object[] parameters) {
+        this.contextId = CONTEXT_ID.getAndIncrement();
         this.serviceInterface = serviceInterface;
         this.methodName = methodName;
         this.parameters = parameters;
+    }
+
+    @Override
+    public long getContextId() {
+        return contextId;
     }
 
     @Override
