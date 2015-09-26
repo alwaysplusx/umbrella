@@ -33,6 +33,7 @@ import com.harmony.umbrella.core.Invoker;
 import com.harmony.umbrella.monitor.graph.DefaultMethodGraph;
 import com.harmony.umbrella.util.Exceptions;
 import com.harmony.umbrella.ws.Context;
+import com.harmony.umbrella.ws.ProxyExecutorSupport;
 import com.harmony.umbrella.ws.util.ContextValidatorUtils;
 import com.harmony.umbrella.ws.util.JaxWsInvoker;
 
@@ -41,7 +42,7 @@ import com.harmony.umbrella.ws.util.JaxWsInvoker;
  * 
  * @author wuxii@foxmail.com
  */
-public class JaxWsCXFExecutor extends JaxWsPhaseExecutor {
+public class JaxWsCXFExecutor extends ProxyExecutorSupport {
 
     private static final Logger log = LoggerFactory.getLogger(JaxWsCXFExecutor.class);
 

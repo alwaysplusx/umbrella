@@ -20,7 +20,7 @@ package com.harmony.umbrella.ws;
  * 
  * @author wuxii@foxmail.com
  */
-public interface PhaseVisitor {
+public interface ContextVisitor {
 
     /**
      * 在执行前被调用

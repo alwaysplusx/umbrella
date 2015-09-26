@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.umbrella.ws.jaxws;
+package com.harmony.umbrella.ws;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
@@ -24,19 +24,16 @@ import javax.xml.ws.WebServiceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.harmony.umbrella.ws.AsyncCallback;
-import com.harmony.umbrella.ws.Context;
-import com.harmony.umbrella.ws.PhaseVisitor;
-import com.harmony.umbrella.ws.WebServiceAbortException;
+import com.harmony.umbrella.ws.jaxws.JaxWsExecutor;
 
 /**
  * 将{@linkplain JaxWsExecutor}的执行分为各个周期的抽象类
  * 
  * @author wuxii@foxmail.com
  */
-public abstract class JaxWsPhaseExecutor implements JaxWsExecutor {
+public abstract class ProxyExecutorSupport implements JaxWsExecutor {
 
-    protected static final Logger LOG = LoggerFactory.getLogger(JaxWsPhaseExecutor.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(ProxyExecutorSupport.class);
 
     /**
      * 标记执行出现错误是抛出还是隐藏
@@ -52,11 +49,11 @@ public abstract class JaxWsPhaseExecutor implements JaxWsExecutor {
 
     @Override
     public <T> T execute(Context context, Class<T> resultType) {
-        return execute(context, resultType, new PhaseVisitor[0]);
+        return execute(context, resultType, new ContextVisitor[0]);
     }
 
     @Override
-    public <T> T execute(Context context, Class<T> resultType, PhaseVisitor... visitors) {
+    public <T> T execute(Context context, Class<T> resultType, ContextVisitor... visitors) {
         T result = null;
         Exception ex = null;
         try {
@@ -78,7 +75,7 @@ public abstract class JaxWsPhaseExecutor implements JaxWsExecutor {
     }
 
     @Override
-    public Object execute(Context context, PhaseVisitor... visitors) {
+    public Object execute(Context context, ContextVisitor... visitors) {
         return execute(context, Object.class, visitors);
     }
 
@@ -133,9 +130,9 @@ public abstract class JaxWsPhaseExecutor implements JaxWsExecutor {
         }
     }
 
-    protected boolean doBefore(Context context, PhaseVisitor[] visitors) throws WebServiceAbortException {
+    protected boolean doBefore(Context context, ContextVisitor[] visitors) throws WebServiceAbortException {
         if (visitors != null && visitors.length > 0) {
-            for (PhaseVisitor visitor : visitors) {
+            for (ContextVisitor visitor : visitors) {
                 if (!visitor.visitBefore(context)) {
                     return false;
                 }
@@ -144,33 +141,33 @@ public abstract class JaxWsPhaseExecutor implements JaxWsExecutor {
         return true;
     }
 
-    protected void doAbort(WebServiceAbortException ex, Context context, PhaseVisitor[] visitors) {
+    protected void doAbort(WebServiceAbortException ex, Context context, ContextVisitor[] visitors) {
         if (visitors != null && visitors.length > 0) {
-            for (PhaseVisitor visitor : visitors) {
+            for (ContextVisitor visitor : visitors) {
                 visitor.visitAbort(ex, context);
             }
         }
     }
 
-    protected void doCompletion(Object result, Context context, PhaseVisitor[] visitors) {
+    protected void doCompletion(Object result, Context context, ContextVisitor[] visitors) {
         if (visitors != null && visitors.length > 0) {
-            for (PhaseVisitor visitor : visitors) {
+            for (ContextVisitor visitor : visitors) {
                 visitor.visitCompletion(result, context);
             }
         }
     }
 
-    protected void doThrowing(Exception throwable, Context context, PhaseVisitor[] visitors) {
+    protected void doThrowing(Exception throwable, Context context, ContextVisitor[] visitors) {
         if (visitors != null && visitors.length > 0) {
-            for (PhaseVisitor visitor : visitors) {
+            for (ContextVisitor visitor : visitors) {
                 visitor.visitThrowing(throwable, context);
             }
         }
     }
 
-    protected void doFinally(Object result, Exception throwable, Context context, PhaseVisitor[] visitors) {
+    protected void doFinally(Object result, Exception throwable, Context context, ContextVisitor[] visitors) {
         if (visitors != null && visitors.length > 0) {
-            for (PhaseVisitor visitor : visitors) {
+            for (ContextVisitor visitor : visitors) {
                 visitor.visitFinally(result, throwable, context);
             }
         }

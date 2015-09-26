@@ -21,7 +21,7 @@ import java.util.List;
 import com.harmony.umbrella.ws.Context;
 import com.harmony.umbrella.ws.Metadata;
 import com.harmony.umbrella.ws.MetadataLoader;
-import com.harmony.umbrella.ws.PhaseVisitor;
+import com.harmony.umbrella.ws.ContextVisitor;
 import com.harmony.umbrella.ws.jaxws.JaxWsExecutor;
 import com.harmony.umbrella.ws.support.SimpleContext;
 
@@ -38,7 +38,7 @@ public class XmlJaxWsContextReceiver implements JaxWsContextReceiver {
 
     private boolean reload = true;
 
-    private List<PhaseVisitor> visitors = new ArrayList<PhaseVisitor>();
+    private List<ContextVisitor> visitors = new ArrayList<ContextVisitor>();
 
     public XmlJaxWsContextReceiver() {
     }
@@ -49,7 +49,7 @@ public class XmlJaxWsContextReceiver implements JaxWsContextReceiver {
 
     @Override
     public void receive(Context context) {
-        executor.execute(reload(context), visitors.toArray(new PhaseVisitor[visitors.size()]));
+        executor.execute(reload(context), visitors.toArray(new ContextVisitor[visitors.size()]));
     }
 
     @Override
@@ -109,11 +109,11 @@ public class XmlJaxWsContextReceiver implements JaxWsContextReceiver {
         this.reload = reload;
     }
 
-    public List<PhaseVisitor> getPhaseVisitors() {
+    public List<ContextVisitor> getPhaseVisitors() {
         return visitors;
     }
 
-    public void setPhaseVisitors(List<PhaseVisitor> visitors) {
+    public void setPhaseVisitors(List<ContextVisitor> visitors) {
         this.visitors = visitors;
     }
 

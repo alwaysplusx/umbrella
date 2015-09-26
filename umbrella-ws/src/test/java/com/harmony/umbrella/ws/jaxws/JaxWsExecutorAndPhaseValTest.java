@@ -35,8 +35,8 @@ import com.harmony.umbrella.ws.services.HelloWebService;
 import com.harmony.umbrella.ws.support.SimpleContext;
 import com.harmony.umbrella.ws.util.HandleMethodInvoker;
 import com.harmony.umbrella.ws.util.HandlerMethodFinder;
-import com.harmony.umbrella.ws.visitor.AbstractPhaseVisitor;
-import com.harmony.umbrella.ws.visitor.PhaseValidationVisitor;
+import com.harmony.umbrella.ws.visitor.AbstractContextVisitor;
+import com.harmony.umbrella.ws.visitor.ValidationContextVisitor;
 
 /**
  * @author wuxii@foxmail.com
@@ -59,7 +59,7 @@ public class JaxWsExecutorAndPhaseValTest {
     public void testLoggerVisitor() {
         SimpleContext context = new SimpleContext(HelloService.class, "sayHi", new Object[] { "wuxii" });
         context.setAddress(address);
-        executor.execute(context, new AbstractPhaseVisitor() {
+        executor.execute(context, new AbstractContextVisitor() {
 
             @Override
             public void visitFinally(Object result, Throwable throwable, Context context) {
@@ -77,7 +77,7 @@ public class JaxWsExecutorAndPhaseValTest {
         context.setAddress(address);
         // 调用执行者执行方法，
         // PhaseValidationVisitor用于帮助加载HelloServiceSayHiPhaseValidation实例进行接口的执行周期检验
-        Object result = executor.execute(context, new PhaseValidationVisitor());
+        Object result = executor.execute(context, new ValidationContextVisitor());
         // 对结果进行断言判断
         assertNotNull(result);
         assertEquals("Hi wuxii", result);

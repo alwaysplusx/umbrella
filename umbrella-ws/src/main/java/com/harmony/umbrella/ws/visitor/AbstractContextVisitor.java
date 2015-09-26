@@ -16,13 +16,13 @@
 package com.harmony.umbrella.ws.visitor;
 
 import com.harmony.umbrella.ws.Context;
-import com.harmony.umbrella.ws.PhaseVisitor;
+import com.harmony.umbrella.ws.ContextVisitor;
 import com.harmony.umbrella.ws.WebServiceAbortException;
 
 /**
  * @author wuxii@foxmail.com
  */
-public abstract class AbstractPhaseVisitor implements PhaseVisitor {
+public abstract class AbstractContextVisitor implements ContextVisitor {
 
     @Override
     public boolean visitBefore(Context context) throws WebServiceAbortException {

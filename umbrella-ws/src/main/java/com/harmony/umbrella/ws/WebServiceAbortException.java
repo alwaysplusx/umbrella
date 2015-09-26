@@ -16,7 +16,7 @@
 package com.harmony.umbrella.ws;
 
 /**
- * 在执行前 {@linkplain PhaseVisitor#visitBefore(Context)}抛出异常
+ * 在执行前 {@linkplain ContextVisitor#visitBefore(Context)}抛出异常
  * 
  * @author wuxii@foxmail.com
  */

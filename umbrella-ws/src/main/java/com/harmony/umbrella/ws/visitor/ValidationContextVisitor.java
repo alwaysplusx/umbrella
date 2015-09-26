@@ -35,11 +35,11 @@ import com.harmony.umbrella.ws.util.HandlerMethodFinder;
 /**
  * @author wuxii@foxmail.com
  */
-public class PhaseValidationVisitor extends AbstractPhaseVisitor implements Serializable {
+public class ValidationContextVisitor extends AbstractContextVisitor implements Serializable {
 
     private static final long serialVersionUID = 3905871275755920058L;
 
-    private final static Logger log = LoggerFactory.getLogger(PhaseValidationVisitor.class);
+    private final static Logger log = LoggerFactory.getLogger(ValidationContextVisitor.class);
 
     protected static final String defaultPackage = Constants.DEFAULT_PACKAGE;
 
@@ -47,15 +47,15 @@ public class PhaseValidationVisitor extends AbstractPhaseVisitor implements Seri
 
     private BeanFactory beanFactory;
 
-    public PhaseValidationVisitor() {
+    public ValidationContextVisitor() {
         this(defaultPackage);
     }
 
-    public PhaseValidationVisitor(String scanPackage) {
+    public ValidationContextVisitor(String scanPackage) {
         this(scanPackage, new SimpleBeanFactory());
     }
 
-    public PhaseValidationVisitor(String scanPackage, BeanFactory beanFactory) {
+    public ValidationContextVisitor(String scanPackage, BeanFactory beanFactory) {
         this.beanFactory = beanFactory;
         this.finder = new HandlerMethodFinder(scanPackage);
     }

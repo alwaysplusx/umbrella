@@ -105,7 +105,7 @@ public @interface Handler {
 
         /**
          * 接口的方法名，在
-         * {@linkplain com.harmony.umbrella.ws.visitor.PhaseValidationVisitor}
+         * {@linkplain com.harmony.umbrella.ws.visitor.ValidationContextVisitor}
          * 默认为注解在方法体上的方法名
          */
         String methodName() default "";
