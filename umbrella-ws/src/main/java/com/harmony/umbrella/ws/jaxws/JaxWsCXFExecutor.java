@@ -101,23 +101,19 @@ public class JaxWsCXFExecutor extends ProxyExecutorSupport {
      * @return 代理对象
      */
     private Object loadProxy(Context context) {
-        Object proxy = null;
-        if (cacheable) {
-            proxy = getProxy(context);
-        } else {
-            proxy = createProxy(context);
-        }
+        Object proxy = cacheable ? getProxy(context) : createProxy(context);
         return configurationProxy(proxy, context);
     }
 
     /**
-     * 缓存中获取执行上下文对应的代理服务
+     * 缓存中获取执行上下文对应的代理服务，缓存仅在这个方法体内控制
      * 
      * @param context
      *            执行的上下文
      * @return 代理对象， 如果不存在缓存中不存在则创建
      */
     protected Object getProxy(Context context) {
+        // 验证context基础属性是否满足创建条件
         ContextValidatorUtils.validation(context);
 
         // 代理的超时设置是次要因素，不考虑在代理对象的key中
@@ -135,6 +131,8 @@ public class JaxWsCXFExecutor extends ProxyExecutorSupport {
                 JaxWsContextKey key = it.next();
                 // 一个serviceInterface只缓存一个
                 if (key.serviceName.equals(serviceInterface.getName())) {
+                    // 移除已经存在的serviceInterface缓存
+                    // 这种情况只在更换地址、用户名、密码的情况下发生
                     it.remove();
                     break;
                 }
@@ -147,7 +145,7 @@ public class JaxWsCXFExecutor extends ProxyExecutorSupport {
     }
 
     /**
-     * 创建当前{@linkplain Context}对应的服务代理
+     * 创建当前{@linkplain Context}对应的服务代理, 创建只使用基础的信息(地址、用户名密码、接口类)，不会配置其他代理特性
      * 
      * @param context
      *            执行上下文
@@ -228,8 +226,8 @@ public class JaxWsCXFExecutor extends ProxyExecutorSupport {
 
     private static class JaxWsContextKey {
 
-        private String address;
         private String serviceName;
+        private String address;
         private String username;
         private String password;
 
@@ -260,6 +258,11 @@ public class JaxWsCXFExecutor extends ProxyExecutorSupport {
             if (getClass() != obj.getClass())
                 return false;
             JaxWsContextKey other = (JaxWsContextKey) obj;
+            if (serviceName == null) {
+                if (other.serviceName != null)
+                    return false;
+            } else if (!serviceName.equals(other.serviceName))
+                return false;
             if (address == null) {
                 if (other.address != null)
                     return false;
@@ -270,11 +273,6 @@ public class JaxWsCXFExecutor extends ProxyExecutorSupport {
                     return false;
             } else if (!password.equals(other.password))
                 return false;
-            if (serviceName == null) {
-                if (other.serviceName != null)
-                    return false;
-            } else if (!serviceName.equals(other.serviceName))
-                return false;
             if (username == null) {
                 if (other.username != null)
                     return false;
@@ -282,6 +280,7 @@ public class JaxWsCXFExecutor extends ProxyExecutorSupport {
                 return false;
             return true;
         }
+
     }
 
 }
