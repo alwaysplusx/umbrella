@@ -86,7 +86,7 @@ public class JaxWsCXFExecutor extends ProxyExecutorSupport {
         } finally {
             if (graph != null) {
                 LOG.debug("执行情况概要如下:{}", graph);
-                context.put(WS_CONTEXT_GRAPH, graph);
+                context.put(WS_EXECUTION_GRAPH, graph);
             }
         }
         return result;

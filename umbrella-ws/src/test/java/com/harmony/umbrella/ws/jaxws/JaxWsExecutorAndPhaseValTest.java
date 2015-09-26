@@ -63,7 +63,7 @@ public class JaxWsExecutorAndPhaseValTest {
 
             @Override
             public void visitFinally(Object result, Throwable throwable, Context context) {
-                log.info("{}", context.get(JaxWsExecutor.WS_CONTEXT_GRAPH));
+                log.info("{}", context.get(JaxWsExecutor.WS_EXECUTION_GRAPH));
             }
 
         });

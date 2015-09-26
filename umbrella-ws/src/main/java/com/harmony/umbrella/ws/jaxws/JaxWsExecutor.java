@@ -25,6 +25,4 @@ import com.harmony.umbrella.ws.ProxyExecutor;
  */
 public interface JaxWsExecutor extends ProxyExecutor {
 
-    public static final String WS_CONTEXT_GRAPH = JaxWsExecutor.class.getName() + ".WS_CONTEXT_GRAPH";
-
 }

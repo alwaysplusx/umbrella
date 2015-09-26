@@ -22,6 +22,8 @@ import java.util.concurrent.Future;
  */
 public interface ProxyExecutor {
 
+    public static final String WS_EXECUTION_GRAPH = ProxyExecutor.class.getName() + ".WS_EXECUTION_GRAPH";
+
     /**
      * 执行交互
      * <p>

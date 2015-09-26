@@ -41,8 +41,9 @@ import com.harmony.umbrella.ws.cxf.log.LogMessageHandler;
  */
 public class MessageOutInterceptor extends AbstractMessageInterceptor {
 
-    private LogMessageHandler handler;
     private static final Logger log = LoggerFactory.getLogger(MessageOutInterceptor.class);
+
+    protected LogMessageHandler handler;
 
     public MessageOutInterceptor() {
         this("Outbound Message");
