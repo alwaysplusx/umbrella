@@ -47,7 +47,7 @@ under the License.
     <module>umbrella-validator</module>
     <module>umbrella-scheduler</module>
     <module>umbrella-web</module>
-    <module>umbrella-resources</module>
+    <!-- <module>umbrella-resources</module> -->
     <!-- <module>umbrella-spring</module> -->
     <!-- <module>umbrella-security</module> -->
     <!-- <module>umbrella-mapper</module> -->

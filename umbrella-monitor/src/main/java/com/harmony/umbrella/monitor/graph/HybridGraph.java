@@ -31,13 +31,14 @@ import com.harmony.umbrella.util.StringUtils;
  */
 public class HybridGraph extends AbstractGraph implements MethodGraph, HttpGraph {
 
+    private static final long serialVersionUID = -5531854949385303033L;
     protected String httpMethod;
     protected String remoteAddr;
     protected String localAddr;
     protected String queryString;
     protected int status;
-    protected Method method;
-    protected Object target;
+    protected transient Method method;
+    protected transient Object target;
 
     public HybridGraph(Method method) {
         this(MonitorUtils.methodId(method));

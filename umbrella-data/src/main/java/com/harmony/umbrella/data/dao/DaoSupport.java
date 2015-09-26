@@ -137,35 +137,6 @@ public abstract class DaoSupport implements Dao {
     }
 
     @Override
-    public <T> T saveOrUpdate(T entity) {
-
-        EntityInformation<T, ? extends Serializable> entityInfo = getEntityInformation(entity);
-
-        if (entityInfo.isNew(entity)) {
-            getEntityManager().persist(entity);
-            return entity;
-        } else {
-            return getEntityManager().merge(entity);
-        }
-
-    }
-
-    @Override
-    public <T> Iterable<T> saveOrUpdate(Iterable<T> entities) {
-        List<T> result = new ArrayList<T>();
-
-        if (entities == null) {
-            return result;
-        }
-
-        for (T entity : entities) {
-            result.add(saveOrUpdate(entity));
-        }
-
-        return result;
-    }
-
-    @Override
     public void delete(Object entity) {
         if (entity == null) {
             return;
@@ -187,7 +158,7 @@ public abstract class DaoSupport implements Dao {
     }
 
     @Override
-    public <T> T deleteById(Class<T> entityClass, Serializable id) {
+    public <T> T delete(Class<T> entityClass, Serializable id) {
 
         T entity = findOne(entityClass, id);
 
@@ -199,7 +170,7 @@ public abstract class DaoSupport implements Dao {
     }
 
     @Override
-    public <T> Iterable<T> deleteByIds(Class<T> entityClass, Iterable<? extends Serializable> ids) {
+    public <T> Iterable<T> delete(Class<T> entityClass, Iterable<? extends Serializable> ids) {
 
         List<T> result = new ArrayList<T>();
 
@@ -208,7 +179,7 @@ public abstract class DaoSupport implements Dao {
         }
 
         for (Serializable id : ids) {
-            result.add(deleteById(entityClass, id));
+            result.add(delete(entityClass, id));
         }
 
         return result;

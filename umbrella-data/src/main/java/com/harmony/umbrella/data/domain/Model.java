@@ -30,9 +30,10 @@ import javax.persistence.Transient;
 
 import com.harmony.umbrella.data.Persistable;
 import com.harmony.umbrella.util.FieldUtils;
-import com.harmony.umbrella.util.MethodUtils;
 import com.harmony.umbrella.util.FieldUtils.FieldFilter;
+import com.harmony.umbrella.util.MethodUtils;
 import com.harmony.umbrella.util.MethodUtils.MethodFilter;
+import com.harmony.umbrella.util.ReflectionUtils;
 
 /**
  * @author wuxii@foxmail.com
@@ -141,15 +142,11 @@ public abstract class Model<ID extends Serializable> implements Persistable<ID> 
         Field idField = getIdField();
         if (idField != null) {
             try {
-                String name = idField.getName();
-                String methodName = "get" + Character.toUpperCase(name.charAt(0)) + name.substring(1);
-                method = MethodUtils.findMethod(getClass(), methodName);
+                method = MethodUtils.findReadMethod(getClass(), idField);
                 return (ID) MethodUtils.invokeMethod(method, this);
             } catch (Exception e) {
                 try {
-                    if (!idField.isAccessible()) {
-                        idField.setAccessible(true);
-                    }
+                    ReflectionUtils.makeAccessible(idField);
                     return (ID) idField.get(this);
                 } catch (Exception e1) {
                 }
@@ -177,8 +174,9 @@ public abstract class Model<ID extends Serializable> implements Persistable<ID> 
             @SuppressWarnings({ "rawtypes", "unchecked" })
             public boolean matches(Method method) {
                 for (Class ann : idClasses) {
-                    if (method.getAnnotation(ann) != null)
+                    if (method.getAnnotation(ann) != null) {
                         return true;
+                    }
                 }
                 return false;
             }
@@ -196,8 +194,9 @@ public abstract class Model<ID extends Serializable> implements Persistable<ID> 
             @Override
             public boolean matches(Field field) {
                 for (Class ann : idClasses) {
-                    if (field.getAnnotation(ann) != null)
+                    if (field.getAnnotation(ann) != null) {
                         return true;
+                    }
                 }
                 return false;
             }

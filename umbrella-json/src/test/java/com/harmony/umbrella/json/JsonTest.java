@@ -19,7 +19,6 @@ import static com.alibaba.fastjson.serializer.SerializerFeature.*;
 
 import java.util.Arrays;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 import com.harmony.umbrella.json.vo.Child;
@@ -50,25 +49,6 @@ public class JsonTest {
     public void testToJsonObjectSerializerFeatureArray() {
         String json = Json.toJson(parent, PrettyFormat, QuoteFieldNames);
         System.out.println(json);
-    }
-
-    @Test
-    @Ignore
-    public void testToJsonObjectSerializeFilterArray() {
-    }
-
-    @Test
-    public void testToJsonObjectStringArray() {
-    }
-
-    @Test
-    @Ignore
-    public void testToJsonObjectStringArraySerializeFilterArray() {
-    }
-
-    @Test
-    @Ignore
-    public void testFromJson() {
     }
 
 }

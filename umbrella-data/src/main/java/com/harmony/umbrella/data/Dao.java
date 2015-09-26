@@ -83,24 +83,6 @@ public interface Dao {
     boolean isNew(Object entity);
 
     /**
-     * 保存或更新entity
-     * 
-     * @param entity
-     *            待处理的entity
-     * @return 处理后的entity
-     */
-    <T> T saveOrUpdate(T entity);
-
-    /**
-     * 批量保存或更新entities
-     * 
-     * @param entities
-     *            待处理的entities
-     * @return 处理后的entities
-     */
-    <T> Iterable<T> saveOrUpdate(Iterable<T> entities);
-
-    /**
      * 删除entity
      * 
      * @param entity
@@ -121,17 +103,6 @@ public interface Dao {
     <T> void delete(Iterable<T> entities);
 
     /**
-     * 删除entityClass的所有数据
-     * 
-     * @param entityClass
-     *            entity的类名
-     * @return 删除的记录条数
-     * @throws IllegalArgumentException
-     *             if not entity class
-     */
-    int deleteAll(Class<?> entityClass);
-
-    /**
      * 指定id删除entity, if id is null ignore
      * 
      * @param entityClass
@@ -142,7 +113,7 @@ public interface Dao {
      * @throws IllegalArgumentException
      *             if not entity class
      */
-    <T> T deleteById(Class<T> entityClass, Serializable id);
+    <T> T delete(Class<T> entityClass, Serializable id);
 
     /**
      * 批量删除指定id的entity
@@ -153,7 +124,18 @@ public interface Dao {
      *            指定的id组
      * @return 被删除的entity
      */
-    <T> Iterable<T> deleteByIds(Class<T> entityClass, Iterable<? extends Serializable> ids);
+    <T> Iterable<T> delete(Class<T> entityClass, Iterable<? extends Serializable> ids);
+
+    /**
+     * 删除entityClass的所有数据
+     * 
+     * @param entityClass
+     *            entity的类名
+     * @return 删除的记录条数
+     * @throws IllegalArgumentException
+     *             if not entity class
+     */
+    int deleteAll(Class<?> entityClass);
 
     /**
      * 通过id查询对应的entity

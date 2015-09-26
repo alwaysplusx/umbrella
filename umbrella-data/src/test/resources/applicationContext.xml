@@ -28,7 +28,7 @@
 
   <tx:annotation-driven transaction-manager="transactionManager" />
 
-  <bean name="jdbc/moon" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+  <bean name="jdbc/umbrella" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
     <property name="driverClassName" value="org.h2.Driver" />
     <property name="url" value="jdbc:h2:file:~/.h2/harmony/data" />
     <property name="username" value="sa" />
@@ -36,8 +36,8 @@
   </bean>
 
   <bean name="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
-    <property name="dataSource" ref="jdbc/moon" />
-    <property name="persistenceUnitName" value="moon" />
+    <property name="dataSource" ref="jdbc/umbrella" />
+    <property name="persistenceUnitName" value="umbrella" />
     <property name="persistenceXmlLocation" value="META-INF/persistence.xml" />
   </bean>
 

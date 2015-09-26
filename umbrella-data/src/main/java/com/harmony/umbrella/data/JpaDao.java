@@ -35,6 +35,7 @@ import com.harmony.umbrella.data.domain.Sort;
  *            entity的id类型
  */
 public interface JpaDao<T, ID extends Serializable> extends Dao {
+
     /**
      * 保存entity, 并刷新context
      * 
@@ -44,7 +45,14 @@ public interface JpaDao<T, ID extends Serializable> extends Dao {
      * @see #flush()
      */
     T saveAndFlush(T entity);
-    
+
+    /**
+     * 根据约束条件删除数据
+     * 
+     * @param spec
+     *            删除的约束条件
+     * @return 删除的条数
+     */
     int delete(Specification<T> spec);
 
     /**
@@ -89,15 +97,6 @@ public interface JpaDao<T, ID extends Serializable> extends Dao {
      * @return entity object if not find return null
      */
     T findById(ID id);
-
-    /**
-     * 带分页的查询所有数据
-     * 
-     * @param pageable
-     *            分页条件
-     * @return 分页后的entity数据
-     */
-    Page<T> findAll(Pageable pageable);
 
     /**
      * 带排序条件的查询所有数据
@@ -153,7 +152,7 @@ public interface JpaDao<T, ID extends Serializable> extends Dao {
      * 
      * @param id
      *            指定的id
-     * @return true exist
+     * @return true is exist
      */
     boolean exists(ID id);
 
@@ -261,16 +260,6 @@ public interface JpaDao<T, ID extends Serializable> extends Dao {
     List<T> findAll(Specification<T> spec);
 
     /**
-     * Returns a {@link Page} of entities matching the given
-     * {@link Specification}.
-     * 
-     * @param spec
-     * @param pageable
-     * @return
-     */
-    Page<T> findAll(Specification<T> spec, Pageable pageable);
-
-    /**
      * Returns all entities matching the given {@link Specification} and
      * {@link Sort}.
      * 
@@ -280,4 +269,22 @@ public interface JpaDao<T, ID extends Serializable> extends Dao {
      */
     List<T> findAll(Specification<T> spec, Sort sort);
 
+    /**
+     * 带分页的查询所有数据
+     * 
+     * @param pageable
+     *            分页条件
+     * @return 分页后的entity数据
+     */
+    Page<T> findAll(Pageable pageable);
+
+    /**
+     * Returns a {@link Page} of entities matching the given
+     * {@link Specification}.
+     * 
+     * @param spec
+     * @param pageable
+     * @return
+     */
+    Page<T> findAll(Specification<T> spec, Pageable pageable);
 }

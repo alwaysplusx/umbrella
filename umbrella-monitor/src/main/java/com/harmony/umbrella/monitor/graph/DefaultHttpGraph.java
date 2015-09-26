@@ -25,6 +25,7 @@ import com.harmony.umbrella.util.StringUtils;
  */
 public class DefaultHttpGraph extends AbstractGraph implements HttpGraph {
 
+    private static final long serialVersionUID = 3857866143872640275L;
     protected String httpMethod;
     protected String remoteAddr;
     protected String localAddr;

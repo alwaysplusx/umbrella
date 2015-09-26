@@ -109,6 +109,11 @@ public abstract class JpaDaoSupport<E, ID extends Serializable> extends DaoSuppo
     }
 
     @Override
+    public <T> T findOne(String jpql) {
+        return super.findOne(jpql);
+    }
+
+    @Override
     public E findById(ID id) {
         return findOne(getEntityInformation().getJavaType(), id);
     }
@@ -209,7 +214,7 @@ public abstract class JpaDaoSupport<E, ID extends Serializable> extends DaoSuppo
 
     @Override
     public void deleteById(ID id) {
-        deleteById(getEntityClass(), id);
+        delete(getEntityClass(), id);
     }
 
     @Override

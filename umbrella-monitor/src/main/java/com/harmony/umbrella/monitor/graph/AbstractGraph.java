@@ -15,6 +15,7 @@
  */
 package com.harmony.umbrella.monitor.graph;
 
+import java.io.Serializable;
 import java.util.Calendar;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -31,7 +32,9 @@ import com.harmony.umbrella.util.Formats.NullableDateFormat;
  * 
  * @author wuxii@foxmail.com
  */
-public abstract class AbstractGraph implements Graph {
+public abstract class AbstractGraph implements Graph, Serializable {
+
+    private static final long serialVersionUID = 4915338905076913082L;
 
     protected static final NullableDateFormat ndf = Formats.createDateFormat(Formats.FULL_DATE_PATTERN);
 
@@ -180,8 +183,8 @@ public abstract class AbstractGraph implements Graph {
     @Override
     public String getDescription() {
         StringBuilder buffer = new StringBuilder();
-        buffer.append("{\n")//
-                .append("  id:").append(identifier).append("\n");//
+        buffer.append("{\n");
+        buffer.append("  id:").append(identifier).append("\n");//
         if (StringUtils.isNotBlank(module)) {
             buffer.append("  module:").append(module).append("\n");
         }
