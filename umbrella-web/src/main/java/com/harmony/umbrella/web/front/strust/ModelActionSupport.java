@@ -34,7 +34,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.struts2.interceptor.ServletRequestAware;
 import org.apache.struts2.interceptor.ServletResponseAware;
 
-import com.harmony.umbrella.controller.BusinessController;
+import com.harmony.umbrella.biz.Business;
 import com.harmony.umbrella.data.Bond;
 import com.harmony.umbrella.data.domain.Model;
 import com.harmony.umbrella.web.render.WebRender;
@@ -94,17 +94,17 @@ public abstract class ModelActionSupport<T extends Model<ID>, ID extends Seriali
     }
 
     public String save() {
-        model = getBusinessController().save(model);
+        model = getBusiness().save(model);
         return success();
     }
 
     public String update() {
-        model = getBusinessController().update(model);
+        model = getBusiness().update(model);
         return success();
     }
 
     public String view() {
-        model = getBusinessController().findById(id);
+        model = getBusiness().findOne(id);
         if (wrapper) {
             Map<String, Object> result = new HashMap<String, Object>();
             result.put("model", model);
@@ -115,9 +115,9 @@ public abstract class ModelActionSupport<T extends Model<ID>, ID extends Seriali
 
     public String delete() {
         if (ids != null && ids.length > 0) {
-            getBusinessController().deleteByIds(Arrays.asList(ids));
+            getBusiness().deleteByIds(Arrays.asList(ids));
         } else {
-            getBusinessController().deleteById(id);
+            getBusiness().deleteById(id);
         }
         return success();
     }
@@ -147,7 +147,7 @@ public abstract class ModelActionSupport<T extends Model<ID>, ID extends Seriali
         return null;
     }
 
-    protected abstract BusinessController<T, ID> getBusinessController();
+    protected abstract Business<T, ID> getBusiness();
 
     protected boolean renderJson(Object obj) {
         return renderJson(obj, emptyProperties);
