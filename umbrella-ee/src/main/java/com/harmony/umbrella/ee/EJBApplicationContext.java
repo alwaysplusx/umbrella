@@ -25,6 +25,7 @@ import java.util.Properties;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
+import javax.sql.DataSource;
 
 import com.harmony.umbrella.context.ApplicationContext;
 import com.harmony.umbrella.context.ApplicationContextException;
@@ -106,11 +107,26 @@ public class EJBApplicationContext extends ApplicationContext implements EJBCont
                     if (jmxManager.isRegistered(EJBContext.class)) {
                         jmxManager.unregisterMBean(EJBContext.class);
                     }
+                    // register jmx
                     jmxManager.registerMBean(new EJBContext(this));
+
+                    // init database information
+                    initDB();
+
                     LOG.debug("init ejb application success");
                     lifeCycle = RUNNING;
                 }
             }
+        }
+    }
+
+    private void initDB() {
+        String name = applicationProperties.getProperty("application.datasource.name", "jdbc/harmony");
+        try {
+            DataSource ds = (DataSource) lookup(name);
+            initializeDBInformation(ds.getConnection(), true);
+        } catch (Exception e) {
+            LOG.error("init database information failed, {}", e.toString());
         }
     }
 
@@ -146,7 +162,7 @@ public class EJBApplicationContext extends ApplicationContext implements EJBCont
             return (T) getContext().lookup(jndi);
         } catch (NamingException e) {
             LOG.warn("jndi [{}] not find", jndi);
-            throw new ApplicationContextException(e.getMessage(), e.getCause());
+            throw new ApplicationContextException(e.getMessage(), e);
         }
     }
 
@@ -274,17 +290,20 @@ public class EJBApplicationContext extends ApplicationContext implements EJBCont
     @SuppressWarnings("unchecked")
     @Override
     public <T> T getBean(String beanName, String scope) throws NoSuchBeanFindException {
+        Exception ex = null;
         Object bean = null;
         try {
             bean = lookup(beanName);
         } catch (ApplicationContextException e) {
+            ex = e;
             try {
                 bean = getBean(Class.forName(beanName));
             } catch (Exception e1) {
+                ex.addSuppressed(e1);
             }
         }
         if (bean == null) {
-            throw new NoSuchBeanFindException(beanName + " not find!");
+            throw new NoSuchBeanFindException(beanName + " not find!", ex);
         }
         return (T) bean;
     }

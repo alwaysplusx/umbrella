@@ -284,7 +284,7 @@ public abstract class ResourceScaner {
      */
     private static Class<?> forName(String className) {
         try {
-            return Class.forName(className, false, ClassUtils.getDefaultClassLoader());
+            return Class.forName(className);
         } catch (Exception e) {
             return null;
         } catch (NoClassDefFoundError e) {

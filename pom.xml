@@ -55,6 +55,7 @@ under the License.
     <!-- <module>umbrella-web</module> -->
     <!-- <module>umbrella-plugins</module> -->
     <!-- <module>examples</module> -->
+    <module>umbrella-activity</module>
   </modules>
 
 </project>
