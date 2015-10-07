@@ -17,6 +17,12 @@
       <groupId>com.harmony.umbrella</groupId>
       <artifactId>umbrella-monitor</artifactId>
     </dependency>
+    <dependency>
+      <groupId>com.harmony.umbrella</groupId>
+      <artifactId>umbrella-validator</artifactId>
+      <scope>compile</scope>
+      <optional>true</optional>
+    </dependency>
     <!-- jaxws -->
     <dependency>
       <groupId>org.apache.cxf</groupId>
@@ -54,6 +60,10 @@
       <optional>true</optional>
     </dependency>
     <!-- api -->
+    <dependency>
+      <groupId>javax.validation</groupId>
+      <artifactId>validation-api</artifactId>
+    </dependency>
     <dependency>
       <artifactId>javax.annotation-api</artifactId>
       <groupId>javax.annotation</groupId>
