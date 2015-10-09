@@ -72,6 +72,7 @@ public abstract class Exceptions {
      */
     public static Throwable[] getAllCause(Throwable ex) {
         List<Throwable> result = new LinkedList<Throwable>();
+        result.add(ex);
         while (ex.getCause() != null) {
             ex = ex.getCause();
             result.add(ex);

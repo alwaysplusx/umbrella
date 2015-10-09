@@ -7,26 +7,7 @@
     <version>0.0.4-SNAPSHOT</version>
   </parent>
   <artifactId>umbrella-ws-plugin</artifactId>
-  <repositories>
-    <repository>
-      <id>harmony-local</id>
-      <name>Harmony Local Dependencies</name>
-      <url>file://${project.basedir}/../maven-local</url>
-    </repository>
-  </repositories>
   <dependencies>
-    <dependency>
-      <groupId>com.harmony.modules</groupId>
-      <artifactId>modules-commons</artifactId>
-      <version>1.0</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.harmony.modules</groupId>
-      <artifactId>modules-ejb</artifactId>
-      <version>1.0</version>
-      <scope>provided</scope>
-    </dependency>
     <dependency>
       <groupId>com.harmony.umbrella</groupId>
       <artifactId>umbrella-message</artifactId>
@@ -83,6 +64,11 @@
     <dependency>
       <artifactId>javax.el-api</artifactId>
       <groupId>javax.el</groupId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <artifactId>javax.ejb-api</artifactId>
+      <groupId>javax.ejb</groupId>
       <scope>provided</scope>
     </dependency>
     <!-- test -->
