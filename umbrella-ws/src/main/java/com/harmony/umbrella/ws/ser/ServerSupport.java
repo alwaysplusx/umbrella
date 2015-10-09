@@ -358,15 +358,15 @@ public abstract class ServerSupport {
         return Json.toJson(keys, SerializerFeature.WriteMapNullValue);
     }
 
-    protected boolean isValid(Iterator<Object> objs, MessageContent content) {
-        return isValid((Iterator<Object>) objs, content, (ValidVisitor<Object>) null);
+    protected boolean isValid(Iterator<?> objs, MessageContent content) {
+        return isValid(objs, content, (ValidVisitor) null);
     }
 
-    protected <T> boolean isValid(Iterator<T> objs, MessageContent content, Class<?>... groups) {
+    protected boolean isValid(Iterator<?> objs, MessageContent content, Class<?>... groups) {
         return isValid(objs, content, null, groups);
     }
 
-    protected <T> boolean isValid(Iterator<T> objs, MessageContent content, ValidVisitor<T> visitor, Class<?>... groups) {
+    protected boolean isValid(Iterator<?> objs, MessageContent content, ValidVisitor visitor, Class<?>... groups) {
         boolean flag = true;
         while (objs.hasNext()) {
             flag = flag && isValid(objs.next(), content, visitor, groups);
@@ -382,7 +382,7 @@ public abstract class ServerSupport {
         return isValid(obj, content, null, groups);
     }
 
-    protected <T> boolean isValid(T obj, MessageContent content, ValidVisitor<T> visitor, Class<?>... groups) {
+    protected boolean isValid(Object obj, MessageContent content, ValidVisitor visitor, Class<?>... groups) {
         long start = System.nanoTime();
         Assert.notNull(content, "message content must not be null");
         if (obj == null) {

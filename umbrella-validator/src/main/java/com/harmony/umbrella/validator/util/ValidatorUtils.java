@@ -79,10 +79,10 @@ public abstract class ValidatorUtils {
         return getViolationMessage(object, null, groups);
     }
 
-    public static <T> String getViolationMessage(T object, ValidVisitor<T> visitor, Class<?>... groups) {
+    public static String getViolationMessage(Object object, ValidVisitor visitor, Class<?>... groups) {
         StringBuilder buf = new StringBuilder();
 
-        Iterator<ConstraintViolation<T>> it = getValidator().validate(object, groups).iterator();
+        Iterator<ConstraintViolation<Object>> it = getValidator().validate(object, groups).iterator();
         while (it.hasNext()) {
             buf.append(it.next().getMessage());
             if (it.hasNext()) {

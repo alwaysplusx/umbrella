@@ -18,7 +18,7 @@ package com.harmony.umbrella.validator;
 /**
  * @author wuxii@foxmail.com
  */
-public interface ValidVisitor<T> {
+public interface ValidVisitor {
 
     /**
      * 检验对象
@@ -26,6 +26,6 @@ public interface ValidVisitor<T> {
      * @param obj
      * @return 如果有违规信息返回违规描述，否则返回null
      */
-    String valid(T obj);
+    String valid(Object obj);
 
 }

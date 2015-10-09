@@ -57,7 +57,7 @@ public abstract class ServerValidation {
         return isValid(obj, content, null, groups);
     }
 
-    public static <T> boolean isValid(T obj, MessageContent content, ValidVisitor<T> visitor, Class<?>... groups) {
+    public static <T> boolean isValid(T obj, MessageContent content, ValidVisitor visitor, Class<?>... groups) {
         Assert.notNull(content, "message content must not be null");
         if (obj == null) {
             content.append("NULL", "input is null");
