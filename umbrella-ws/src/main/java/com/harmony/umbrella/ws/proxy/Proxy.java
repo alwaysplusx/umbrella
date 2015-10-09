@@ -114,4 +114,5 @@ public interface Proxy<T> {
      *            同步的可利用属性，会放置在同步的上下文中.(EJB情况下需考虑对传出对象的序列化情况)
      */
     boolean syncInBatch(Iterable<T> objs, Map<String, Object> properties);
+    
 }

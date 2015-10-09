@@ -13,17 +13,35 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.umbrella.ws.ext;
+package com.harmony.umbrella.web;
 
-import com.harmony.umbrella.ws.cxf.interceptor.MessageInInterceptor;
+import java.io.IOException;
+
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 
 /**
  * @author wuxii@foxmail.com
  */
-public class LogMessageInInterceptor extends MessageInInterceptor {
+public class WebFilterProxy implements Filter {
 
-    public LogMessageInInterceptor() {
-        this.handler = new HarmonyLogMessageHandler();
+    @Override
+    public void init(FilterConfig filterConfig) throws ServletException {
+        
+    }
+
+    @Override
+    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
+
+    }
+
+    @Override
+    public void destroy() {
+
     }
 
 }

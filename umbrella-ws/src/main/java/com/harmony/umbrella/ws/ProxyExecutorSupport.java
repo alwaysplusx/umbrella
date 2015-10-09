@@ -44,12 +44,17 @@ public abstract class ProxyExecutorSupport implements JaxWsExecutor {
 
     @Override
     public Object execute(Context context) {
-        return execute(context, Object.class);
+        return execute(context, Object.class, new ContextVisitor[0]);
     }
 
     @Override
     public <T> T execute(Context context, Class<T> resultType) {
         return execute(context, resultType, new ContextVisitor[0]);
+    }
+
+    @Override
+    public Object execute(Context context, ContextVisitor... visitors) {
+        return execute(context, Object.class, visitors);
     }
 
     @Override
@@ -75,13 +80,14 @@ public abstract class ProxyExecutorSupport implements JaxWsExecutor {
     }
 
     @Override
-    public Object execute(Context context, ContextVisitor... visitors) {
-        return execute(context, Object.class, visitors);
+    public Future<?> executeAsync(Context context) {
+        return (Future<?>) executeAsync(context, Object.class);
     }
 
     @Override
     public <T> Future<T> executeAsync(final Context context, final Class<T> resultType) {
         FutureTask<T> task = new FutureTask<T>(new Callable<T>() {
+
             @Override
             public T call() throws Exception {
                 LOG.info("start other thread execute context {}", context);
@@ -90,26 +96,6 @@ public abstract class ProxyExecutorSupport implements JaxWsExecutor {
         });
         new Thread(task).start();
         return task;
-    }
-
-    @Override
-    public Future<?> executeAsync(Context context) {
-        return (Future<?>) executeAsync(context, Object.class);
-    }
-
-    /**
-     * 将执行中抛出的异常在方法中通过判断是否抛出
-     * 
-     * @param e
-     */
-    protected void throwOrHide(Exception e) {
-        if (!throwOrHide) {
-            if (e instanceof RuntimeException) {
-                throw (RuntimeException) e;
-            }
-            throw new WebServiceException(e);
-        }
-        LOG.debug("ignore exception {}", e.toString());
     }
 
     @SuppressWarnings("unchecked")
@@ -128,6 +114,21 @@ public abstract class ProxyExecutorSupport implements JaxWsExecutor {
                 }
             }
         }
+    }
+
+    /**
+     * 将执行中抛出的异常在方法中通过判断是否抛出
+     * 
+     * @param e
+     */
+    protected void throwOrHide(Exception e) {
+        if (!throwOrHide) {
+            if (e instanceof RuntimeException) {
+                throw (RuntimeException) e;
+            }
+            throw new WebServiceException(e);
+        }
+        LOG.debug("ignore exception {}", e.toString());
     }
 
     protected boolean doBefore(Context context, ContextVisitor[] visitors) throws WebServiceAbortException {

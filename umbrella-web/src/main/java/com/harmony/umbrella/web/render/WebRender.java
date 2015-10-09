@@ -127,8 +127,9 @@ public class WebRender extends AbstractRender implements HttpTextRender, HttpBin
     }
 
     private static String getFileExtensions(String fileName) {
-        if (StringUtils.isBlank(fileName) || fileName.endsWith("."))
+        if (StringUtils.isBlank(fileName) || fileName.endsWith(".")) {
             return "";
+        }
         return fileName.substring(fileName.lastIndexOf(".") + 1).toLowerCase().trim();
     }
 

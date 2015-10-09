@@ -15,14 +15,14 @@
  */
 package com.harmony.umbrella.ws.ext;
 
-import com.harmony.umbrella.ws.cxf.interceptor.MessageOutInterceptor;
+import com.harmony.umbrella.ws.cxf.interceptor.MessageInInterceptor;
 
 /**
  * @author wuxii@foxmail.com
  */
-public class LogMessageOutInterceptor extends MessageOutInterceptor {
+public class LogInInterceptor extends MessageInInterceptor {
 
-    public LogMessageOutInterceptor() {
+    public LogInInterceptor() {
         this.handler = new HarmonyLogMessageHandler();
     }
 
