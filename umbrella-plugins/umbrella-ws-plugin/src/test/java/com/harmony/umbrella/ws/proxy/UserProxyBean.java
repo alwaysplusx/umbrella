@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.dark.ws.proxy;
+package com.harmony.umbrella.ws.proxy;
 
 import java.util.Map;
 
@@ -23,10 +23,10 @@ import javax.ejb.Stateless;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.harmony.dark.ws.User;
-import com.harmony.dark.ws.UserProxy;
-import com.harmony.dark.ws.UserService;
 import com.harmony.umbrella.ws.Syncable;
+import com.harmony.umbrella.ws.User;
+import com.harmony.umbrella.ws.UserProxy;
+import com.harmony.umbrella.ws.UserService;
 import com.harmony.umbrella.ws.jaxws.JaxWsExecutorSupport;
 import com.harmony.umbrella.ws.proxy.ProxySupport;
 

@@ -35,10 +35,13 @@ import com.harmony.umbrella.ws.visitor.AbstractContextVisitor;
  */
 public class HarmonyContextVisitor extends AbstractContextVisitor {
 
-    public static final String FROM_PROPERTIES_FILE_LOCATION = "META-INF/jaxws/log.properties";
+    public static final String FROM_PROPERTIES_FILE_LOCATION = "META-INF/jaxws/proxyName.properties";
 
     private static final Logger log = LoggerFactory.getLogger(HarmonyContextVisitor.class);
 
+    /**
+     * 各个接口对应的名称, 接口类 + '.' + 方法名称
+     */
     private final Properties fromProps = new Properties();
 
     public HarmonyContextVisitor() {

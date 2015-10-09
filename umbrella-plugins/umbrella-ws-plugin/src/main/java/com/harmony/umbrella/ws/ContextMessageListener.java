@@ -40,7 +40,7 @@ import com.harmony.umbrella.message.jms.AbstractJmsMessageListener;
         @ActivationConfigProperty(propertyName = "destination", propertyValue = "jms.jaxws.queue") 
 })
 @Remote({ com.harmony.umbrella.message.MessageListener.class })
-public class JaxWsContextMessageListener extends AbstractJmsMessageListener implements MessageListener {
+public class ContextMessageListener extends AbstractJmsMessageListener implements MessageListener {
 
     @EJB(mappedName = "PropertiesFileContextReceiver")
     private MessageResolver resolver;

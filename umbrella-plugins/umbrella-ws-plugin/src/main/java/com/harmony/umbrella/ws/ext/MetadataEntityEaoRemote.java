@@ -13,14 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.dark.ws.ext;
+package com.harmony.umbrella.ws.ext;
 
-import com.harmony.umbrella.data.JpaDao;
+import javax.ejb.Remote;
+
+import com.harmony.modules.ejb.eao.GenericEao;
 import com.harmony.umbrella.ws.MetadataLoader;
 
 /**
  * @author wuxii@foxmail.com
  */
-public interface MetadataModelDao extends MetadataLoader, JpaDao<MetadataModel, String> {
+@Remote
+public interface MetadataEntityEaoRemote extends MetadataLoader, GenericEao<MetadataEntity, String> {
 
 }

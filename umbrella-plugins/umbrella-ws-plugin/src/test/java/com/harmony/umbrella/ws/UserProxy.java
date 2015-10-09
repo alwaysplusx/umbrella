@@ -13,26 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.dark.ws.ext;
+package com.harmony.umbrella.ws;
 
-import java.io.Serializable;
-import java.util.Map;
+import javax.ejb.Remote;
 
-import com.harmony.umbrella.biz.Business;
-import com.harmony.umbrella.data.domain.Model;
+import com.harmony.umbrella.ws.SyncCallback;
 import com.harmony.umbrella.ws.proxy.Proxy;
 
 /**
  * @author wuxii@foxmail.com
  */
-public interface ProxyBusiness<T extends Model<ID>, ID extends Serializable> extends Proxy<T>, Business<T, ID> {
-
-    boolean syncById(ID id);
-
-    boolean syncById(ID id, Map<String, Object> properties);
-
-    boolean syncInBatchById(Iterable<ID> ids);
-
-    boolean syncInBatchById(Iterable<ID> ids, Map<String, Object> properties);
+@Remote
+public interface UserProxy extends Proxy<User>, SyncCallback<User> {
 
 }

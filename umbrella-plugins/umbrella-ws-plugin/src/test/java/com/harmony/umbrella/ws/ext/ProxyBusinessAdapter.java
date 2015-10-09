@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2014 the original author or authors.
+ * Copyright 2002-2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,8 +24,8 @@ import javax.xml.ws.WebServiceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.harmony.modules.commons.data.BaseEntity;
-import com.harmony.modules.ejb.logic.GenericLogicImpl;
+import com.harmony.umbrella.biz.AbstractBusiness;
+import com.harmony.umbrella.data.domain.Model;
 import com.harmony.umbrella.util.Assert;
 import com.harmony.umbrella.util.StringUtils;
 import com.harmony.umbrella.ws.Syncable;
@@ -34,11 +34,9 @@ import com.harmony.umbrella.ws.proxy.ProxySupport;
 import com.harmony.umbrella.ws.support.SimpleContext;
 
 /**
- * 客户端代理的harmony-modules适配工具
- * 
  * @author wuxii@foxmail.com
  */
-public abstract class ProxyLogicAdapter<T extends BaseEntity<ID>, ID extends Serializable> extends GenericLogicImpl<T, ID> implements ProxyLogic<T, ID> {
+public abstract class ProxyBusinessAdapter<T extends Model<ID>, ID extends Serializable> extends AbstractBusiness<T, ID> implements ProxyBusiness<T, ID> {
 
     private static final Logger log = LoggerFactory.getLogger(ProxySupport.class);
 
@@ -67,7 +65,7 @@ public abstract class ProxyLogicAdapter<T extends BaseEntity<ID>, ID extends Ser
 
     @Override
     public boolean syncById(ID id, Map<String, Object> properties) {
-        return sync(find(id), properties);
+        return sync(findOne(id), properties);
     }
 
     @Override

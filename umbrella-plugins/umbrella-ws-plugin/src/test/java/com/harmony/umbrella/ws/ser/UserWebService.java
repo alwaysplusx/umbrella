@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.dark.ws.ser;
+package com.harmony.umbrella.ws.ser;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -23,8 +23,8 @@ import javax.jws.WebMethod;
 import javax.jws.WebParam;
 import javax.jws.WebService;
 
-import com.harmony.dark.ws.User;
-import com.harmony.dark.ws.UserService;
+import com.harmony.umbrella.ws.User;
+import com.harmony.umbrella.ws.UserService;
 import com.harmony.umbrella.ws.ser.Message;
 import com.harmony.umbrella.ws.ser.MessageContent;
 import com.harmony.umbrella.ws.ser.ServerSupport;

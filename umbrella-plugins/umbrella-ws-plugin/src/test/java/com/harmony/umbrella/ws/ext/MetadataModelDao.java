@@ -15,25 +15,12 @@
  */
 package com.harmony.umbrella.ws.ext;
 
-import java.io.Serializable;
-import java.util.Map;
-
-import com.harmony.modules.commons.data.BaseEntity;
-import com.harmony.modules.commons.support.GenericLogic;
-import com.harmony.umbrella.ws.proxy.Proxy;
+import com.harmony.umbrella.data.JpaDao;
+import com.harmony.umbrella.ws.MetadataLoader;
 
 /**
- * 同步支持harmony-modules的扩展支持
- * 
  * @author wuxii@foxmail.com
  */
-public interface ProxyLogic<T extends BaseEntity<ID>, ID extends Serializable> extends Proxy<T>, GenericLogic<T, ID> {
+public interface MetadataModelDao extends MetadataLoader, JpaDao<MetadataModel, String> {
 
-    boolean syncById(ID id);
-
-    boolean syncById(ID id, Map<String, Object> properties);
-
-    boolean syncInBatchById(Iterable<ID> ids);
-
-    boolean syncInBatchById(Iterable<ID> ids, Map<String, Object> properties);
 }

@@ -24,13 +24,15 @@ import com.harmony.modules.ejb.eao.GenericEaoImpl;
 import com.harmony.umbrella.util.Assert;
 import com.harmony.umbrella.ws.Metadata;
 import com.harmony.umbrella.ws.MetadataLoader;
+import com.harmony.umbrella.ws.ext.MetadataEntity;
+import com.harmony.umbrella.ws.ext.MetadataEntityEaoRemote;
 
 /**
  * @author wuxii@foxmail.com
  */
 @Remote({ MetadataLoader.class })
 @Stateless(mappedName = "MetadataEntityEaoBean")
-public class MetadataEntityEaoBean extends GenericEaoImpl<MetadataEntity, String> implements MetadataLoader, MetadataEntityEaoLocal {
+public class MetadataEntityEaoBean extends GenericEaoImpl<MetadataEntity, String> implements MetadataLoader, MetadataEntityEaoRemote {
 
     @Override
     @PersistenceContext(unitName = "harmony-dark")

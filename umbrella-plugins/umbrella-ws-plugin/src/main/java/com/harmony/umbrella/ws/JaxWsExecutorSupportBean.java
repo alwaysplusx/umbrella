@@ -37,7 +37,7 @@ import com.harmony.umbrella.ws.support.SimpleContext;
 @Stateless(mappedName = "JaxWsExecutorSupportBean")
 public class JaxWsExecutorSupportBean extends JaxWsCXFExecutor implements JaxWsExecutorSupport {
 
-    @EJB(mappedName = "JaxWsContextSenderBean")
+    @EJB(mappedName = "ContextSenderBean")
     private ContextSender contextSender;
 
     @EJB

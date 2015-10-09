@@ -32,8 +32,8 @@ import com.harmony.umbrella.ws.support.ContextSender;
  * @author wuxii@foxmail.com
  */
 @Remote(ContextSender.class)
-@Stateless(mappedName = "JaxWsContextSenderBean")
-public class JaxWsContextSenderBean extends AbstractJmsMessageSender implements ContextSender {
+@Stateless(mappedName = "ContextSenderBean")
+public class ContextSenderBean extends AbstractJmsMessageSender implements ContextSender {
 
     @Resource(name = "jms.jaxws.connectionFactory")
     private ConnectionFactory connectionFactory;

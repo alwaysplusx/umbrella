@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.dark.ws;
+package com.harmony.umbrella.ws;
 
 import static org.junit.Assert.*;
 
@@ -27,11 +27,11 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.harmony.dark.ws.ser.UserWebService;
 import com.harmony.umbrella.context.ApplicationContext;
 import com.harmony.umbrella.message.MessageResolver;
 import com.harmony.umbrella.ws.jaxws.JaxWsProxyBuilder;
 import com.harmony.umbrella.ws.jaxws.JaxWsServerManager;
+import com.harmony.umbrella.ws.ser.UserWebService;
 
 /**
  * @author wuxii@foxmail.com
