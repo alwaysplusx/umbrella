@@ -47,15 +47,15 @@ under the License.
     <module>umbrella-validator</module>
     <module>umbrella-scheduler</module>
     <module>umbrella-web</module>
+    <module>umbrella-mapper</module>
     <!-- <module>umbrella-resources</module> -->
     <!-- <module>umbrella-spring</module> -->
     <!-- <module>umbrella-security</module> -->
-    <!-- <module>umbrella-mapper</module> -->
     <!-- <module>umbrella-cache</module> -->
     <!-- <module>umbrella-web</module> -->
     <!-- <module>umbrella-plugins</module> -->
     <!-- <module>examples</module> -->
-    <module>umbrella-activity</module>
+    <!-- <module>umbrella-activity</module> -->
   </modules>
 
 </project>

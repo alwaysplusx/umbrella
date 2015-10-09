@@ -35,7 +35,7 @@ import com.harmony.umbrella.ws.visitor.AbstractContextVisitor;
  */
 public class HarmonyContextVisitor extends AbstractContextVisitor {
 
-    public static final String FROM_PROPERTIES_FILE_LOCATION = "META-INF/jaxws/proxyName.properties";
+    public static final String FROM_PROPERTIES_FILE_LOCATION = "META-INF/jaxws/logName.properties";
 
     private static final Logger log = LoggerFactory.getLogger(HarmonyContextVisitor.class);
 

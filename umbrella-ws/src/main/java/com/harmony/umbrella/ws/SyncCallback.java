@@ -22,7 +22,7 @@ import java.util.Map;
  * 
  * @author wuxii@foxmail.com
  */
-public interface SyncCallback<T> {
+public interface SyncCallback<T, R> {
 
     /**
      * 回调方法之, 执行同步前
@@ -40,7 +40,7 @@ public interface SyncCallback<T> {
      * @param result
      *            同步结果
      */
-    <R> void success(T obj, R result, Map<String, Object> content);
+    void success(T obj, R result, Map<String, Object> content);
 
     /**
      * 回调方法, 同步失败

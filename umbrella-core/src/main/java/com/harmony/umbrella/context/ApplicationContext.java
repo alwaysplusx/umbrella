@@ -138,8 +138,10 @@ public abstract class ApplicationContext implements BeanFactory {
      */
     private static final ApplicationContext getApplicationContext0(Properties props) {
 
-        Properties applicationProperties = PropUtils.loadProperties(APPLICATION_PROPERTIES_LOCATION);
-        applicationProperties.putAll(props);
+        Properties applicationProperties = new Properties();
+        if (PropUtils.exists(APPLICATION_PROPERTIES_LOCATION)) {
+            applicationProperties.putAll(props);
+        }
 
         ApplicationContext context = null;
         synchronized (providers) {

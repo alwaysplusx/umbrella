@@ -19,11 +19,12 @@ import javax.ejb.Remote;
 
 import com.harmony.umbrella.ws.SyncCallback;
 import com.harmony.umbrella.ws.proxy.Proxy;
+import com.harmony.umbrella.ws.ser.Message;
 
 /**
  * @author wuxii@foxmail.com
  */
 @Remote
-public interface UserProxy extends Proxy<User>, SyncCallback<User> {
+public interface UserProxy extends Proxy<User>, SyncCallback<User, Message> {
 
 }

@@ -18,6 +18,7 @@ package com.harmony.umbrella.ws.ser;
 import static com.harmony.umbrella.ws.ser.Message.*;
 import static com.harmony.umbrella.ws.ser.ServerValidation.*;
 
+import java.net.URL;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -39,7 +40,9 @@ import com.harmony.umbrella.context.CurrentContext;
 import com.harmony.umbrella.context.MessageBundle;
 import com.harmony.umbrella.core.InvokeException;
 import com.harmony.umbrella.json.Json;
+import com.harmony.umbrella.mapper.BeanMapper;
 import com.harmony.umbrella.util.Assert;
+import com.harmony.umbrella.util.Exceptions;
 import com.harmony.umbrella.util.StringUtils;
 import com.harmony.umbrella.validator.ValidVisitor;
 import com.harmony.umbrella.validator.util.ValidatorUtils;
@@ -62,7 +65,97 @@ public abstract class ServerSupport {
 
     protected MessageBundle messageBundle = MessageBundle.getInstance("WsMessage", getLocale());
 
+    protected static final String MAPPING_LOCATION = "mapping.xml";
+
     protected boolean extract = true;
+
+    protected String getMappingLocation() {
+        return MAPPING_LOCATION;
+    }
+
+    /**
+     * 默认加载类路径下的配置文件mapping.xml
+     * 
+     * @return 对象映射工具
+     */
+    protected BeanMapper getMapper() {
+        BeanMapper mapper = null;
+        String mappingFile = getMappingLocation() == null ? MAPPING_LOCATION : getMappingLocation();
+        if (exists(mappingFile)) {
+            mapper = BeanMapper.getInstance(mappingFile);
+            LOG.debug("use mapper with file {}", mappingFile);
+        } else {
+            mapper = BeanMapper.getInstance();
+            LOG.debug("use default mapper");
+        }
+        return mapper;
+    }
+
+    private boolean exists(String mappingFile) {
+        URL result = Thread.currentThread().getContextClassLoader().getResource(mappingFile);
+        if (result == null) {
+            ClassLoader classLoader = ServerSupport.class.getClassLoader();
+            if (classLoader != null) {
+                result = classLoader.getResource(mappingFile);
+            }
+        }
+        if (result == null) {
+            result = ClassLoader.getSystemResource(mappingFile);
+        }
+        return result != null;
+    }
+
+    /**
+     * 对象映射
+     * 
+     * @param src
+     *            源对象
+     * @param destType
+     *            目标对象类型
+     * @return
+     */
+    protected <S, D> D mapping(S src, Class<D> destType) {
+        return getMapper().mapper(src, destType);
+    }
+
+    /**
+     * 对象映射
+     * 
+     * @param src
+     *            源对象
+     * @param dest
+     *            目标对象
+     * @return
+     */
+    protected <S, D> D mapping(S src, D dest) {
+        return getMapper().mapper(src, dest);
+    }
+
+    /**
+     * 对象映射
+     * 
+     * @param src
+     * @param dest
+     * @param mapId
+     *            配置文件中的mapId
+     * @return
+     */
+    protected <S, D> D mapping(S src, D dest, String mapId) {
+        return getMapper().mapper(src, dest, mapId);
+    }
+
+    /**
+     * 对象映射
+     * 
+     * @param src
+     * @param destType
+     * @param mapId
+     *            配置文件中的mapId
+     * @return
+     */
+    protected <S, D> D mapping(S src, Class<D> destType, String mapId) {
+        return getMapper().mapper(src, destType, mapId);
+    }
 
     /**
      * 便捷方法, 表示服务处理成功
@@ -102,6 +195,20 @@ public abstract class ServerSupport {
     /**
      * @see #error()
      */
+    protected Message error(Exception ex) {
+        return error(MESSAG_ERROR, ex);
+    }
+
+    /**
+     * @see #error()
+     */
+    protected Message error(String message, Exception ex) {
+        return error(message, ex, Collections.<String, String> emptyMap());
+    }
+
+    /**
+     * @see #error()
+     */
     protected Message error(String message) {
         return error(message, Collections.<String, String> emptyMap());
     }
@@ -111,6 +218,15 @@ public abstract class ServerSupport {
      */
     protected Message error(Map<String, String> content) {
         return error(MESSAG_ERROR, content);
+    }
+
+    /**
+     * @see #error()
+     */
+    protected Message error(String message, Exception ex, Map<String, String> content) {
+        StringBuilder sb = new StringBuilder(message);
+        sb.append("\n").append(Exceptions.getAllMessage(ex));
+        return error(sb.toString(), content);
     }
 
     /**
@@ -139,6 +255,29 @@ public abstract class ServerSupport {
      */
     protected Message failed(Map<String, String> content) {
         return failed(MESSAGE_FAILED, content);
+    }
+
+    /**
+     * @see #failed()
+     */
+    protected Message failed(Exception ex) {
+        return failed(MESSAGE_FAILED, ex, Collections.<String, String> emptyMap());
+    }
+
+    /**
+     * @see #failed()
+     */
+    protected Message failed(Exception ex, Map<String, String> content) {
+        return failed(MESSAGE_FAILED, ex, content);
+    }
+
+    /**
+     * @see #failed()
+     */
+    protected Message failed(String message, Exception ex, Map<String, String> content) {
+        StringBuilder sb = new StringBuilder(message);
+        sb.append("\n").append(Exceptions.getAllMessage(ex));
+        return failed(sb.toString(), content);
     }
 
     /**
@@ -206,7 +345,7 @@ public abstract class ServerSupport {
         return extractKey(obj);
     }
 
-    protected String extractKey(Object obj) {
+    private String extractKey(Object obj) {
         Map<String, Object> keys = new LinkedHashMap<String, Object>();
         MemberInvoker[] keyMembers = getKeyMembers(obj.getClass());
         for (MemberInvoker mi : keyMembers) {
@@ -217,6 +356,22 @@ public abstract class ServerSupport {
             }
         }
         return Json.toJson(keys, SerializerFeature.WriteMapNullValue);
+    }
+
+    protected boolean isValid(Iterator<Object> objs, MessageContent content) {
+        return isValid((Iterator<Object>) objs, content, (ValidVisitor<Object>) null);
+    }
+
+    protected <T> boolean isValid(Iterator<T> objs, MessageContent content, Class<?>... groups) {
+        return isValid(objs, content, null, groups);
+    }
+
+    protected <T> boolean isValid(Iterator<T> objs, MessageContent content, ValidVisitor<T> visitor, Class<?>... groups) {
+        boolean flag = true;
+        while (objs.hasNext()) {
+            flag = flag && isValid(objs.next(), content, visitor, groups);
+        }
+        return flag;
     }
 
     protected boolean isValid(Object obj, MessageContent content) {
@@ -245,7 +400,7 @@ public abstract class ServerSupport {
         } else {
             LOG.debug("valid obj[{}], use {}ns", obj, use);
         }
-        return content.containsKey(key);
+        return !content.containsKey(key);
     }
 
     protected final MemberInvoker[] getKeyMembers(Class<?> clazz) {

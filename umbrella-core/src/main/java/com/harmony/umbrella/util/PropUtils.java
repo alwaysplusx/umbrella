@@ -15,6 +15,7 @@
  */
 package com.harmony.umbrella.util;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Iterator;
@@ -33,6 +34,17 @@ import com.harmony.umbrella.io.ClassPathResource;
 public abstract class PropUtils {
 
     private static final Logger log = LoggerFactory.getLogger(PropUtils.class);
+
+    /**
+     * 判断是否存在且是资源文件
+     * 
+     * @param path
+     *            文件路径
+     */
+    public static boolean exists(String path) {
+        File file = new File(path);
+        return file.exists() && file.isFile();
+    }
 
     /**
      * 加载指定文件下的资源文件

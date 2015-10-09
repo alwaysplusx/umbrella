@@ -28,7 +28,7 @@ import com.harmony.umbrella.ws.User;
 import com.harmony.umbrella.ws.UserProxy;
 import com.harmony.umbrella.ws.UserService;
 import com.harmony.umbrella.ws.jaxws.JaxWsExecutorSupport;
-import com.harmony.umbrella.ws.proxy.ProxySupport;
+import com.harmony.umbrella.ws.ser.Message;
 
 /**
  * @author wuxii@foxmail.com
@@ -53,7 +53,7 @@ public class UserProxyBean extends ProxySupport<User> implements UserProxy {
     }
 
     @Override
-    public <R> void success(User obj, R result, Map<String, Object> content) {
+    public void success(User obj, Message result, Map<String, Object> content) {
         log.info(">>>> success, obj {}, result {}, content {}", obj, result, content);
     }
 
