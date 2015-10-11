@@ -15,7 +15,9 @@
  */
 package com.harmony.umbrella.ws.proxy;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.xml.ws.WebServiceException;
@@ -42,6 +44,8 @@ import com.harmony.umbrella.ws.support.SimpleContext;
  */
 public abstract class ProxySupport<T> implements Proxy<T> {
 
+    public static final String SERVICE_INTERFACE_NAME = ProxySupport.class.getName() + ".serviceInterfaceName";
+
     public static final String SERVICE_METHOD_NAME = ProxySupport.class.getName() + ".serviceMethodName";
 
     private static final Logger log = LoggerFactory.getLogger(ProxySupport.class);
@@ -56,13 +60,27 @@ public abstract class ProxySupport<T> implements Proxy<T> {
     /**
      * 将待同步对象封装为业务方法对于的请求参数数组，参数顺序需要与方法的要求相同
      * 
-     * @param serviceMethod
-     *            同步的业务方法
      * @param obj
      *            待同步对象
+     * @param properties
+     *            上下文中的属性
      * @return 同步方法参数数组
      */
     protected abstract Object[] packing(T obj, Map<String, Object> properties);
+
+    /**
+     * 批量同步的封装
+     * 
+     * @param objs
+     *            待同步的对象
+     * @param properties
+     *            上下文中的属性
+     * @return
+     */
+    protected Object[] packing(List<T> objs, Map<String, Object> properties) {
+        // override in sub class
+        throw new UnsupportedOperationException();
+    }
 
     @Override
     public boolean sync(T obj) {
@@ -73,7 +91,8 @@ public abstract class ProxySupport<T> implements Proxy<T> {
     public boolean sync(T obj, Map<String, Object> properties) {
         // 对待同步的对象进行过滤，如果不需要同步或者已经同步则直接返回
         if (!filter(obj)) {
-            return doSync(fetchReference(obj), properties);
+            Packer packer = new Packer(fetchReference(obj), properties);
+            return doSync(packer);
         } else {
             log.info("skip sync, sync object [{}] are filtered out", obj);
         }
@@ -81,12 +100,12 @@ public abstract class ProxySupport<T> implements Proxy<T> {
     }
 
     @Override
-    public void sync(Iterable<T> objs) {
+    public void sync(List<T> objs) {
         sync(objs, new HashMap<String, Object>());
     }
 
     @Override
-    public void sync(Iterable<T> objs, Map<String, Object> properties) {
+    public void sync(List<T> objs, Map<String, Object> properties) {
         for (T so : objs) {
             sync(so, properties);
         }
@@ -97,7 +116,7 @@ public abstract class ProxySupport<T> implements Proxy<T> {
      * @see #syncInBatch(Iterable, Map)
      */
     @Override
-    public boolean syncInBatch(Iterable<T> objs) {
+    public boolean syncInBatch(List<T> objs) {
         return syncInBatch(objs, new HashMap<String, Object>());
     }
 
@@ -108,8 +127,61 @@ public abstract class ProxySupport<T> implements Proxy<T> {
      * @see com.harmony.dark.ws.Proxy#syncInBatch(java.lang.Iterable)
      */
     @Override
-    public boolean syncInBatch(Iterable<T> objs, Map<String, Object> properties) {
-        throw new UnsupportedOperationException();
+    public boolean syncInBatch(List<T> objs, Map<String, Object> properties) {
+        List<T> list = new ArrayList<T>();
+        for (T obj : objs) {
+            if (!filter(obj)) {
+                list.add(fetchReference(obj));
+            } else {
+                log.info("skip sync, sync object [{}] are filtered out", obj);
+            }
+        }
+        if (!list.isEmpty()) {
+            return doSync(new Packer(list, properties));
+        }
+        return true;
+    }
+
+    /**
+     * 将需要同步的对象通过上下文的发送者发送给接收者
+     * 
+     * @param obj
+     *            待同步对象
+     * @return true 发送成功(不代表同步成功)
+     */
+    protected boolean doSync(Packer packer) {
+        Class<?> serviceInterface = getServiceInterface();
+        Assert.notNull(serviceInterface, "service interface is null, use @Syncable#endpoint or override getServiceInterface method");
+
+        String serviceMethod = getServiceMethod();
+        Assert.notBlank(serviceMethod, "service method is null or blank, use @Syncable#methodName or override getServiceMethod method");
+
+        SimpleContext context = new SimpleContext(serviceInterface, serviceMethod);
+
+        packer.properties.put(SERVICE_METHOD_NAME, serviceMethod);
+        packer.properties.put(SERVICE_INTERFACE_NAME, serviceInterface.getName());
+        context.putAll(packer.properties);
+
+        this.configContext(context, packer.properties);
+
+        Object[] parameters = packer.packing();
+        log.debug("sync obj [{}] packing result [{}]", packer.object, parameters);
+        context.setParameters(parameters == null ? new Object[0] : parameters);
+
+        context.setAddress(getAddress());
+        context.put(SYNC_OBJECT, packer.object);
+
+        packer.applySyncing();
+
+        log.debug("sync obj {} -> context {}", packer.object, context);
+
+        try {
+            context.getMethod();
+        } catch (NoSuchMethodException e) {
+            throw new WebServiceException("method not find " + e.getMessage(), e);
+        }
+
+        return getJaxWsExecutorSupport().send(context);
     }
 
     /**
@@ -135,44 +207,15 @@ public abstract class ProxySupport<T> implements Proxy<T> {
     }
 
     /**
-     * 将需要同步的对象通过上下文的发送者发送给接收者
+     * 将待同步的对象更新为同步中
      * 
      * @param obj
-     *            待同步对象
-     * @return true 发送成功(不代表同步成功)
+     *            待同步的对象
+     * @param name
+     *            同步的业务方法
      */
-    protected boolean doSync(T obj, Map<String, Object> properties) {
-        Class<?> serviceInterface = getServiceInterface();
-        Assert.notNull(serviceInterface, "service interface is null, use @Syncable#endpoint or override getServiceInterface method");
-
-        String serviceMethod = getServiceMethod();
-        Assert.notBlank(serviceMethod, "service method is null or blank, use @Syncable#methodName or override getServiceMethod method");
-
-        SimpleContext context = new SimpleContext(serviceInterface, serviceMethod);
-
-        properties.put(SERVICE_METHOD_NAME, serviceMethod);
-        context.putAll(properties);
-
-        this.configContext(context, properties);
-
-        Object[] parameters = packing(obj, properties);
-        log.debug("sync obj [{}] packing result [{}]", obj, parameters);
-        context.setParameters(parameters == null ? new Object[0] : parameters);
-
-        context.setAddress(getAddress());
-        context.put(SYNC_OBJECT, obj);
-
-        applySyncing(obj, properties);
-
-        log.debug("sync obj {} -> context {}", obj, context);
-
-        try {
-            context.getMethod();
-        } catch (NoSuchMethodException e) {
-            throw new WebServiceException("method not find " + e.getMessage(), e);
-        }
-
-        return getJaxWsExecutorSupport().send(context);
+    protected void applySyncing(T obj, Map<String, Object> properties) {
+        // apply syncing in sub class
     }
 
     /**
@@ -183,7 +226,10 @@ public abstract class ProxySupport<T> implements Proxy<T> {
      * @param name
      *            同步的业务方法
      */
-    protected void applySyncing(T obj, Map<String, Object> properties) {
+    protected void applySyncing(List<T> objs, Map<String, Object> properties) {
+        for (T obj : objs) {
+            applySyncing(obj, properties);
+        }
     }
 
     /**
@@ -243,4 +289,34 @@ public abstract class ProxySupport<T> implements Proxy<T> {
         }
         return null;
     }
+
+    protected final class Packer {
+
+        private final Object object;
+        private final Map<String, Object> properties = new HashMap<String, Object>();
+
+        protected Packer(Object object, Map<String, Object> properties) {
+            this.object = object;
+            this.properties.putAll(properties);
+        }
+
+        @SuppressWarnings({ "unchecked", "rawtypes" })
+        public Object[] packing() {
+            if (object instanceof List) {
+                return ProxySupport.this.packing((List) object, properties);
+            } else {
+                return ProxySupport.this.packing((T) object, properties);
+            }
+        }
+
+        @SuppressWarnings("unchecked")
+        public void applySyncing() {
+            if (object instanceof List) {
+                ProxySupport.this.applySyncing((List<T>) object, properties);
+            } else {
+                ProxySupport.this.applySyncing((T) object, properties);
+            }
+        }
+    }
+
 }

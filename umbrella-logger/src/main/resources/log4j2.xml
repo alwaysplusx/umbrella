@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<configuration>
+  <properties>
+    <property name="pattern">
+      [%p{length=4}] [%d{MM/dd HH:mm:ss,SSS}] %c{1}.%M(%F:%L) - %m%n
+    </property>
+  </properties>
+  <appenders>
+    <!-- <appender name="" type="">
+      <layout type="">
+        <pattern>${pattern}</pattern>
+      </layout>
+    </appender> -->
+    <console name="console" target="system_out">
+      <patternlayout pattern="${pattern}" />
+    </console>
+  </appenders>
+  <loggers>
+    <root level="info">
+      <appenderRef ref="console" />
+    </root>
+    <logger name="com.harmony.umbrella.test" level="debug">
+      <appenderRef ref="console" />
+    </logger>
+  </loggers>
+</configuration>

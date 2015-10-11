@@ -15,6 +15,7 @@
  */
 package com.harmony.umbrella.ws.proxy;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -81,11 +82,20 @@ public interface Proxy<T> {
 
     /**
      * 遍历所有待同步的对象，循环同步
+     * <p>
+     * 效果如下：
+     * 
+     * <pre>
+     * for (T obj : objs) {
+     *     sync(obj);
+     * }
+     * </pre>
      * 
      * @param objs
      *            待同步的objs
+     * @see Proxy#sync(Object)
      */
-    void sync(Iterable<T> objs);
+    void sync(List<T> objs);
 
     /**
      * 遍历所有待同步的对象，循环同步
@@ -94,25 +104,28 @@ public interface Proxy<T> {
      *            待同步的objs
      * @param properties
      *            同步的可利用属性，会放置在同步的上下文中.(EJB情况下需考虑对传出对象的序列化情况)
+     * @see Proxy#sync(Iterable)
+     * @see Proxy#sync(Object)
      */
-    void sync(Iterable<T> objs, Map<String, Object> properties);
+    void sync(List<T> objs, Map<String, Object> properties);
 
     /**
-     * 将所有待同步的在一次同步调用中统一同步出去(将所有的待同步对象在一次消息传递中传递出去)
+     * 将所有待同步的对象在一次同步中传输(将所有的待同步对象在一次消息传递中传递出去)
      * 
      * @param objs
      *            待同步的objs
      */
-    boolean syncInBatch(Iterable<T> objs);
+    boolean syncInBatch(List<T> objs);
 
     /**
-     * 将所有待同步的在一次同步调用中统一同步出去(将所有的待同步对象在一次消息传递中传递出去)
+     * 将所有待同步的对象在一次同步中传输(将所有的待同步对象在一次消息传递中传递出去)
      * 
      * @param objs
      *            待同步的objs
      * @param properties
      *            同步的可利用属性，会放置在同步的上下文中.(EJB情况下需考虑对传出对象的序列化情况)
+     * @see #syncInBatch(Iterable)
      */
-    boolean syncInBatch(Iterable<T> objs, Map<String, Object> properties);
-    
+    boolean syncInBatch(List<T> objs, Map<String, Object> properties);
+
 }

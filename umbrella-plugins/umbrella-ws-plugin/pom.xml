@@ -35,11 +35,6 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>com.harmony.dark</groupId>
-      <artifactId>dark-data</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
       <groupId>com.harmony.umbrella</groupId>
       <artifactId>umbrella-data</artifactId>
       <scope>provided</scope>

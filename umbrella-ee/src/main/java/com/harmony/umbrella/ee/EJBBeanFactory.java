@@ -15,8 +15,10 @@
  */
 package com.harmony.umbrella.ee;
 
+import java.lang.reflect.Field;
 import java.util.Properties;
 
+import javax.ejb.EJB;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
@@ -25,6 +27,9 @@ import com.harmony.umbrella.core.BeanFactory;
 import com.harmony.umbrella.core.NoSuchBeanFindException;
 import com.harmony.umbrella.ee.BeanResolver.BeanFilter;
 import com.harmony.umbrella.ee.resolver.InternalContextResolver;
+import com.harmony.umbrella.util.ClassUtils.ClassFilterFeature;
+import com.harmony.umbrella.util.ReflectionUtils;
+import com.harmony.umbrella.util.StringUtils;
 
 /**
  * @author wuxii@foxmail.com
@@ -74,6 +79,7 @@ public class EJBBeanFactory implements BeanFactory {
         final BeanDefinition bd = new BeanDefinition(beanClass);
         Context context = getContext();
         bean = contextResolver.guessBean(bd, context, new BeanFilter() {
+
             @Override
             public boolean accept(String jndi, Object bean) {
                 return contextResolver.isDeclareBean(bd, bean);
@@ -82,10 +88,33 @@ public class EJBBeanFactory implements BeanFactory {
         if (bean == null) {
             bean = contextResolver.search(bd, context);
         }
-        if (bean == null) {
+        if (bean == null && ClassFilterFeature.NEWABLE.accept(beanClass)) {
+            bean = ReflectionUtils.instantiateClass(beanClass);
+            fillReferenceBean(bean, beanClass);
+        } else {
             throw new NoSuchBeanFindException("can't find bean of " + beanClass);
         }
         return (T) bean;
+    }
+
+    private void fillReferenceBean(Object bean, Class<?> beanClass) {
+        Field[] fields = beanClass.getDeclaredFields();
+        for (Field field : fields) {
+            EJB ann = field.getAnnotation(EJB.class);
+            if (ann != null) {
+                BeanDefinition beanDefinition = null;
+                String mappedName = ann.mappedName();
+                if (StringUtils.isBlank(mappedName)) {
+                    beanDefinition = new BeanDefinition(beanClass, mappedName);
+                } else {
+                    beanDefinition = new BeanDefinition(beanClass);
+                }
+                SessionBean sessionBean = contextResolver.search(beanDefinition, getContext());
+                if (sessionBean == null) {
+                    throw new IllegalArgumentException("cannot get reference bean of " + field.getName());
+                }
+            }
+        }
     }
 
     private Context getContext() {
