@@ -18,8 +18,6 @@ package com.harmony.umbrella.logger;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.harmony.umbrella.test.TestLogger;
-
 /**
  * @author wuxii@foxmail.com
  */
@@ -32,9 +30,11 @@ public class LogPrint {
 
         Logger log = LogManager.getLogger(LogPrint.class);
 
-        log.info(">>>>>>>>>>>>>> main method");
+        log.info(">>>>>>>>>>>>>> log");
 
-        new TestLogger().print();
+        log.debug(">>>>>>>>>>>> debug");
+
+        // new TestLogger().print();
 
     }
 
