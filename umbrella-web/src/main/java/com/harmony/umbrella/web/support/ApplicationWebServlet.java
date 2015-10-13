@@ -13,35 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.umbrella.web;
+package com.harmony.umbrella.web.support;
 
 import java.io.IOException;
 
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * @author wuxii@foxmail.com
  */
-public class WebFilterProxy implements Filter {
+public class ApplicationWebServlet extends HttpServlet {
+
+    private static final long serialVersionUID = -6186232461484475907L;
 
     @Override
-    public void init(FilterConfig filterConfig) throws ServletException {
-        
-    }
-
-    @Override
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-
-    }
-
-    @Override
-    public void destroy() {
-
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
     }
 
 }

@@ -25,6 +25,7 @@
     <!-- <module>example-data</module>
     <module>example-ee</module>
     <module>example-shiro</module> -->
+    <module>example-web</module>
   </modules>
   <build>
     <!-- To define the plugin version in your parent POM -->
