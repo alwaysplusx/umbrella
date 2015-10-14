@@ -24,15 +24,18 @@ import com.harmony.umbrella.ws.cxf.log.LogMessageHandler;
  */
 class HarmonyLogMessageHandler implements LogMessageHandler {
 
+    private static final String SOAP_CATEGORY = "CM-100000";
+
     @Override
     public void handle(LogMessage logMessage) {
 
         String heading = logMessage.getHeading().toLowerCase();
+
         String model = heading.contains("outbound") ? "接口-Outbound" : "接口-Inbound";
 
         String result = logMessage.isException() ? "正常" : "异常";
 
-        String message = LogUtils.format(model, result, "", "", logMessage.toString());
+        String message = LogUtils.format(model, result, "", SOAP_CATEGORY, logMessage.toString());
 
         Throwable ex = logMessage.getException();
 
@@ -43,5 +46,4 @@ class HarmonyLogMessageHandler implements LogMessageHandler {
         }
 
     }
-
 }

@@ -15,8 +15,6 @@
  */
 package com.harmony.umbrella.ws.ext;
 
-import java.util.Properties;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,7 +22,6 @@ import com.harmony.modules.commons.log.Log4jUtils;
 import com.harmony.umbrella.json.Json;
 import com.harmony.umbrella.monitor.MethodGraph;
 import com.harmony.umbrella.util.Exceptions;
-import com.harmony.umbrella.util.PropUtils;
 import com.harmony.umbrella.util.StringUtils;
 import com.harmony.umbrella.ws.Context;
 import com.harmony.umbrella.ws.ProxyExecutor;
@@ -38,15 +35,6 @@ public class HarmonyContextVisitor extends AbstractContextVisitor {
     public static final String FROM_PROPERTIES_FILE_LOCATION = "META-INF/jaxws/logName.properties";
 
     private static final Logger log = LoggerFactory.getLogger(HarmonyContextVisitor.class);
-
-    /**
-     * 各个接口对应的名称, 接口类 + '.' + 方法名称
-     */
-    private final Properties fromProps = new Properties();
-
-    public HarmonyContextVisitor() {
-        fromProps.putAll(PropUtils.loadProperties(FROM_PROPERTIES_FILE_LOCATION));
-    }
 
     @Override
     public void visitFinally(Object result, Throwable throwable, Context context) {
@@ -80,7 +68,9 @@ public class HarmonyContextVisitor extends AbstractContextVisitor {
 
                 buf.append("详细参数:").append(LogUtils.parameterToJson(context.getParameters()));
 
-                log(buf.toString(), getServiceFrom(context), throwable);
+                String from = LogUtils.getServiceName(context.getServiceClass(), context.getMethodName());
+
+                log(buf.toString(), from, throwable);
 
             } catch (NoSuchMethodException e) {
                 log.error("invalid context {}", context, e);
@@ -90,15 +80,6 @@ public class HarmonyContextVisitor extends AbstractContextVisitor {
             log.warn("not context graph for context {}", context);
         }
 
-    }
-
-    private String getServiceFrom(Context context) {
-        Class<?> serviceInterface = context.getServiceInterface();
-        String key = serviceInterface.getName() + "." + context.getMethodName();
-        if (fromProps.containsKey(key)) {
-            return fromProps.getProperty(key);
-        }
-        return fromProps.getProperty(serviceInterface.getName(), "");
     }
 
     private void log(String message, String from, Throwable e) {

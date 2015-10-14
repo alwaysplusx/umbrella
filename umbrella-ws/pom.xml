@@ -20,13 +20,15 @@
       <groupId>com.harmony.modules</groupId>
       <artifactId>modules-commons</artifactId>
       <version>1.0</version>
-      <scope>provided</scope>
+      <scope>compile</scope>
+      <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>com.harmony.modules</groupId>
       <artifactId>modules-ejb</artifactId>
       <version>1.0</version>
-      <scope>provided</scope>
+      <scope>compile</scope>
+      <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>com.harmony.umbrella</groupId>
@@ -45,12 +47,6 @@
     <dependency>
       <groupId>com.harmony.umbrella</groupId>
       <artifactId>umbrella-message</artifactId>
-      <scope>compile</scope>
-      <optional>true</optional>
-    </dependency>
-    <dependency>
-      <groupId>com.harmony.umbrella</groupId>
-      <artifactId>umbrella-mapper</artifactId>
       <scope>compile</scope>
       <optional>true</optional>
     </dependency>

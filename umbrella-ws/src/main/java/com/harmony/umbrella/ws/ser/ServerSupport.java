@@ -18,9 +18,7 @@ package com.harmony.umbrella.ws.ser;
 import static com.harmony.umbrella.ws.ser.Message.*;
 import static com.harmony.umbrella.ws.ser.ServerValidation.*;
 
-import java.net.URL;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -40,7 +38,6 @@ import com.harmony.umbrella.context.CurrentContext;
 import com.harmony.umbrella.context.MessageBundle;
 import com.harmony.umbrella.core.InvokeException;
 import com.harmony.umbrella.json.Json;
-import com.harmony.umbrella.mapper.BeanMapper;
 import com.harmony.umbrella.util.Assert;
 import com.harmony.umbrella.util.Exceptions;
 import com.harmony.umbrella.util.StringUtils;
@@ -65,110 +62,20 @@ public abstract class ServerSupport {
 
     protected MessageBundle messageBundle = MessageBundle.getInstance("WsMessage", getLocale());
 
-    protected static final String MAPPING_LOCATION = "mapping.xml";
-
     protected boolean extract = true;
-
-    protected String getMappingLocation() {
-        return MAPPING_LOCATION;
-    }
-
-    /**
-     * 默认加载类路径下的配置文件mapping.xml
-     * 
-     * @return 对象映射工具
-     */
-    protected BeanMapper getMapper() {
-        BeanMapper mapper = null;
-        String mappingFile = getMappingLocation() == null ? MAPPING_LOCATION : getMappingLocation();
-        if (exists(mappingFile)) {
-            mapper = BeanMapper.getInstance(mappingFile);
-            LOG.debug("use mapper with file {}", mappingFile);
-        } else {
-            mapper = BeanMapper.getInstance();
-            LOG.debug("use default mapper");
-        }
-        return mapper;
-    }
-
-    private boolean exists(String mappingFile) {
-        URL result = Thread.currentThread().getContextClassLoader().getResource(mappingFile);
-        if (result == null) {
-            ClassLoader classLoader = ServerSupport.class.getClassLoader();
-            if (classLoader != null) {
-                result = classLoader.getResource(mappingFile);
-            }
-        }
-        if (result == null) {
-            result = ClassLoader.getSystemResource(mappingFile);
-        }
-        return result != null;
-    }
-
-    /**
-     * 对象映射
-     * 
-     * @param src
-     *            源对象
-     * @param destType
-     *            目标对象类型
-     * @return
-     */
-    protected <S, D> D mapping(S src, Class<D> destType) {
-        return getMapper().mapper(src, destType);
-    }
-
-    /**
-     * 对象映射
-     * 
-     * @param src
-     *            源对象
-     * @param dest
-     *            目标对象
-     * @return
-     */
-    protected <S, D> D mapping(S src, D dest) {
-        return getMapper().mapper(src, dest);
-    }
-
-    /**
-     * 对象映射
-     * 
-     * @param src
-     * @param dest
-     * @param mapId
-     *            配置文件中的mapId
-     * @return
-     */
-    protected <S, D> D mapping(S src, D dest, String mapId) {
-        return getMapper().mapper(src, dest, mapId);
-    }
-
-    /**
-     * 对象映射
-     * 
-     * @param src
-     * @param destType
-     * @param mapId
-     *            配置文件中的mapId
-     * @return
-     */
-    protected <S, D> D mapping(S src, Class<D> destType, String mapId) {
-        return getMapper().mapper(src, destType, mapId);
-    }
 
     /**
      * 便捷方法, 表示服务处理成功
      */
     protected Message success() {
-        return success(MESSAGE_SUCCESS, Collections.<String, String> emptyMap());
+        return success(MESSAGE_SUCCESS, new HashMap<String, String>());
     }
 
     /**
      * @see #success()
      */
     protected Message success(String message) {
-        return success(message, Collections.<String, String> emptyMap());
+        return success(message, new HashMap<String, String>());
     }
 
     /**
@@ -189,7 +96,7 @@ public abstract class ServerSupport {
      * 便捷方法，表示服务处理异常
      */
     protected Message error() {
-        return error(MESSAG_ERROR, Collections.<String, String> emptyMap());
+        return error(MESSAG_ERROR, new HashMap<String, String>());
     }
 
     /**
@@ -203,14 +110,14 @@ public abstract class ServerSupport {
      * @see #error()
      */
     protected Message error(String message, Exception ex) {
-        return error(message, ex, Collections.<String, String> emptyMap());
+        return error(message, ex, new HashMap<String, String>());
     }
 
     /**
      * @see #error()
      */
     protected Message error(String message) {
-        return error(message, Collections.<String, String> emptyMap());
+        return error(message, new HashMap<String, String>());
     }
 
     /**
@@ -224,9 +131,8 @@ public abstract class ServerSupport {
      * @see #error()
      */
     protected Message error(String message, Exception ex, Map<String, String> content) {
-        StringBuilder sb = new StringBuilder(message);
-        sb.append("\n").append(Exceptions.getAllMessage(ex));
-        return error(sb.toString(), content);
+        append(ex.getClass().getName(), Exceptions.getAllMessage(ex), content);
+        return error(message, content);
     }
 
     /**
@@ -247,7 +153,7 @@ public abstract class ServerSupport {
      * @see #failed()
      */
     protected Message failed(String message) {
-        return failed(message, Collections.<String, String> emptyMap());
+        return failed(message, new HashMap<String, String>());
     }
 
     /**
@@ -261,7 +167,7 @@ public abstract class ServerSupport {
      * @see #failed()
      */
     protected Message failed(Exception ex) {
-        return failed(MESSAGE_FAILED, ex, Collections.<String, String> emptyMap());
+        return failed(MESSAGE_FAILED, ex, new HashMap<String, String>());
     }
 
     /**
@@ -275,9 +181,8 @@ public abstract class ServerSupport {
      * @see #failed()
      */
     protected Message failed(String message, Exception ex, Map<String, String> content) {
-        StringBuilder sb = new StringBuilder(message);
-        sb.append("\n").append(Exceptions.getAllMessage(ex));
-        return failed(sb.toString(), content);
+        append(ex.getClass().getName(), Exceptions.getAllMessage(ex), content);
+        return failed(message, content);
     }
 
     /**
@@ -285,6 +190,15 @@ public abstract class ServerSupport {
      */
     protected Message failed(String message, Map<String, String> content) {
         return buildMessage(message, E, content);
+    }
+
+    private void append(String key, String value, Map<String, String> content) {
+        String msg = content.get(key);
+        if (StringUtils.isBlank(msg)) {
+            content.put(key, value);
+        } else {
+            content.put(key, String.format("%s, %s", msg, value));
+        }
     }
 
     private Message buildMessage(String message, String type, Map<String, String> content) {

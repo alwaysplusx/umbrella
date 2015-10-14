@@ -15,6 +15,8 @@
  */
 package com.harmony.umbrella.ws.ext;
 
+import static com.harmony.umbrella.ws.WsConstants.*;
+
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -24,6 +26,40 @@ import com.harmony.umbrella.json.Json;
  * @author wuxii@foxmail.com
  */
 public class LogUtils {
+
+    /**
+     * 根据服务类名以及方法名获取服务对应的中文名称
+     * 
+     * @param serviceClass
+     *            服务类
+     * @param methodName
+     *            服务的方法
+     * @return 服务的中文名称, 如果没有找到返回 serviceClass + methodName
+     */
+    public static final String getServiceName(Class<?> serviceClass, String methodName) {
+        return getLogFromName(serviceClass, methodName);
+    }
+
+    /**
+     * 根据服务类名以及方法名获取服务对应的中文名称
+     * 
+     * @param proxyClass
+     *            服务类
+     * @param methodName
+     *            服务的方法
+     * @return 服务的中文名称, 如果没有找到返回 proxyClass + methodName
+     */
+    public static final String getProxyName(Class<?> proxyClass, String methodName) {
+        return getLogFromName(proxyClass, methodName);
+    }
+
+    private static final String getLogFromName(Class<?> clazz, String methodName) {
+        String key = clazz.getName() + "." + methodName;
+        if (containsKey(key)) {
+            return getProperty(key);
+        }
+        return getProperty(clazz.getName(), key);
+    }
 
     /**
      * @param model
