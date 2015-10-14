@@ -16,6 +16,8 @@
 package com.harmony.umbrella.web.support;
 
 import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -29,13 +31,16 @@ import javax.servlet.http.HttpServletResponse;
 import com.harmony.umbrella.context.ApplicationContext;
 import com.harmony.umbrella.context.CurrentContext;
 import com.harmony.umbrella.context.DefaultHttpCurrentContext;
+import com.harmony.umbrella.web.util.FrontUtils;
 
 /**
  * @author wuxii@foxmail.com
  */
-public class ApplicationWebFilter implements Filter {
+public class CurrentContextFilter implements Filter {
 
     private ApplicationContext context;
+
+    private Set<String> excludeUrls = new HashSet<String>();
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
@@ -44,22 +49,39 @@ public class ApplicationWebFilter implements Filter {
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        HttpServletRequest req = (HttpServletRequest) request;
-        HttpServletResponse resp = (HttpServletResponse) response;
+        String requestUrl = FrontUtils.getRequestUrl((HttpServletRequest) request);
 
-        CurrentContext occ = context.getCurrentContext();
+        if (!excludeUrls.contains(requestUrl)) {
 
-        try {
-            context.setCurrentContext(new DefaultHttpCurrentContext(req, resp));
+            HttpServletRequest req = (HttpServletRequest) request;
+            HttpServletResponse resp = (HttpServletResponse) response;
+
+            CurrentContext occ = context.getCurrentContext();
+
+            try {
+                context.setCurrentContext(new DefaultHttpCurrentContext(req, resp));
+                chain.doFilter(request, response);
+            } finally {
+                context.setCurrentContext(occ);
+            }
+
+        } else {
             chain.doFilter(request, response);
-        } finally {
-            context.setCurrentContext(occ);
         }
 
     }
 
     @Override
     public void destroy() {
+    }
+
+    public Set<String> getExcludeUrls() {
+        return excludeUrls;
+    }
+
+    public void setExcludeUrls(Set<String> excludeUrls) {
+        this.excludeUrls.clear();
+        this.excludeUrls.addAll(excludeUrls);
     }
 
 }

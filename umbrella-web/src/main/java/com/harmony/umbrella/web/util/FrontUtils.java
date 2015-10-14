@@ -20,6 +20,8 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.servlet.http.HttpServletRequest;
+
 import com.alibaba.fastjson.serializer.SerializeFilter;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.harmony.umbrella.data.domain.Page;
@@ -32,6 +34,10 @@ import com.harmony.umbrella.json.serializer.SimplePropertyNameFilter;
 public abstract class FrontUtils {
 
     private static final Set<String> DEFAULT_EXCLUDES = new HashSet<String>(Arrays.asList("*.id", "*.new"));
+
+    public static String getRequestUrl(HttpServletRequest request) {
+        return request.getRequestURL().toString();
+    }
 
     /**
      * 将page包装为前台需要的样子

@@ -25,6 +25,7 @@ import com.harmony.umbrella.util.Exceptions;
 import com.harmony.umbrella.util.StringUtils;
 import com.harmony.umbrella.ws.Context;
 import com.harmony.umbrella.ws.ProxyExecutor;
+import com.harmony.umbrella.ws.WsConstants;
 import com.harmony.umbrella.ws.visitor.AbstractContextVisitor;
 
 /**
@@ -32,7 +33,7 @@ import com.harmony.umbrella.ws.visitor.AbstractContextVisitor;
  */
 public class HarmonyContextVisitor extends AbstractContextVisitor {
 
-    public static final String FROM_PROPERTIES_FILE_LOCATION = "META-INF/jaxws/logName.properties";
+    public static final String FROM_PROPERTIES_FILE_LOCATION = WsConstants.WS_PROPERTIES_FILE_LOCATION;
 
     private static final Logger log = LoggerFactory.getLogger(HarmonyContextVisitor.class);
 

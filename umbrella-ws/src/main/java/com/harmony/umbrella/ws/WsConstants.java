@@ -26,6 +26,34 @@ public class WsConstants {
 
     public static final String WS_PROPERTIES_FILE_LOCATION = "ws.properties";
 
+    public static final String SERVER_CATEGORY = "WS-100000";
+
+    public static final String PROXY_CATEGORY = "WP-100000";
+
+    public static final String SOAP_CATEGORY = "SP-1000000";
+
+    /**
+     * not require, 不需要同步 = -1
+     */
+    public static final int SYNC_NOT_REQUIRED = -1;
+
+    /**
+     * not yet, 未同步 = 1
+     */
+    public static final int SYNC_NOT_YET = 1;
+    /**
+     * syncing, 正在同步中 = 2
+     */
+    public static final int SYNC_SYNCING = 2;
+    /**
+     * sync completed， 同步完成 = 3
+     */
+    public static final int SYNC_COMPLETED = 3;
+    /**
+     * sync exception, 同步异常 = 4
+     */
+    public static final int SYNC_EXCEPTION = 4;
+
     private static final Properties WS_PROPERTIES = new Properties();
 
     static {

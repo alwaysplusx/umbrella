@@ -16,6 +16,7 @@
 package com.harmony.umbrella.ws.ext;
 
 import com.harmony.modules.commons.log.Log4jUtils;
+import com.harmony.umbrella.ws.WsConstants;
 import com.harmony.umbrella.ws.cxf.log.LogMessage;
 import com.harmony.umbrella.ws.cxf.log.LogMessageHandler;
 
@@ -24,7 +25,7 @@ import com.harmony.umbrella.ws.cxf.log.LogMessageHandler;
  */
 class HarmonyLogMessageHandler implements LogMessageHandler {
 
-    private static final String SOAP_CATEGORY = "CM-100000";
+    private static final String soapCategory = WsConstants.SOAP_CATEGORY;
 
     @Override
     public void handle(LogMessage logMessage) {
@@ -35,7 +36,7 @@ class HarmonyLogMessageHandler implements LogMessageHandler {
 
         String result = logMessage.isException() ? "正常" : "异常";
 
-        String message = LogUtils.format(model, result, "", SOAP_CATEGORY, logMessage.toString());
+        String message = LogUtils.format(model, result, "", soapCategory, logMessage.toString());
 
         Throwable ex = logMessage.getException();
 
