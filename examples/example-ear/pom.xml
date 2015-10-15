@@ -25,7 +25,23 @@
     </dependency> -->
     <dependency>
       <groupId>com.harmony.umbrella</groupId>
+      <artifactId>umbrella-ws</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.harmony.umbrella</groupId>
       <artifactId>umbrella-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.harmony.umbrella</groupId>
+      <artifactId>umbrella-mapper</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>net.sf.dozer</groupId>
+      <artifactId>dozer</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.harmony.umbrella</groupId>
+      <artifactId>umbrella-validator</artifactId>
     </dependency>
     <!-- <dependency>
       <groupId>com.harmony.umbrella</groupId>
@@ -53,7 +69,27 @@
             </ejbModule>
             <jarModule>
               <groupId>com.harmony.umbrella</groupId>
+              <artifactId>umbrella-ws</artifactId>
+              <bundleDir>APP-INF/lib</bundleDir>
+            </jarModule>
+            <jarModule>
+              <groupId>com.harmony.umbrella</groupId>
               <artifactId>umbrella-core</artifactId>
+              <bundleDir>APP-INF/lib</bundleDir>
+            </jarModule>
+            <jarModule>
+              <groupId>net.sf.dozer</groupId>
+              <artifactId>dozer</artifactId>
+              <bundleDir>APP-INF/lib</bundleDir>
+            </jarModule>
+            <jarModule>
+              <groupId>com.harmony.umbrella</groupId>
+              <artifactId>umbrella-mapper</artifactId>
+              <bundleDir>APP-INF/lib</bundleDir>
+            </jarModule>
+            <jarModule>
+              <groupId>com.harmony.umbrella</groupId>
+              <artifactId>umbrella-validator</artifactId>
               <bundleDir>APP-INF/lib</bundleDir>
             </jarModule>
             <!-- <jarModule>

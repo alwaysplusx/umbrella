@@ -16,7 +16,22 @@
     </dependency>
     <dependency>
       <groupId>com.harmony.umbrella</groupId>
+      <artifactId>umbrella-ws</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.harmony.umbrella</groupId>
       <artifactId>umbrella-ee</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.harmony.umbrella</groupId>
+      <artifactId>umbrella-mapper</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.harmony.umbrella</groupId>
+      <artifactId>umbrella-validator</artifactId>
       <scope>provided</scope>
     </dependency>
     <dependency>

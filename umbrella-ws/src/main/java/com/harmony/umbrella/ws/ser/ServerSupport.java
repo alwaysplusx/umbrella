@@ -317,7 +317,7 @@ public abstract class ServerSupport {
         return !content.containsKey(key);
     }
 
-    protected final MemberInvoker[] getKeyMembers(Class<?> clazz) {
+    private MemberInvoker[] getKeyMembers(Class<?> clazz) {
         List<MemberInvoker> result = keyMembers.get(clazz);
         if (result == null) {
             result = Arrays.asList(getKeyMemberSortByKey(clazz));
