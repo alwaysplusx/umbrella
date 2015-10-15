@@ -19,6 +19,7 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.harmony.umbrella.util.ClassUtils;
 import com.harmony.umbrella.util.ReflectionUtils;
 
 /**
@@ -35,7 +36,7 @@ public class SimpleBeanFactory implements BeanFactory, Serializable {
 	@Override
 	public <T> T getBean(String beanName) {
 		try {
-			Class<?> clazz = Class.forName(beanName);
+			Class<?> clazz = ClassUtils.forName(beanName);
 			return (T) getBean(clazz, SINGLETON);
 		} catch (ClassNotFoundException e) {
 			throw new NoSuchBeanFindException(e.getMessage(), e);
@@ -46,7 +47,7 @@ public class SimpleBeanFactory implements BeanFactory, Serializable {
 	@Override
 	public <T> T getBean(String beanName, String scope) {
 		try {
-			Class<?> clazz = Class.forName(beanName);
+			Class<?> clazz = ClassUtils.forName(beanName);
 			return (T) getBean(clazz, scope);
 		} catch (ClassNotFoundException e) {
 			throw new NoSuchBeanFindException(e.getMessage(), e);

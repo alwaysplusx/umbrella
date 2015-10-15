@@ -32,10 +32,10 @@ public class ResourceManagerTest {
             System.out.println(resource.toString());
         }
 
-        /*Class<?>[] classes = ResourceManager.getInstance().getClasses("com.harmony");
+        Class<?>[] classes = ResourceManager.getInstance().getClasses("com.harmony");
         for (Class<?> clazz : classes) {
             System.out.println(clazz.getName());
-        }*/
+        }
 
     }
 

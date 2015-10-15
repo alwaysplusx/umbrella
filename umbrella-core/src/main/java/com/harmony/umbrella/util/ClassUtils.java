@@ -260,8 +260,21 @@ public abstract class ClassUtils {
      *             if the class file could not be loaded
      * @see Class#forName(String, boolean, ClassLoader)
      */
-    public static Class<?> forName(String name, ClassLoader classLoader) throws ClassNotFoundException, LinkageError {
-        return Class.forName(name);
+    public static Class<?> forName(String name, ClassLoader classLoader) throws ClassNotFoundException {
+        return Class.forName(name, true, classLoader);
+    }
+    
+    /**
+     * for name，use default {@linkplain #getDefaultClassLoader() classLoader}
+     * 
+     * @param name
+     *            类名
+     * @return 类
+     * @throws ClassNotFoundException
+     * @see {@link #forName(String, ClassLoader)}
+     */
+    public static Class<?> forName(String name) throws ClassNotFoundException {
+        return forName(name, getDefaultClassLoader());
     }
 
     static Class<?> getRealClass(Class<?> clazz) {

@@ -17,20 +17,20 @@
       <version>${project.version}</version>
       <type>ejb</type>
     </dependency>
-    <dependency>
+    <!-- <dependency>
       <groupId>com.harmony.umbrella.examples</groupId>
       <artifactId>example-war</artifactId>
       <version>${project.version}</version>
       <type>war</type>
-    </dependency>
+    </dependency> -->
     <dependency>
       <groupId>com.harmony.umbrella</groupId>
       <artifactId>umbrella-core</artifactId>
     </dependency>
-    <dependency>
+    <!-- <dependency>
       <groupId>com.harmony.umbrella</groupId>
       <artifactId>umbrella-ee</artifactId>
-    </dependency>
+    </dependency> -->
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-log4j12</artifactId>
@@ -47,11 +47,6 @@
           <generateApplicationXml>true</generateApplicationXml>
           <version>6</version>
           <modules>
-            <webModule>
-              <groupId>com.harmony.umbrella.examples</groupId>
-              <artifactId>example-war</artifactId>
-              <contextRoot>/example-war</contextRoot>
-            </webModule>
             <ejbModule>
               <groupId>com.harmony.umbrella.examples</groupId>
               <artifactId>example-ejb</artifactId>
@@ -61,11 +56,11 @@
               <artifactId>umbrella-core</artifactId>
               <bundleDir>APP-INF/lib</bundleDir>
             </jarModule>
-            <jarModule>
+            <!-- <jarModule>
               <groupId>com.harmony.umbrella</groupId>
               <artifactId>umbrella-ee</artifactId>
               <bundleDir>APP-INF/lib</bundleDir>
-            </jarModule>
+            </jarModule> -->
             <jarModule>
               <groupId>org.slf4j</groupId>
               <artifactId>slf4j-log4j12</artifactId>

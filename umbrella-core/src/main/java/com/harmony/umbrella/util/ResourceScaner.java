@@ -162,6 +162,7 @@ public abstract class ResourceScaner {
     private static Collection<Resource> sortResource(Collection<Resource> resources) {
         List<Resource> result = new ArrayList<Resource>(resources);
         Collections.sort(result, new Comparator<Resource>() {
+
             @Override
             public int compare(Resource o1, Resource o2) {
                 return o1.toString().compareTo(o2.toString());
@@ -174,6 +175,7 @@ public abstract class ResourceScaner {
     private static Collection<Class<?>> sortClass(Collection<Class<?>> classes) {
         List<Class<?>> result = new ArrayList<Class<?>>(classes);
         Collections.sort(result, new Comparator<Class>() {
+
             @Override
             public int compare(Class o1, Class o2) {
                 return o1.getName().compareTo(o2.getName());
@@ -284,7 +286,7 @@ public abstract class ResourceScaner {
      */
     private static Class<?> forName(String className) {
         try {
-            return Class.forName(className);
+            return Class.forName(className, true, ClassUtils.getDefaultClassLoader());
         } catch (Exception e) {
             return null;
         } catch (NoClassDefFoundError e) {
