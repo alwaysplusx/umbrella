@@ -47,6 +47,13 @@ public interface Graph {
     String getOperator();
 
     /**
+     * 视图大类别
+     * 
+     * @return 视图大类
+     */
+    String getCategory();
+
+    /**
      * 监控的级别
      * 
      * @return 监控级

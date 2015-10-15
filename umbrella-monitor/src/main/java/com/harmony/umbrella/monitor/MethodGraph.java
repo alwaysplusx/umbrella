@@ -42,6 +42,13 @@ public interface MethodGraph extends Graph {
     Object getTarget();
 
     /**
+     * 获取目标类
+     * 
+     * @return target class
+     */
+    Class<?> getTargetClass();
+
+    /**
      * 拦截的方法
      * 
      * @return method

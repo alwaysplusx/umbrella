@@ -20,10 +20,13 @@ package com.harmony.umbrella.monitor;
  * <p>
  * 监控的结果信息由{@linkplain Monitor}生成
  * 
+ * @deprecated replace by {@linkplain GraphListener}
+ * 
  * @param <T>
  *            被解析的监控视图类型
  * @author wuxii@foxmail.com
  */
+@Deprecated
 public interface GraphAnalyzer<T extends Graph> {
 
     /**

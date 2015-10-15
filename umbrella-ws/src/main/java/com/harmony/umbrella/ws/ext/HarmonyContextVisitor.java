@@ -15,84 +15,83 @@
  */
 package com.harmony.umbrella.ws.ext;
 
+import java.lang.reflect.Method;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.harmony.modules.commons.log.Log4jUtils;
 import com.harmony.umbrella.json.Json;
 import com.harmony.umbrella.monitor.MethodGraph;
+import com.harmony.umbrella.monitor.ext.LogUtils;
+import com.harmony.umbrella.monitor.ext.LogUtils.GraphFormat;
 import com.harmony.umbrella.util.Exceptions;
 import com.harmony.umbrella.util.StringUtils;
 import com.harmony.umbrella.ws.Context;
 import com.harmony.umbrella.ws.ProxyExecutor;
-import com.harmony.umbrella.ws.WsConstants;
 import com.harmony.umbrella.ws.visitor.AbstractContextVisitor;
 
 /**
+ * 客户端同步部分的日志记录工具类
+ * 
  * @author wuxii@foxmail.com
  */
 public class HarmonyContextVisitor extends AbstractContextVisitor {
 
-    public static final String FROM_PROPERTIES_FILE_LOCATION = WsConstants.WS_PROPERTIES_FILE_LOCATION;
-
     private static final Logger log = LoggerFactory.getLogger(HarmonyContextVisitor.class);
 
     @Override
-    public void visitFinally(Object result, Throwable throwable, Context context) {
+    public void visitFinally(Object result, Throwable throwable, final Context context) {
         MethodGraph graph = (MethodGraph) context.get(ProxyExecutor.WS_EXECUTION_GRAPH);
 
         if (graph != null) {
 
-            StringBuilder buf = new StringBuilder();
+            LogUtils.log(graph, new GraphFormat<MethodGraph>() {
 
-            try {
+                @Override
+                public String format(MethodGraph graph) {
 
-                buf.append("接口名称:").append(StringUtils.getMethodId(context.getMethod())).append("\n");
-                buf.append("服务地址:").append(context.getAddress()).append("\n");
+                    StringBuilder buf = new StringBuilder();
+                    try {
 
-                String username = context.getUsername();
-                if (username != null) {
-                    buf.append("用户名称:").append(username).append("\n");
+                        buf.append("接口名称:").append(StringUtils.getMethodId(context.getMethod())).append("\n");
+                        buf.append("服务地址:").append(context.getAddress()).append("\n");
+
+                        String username = context.getUsername();
+                        if (username != null) {
+                            buf.append("用户名称:").append(username).append("\n");
+                        }
+
+                        String password = context.getPassword();
+                        if (password != null) {
+                            buf.append("用户密码:").append(password).append("\n");
+                        }
+
+                        buf.append("详细参数:").append(LogUtils.parameterToJson(graph.getMethodArguments())).append("\n");
+                        buf.append("返回结果:");
+                        Method method = graph.getMethod();
+                        if (method.getReturnType() == void.class) {
+                            buf.append("(void)");
+                        } else {
+                            buf.append(Json.toJson(graph.getMethodResult()));
+                        }
+                        buf.append("\n");
+
+                        buf.append("交互耗时:").append(graph.use()).append("ms\n");
+
+                        if (graph.isException()) {
+                            buf.append("异常信息:").append(Exceptions.getRootCause(graph.getException())).append("\n");
+                        }
+
+                    } catch (NoSuchMethodException e) {
+                        log.warn("", e);
+                    }
+
+                    return buf.toString();
                 }
 
-                String password = context.getPassword();
-                if (password != null) {
-                    buf.append("用户密码:").append(password).append("\n");
-                }
+            });
 
-                buf.append("交互耗时:").append(graph.use()).append("ms\n");
-                buf.append("返回结果:").append(Json.toJson(graph.getMethodResult())).append("\n");
-
-                if (graph.isException()) {
-                    buf.append("异常信息:").append(Exceptions.getRootCause(graph.getException())).append("\n");
-                }
-
-                buf.append("详细参数:").append(LogUtils.parameterToJson(context.getParameters()));
-
-                String from = LogUtils.getServiceName(context.getServiceClass(), context.getMethodName());
-
-                log(buf.toString(), from, throwable);
-
-            } catch (NoSuchMethodException e) {
-                log.error("invalid context {}", context, e);
-            }
-
-        } else {
-            log.warn("not context graph for context {}", context);
         }
-
     }
 
-    private void log(String message, String from, Throwable e) {
-
-        String result = e == null ? "无系统异常" : "异常";
-        String logMessage = LogUtils.format("接口同步", result, from, "WP-100000", message);
-
-        if (e != null) {
-            Log4jUtils.logSysError(logMessage, e);
-        } else {
-            Log4jUtils.logSysInfo(logMessage, null);
-        }
-
-    }
 }

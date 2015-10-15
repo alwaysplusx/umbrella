@@ -29,7 +29,7 @@ public abstract class Constants {
 
     private static final String UMBRELLA_PROPERTIES_LOCATION = "umbrella.properties";
 
-    private static final Properties globalProperties = new Properties();
+    protected static final Properties globalProperties = new Properties();
 
     public static final String DEFAULT_PACKAGE;
 
@@ -51,6 +51,10 @@ public abstract class Constants {
             }
         }
         return props;
+    }
+
+    public static final boolean containsKey(String key) {
+        return globalProperties.containsKey(key);
     }
 
     public static final String getProperty(String key) {

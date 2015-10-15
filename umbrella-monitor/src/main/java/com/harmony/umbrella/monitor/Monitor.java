@@ -66,6 +66,7 @@ public interface Monitor<T> {
      * 
      * @param resource
      *            待检测的资源
+     * @return true需要监控
      */
     boolean isMonitored(T resource);
 

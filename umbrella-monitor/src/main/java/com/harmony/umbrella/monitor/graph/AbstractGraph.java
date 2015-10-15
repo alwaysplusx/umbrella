@@ -57,6 +57,8 @@ public abstract class AbstractGraph implements Graph, Serializable {
 
     protected String operator;
 
+    protected String category;
+
     protected Level level;
 
     public AbstractGraph(String identifier) {
@@ -123,6 +125,11 @@ public abstract class AbstractGraph implements Graph, Serializable {
     }
 
     @Override
+    public String getCategory() {
+        return category;
+    }
+
+    @Override
     public Level getLevel() {
         return level;
     }
@@ -133,6 +140,10 @@ public abstract class AbstractGraph implements Graph, Serializable {
 
     public void setOperator(String operator) {
         this.operator = operator;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
     }
 
     public void setException(Exception exception) {

@@ -16,7 +16,9 @@
 package com.harmony.umbrella.monitor.support;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -26,6 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.harmony.umbrella.monitor.AbstractMonitor;
+import com.harmony.umbrella.monitor.GraphListener;
 import com.harmony.umbrella.monitor.HttpAttacker;
 import com.harmony.umbrella.monitor.HttpGraph;
 import com.harmony.umbrella.monitor.HttpMonitor;
@@ -48,6 +51,8 @@ public abstract class AbstractHttpMonitor<N> extends AbstractMonitor<String> imp
 
     protected static final Logger LOG = LoggerFactory.getLogger(AbstractHttpMonitor.class);
 
+    protected List<GraphListener<HttpGraph>> graphListeners = new ArrayList<GraphListener<HttpGraph>>();
+
     private ResourceMatcher<String> resourceMatcher;
 
     /**
@@ -63,7 +68,7 @@ public abstract class AbstractHttpMonitor<N> extends AbstractMonitor<String> imp
      * {@linkplain #monitor(HttpServletRequest, HttpServletResponse, Object)}
      *
      * @param resourceId
-     *         监视的资源
+     *            监视的资源
      */
     protected boolean preMonitor(String resourceId) {
         return isMonitored(resourceId);
@@ -74,13 +79,13 @@ public abstract class AbstractHttpMonitor<N> extends AbstractMonitor<String> imp
      * {@linkplain #monitor(HttpServletRequest, HttpServletResponse, Object)}
      *
      * @param resourceId
-     *         资源唯一键
+     *            资源唯一键
      * @param request
-     *         http请求
+     *            http请求
      * @param response
-     *         http应答
+     *            http应答
      * @param nexus
-     *         FilterChain
+     *            FilterChain
      * @throws Exception
      */
     protected abstract Object aroundMonitor(String resourceId, HttpServletRequest request, HttpServletResponse response, N nexus) throws Exception;
@@ -89,11 +94,11 @@ public abstract class AbstractHttpMonitor<N> extends AbstractMonitor<String> imp
      * 连接执行过程
      *
      * @param request
-     *         http请求
+     *            http请求
      * @param response
-     *         http应答
+     *            http应答
      * @param nexus
-     *         连接
+     *            连接
      */
     protected abstract Object process(HttpServletRequest request, HttpServletResponse response, N nexus) throws Exception;
 
@@ -118,11 +123,11 @@ public abstract class AbstractHttpMonitor<N> extends AbstractMonitor<String> imp
      * 通过方法上的注解设置graph的监控内容
      *
      * @param graph
-     *         监控的视图
+     *            监控的视图
      * @param request
-     *         监控请求
+     *            监控请求
      * @param method
-     *         监控的方法
+     *            监控的方法
      */
     protected void applyHttpRequestProperty(AbstractGraph graph, HttpServletRequest request, Method method) {
         Map<String, Object> property = attackHttpProperty(request, method, Mode.IN);
@@ -135,11 +140,11 @@ public abstract class AbstractHttpMonitor<N> extends AbstractMonitor<String> imp
      * 通过方法上的注解信息设置graph的监控内容
      *
      * @param graph
-     *         graph的视图
+     *            graph的视图
      * @param request
-     *         监控请求
+     *            监控请求
      * @param method
-     *         监控方法
+     *            监控方法
      */
     protected void applyHttpResponseProperty(AbstractGraph graph, HttpServletRequest request, Method method) {
         Map<String, Object> property = attackHttpProperty(request, method, Mode.OUT);
@@ -152,7 +157,7 @@ public abstract class AbstractHttpMonitor<N> extends AbstractMonitor<String> imp
      * 通过方法上的注解获取request中的属性
      *
      * @param request
-     *         http request
+     *            http request
      */
     public Map<String, Object> attackHttpProperty(HttpServletRequest request, Method method, Mode mode) {
         Map<String, Object> result = new HashMap<String, Object>();
@@ -173,9 +178,9 @@ public abstract class AbstractHttpMonitor<N> extends AbstractMonitor<String> imp
      * 设置http请求属性, http method, remote address, local address
      *
      * @param graph
-     *         graph
+     *            graph
      * @param request
-     *         http request
+     *            http request
      */
     protected void applyHttpRequestFeature(HybridGraph graph, HttpServletRequest request) {
         graph.setHttpMethod(request.getMethod());
@@ -188,9 +193,9 @@ public abstract class AbstractHttpMonitor<N> extends AbstractMonitor<String> imp
      * 设置http请求属性, http method, remote address, local address
      *
      * @param graph
-     *         graph
+     *            graph
      * @param request
-     *         http request
+     *            http request
      */
     protected void applyHttpRequestFeature(DefaultHttpGraph graph, HttpServletRequest request) {
         graph.setHttpMethod(request.getMethod());
@@ -221,8 +226,18 @@ public abstract class AbstractHttpMonitor<N> extends AbstractMonitor<String> imp
     }
 
     @Override
+    public void cleanAll() {
+        this.graphListeners.clear();
+        super.cleanAll();
+    }
+
+    @Override
     public void destroy() {
         this.cleanAll();
+    }
+
+    public void setGraphListeners(List<GraphListener<HttpGraph>> graphListeners) {
+        this.graphListeners = graphListeners;
     }
 
 }

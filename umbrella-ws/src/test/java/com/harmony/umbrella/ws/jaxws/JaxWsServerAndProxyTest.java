@@ -23,7 +23,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.harmony.umbrella.ws.AsyncCallback;
-import com.harmony.umbrella.ws.WsConstants;
 import com.harmony.umbrella.ws.cxf.interceptor.MessageInInterceptor;
 import com.harmony.umbrella.ws.cxf.interceptor.MessageOutInterceptor;
 import com.harmony.umbrella.ws.services.HelloService;
@@ -67,11 +66,6 @@ public class JaxWsServerAndProxyTest {
             }
         });
         assertEquals(1, count);
-    }
-
-    public static void main(String[] args) {
-        String key = WsConstants.getProperty("http://localhost:8080/hello");
-        System.out.println(key);
     }
 
 }

@@ -9,7 +9,28 @@
   </parent>
   <name>Harmony Umbrella :: Module of Monitor</name>
   <artifactId>umbrella-monitor</artifactId>
+  <repositories>
+    <repository>
+      <id>harmony-local</id>
+      <name>Harmony Local Dependencies</name>
+      <url>file://${project.basedir}/../maven-local</url>
+    </repository>
+  </repositories>
   <dependencies>
+    <dependency>
+      <groupId>com.harmony.modules</groupId>
+      <artifactId>modules-commons</artifactId>
+      <version>1.0</version>
+      <scope>compile</scope>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>com.harmony.modules</groupId>
+      <artifactId>modules-ejb</artifactId>
+      <version>1.0</version>
+      <scope>compile</scope>
+      <optional>true</optional>
+    </dependency>
     <dependency>
       <groupId>com.harmony.umbrella</groupId>
       <artifactId>umbrella-core</artifactId>
@@ -44,21 +65,10 @@
       <artifactId>junit</artifactId>
       <scope>test</scope>
     </dependency>
-    <!-- <dependency>
-      <groupId>org.apache.openejb</groupId>
-      <artifactId>openejb-core</artifactId>
-      <scope>test</scope>
-      <exclusions>
-        <exclusion>
-          <artifactId>slf4j-jdk14</artifactId>
-          <groupId>org.slf4j</groupId>
-        </exclusion>
-      </exclusions>
-    </dependency> -->
-    <!-- <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-aop</artifactId>
-      <scope>test</scope>
-    </dependency> -->
+    <!-- <dependency> <groupId>org.apache.openejb</groupId> <artifactId>openejb-core</artifactId> 
+      <scope>test</scope> <exclusions> <exclusion> <artifactId>slf4j-jdk14</artifactId> 
+      <groupId>org.slf4j</groupId> </exclusion> </exclusions> </dependency> -->
+    <!-- <dependency> <groupId>org.springframework</groupId> <artifactId>spring-aop</artifactId> 
+      <scope>test</scope> </dependency> -->
   </dependencies>
 </project>

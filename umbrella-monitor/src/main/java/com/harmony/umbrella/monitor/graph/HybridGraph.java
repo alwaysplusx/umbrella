@@ -99,6 +99,11 @@ public class HybridGraph extends AbstractGraph implements MethodGraph, HttpGraph
     }
 
     @Override
+    public Class<?> getTargetClass() {
+        return target != null ? target.getClass() : null;
+    }
+
+    @Override
     public Method getMethod() {
         return method;
     }

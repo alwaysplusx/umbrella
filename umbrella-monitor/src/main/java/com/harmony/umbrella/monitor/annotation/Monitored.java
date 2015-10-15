@@ -30,6 +30,11 @@ public @interface Monitored {
     String operator() default "";
 
     /**
+     * 日志大类
+     */
+    String category() default "";
+
+    /**
      * 对应日志的级别
      */
     Level level() default Level.INFO;

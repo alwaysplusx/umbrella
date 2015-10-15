@@ -29,7 +29,7 @@ import com.harmony.umbrella.monitor.MethodGraph;
 public class DefaultMethodGraph extends AbstractGraph implements MethodGraph {
 
     private static final long serialVersionUID = -3818216781456549358L;
-    
+
     protected final transient Method method;
     protected transient Object target;
 
@@ -45,6 +45,11 @@ public class DefaultMethodGraph extends AbstractGraph implements MethodGraph {
 
     public Object getTarget() {
         return target;
+    }
+
+    @Override
+    public Class<?> getTargetClass() {
+        return target != null ? target.getClass() : null;
     }
 
     public void setTarget(Object target) {
