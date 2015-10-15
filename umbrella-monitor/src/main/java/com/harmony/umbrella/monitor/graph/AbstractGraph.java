@@ -202,17 +202,22 @@ public abstract class AbstractGraph implements Graph, Serializable {
         if (StringUtils.isNotBlank(operator)) {
             buffer.append("  operator:").append(operator).append("\n");
         }
+        if (StringUtils.isNotBlank(category)) {
+            buffer.append("  category:").append(category).append("\n");
+        }
         if (level != null) {
             buffer.append("  level:").append(level).append("\n");
         }
-        buffer.append("  requestTime:").append(ndf.format(requestTime)).append("\n")//
-                .append("  use:").append(use()).append("\n")//
-                .append("  arguments:").append(getJsonArguments()).append("\n")//
-                .append("  result:").append(getJsonResult()).append("\n")//
-                .append("  exception:").append(isException()).append("\n");
+        buffer.append("  requestTime:").append(ndf.format(requestTime)).append("\n");//
+        buffer.append("  use:").append(use()).append("\n");//
+        buffer.append("  arguments:").append(getJsonArguments()).append("\n");//
+        buffer.append("  result:").append(getJsonResult()).append("\n");//
+        buffer.append("  exception:").append(isException()).append("\n");
+
         if (isException()) {
             buffer.append("  exceptionMessage:").append(exception).append("\n");
         }
+
         return buffer.append("}").toString();
     }
 

@@ -155,6 +155,7 @@ public abstract class AbstractMonitor<T> implements Monitor<T> {
         graph.setLevel(monitored.level());
         graph.setModule(monitored.module());
         graph.setOperator(monitored.operator());
+        graph.setCategory(monitored.category());
     }
 
     /**
