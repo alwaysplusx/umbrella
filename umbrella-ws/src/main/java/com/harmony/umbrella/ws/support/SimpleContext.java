@@ -133,14 +133,17 @@ public class SimpleContext implements Context, Serializable {
 
     @Override
     public Method getMethod() throws NoSuchMethodException {
+        // input
         Class<?>[] types = ClassUtils.toTypeArray(parameters);
         try {
             return serviceInterface.getMethod(methodName, types);
         } catch (NoSuchMethodException e) {
             for (Method method : serviceInterface.getMethods()) {
                 if (method.getName().equals(methodName)) {
+                    // target
                     Class<?>[] pattern = method.getParameterTypes();
-                    if (ClassUtils.isAssignable(pattern, types)) {
+                    // input can be subclass of target, cannot be super class of target
+                    if (ClassUtils.isAssignable(types, pattern)) {
                         return method;
                     }
                 }

@@ -18,6 +18,7 @@ package com.harmony.umbrella.ws.ser;
 import static com.harmony.umbrella.ws.ser.Message.*;
 import static com.harmony.umbrella.ws.ser.ServerValidation.*;
 
+import java.net.URL;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -38,7 +39,9 @@ import com.harmony.umbrella.context.CurrentContext;
 import com.harmony.umbrella.context.MessageBundle;
 import com.harmony.umbrella.core.InvokeException;
 import com.harmony.umbrella.json.Json;
+import com.harmony.umbrella.mapper.BeanMapper;
 import com.harmony.umbrella.util.Assert;
+import com.harmony.umbrella.util.ClassUtils;
 import com.harmony.umbrella.util.Exceptions;
 import com.harmony.umbrella.util.StringUtils;
 import com.harmony.umbrella.validator.ValidVisitor;
@@ -62,7 +65,97 @@ public abstract class ServerSupport {
 
     protected MessageBundle messageBundle = MessageBundle.getInstance("WsMessage", getLocale());
 
+    protected static final String MAPPING_LOCATION = "mapping.xml";
+
     protected boolean extract = true;
+
+    protected String getMappingLocation() {
+        return MAPPING_LOCATION;
+    }
+
+    /**
+     * 默认加载类路径下的配置文件mapping.xml
+     * 
+     * @return 对象映射工具
+     */
+    protected BeanMapper getMapper() {
+        BeanMapper mapper = null;
+        String mappingFile = getMappingLocation() == null ? MAPPING_LOCATION : getMappingLocation();
+        if (exists(mappingFile)) {
+            mapper = BeanMapper.getInstance(mappingFile);
+            LOG.debug("use mapper with file {}", mappingFile);
+        } else {
+            mapper = BeanMapper.getInstance();
+            LOG.debug("use default mapper");
+        }
+        return mapper;
+    }
+
+    private boolean exists(String mappingFile) {
+        URL result = ClassUtils.getDefaultClassLoader().getResource(mappingFile);
+        if (result == null && ClassUtils.getDefaultClassLoader() != ServerSupport.class.getClassLoader()) {
+            ClassLoader classLoader = ServerSupport.class.getClassLoader();
+            if (classLoader != null) {
+                result = classLoader.getResource(mappingFile);
+            }
+        }
+        if (result == null) {
+            result = ClassLoader.getSystemResource(mappingFile);
+        }
+        return result != null;
+    }
+
+    /**
+     * 对象映射
+     * 
+     * @param src
+     *            源对象
+     * @param destType
+     *            目标对象类型
+     * @return
+     */
+    protected <S, D> D mapping(S src, Class<D> destType) {
+        return getMapper().mapper(src, destType);
+    }
+
+    /**
+     * 对象映射
+     * 
+     * @param src
+     *            源对象
+     * @param dest
+     *            目标对象
+     * @return
+     */
+    protected <S, D> D mapping(S src, D dest) {
+        return getMapper().mapper(src, dest);
+    }
+
+    /**
+     * 对象映射
+     * 
+     * @param src
+     * @param dest
+     * @param mapId
+     *            配置文件中的mapId
+     * @return
+     */
+    protected <S, D> D mapping(S src, D dest, String mapId) {
+        return getMapper().mapper(src, dest, mapId);
+    }
+
+    /**
+     * 对象映射
+     * 
+     * @param src
+     * @param destType
+     * @param mapId
+     *            配置文件中的mapId
+     * @return
+     */
+    protected <S, D> D mapping(S src, Class<D> destType, String mapId) {
+        return getMapper().mapper(src, destType, mapId);
+    }
 
     /**
      * 便捷方法, 表示服务处理成功

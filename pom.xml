@@ -57,6 +57,7 @@ under the License.
     <!-- <module>examples</module> -->
     <!-- <module>umbrella-activity</module> -->
     <module>umbrella-logger</module>
+    <module>umbrella-xml</module>
   </modules>
 
 </project>
