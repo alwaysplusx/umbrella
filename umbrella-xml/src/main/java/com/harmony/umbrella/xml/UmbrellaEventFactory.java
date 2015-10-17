@@ -32,7 +32,6 @@ import com.ctc.wstx.evt.SimpleStartElement;
 public class UmbrellaEventFactory extends Stax2EventFactoryImpl {
 
     public UmbrellaEventFactory() {
-        System.out.println(">>> UmbrellaEventFactory");
     }
 
     @Override

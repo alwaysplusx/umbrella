@@ -16,6 +16,8 @@
 package com.harmony.umbrella.mapper;
 
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.dozer.DozerBeanMapper;
 
@@ -24,18 +26,31 @@ import org.dozer.DozerBeanMapper;
  */
 public class BeanMapper {
 
+    private static Map<String, BeanMapper> mappers = new HashMap<String, BeanMapper>();
+
     private DozerBeanMapper dozerMapper;
 
-    private BeanMapper(String... mappingFileUrls) {
-        this.dozerMapper = new DozerBeanMapper(Arrays.asList(mappingFileUrls));
+    private BeanMapper(String mappingFile) {
+        if (mappingFile == null) {
+            this.dozerMapper = new DozerBeanMapper();
+        } else {
+            this.dozerMapper = new DozerBeanMapper(Arrays.asList(mappingFile));
+        }
     }
 
     public static BeanMapper getInstance() {
-        return getInstance(new String[0]);
+        return getInstance(null);
     }
 
-    public static BeanMapper getInstance(String... mappingFileUrls) {
-        return new BeanMapper(mappingFileUrls);
+    public static BeanMapper getInstance(String mappingFile) {
+        BeanMapper mapper = mappers.get(mappingFile);
+        if (mapper == null) {
+            synchronized (mappers) {
+                mapper = new BeanMapper(mappingFile);
+                mappers.put(mappingFile, mapper);
+            }
+        }
+        return mapper;
     }
 
     public <T> T mapper(Object src, T dest) {

@@ -23,7 +23,6 @@ import com.ctc.wstx.stax.WstxOutputFactory;
 public class UmbrellaXMLOutputFactory extends WstxOutputFactory {
 
     public UmbrellaXMLOutputFactory() {
-        System.out.println(">>> UmbrellaXMLOutputFactory");
     }
 
 }

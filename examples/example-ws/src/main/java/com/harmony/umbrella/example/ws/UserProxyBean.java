@@ -40,11 +40,11 @@ public class UserProxyBean {
                 .addOutInterceptor(new MessageOutInterceptor())//
                 .build(UserService.class);
 
-        System.setProperty("javax.xml.stream.XMLInputFactory", "com.harmony.umbrella.xml.UmbrellaXMLInputFactory");
+        /*System.setProperty("javax.xml.stream.XMLInputFactory", "com.harmony.umbrella.xml.UmbrellaXMLInputFactory");
 
         XMLInputFactory factory = XMLInputFactory.newFactory();
 
-        System.out.println(factory);
+        System.out.println(factory);*/
 
         /*factory = XMLInputFactory.newFactory("com.harmony.umbrella.xml.UmbrellaXMLInputFactory", Thread.currentThread().getContextClassLoader());
 

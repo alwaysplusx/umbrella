@@ -11,13 +11,6 @@
   <groupId>com.harmony.umbrella.examples</groupId>
   <artifactId>examples</artifactId>
   <packaging>pom</packaging>
-  <dependencies>
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-log4j12</artifactId>
-      <scope>test</scope>
-    </dependency>
-  </dependencies>
   <modules>
     <module>example-ear</module>
     <module>example-war</module>

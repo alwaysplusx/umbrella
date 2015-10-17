@@ -8,31 +8,48 @@
   </parent>
   <artifactId>example-ejb</artifactId>
   <packaging>ejb</packaging>
+  <properties>
+    <dozer.version>5.5.2</dozer.version>
+  </properties>
   <dependencies>
     <dependency>
       <groupId>com.harmony.umbrella</groupId>
       <artifactId>umbrella-core</artifactId>
-      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>com.harmony.umbrella</groupId>
       <artifactId>umbrella-ws</artifactId>
-      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>net.sf.dozer</groupId>
+      <artifactId>dozer</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.codehaus.woodstox</groupId>
+      <artifactId>woodstox-core-asl</artifactId>
+      <version>4.4.1</version>
     </dependency>
     <dependency>
       <groupId>com.harmony.umbrella</groupId>
       <artifactId>umbrella-ee</artifactId>
-      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>com.harmony.umbrella</groupId>
       <artifactId>umbrella-mapper</artifactId>
-      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>com.harmony.umbrella</groupId>
       <artifactId>umbrella-validator</artifactId>
-      <scope>provided</scope>
+    </dependency>
+    <!-- <dependency>
+      <groupId>com.harmony.umbrella</groupId>
+      <artifactId>umbrella-xml</artifactId>
+      <version>${project.version}</version>
+    </dependency> -->
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-log4j12</artifactId>
+      <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>javax.ejb</groupId>
