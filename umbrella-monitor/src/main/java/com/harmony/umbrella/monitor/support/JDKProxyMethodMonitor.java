@@ -19,8 +19,6 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.util.Calendar;
 
-import com.harmony.umbrella.monitor.GraphListener;
-import com.harmony.umbrella.monitor.MethodGraph;
 import com.harmony.umbrella.monitor.annotation.Monitored;
 import com.harmony.umbrella.monitor.graph.DefaultMethodGraph;
 import com.harmony.umbrella.util.MethodUtils;
@@ -28,10 +26,9 @@ import com.harmony.umbrella.util.MethodUtils;
 /**
  * @author wuxii@foxmail.com
  */
-public class JDKProxyMethodMonitor extends AbstractMethodMonitorInterceptor<ProxyInvocationContext> implements InvocationHandler {
+public class JDKProxyMethodMonitor extends AbstractMethodMonitorInterceptor<ProxyInvocationContext>implements InvocationHandler {
 
     private final Object target;
-    private boolean throwException;
 
     public JDKProxyMethodMonitor(Object target) {
         this.target = target;
@@ -69,20 +66,12 @@ public class JDKProxyMethodMonitor extends AbstractMethodMonitorInterceptor<Prox
 
         } catch (Exception e) {
             graph.setException(e);
-            if (throwException) {
-                throw e;
-            }
+            throw e;
         } finally {
             notifyGraphListeners(graph);
         }
 
         return result;
-    }
-
-    protected void notifyGraphListeners(DefaultMethodGraph graph) {
-        for (GraphListener<MethodGraph> listener : graphListeners) {
-            listener.analyze(graph);
-        }
     }
 
     @Override

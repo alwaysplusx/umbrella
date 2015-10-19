@@ -212,8 +212,8 @@ public class LogUtils {
     }
 
     public interface GraphFormat<T extends Graph> {
-        String format(T graph);
 
+        String format(T graph);
     }
 
     public static final class SimpleMethodGraphFormat implements GraphFormat<MethodGraph> {

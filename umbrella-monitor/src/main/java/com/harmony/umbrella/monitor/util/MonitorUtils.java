@@ -32,7 +32,8 @@ public abstract class MonitorUtils {
      * 将方转化为唯一的资源限定标识
      * 
      * @param method
-     * @return
+     *            方法
+     * @return 生成方法的唯一id签名
      */
     public static String methodId(Method method) {
         return method == null ? "" : StringUtils.getMethodId(method);
@@ -42,7 +43,8 @@ public abstract class MonitorUtils {
      * 将request转为唯一的资源限定标识
      * 
      * @param request
-     * @return
+     *            http request
+     * @return 请求的唯一id
      */
     public static String requestId(HttpServletRequest request) {
         return request == null ? null : request.getRequestURI();

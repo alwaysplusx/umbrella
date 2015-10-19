@@ -32,6 +32,7 @@ import com.harmony.umbrella.monitor.GraphListener;
 import com.harmony.umbrella.monitor.HttpAttacker;
 import com.harmony.umbrella.monitor.HttpGraph;
 import com.harmony.umbrella.monitor.HttpMonitor;
+import com.harmony.umbrella.monitor.MethodGraph;
 import com.harmony.umbrella.monitor.ResourceMatcher;
 import com.harmony.umbrella.monitor.annotation.HttpProperty;
 import com.harmony.umbrella.monitor.annotation.HttpProperty.Scope;
@@ -60,18 +61,10 @@ public abstract class AbstractHttpMonitor<N> extends AbstractMonitor<String> imp
      */
     protected Object monitor(HttpServletRequest request, HttpServletResponse response, N nexus) throws Exception {
         String resourceId = getRequestId(request);
-        return preMonitor(resourceId) ? aroundMonitor(resourceId, request, response, nexus) : process(request, response, nexus);
-    }
-
-    /**
-     * 监控前置方法， 用于判断资源是否需要监控。该方法服务于
-     * {@linkplain #monitor(HttpServletRequest, HttpServletResponse, Object)}
-     *
-     * @param resourceId
-     *            监视的资源
-     */
-    protected boolean preMonitor(String resourceId) {
-        return isMonitored(resourceId);
+        if (resourceId != null && isMonitored(resourceId)) {
+            return aroundMonitor(resourceId, request, response, nexus);
+        }
+        return process(request, response, nexus);
     }
 
     /**
@@ -225,6 +218,48 @@ public abstract class AbstractHttpMonitor<N> extends AbstractMonitor<String> imp
         return MonitorUtils.requestId(request);
     }
 
+    /**
+     * 通过方法的信息获取监控对象的内部信息，并设置在graph上
+     *
+     * @param graph
+     *            监控结果视图
+     * @param target
+     *            监控对象
+     * @param method
+     *            监控的方法
+     */
+    protected void applyMethodRequestProperty(AbstractGraph graph, Object target, Method method) {
+        Map<String, Object> property = new HashMap<String, Object>();
+        property.putAll(attackMethodProperty(target, method, Mode.IN));
+        if (!property.isEmpty()) {
+            graph.putArgument(MethodGraph.METHOD_PROPERTY, property);
+        }
+    }
+
+    /**
+     * 通过方法信息获取监控对象的内部信息，并设置在graph上
+     *
+     * @param graph
+     *            监控结果视图
+     * @param target
+     *            监控对象
+     * @param method
+     *            监控的方法
+     */
+    protected void applyMethodResponseProperty(AbstractGraph graph, Object target, Method method) {
+        Map<String, Object> property = new HashMap<String, Object>();
+        property.putAll(attackMethodProperty(target, method, Mode.OUT));
+        if (!property.isEmpty()) {
+            graph.putResult(MethodGraph.METHOD_PROPERTY, property);
+        }
+    }
+
+    protected void notifyGraphListeners(HttpGraph graph) {
+        for (GraphListener<HttpGraph> listener : graphListeners) {
+            listener.analyze(graph);
+        }
+    }
+
     @Override
     public void cleanAll() {
         this.graphListeners.clear();
@@ -234,6 +269,10 @@ public abstract class AbstractHttpMonitor<N> extends AbstractMonitor<String> imp
     @Override
     public void destroy() {
         this.cleanAll();
+    }
+
+    public void addGraphListener(GraphListener<HttpGraph> graphListener) {
+        this.graphListeners.add(graphListener);
     }
 
     public void setGraphListeners(List<GraphListener<HttpGraph>> graphListeners) {

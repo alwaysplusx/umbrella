@@ -48,6 +48,17 @@ public class HybridGraph extends AbstractGraph implements MethodGraph, HttpGraph
         super(identifier);
     }
 
+    public HybridGraph(String identifier, Object target) {
+        super(identifier);
+        this.target = target;
+    }
+
+    public HybridGraph(Method method, Object target, Object[] arguments) {
+        super(MonitorUtils.methodId(method));
+        this.target = target;
+        this.setMethodArgumets(arguments);
+    }
+
     @Override
     public String getHttpMethod() {
         return httpMethod;

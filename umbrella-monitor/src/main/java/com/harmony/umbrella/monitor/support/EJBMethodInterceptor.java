@@ -20,8 +20,6 @@ import java.util.Calendar;
 
 import javax.interceptor.InvocationContext;
 
-import com.harmony.umbrella.monitor.GraphListener;
-import com.harmony.umbrella.monitor.MethodGraph;
 import com.harmony.umbrella.monitor.annotation.Monitored;
 import com.harmony.umbrella.monitor.graph.DefaultMethodGraph;
 
@@ -30,22 +28,18 @@ import com.harmony.umbrella.monitor.graph.DefaultMethodGraph;
  */
 public abstract class EJBMethodInterceptor extends AbstractMethodMonitorInterceptor<InvocationContext> {
 
-    private boolean throwException = false;
-
     @Override
     protected Object aroundMonitor(Method method, InvocationContext ctx) throws Exception {
         Object result = null;
 
-        DefaultMethodGraph graph = new DefaultMethodGraph(method);
-
-        graph.setTarget(ctx.getTarget());
-        graph.setMethodArgumets(ctx.getParameters());
+        Object target = ctx.getTarget();
+        DefaultMethodGraph graph = new DefaultMethodGraph(target, method, ctx.getParameters());
 
         Monitored ann = method.getAnnotation(Monitored.class);
         if (ann != null) {
             applyMonitorInformation(graph, ann);
         }
-        applyMethodRequestProperty(graph, ctx.getTarget(), method);
+        applyMethodRequestProperty(graph, target, method);
 
         graph.setRequestTime(Calendar.getInstance());
 
@@ -54,14 +48,12 @@ public abstract class EJBMethodInterceptor extends AbstractMethodMonitorIntercep
             result = process(ctx);
 
             graph.setResponseTime(Calendar.getInstance());
-            applyMethodResponseProperty(graph, ctx.getTarget(), method);
             graph.setMethodResult(result);
+            applyMethodResponseProperty(graph, target, method);
 
         } catch (Exception e) {
             graph.setException(e);
-            if (throwException) {
-                throw e;
-            }
+            throw e;
         } finally {
             notifyGraphListeners(graph);
         }
@@ -79,13 +71,4 @@ public abstract class EJBMethodInterceptor extends AbstractMethodMonitorIntercep
         return ctx.proceed();
     }
 
-    protected void notifyGraphListeners(DefaultMethodGraph graph) {
-        for (GraphListener<MethodGraph> listener : graphListeners) {
-            listener.analyze(graph);
-        }
-    }
-
-    @Override
-    public void destroy() {
-    }
 }

@@ -50,7 +50,7 @@ public @interface HttpProperty {
      *
      * @author wuxii@foxmail.com
      */
-    public enum Scope {
+    public static enum Scope {
         /**
          * 对应于
          * {@linkplain javax.servlet.http.HttpServletRequest#getParameter(String)}

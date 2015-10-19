@@ -17,7 +17,6 @@ package com.harmony.umbrella.monitor;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -175,20 +174,6 @@ public abstract class AbstractMonitor<T> implements Monitor<T> {
     }
 
     /**
-     * 根据类上的注解获取监控的内部属性
-     *
-     * @param target
-     *            被监控的对象
-     * @param mode
-     *            监控的环节
-     * @return 被监控对象的内部属性
-     */
-    /*public Map<String, Object> attackClassProperty(Object target, Mode mode) {
-        InternalProperty[] properties = getMonitorProperty(target.getClass(), InternalProperty.class);
-        return attackProperty(target, properties, mode);
-    }*/
-
-    /**
      * 根据注解信息获取监控对象的信息
      *
      * @param target
@@ -201,9 +186,8 @@ public abstract class AbstractMonitor<T> implements Monitor<T> {
      */
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public Map<String, Object> attackProperty(Object target, InternalProperty[] properties, Mode mode) {
-        Map<String, Object> result = null;
+        Map<String, Object> result = new HashMap<String, Object>();
         if (properties != null && properties.length > 0) {
-            result = new HashMap<String, Object>();
             for (InternalProperty internalProperty : properties) {
                 if (mode.inRange(internalProperty.mode())) {
                     Attacker attacker = getAttacker(internalProperty.attacker());
@@ -211,7 +195,7 @@ public abstract class AbstractMonitor<T> implements Monitor<T> {
                 }
             }
         }
-        return result == null ? Collections.<String, Object> emptyMap() : result;
+        return result;
     }
 
     /**

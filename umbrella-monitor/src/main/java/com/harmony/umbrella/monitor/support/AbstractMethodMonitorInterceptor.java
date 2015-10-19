@@ -47,6 +47,8 @@ public abstract class AbstractMethodMonitorInterceptor<IC> extends AbstractMonit
 
     protected List<GraphListener<MethodGraph>> graphListeners = new ArrayList<GraphListener<MethodGraph>>();
 
+    private boolean raiseError = false;
+
     /**
      * 资源模版匹配工具
      */
@@ -82,10 +84,18 @@ public abstract class AbstractMethodMonitorInterceptor<IC> extends AbstractMonit
      */
     protected Object monitor(IC ctx) throws Exception {
         Method method = getMethod(ctx);
-        if (method != null && isMonitored(method)) {
-            return aroundMonitor(method, ctx);
+        try {
+            if (method != null && isMonitored(method)) {
+                return aroundMonitor(method, ctx);
+            }
+            return process(ctx);
+        } catch (Exception e) {
+            if (raiseError) {
+                throw e;
+            }
+            LOG.info("monitor received a exception, {}", e.toString());
+            return null;
         }
-        return process(ctx);
     }
 
     /**
@@ -135,6 +145,12 @@ public abstract class AbstractMethodMonitorInterceptor<IC> extends AbstractMonit
         }
     }
 
+    protected void notifyGraphListeners(MethodGraph graph) {
+        for (GraphListener<MethodGraph> listener : graphListeners) {
+            listener.analyze(graph);
+        }
+    }
+
     @Override
     public void cleanAll() {
         this.graphListeners.clear();
@@ -144,6 +160,18 @@ public abstract class AbstractMethodMonitorInterceptor<IC> extends AbstractMonit
     @Override
     public void destroy() {
         this.cleanAll();
+    }
+
+    public boolean isRaiseError() {
+        return raiseError;
+    }
+
+    public void setRaiseError(boolean raiseError) {
+        this.raiseError = raiseError;
+    }
+
+    public void addGraphListener(GraphListener<MethodGraph> graphListener) {
+        this.graphListeners.add(graphListener);
     }
 
     public void setGraphListeners(List<GraphListener<MethodGraph>> graphListeners) {

@@ -46,6 +46,18 @@
       <optional>true</optional>
     </dependency>
     <dependency>
+      <groupId>org.apache.struts.xwork</groupId>
+      <artifactId>xwork-core</artifactId>
+      <scope>compile</scope>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.struts</groupId>
+      <artifactId>struts2-core</artifactId>
+      <scope>compile</scope>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
       <groupId>javax.servlet</groupId>
       <artifactId>javax.servlet-api</artifactId>
       <scope>provided</scope>

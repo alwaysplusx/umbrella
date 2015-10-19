@@ -31,4 +31,5 @@ public interface HttpMonitor extends Monitor<String> {
      * 默认连接监控的路径
      */
     String DEFAULT_PATH_PATTERN = DEFAULT_PATH_SEPARATOR + "*/**";
+    
 }
