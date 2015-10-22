@@ -13,24 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.umbrella.monitor.support;
-
-import static org.junit.Assert.*;
-
-import org.junit.Test;
-
-import com.harmony.umbrella.util.AntPathMatcher;
+package com.harmony.umbrella.scheduling;
 
 /**
  * @author wuxii@foxmail.com
  */
-public class PathMatcherTest {
+public abstract class SchedulerFactory {
 
-    @Test
-    public void testMatch() {
-        AntPathMatcher matcher = new AntPathMatcher();
-        assertTrue(matcher.match("/*/**", "/static/a.js"));
-        // assertTrue(matcher.match("/static/**", "/static/sub/a.js"));
+    public static AbstractEJBScheduler create() {
+        return null;
     }
 
 }

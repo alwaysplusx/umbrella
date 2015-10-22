@@ -36,9 +36,9 @@ public class PropertiesFileJobFactory implements JobFactory {
 
     public static final String triggerPropertiesFileLocation = "META-INF/scheduler/triggers.properties";
 
-    private BeanFactory beanFactory = new SimpleBeanFactory();
     private final String jobFileLocation;
     private final String triggerFileLocation;
+    private BeanFactory beanFactory = new SimpleBeanFactory();
 
     public PropertiesFileJobFactory() {
         this(jobPropertiesFileLocation, triggerPropertiesFileLocation);
