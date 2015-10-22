@@ -130,6 +130,11 @@
     </dependency>
     <!-- test -->
     <dependency>
+      <groupId>org.hibernate</groupId>
+      <artifactId>hibernate-validator</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>org.apache.cxf</groupId>
       <artifactId>cxf-rt-rs-service-description</artifactId>
       <scope>test</scope>
@@ -155,7 +160,24 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
-
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <encoding>UTF-8</encoding>
+          <source>1.6</source>
+          <target>1.6</target>
+          <excludes>
+            <exclude>**/package-info.java</exclude>
+          </excludes>
+          <testExcludes>
+            <testExclude>**/ext/*.java</testExclude>
+          </testExcludes>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
   <!-- <build>
     <plugins>
       <plugin>

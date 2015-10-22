@@ -26,7 +26,6 @@ import org.junit.Test;
 
 import com.harmony.umbrella.io.Resource;
 import com.harmony.umbrella.io.ResourceManager;
-import com.harmony.umbrella.ws.FactoryConfig;
 import com.harmony.umbrella.ws.jaxws.JaxWsProxyBuilder;
 import com.harmony.umbrella.ws.jaxws.JaxWsServerBuilder;
 import com.harmony.umbrella.ws.services.HelloService;
