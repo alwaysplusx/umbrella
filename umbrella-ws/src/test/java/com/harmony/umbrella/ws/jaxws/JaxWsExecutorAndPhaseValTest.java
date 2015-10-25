@@ -25,7 +25,6 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.harmony.umbrella.ws.Context;
 import com.harmony.umbrella.ws.Handler;
 import com.harmony.umbrella.ws.Handler.HandleMethod;
 import com.harmony.umbrella.ws.Phase;
@@ -35,7 +34,6 @@ import com.harmony.umbrella.ws.services.HelloWebService;
 import com.harmony.umbrella.ws.support.SimpleContext;
 import com.harmony.umbrella.ws.util.HandleMethodInvoker;
 import com.harmony.umbrella.ws.util.HandlerMethodFinder;
-import com.harmony.umbrella.ws.visitor.AbstractContextVisitor;
 import com.harmony.umbrella.ws.visitor.ValidationContextVisitor;
 
 /**
@@ -52,34 +50,23 @@ public class JaxWsExecutorAndPhaseValTest {
     @BeforeClass
     public static void setUp() {
         // 发布HelloWebService服务在地址http://localhost:8081/hello上
-        JaxWsServerBuilder.create().publish(HelloWebService.class, address);
-    }
-
-    @Test
-    public void testLoggerVisitor() {
-        SimpleContext context = new SimpleContext(HelloService.class, "sayHi", new Object[] { "wuxii" });
-        context.setAddress(address);
-        executor.execute(context, new AbstractContextVisitor() {
-
-            @Override
-            public void visitFinally(Object result, Throwable throwable, Context context) {
-                log.info("{}", context.get(JaxWsExecutor.WS_EXECUTION_GRAPH));
-            }
-
-        });
+        JaxWsServerBuilder//
+                .create()//
+                .publish(HelloWebService.class, address);
     }
 
     @Test
     public void testHelloServicePhaseVal() {
+        assertEquals(0, count);
+
         // 设置接口调用的上下文(服务接口, 服务方法名, 服务的参数)
-        SimpleContext context = new SimpleContext(HelloService.class, "sayHi", new Object[] { "wuxii" });
-        // 设置服务的所在地址
-        context.setAddress(address);
-        // 调用执行者执行方法，
-        // PhaseValidationVisitor用于帮助加载HelloServiceSayHiPhaseValidation实例进行接口的执行周期检验
+        SimpleContext context = new SimpleContext(HelloService.class, "sayHi", address, new Object[] { "wuxii" });
+
+        // 调用执行者执行方法
+        // ValidationContextVisitor用于帮助加载HelloServiceSayHiPhaseValidation实例进行接口的执行周期检验
         Object result = executor.execute(context, new ValidationContextVisitor());
+
         // 对结果进行断言判断
-        assertNotNull(result);
         assertEquals("Hi wuxii", result);
         assertEquals(2, count);
     }
@@ -106,6 +93,7 @@ public class JaxWsExecutorAndPhaseValTest {
         // Phase.PRE_INVOKE 表明执行前调用
         @HandleMethod(phase = Phase.PRE_INVOKE)
         public boolean sayHi(String message, Map<String, Object> content) {
+            log.info("phase validation before invoke");
             count++;
             return true;
         }
@@ -122,6 +110,7 @@ public class JaxWsExecutorAndPhaseValTest {
          */
         @HandleMethod(phase = Phase.ABORT)
         public void sayHi(WebServiceAbortException exception, String message, Map<String, Object> content) {
+            log.info("phase validation abort");
         }
 
         /**
@@ -137,6 +126,7 @@ public class JaxWsExecutorAndPhaseValTest {
         @HandleMethod(phase = Phase.POST_INVOKE)
         public void sayHi(String result, String message, Map<String, Object> content) {
             count++;
+            log.info("phase validation post invoke");
         }
 
         /**
@@ -151,6 +141,7 @@ public class JaxWsExecutorAndPhaseValTest {
          */
         @HandleMethod(phase = Phase.THROWING)
         public void sayHi(Throwable e, String message, Map<String, Object> content) {
+            log.info("phase validation throwing invoke");
         }
 
     }

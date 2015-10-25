@@ -49,22 +49,27 @@ public class JaxWsServerAndProxyTest {
 
     @Test
     public void testProxyBuilder() {
-        HelloService service = JaxWsProxyBuilder.create().build(HelloService.class, address);
+        HelloService service = JaxWsProxyBuilder//
+                .create()//
+                .build(HelloService.class, address);
         assertEquals("Hi wuxii", service.sayHi("wuxii"));
     }
 
     @Test
     public void testAsyncAndCallback() {
-        SimpleContext context = new SimpleContext(HelloService.class, "sayHi", new Object[] { "wuxii" });
-        context.setAddress(address);
+        SimpleContext context = new SimpleContext(HelloService.class, "sayHi", address, new Object[] { "wuxii" });
+
+        assertEquals(0, count);
+
         executor.executeAsync(context, new AsyncCallback<String>() {
+
             @Override
             public void handle(String result, Map<String, Object> content) {
                 count++;
                 assertEquals("Hi wuxii", result);
-                // System.out.println("jaxws content is " + content);
             }
         });
+
         assertEquals(1, count);
     }
 

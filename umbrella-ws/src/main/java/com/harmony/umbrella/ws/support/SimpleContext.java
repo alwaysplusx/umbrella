@@ -52,13 +52,22 @@ public class SimpleContext implements Context, Serializable {
     private int synchronousTimeout = -1;
 
     public SimpleContext(Class<?> serviceInterface, String methodName) {
-        this(serviceInterface, methodName, null);
+        this(serviceInterface, methodName, null, null);
+    }
+
+    public SimpleContext(Class<?> serviceInterface, String methodName, String address) {
+        this(serviceInterface, methodName, address, null);
     }
 
     public SimpleContext(Class<?> serviceInterface, String methodName, Object[] parameters) {
+        this(serviceInterface, methodName, null, parameters);
+    }
+
+    public SimpleContext(Class<?> serviceInterface, String methodName, String address, Object[] parameters) {
         this.contextId = CONTEXT_ID.getAndIncrement();
         this.serviceInterface = serviceInterface;
         this.methodName = methodName;
+        this.address = address;
         this.parameters = parameters;
     }
 
@@ -142,7 +151,8 @@ public class SimpleContext implements Context, Serializable {
                 if (method.getName().equals(methodName)) {
                     // target
                     Class<?>[] pattern = method.getParameterTypes();
-                    // input can be subclass of target, cannot be super class of target
+                    // input can be subclass of target, cannot be super class of
+                    // target
                     if (ClassUtils.isAssignable(types, pattern)) {
                         return method;
                     }
@@ -165,6 +175,7 @@ public class SimpleContext implements Context, Serializable {
     @Override
     public Enumeration<String> getContextNames() {
         return new Enumeration<String>() {
+
             Iterator<String> it = contextMap.keySet().iterator();
 
             @Override
