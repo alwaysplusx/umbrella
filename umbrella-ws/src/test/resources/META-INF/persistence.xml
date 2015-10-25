@@ -3,24 +3,10 @@
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd">
 
-  <persistence-unit name="harmonycore" transaction-type="JTA">
+  <persistence-unit name="umbrella" transaction-type="JTA">
     <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
-    <jta-data-source>jdbc/harmonycore</jta-data-source>
-    <class>com.harmony.dark.ws.ext.MetadataEntity</class>
-    <exclude-unlisted-classes>false</exclude-unlisted-classes>
-    <shared-cache-mode>NONE</shared-cache-mode>
-    <validation-mode>NONE</validation-mode>
-    <properties>
-      <property name="hibernate.hbm2ddl.auto" value="create" />
-      <property name="hibernate.show_sql" value="true" />
-      <property name="hibernate.dialect" value="org.hibernate.dialect.H2Dialect" />
-    </properties>
-  </persistence-unit>
-
-  <persistence-unit name="harmony-dark" transaction-type="JTA">
-    <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
-    <jta-data-source>jdbc/harmonycore</jta-data-source>
-    <class>com.harmony.dark.ws.ext.MetadataEntity</class>
+    <jta-data-source>jdbc/umbrella</jta-data-source>
+    <!-- <class>com.harmony.dark.ws.ext.MetadataEntity</class> -->
     <exclude-unlisted-classes>false</exclude-unlisted-classes>
     <shared-cache-mode>NONE</shared-cache-mode>
     <validation-mode>NONE</validation-mode>

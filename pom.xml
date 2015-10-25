@@ -89,6 +89,7 @@ under the License.
     <apache.shiro.version>1.2.3</apache.shiro.version>
     <apache.struts.version>2.3.16</apache.struts.version>
     <apache.httpclient.version>4.5</apache.httpclient.version>
+    <apache.jee.version>6.0-6</apache.jee.version>
     <!-- spring -->
     <spring.version>4.1.6.RELEASE</spring.version>
     <spring.data.version>1.10.0.RELEASE</spring.data.version>
@@ -278,6 +279,11 @@ under the License.
         <groupId>org.hibernate</groupId>
         <artifactId>hibernate-validator</artifactId>
         <version>${hibernate.validator.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.openejb</groupId>
+        <artifactId>javaee-api</artifactId>
+        <version>${apache.jee.version}</version>
       </dependency>
       <!-- cxf -->
       <dependency>

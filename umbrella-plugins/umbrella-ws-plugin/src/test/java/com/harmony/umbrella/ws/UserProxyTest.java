@@ -27,8 +27,6 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.harmony.umbrella.context.ApplicationContext;
-import com.harmony.umbrella.message.MessageResolver;
 import com.harmony.umbrella.ws.jaxws.JaxWsProxyBuilder;
 import com.harmony.umbrella.ws.jaxws.JaxWsServerManager;
 import com.harmony.umbrella.ws.ser.UserWebService;
@@ -41,8 +39,6 @@ public class UserProxyTest {
     public static final String address = "http://localhost:8080/user";
 
     public static EJBContainer container;
-
-    private static ApplicationContext context;
 
     @EJB
     private UserProxy proxy;
@@ -65,8 +61,6 @@ public class UserProxyTest {
 
         container = EJBContainer.createEJBContainer(props);
 
-        context = ApplicationContext.getApplicationContext();
-
         JaxWsServerManager.getInstance().publish(UserWebService.class, address);
 
     }
@@ -84,9 +78,6 @@ public class UserProxyTest {
 
     @Test
     public void testAsync() throws Exception {
-        // FIXME project in umbrella-ee can't lookup other project bean
-        context.getBean(UserProxy.class);
-        context.getBean(MessageResolver.class);
         proxy.sync(new User("wuxii"));
         Thread.sleep(1000 * 2);
         UserService service = JaxWsProxyBuilder.create().build(UserService.class, address);

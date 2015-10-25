@@ -23,16 +23,14 @@
     <dependency>
       <groupId>com.harmony.umbrella</groupId>
       <artifactId>umbrella-validator</artifactId>
+      <scope>compile</scope>
+      <optional>true</optional>
     </dependency>
     <dependency>
-      <groupId>javax.validation</groupId>
-      <artifactId>validation-api</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.eclipse.persistence</groupId>
-      <artifactId>javax.persistence</artifactId>
-      <scope>provided</scope>
+      <groupId>com.harmony.umbrella</groupId>
+      <artifactId>umbrella-mapper</artifactId>
+      <scope>compile</scope>
+      <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>com.harmony.umbrella</groupId>
@@ -40,32 +38,37 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>javax.jms</groupId>
-      <artifactId>jms</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.glassfish.web</groupId>
-      <artifactId>javax.el</artifactId>
+      <groupId>org.apache.cxf</groupId>
+      <artifactId>cxf-rt-frontend-jaxws</artifactId>
       <scope>compile</scope>
       <optional>true</optional>
-      <exclusions>
-        <exclusion>
-          <artifactId>javax.el-api</artifactId>
-          <groupId>javax.el</groupId>
-        </exclusion>
-      </exclusions>
     </dependency>
     <dependency>
-      <artifactId>javax.el-api</artifactId>
-      <groupId>javax.el</groupId>
-      <scope>provided</scope>
+      <groupId>org.apache.cxf</groupId>
+      <artifactId>cxf-rt-transports-http</artifactId>
+      <scope>compile</scope>
+      <optional>true</optional>
+    </dependency>
+    <!-- api -->
+    <!-- <dependency>
+      <groupId>javax</groupId>
+      <artifactId>javaee-api</artifactId>
     </dependency>
     <dependency>
-      <artifactId>javax.ejb-api</artifactId>
       <groupId>javax.ejb</groupId>
+      <artifactId>javax.ejb-api</artifactId>
       <scope>provided</scope>
     </dependency>
+    <dependency>
+      <groupId>javax.validation</groupId>
+      <artifactId>validation-api</artifactId>
+      <scope>provided</scope>
+    </dependency> -->
+    <!-- <dependency>
+      <groupId>org.apache.openejb</groupId>
+      <artifactId>javaee-api</artifactId>
+      <scope>provided</scope>
+    </dependency> -->
     <!-- test -->
     <dependency>
       <groupId>org.hibernate</groupId>
@@ -83,6 +86,11 @@
       <scope>test</scope>
     </dependency>
     <dependency>
+      <groupId>org.glassfish.web</groupId>
+      <artifactId>javax.el</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>org.apache.openejb</groupId>
       <artifactId>openejb-core</artifactId>
       <scope>test</scope>
@@ -90,6 +98,10 @@
         <exclusion>
           <artifactId>slf4j-jdk14</artifactId>
           <groupId>org.slf4j</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>jaxb-impl</artifactId>
+          <groupId>com.sun.xml.bind</groupId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -102,18 +114,6 @@
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.cxf</groupId>
-      <artifactId>cxf-rt-frontend-jaxws</artifactId>
-      <scope>compile</scope>
-      <optional>true</optional>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.cxf</groupId>
-      <artifactId>cxf-rt-transports-http</artifactId>
-      <scope>compile</scope>
-      <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>org.apache.cxf</groupId>

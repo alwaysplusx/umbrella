@@ -22,7 +22,6 @@ import org.apache.cxf.jaxws.JaxWsServerFactoryBean;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
-import org.junit.Test;
 
 import com.harmony.umbrella.io.Resource;
 import com.harmony.umbrella.io.ResourceManager;
@@ -44,27 +43,31 @@ public class CXFMessageInterceptorTest {
             @Override
             public void config(JaxWsServerFactoryBean factoryBean) {
                 factoryBean.getInInterceptors().add(new AbstractPhaseInterceptor<Message>(Phase.RECEIVE) {
+
                     @Override
                     public void handleMessage(Message message) throws Fault {
+                        
                         Set<String> keySet = message.keySet();
                         for (String string : keySet) {
                             Object obj = message.get(string);
-                            Class<?> claz = obj != null ? obj.getClass() : null;
-                            System.out.println(">>>>>>>>> " + string + ", " + obj + ", " + claz);
+                            String type = obj != null ? obj.getClass().getName() : "null";
+                            System.out.println("server message: key=" + string + ", value=" + obj + ", type=" + type);
                         }
+                        
                         System.out.println();
                         Set<Class<?>> contentFormats = message.getContentFormats();
                         for (Class<?> class1 : contentFormats) {
                             Object obj = message.getContent(class1);
-                            Class<?> claz = obj != null ? obj.getClass() : null;
-                            System.out.println("******** " + class1 + ", " + obj + ", " + claz);
+                            String type = obj != null ? obj.getClass().getName() : "null";
+                            System.out.println("server content: key=" + class1.getName() + ", value=" + obj + ", type=" + type);
                         }
+                        
                         System.out.println();
                         Set<String> contextualPropertyKeys = message.getContextualPropertyKeys();
                         for (String string : contextualPropertyKeys) {
                             Object obj = message.getContextualProperty(string);
-                            Class<?> claz = obj != null ? obj.getClass() : null;
-                            System.out.println("######## " + string + ", " + obj + ", " + claz);
+                            String type = obj != null ? obj.getClass().getName() : "null";
+                            System.out.println("server contextual: key=" + string + ", value=" + obj + ", type=" + type);
                         }
                     }
 
@@ -78,27 +81,30 @@ public class CXFMessageInterceptorTest {
         });
         JaxWsProxyBuilder builder = JaxWsProxyBuilder.create();
         builder.getInInterceptors().add(new AbstractPhaseInterceptor<Message>(Phase.RECEIVE) {
+
             @Override
             public void handleMessage(Message message) throws Fault {
                 Set<String> keySet = message.keySet();
                 for (String string : keySet) {
                     Object obj = message.get(string);
-                    Class<?> claz = obj != null ? obj.getClass() : null;
-                    System.out.println(">>>>>>>>> " + string + ", " + obj + ", " + claz);
+                    String type = obj != null ? obj.getClass().getName() : "null";
+                    System.out.println("proxy message: key=" + string + ", value=" + obj + ", type=" + type);
                 }
+                
                 System.out.println();
                 Set<Class<?>> contentFormats = message.getContentFormats();
                 for (Class<?> class1 : contentFormats) {
                     Object obj = message.getContent(class1);
-                    Class<?> claz = obj != null ? obj.getClass() : null;
-                    System.out.println("******** " + class1 + ", " + obj + ", " + claz);
+                    String type = obj != null ? obj.getClass().getName() : "null";
+                    System.out.println("proxy content: key=" + class1.getName() + ", value=" + obj + ", type=" + type);
                 }
+                
                 System.out.println();
                 Set<String> contextualPropertyKeys = message.getContextualPropertyKeys();
                 for (String string : contextualPropertyKeys) {
                     Object obj = message.getContextualProperty(string);
-                    Class<?> claz = obj != null ? obj.getClass() : null;
-                    System.out.println("######## " + string + ", " + obj + ", " + claz);
+                    String type = obj != null ? obj.getClass().getName() : "null";
+                    System.out.println("proxy contextual: key=" + string + ", value=" + obj + ", type=" + type);
                 }
             }
 
@@ -112,7 +118,7 @@ public class CXFMessageInterceptorTest {
 
     }
 
-    @Test
+    // @Test
     public void testGetResources() {
         Resource[] resources = ResourceManager.getInstance().getResources("com.harmony");
         for (Resource resource : resources) {

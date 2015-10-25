@@ -35,7 +35,7 @@ import com.harmony.umbrella.ws.ser.ServerSupport;
 @WebService(serviceName = "UserService", targetNamespace = "http://www.umbrella.com/user")
 public class UserWebService extends ServerSupport implements UserService {
 
-    private final List<User> users = new ArrayList<User>();
+    private static final List<User> users = new ArrayList<User>();
 
     public UserWebService() {
         this.extract = false;
@@ -66,7 +66,7 @@ public class UserWebService extends ServerSupport implements UserService {
     @WebMethod(exclude = true)
     public Message saveUser(@WebParam(name = "user") User user) {
         MessageContent content = createContent();
-        if (isValid(user, content)) {
+        if (!isValid(user, content)) {
             return error(content);
         }
         users.add(user);

@@ -75,16 +75,6 @@
       <artifactId>cxf-rt-frontend-jaxrs</artifactId>
       <scope>compile</scope>
       <optional>true</optional>
-      <exclusions>
-        <exclusion>
-          <artifactId>javax.ws.rs-api</artifactId>
-          <groupId>javax.ws.rs</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>javax.annotation-api</artifactId>
-          <groupId>javax.annotation</groupId>
-        </exclusion>
-      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.apache.cxf</groupId>
@@ -94,46 +84,11 @@
     </dependency>
     <!-- api -->
     <dependency>
-      <groupId>javax.validation</groupId>
-      <artifactId>validation-api</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <artifactId>javax.annotation-api</artifactId>
-      <groupId>javax.annotation</groupId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <artifactId>javax.ws.rs-api</artifactId>
-      <groupId>javax.ws.rs</groupId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>javax.ejb</groupId>
-      <artifactId>javax.ejb-api</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>javax.interceptor</groupId>
-      <artifactId>javax.interceptor-api</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.eclipse.persistence</groupId>
-      <artifactId>javax.persistence</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>javax.servlet-api</artifactId>
+      <groupId>org.apache.openejb</groupId>
+      <artifactId>javaee-api</artifactId>
       <scope>provided</scope>
     </dependency>
     <!-- test -->
-    <dependency>
-      <groupId>org.hibernate</groupId>
-      <artifactId>hibernate-validator</artifactId>
-      <scope>test</scope>
-    </dependency>
     <dependency>
       <groupId>org.apache.cxf</groupId>
       <artifactId>cxf-rt-rs-service-description</artifactId>
@@ -176,11 +131,7 @@
           </testExcludes>
         </configuration>
       </plugin>
-    </plugins>
-  </build>
-  <!-- <build>
-    <plugins>
-      <plugin>
+      <!-- <plugin>
         <groupId>org.apache.cxf</groupId>
         <artifactId>cxf-wadl2java-plugin</artifactId>
         <version>2.4.1</version>
@@ -206,8 +157,17 @@
             </goals>
           </execution>
         </executions>
-      </plugin>
+      </plugin> -->
     </plugins>
-  </build> -->
+  </build>
 
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.hibernate.javax.persistence</groupId>
+        <artifactId>hibernate-jpa-2.1-api</artifactId>
+        <version>1.0.0.Final</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
 </project>
