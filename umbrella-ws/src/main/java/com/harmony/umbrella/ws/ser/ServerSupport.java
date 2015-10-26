@@ -20,6 +20,7 @@ import static com.harmony.umbrella.ws.ser.ServerValidation.*;
 
 import java.net.URL;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -112,7 +113,7 @@ public abstract class ServerSupport {
      *            源对象
      * @param destType
      *            目标对象类型
-     * @return
+     * @return dest object
      */
     protected <S, D> D mapping(S src, Class<D> destType) {
         return getMapper().mapper(src, destType);
@@ -125,7 +126,7 @@ public abstract class ServerSupport {
      *            源对象
      * @param dest
      *            目标对象
-     * @return
+     * @return dest object
      */
     protected <S, D> D mapping(S src, D dest) {
         return getMapper().mapper(src, dest);
@@ -135,7 +136,9 @@ public abstract class ServerSupport {
      * 对象映射
      * 
      * @param src
+     *            源
      * @param dest
+     *            目标
      * @param mapId
      *            配置文件中的mapId
      * @return
@@ -148,7 +151,9 @@ public abstract class ServerSupport {
      * 对象映射
      * 
      * @param src
+     *            源
      * @param destType
+     *            目标
      * @param mapId
      *            配置文件中的mapId
      * @return
@@ -285,6 +290,16 @@ public abstract class ServerSupport {
         return buildMessage(message, E, content);
     }
 
+    /**
+     * 在执行上下文中根据key增加描述字符, 与原字符用<code>,</code>隔开 如果原上下文中没有对应的key，则直接添加到上下文中
+     * 
+     * @param key
+     *            上下文中的key
+     * @param value
+     *            描述字符
+     * @param content
+     *            执行的上下文
+     */
     private void append(String key, String value, Map<String, String> content) {
         String msg = content.get(key);
         if (StringUtils.isBlank(msg)) {
@@ -294,6 +309,9 @@ public abstract class ServerSupport {
         }
     }
 
+    /**
+     * 创建服务端返回消息
+     */
     private Message buildMessage(String message, String type, Map<String, String> content) {
         message = message.trim();
         if (message.startsWith("{") && message.endsWith("}")) {
@@ -348,6 +366,13 @@ public abstract class ServerSupport {
         return buf.toString();
     }
 
+    /**
+     * 根据{@linkplain com.harmony.umbrella.ws.Key Key}获取传入的vo的对于key值
+     * 
+     * @param obj
+     *            传入的vo
+     * @return vo key
+     */
     protected String getKey(Object obj) {
         return extractKey(obj);
     }
@@ -365,32 +390,73 @@ public abstract class ServerSupport {
         return Json.toJson(keys, SerializerFeature.WriteMapNullValue);
     }
 
-    protected boolean isValid(Iterator<?> objs, MessageContent content) {
+    /**
+     * @see #isValid(Collection, MessageContent, ValidVisitor, Class...)
+     */
+    protected boolean isValid(Collection<?> objs, MessageContent content) {
         return isValid(objs, content, (ValidVisitor) null);
     }
 
-    protected boolean isValid(Iterator<?> objs, MessageContent content, Class<?>... groups) {
+    /**
+     * @see #isValid(Object, MessageContent, ValidVisitor, Class...)
+     */
+    protected boolean isValid(Collection<?> objs, MessageContent content, Class<?>... groups) {
         return isValid(objs, content, null, groups);
     }
 
-    protected boolean isValid(Iterator<?> objs, MessageContent content, ValidVisitor visitor, Class<?>... groups) {
+    /**
+     * 验证vo集合
+     * 
+     * @param objs
+     *            vo集合
+     * @param content
+     *            服务端上下文
+     * @param visitor
+     *            自定义验证工具
+     * @param groups
+     *            验证组
+     * @return
+     * @see #isValid(Object, MessageContent, ValidVisitor, Class...)
+     */
+    protected boolean isValid(Collection<?> objs, MessageContent content, ValidVisitor visitor, Class<?>... groups) {
         boolean flag = true;
-        while (objs.hasNext()) {
-            flag = flag && isValid(objs.next(), content, visitor, groups);
+        for (Object object : objs) {
+            flag = flag && isValid(object, content, visitor, groups);
         }
         return flag;
     }
 
+    /**
+     * @see #isValid(Object, MessageContent, ValidVisitor, Class...)
+     */
     protected boolean isValid(Object obj, MessageContent content) {
         return isValid(obj, content, Default.class);
     }
 
+    /**
+     * @see #isValid(Object, MessageContent, ValidVisitor, Class...)
+     */
     protected boolean isValid(Object obj, MessageContent content, Class<?>... groups) {
         return isValid(obj, content, null, groups);
     }
 
+    /**
+     * 验证vo是否符合数据格式的要求
+     * <p>
+     * 如果验证不通过则将在content中添加对于的vo key以及vo验证错误的信息
+     * 
+     * @param obj
+     *            传入的vo
+     * @param content
+     *            服务的上下文
+     * @param visitor
+     *            自定义的验证工具允许为空
+     * @param groups
+     *            验证的group
+     * @return true验证通过， false验证vo存在错误
+     */
     protected boolean isValid(Object obj, MessageContent content, ValidVisitor visitor, Class<?>... groups) {
-        long start = System.nanoTime();
+        long start = System.currentTimeMillis();
         Assert.notNull(content, "message content must not be null");
         if (obj == null) {
             content.append("NULL", "input is null");
@@ -401,8 +467,8 @@ public abstract class ServerSupport {
         if (StringUtils.isNotBlank(message)) {
             content.append(key, message);
         }
-        long use = System.nanoTime() - start;
-        if (use > 500000000) {
+        long use = System.currentTimeMillis() - start;
+        if (use > 1000) {
             LOG.warn("valid obj[{}] is to complex, valid it use {}ns", obj, use);
         } else {
             LOG.debug("valid obj[{}], use {}ns", obj, use);
@@ -428,6 +494,12 @@ public abstract class ServerSupport {
         return new MessageContent();
     }
 
+    /**
+     * 设置是否将执行上下文驱赶到message中输出
+     * 
+     * @param extract
+     *            驱赶标示
+     */
     protected void setExtract(boolean extract) {
         this.extract = extract;
     }

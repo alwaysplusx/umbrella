@@ -31,4 +31,13 @@ public interface MetadataLoader {
      */
     Metadata loadMetadata(Class<?> serviceClass);
 
+    /**
+     * 根据指定的service类名加载元数据
+     * 
+     * @param serviceClassName
+     *            类名
+     * @return {@linkplain Metadata}
+     */
+    Metadata loadMetadata(String serviceClassName);
+
 }
