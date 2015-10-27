@@ -92,7 +92,7 @@ public abstract class ValidatorUtils {
 
         if (visitor != null) {
             String message = visitor.valid(object);
-            if (StringUtils.isBlank(message)) {
+            if (!StringUtils.isBlank(message)) {
                 buf.append(", ").append(message);
             }
         }
