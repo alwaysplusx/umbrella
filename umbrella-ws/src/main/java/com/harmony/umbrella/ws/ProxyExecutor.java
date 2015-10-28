@@ -18,10 +18,15 @@ package com.harmony.umbrella.ws;
 import java.util.concurrent.Future;
 
 /**
- * @author wuxii@foxmail.com
+ * 代理执行者， 通过代理接口创建的上下文来实现最终的交互
+ * 
+ * @author wuxii@foxmail.com、
  */
 public interface ProxyExecutor {
 
+    /**
+     * 接口交互监控视图
+     */
     public static final String WS_EXECUTION_GRAPH = ProxyExecutor.class.getName() + ".WS_EXECUTION_GRAPH";
 
     /**

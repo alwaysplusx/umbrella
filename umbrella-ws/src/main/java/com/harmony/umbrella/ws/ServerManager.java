@@ -26,6 +26,8 @@ import com.harmony.umbrella.util.Assert;
 /**
  * 服务管理, 负责管理所有的服务实例
  *
+ * @param <T>
+ *            创建服务的工厂类型 - 主要用于工厂配置选项
  * @author wuxii@foxmail.com
  */
 public abstract class ServerManager<T> {

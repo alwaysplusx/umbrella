@@ -20,6 +20,10 @@ import java.util.Map;
 /**
  * one sync method one sync callback
  * 
+ * @param <T>
+ *            同步的实体类
+ * @param <R>
+ *            同步返回的结果
  * @author wuxii@foxmail.com
  */
 public interface SyncCallback<T, R> {
