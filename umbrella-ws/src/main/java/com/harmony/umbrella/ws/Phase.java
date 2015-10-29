@@ -1,5 +1,3 @@
-package com.harmony.umbrella.ws;
-
 /*
  * Copyright 2002-2014 the original author or authors.
  *
@@ -15,6 +13,7 @@ package com.harmony.umbrella.ws;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.harmony.umbrella.ws;
 
 /**
  * 服务交互的执行周期
@@ -27,6 +26,7 @@ public enum Phase {
      * 执行前
      */
     PRE_INVOKE {
+
         @Override
         public String render() {
             return "post-unmarshal";
@@ -36,6 +36,7 @@ public enum Phase {
      * 有{@linkplain WebServiceAbortException} 取消执行
      */
     ABORT {
+
         @Override
         public String render() {
             return null;
@@ -45,6 +46,7 @@ public enum Phase {
      * 执行成功后
      */
     POST_INVOKE {
+
         @Override
         public String render() {
             return "pre-marshal";
@@ -54,11 +56,15 @@ public enum Phase {
      * 执行异常
      */
     THROWING {
+
         @Override
         public String render() {
             return null;
         }
     },
+    /**
+     * 交互的finally块中
+     */
     FINALLY {
 
         @Override
@@ -71,17 +77,8 @@ public enum Phase {
     /**
      * for CXF {@linkplain org.apache.cxf.phase.Phase}
      * 
-     * @return
+     * @return cxf phase
      */
     public abstract String render();
-
-    public static Phase value(String phase) {
-        for (Phase p : values()) {
-            if (p.render() != null && p.render().equals(phase)) {
-                return p;
-            }
-        }
-        return null;
-    }
 
 }

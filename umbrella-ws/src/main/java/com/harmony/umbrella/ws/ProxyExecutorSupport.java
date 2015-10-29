@@ -40,6 +40,15 @@ public abstract class ProxyExecutorSupport implements JaxWsExecutor {
      */
     private boolean throwOrHide = false;
 
+    /**
+     * 不触发visitor的情况下执行交互
+     * 
+     * @param context
+     *            执行的上下文
+     * @param resultType
+     *            返回类型
+     * @return 交互结果
+     */
     public abstract <T> T executeQuite(Context context, Class<T> resultType);
 
     @Override
@@ -131,6 +140,9 @@ public abstract class ProxyExecutorSupport implements JaxWsExecutor {
         LOG.debug("ignore exception {}", e.toString());
     }
 
+    /**
+     * 调用访问者的before方法
+     */
     protected boolean doBefore(Context context, ContextVisitor[] visitors) throws WebServiceAbortException {
         if (visitors != null && visitors.length > 0) {
             for (ContextVisitor visitor : visitors) {
@@ -142,6 +154,9 @@ public abstract class ProxyExecutorSupport implements JaxWsExecutor {
         return true;
     }
 
+    /**
+     * 调用访问者的abort方法
+     */
     protected void doAbort(WebServiceAbortException ex, Context context, ContextVisitor[] visitors) {
         if (visitors != null && visitors.length > 0) {
             for (ContextVisitor visitor : visitors) {
@@ -150,6 +165,9 @@ public abstract class ProxyExecutorSupport implements JaxWsExecutor {
         }
     }
 
+    /**
+     * 调用访问者的completion方法
+     */
     protected void doCompletion(Object result, Context context, ContextVisitor[] visitors) {
         if (visitors != null && visitors.length > 0) {
             for (ContextVisitor visitor : visitors) {
@@ -158,6 +176,9 @@ public abstract class ProxyExecutorSupport implements JaxWsExecutor {
         }
     }
 
+    /**
+     * 调用访问者的throwing方法
+     */
     protected void doThrowing(Exception throwable, Context context, ContextVisitor[] visitors) {
         if (visitors != null && visitors.length > 0) {
             for (ContextVisitor visitor : visitors) {
@@ -166,6 +187,9 @@ public abstract class ProxyExecutorSupport implements JaxWsExecutor {
         }
     }
 
+    /**
+     * 调用访问者的finally方法
+     */
     protected void doFinally(Object result, Exception throwable, Context context, ContextVisitor[] visitors) {
         if (visitors != null && visitors.length > 0) {
             for (ContextVisitor visitor : visitors) {

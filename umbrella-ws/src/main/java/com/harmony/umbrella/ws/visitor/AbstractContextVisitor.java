@@ -20,6 +20,8 @@ import com.harmony.umbrella.ws.ContextVisitor;
 import com.harmony.umbrella.ws.WebServiceAbortException;
 
 /**
+ * 周期访问空实现
+ * 
  * @author wuxii@foxmail.com
  */
 public abstract class AbstractContextVisitor implements ContextVisitor {

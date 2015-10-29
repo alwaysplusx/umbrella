@@ -33,6 +33,10 @@ import com.harmony.umbrella.ws.util.HandleMethodInvoker;
 import com.harmony.umbrella.ws.util.HandlerMethodFinder;
 
 /**
+ * 通过{@linkplain com.harmony.umbrella.ws.Handler Handler}与
+ * {@linkplain com.harmony.umbrella.ws.Handler.HandleMethod HandleMethod}
+ * 来对同步业务进行周期回调
+ * 
  * @author wuxii@foxmail.com
  */
 public class ValidationContextVisitor extends AbstractContextVisitor implements Serializable {

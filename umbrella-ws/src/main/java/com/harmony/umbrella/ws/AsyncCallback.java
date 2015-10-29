@@ -30,7 +30,7 @@ public interface AsyncCallback<V> {
      * @param result
      *            接口返回的结果
      * @param content
-     *            {@linkplain Context#getContextMap()}
+     *            执行的上下文内容{@linkplain Context#getContextMap()}
      */
     void handle(V result, Map<String, Object> content);
 

@@ -23,6 +23,7 @@ import com.harmony.umbrella.Constants;
 import com.harmony.umbrella.context.ApplicationContext;
 import com.harmony.umbrella.core.BeanFactory;
 import com.harmony.umbrella.ws.Context;
+import com.harmony.umbrella.ws.ProxyExecutor;
 import com.harmony.umbrella.ws.SyncCallback;
 import com.harmony.umbrella.ws.Syncable;
 import com.harmony.umbrella.ws.WebServiceAbortException;
@@ -32,10 +33,13 @@ import com.harmony.umbrella.ws.util.CallbackFinder;
 /**
  * 业务回调的扩展周期访问者
  * <p>
- * {@linkplain Syncable}, {@linkplain SyncCallback}主要扩展对象,
- * {@linkplain SyncableContextVisitor}负责加载类路径下的所有标注有{@linkplain Syncable}
- * 的类，如果标注了该注解的类是{@linkplain SyncCallback} 接口的实现类这认为对业务具有回调作用。将在执行周期中被回调周期访问者
- * {@linkplain SyncableContextVisitor}执行回调方法
+ * 基于 {@linkplain Syncable}, {@linkplain SyncCallback}的功能扩展，
+ * {@linkplain SyncableContextVisitor}加载类路径下的标注有{@linkplain Syncable} 注解的类（注有
+ * {@linkplain Syncable}表示一个可同步的业务bean）。
+ * <p>
+ * {@linkplain SyncCallback}接口的实现类对注有{@linkplain Syncable} 的同步业务bean起到回调作用。将
+ * {@linkplain SyncableContextVisitor}注入到{@linkplain ProxyExecutor}中则客户实现对
+ * {@linkplain SyncCallback}的实现在同步业务上的周期回调
  * 
  * @author wuxii@foxmail.com
  */
@@ -125,5 +129,5 @@ public class SyncableContextVisitor extends AbstractContextVisitor {
         }
         return result;
     }
-    
+
 }

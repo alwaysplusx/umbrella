@@ -36,7 +36,7 @@ public interface ProxyExecutor {
      * 
      * @param context
      *            执行上下文
-     * @return 执行结果,如果web service返回参数为void则返回null
+     * @return 执行结果。如果服务返回参数为void则返回null
      */
     Object execute(Context context);
 
@@ -49,7 +49,7 @@ public interface ProxyExecutor {
      *            上下文
      * @param resultType
      *            返回值类型
-     * @return 交互结果
+     * @return 执行结果。如果服务返回参数为void则返回null
      */
     <T> T execute(Context context, Class<T> resultType);
 
@@ -60,7 +60,7 @@ public interface ProxyExecutor {
      *            执行上下文
      * @param visitors
      *            执行的访问者
-     * @return
+     * @return 执行结果。如果服务返回参数为void则返回null
      */
     Object execute(Context context, ContextVisitor... visitors);
 
@@ -73,7 +73,7 @@ public interface ProxyExecutor {
      *            返回类型
      * @param visitors
      *            执行的访问者
-     * @return
+     * @return 执行结果。如果服务返回参数为void则返回null
      */
     <T> T execute(Context context, Class<T> resultType, ContextVisitor... visitors);
 
