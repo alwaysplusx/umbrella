@@ -28,8 +28,8 @@ public enum Phase {
     PRE_INVOKE {
 
         @Override
-        public String render() {
-            return "post-unmarshal";
+        public String CXFPhase() {
+            return org.apache.cxf.phase.Phase.POST_UNMARSHAL;
         }
     },
     /**
@@ -38,7 +38,7 @@ public enum Phase {
     ABORT {
 
         @Override
-        public String render() {
+        public String CXFPhase() {
             return null;
         }
     },
@@ -48,8 +48,8 @@ public enum Phase {
     POST_INVOKE {
 
         @Override
-        public String render() {
-            return "pre-marshal";
+        public String CXFPhase() {
+            return org.apache.cxf.phase.Phase.PRE_MARSHAL;
         }
     },
     /**
@@ -58,7 +58,7 @@ public enum Phase {
     THROWING {
 
         @Override
-        public String render() {
+        public String CXFPhase() {
             return null;
         }
     },
@@ -68,7 +68,7 @@ public enum Phase {
     FINALLY {
 
         @Override
-        public String render() {
+        public String CXFPhase() {
             return null;
         }
 
@@ -79,6 +79,6 @@ public enum Phase {
      * 
      * @return cxf phase
      */
-    public abstract String render();
+    public abstract String CXFPhase();
 
 }

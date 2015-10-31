@@ -21,31 +21,32 @@ import java.util.Enumeration;
 import java.util.Map;
 
 /**
- * 执行时候的上下文
- * <p/>
+ * 执行时候的交互上下文
+ * <p>
  * 上下文中包括:
- * <li>待执行的web service接口
+ * <ul>
+ * <li>待执行的服务接口
  * <li>待执行的方法
- * <li>执行时候所需要用到的参数
  * <li>调用地址
  * <li>用户名密码
  * <li>以及其他待扩展的属性
- *
+ * </ul>
+ * 
  * @author wuxii@foxmail.com
  */
 public interface Context extends Metadata, Serializable {
 
     /**
-     * 每次消息生成一个唯一键
+     * 每次消息生成一个唯一键（ 使用数字自增，即创建一次+1）。
      * 
-     * @return 键
+     * @return 上下文的唯一标识
      */
     long getContextId();
 
     /**
-     * 接口类
+     * 服务接口，对于客户端而言可以是CXF wsdl2java或wsimport生成的java类，服务端可以是服务接口
      *
-     * @return 接口
+     * @return 接口类
      */
     Class<?> getServiceInterface();
 

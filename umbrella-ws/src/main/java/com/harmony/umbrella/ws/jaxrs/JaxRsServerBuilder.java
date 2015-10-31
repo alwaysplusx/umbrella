@@ -210,6 +210,8 @@ public class JaxRsServerBuilder {
      * 
      * @param cls
      *            待获取的类
+     * @param <T>
+     *            返回的类型
      * @return 指定的类信息
      * @throws IllegalArgumentException
      *             不支持的类型

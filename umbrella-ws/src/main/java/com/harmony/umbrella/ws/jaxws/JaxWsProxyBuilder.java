@@ -32,7 +32,6 @@ import org.slf4j.LoggerFactory;
 
 import com.harmony.umbrella.util.Assert;
 import com.harmony.umbrella.ws.FactoryConfig;
-import com.harmony.umbrella.ws.MetadataLoader;
 
 /**
  * Proxy Builder 创建代理实例
@@ -115,7 +114,7 @@ public class JaxWsProxyBuilder {
     }
 
     /**
-     * 设置代理服务的地址，该操作发生在{@link #setMetadataLoader(MetadataLoader)} 之后则不在加载该属性
+     * 设置代理服务的地址
      * 
      * @param address
      *            服务地址
@@ -126,7 +125,7 @@ public class JaxWsProxyBuilder {
     }
 
     /**
-     * 设置代理服务的用户密码，该操作发生在{@link #setMetadataLoader(MetadataLoader)} 之后则不在加载该属性
+     * 设置代理服务的用户密码
      * 
      * @param username
      *            用户名
@@ -137,7 +136,7 @@ public class JaxWsProxyBuilder {
     }
 
     /**
-     * 设置代理服务的密码，该操作发生在{@link #setMetadataLoader(MetadataLoader)} 之后则不在加载该属性
+     * 设置代理服务的密码
      * 
      * @param password
      *            用户密码
@@ -163,7 +162,7 @@ public class JaxWsProxyBuilder {
      * 
      * @param connectionTimeout
      *            连接超时时间
-     * @see HTTPConduit#set
+     * @see org.apache.cxf.transport.http.HTTPConduit
      */
     public JaxWsProxyBuilder setConnectionTimeout(long connectionTimeout) {
         this.connectionTimeout = connectionTimeout;
@@ -220,7 +219,7 @@ public class JaxWsProxyBuilder {
     }
 
     /**
-     * 创建代理服务，并创建前提供{@linkplain ProxyFactoryConfig<JaxWsProxyFactoryBean>}配置工厂属性
+     * 创建代理服务，并创建前提供{@linkplain FactoryConfig}配置工厂属性
      * 
      * @param serviceClass
      *            代理服务类型
@@ -299,7 +298,7 @@ public class JaxWsProxyBuilder {
      *            待设置的代理对象
      * @param receiveTimeout
      *            接收等待时间
-     * @see HTTPClientPolicy#setReceiveTimeout(long)
+     * @see org.apache.cxf.transports.http.configuration.HTTPClientPolicy#setReceiveTimeout(long) HTTPClientPolicy.setReceiveTimeout(long)
      */
     public static void setReceiveTimeout(Object target, long receiveTimeout) {
         if (receiveTimeout < 0) {
@@ -319,7 +318,7 @@ public class JaxWsProxyBuilder {
      *            待设置的代理对象
      * @param connectionTimeout
      *            连接等待时间
-     * @see HTTPClientPolicy#setConnectionTimeout(long)
+     * @see org.apache.cxf.transports.http.configuration.HTTPClientPolicy#setConnectionTimeout(long)
      */
     public static void setConnectionTimeout(Object target, long connectionTimeout) {
         if (connectionTimeout < 0) {

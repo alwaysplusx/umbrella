@@ -22,7 +22,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * 为class标记{@linkplain Handler},表示被标记的class为{@linkplain Context}的处理类
+ * 为class标记{@linkplain Handler}, 表示被标记的class为{@linkplain Context}的处理类
  * 
  * @author wuxii@foxmail.com
  */
@@ -33,16 +33,22 @@ public @interface Handler {
 
     /**
      * 关联处理的类{@linkplain Context#getServiceInterface()}
+     * 
+     * @return 需要被处理的类
      */
     Class<?>[] value() default {};
 
     /**
      * 关联处理的类{@linkplain Context#getServiceInterface()}
+     * 
+     * @return 需要被处理的类的类名
      */
     String[] handles() default {};
 
     /**
      * class的排序信息，放在第几个回调位置
+     * 
+     * @return 回调的index
      */
     int ordinal() default 0;
 
@@ -107,11 +113,15 @@ public @interface Handler {
          * 接口的方法名，在
          * {@linkplain com.harmony.umbrella.ws.visitor.ValidationContextVisitor}
          * 默认为注解在方法体上的方法名
+         * 
+         * @return 处理的方法名称
          */
         String methodName() default "";
 
         /**
          * 执行的周期{@linkplain Phase}
+         * 
+         * @return 处理的周期
          */
         Phase phase();
 

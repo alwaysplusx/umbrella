@@ -80,7 +80,6 @@ public abstract class ServerManager<T> {
 
     /**
      * 在指定地址{@code address}发布{@code service}服务
-     * <p/>
      * 
      * @param service
      *            服务
@@ -134,7 +133,6 @@ public abstract class ServerManager<T> {
 
     /**
      * 检测服务地址是否被占用
-     * <p>
      * 
      * <pre>
      *  1) 

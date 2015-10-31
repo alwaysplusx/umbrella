@@ -38,7 +38,7 @@ public abstract class ProxyExecutorSupport implements JaxWsExecutor {
     /**
      * 标记执行出现错误是抛出还是隐藏
      */
-    private boolean throwOrHide = false;
+    protected boolean throwOutException = false;
 
     /**
      * 不触发visitor的情况下执行交互
@@ -78,10 +78,10 @@ public abstract class ProxyExecutorSupport implements JaxWsExecutor {
             doCompletion(result, context, visitors);
         } catch (WebServiceAbortException e) {
             ex = e;
-            doAbort((WebServiceAbortException) e, context, visitors);
+            doAbort(e, context, visitors);
         } catch (Exception e) {
             doThrowing(ex = e, context, visitors);
-            throwOrHide(e);
+            throwOutException(e);
         } finally {
             doFinally(result, ex, context, visitors);
         }
@@ -90,7 +90,7 @@ public abstract class ProxyExecutorSupport implements JaxWsExecutor {
 
     @Override
     public Future<?> executeAsync(Context context) {
-        return (Future<?>) executeAsync(context, Object.class);
+        return executeAsync(context, Object.class);
     }
 
     @Override
@@ -129,9 +129,10 @@ public abstract class ProxyExecutorSupport implements JaxWsExecutor {
      * 将执行中抛出的异常在方法中通过判断是否抛出
      * 
      * @param e
+     *            异常信息
      */
-    protected void throwOrHide(Exception e) {
-        if (!throwOrHide) {
+    private void throwOutException(Exception e) {
+        if (!throwOutException) {
             if (e instanceof RuntimeException) {
                 throw (RuntimeException) e;
             }
@@ -142,6 +143,9 @@ public abstract class ProxyExecutorSupport implements JaxWsExecutor {
 
     /**
      * 调用访问者的before方法
+     * 
+     * @throws WebServiceAbortException
+     *             取消执行异常, 抛出此异常后取消后续调用
      */
     protected boolean doBefore(Context context, ContextVisitor[] visitors) throws WebServiceAbortException {
         if (visitors != null && visitors.length > 0) {

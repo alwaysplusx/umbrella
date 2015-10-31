@@ -48,14 +48,14 @@ under the License.
     <module>umbrella-scheduler</module>
     <module>umbrella-web</module>
     <module>umbrella-mapper</module>
-    <module>umbrella-logger</module>
     <module>umbrella-xml</module>
+    <module>umbrella-plugins</module>
+    <!-- <module>umbrella-logger</module> -->
     <!-- <module>umbrella-resources</module> -->
     <!-- <module>umbrella-spring</module> -->
     <!-- <module>umbrella-security</module> -->
     <!-- <module>umbrella-cache</module> -->
     <!-- <module>umbrella-web</module> -->
-    <!-- <module>umbrella-plugins</module> -->
     <!-- <module>examples</module> -->
     <!-- <module>umbrella-activity</module> -->
   </modules>
@@ -77,7 +77,6 @@ under the License.
     <javax.jms.version>2.0.1</javax.jms.version>
     <javax.servlet.version>3.1.0</javax.servlet.version>
     <javax.interceptor.version>1.2</javax.interceptor.version>
-    <javax.ee.version>6.0</javax.ee.version>
     <javax.el.version>2.2.5</javax.el.version>
     <javax.validation.version>1.1.0.Final</javax.validation.version>
     <javax.ws.rs.version>2.0</javax.ws.rs.version>
@@ -411,11 +410,6 @@ under the License.
         <groupId>javax.interceptor</groupId>
         <artifactId>javax.interceptor-api</artifactId>
         <version>${javax.interceptor.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>javax</groupId>
-        <artifactId>javaee-api</artifactId>
-        <version>${javax.ee.version}</version>
       </dependency>
       <dependency>
         <groupId>javax.validation</groupId>
