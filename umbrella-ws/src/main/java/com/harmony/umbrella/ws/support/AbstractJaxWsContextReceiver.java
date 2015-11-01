@@ -91,7 +91,7 @@ public abstract class AbstractJaxWsContextReceiver extends AbstractMessageResolv
      * 只要满足一个条件则重新加载：
      * <ul>
      * <li>前提条件-配置的加载工具不为空{@linkplain #getMetadataLoader() MetadataLoader}
-     * <li>设置{@linkplain #isReload() reload}为true
+     * <li>设置{@linkplain #setReload(boolean) reload}为true
      * <li>在上下文中设置了重新加载标识{@linkplain #RELOAD_CONTEXT}
      * </ul>
      * 

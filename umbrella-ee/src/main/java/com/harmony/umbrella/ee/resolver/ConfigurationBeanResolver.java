@@ -31,6 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.harmony.umbrella.ee.BeanDefinition;
+import com.harmony.umbrella.ee.BeanFilter;
 import com.harmony.umbrella.ee.BeanResolver;
 import com.harmony.umbrella.ee.WrappedBeanHandler;
 import com.harmony.umbrella.util.Assert;

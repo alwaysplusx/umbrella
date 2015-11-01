@@ -18,18 +18,11 @@ package com.harmony.umbrella.ee;
 import javax.naming.Context;
 
 /**
+ * 根据bean的定义，在可以根据环境或者配置情况解析环境中对应的bean
+ * 
  * @author wuxii@foxmail.com
  */
 public interface BeanResolver {
-
-    /**
-     * 根据配置的上下文的信息猜想环境中对应的bean jndi名称
-     * 
-     * @param beanDefinition
-     *            bean定义
-     * @return 所有猜想并在{@linkplain Context}中存在的jndi名称
-     */
-    String[] guessNames(BeanDefinition beanDefinition, Context root);
 
     /**
      * 通过配置的信息获取可猜想出的jndi
@@ -39,6 +32,17 @@ public interface BeanResolver {
      * @return jndis 猜想结果
      */
     String[] guessNames(BeanDefinition beanDefinition);
+
+    /**
+     * 根据配置的上下文的信息猜想环境中对应的bean jndi名称, 猜想的结构为root中存在的jndi
+     * 
+     * @param beanDefinition
+     *            bean定义
+     * @param content
+     *            {@linkplain Context}
+     * @return 所有猜想并在{@linkplain Context}中存在的jndi名称
+     */
+    String[] guessNames(BeanDefinition beanDefinition, Context content);
 
     /**
      * 查看bean是否与声明的类型匹配
@@ -52,27 +56,16 @@ public interface BeanResolver {
     boolean isDeclareBean(BeanDefinition declare, Object bean);
 
     /**
+     * 根据beanDefinition猜想context中对于的jndi， 并提供beanFilter过滤对应的猜想结果，选取最优的bean
+     * 
      * @param beanDefinition
+     *            bean定义
      * @param context
+     *            {@linkplain Context}
      * @param filter
-     * @return
+     *            bean过滤
+     * @return 猜想的最优解，如果未能找到返回null
      */
     Object guessBean(BeanDefinition beanDefinition, Context context, BeanFilter filter);
 
-    /**
-     * @author wuxii@foxmail.com
-     */
-    public interface BeanFilter {
-
-        /**
-         * 判断jndi对应的bean是否为所需要的bean
-         * 
-         * @param jndi
-         *            jndi名称
-         * @param bean
-         *            bean实例
-         */
-        boolean accept(String jndi, Object bean);
-
-    }
 }

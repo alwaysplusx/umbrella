@@ -16,6 +16,8 @@
 package com.harmony.umbrella.ee.jmx;
 
 /**
+ * EJB Application Context JMX管理扩展
+ * 
  * @author wuxii@foxmail.com
  */
 public interface EJBContextMBean {
@@ -45,7 +47,15 @@ public interface EJBContextMBean {
     String jndiPropertiesFilePath();
 
     /**
-     * 清楚缓存资源
+     * 清除指定jndi的缓存
+     * 
+     * @param jndi
+     *            jndi名称
+     */
+    void clear(String jndi);
+
+    /**
+     * 清除缓存资源
      */
     void clear();
 

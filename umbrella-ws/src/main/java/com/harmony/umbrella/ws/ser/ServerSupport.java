@@ -47,6 +47,7 @@ import com.harmony.umbrella.util.Exceptions;
 import com.harmony.umbrella.util.StringUtils;
 import com.harmony.umbrella.validator.ValidVisitor;
 import com.harmony.umbrella.validator.util.ValidatorUtils;
+import com.harmony.umbrella.ws.Key;
 import com.harmony.umbrella.ws.ser.ServerValidation.MemberInvoker;
 
 /**
@@ -68,7 +69,7 @@ public abstract class ServerSupport {
 
     protected static final String MAPPING_LOCATION = "mapping.xml";
 
-    protected boolean extract = true;
+    protected boolean extractContent = true;
 
     protected String getMappingLocation() {
         return MAPPING_LOCATION;
@@ -113,6 +114,10 @@ public abstract class ServerSupport {
      *            源对象
      * @param destType
      *            目标对象类型
+     * @param <S>
+     *            源类型
+     * @param <D>
+     *            目标类型
      * @return dest object
      */
     protected <S, D> D mapping(S src, Class<D> destType) {
@@ -126,6 +131,10 @@ public abstract class ServerSupport {
      *            源对象
      * @param dest
      *            目标对象
+     * @param <S>
+     *            源类型
+     * @param <D>
+     *            目标类型
      * @return dest object
      */
     protected <S, D> D mapping(S src, D dest) {
@@ -141,7 +150,11 @@ public abstract class ServerSupport {
      *            目标
      * @param mapId
      *            配置文件中的mapId
-     * @return
+     * @param <S>
+     *            源类型
+     * @param <D>
+     *            目标类型
+     * @return dest object
      */
     protected <S, D> D mapping(S src, D dest, String mapId) {
         return getMapper().mapper(src, dest, mapId);
@@ -154,6 +167,10 @@ public abstract class ServerSupport {
      *            源
      * @param destType
      *            目标
+     * @param <S>
+     *            源类型
+     * @param <D>
+     *            目标类型
      * @param mapId
      *            配置文件中的mapId
      * @return
@@ -291,7 +308,7 @@ public abstract class ServerSupport {
     }
 
     /**
-     * 在执行上下文中根据key增加描述字符, 与原字符用<code>,</code>隔开 如果原上下文中没有对应的key，则直接添加到上下文中
+     * 在执行上下文中根据key增加描述字符, 与原字符用','隔开 如果原上下文中没有对应的key，则直接添加到上下文中
      * 
      * @param key
      *            上下文中的key
@@ -315,10 +332,9 @@ public abstract class ServerSupport {
     private Message buildMessage(String message, String type, Map<String, String> content) {
         message = message.trim();
         if (message.startsWith("{") && message.endsWith("}")) {
-            String code = message.substring(1, message.length() - 1);
-            message = messageBundle.getMessage(code, getLocale());
+            message = messageBundle.getMessage(message.substring(1, message.length() - 1));
         }
-        if (!extract) {
+        if (!extractContent) {
             return new Message(message, type, content);
         }
         return new Message(extractContentMessage(new StringBuilder(message), content), type);
@@ -377,6 +393,13 @@ public abstract class ServerSupport {
         return extractKey(obj);
     }
 
+    /**
+     * 通过配置的注解{@linkplain Key}解析对应vo的服务器端的唯一标识
+     * 
+     * @param obj
+     *            传入的vo
+     * @return vo的唯一标识
+     */
     private String extractKey(Object obj) {
         Map<String, Object> keys = new LinkedHashMap<String, Object>();
         MemberInvoker[] keyMembers = getKeyMembers(obj.getClass());
@@ -441,7 +464,7 @@ public abstract class ServerSupport {
     }
 
     /**
-     * 验证vo是否符合数据格式的要求
+     * 验证vo是否符合数据格式的要求。一般地，在开始业务时候会把验证放置在前提条件
      * <p>
      * 如果验证不通过则将在content中添加对于的vo key以及vo验证错误的信息
      * 
@@ -456,12 +479,12 @@ public abstract class ServerSupport {
      * @return true验证通过， false验证vo存在错误
      */
     protected boolean isValid(Object obj, MessageContent content, ValidVisitor visitor, Class<?>... groups) {
-        long start = System.currentTimeMillis();
         Assert.notNull(content, "message content must not be null");
         if (obj == null) {
             content.append("NULL", "input is null");
             return false;
         }
+        long start = System.currentTimeMillis();
         String key = extractKey(obj);
         String message = ValidatorUtils.getViolationMessage(obj, visitor, groups);
         if (StringUtils.isNotBlank(message)) {
@@ -469,7 +492,7 @@ public abstract class ServerSupport {
         }
         long use = System.currentTimeMillis() - start;
         if (use > 1000) {
-            LOG.warn("valid obj[{}] is to complex, valid it use {}ns", obj, use);
+            LOG.warn("valid obj[{}] is to complex, valid it use {}ms", obj, use);
         } else {
             LOG.debug("valid obj[{}], use {}ns", obj, use);
         }
@@ -497,11 +520,11 @@ public abstract class ServerSupport {
     /**
      * 设置是否将执行上下文驱赶到message中输出
      * 
-     * @param extract
+     * @param extractContent
      *            驱赶标示
      */
-    protected void setExtract(boolean extract) {
-        this.extract = extract;
+    public void setExtractContent(boolean extractContent) {
+        this.extractContent = extractContent;
     }
 
 }

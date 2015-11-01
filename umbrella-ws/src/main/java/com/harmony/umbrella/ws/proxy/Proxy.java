@@ -104,7 +104,7 @@ public interface Proxy<T> {
      *            待同步的objs
      * @param properties
      *            同步的可利用属性，会放置在同步的上下文中.(EJB情况下需考虑对传出对象的序列化情况)
-     * @see Proxy#sync(Iterable)
+     * @see Proxy#sync(List)
      * @see Proxy#sync(Object)
      */
     void sync(List<T> objs, Map<String, Object> properties);
@@ -124,7 +124,7 @@ public interface Proxy<T> {
      *            待同步的objs
      * @param properties
      *            同步的可利用属性，会放置在同步的上下文中.(EJB情况下需考虑对传出对象的序列化情况)
-     * @see #syncInBatch(Iterable)
+     * @see #syncInBatch(List)
      */
     boolean syncInBatch(List<T> objs, Map<String, Object> properties);
 

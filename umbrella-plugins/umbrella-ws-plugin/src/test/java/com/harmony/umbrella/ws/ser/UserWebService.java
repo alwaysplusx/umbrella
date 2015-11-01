@@ -38,7 +38,7 @@ public class UserWebService extends ServerSupport implements UserService {
     private static final List<User> users = new ArrayList<User>();
 
     public UserWebService() {
-        this.extract = false;
+        this.extractContent = false;
     }
 
     @Override

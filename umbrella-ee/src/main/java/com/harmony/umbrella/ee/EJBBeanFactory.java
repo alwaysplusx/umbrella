@@ -25,7 +25,7 @@ import javax.naming.NamingException;
 
 import com.harmony.umbrella.core.BeanFactory;
 import com.harmony.umbrella.core.NoSuchBeanFindException;
-import com.harmony.umbrella.ee.BeanResolver.BeanFilter;
+import com.harmony.umbrella.ee.BeanFilter;
 import com.harmony.umbrella.ee.resolver.InternalContextResolver;
 import com.harmony.umbrella.util.ClassUtils.ClassFilterFeature;
 import com.harmony.umbrella.util.ReflectionUtils;

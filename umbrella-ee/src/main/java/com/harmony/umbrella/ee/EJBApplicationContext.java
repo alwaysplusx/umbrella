@@ -18,9 +18,9 @@ package com.harmony.umbrella.ee;
 import static com.harmony.umbrella.ee.ResolverManager.*;
 
 import java.net.URL;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -45,6 +45,10 @@ import com.harmony.umbrella.util.StringUtils;
  */
 public class EJBApplicationContext extends ApplicationContext implements EJBContextMBean {
 
+    protected static final int STANDBY = 1;
+    protected static final int RUNNING = 2;
+    protected static final int SHUTDOWN = 3;
+    
     /**
      * jndi文件地址
      */
@@ -56,9 +60,10 @@ public class EJBApplicationContext extends ApplicationContext implements EJBCont
     private JmxManager jmxManager = JmxManager.getInstance();
 
     /**
-     * 存放与class对应的Context的bean信息，信息中包含jndi, bean definition, 和一个被缓存着的实例(可以做单例使用)
+     * 存放与class对应的Context的bean信息，sessionBean信息中包含jndi, bean definition,
+     * 和一个被缓存着的实例(可以做单例使用)
      */
-    private Map<String, SessionBean> sessionBeanMap = new HashMap<String, SessionBean>();
+    private Map<String, SessionBean> sessionBeanMap = new ConcurrentHashMap<String, SessionBean>();
 
     private static EJBApplicationContext INSTANCE;
 
@@ -66,13 +71,9 @@ public class EJBApplicationContext extends ApplicationContext implements EJBCont
 
     private int lifeCycle = STANDBY;
 
-    private static final int STANDBY = 1;
-    private static final int RUNNING = 2;
-    private static final int SHUTDOWN = 3;
-
     private EJBApplicationContext(Properties props) {
         this.jndiPropertiesFileLocation = props.getProperty("jndi.properties.file", APPLICATION_PROPERTIES_LOCATION);
-        this.loadProperties();
+        this.loadProperties(jndiPropertiesFileLocation);
         this.applyProperties(props);
         this.contextResolver = createContextResolver(getInformationOfServer(), applicationProperties);
     }
@@ -104,6 +105,7 @@ public class EJBApplicationContext extends ApplicationContext implements EJBCont
         if (lifeCycle == STANDBY) {
             synchronized (EJBApplicationContext.class) {
                 if (lifeCycle == STANDBY) {
+                    
                     if (jmxManager.isRegistered(EJBContext.class)) {
                         jmxManager.unregisterMBean(EJBContext.class);
                     }
@@ -121,12 +123,14 @@ public class EJBApplicationContext extends ApplicationContext implements EJBCont
     }
 
     private void initDB() {
-        String name = applicationProperties.getProperty("application.datasource.name", "jdbc/harmony");
-        try {
-            DataSource ds = (DataSource) lookup(name);
-            initializeDBInformation(ds.getConnection(), true);
-        } catch (Exception e) {
-            LOG.error("init database information failed, {}", e.toString());
+        String name = applicationProperties.getProperty("application.datasource.name");
+        if (StringUtils.isNotBlank(name)) {
+            try {
+                DataSource ds = (DataSource) lookup(name);
+                initializeDBInformation(ds.getConnection(), true);
+            } catch (Exception e) {
+                LOG.error("init database information failed, {}", e.toString());
+            }
         }
     }
 
@@ -264,9 +268,9 @@ public class EJBApplicationContext extends ApplicationContext implements EJBCont
      *            jndi名称
      * @param jndiProperties
      *            指定上下文属性
-     * @return
+     * @return 在环境中对于jndi的bean
      * @throws ApplicationContextException
-     *             上下文初始化失败
+     *             上下文初始化失败, 或者未找到对应的jndi bean
      */
     public static Object lookup(String jndiName, Properties jndiProperties) {
         try {
@@ -327,12 +331,22 @@ public class EJBApplicationContext extends ApplicationContext implements EJBCont
         return bean;
     }
 
+    /**
+     * 使用传入的属性覆盖已经存在的环境Application properties
+     * 
+     * @param props
+     *            传入的属性
+     */
     protected void applyProperties(Properties props) {
         if (props != null && !props.isEmpty()) {
             this.applicationProperties.putAll(props);
         }
     }
 
+    private void loadProperties(String fielLocation) {
+        applicationProperties.putAll(PropUtils.loadProperties(fielLocation));
+    }
+    
     // ############## JMX ############
     /*
      * JMX method
@@ -340,7 +354,7 @@ public class EJBApplicationContext extends ApplicationContext implements EJBCont
     @Override
     public void loadProperties() {
         LOG.info("reload properties {}", jndiPropertiesFileLocation);
-        applicationProperties.putAll(PropUtils.loadProperties(jndiPropertiesFileLocation));
+        loadProperties(jndiPropertiesFileLocation);
     }
 
     /*
@@ -378,11 +392,19 @@ public class EJBApplicationContext extends ApplicationContext implements EJBCont
         return true;
     }
 
+    /*
+     * JMX method
+     */
     @Override
     public void clear() {
         sessionBeanMap.clear();
         contextResolver.clear();
         LOG.info("clear cached context property");
+    }
+    
+    @Override
+    public void clear(String jndi) {
+        sessionBeanMap.remove(jndi);
     }
 
     @Override

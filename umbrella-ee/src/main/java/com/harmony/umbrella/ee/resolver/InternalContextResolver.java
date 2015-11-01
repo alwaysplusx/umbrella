@@ -32,6 +32,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.harmony.umbrella.ee.BeanDefinition;
+import com.harmony.umbrella.ee.BeanFilter;
 import com.harmony.umbrella.ee.ContextResolver;
 import com.harmony.umbrella.ee.SessionBean;
 import com.harmony.umbrella.util.ClassUtils;

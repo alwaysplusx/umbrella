@@ -51,4 +51,9 @@ public class EJBContext implements EJBContextMBean {
         context.clear();
     }
 
+    @Override
+    public void clear(String jndi) {
+        context.clear(jndi);
+    }
+
 }

@@ -112,8 +112,8 @@ public abstract class ProxySupport<T> implements Proxy<T> {
     }
 
     /**
-     * @see com.harmony.dark.ws.Proxy#syncInBatch(java.lang.Iterable)
-     * @see #syncInBatch(Iterable, Map)
+     * @see com.harmony.dark.ws.Proxy#syncInBatch(List)
+     * @see #syncInBatch(List, Map)
      */
     @Override
     public boolean syncInBatch(List<T> objs) {
@@ -124,7 +124,7 @@ public abstract class ProxySupport<T> implements Proxy<T> {
      * 默认不开启批量同步
      * 
      * @throws UnsupportedOperationException
-     * @see com.harmony.dark.ws.Proxy#syncInBatch(java.lang.Iterable)
+     * @see com.harmony.dark.ws.Proxy#syncInBatch(List)
      */
     @Override
     public boolean syncInBatch(List<T> objs, Map<String, Object> properties) {

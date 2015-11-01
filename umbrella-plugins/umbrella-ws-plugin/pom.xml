@@ -7,18 +7,23 @@
     <version>0.0.4-SNAPSHOT</version>
   </parent>
   <artifactId>umbrella-ws-plugin</artifactId>
+  <name>Harmony Umbrella :: Plugin of Web Service</name>
   <dependencies>
+    <dependency>
+      <groupId>com.harmony.umbrella</groupId>
+      <artifactId>umbrella-core</artifactId>
+    </dependency>
     <dependency>
       <groupId>com.harmony.umbrella</groupId>
       <artifactId>umbrella-message</artifactId>
     </dependency>
     <dependency>
       <groupId>com.harmony.umbrella</groupId>
-      <artifactId>umbrella-ee</artifactId>
+      <artifactId>umbrella-ws</artifactId>
     </dependency>
     <dependency>
       <groupId>com.harmony.umbrella</groupId>
-      <artifactId>umbrella-ws</artifactId>
+      <artifactId>umbrella-ee</artifactId>
     </dependency>
     <dependency>
       <groupId>com.harmony.umbrella</groupId>
@@ -33,11 +38,6 @@
       <optional>true</optional>
     </dependency>
     <dependency>
-      <groupId>com.harmony.umbrella</groupId>
-      <artifactId>umbrella-data</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
       <groupId>org.apache.cxf</groupId>
       <artifactId>cxf-rt-frontend-jaxws</artifactId>
       <scope>compile</scope>
@@ -50,31 +50,21 @@
       <optional>true</optional>
     </dependency>
     <!-- api -->
-    <!-- <dependency>
-      <groupId>javax</groupId>
-      <artifactId>javaee-api</artifactId>
-    </dependency>
     <dependency>
+      <groupId>org.apache.openejb</groupId>
+      <artifactId>javaee-api</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <!-- <dependency>
       <groupId>javax.ejb</groupId>
       <artifactId>javax.ejb-api</artifactId>
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>javax.validation</groupId>
-      <artifactId>validation-api</artifactId>
-      <scope>provided</scope>
-    </dependency> -->
-    <!-- <dependency>
-      <groupId>org.apache.openejb</groupId>
-      <artifactId>javaee-api</artifactId>
-      <scope>provided</scope>
+      <groupId>javax.jms</groupId>
+      <artifactId>javax.jms-api</artifactId>
     </dependency> -->
     <!-- test -->
-    <dependency>
-      <groupId>org.hibernate</groupId>
-      <artifactId>hibernate-validator</artifactId>
-      <scope>test</scope>
-    </dependency>
     <dependency>
       <groupId>com.h2database</groupId>
       <artifactId>h2</artifactId>
@@ -85,23 +75,32 @@
       <artifactId>hibernate-entitymanager</artifactId>
       <scope>test</scope>
     </dependency>
+    <!-- <dependency>
+      <groupId>org.hibernate</groupId>
+      <artifactId>hibernate-validator</artifactId>
+      <scope>test</scope>
+    </dependency>
     <dependency>
       <groupId>org.glassfish.web</groupId>
       <artifactId>javax.el</artifactId>
       <scope>test</scope>
-    </dependency>
+    </dependency> -->
     <dependency>
       <groupId>org.apache.openejb</groupId>
       <artifactId>openejb-core</artifactId>
       <scope>test</scope>
       <exclusions>
         <exclusion>
-          <artifactId>slf4j-jdk14</artifactId>
           <groupId>org.slf4j</groupId>
+          <artifactId>slf4j-jdk14</artifactId>
         </exclusion>
         <exclusion>
           <artifactId>jaxb-impl</artifactId>
           <groupId>com.sun.xml.bind</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>javaee-api</artifactId>
+          <groupId>org.apache.openejb</groupId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -111,13 +110,13 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
+      <groupId>org.apache.cxf</groupId>
+      <artifactId>cxf-rt-transports-http-jetty</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.apache.cxf</groupId>
-      <artifactId>cxf-rt-transports-http-jetty</artifactId>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
       <scope>test</scope>
     </dependency>
   </dependencies>
