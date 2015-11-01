@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <resource name="harmony" type="java.sql.DataSource">
+    <property name="driver" value="org.h2.Driver" />
+    <property name="url" value="jdbc:h2:file:~/.h2/harmony/data" />
+    <property name="username" value="sa" />
+    <property name="password" value="" />
+  </resource>
+</resources>
