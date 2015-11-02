@@ -43,7 +43,23 @@ public abstract class PropUtils {
      */
     public static boolean exists(String path) {
         File file = new File(path);
-        return file.exists() && file.isFile();
+        if (file.exists() && file.isFile()) {
+            return true;
+        }
+        InputStream inStream = null;
+        try {
+            inStream = new ClassPathResource(path).getInputStream();
+        } catch (IOException e) {
+            return false;
+        } finally {
+            if (inStream != null) {
+                try {
+                    inStream.close();
+                } catch (IOException e) {
+                }
+            }
+        }
+        return true;
     }
 
     /**
