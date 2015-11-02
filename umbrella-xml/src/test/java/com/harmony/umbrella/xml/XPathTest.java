@@ -30,7 +30,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-import com.harmony.umbrella.xpath.XPathUtil;
+import com.harmony.umbrella.xml.util.XPathUtil;
 
 /**
  * @author wuxii@foxmail.com
@@ -78,9 +78,6 @@ public class XPathTest {
 
     @Test
     public void testGetAttribute() throws Exception {
-        XPathUtil pathUtil = new XPathUtil(document);
-        String attribute = pathUtil.getAttribute("resources/resource[@name='harmony']");
-        System.out.println(attribute);
     }
 
 }

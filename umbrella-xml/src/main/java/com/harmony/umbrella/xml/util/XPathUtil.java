@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.umbrella.xpath;
+package com.harmony.umbrella.xml.util;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -47,12 +47,6 @@ public class XPathUtil {
         this.document = document;
         this.xPathFactory = XPathFactory.newInstance();
         this.xpath = xPathFactory.newXPath();
-    }
-
-    public String getAttribute(String expression) throws XPathException {
-        Object evaluate = xpath.evaluate(expression, document, XPathConstants.NODE);
-        System.out.println(evaluate);
-        return null;
     }
 
     public Map<String, String> getAttributes(String expression) throws XPathException {

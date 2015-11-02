@@ -74,8 +74,9 @@ public class WebRender extends AbstractRender implements HttpTextRender, HttpBin
             buf = new byte[fis.available()];
             fis.read(buf);
         } finally {
-            if (fis != null)
+            if (fis != null) {
                 fis.close();
+            }
         }
         headerProperties.put(Content_Length, String.valueOf(buf.length));
         headerProperties.put(Content_Disposition, "attachment;filename=" + file.getName() + "." + getFileExtensions(file.getName()));

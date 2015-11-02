@@ -15,49 +15,88 @@
  */
 package com.harmony.umbrella.monitor;
 
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
-
-import com.harmony.umbrella.monitor.Monitor;
 
 /**
  * @author wuxii@foxmail.com
  */
 public class MonitorServiceManager {
 
-    private MonitorServiceManager() {
+    private static MonitorServiceManager INSTANCE;
 
+    private List<HttpMonitor> httpMonitor = new ArrayList<HttpMonitor>();
+    private List<MethodMonitor> methodMonitor = new ArrayList<MethodMonitor>();
+
+    private Set<String> urlPattern = new HashSet<String>();
+    private Set<String> urlResource = new HashSet<String>();
+
+    private Set<String> methodPattern = new HashSet<String>();
+    private Set<Method> methodResource = new HashSet<Method>();
+
+    private MonitorServiceManager() {
     }
 
     public static MonitorServiceManager getInstance() {
-        return null;
+        if (INSTANCE == null) {
+            synchronized (INSTANCE) {
+                if (INSTANCE == null) {
+                    INSTANCE = new MonitorServiceManager();
+                }
+            }
+        }
+        return INSTANCE;
     }
 
-    @SuppressWarnings("rawtypes")
-    public void addMonitorService(Monitor monitor) {
-
+    public void addHttpMonitor(HttpMonitor monitor) {
+        httpMonitor.add(monitor);
     }
 
-    public Set<String> getPatterns() {
-        return null;
+    public void addMethodMonitor(MethodMonitor monitor) {
+        methodMonitor.add(monitor);
     }
 
-    public Set<String> getResources() {
-        return null;
+    public boolean addUrlPattern(String pattern) {
+        return urlPattern.add(pattern);
     }
 
-    public boolean addPattern(String pattern) {
-        return false;
+    public boolean addUrlResource(String resource) {
+        return urlResource.add(resource);
     }
 
-    public boolean addResource(String resource) {
-        return false;
+    public boolean addMethodPattern(String pattern) {
+        return methodPattern.add(pattern);
     }
 
-    public boolean containsPattern(String pattern) {
-        return false;
+    public boolean addMethodResource(Method resource) {
+        return methodResource.add(resource);
     }
 
-    public boolean containsResource(String resource) {
-        return false;
+    public void refreshMethodMonitor() {
+        for (MethodMonitor mm : methodMonitor) {
+            Set<String> patterns = mm.getPatterns();
+            Set<Method> resources = mm.getResources();
+            patterns.clear();
+            resources.clear();
+
+            patterns.addAll(methodPattern);
+            resources.addAll(methodResource);
+        }
     }
+
+    public void refreshHttpMonitor() {
+        for (HttpMonitor hm : httpMonitor) {
+            Set<String> patterns = hm.getPatterns();
+            Set<String> resources = hm.getResources();
+            patterns.clear();
+            resources.clear();
+
+            patterns.addAll(urlPattern);
+            resources.addAll(urlResource);
+        }
+    }
+
 }
