@@ -16,6 +16,7 @@
 package com.harmony.umbrella.ws.visitor;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -74,7 +75,14 @@ public class SyncableContextVisitor extends AbstractContextVisitor {
         Object syncObj = context.get(Proxy.SYNC_OBJECT);
         Map<String, Object> content = context.getContextMap();
         for (SyncCallback callback : getCallbacks(context)) {
-            callback.forward(syncObj, content);
+            if (syncObj instanceof Collection) {
+                Collection c = (Collection) syncObj;
+                for (Object object : c) {
+                    callback.forward(object, content);
+                }
+            } else {
+                callback.forward(syncObj, content);
+            }
         }
         return true;
     }
@@ -85,7 +93,14 @@ public class SyncableContextVisitor extends AbstractContextVisitor {
         Object syncObj = context.get(Proxy.SYNC_OBJECT);
         Map<String, Object> content = context.getContextMap();
         for (SyncCallback callback : getCallbacks(context)) {
-            callback.success(syncObj, result, content);
+            if (syncObj instanceof Collection) {
+                Collection c = (Collection) syncObj;
+                for (Object object : c) {
+                    callback.success(object, result, content);
+                }
+            } else {
+                callback.success(syncObj, result, content);
+            }
         }
     }
 
@@ -95,7 +110,14 @@ public class SyncableContextVisitor extends AbstractContextVisitor {
         Object syncObj = context.get(Proxy.SYNC_OBJECT);
         Map<String, Object> content = context.getContextMap();
         for (SyncCallback callback : getCallbacks(context)) {
-            callback.failed(syncObj, throwable, content);
+            if (syncObj instanceof Collection) {
+                Collection c = (Collection) syncObj;
+                for (Object object : c) {
+                    callback.failed(object, throwable, content);
+                }
+            } else {
+                callback.failed(syncObj, throwable, content);
+            }
         }
     }
 
