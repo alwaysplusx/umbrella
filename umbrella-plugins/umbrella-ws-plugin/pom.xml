@@ -4,7 +4,7 @@
   <parent>
     <groupId>com.harmony.umbrella</groupId>
     <artifactId>umbrella-plugins</artifactId>
-    <version>0.0.4-SNAPSHOT</version>
+    <version>0.0.4</version>
   </parent>
   <artifactId>umbrella-ws-plugin</artifactId>
   <name>Harmony Umbrella :: Plugin of Web Service</name>
