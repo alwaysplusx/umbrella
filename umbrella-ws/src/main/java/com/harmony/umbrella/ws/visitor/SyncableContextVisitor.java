@@ -15,7 +15,9 @@
  */
 package com.harmony.umbrella.ws.visitor;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -29,6 +31,7 @@ import com.harmony.umbrella.ws.SyncCallback;
 import com.harmony.umbrella.ws.Syncable;
 import com.harmony.umbrella.ws.WebServiceAbortException;
 import com.harmony.umbrella.ws.proxy.Proxy;
+import com.harmony.umbrella.ws.proxy.ProxySyncCallback;
 import com.harmony.umbrella.ws.util.CallbackFinder;
 
 /**
@@ -72,51 +75,55 @@ public class SyncableContextVisitor extends AbstractContextVisitor {
     @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
     public boolean visitBefore(Context context) throws WebServiceAbortException {
-        Object syncObj = context.get(Proxy.SYNC_OBJECT);
+        Object obj = context.get(Proxy.SYNC_OBJECT);
         Map<String, Object> content = context.getContextMap();
+
         for (SyncCallback callback : getCallbacks(context)) {
-            if (syncObj instanceof Collection) {
-                Collection c = (Collection) syncObj;
-                for (Object object : c) {
-                    callback.forward(object, content);
-                }
-            } else {
-                callback.forward(syncObj, content);
+            for (Object o : asList(obj)) {
+                callback.forward(o, content);
             }
         }
+
         return true;
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     @Override
     public void visitCompletion(Object result, Context context) {
-        Object syncObj = context.get(Proxy.SYNC_OBJECT);
+        Object obj = context.get(Proxy.SYNC_OBJECT);
         Map<String, Object> content = context.getContextMap();
-        for (SyncCallback callback : getCallbacks(context)) {
-            if (syncObj instanceof Collection) {
-                Collection c = (Collection) syncObj;
-                for (Object object : c) {
-                    callback.success(object, result, content);
+
+        try {
+            Method method = context.getMethod();
+            Class<?> returnType = method.getReturnType();
+
+            // 返回值是否经过封装标识(default false) // 有值返回，返回值类型与方法返回类型不相同表示结果经过封装
+            boolean wrapped = result != null && result.getClass().isAssignableFrom(returnType);
+
+            for (SyncCallback callback : getCallbacks(context)) {
+                for (Object o : asList(obj)) {
+                    if (callback instanceof ProxySyncCallback) {
+                        // 支持ProxySyncResult作为结果参数
+                        callback.success(o, ((ProxySyncCallback) callback).newResult(result, wrapped), content);
+                    } else {
+                        callback.success(o, result, content);
+                    }
                 }
-            } else {
-                callback.success(syncObj, result, content);
             }
+        } catch (NoSuchMethodException e) {
+            // impossible
         }
+
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
     @Override
     public void visitThrowing(Throwable throwable, Context context) {
-        Object syncObj = context.get(Proxy.SYNC_OBJECT);
+        Object obj = context.get(Proxy.SYNC_OBJECT);
         Map<String, Object> content = context.getContextMap();
         for (SyncCallback callback : getCallbacks(context)) {
-            if (syncObj instanceof Collection) {
-                Collection c = (Collection) syncObj;
-                for (Object object : c) {
-                    callback.failed(object, throwable, content);
-                }
-            } else {
-                callback.failed(syncObj, throwable, content);
+            for (Object o : asList(obj)) {
+                callback.failed(o, throwable, content);
             }
         }
     }
@@ -137,6 +144,11 @@ public class SyncableContextVisitor extends AbstractContextVisitor {
 
     public void setBeanFactory(BeanFactory beanFactory) {
         this.beanFactory = beanFactory;
+    }
+
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    private List asList(Object obj) {
+        return obj instanceof Collection ? new ArrayList((Collection) obj) : Arrays.asList(obj);
     }
 
     @SuppressWarnings("rawtypes")
