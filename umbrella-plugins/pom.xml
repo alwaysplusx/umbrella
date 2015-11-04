@@ -3,11 +3,12 @@
   <parent>
     <groupId>com.harmony.umbrella</groupId>
     <artifactId>harmony-umbrella</artifactId>
-    <version>0.0.4</version>
+    <version>0.0.5-SNAPSHOT</version>
   </parent>
   <artifactId>umbrella-plugins</artifactId>
   <packaging>pom</packaging>
   <modules>
     <module>umbrella-ws-plugin</module>
   </modules>
+  <name>Harmony Umbrella :: Plugins</name>
 </project>

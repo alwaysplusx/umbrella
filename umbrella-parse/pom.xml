@@ -4,24 +4,24 @@
   <parent>
     <groupId>com.harmony.umbrella</groupId>
     <artifactId>harmony-umbrella</artifactId>
-    <version>0.0.4</version>
+    <version>0.0.5-SNAPSHOT</version>
   </parent>
-  <artifactId>umbrella-xml</artifactId>
-  <name>Harmony Umbrella :: Module of XML</name>
+  <artifactId>umbrella-parse</artifactId>
   <dependencies>
     <dependency>
       <groupId>com.harmony.umbrella</groupId>
       <artifactId>umbrella-core</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-api</artifactId>
+      <groupId>com.alibaba</groupId>
+      <artifactId>fastjson</artifactId>
     </dependency>
-    <!-- <dependency>
-      <groupId>dom4j</groupId>
-      <artifactId>dom4j</artifactId>
-      <version>1.6.1</version>
-    </dependency> -->
+    <dependency>
+      <groupId>org.codehaus.woodstox</groupId>
+      <artifactId>woodstox-core-asl</artifactId>
+      <scope>compile</scope>
+      <optional>true</optional>
+    </dependency>
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
@@ -32,10 +32,6 @@
       <artifactId>slf4j-log4j12</artifactId>
       <scope>test</scope>
     </dependency>
-    <dependency>
-      <groupId>org.codehaus.woodstox</groupId>
-      <artifactId>woodstox-core-asl</artifactId>
-      <version>4.4.1</version>
-    </dependency>
   </dependencies>
+  <name>Harmony Umbrella :: Module of Parse</name>
 </project>

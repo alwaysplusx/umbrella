@@ -17,18 +17,15 @@ package com.harmony.umbrella.json.vo;
 
 import java.util.Calendar;
 
-import com.harmony.umbrella.data.domain.Model;
-
 /**
  * @author wuxii@foxmail.com
  */
-public class Child extends Model<Long> {
-
-    private static final long serialVersionUID = -3640652984873091178L;
+public class Child {
 
     private Long childId;
     private String childName;
     private Parent parent;
+    private Calendar createdTime;
 
     public Child() {
     }
@@ -38,14 +35,6 @@ public class Child extends Model<Long> {
         this.childName = childName;
         this.parent = parent;
         this.createdTime = Calendar.getInstance();
-        this.creatorCode = "admin";
-        this.creatorName = "admin";
-        this.creatorId = 1l;
-    }
-
-    @Override
-    public Long getId() {
-        return getChildId();
     }
 
     public Long getChildId() {
@@ -71,6 +60,14 @@ public class Child extends Model<Long> {
 
     public void setParent(Parent parent) {
         this.parent = parent;
+    }
+
+    public Calendar getCreatedTime() {
+        return createdTime;
+    }
+
+    public void setCreatedTime(Calendar createdTime) {
+        this.createdTime = createdTime;
     }
 
 }

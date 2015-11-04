@@ -4,7 +4,7 @@
   <parent>
     <groupId>com.harmony.umbrella.examples</groupId>
     <artifactId>examples</artifactId>
-    <version>0.0.4</version>
+    <version>0.0.5-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   <name>Harmony Example :: Example of Data</name>

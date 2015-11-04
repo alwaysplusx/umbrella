@@ -18,14 +18,10 @@ package com.harmony.umbrella.json.vo;
 import java.util.Arrays;
 import java.util.Collection;
 
-import com.harmony.umbrella.data.domain.Model;
-
 /**
  * @author wuxii@foxmail.com
  */
-public class Parent extends Model<Long> {
-
-    private static final long serialVersionUID = -5683031004471290566L;
+public class Parent {
 
     private Long parentId;
     private String parentName;
@@ -44,11 +40,6 @@ public class Parent extends Model<Long> {
         this.parentId = parentId;
         this.parentName = parentName;
         this.childs.addAll(Arrays.asList(child));
-    }
-
-    @Override
-    public Long getId() {
-        return getParentId();
     }
 
     public Long getParentId() {

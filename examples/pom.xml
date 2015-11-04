@@ -4,7 +4,7 @@
   <parent>
     <groupId>com.harmony.umbrella</groupId>
     <artifactId>harmony-umbrella</artifactId>
-    <version>0.0.4</version>
+    <version>0.0.5-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   <name>Harmony Example :: Example Parent</name>
@@ -15,10 +15,12 @@
     <module>example-ear</module>
     <module>example-war</module>
     <module>example-ejb</module>
-    <!-- <module>example-data</module>
+    <module>example-data</module>
     <module>example-ee</module>
-    <module>example-shiro</module> -->
+    <module>example-shiro</module>
     <module>example-web</module>
+    <module>example-ws</module>
+    <module>example-jpa</module>
   </modules>
   <build>
     <!-- To define the plugin version in your parent POM -->
