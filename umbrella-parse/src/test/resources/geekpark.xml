@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/"
+  xmlns:atom="http://www.w3.org/2005/Atom" xmlns:sy="http://purl.org/rss/1.0/modules/syndication/"
+  xmlns:slash="http://purl.org/rss/1.0/modules/slash/" xmlns:wp="http://wordpress.org/export/1.0/">
+  <channel>
+    <title>极客公园-GeekPark</title>
+    <link>http://www.geekpark.net/</link>
+    <description>关注互联网热点趋势，打造最好的IT线下沙龙</description>
+    <language>zh-cn</language>
+    <ttl>10</ttl>
+    <item>
+      <title>意外诞生的 AWS 却成为了亚马逊扭亏的功臣</title>
+      <description><![CDATA[在成功的业务诞生前，往往夹杂着激情和混乱。]]></description>
+      <pubDate>Sat, 14 Nov 2015 14:35:00 +0800</pubDate>
+      <guid>http://www.geekpark.net/topics/213937</guid>
+      <link>http://www.geekpark.net/topics/213937</link>
+      <dc:creator>hsy505</dc:creator>
+      <content:encoded><![CDATA[text]]></content:encoded>
+    </item>
+  </channel>
+</rss>

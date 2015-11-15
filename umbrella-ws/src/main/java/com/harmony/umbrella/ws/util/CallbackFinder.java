@@ -37,11 +37,13 @@ public class CallbackFinder {
 
     private static final Logger log = LoggerFactory.getLogger(CallbackFinder.class);
 
+    private final String basePackage;
+
     /**
-     * 所有标注了syncable注解的class, 初始化时候扫描
+     * 所有标注了syncable注解的class
      */
     @SuppressWarnings("rawtypes")
-    private final Class<? extends SyncCallback>[] callbacks;
+    private Class<? extends SyncCallback>[] callbacks;
 
     /**
      * 各个类对应的{@linkplain SyncCallback}缓存
@@ -51,11 +53,48 @@ public class CallbackFinder {
 
     private ResourceManager resourceManager = ResourceManager.getInstance();
 
-    private final String basePackage;
-
     public CallbackFinder(String basePackage) {
         this.basePackage = basePackage;
-        this.callbacks = this.getAllCallbackClass();
+    }
+
+    /**
+     * 加载类路径下所有标注有{@linkplain Syncable} 的{@linkplain SyncCallback}
+     * 且服务类是serviceClass，对于的同步方法为methodName的类
+     * 
+     * @param serviceClass
+     *            匹配的服务类
+     * @param methodName
+     *            服务方法
+     * @return 对应的SyncCallback
+     */
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    public Class<SyncCallback>[] getCallbackClasses(Class<?> serviceClass, String methodName) {
+        String key = serviceClass.getName() + "#" + methodName;
+        List classes = callbackMap.get(key);
+        if (classes == null) {
+            classes = new ArrayList<Class>();
+            for (Class<? extends SyncCallback> clazz : callbacks()) {
+                if (isMatchCallback(clazz, serviceClass, methodName)) {
+                    classes.add(clazz);
+                }
+            }
+            callbackMap.put(key, classes);
+            log.debug("{}, all callback {}", key, classes);
+        }
+        return (Class<SyncCallback>[]) classes.toArray(new Class[classes.size()]);
+    }
+
+    @SuppressWarnings("rawtypes")
+    protected Class<? extends SyncCallback>[] callbacks() {
+        if (callbacks == null) {
+            callbacks = getAllCallbackClass();
+        }
+        return callbacks;
+    }
+
+    public void clear() {
+        this.callbacks = null;
+        this.callbackMap.clear();
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -75,33 +114,6 @@ public class CallbackFinder {
             }
 
         });
-    }
-
-    /**
-     * 加载类路径下所有标注有{@linkplain Syncable} 的{@linkplain SyncCallback}
-     * 且服务类是serviceClass，对于的同步方法为methodName的类
-     * 
-     * @param serviceClass
-     *            匹配的服务类
-     * @param methodName
-     *            服务方法
-     * @return 对应的SyncCallback
-     */
-    @SuppressWarnings({ "rawtypes", "unchecked" })
-    public Class<SyncCallback>[] getCallbackClasses(Class<?> serviceClass, String methodName) {
-        String key = serviceClass.getName() + "#" + methodName;
-        List classes = callbackMap.get(key);
-        if (classes == null) {
-            classes = new ArrayList<Class>();
-            for (Class<? extends SyncCallback> clazz : callbacks) {
-                if (isMatchCallback(clazz, serviceClass, methodName)) {
-                    classes.add(clazz);
-                }
-            }
-            callbackMap.put(key, classes);
-            log.debug("{}, all callback {}", key, classes);
-        }
-        return (Class<SyncCallback>[]) classes.toArray(new Class[classes.size()]);
     }
 
     /*

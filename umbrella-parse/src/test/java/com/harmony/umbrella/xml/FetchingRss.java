@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2015 the original author or authors.
+ * Copyright 2012-2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,11 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.umbrella.json.util;
+package com.harmony.umbrella.xml;
+
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.net.URL;
+
+import com.harmony.umbrella.util.IOUtils;
 
 /**
  * @author wuxii@foxmail.com
  */
-public class JsonUtils {
+public class FetchingRss {
 
+    public static void main(String[] args) throws Exception {
+        URL url = new URL("http://www.geekpark.net/rss");
+
+        InputStream inStream = url.openStream();
+        FileOutputStream fos = new FileOutputStream("target/geekpark.xml");
+        IOUtils.copy(inStream, fos);
+        fos.close();
+    }
 }

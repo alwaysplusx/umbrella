@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persons>
+  <person name="wuxii" sex="man" birthday="1990-06-08" tel="182XXXX2039">
+    <home address="XX观日路XX号" tel="0592-62XXXX49" />
+    <job no="0930XXXX09" title="XXX工程师" />
+  </person>
+</persons>

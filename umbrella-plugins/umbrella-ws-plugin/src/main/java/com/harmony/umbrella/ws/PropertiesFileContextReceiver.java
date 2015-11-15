@@ -20,7 +20,7 @@ import java.util.Properties;
 import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
 import javax.ejb.Remote;
-import javax.ejb.Stateless;
+import javax.ejb.Singleton;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,8 +28,6 @@ import org.slf4j.LoggerFactory;
 import com.harmony.umbrella.core.SimpleBeanFactory;
 import com.harmony.umbrella.message.MessageResolver;
 import com.harmony.umbrella.util.PropUtils;
-import com.harmony.umbrella.ws.ContextVisitor;
-import com.harmony.umbrella.ws.MetadataLoader;
 import com.harmony.umbrella.ws.jaxws.JaxWsCXFExecutor;
 import com.harmony.umbrella.ws.jaxws.JaxWsExecutor;
 import com.harmony.umbrella.ws.support.AbstractJaxWsContextReceiver;
@@ -40,7 +38,7 @@ import com.harmony.umbrella.ws.support.ContextReceiver;
  * 
  * @author wuxii@foxmail.com
  */
-@Stateless(mappedName = "PropertiesFileContextReceiver")
+@Singleton(mappedName = "PropertiesFileContextReceiver")
 @Remote({ MessageResolver.class, ContextReceiver.class })
 public class PropertiesFileContextReceiver extends AbstractJaxWsContextReceiver {
 
