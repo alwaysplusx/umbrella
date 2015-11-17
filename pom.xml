@@ -153,11 +153,6 @@ under the License.
       </dependency>
       <dependency>
         <groupId>com.harmony.umbrella</groupId>
-        <artifactId>umbrella-json</artifactId>
-        <version>${umbrella.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.harmony.umbrella</groupId>
         <artifactId>umbrella-mapper</artifactId>
         <version>${umbrella.version}</version>
       </dependency>
@@ -183,7 +178,7 @@ under the License.
       </dependency>
       <dependency>
         <groupId>com.harmony.umbrella</groupId>
-        <artifactId>umbrella-xml</artifactId>
+        <artifactId>umbrella-parse</artifactId>
         <version>${umbrella.version}</version>
       </dependency>
       <dependency>

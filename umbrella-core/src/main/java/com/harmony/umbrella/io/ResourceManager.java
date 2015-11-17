@@ -21,7 +21,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.harmony.umbrella.util.ResourceScaner;
 import com.harmony.umbrella.util.ClassUtils.ClassFilter;
 
 /**
@@ -147,7 +146,7 @@ public class ResourceManager {
                 resources = resourcesCache.get(path);
                 if (resources == null) {
                     resources = new ArrayList<Resource>();
-                    Collections.addAll(resources, ResourceScaner.scanPath(path));
+                    Collections.addAll(resources, ResourceScaner.scanResources(path));
                     resourcesCache.put(path, resources);
                 }
             }
