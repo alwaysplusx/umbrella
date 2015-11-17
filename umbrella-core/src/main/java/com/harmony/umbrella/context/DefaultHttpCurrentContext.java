@@ -54,8 +54,9 @@ public class DefaultHttpCurrentContext implements HttpCurrentContext {
         this.session = request.getSession(false);
         this.put(HTTP_REQUEST, request);
         this.put(HTTP_RESPONSE, response);
-        if (this.session != null)
+        if (this.session != null) {
             this.put(HTTP_SESSION, session);
+        }
     }
 
     @Override
@@ -71,8 +72,9 @@ public class DefaultHttpCurrentContext implements HttpCurrentContext {
      * @return if return {@code true}设置成功
      */
     public boolean setUserId(Long userId) {
-        if (userId == null || containsSessionAttribute(USER_ID))
+        if (userId == null || containsSessionAttribute(USER_ID)) {
             return false;
+        }
         setSessionAttribute(USER_ID, userId);
         return true;
     }

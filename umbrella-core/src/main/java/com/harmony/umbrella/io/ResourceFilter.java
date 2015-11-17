@@ -13,24 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.umbrella.ws;
-
-import java.util.Map;
+package com.harmony.umbrella.io;
 
 /**
- * 基于{@linkplain com.harmony.umbrella.ws.jaxws.JaxWsExecutor}的结果回调支持
- *
- * @param <V> 数据交互结果
+ * 资源过滤器
+ * 
  * @author wuxii@foxmail.com
  */
-public interface AsyncCallback<V> {
+public interface ResourceFilter {
 
     /**
-     * 回调处理方法
-     *
-     * @param result  接口返回的结果
-     * @param content 执行的上下文内容{@linkplain Context#getContextMap()}
+     * 过滤资源，通过过滤条件返回true, 不通过返回false
+     * 
+     * @param resource
+     *            待过滤的资源
+     * @return 通过true, 不通过false
      */
-    void handle(V result, Map<String, Object> content);
+    boolean accept(Resource resource);
 
 }

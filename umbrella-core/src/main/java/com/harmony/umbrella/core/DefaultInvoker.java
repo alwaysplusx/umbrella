@@ -23,11 +23,14 @@ import java.lang.reflect.Method;
 import com.harmony.umbrella.util.Exceptions;
 
 /**
+ * 默认反射执行工具
+ * 
  * @author wuxii@foxmail.com
  */
 public class DefaultInvoker implements Invoker, Serializable {
 
 	private static final long serialVersionUID = 5408528044216944899L;
+	
 	/**
 	 * 反射调用前是否进行检验
 	 */

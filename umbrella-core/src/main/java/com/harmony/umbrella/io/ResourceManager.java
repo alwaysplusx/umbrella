@@ -190,44 +190,14 @@ public class ResourceManager {
     }
 
     /**
-     * 清除扫描资源过的资源
-     */
-    public void clearResource() {
-        synchronized (resourcesCache) {
-            resourcesCache.clear();
-        }
-    }
-
-    /**
-     * 清除指定路径下的缓存资源
-     * 
-     * @param path
-     *            指定的缓存路径
-     */
-    public void clearResource(String path) {
-        synchronized (resourcesCache) {
-            resourcesCache.remove(path);
-        }
-    }
-
-    /**
      * 清除所有扫描缓存的类信息
      */
-    public void cleanClass() {
+    public void clear() {
         synchronized (classCache) {
             classCache.clear();
         }
-    }
-
-    /**
-     * 清除指定报名下的类信息
-     * 
-     * @param path
-     *            指定包名
-     */
-    public void cleanClass(String path) {
-        synchronized (classCache) {
-            classCache.remove(path);
+        synchronized (resourcesCache) {
+            resourcesCache.clear();
         }
     }
 
@@ -245,8 +215,7 @@ public class ResourceManager {
     private String getCachedPackage(String packageName) {
         Set<String> packages = classCache.keySet();
         for (String pkg : packages) {
-            if (pkg.equals(packageName)//
-                    || pkg.startsWith(packageName)) {
+            if (pkg.equals(packageName) || pkg.startsWith(packageName)) {
                 return pkg;
             }
         }
@@ -256,8 +225,7 @@ public class ResourceManager {
     private String getCachedPath(String path) {
         Set<String> paths = resourcesCache.keySet();
         for (String p : paths) {
-            if (p.equalsIgnoreCase(path) //
-                    || p.toLowerCase().startsWith(path.toLowerCase())) {
+            if (p.equalsIgnoreCase(path) || p.toLowerCase().startsWith(path.toLowerCase())) {
                 return p;
             }
         }
@@ -312,8 +280,7 @@ public class ResourceManager {
         synchronized (resourcesCache) {
             String cachedPath = getCachedPath(path);
 
-            if (cachedPath != null //
-                    && cachedPath.toLowerCase().equals(path.toLowerCase())) {
+            if (cachedPath != null && cachedPath.toLowerCase().equals(path.toLowerCase())) {
 
                 resources = resourcesCache.get(cachedPath);
 
@@ -329,21 +296,4 @@ public class ResourceManager {
         return resources.toArray(new Resource[resources.size()]);
     }
 
-    /**
-     * 资源过滤器
-     * 
-     * @author wuxii@foxmail.com
-     */
-    public interface ResourceFilter {
-
-        /**
-         * 过滤资源，通过过滤条件返回true, 不通过返回false
-         * 
-         * @param resource
-         *            待过滤的资源
-         * @return 通过true, 不通过false
-         */
-        boolean accept(Resource resource);
-
-    }
 }

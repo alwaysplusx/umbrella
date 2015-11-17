@@ -30,16 +30,16 @@ import javax.servlet.ServletContext;
  */
 public class ApplicationMetadata {
 
+    static final ApplicationMetadata METADATA = new ApplicationMetadata();
+    
+    static final JVMInformation JVMINFO = METADATA.new JVMInformation();
+    
+    static final OSInformation OSINFO = METADATA.new OSInformation();
+    
+    static final DBInformation EMPTY_DATABASEINFO = METADATA.new DBInformation();
+    
     private ApplicationMetadata() {
     }
-
-    static final ApplicationMetadata METADATA = new ApplicationMetadata();
-
-    static final JVMInformation JVMINFO = METADATA.new JVMInformation();
-
-    static final OSInformation OSINFO = METADATA.new OSInformation();
-
-    static final DBInformation EMPTY_DATABASEINFO = METADATA.new DBInformation();
 
     /**
      * 应用的web服务信息
