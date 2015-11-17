@@ -144,8 +144,6 @@ public interface HttpCurrentContext extends CurrentContext {
      */
     <T> T getSessionAttribute(String name);
 
-    // Cookie[] getHttpCookies();
-
     /**
      * 获取作用域为{@linkplain #SCOPE_COOKIE}的值
      *
