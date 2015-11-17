@@ -20,7 +20,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
+import com.harmony.umbrella.util.Assert;
 import com.harmony.umbrella.util.ClassUtils.ClassFilter;
 
 /**
@@ -65,18 +67,8 @@ public class ResourceManager {
      * @return 所有类
      */
     public Class<?>[] getClasses(String packageName) {
-        List<Class<?>> classes = classCache.get(packageName);
-        if (classes == null) {
-            synchronized (classCache) {
-                classes = classCache.get(packageName);
-                if (classes == null) {
-                    classes = new ArrayList<Class<?>>();
-                    Collections.addAll(classes, ResourceScaner.scanPackage(packageName));
-                    classCache.put(packageName, classes);
-                }
-            }
-        }
-        return classes.toArray(new Class[classes.size()]);
+        Assert.notNull(packageName, "package name must not be null");
+        return getCachedClasses(packageName);
     }
 
     /**
@@ -140,18 +132,8 @@ public class ResourceManager {
      * @return 路径下的所有资源
      */
     public Resource[] getResources(String path) {
-        List<Resource> resources = resourcesCache.get(path);
-        if (resources == null) {
-            synchronized (resourcesCache) {
-                resources = resourcesCache.get(path);
-                if (resources == null) {
-                    resources = new ArrayList<Resource>();
-                    Collections.addAll(resources, ResourceScaner.scanResources(path));
-                    resourcesCache.put(path, resources);
-                }
-            }
-        }
-        return resources.toArray(new Resource[resources.size()]);
+        Assert.notNull(path, "package name must not be null");
+        return getCachedResources(path);
     }
 
     /**
@@ -247,6 +229,104 @@ public class ResourceManager {
         synchronized (classCache) {
             classCache.remove(path);
         }
+    }
+
+    /**
+     * 判断包是否已经被缓存
+     * 
+     * @param packageName
+     *            package name
+     * @return true 已经缓存了对应的包
+     */
+    public boolean isCachedPackage(String packageName) {
+        return getCachedPackage(packageName) != null;
+    }
+
+    private String getCachedPackage(String packageName) {
+        Set<String> packages = classCache.keySet();
+        for (String pkg : packages) {
+            if (pkg.equals(packageName)//
+                    || pkg.startsWith(packageName)) {
+                return pkg;
+            }
+        }
+        return null;
+    }
+
+    private String getCachedPath(String path) {
+        Set<String> paths = resourcesCache.keySet();
+        for (String p : paths) {
+            if (p.equalsIgnoreCase(path) //
+                    || p.toLowerCase().startsWith(path.toLowerCase())) {
+                return p;
+            }
+        }
+        return null;
+    }
+
+    private Class<?>[] getCachedClasses(String packageName) {
+
+        List<Class<?>> classes = classCache.get(packageName);
+
+        if (classes == null) {
+
+            synchronized (classCache) {
+
+                classes = classCache.get(packageName);
+
+                if (classes == null) {
+
+                    String cachedPackage = getCachedPackage(packageName);
+
+                    if (cachedPackage != null) {
+                        List<Class<?>> cachedClasses = classCache.get(cachedPackage);
+                        classes = new ArrayList<Class<?>>((int) (cachedClasses.size() * 0.75));
+                        for (Class<?> clazz : cachedClasses) {
+                            if (clazz.getPackage().getName().startsWith(packageName)) {
+                                classes.add(clazz);
+                            }
+                        }
+
+                        classCache.put(packageName, classes);
+                    } else {
+                        // cachedPackage == null
+                        Class<?>[] classResources = ResourceScaner.scanPackage(packageName);
+                        classes = new ArrayList<Class<?>>(classResources.length);
+                        Collections.addAll(classes, classResources);
+
+                        classCache.put(packageName, classes);
+                    }
+
+                }
+
+            }
+
+        }
+
+        return classes.toArray(new Class[classes.size()]);
+    }
+
+    private Resource[] getCachedResources(String path) {
+        List<Resource> resources = null;
+
+        synchronized (resourcesCache) {
+            String cachedPath = getCachedPath(path);
+
+            if (cachedPath != null //
+                    && cachedPath.toLowerCase().equals(path.toLowerCase())) {
+
+                resources = resourcesCache.get(cachedPath);
+
+            } else {
+
+                Resource[] ress = ResourceScaner.scanResources(path);
+                resources = new ArrayList<Resource>(ress.length);
+                Collections.addAll(resources, ress);
+            }
+
+        }
+
+        return resources.toArray(new Resource[resources.size()]);
     }
 
     /**

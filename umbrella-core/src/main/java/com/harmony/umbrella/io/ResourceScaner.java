@@ -34,8 +34,8 @@ import com.harmony.umbrella.io.support.ResourcePatternResolver;
 import com.harmony.umbrella.util.AntPathMatcher;
 import com.harmony.umbrella.util.Assert;
 import com.harmony.umbrella.util.ClassUtils;
-import com.harmony.umbrella.util.StringUtils;
 import com.harmony.umbrella.util.ClassUtils.ClassFilter;
+import com.harmony.umbrella.util.StringUtils;
 
 /**
  * 扫描的资源都是位于类路径下的
@@ -292,10 +292,11 @@ class ResourceScaner {
     private static Class<?> forName(String className) {
         try {
             return Class.forName(className, true, ClassUtils.getDefaultClassLoader());
-        } catch (Exception e) {
-            return null;
         } catch (NoClassDefFoundError e) {
-            log.warn("in classpath jar no fully configured, {}", e.toString());
+            log.warn("{} in classpath jar no fully configured, {}", className, e.toString());
+            return null;
+        } catch (Throwable e) {
+            log.error("{}", className, e);
             return null;
         }
     }
