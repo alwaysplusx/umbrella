@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.umbrella.util;
+package com.harmony.umbrella.io;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -29,19 +29,22 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.harmony.umbrella.asm.ClassReader;
-import com.harmony.umbrella.io.Resource;
 import com.harmony.umbrella.io.support.PathMatchingResourcePatternResolver;
 import com.harmony.umbrella.io.support.ResourcePatternResolver;
+import com.harmony.umbrella.util.AntPathMatcher;
+import com.harmony.umbrella.util.Assert;
+import com.harmony.umbrella.util.ClassUtils;
 import com.harmony.umbrella.util.ClassUtils.ClassFilter;
+import com.harmony.umbrella.util.StringUtils;
 
 /**
  * 扫描的资源都是位于类路径下的
- * <p>
+ * <p/>
  * 对于非类路径下的资源扫描危险性较大，故不在工具类中整理
- * 
+ *
  * @author wuxii@foxmail.com
  */
-public abstract class ResourceScaner {
+class ResourceScaner {
 
     private final static Logger log = LoggerFactory.getLogger(ResourceScaner.class);
 
@@ -54,31 +57,31 @@ public abstract class ResourceScaner {
 
     /**
      * 扫描packageNames下的类
-     * 
+     *
      * @param packageNames
      *            扫描的包
      * @return 该包下所有的类
      */
     public static Class<?>[] scanPackage(String... packageNames) {
-        return filterResource(scanClass(packageNames), null);
+        return filterResource(scanClassResources(packageNames), null);
     }
 
     /**
      * 加载包basePackage下符合{@linkplain ClassFilter}的所有类
-     * 
-     * @param packageNames
+     *
+     * @param packageName
      *            包
      * @param filter
      *            class过滤
      * @return 包下的所有类
      */
-    public static Class<?>[] scanPackage(String packageNames, ClassFilter filter) {
-        return filterResource(scanClass(packageNames), filter);
+    public static Class<?>[] scanPackage(String packageName, ClassFilter filter) {
+        return filterResource(scanClassResources(packageName), filter);
     }
 
     /**
      * 加载包basePackage下符合{@linkplain ClassFilter}的所有类
-     * 
+     *
      * @param packageNames
      *            包
      * @param filter
@@ -86,7 +89,7 @@ public abstract class ResourceScaner {
      * @return 包扫描到的所有类
      */
     public static Class<?>[] scanPackage(String[] packageNames, ClassFilter filter) {
-        return filterResource(scanClass(packageNames), filter);
+        return filterResource(scanClassResources(packageNames), filter);
     }
 
     private static Class<?>[] filterResource(Resource[] resources, ClassFilter filter) {
@@ -121,16 +124,16 @@ public abstract class ResourceScaner {
 
     /**
      * 扫描paths下的所有资源
-     * 
+     *
      * @param paths
      *            扫描的路径
      * @return 路径下对应的资源
      * @see AntPathMatcher
      */
-    public static Resource[] scanPath(String... paths) {
+    public static Resource[] scanResources(String... paths) {
         Collection<Resource> resources = new HashSet<Resource>();
         for (String path : paths) {
-            Collections.addAll(resources, scan(allResourcePath(path)));
+            Collections.addAll(resources, scan(resourceExpression(path)));
         }
         if (resources.size() > 1) {
             resources = sortResource(resources);
@@ -140,16 +143,16 @@ public abstract class ResourceScaner {
 
     /**
      * 扫描路径下的所有class资源
-     * 
+     *
      * @param paths
      *            路径
      * @return 所有以{@code *.class}结尾的资源
      */
-    public static Resource[] scanClass(String... paths) {
+    public static Resource[] scanClassResources(String... paths) {
         Collection<Resource> resources = new HashSet<Resource>();
 
         for (String path : paths) {
-            Collections.addAll(resources, scan(allClassPath(path)));
+            Collections.addAll(resources, scan(classResourceExpression(path)));
         }
 
         if (resources.size() > 1) {
@@ -186,7 +189,7 @@ public abstract class ResourceScaner {
 
     /**
      * 根据路径表达式加载资源
-     * 
+     *
      * @param pathExpression
      *            资源的路径
      * @return 该路径对于的资源
@@ -202,17 +205,18 @@ public abstract class ResourceScaner {
 
     /**
      * 将path转化为，该路径下所有资源的ant path表示
+     * <p/>
      * 
      * <pre>
      * com.harmony -> classpath*:com/harmony<span>/**</span>/*
      * com/harmony -> classpath*:com/harmony<span>/**</span>/*
      * </pre>
-     * 
+     *
      * @param path
      *            资源路径
      * @return 所有资源匹配路径
      */
-    private static String allResourcePath(final String path) {
+    private static String resourceExpression(final String path) {
         Assert.notNull(path, "scan path is null");
 
         String pattern, extension = getExtension(path);
@@ -230,13 +234,14 @@ public abstract class ResourceScaner {
 
     /**
      * 将path转化为，该路径下匹配所有class的路径ant path表达式
+     * <p/>
      * 
      * <pre>
      * com.harmony -> classpath*:com/harmony<span>/**</span>/*.class
      * com/harmony -> classpath*:com/harmony<span>/**</span>/*.class
      * </pre>
      */
-    private static String allClassPath(final String path) {
+    private static String classResourceExpression(final String path) {
         Assert.notNull(path, "scan package is null");
 
         String pattern, extension = getExtension(path);
@@ -287,10 +292,11 @@ public abstract class ResourceScaner {
     private static Class<?> forName(String className) {
         try {
             return Class.forName(className, true, ClassUtils.getDefaultClassLoader());
-        } catch (Exception e) {
-            return null;
         } catch (NoClassDefFoundError e) {
-            log.warn("in classpath jar no fully configured, {}", e.toString());
+            log.warn("{} in classpath jar no fully configured, {}", className, e.toString());
+            return null;
+        } catch (Throwable e) {
+            log.error("{}", className, e);
             return null;
         }
     }

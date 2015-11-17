@@ -37,7 +37,7 @@
     </dependency>
     <dependency>
       <groupId>com.harmony.umbrella</groupId>
-      <artifactId>umbrella-json</artifactId>
+      <artifactId>umbrella-parse</artifactId>
     </dependency>
     <dependency>
       <groupId>org.aspectj</groupId>

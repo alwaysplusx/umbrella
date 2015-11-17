@@ -22,7 +22,7 @@
     </dependency>
     <dependency>
       <groupId>com.harmony.umbrella</groupId>
-      <artifactId>umbrella-json</artifactId>
+      <artifactId>umbrella-parse</artifactId>
       <scope>compile</scope>
       <optional>true</optional>
     </dependency>
