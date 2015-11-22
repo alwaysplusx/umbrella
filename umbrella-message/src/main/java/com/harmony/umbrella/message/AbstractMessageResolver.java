@@ -18,7 +18,7 @@ package com.harmony.umbrella.message;
 /**
  * 消息解析抽象类
  *
- * @author wuxii
+ * @author wuxii@foxmail.com
  */
 public abstract class AbstractMessageResolver<T> implements MessageResolver {
 
@@ -31,7 +31,7 @@ public abstract class AbstractMessageResolver<T> implements MessageResolver {
      * 处理解析后的消息
      *
      * @param message
-     *         待处理的消息
+     *            待处理的消息
      */
     public abstract void process(T message);
 
@@ -39,7 +39,7 @@ public abstract class AbstractMessageResolver<T> implements MessageResolver {
      * 将消息解析为对应的实际内容
      *
      * @param message
-     *         待解析的消息
+     *            待解析的消息
      * @return 解析后的消息
      */
     protected abstract T resolver(Message message);

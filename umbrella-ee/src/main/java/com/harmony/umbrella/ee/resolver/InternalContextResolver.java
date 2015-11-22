@@ -38,6 +38,8 @@ import com.harmony.umbrella.ee.SessionBean;
 import com.harmony.umbrella.util.ClassUtils;
 
 /**
+ * JavaEE环境内部解析工具，用于分析{@linkplain javax.naming.Context}
+ *
  * @author wuxii@foxmail.com
  */
 public class InternalContextResolver extends ConfigurationBeanResolver implements ContextResolver {
@@ -204,7 +206,7 @@ public class InternalContextResolver extends ConfigurationBeanResolver implement
         return !(beanDefinition.isRemoteClass() //
                 || beanDefinition.isSessionBean() //
                 || beanDefinition.isLocalClass() //
-        || beanDefinition.getBeanClass().isInterface());
+                || beanDefinition.getBeanClass().isInterface());
     }
 
 }

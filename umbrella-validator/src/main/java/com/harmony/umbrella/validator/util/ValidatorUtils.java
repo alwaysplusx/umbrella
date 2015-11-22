@@ -21,7 +21,6 @@ import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
-import javax.validation.groups.Default;
 
 import com.harmony.umbrella.util.StringUtils;
 import com.harmony.umbrella.validator.ValidVisitor;
@@ -62,23 +61,26 @@ public abstract class ValidatorUtils {
      * 检查bean的违规信息
      * 
      * @param object
+     *            待验证的bean
+     * @param groups
+     *            验证组
      * @return 所有的违规信息用逗号({@code ,})隔开,如果没有违规信息返回{@code null}
      */
-    public static String getViolationMessage(Object object) {
-        return getViolationMessage(object, Default.class);
+    public static String getViolationMessage(Object object, Class<?>... groups) {
+        return getViolationMessage(object, null, groups);
     }
 
     /**
      * 检查bean的违规信息
      * 
      * @param object
+     *            待验证的bean
+     * @param visitor
+     *            验证的访问， 在基础验证后调用
      * @param groups
-     * @return
+     *            验证组
+     * @return 所有的违规信息用逗号({@code ,})隔开,如果没有违规信息返回{@code null}
      */
-    public static String getViolationMessage(Object object, Class<?>... groups) {
-        return getViolationMessage(object, null, groups);
-    }
-
     public static String getViolationMessage(Object object, ValidVisitor visitor, Class<?>... groups) {
         StringBuilder buf = new StringBuilder();
 
@@ -104,17 +106,10 @@ public abstract class ValidatorUtils {
      * 检查bean的违规信息条数
      * 
      * @param object
-     * @return
-     */
-    public static int getNumberOfViolations(Object object) {
-        return getValidator().validate(object).size();
-    }
-
-    /**
-     * 检查bean的违规信息条数
-     * 
-     * @param object
-     * @return
+     *            待验证的bean
+     * @param groups
+     *            验证组
+     * @return 违规数据数量
      */
     public static int getNumberOfViolations(Object object, Class<?>... groups) {
         return getValidator().validate(object, groups).size();
@@ -124,9 +119,13 @@ public abstract class ValidatorUtils {
      * 检查bean是否违规
      * 
      * @param object
-     * @return
+     *            待验证的bean
+     * @param groups
+     *            验证组
+     * 
+     * @return true检测对象违规
      */
-    public static boolean isViolation(Object object, Class<?> groups) {
+    public static boolean isViolation(Object object, Class<?>... groups) {
         return getNumberOfViolations(object, groups) > 0;
     }
 

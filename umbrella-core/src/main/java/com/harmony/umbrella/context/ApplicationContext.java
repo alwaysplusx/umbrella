@@ -22,6 +22,7 @@ import java.sql.SQLException;
 import java.util.Locale;
 import java.util.Properties;
 import java.util.ServiceLoader;
+import java.util.Set;
 
 import javax.servlet.ServletContext;
 
@@ -56,7 +57,7 @@ public abstract class ApplicationContext implements BeanFactory {
     /**
      * 应用的配置属性
      */
-    protected final Properties applicationProperties = new Properties();
+    protected final Properties contextProperties = new Properties();
 
     protected Locale locale;
 
@@ -73,7 +74,7 @@ public abstract class ApplicationContext implements BeanFactory {
     }
 
     public ApplicationContext(Properties props) {
-        this.applicationProperties.putAll(props);
+        this.contextProperties.putAll(props);
     }
 
     /**
@@ -139,9 +140,13 @@ public abstract class ApplicationContext implements BeanFactory {
     private static final ApplicationContext getApplicationContext0(Properties props) {
 
         Properties applicationProperties = new Properties();
+
         if (PropUtils.exists(APPLICATION_PROPERTIES_LOCATION)) {
-            applicationProperties.putAll(props);
+            applicationProperties.putAll(PropUtils.loadProperties(APPLICATION_PROPERTIES_LOCATION));
         }
+
+        // cover properties file property
+        applicationProperties.putAll(props);
 
         ApplicationContext context = null;
         synchronized (providers) {
@@ -166,8 +171,16 @@ public abstract class ApplicationContext implements BeanFactory {
         return context;
     }
 
-    public Properties getApplicationProperties() {
-        return applicationProperties;
+    public String getProperty(String key) {
+        return contextProperties.getProperty(key);
+    }
+
+    public String getProperty(String key, String defaultValue) {
+        return contextProperties.getProperty(key, defaultValue);
+    }
+
+    public Set<String> getPropertyNames() {
+        return contextProperties.stringPropertyNames();
     }
 
     public Locale getLocale() {

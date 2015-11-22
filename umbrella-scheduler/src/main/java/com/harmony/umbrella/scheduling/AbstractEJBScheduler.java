@@ -104,7 +104,7 @@ public abstract class AbstractEJBScheduler extends AbstractScheduler<AbstractEJB
             log.error("", e);
             jobInfo.lastExceptionMessage = Exceptions.getAllMessage(e);
             jobInfo.lastExceptionTime = Calendar.getInstance();
-            jobInfo.execeptionTimes++;
+            jobInfo.exceptionTimes++;
         }
     }
 
@@ -134,7 +134,7 @@ public abstract class AbstractEJBScheduler extends AbstractScheduler<AbstractEJB
         protected Calendar lastExceptionTime;
         protected int pausedTimes;
         protected int executeTimes;
-        protected int execeptionTimes;
+        protected int exceptionTimes;
         protected String lastExceptionMessage;
 
         public EJBJobInfo(String jobName, Class<? extends Job> jobClass) {
@@ -159,7 +159,7 @@ public abstract class AbstractEJBScheduler extends AbstractScheduler<AbstractEJB
         }
 
         public int getSuccessTimes() {
-            return executeTimes - execeptionTimes;
+            return executeTimes - exceptionTimes;
         }
 
         @Override
@@ -207,7 +207,7 @@ public abstract class AbstractEJBScheduler extends AbstractScheduler<AbstractEJB
 
         @Override
         public int getExceptionTimes() {
-            return execeptionTimes;
+            return exceptionTimes;
         }
 
         @Override
@@ -247,7 +247,17 @@ public abstract class AbstractEJBScheduler extends AbstractScheduler<AbstractEJB
 
         @Override
         public String toString() {
-            return "{\"jobName\":\"" + jobName + "\", \"jobClass\":\"" + jobClass + "\", \"trigger\":\"" + trigger + "\", \"status\":\"" + status + "\"}";
+            StringBuilder builder = new StringBuilder();
+            builder.append("{jobName:");
+            builder.append(jobName);
+            builder.append(", jobClass:");
+            builder.append(jobClass);
+            builder.append(", trigger:");
+            builder.append(trigger);
+            builder.append(", status:");
+            builder.append(status);
+            builder.append("}");
+            return builder.toString();
         }
 
     }

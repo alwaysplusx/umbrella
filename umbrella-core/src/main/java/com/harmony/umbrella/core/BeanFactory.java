@@ -17,7 +17,7 @@ package com.harmony.umbrella.core;
 
 /**
  * bean加载
- * 
+ *
  * @author wuxii@foxmail.com
  */
 public interface BeanFactory {
@@ -34,35 +34,41 @@ public interface BeanFactory {
 
     /**
      * 根据bean的名称加载指定bean，默认获取单例的bean
-     * 
+     *
      * @param beanName
-     * @return
+     *         需要获取的bean名称
+     * @return 指定名称的bean
      */
     <T> T getBean(String beanName) throws NoSuchBeanFindException;
 
     /**
      * 加载一个指定类型的bean
-     * 
+     *
      * @param beanName
+     *         需要获取的bean名称
      * @param scope
-     * @return
+     *         bean scope
+     * @return 指定名称的bean
      */
     <T> T getBean(String beanName, String scope) throws NoSuchBeanFindException;
 
     /**
      * 默认加载一个单例的bean
-     * 
+     *
      * @param beanClass
-     * @return
+     *         需要获取的bean类
+     * @return 指定类型的bean
      */
     <T> T getBean(Class<T> beanClass) throws NoSuchBeanFindException;
 
     /**
      * 加载一个指定类型的bean
-     * 
+     *
      * @param beanClass
+     *         需要获取的bean类
      * @param scope
-     * @return
+     *         bean scope
+     * @return 指定类型的bean
      */
     <T> T getBean(Class<T> beanClass, String scope) throws NoSuchBeanFindException;
 

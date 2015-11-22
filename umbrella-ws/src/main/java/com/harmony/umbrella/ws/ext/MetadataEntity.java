@@ -18,6 +18,8 @@ package com.harmony.umbrella.ws.ext;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 
 import com.harmony.modules.commons.data.BaseEntity;
@@ -28,6 +30,11 @@ import com.harmony.umbrella.ws.Metadata;
  */
 @Entity
 @Table(name = "UMBRELLA_WS_METADATA")
+@NamedQueries({ 
+    @NamedQuery(name = "MetadataEntity.findAll", query = "select o from MetadataEntity o"),
+    @NamedQuery(name = "MetadataEntity.findAllServiceName", query = "select o.serviceName from MetadataEntity o"),
+    @NamedQuery(name = "MetadataEntity.findByServiceName", query = "select o from MetadataEntity o where o.serviceName=:serviceName") 
+})
 public class MetadataEntity extends BaseEntity<String> implements Metadata {
 
     private static final long serialVersionUID = 5573685617120186172L;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 wuxii@foxmail.com.
+ * Copyright 2002-2014 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,15 +16,17 @@
 package com.harmony.umbrella.message;
 
 /**
+ * 消息发送工具接口
+ * 
  * @author wuxii@foxmail.com
  */
 public interface MessageSender {
 
     /**
-     * 发送消息给消息中心, 作为JMS使用
+     * 发送消息给消息中心(JMS, NIO)
      *
      * @param message
-     *         需要发送的消息
+     *            需要发送的消息
      * @return if return {@code true} 发送成功
      * @see javax.jms.MessageProducer#send(javax.jms.Message)
      */

@@ -27,7 +27,7 @@ import com.harmony.umbrella.core.SimpleBeanFactory;
 import com.harmony.umbrella.scheduling.Job;
 import com.harmony.umbrella.scheduling.JobFactory;
 import com.harmony.umbrella.scheduling.Trigger;
-import com.harmony.umbrella.scheduling.jpa.entity.JobEntity;
+import com.harmony.umbrella.scheduling.ext.JobEntity;
 import com.harmony.umbrella.util.Assert;
 
 /**

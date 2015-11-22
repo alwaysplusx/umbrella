@@ -18,7 +18,7 @@ package com.harmony.umbrella.message;
 /**
  * 监听消息
  *
- * @author wuxii
+ * @author wuxii@foxmail.com
  * @see javax.jms.MessageListener
  */
 public interface MessageListener {
@@ -32,7 +32,7 @@ public interface MessageListener {
      * 当消息到达时候触发
      *
      * @param message
-     *         接受的消息
+     *            接受的消息
      * @see javax.jms.MessageListener#onMessage(javax.jms.Message)
      */
     void onMessage(Message message);

@@ -18,8 +18,10 @@ package com.harmony.umbrella.util;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Iterator;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +30,7 @@ import com.harmony.umbrella.io.ClassPathResource;
 
 /**
  * 属性加载工具
- * 
+ *
  * @author wuxii@foxmail.com
  */
 public abstract class PropUtils {
@@ -37,9 +39,9 @@ public abstract class PropUtils {
 
     /**
      * 判断是否存在且是资源文件
-     * 
+     *
      * @param path
-     *            文件路径
+     *         文件路径
      */
     public static boolean exists(String path) {
         File file = new File(path);
@@ -64,9 +66,10 @@ public abstract class PropUtils {
 
     /**
      * 加载指定文件下的资源文件
-     * 
-     * @param filePath
-     * @return
+     *
+     * @param paths
+     *         资源文件的路径
+     * @return 资源文件中的属性
      * @throws IOException
      */
     public static Properties loadProperties(String... paths) {
@@ -98,37 +101,99 @@ public abstract class PropUtils {
     }
 
     /**
-     * 系统{@linkplain System#getProperties(String)}
-     * 
+     * 系统{@linkplain java.lang.System#getProperty(String)}
+     *
      * @param key
-     * @return
+     *         环境属性key
+     * @return 系统环境属性值
      */
     public static String getSystemProperty(String key) {
         return System.getProperty(key);
     }
 
     /**
-     * 系统{@linkplain System#getProperties(String)}
-     * 
+     * 系统{@linkplain System#getProperty(String)}
+     *
      * @param key
+     *         环境属性key
      * @param defaultValue
-     * @return
+     *         默认值
+     * @return 系统环境属性值
      */
     public static String getSystemProperty(String key, String defaultValue) {
         return System.getProperty(key, defaultValue);
     }
 
+    /**
+     * 从属性中过滤出前缀为指定值的属性集合
+     *
+     * @param prefix
+     *         前缀
+     * @param props
+     *         待过滤的属性
+     * @return 前缀符合要求的新属性集合
+     */
     public static Properties filterStartWith(String prefix, Properties props) {
+        return filterStartWith(prefix, props, false);
+    }
+
+    /**
+     * 在属性集合中过滤出前缀相同的属性集合
+     *
+     * @param prefix
+     *         key的前缀
+     * @param props
+     *         属性集合
+     * @param ignoreCase
+     *         是否忽略大小写
+     * @return key前缀相同的属性集合
+     */
+    public static Properties filterStartWith(String prefix, Properties props, boolean ignoreCase) {
+        Assert.notBlank(prefix, "prefix not allow null or blank");
         Properties result = new Properties();
         if (props == null || props.isEmpty()) {
             return result;
         }
+        Set<String> propertyNames = props.stringPropertyNames();
+        for (String name : propertyNames) {
+            if (name.startsWith(prefix) || (ignoreCase && name.toLowerCase().startsWith(prefix.toLowerCase()))) {
+                result.put(name, props.get(name));
+            }
+        }
+        return result;
+    }
 
-        Iterator<String> iterator = props.stringPropertyNames().iterator();
-        while (iterator.hasNext()) {
-            String key = iterator.next();
-            if (key.startsWith(prefix)) {
-                result.put(key, props.get(key));
+    /**
+     * map中过滤出key前缀相同的属性集合
+     *
+     * @param prefix
+     *         key前缀
+     * @param map
+     *         属性集合
+     * @return key前缀相同的属性集合
+     */
+    public static Map<String, Object> filterStartWith(String prefix, Map<String, Object> map) {
+        return filterStartWith(prefix, map, false);
+    }
+
+    /**
+     * map中过滤出key前缀相同的属性集合
+     *
+     * @param prefix
+     *         key前缀
+     * @param map
+     *         属性集合
+     * @param ignoreCase
+     *         是否忽略大小写
+     * @return key前缀相同的属性集合
+     */
+    public static Map<String, Object> filterStartWith(String prefix, Map<String, Object> map, boolean ignoreCase) {
+        Assert.notBlank(prefix, "prefix not allow null or blank");
+        Map<String, Object> result = new HashMap<String, Object>();
+        Set<String> keys = map.keySet();
+        for (String key : keys) {
+            if (key.startsWith(prefix) || (ignoreCase && key.toLowerCase().startsWith(prefix.toLowerCase()))) {
+                result.put(key, map.get(key));
             }
         }
         return result;

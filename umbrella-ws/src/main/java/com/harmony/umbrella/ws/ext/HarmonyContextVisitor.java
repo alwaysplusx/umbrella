@@ -31,7 +31,7 @@ import com.harmony.umbrella.ws.ProxyExecutor;
 import com.harmony.umbrella.ws.visitor.AbstractContextVisitor;
 
 /**
- * 客户端同步部分的日志记录工具类
+ * webservice客户端同步部分的日志记录工具类
  * 
  * @author wuxii@foxmail.com
  */

@@ -22,23 +22,16 @@ import java.util.Map;
 
 /**
  * 执行时候的交互上下文
- * <p>
- * 上下文中包括:
- * <ul>
- * <li>待执行的服务接口
- * <li>待执行的方法
- * <li>调用地址
- * <li>用户名密码
- * <li>以及其他待扩展的属性
- * </ul>
- * 
+ * <p/>
+ * 上下文中包括: <ul> <li>待执行的服务接口 <li>待执行的方法 <li>调用地址 <li>用户名密码 <li>以及其他待扩展的属性 </ul>
+ *
  * @author wuxii@foxmail.com
  */
 public interface Context extends Metadata, Serializable {
 
     /**
      * 每次消息生成一个唯一键（ 使用数字自增，即创建一次+1）。
-     * 
+     *
      * @return 上下文的唯一标识
      */
     long getContextId();
@@ -89,7 +82,7 @@ public interface Context extends Metadata, Serializable {
      * 在上下文中获取属性值
      *
      * @param contextKey
-     *            检索键
+     *         检索键
      * @return 上下文中的值
      */
     Object get(String contextKey);
@@ -98,7 +91,7 @@ public interface Context extends Metadata, Serializable {
      * 上下文中是否包含检索条件
      *
      * @param key
-     *            环境中的key
+     *         环境中的key
      * @return if contain return {@code true}
      */
     boolean contains(String key);
@@ -108,7 +101,7 @@ public interface Context extends Metadata, Serializable {
      *
      * @return 接口方法
      * @throws NoSuchMethodException
-     *             该接口中不存在该方法
+     *         该接口中不存在该方法
      */
     Method getMethod() throws NoSuchMethodException;
 
@@ -130,9 +123,9 @@ public interface Context extends Metadata, Serializable {
      * 往当前环境中设置值
      *
      * @param key
-     *            上下文中对应的key
+     *         上下文中对应的key
      * @param value
-     *            上下文对应的值
+     *         上下文对应的值
      */
     void put(String key, Object value);
 

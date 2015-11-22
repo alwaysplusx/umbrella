@@ -68,7 +68,7 @@ public class WebLogicContextResolver extends InternalContextResolver {
 
     public WebLogicContextResolver(Properties props) {
         super(props);
-        this.warppedBeanHandlers.addAll(handlers);
+        this.wrappedBeanHandlers.addAll(handlers);
     }
 
     /*@Override

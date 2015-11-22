@@ -97,7 +97,8 @@ public class SyncableContextVisitor extends AbstractContextVisitor {
             Method method = context.getMethod();
             Class<?> returnType = method.getReturnType();
 
-            // 返回值是否经过封装标识(default false) // 有值返回，返回值类型与方法返回类型不相同表示结果经过封装
+            // 返回值是否经过封装标识(default false)
+            // 有值返回，返回数据的值类型与方法返回类型不相同表示结果经过封装
             boolean wrapped = result != null && result.getClass().isAssignableFrom(returnType);
 
             for (SyncCallback callback : getCallbacks(context)) {

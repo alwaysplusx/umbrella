@@ -31,31 +31,6 @@ import java.util.Map;
 public interface Proxy<T> {
 
     /**
-     * 不需要同步
-     */
-    int NO_NEED = -1;
-
-    /**
-     * 未同步
-     */
-    int UNSYNCHRONIZED = 0;
-
-    /**
-     * 同步中
-     */
-    int SYNCHRONIZING = 1;
-
-    /**
-     * 同步完成
-     */
-    int SYNCHRONIZED = 2;
-
-    /**
-     * 同步异常
-     */
-    int EXCEPTION = 3;
-
-    /**
      * 同步对象在{@linkplain com.harmony.umbrella.ws.Context}中的key
      */
     String SYNC_OBJECT = Proxy.class.getName() + ".SYNC_OBJECT";
@@ -63,22 +38,22 @@ public interface Proxy<T> {
     /**
      * 将待同步的对象进行同步
      * 
-     * @param obj
+     * @param object
      *            待同步的对象
      * @return true同步成功
      */
-    boolean sync(T obj);
+    boolean sync(T object);
 
     /**
      * 将待同步的对象进行同步
      * 
-     * @param obj
+     * @param object
      *            待同步的对象
      * @param properties
      *            同步的可利用属性，会放置在同步的上下文中.(EJB情况下需考虑对传出对象的序列化情况)
      * @return true同步成功
      */
-    boolean sync(T obj, Map<String, Object> properties);
+    boolean sync(T object, Map<String, Object> properties);
 
     /**
      * 遍历所有待同步的对象，循环同步
@@ -86,46 +61,46 @@ public interface Proxy<T> {
      * 效果如下：
      * 
      * <pre>
-     * for (T obj : objs) {
-     *     sync(obj);
+     * for (T object : objects) {
+     *     sync(object);
      * }
      * </pre>
      * 
-     * @param objs
-     *            待同步的objs
+     * @param objects
+     *            待同步的objects
      * @see Proxy#sync(Object)
      */
-    void sync(List<T> objs);
+    void sync(List<T> objects);
 
     /**
      * 遍历所有待同步的对象，循环同步
      * 
-     * @param objs
-     *            待同步的objs
+     * @param objects
+     *            待同步的objects
      * @param properties
      *            同步的可利用属性，会放置在同步的上下文中.(EJB情况下需考虑对传出对象的序列化情况)
      * @see Proxy#sync(List)
      * @see Proxy#sync(Object)
      */
-    void sync(List<T> objs, Map<String, Object> properties);
+    void sync(List<T> objects, Map<String, Object> properties);
 
     /**
      * 将所有待同步的对象在一次同步中传输(将所有的待同步对象在一次消息传递中传递出去)
      * 
-     * @param objs
-     *            待同步的objs
+     * @param objects
+     *            待同步的objects
      */
-    boolean syncInBatch(List<T> objs);
+    boolean syncInBatch(List<T> objects);
 
     /**
      * 将所有待同步的对象在一次同步中传输(将所有的待同步对象在一次消息传递中传递出去)
      * 
-     * @param objs
-     *            待同步的objs
+     * @param objects
+     *            待同步的objects
      * @param properties
      *            同步的可利用属性，会放置在同步的上下文中.(EJB情况下需考虑对传出对象的序列化情况)
      * @see #syncInBatch(List)
      */
-    boolean syncInBatch(List<T> objs, Map<String, Object> properties);
+    boolean syncInBatch(List<T> objects, Map<String, Object> properties);
 
 }

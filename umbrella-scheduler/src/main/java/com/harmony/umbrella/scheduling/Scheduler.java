@@ -56,7 +56,7 @@ public interface Scheduler {
      * @param jobName
      *            任务的job名称
      */
-    void restart(String pause) throws SchedulerException;
+    void restart(String jobName) throws SchedulerException;
 
     /**
      * 启动定时任务

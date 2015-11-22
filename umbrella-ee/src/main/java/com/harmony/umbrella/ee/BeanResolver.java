@@ -47,7 +47,7 @@ public interface BeanResolver {
     /**
      * 查看bean是否与声明的类型匹配
      * 
-     * @param declaer
+     * @param declare
      *            声明的bean定义
      * @param bean
      *            待检验的bean

@@ -34,11 +34,11 @@ public class ResolverManager {
 
     /**
      * 创建beanResolver
-     * 
+     *
      * @param serverInfo
-     *            服务的信息
+     *         服务的信息
      * @param props
-     *            创建的附属资源
+     *         创建的附属资源
      * @return beanResolver
      */
     public static BeanResolver createBeanResolver(ServerInformation serverInfo, Properties props) {
@@ -48,23 +48,23 @@ public class ResolverManager {
         }
         int serverType = serverInfo == null ? UNKNOW : serverInfo.serverType;
         switch (serverType) {
-        case WEBLOGIC:
-        case WEBSPHERE:
-        case GLASSFISH:
-        case JBOSS:
-        case TOMCAT:
-        default:
-            return new ConfigurationBeanResolver(props);
+            case WEBLOGIC:
+            case WEBSPHERE:
+            case GLASSFISH:
+            case JBOSS:
+            case TOMCAT:
+            default:
+                return new ConfigurationBeanResolver(props);
         }
     }
 
     /**
      * 创建ContextResolver
-     * 
+     *
      * @param serverInfo
-     *            服务的信息
+     *         服务的信息
      * @param props
-     *            创建的附属资源
+     *         创建的附属资源
      * @return contextResolver
      */
     public static ContextResolver createContextResolver(ServerInformation serverInfo, Properties props) {
@@ -74,22 +74,22 @@ public class ResolverManager {
         }
         int serverType = serverInfo == null ? UNKNOW : serverInfo.serverType;
         switch (serverType) {
-        case WEBLOGIC:
-            // return new WebLogicContextBeanResolver(props);
-        case WEBSPHERE:
-        case GLASSFISH:
-        case JBOSS:
-        case TOMCAT:
-        default:
-            return new InternalContextResolver(props);
+            case WEBLOGIC:
+                // return new WebLogicContextBeanResolver(props);
+            case WEBSPHERE:
+            case GLASSFISH:
+            case JBOSS:
+            case TOMCAT:
+            default:
+                return new InternalContextResolver(props);
         }
     }
 
     @SuppressWarnings("unchecked")
-    private static <T extends ContextResolver> T createResolver(String resolverClassName, ServerInformation serverInfo, //
-            Properties props, Class<T> targetClass) {
+    private static <T extends ContextResolver> T createResolver(String resolverClassName, ServerInformation serverInfo,
+                                                                Properties props, Class<T> targetClass) {
         try {
-            Class<?> resolverClass = Class.forName(resolverClassName, false, ClassUtils.getDefaultClassLoader());
+            Class<?> resolverClass = ClassUtils.forName(resolverClassName);
             if (targetClass.isAssignableFrom(resolverClass)) {
                 Constructor<?> constructor;
                 try {
@@ -101,7 +101,7 @@ public class ResolverManager {
             }
             throw new IllegalArgumentException("class " + resolverClassName + " not assignable from " + targetClass.getName());
         } catch (ClassNotFoundException e) {
-            throw new IllegalArgumentException("class " + resolverClassName + " cant't resolver", e);
+            throw new IllegalArgumentException("class " + resolverClassName + " can not resolver", e);
         }
     }
 }

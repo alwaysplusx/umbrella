@@ -40,17 +40,26 @@ import com.harmony.umbrella.util.StringUtils;
 
 /**
  * JavaEE的应用上下文实现
- * 
+ *
  * @author wuxii@foxmail.com
  */
 public class EJBApplicationContext extends ApplicationContext implements EJBContextMBean {
 
-    protected static final int STANDBY = 1;
-    protected static final int RUNNING = 2;
-    protected static final int SHUTDOWN = 3;
-    
     /**
-     * jndi文件地址
+     * javaEE环境standby
+     */
+    protected static final int STANDBY = 1;
+    /**
+     * javaEE环境running
+     */
+    protected static final int RUNNING = 2;
+    /**
+     * javaEE环境shutdown
+     */
+    protected static final int SHUTDOWN = 3;
+
+    /**
+     * EJB application 属性配置文件地址
      */
     private final String jndiPropertiesFileLocation;
 
@@ -60,8 +69,7 @@ public class EJBApplicationContext extends ApplicationContext implements EJBCont
     private JmxManager jmxManager = JmxManager.getInstance();
 
     /**
-     * 存放与class对应的Context的bean信息，sessionBean信息中包含jndi, bean definition,
-     * 和一个被缓存着的实例(可以做单例使用)
+     * 存放与class对应的Context的bean信息，sessionBean信息中包含jndi, bean definition, 和一个被缓存着的实例(可以做单例使用)
      */
     private Map<String, SessionBean> sessionBeanMap = new ConcurrentHashMap<String, SessionBean>();
 
@@ -73,9 +81,8 @@ public class EJBApplicationContext extends ApplicationContext implements EJBCont
 
     private EJBApplicationContext(Properties props) {
         this.jndiPropertiesFileLocation = props.getProperty("jndi.properties.file", APPLICATION_PROPERTIES_LOCATION);
-        this.loadProperties(jndiPropertiesFileLocation);
-        this.applyProperties(props);
-        this.contextResolver = createContextResolver(getInformationOfServer(), applicationProperties);
+        this.applyContextProperties(props);
+        this.contextResolver = createContextResolver(getInformationOfServer(), contextProperties);
     }
 
     public static EJBApplicationContext getInstance() {
@@ -88,10 +95,10 @@ public class EJBApplicationContext extends ApplicationContext implements EJBCont
                 if (INSTANCE == null) {
                     INSTANCE = new EJBApplicationContext(props == null ? new Properties() : props);
                     INSTANCE.init();
+                } else if (props != null && !props.isEmpty()) {
+                    INSTANCE.applyContextProperties(props);
                 }
             }
-        } else if (props != null && !props.isEmpty()) {
-            INSTANCE.applyProperties(props);
         }
         return INSTANCE;
     }
@@ -105,7 +112,7 @@ public class EJBApplicationContext extends ApplicationContext implements EJBCont
         if (lifeCycle == STANDBY) {
             synchronized (EJBApplicationContext.class) {
                 if (lifeCycle == STANDBY) {
-                    
+
                     if (jmxManager.isRegistered(EJBContext.class)) {
                         jmxManager.unregisterMBean(EJBContext.class);
                     }
@@ -123,7 +130,7 @@ public class EJBApplicationContext extends ApplicationContext implements EJBCont
     }
 
     private void initDB() {
-        String name = applicationProperties.getProperty("application.datasource.name");
+        String name = contextProperties.getProperty("application.datasource.name");
         if (StringUtils.isNotBlank(name)) {
             try {
                 DataSource ds = (DataSource) lookup(name);
@@ -136,32 +143,19 @@ public class EJBApplicationContext extends ApplicationContext implements EJBCont
 
     /**
      * 根据jndi名称获取JavaEE环境中指定的对象
-     * 
+     *
      * @param jndi
-     *            jndi名称
-     * @return 指定jndi的bean
-     * @throws ApplicationContextException
-     *             不存在指定的jndi
-     */
-    public Object lookup(String jndi) throws ApplicationContextException {
-        return lookup(jndi, Object.class);
-    }
-
-    /**
-     * 根据jndi名称获取JavaEE环境中指定类型的对象
-     * 
-     * @param jndi
-     *            jndi名称
-     * @param reqireType
-     *            指定的bean类型
+     *         jndi名称
+     * @param <T>
+     *         需要查找的类型
      * @return 指定jndi的bean
      * @throws ClassCastException
-     *             找到的bean类型不为requireType
+     *         找到的bean类型不为requireType
      * @throws ApplicationContextException
-     *             不存在指定的jndi
+     *         不存在指定的jndi
      */
     @SuppressWarnings("unchecked")
-    public <T> T lookup(String jndi, Class<T> reqireType) throws ApplicationContextException {
+    public <T> T lookup(String jndi) throws ApplicationContextException {
         try {
             return (T) getContext().lookup(jndi);
         } catch (NamingException e) {
@@ -172,17 +166,15 @@ public class EJBApplicationContext extends ApplicationContext implements EJBCont
 
     /**
      * 从JavaEE环境中获取指定类实例
-     * <p>
-     * <li>首先根据类型将解析clazz对应的jndi名称
-     * <li>如果解析的jndi名称未找到对应类型的bean， 则通过递归 {@linkplain javax.naming.Context}
-     * 中的内容查找
+     * <p/>
+     * <li>首先根据类型将解析clazz对应的jndi名称 <li>如果解析的jndi名称未找到对应类型的bean， 则通过递归 {@linkplain javax.naming.Context} 中的内容查找
      * <li>若以上方式均为找到则返回{@code null}
-     * 
+     *
      * @param clazz
-     *            待查找的类
+     *         待查找的类
      * @return 指定类型的bean, 如果为找到返回{@code null}
      * @throws ApplicationContextException
-     *             初始化JavaEE环境失败
+     *         初始化JavaEE环境失败
      */
     public <T> T lookup(Class<T> clazz) throws ApplicationContextException {
         return lookup(clazz, null);
@@ -190,23 +182,18 @@ public class EJBApplicationContext extends ApplicationContext implements EJBCont
 
     /**
      * 从JavaEE环境中获取指定类实例
-     * <p>
-     * <li>首先根据所运行的容器不同通过 {@linkplain BeanContextResolver} 将 {@code clazz}
-     * 格式化为特定的{@code jndi}
-     * <li>如果格式化后的jndi名称未找到对应类型的bean， 则通过 {@linkplain ContextReader}
-     * 递归读取上下文查找需要指定的内容
-     * <li>若以上方式均为找到则返回{@code null}
-     * 
+     * <p/>
+     * <li>首先根据所运行的容器不同通过 {@linkplain BeanResolver} 将 {@code clazz} 格式化为特定的 {@code jndi} <li>如果格式化后的jndi名称未找到对应类型的bean，
+     * 则通过 {@linkplain ContextResolver} 递归读取上下文查找需要指定的内容 <li>若以上方式均为找到则返回{@code null}
+     *
      * @param clazz
-     *            待查找的类
+     *         待查找的类
      * @param mappedName
-     *            bean的映射名称
+     *         bean的映射名称
      * @return 指定类型的bean
-     * @throws ApplicationContextException
-     *             不存在指定的jndi
      */
     @SuppressWarnings("unchecked")
-    public <T> T lookup(Class<T> clazz, String mappedName) throws ApplicationContextException {
+    public <T> T lookup(Class<T> clazz, String mappedName) {
         String key = sessionKey(clazz, mappedName);
         SessionBean sessionBean = sessionBeanMap.get(key);
         if (sessionBean != null) {
@@ -246,16 +233,14 @@ public class EJBApplicationContext extends ApplicationContext implements EJBCont
 
     /**
      * 初始化客户端JavaEE环境
-     * <p>
-     * 默认加载指定路径下 {@link #JNDI_PROPERTIES_FILE_LOCATION} 的资源文件作为初始化属性
-     * 
-     * @return
+     *
+     * @return {@linkplain javax.naming.Context}
      * @throws ApplicationContextException
-     *             初始化上下文失败
+     *         初始化上下文失败
      */
     public Context getContext() {
         try {
-            return new InitialContext(applicationProperties);
+            return new InitialContext(contextProperties);
         } catch (NamingException e) {
             throw new ApplicationContextException(e.getMessage(), e.getCause());
         }
@@ -263,20 +248,38 @@ public class EJBApplicationContext extends ApplicationContext implements EJBCont
 
     /**
      * 在指定上下文属性中查找对于jndi名称的对象
-     * 
+     *
      * @param jndiName
-     *            jndi名称
+     *         jndi名称
      * @param jndiProperties
-     *            指定上下文属性
+     *         指定上下文属性
      * @return 在环境中对于jndi的bean
      * @throws ApplicationContextException
-     *             上下文初始化失败, 或者未找到对应的jndi bean
+     *         上下文初始化失败, 或者未找到对应的jndi bean
      */
-    public static Object lookup(String jndiName, Properties jndiProperties) {
+    public static Object lookup(String jndiName, Properties jndiProperties) throws ApplicationContextException {
         try {
             return new InitialContext(jndiProperties).lookup(jndiName);
         } catch (NamingException e) {
             throw new ApplicationContextException(e.getMessage(), e.getCause());
+        }
+    }
+
+    /**
+     * 使用传入的属性覆盖已经存在的环境Application properties
+     *
+     * @param props
+     *         传入的属性
+     */
+    protected void applyContextProperties(Properties props) {
+        if (PropUtils.exists(jndiPropertiesFileLocation)) {
+            this.contextProperties.putAll(PropUtils.loadProperties(jndiPropertiesFileLocation));
+        } else {
+            LOG.warn("properties file [{}] is not exists", jndiPropertiesFileLocation);
+        }
+
+        if (props != null && !props.isEmpty()) {
+            this.contextProperties.putAll(props);
         }
     }
 
@@ -301,8 +304,8 @@ public class EJBApplicationContext extends ApplicationContext implements EJBCont
         } catch (ApplicationContextException e) {
             ex = e;
             try {
-                bean = getBean(Class.forName(beanName));
-            } catch (Exception e1) {
+                bean = getBean(ClassUtils.forName(beanName), scope);
+            } catch (ClassNotFoundException e1) {
                 ex.addSuppressed(e1);
             }
         }
@@ -331,22 +334,6 @@ public class EJBApplicationContext extends ApplicationContext implements EJBCont
         return bean;
     }
 
-    /**
-     * 使用传入的属性覆盖已经存在的环境Application properties
-     * 
-     * @param props
-     *            传入的属性
-     */
-    protected void applyProperties(Properties props) {
-        if (props != null && !props.isEmpty()) {
-            this.applicationProperties.putAll(props);
-        }
-    }
-
-    private void loadProperties(String fielLocation) {
-        applicationProperties.putAll(PropUtils.loadProperties(fielLocation));
-    }
-    
     // ############## JMX ############
     /*
      * JMX method
@@ -354,7 +341,7 @@ public class EJBApplicationContext extends ApplicationContext implements EJBCont
     @Override
     public void loadProperties() {
         LOG.info("reload properties {}", jndiPropertiesFileLocation);
-        loadProperties(jndiPropertiesFileLocation);
+        this.applyContextProperties(null);
     }
 
     /*
@@ -362,7 +349,7 @@ public class EJBApplicationContext extends ApplicationContext implements EJBCont
      */
     @Override
     public void clearProperties() {
-        applicationProperties.clear();
+        contextProperties.clear();
         LOG.info("clear properties");
     }
 
@@ -382,7 +369,7 @@ public class EJBApplicationContext extends ApplicationContext implements EJBCont
      * JMX method
      */
     @Override
-    public boolean exixts(String className) {
+    public boolean exists(String className) {
         LOG.info("test exists bean {}", className);
         try {
             getBean(className);
@@ -401,7 +388,7 @@ public class EJBApplicationContext extends ApplicationContext implements EJBCont
         contextResolver.clear();
         LOG.info("clear cached context property");
     }
-    
+
     @Override
     public void clear(String jndi) {
         sessionBeanMap.remove(jndi);

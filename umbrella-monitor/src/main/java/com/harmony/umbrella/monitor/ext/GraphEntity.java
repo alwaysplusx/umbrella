@@ -35,9 +35,9 @@ import com.harmony.modules.commons.data.BaseEntity;
 @Entity
 @Table(name = "UMBRELLA_MONITOR_GRAPH")
 @NamedQueries({ 
-    @NamedQuery(name = "findAll", query = "select o from GraphEntity o"), 
-    @NamedQuery(name = "findById", query = "select o from GraphEntity o where o.id =:id"),
-    @NamedQuery(name = "findByResource", query = "select o from GraphEntity o where o.resource =:resource")
+    @NamedQuery(name = "GraphEntity.findAll", query = "select o from GraphEntity o"), 
+    @NamedQuery(name = "GraphEntity.findById", query = "select o from GraphEntity o where o.id =:id"),
+    @NamedQuery(name = "GraphEntity.findByResource", query = "select o from GraphEntity o where o.resource =:resource")
 })
 public class GraphEntity extends BaseEntity<Long> {
 

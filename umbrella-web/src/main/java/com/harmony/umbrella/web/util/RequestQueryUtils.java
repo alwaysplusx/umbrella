@@ -21,7 +21,6 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -48,22 +47,22 @@ public class RequestQueryUtils {
 
     static {
 
-        Properties applicationProperties = ApplicationContext.getApplicationContext().getApplicationProperties();
+        ApplicationContext applicationContext = ApplicationContext.getApplicationContext();
 
         String linkClassName = Link.class.getName();
         for (Link link : Link.values()) {
-            String key = applicationProperties.getProperty(linkClassName + link.name(), link.shortName());
+            String key = applicationContext.getProperty(linkClassName + link.name(), link.shortName());
             linkMap.put(key.toLowerCase(), link);
         }
 
         String opClassName = Operator.class.getName();
         for (Operator op : Operator.values()) {
-            String key = applicationProperties.getProperty(opClassName + op.name(), op.shortName());
+            String key = applicationContext.getProperty(opClassName + op.name(), op.shortName());
             operatorMap.put(key.toLowerCase(), op);
         }
 
-        filter = applicationProperties.getProperty("application.web.front.filter", "f");
-        split = applicationProperties.getProperty("application.web.front.split", "_");
+        filter = applicationContext.getProperty("application.web.front.filter", "f");
+        split = applicationContext.getProperty("application.web.front.split", "_");
 
     }
 

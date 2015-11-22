@@ -13,23 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.umbrella.scheduling.jpa.entity;
+package com.harmony.umbrella.scheduling.ext;
 
 import java.io.Serializable;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
+import javax.persistence.*;
 
 /**
  * @author wuxii@foxmail.com
  */
 @Entity
+@Table(name = "UMBRELLA_SCHEDULING_JOB")
 @NamedQueries({ 
-		@NamedQuery(name = "JobEntity.findAll", query = "select o from JobEntity o"),
-		@NamedQuery(name = "JobEntity.findAllJobName", query = "select o.jobName from JobEntity o"),
-		@NamedQuery(name = "JobEntity.findByJobName", query = "select o from JobEntity o where o.jobName=:jobName") 
+	@NamedQuery(name = "JobEntity.findAll", query = "select o from JobEntity o"),
+	@NamedQuery(name = "JobEntity.findAllJobName", query = "select o.jobName from JobEntity o"),
+	@NamedQuery(name = "JobEntity.findByJobName", query = "select o from JobEntity o where o.jobName=:jobName") 
 })
 public class JobEntity implements Serializable {
 

@@ -19,7 +19,7 @@ import com.harmony.umbrella.ws.Metadata;
 
 /**
  * 服务的基础元数据
- * 
+ *
  * @author wuxii@foxmail.com
  */
 public class SimpleMetadata implements Metadata {
@@ -177,6 +177,7 @@ public class SimpleMetadata implements Metadata {
                 .append("  password -> ").append(password).append("\n")//
                 .append("  ctimeout -> ").append(connectionTimeout).append("\n")//
                 .append("  rtimeout -> ").append(receiveTimeout).append("\n")//
+                .append("  stimeout <-> ").append(synchronousTimeout).append("\n")//
                 .append("\n}");
         return result.toString();
     }

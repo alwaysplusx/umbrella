@@ -15,8 +15,6 @@
  */
 package com.harmony.umbrella.monitor.ext;
 
-import static com.harmony.umbrella.Constants.*;
-
 import java.lang.reflect.Method;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -25,9 +23,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.harmony.modules.commons.log.Log4jUtils;
+import com.harmony.umbrella.Constants;
 import com.harmony.umbrella.json.Json;
 import com.harmony.umbrella.monitor.Graph;
 import com.harmony.umbrella.monitor.MethodGraph;
+import com.harmony.umbrella.monitor.util.MonitorUtils;
 import com.harmony.umbrella.util.Exceptions;
 import com.harmony.umbrella.util.StringUtils;
 
@@ -38,6 +38,15 @@ public class LogUtils {
 
     private static final Logger log = LoggerFactory.getLogger(LogUtils.class);
 
+    /**
+     * 记录harmony日志
+     * 
+     * @param graph
+     *            监控视图
+     * @param graphFormat
+     *            监控结果格式化方式
+     * @return true记录正常， false记录异常
+     */
     public static final boolean log(MethodGraph graph, GraphFormat<MethodGraph> graphFormat) {
         try {
 
@@ -78,21 +87,35 @@ public class LogUtils {
      */
     public static String getLogCategory(MethodGraph graph) {
         String category = graph.getCategory();
-        if (StringUtils.isBlank(category) && graph.getTargetClass() != null) {
-            category = getLogCategory(graph.getTargetClass().getName());
+        if (StringUtils.isBlank(category)) {
+            Method method = graph.getMethod();
+            if (method != null) {
+                category = MonitorUtils.getCategory(method);
+            }
+            if (StringUtils.isBlank(category) && graph.getTargetClass() != null) {
+                category = getLogCategory(graph.getTargetClass());
+            }
         }
         return category == null ? "" : category;
+    }
+
+    public static String getLogCategory(Class<?> clazz) {
+        String category = MonitorUtils.getCategory(clazz);
+        if (StringUtils.isBlank(category)) {
+            category = getLogCategory(clazz.getName());
+        }
+        return category;
     }
 
     /**
      * 获取日志大类, 未找到返回空字符
      * 
      * @param key
-     *            key
+     *            根据key查找umbrell.properties文件中的日志大类别 key
      * @return 日志大类
      */
     public static String getLogCategory(String key) {
-        return getProperty(key, "");
+        return Constants.getProperty(key, "");
     }
 
     /**
@@ -106,7 +129,28 @@ public class LogUtils {
     public static String getLogModule(MethodGraph graph) {
         String module = graph.getModule();
         if (StringUtils.isBlank(module)) {
-            module = getLogModule(graph.getTargetClass());
+            Method method = graph.getMethod();
+            if (method != null) {
+                module = MonitorUtils.getModule(method);
+            }
+            if (StringUtils.isBlank(module)) {
+                module = getLogModule(graph.getTargetClass());
+            }
+        }
+        return module;
+    }
+
+    /**
+     * 获取模块名称, 如果未找到返回类名
+     * 
+     * @param clazz
+     *            类名
+     * @return 未找到返回类名
+     */
+    public static String getLogModule(Class<?> clazz) {
+        String module = MonitorUtils.getModule(clazz);
+        if (StringUtils.isBlank(module)) {
+            module = Constants.getProperty(clazz.getName(), clazz.getName());
         }
         return module;
     }
@@ -121,38 +165,37 @@ public class LogUtils {
     public static String getLogFromName(MethodGraph graph) {
         String from = graph.getOperator();
         if (StringUtils.isBlank(from)) {
-            String methodName = graph.getMethod() == null ? "" : graph.getMethod().getName();
-            from = getLogFromName(graph.getTargetClass(), methodName);
+            Method method = graph.getMethod();
+            if (method != null) {
+                from = MonitorUtils.getOperator(method);
+            }
+            if (StringUtils.isBlank(from)) {
+                from = getLogFromName(graph.getTargetClass(), method == null ? "" : method.getName());
+            }
         }
         return from;
     }
 
     /**
-     * 获取模块名称, 如果未找到返回类名
-     * 
-     * @param clazz
-     *            类名
-     * @return 未找到返回类名
-     */
-    public static final String getLogModule(Class<?> clazz) {
-        return getProperty(clazz.getName(), clazz.getName());
-    }
-
-    /**
      * 根据服务类名以及方法名获取服务对应的中文名称
      * 
-     * @param proxyClass
+     * @param clazz
      *            服务类
      * @param methodName
      *            服务的方法
      * @return 服务的中文名称, 如果没有找到返回 proxyClass + methodName
      */
-    public static final String getLogFromName(Class<?> clazz, String methodName) {
-        String key = clazz.getName() + "." + methodName;
-        if (containsKey(key)) {
-            return getProperty(key);
+    public static String getLogFromName(Class<?> clazz, String methodName) {
+        String operator = MonitorUtils.getOperator(clazz);
+        if (StringUtils.isBlank(operator)) {
+            String key = clazz.getName() + "." + methodName;
+            if (Constants.containsKey(key)) {
+                operator = Constants.getProperty(key);
+            } else {
+                operator = Constants.getProperty(clazz.getName(), key);
+            }
         }
-        return getProperty(clazz.getName(), key);
+        return operator;
     }
 
     /**
@@ -162,8 +205,8 @@ public class LogUtils {
      *            服务key
      * @return 如果未找到返回key
      */
-    public static final String getLogFromName(String key) {
-        return getProperty(key, key);
+    public static String getLogFromName(String key) {
+        return Constants.getProperty(key, key);
     }
 
     /**
@@ -179,7 +222,7 @@ public class LogUtils {
      *            日志信息
      * @return 格式化后的日志消息
      */
-    public static final String format(String model, String result, String from, String category, String message) {
+    public static String format(String model, String result, String from, String category, String message) {
         StringBuilder sb = new StringBuilder();
 
         sb.append(model).append("|");//
@@ -214,6 +257,7 @@ public class LogUtils {
     public interface GraphFormat<T extends Graph> {
 
         String format(T graph);
+
     }
 
     public static final class SimpleMethodGraphFormat implements GraphFormat<MethodGraph> {

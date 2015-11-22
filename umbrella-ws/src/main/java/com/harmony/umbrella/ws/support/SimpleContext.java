@@ -30,7 +30,7 @@ import com.harmony.umbrella.ws.Context;
 
 /**
  * {@linkplain Context}基础实现
- * 
+ *
  * @author wuxii@foxmail.com
  */
 public class SimpleContext implements Context, Serializable {
@@ -151,8 +151,7 @@ public class SimpleContext implements Context, Serializable {
                 if (method.getName().equals(methodName)) {
                     // target
                     Class<?>[] pattern = method.getParameterTypes();
-                    // input can be subclass of target, cannot be super class of
-                    // target
+                    // input can be subclass of target, cannot be super class of target
                     if (ClassUtils.isAssignable(types, pattern)) {
                         return method;
                     }

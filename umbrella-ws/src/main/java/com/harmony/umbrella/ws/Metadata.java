@@ -16,7 +16,7 @@
 package com.harmony.umbrella.ws;
 
 /**
- * 可将jaxws属性保存到数据库或者其他地方做的扩展
+ * web service 基础属性<p/>可将属性保存到数据库或者其他地方做的扩展
  *
  * @author wuxii@foxmail.com
  */
@@ -75,8 +75,7 @@ public interface Metadata {
      * 设置客户端等待时间
      *
      * @return 等待时间
-     * @see com.harmony.umbrella.ws.jaxws.JaxWsProxyBuilder#setSynchronousTimeout(Object,
-     *      int)
+     * @see com.harmony.umbrella.ws.jaxws.JaxWsProxyBuilder#setSynchronousTimeout(Object, int)
      */
     int getSynchronousTimeout();
 

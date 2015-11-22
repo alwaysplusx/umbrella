@@ -20,7 +20,7 @@ import java.io.Serializable;
 /**
  * marker interface
  * 
- * @author wuxii
+ * @author wuxii@foxmail.com
  */
 public interface Message extends Serializable {
 

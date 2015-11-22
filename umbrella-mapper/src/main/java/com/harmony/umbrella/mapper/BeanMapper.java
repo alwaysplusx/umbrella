@@ -22,6 +22,8 @@ import java.util.Map;
 import org.dozer.DozerBeanMapper;
 
 /**
+ * dozer 映射工具
+ * 
  * @author wuxii@foxmail.com
  */
 public class BeanMapper {

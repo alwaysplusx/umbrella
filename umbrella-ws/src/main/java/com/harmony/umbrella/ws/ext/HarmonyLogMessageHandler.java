@@ -36,6 +36,7 @@ class HarmonyLogMessageHandler implements LogMessageHandler {
 
         String result = logMessage.isException() ? "正常" : "异常";
 
+        // 需要在配置文件umbrella.properties中配置
         String fromName = LogUtils.getLogFromName(logMessage.getRequestUrl().toString());
 
         String message = LogUtils.format(model, result, fromName, "SP-1000000", logMessage.toString());

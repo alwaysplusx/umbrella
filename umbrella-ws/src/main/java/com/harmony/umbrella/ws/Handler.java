@@ -104,7 +104,6 @@ public @interface Handler {
      * </pre>
      * 
      */
-    @Documented
     @Target({ ElementType.METHOD })
     @Retention(RetentionPolicy.RUNTIME)
     public @interface HandleMethod {

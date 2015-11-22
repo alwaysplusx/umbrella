@@ -41,7 +41,7 @@ import com.harmony.umbrella.util.StringUtils;
 
 /**
  * 通过配置配置的属性，来组合定义的bean
- * 
+ *
  * @author wuxii@foxmail.com
  */
 public class ConfigurationBeanResolver implements BeanResolver {
@@ -61,22 +61,22 @@ public class ConfigurationBeanResolver implements BeanResolver {
     /**
      * 组装mappedName需要添加的后缀
      */
-    protected final Set<String> beanSuffixs = new HashSet<String>();
+    protected final Set<String> beanSuffixes = new HashSet<String>();
 
     /**
      * jndi需要添加的class后缀
      */
-    protected final Set<String> remoteSuffixs = new HashSet<String>();
+    protected final Set<String> remoteSuffixes = new HashSet<String>();
 
     /**
      * local对于的后缀
      */
-    protected final Set<String> localSuffixs = new HashSet<String>();
+    protected final Set<String> localSuffixes = new HashSet<String>();
 
     /**
      * lookup到的bean如果是对应于应用服务器的封装类的解析工具
      */
-    protected final List<WrappedBeanHandler> warppedBeanHandlers = new ArrayList<WrappedBeanHandler>();
+    protected final List<WrappedBeanHandler> wrappedBeanHandlers = new ArrayList<WrappedBeanHandler>();
 
     /**
      * 开启local接口转化
@@ -84,13 +84,13 @@ public class ConfigurationBeanResolver implements BeanResolver {
     private boolean transformLocal;
 
     public ConfigurationBeanResolver(Properties props) {
-        this.globalPrefix = props.getProperty("jndi.format.globlal.prefix", "");
+        this.globalPrefix = props.getProperty("jndi.format.global.prefix", "");
         this.transformLocal = Boolean.valueOf(props.getProperty("jndi.format.transformLocal"));
-        this.beanSuffixs.addAll(fromProps(props, "jndi.format.bean"));
+        this.beanSuffixes.addAll(fromProps(props, "jndi.format.bean"));
         this.separators.addAll(fromProps(props, "jndi.format.separator"));
-        this.remoteSuffixs.addAll(fromProps(props, "jndi.format.remote"));
-        this.localSuffixs.addAll(fromProps(props, "jndi.format.local"));
-        this.warppedBeanHandlers.addAll(createFromProps(props, "jndi.wrapped.handler", WrappedBeanHandler.class));
+        this.remoteSuffixes.addAll(fromProps(props, "jndi.format.remote"));
+        this.localSuffixes.addAll(fromProps(props, "jndi.format.local"));
+        this.wrappedBeanHandlers.addAll(createFromProps(props, "jndi.wrapped.handler", WrappedBeanHandler.class));
     }
 
     /**
@@ -142,9 +142,9 @@ public class ConfigurationBeanResolver implements BeanResolver {
         Class<?> remoteClass = declare.getSuitableRemoteClass();
         if (log.isDebugEnabled()) {
             log.debug("\ntest it is declare bean? "//
-                    + "\n\tremoteClass -> {}"//
-                    + "\n\tbeanClass   -> {}"//
-                    + "\n\tbean        -> {}",//
+                            + "\n\tremoteClass -> {}"//
+                            + "\n\tbeanClass   -> {}"//
+                            + "\n\tbean        -> {}",//
                     remoteClass, declare.getBeanClass(), bean);
         }
         return declare.getBeanClass().isInstance(bean) || (remoteClass != null && remoteClass.isInstance(bean));
@@ -198,7 +198,7 @@ public class ConfigurationBeanResolver implements BeanResolver {
     }
 
     protected Object unwrap(Object bean) {
-        for (WrappedBeanHandler handler : warppedBeanHandlers) {
+        for (WrappedBeanHandler handler : wrappedBeanHandlers) {
             if (handler.isWrappedBean(bean)) {
                 return handler.unwrap(bean);
             }
@@ -215,19 +215,19 @@ public class ConfigurationBeanResolver implements BeanResolver {
     }
 
     public List<WrappedBeanHandler> getWrappedBeanHandlers() {
-        return warppedBeanHandlers;
+        return wrappedBeanHandlers;
     }
 
     public Set<String> getBeanSuffixs() {
-        return beanSuffixs;
+        return beanSuffixes;
     }
 
     public Set<String> getRemoteSuffixs() {
-        return remoteSuffixs;
+        return remoteSuffixes;
     }
 
     public Set<String> getLocalSuffixs() {
-        return localSuffixs;
+        return localSuffixes;
     }
 
     public String getGlobalPrefix() {
@@ -271,15 +271,15 @@ public class ConfigurationBeanResolver implements BeanResolver {
 
         /**
          * 格式划jndi, 再判断jndi是否存在于上下文中
-         * 
+         * <p/>
          * <pre>
          *   JNDI = prefix() + beanSuffix + separator + package + . + prefix() + remoteSuffix
          * </pre>
-         * 
-         * @param beanSuffix
-         *            映射名的后缀
-         * @param remoteSuffix
-         *            结尾的后缀
+         *
+         * @param mappedName
+         *         bean的映射名称
+         * @param remoteClass
+         *         remote的类型
          */
         protected void addIfNotExists(String mappedName, Class<?> remoteClass) {
             for (String separator : separators) {
@@ -304,24 +304,24 @@ public class ConfigurationBeanResolver implements BeanResolver {
 
     /**
      * 通过local接口查找会话bean解决策略
-     * <p>
-     * 
+     * <p/>
+     * <p/>
      * <pre>
      *  如：com.harmony.FooLocal
      *      beanSuffix = Bean
      *      localSuffix = Local
      *      remoteSuffix = Remote
-     *      
+     *
      *  结果为 ：
-     *      
+     *
      *      FooBean#com.harmony.FooLocal
-     *      
+     *
      *  另，可开启local转化关系{@linkplain ConfigurationBeanResolver#transformLocal transformLocal}为true， 将local的结尾转为remote形式
-     *  
-     *  结果为:    
+     *
+     *  结果为:
      *      FooBean#com.harmony.FooRemote
      * </pre>
-     * 
+     *
      * @author wuxii@foxmail.com
      */
     final class LocalResolver extends ConcreteBeanResolver {
@@ -349,10 +349,10 @@ public class ConfigurationBeanResolver implements BeanResolver {
 
                 for (Class<?> localClass : localClasses) {
                     String name = localClass.getSimpleName();
-                    for (String localSuffix : localSuffixs) {
+                    for (String localSuffix : localSuffixes) {
                         // 去除后缀, 如果没有对应的后缀则忽略
                         name = removeSuffix(name, localSuffix);
-                        for (String beanSuffix : beanSuffixs) {
+                        for (String beanSuffix : beanSuffixes) {
                             // 给去除后缀后的localClass SimpleName增加上bean的名称后缀
                             result.add(name + beanSuffix);
                         }
@@ -374,10 +374,10 @@ public class ConfigurationBeanResolver implements BeanResolver {
 
                 for (Class<?> localClass : localClasses) {
                     String name = localClass.getName();
-                    for (String localSuffix : localSuffixs) {
+                    for (String localSuffix : localSuffixes) {
                         if (name.endsWith(localSuffix)) {
                             name = removeSuffix(name, localSuffix);
-                            for (String remoteSuffix : remoteSuffixs) {
+                            for (String remoteSuffix : remoteSuffixes) {
                                 try {
                                     result.add(Class.forName(name + remoteSuffix, false, ClassUtils.getDefaultClassLoader()));
                                 } catch (ClassNotFoundException e) {
@@ -394,20 +394,19 @@ public class ConfigurationBeanResolver implements BeanResolver {
 
     /**
      * 通过remote接口查找会话bean的解决策略
-     * <p>
-     * 
+     * <p/>
+     * <p/>
      * <pre>
      * 如: com.harmony.FooRemote
-     * 
+     *
      *      remoteSuffixs = Remote
      *      beanSuffixs = Bean
      *      beanSeparators = #
-     *      
+     *
      * 结果为：
-     * 
+     *
      *      FooBean#com.harmony.FooRemote
      * </pre>
-     * 
      */
     final class RemoteResolver extends ConcreteBeanResolver {
 
@@ -428,10 +427,10 @@ public class ConfigurationBeanResolver implements BeanResolver {
                 for (Class<?> remoteClass : remoteClasses) {
                     String name = remoteClass.getSimpleName();
 
-                    for (String remoteSuffix : remoteSuffixs) {
+                    for (String remoteSuffix : remoteSuffixes) {
                         if (name.endsWith(remoteSuffix)) {
                             name = removeSuffix(name, remoteSuffix);
-                            for (String beanSuffix : beanSuffixs) {
+                            for (String beanSuffix : beanSuffixes) {
                                 result.add(name + beanSuffix);
                             }
                         }
@@ -454,19 +453,19 @@ public class ConfigurationBeanResolver implements BeanResolver {
 
     /**
      * 通过会话bean找到会话beans实例
-     * <p>
-     * 
+     * <p/>
+     * <p/>
      * <pre>
      *  如：com.harmony.FooBean
-     *  
+     *
      *      remoteSuffix = Remote
      *      beanSuffix = Bean
-     *  结果为：    
-     *     
+     *  结果为：
+     *
      *     FooBean#com.harmony.FooRemote
-     * 
+     *
      * </pre>
-     * 
+     *
      * @author wuxii@foxmail.com
      */
     final class SessionResolver extends ConcreteBeanResolver {
@@ -502,10 +501,10 @@ public class ConfigurationBeanResolver implements BeanResolver {
                 Class<?>[] localClasses = beanDefinition.getLocalClasses();
                 for (Class<?> localClass : localClasses) {
                     String name = localClass.getName();
-                    for (String localSuffix : localSuffixs) {
+                    for (String localSuffix : localSuffixes) {
                         if (name.endsWith(localSuffix)) {
                             name = removeSuffix(name, localSuffix);
-                            for (String remoteSuffix : remoteSuffixs) {
+                            for (String remoteSuffix : remoteSuffixes) {
                                 try {
                                     result.add(Class.forName(name + remoteSuffix, false, ClassUtils.getDefaultClassLoader()));
                                 } catch (ClassNotFoundException e) {

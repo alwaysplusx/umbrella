@@ -48,7 +48,7 @@ public class ContextMessage implements Message {
 
     @Override
     public String toString() {
-        return "context message of " + context.toString();
+        return "context message of " + context;
     }
 
 }
