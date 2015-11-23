@@ -50,6 +50,7 @@ under the License.
     <module>umbrella-scheduler</module>
     <module>umbrella-plugins</module>
     <module>umbrella-bang</module>
+    <module>umbrella-mail</module>
     <!-- <module>umbrella-logger</module> -->
     <!-- <module>umbrella-resources</module> -->
     <!-- <module>umbrella-spring</module> -->
@@ -81,6 +82,7 @@ under the License.
     <javax.validation.version>1.1.0.Final</javax.validation.version>
     <javax.ws.rs.version>2.0</javax.ws.rs.version>
     <javax.annotation.version>1.2</javax.annotation.version>
+    <javax.mail.version>1.5.4</javax.mail.version>
     <!-- apache -->
     <apache.cxf.version>3.0.2</apache.cxf.version>
     <apache.openejb.version>4.7.1</apache.openejb.version>
@@ -432,6 +434,11 @@ under the License.
         <groupId>javax.el</groupId>
         <artifactId>javax.el-api</artifactId>
         <version>${javax.el.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>javax.mail</groupId>
+        <artifactId>javax.mail-api</artifactId>
+        <version>${javax.mail.version}</version>
       </dependency>
       <!-- others -->
       <dependency>

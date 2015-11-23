@@ -22,7 +22,7 @@ import javax.persistence.EntityManager;
 import com.harmony.umbrella.core.BeanFactory;
 import com.harmony.umbrella.scheduling.AbstractEJBScheduler;
 import com.harmony.umbrella.scheduling.JobFactory;
-import com.harmony.umbrella.scheduling.jpa.JpaJobFactory;
+import com.harmony.umbrella.scheduling.ext.JpaJobFactory;
 
 /**
  * 
