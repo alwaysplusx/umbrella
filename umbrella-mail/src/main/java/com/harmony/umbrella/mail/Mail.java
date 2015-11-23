@@ -15,50 +15,56 @@
  */
 package com.harmony.umbrella.mail;
 
-import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author wuxii@foxmail.com
  */
 public class Mail {
 
-    // 发出地址
-    protected String fromAddress;
-    // 送达地址
-    protected String[] toAddresses;
-    // 抄送地址
-    protected String[] ccAddresses;
-    // 密送地址
-    protected String[] bccAddresses;
+    public static final String DEFAULT_MIME_TYPE = "text/html; charset=utf-8";
     // 邮件主题
     protected String subject;
     // 邮件内容
     protected Object content;
+    // 发出地址
+    protected String fromAddress;
+    // 送达地址
+    protected final List<String> toAddresses = new ArrayList<String>();
+    // 抄送地址
+    protected final List<String> ccAddresses = new ArrayList<String>();
+    // 密送地址
+    protected final List<String> bccAddresses = new ArrayList<String>();
     // 附件
-    protected File[] attachmentFiles;
+    protected final List<String> attachmentFiles = new ArrayList<String>();
+    // 邮件主题的mimeType
+    protected String mimeType = DEFAULT_MIME_TYPE;
 
-    public File[] getAttachmentFiles() {
-        return attachmentFiles;
+    public Mail() {
     }
 
-    public void setAttachmentFiles(File[] attachmentFiles) {
-        this.attachmentFiles = attachmentFiles;
+    public Mail(String fromAddress, String toAddress) {
+
     }
 
-    public String[] getBccAddresses() {
-        return bccAddresses;
+    public Mail(String fromAddress, String toAddress, String subject) {
+        this(fromAddress, toAddress, subject, null);
     }
 
-    public void setBccAddresses(String[] bccAddresses) {
-        this.bccAddresses = bccAddresses;
+    public Mail(String fromAddress, String toAddress, String subject, String content) {
+        this.fromAddress = fromAddress;
+        this.toAddresses.add(toAddress);
+        this.subject = subject;
+        this.content = content;
     }
 
-    public String[] getCcAddresses() {
-        return ccAddresses;
+    public String getSubject() {
+        return subject;
     }
 
-    public void setCcAddresses(String[] ccAddresses) {
-        this.ccAddresses = ccAddresses;
+    public void setSubject(String subject) {
+        this.subject = subject;
     }
 
     public Object getContent() {
@@ -77,20 +83,56 @@ public class Mail {
         this.fromAddress = fromAddress;
     }
 
-    public String getSubject() {
-        return subject;
-    }
-
-    public void setSubject(String subject) {
-        this.subject = subject;
-    }
-
-    public String[] getToAddresses() {
+    public List<String> getToAddresses() {
         return toAddresses;
     }
 
-    public void setToAddresses(String[] toAddresses) {
-        this.toAddresses = toAddresses;
+    public void setToAddresses(List<String> toAddresses) {
+        this.toAddresses.clear();
+        if (toAddresses != null) {
+            this.toAddresses.addAll(toAddresses);
+        }
+    }
+
+    public List<String> getCcAddresses() {
+        return ccAddresses;
+    }
+
+    public void setCcAddresses(List<String> ccAddresses) {
+        this.ccAddresses.clear();
+        if (ccAddresses != null) {
+            this.ccAddresses.addAll(ccAddresses);
+        }
+    }
+
+    public List<String> getBccAddresses() {
+        return bccAddresses;
+    }
+
+    public void setBccAddresses(List<String> bccAddresses) {
+        this.bccAddresses.clear();
+        if (bccAddresses != null) {
+            this.bccAddresses.addAll(bccAddresses);
+        }
+    }
+
+    public List<String> getAttachmentFiles() {
+        return attachmentFiles;
+    }
+
+    public void setAttachmentFiles(List<String> attachmentFiles) {
+        this.attachmentFiles.clear();
+        if (attachmentFiles != null) {
+            this.attachmentFiles.addAll(attachmentFiles);
+        }
+    }
+
+    public String getMimeType() {
+        return mimeType;
+    }
+
+    public void setMimeType(String mimeType) {
+        this.mimeType = mimeType;
     }
 
 }
