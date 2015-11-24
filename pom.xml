@@ -49,7 +49,6 @@ under the License.
     <module>umbrella-web</module>
     <module>umbrella-scheduler</module>
     <module>umbrella-plugins</module>
-    <module>umbrella-bang</module>
     <module>umbrella-mail</module>
     <!-- <module>umbrella-logger</module> -->
     <!-- <module>umbrella-resources</module> -->
