@@ -446,6 +446,11 @@ under the License.
         <artifactId>mailapi</artifactId>
         <version>${sun.mail.version}</version>
       </dependency>
+      <dependency>
+        <groupId>com.sun.mail</groupId>
+        <artifactId>javax.mail</artifactId>
+        <version>${sun.mail.version}</version>
+      </dependency>      
       <!-- others -->
       <dependency>
         <groupId>org.slf4j</groupId>

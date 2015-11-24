@@ -24,6 +24,13 @@ import javax.mail.Session;
  */
 public interface MailSession {
 
+    /**
+     * 通过邮件名称加载{@linkplain javax.mail.Session}
+     * 
+     * @param emailName
+     *            邮件名称或邮件发送人
+     * @return 邮件对应的mail session
+     */
     Session createSession(String emailName);
 
 }

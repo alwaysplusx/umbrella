@@ -15,11 +15,16 @@
  */
 package com.harmony.umbrella.mail.util;
 
+import java.io.IOException;
 import java.util.Properties;
 
+import javax.mail.Message;
 import javax.mail.MessagingException;
+import javax.mail.Multipart;
 import javax.mail.Session;
+import javax.mail.Transport;
 import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeMultipart;
 
 import org.junit.Test;
 
@@ -44,10 +49,25 @@ public class MailUtilsTest {
     }
 
     @Test
-    public void test() throws MessagingException {
-        Mail mail = new Mail("tomeejee@126.com", "870757543@qq.com", "Come On", "I Support You");
+    public void test() throws MessagingException, IOException {
+        Mail mail = new Mail("关羽<tomeejee@126.com>", "wuxii<870757543@qq.com>", "Come On", "I Support You");
         MimeMessage message = MailUtils.createMimeMessage(mail, session);
-        System.out.println(message);
+        Multipart multipart = new MimeMultipart();
+
+        mail.addAttachment("pom.xml");
+        mail.addAttachment("umbrella-mail.iml");
+
+        if (mail.hasAttachment()) {
+            MailUtils.addMailAttachment(multipart, mail.getAttachmentFiles());
+        }
+
+        MailUtils.setMailContent(multipart, mail.getContent(), mail.getMimeType());
+        message.setContent(multipart);
+        send(message);
+    }
+
+    private static void send(Message message) throws MessagingException {
+        Transport.send(message);
     }
 
 }
