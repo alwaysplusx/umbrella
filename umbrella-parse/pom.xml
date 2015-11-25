@@ -6,6 +6,7 @@
     <artifactId>harmony-umbrella</artifactId>
     <version>0.0.5-SNAPSHOT</version>
   </parent>
+  <name>Harmony Umbrella :: Module of Parse</name>
   <artifactId>umbrella-parse</artifactId>
   <dependencies>
     <dependency>
@@ -19,14 +20,20 @@
     <dependency>
       <groupId>com.fasterxml.jackson.dataformat</groupId>
       <artifactId>jackson-dataformat-xml</artifactId>
+      <scope>compile</scope>
+      <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-core</artifactId>
+      <scope>compile</scope>
+      <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
+      <scope>compile</scope>
+      <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
@@ -49,5 +56,4 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
-  <name>Harmony Umbrella :: Module of Parse</name>
 </project>
