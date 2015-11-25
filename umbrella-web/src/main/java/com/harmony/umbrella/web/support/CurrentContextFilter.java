@@ -16,6 +16,7 @@
 package com.harmony.umbrella.web.support;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -38,7 +39,23 @@ import com.harmony.umbrella.web.util.FrontUtils;
  */
 public class CurrentContextFilter implements Filter {
 
+    public static final Set<String> DEFAULT_EXCLUDE_EXTENSION;
+
+    static {
+        Set<String> extensions = new HashSet<String>();
+        extensions.add(".js");
+        extensions.add(".jpg");
+        extensions.add(".png");
+        extensions.add(".gif");
+        extensions.add(".gif");
+        extensions.add(".html");
+        extensions.add(".htm");
+        DEFAULT_EXCLUDE_EXTENSION = Collections.unmodifiableSet(extensions);
+    }
+
     private ApplicationContext context;
+
+    private final Set<String> excludeExtension = new HashSet<String>(DEFAULT_EXCLUDE_EXTENSION);
 
     private Set<String> excludeUrls = new HashSet<String>();
 
@@ -55,7 +72,8 @@ public class CurrentContextFilter implements Filter {
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         String requestUrl = FrontUtils.getRequestUrl((HttpServletRequest) request);
 
-        if (!excludeUrls.contains(requestUrl)) {
+        // 业务相关的链接才设置应用环境
+        if (isBusinessUrl(requestUrl)) {
 
             HttpServletRequest req = (HttpServletRequest) request;
             HttpServletResponse resp = (HttpServletResponse) response;
@@ -75,17 +93,20 @@ public class CurrentContextFilter implements Filter {
 
     }
 
+    private boolean isBusinessUrl(String url) {
+        if (excludeUrls.contains(url)) {
+            return false;
+        }
+        for (String extension : excludeExtension) {
+            if (url.endsWith(extension)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     @Override
     public void destroy() {
-    }
-
-    public Set<String> getExcludeUrls() {
-        return excludeUrls;
-    }
-
-    public void setExcludeUrls(Set<String> excludeUrls) {
-        this.excludeUrls.clear();
-        this.excludeUrls.addAll(excludeUrls);
     }
 
 }

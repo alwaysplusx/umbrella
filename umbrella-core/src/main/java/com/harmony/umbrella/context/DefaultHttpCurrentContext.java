@@ -97,17 +97,17 @@ public class DefaultHttpCurrentContext implements HttpCurrentContext {
     
     @Override
     public String getUsername() {
-        return (String) getSessionAttribute(USERNAME);
+        return (String) getSessionAttribute(USER_NAME);
     }
 
     /**
      * 设置用户名称, 一经设置就不再允许修改
      */
     public boolean setUsername(String username) {
-        if (StringUtils.isBlank(username) || containsSessionAttribute(USERNAME)) {
+        if (StringUtils.isBlank(username) || containsSessionAttribute(USER_NAME)) {
             return false;
         }
-        setSessionAttribute(USERNAME, username);
+        setSessionAttribute(USER_NAME, username);
         return true;
     }
     
