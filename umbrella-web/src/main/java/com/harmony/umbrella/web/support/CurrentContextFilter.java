@@ -45,6 +45,10 @@ public class CurrentContextFilter implements Filter {
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
         context = ApplicationContext.getApplicationContext();
+        String urls = filterConfig.getInitParameter("exclude-url");
+        for (String url : urls.split(",")) {
+            excludeUrls.add(url.trim());
+        }
     }
 
     @Override

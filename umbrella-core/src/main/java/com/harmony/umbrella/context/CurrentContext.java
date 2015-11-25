@@ -44,7 +44,7 @@ public interface CurrentContext extends Serializable {
     /**
      * key:用户的名称
      */
-    String USERNAME = CurrentContext.class.getName() + ".CURRENT_USERNAME";
+    String USERNAME = CurrentContext.class.getName() + ".USER_NAME";
 
     /**
      * key:用户的当前http请求
