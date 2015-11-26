@@ -15,6 +15,7 @@
  */
 package com.harmony.umbrella.monitor.ext;
 
+import java.io.Serializable;
 import java.util.Calendar;
 
 import javax.persistence.Entity;
@@ -39,7 +40,7 @@ import com.harmony.modules.commons.data.BaseEntity;
     @NamedQuery(name = "GraphEntity.findById", query = "select o from GraphEntity o where o.id =:id"),
     @NamedQuery(name = "GraphEntity.findByResource", query = "select o from GraphEntity o where o.resource =:resource")
 })
-public class GraphEntity extends BaseEntity<Long> {
+public class GraphEntity implements Serializable {
 
     private static final long serialVersionUID = 2874692604975168947L;
 

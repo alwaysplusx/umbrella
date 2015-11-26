@@ -56,6 +56,12 @@
       <scope>compile</scope>
       <optional>true</optional>
     </dependency>
+    <dependency>
+      <groupId>com.harmony.umbrella</groupId>
+      <artifactId>umbrella-data</artifactId>
+      <scope>compile</scope>
+      <optional>true</optional>
+    </dependency>    
     <!-- jaxws -->
     <dependency>
       <groupId>org.apache.cxf</groupId>

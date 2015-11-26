@@ -15,6 +15,8 @@
  */
 package com.harmony.umbrella.ws.ext;
 
+import java.io.Serializable;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -22,7 +24,6 @@ import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 
-import com.harmony.modules.commons.data.BaseEntity;
 import com.harmony.umbrella.ws.Metadata;
 
 /**
@@ -35,7 +36,7 @@ import com.harmony.umbrella.ws.Metadata;
     @NamedQuery(name = "MetadataEntity.findAllServiceName", query = "select o.serviceName from MetadataEntity o"),
     @NamedQuery(name = "MetadataEntity.findByServiceName", query = "select o from MetadataEntity o where o.serviceName=:serviceName") 
 })
-public class MetadataEntity extends BaseEntity<String> implements Metadata {
+public class MetadataEntity implements Metadata, Serializable {
 
     private static final long serialVersionUID = 5573685617120186172L;
     /**
@@ -77,17 +78,7 @@ public class MetadataEntity extends BaseEntity<String> implements Metadata {
         this.serviceName = serviceClass.getName();
         this.address = address;
     }
-
-    @Override
-    public Class<?> getIdType() {
-        return String.class;
-    }
-
-    @Override
-    public String getIdValue() {
-        return serviceName;
-    }
-
+    
     @Override
     public String getServiceName() {
         return serviceName;

@@ -78,26 +78,15 @@ public class DefaultHttpCurrentContext implements HttpCurrentContext {
         setSessionAttribute(USER_ID, userId);
         return true;
     }
-    
-    @Override
-    public String getUserCode() {
-        return (String) getSessionAttribute(USER_CODE);
-    }
-    
-    /**
-     * 设置用户名称, 一经设置就不再允许修改
-     */
-    public boolean setUserCode(String userCode) {
-        if (StringUtils.isBlank(userCode) || containsSessionAttribute(USER_CODE)) {
-            return false;
-        }
-        setSessionAttribute(USER_CODE, userCode);
-        return true;
-    }
-    
+
     @Override
     public String getUsername() {
         return (String) getSessionAttribute(USER_NAME);
+    }
+
+    @Override
+    public String getNickname() {
+        return (String) getSessionAttribute(USER_NICKNAME);
     }
 
     /**
@@ -110,7 +99,15 @@ public class DefaultHttpCurrentContext implements HttpCurrentContext {
         setSessionAttribute(USER_NAME, username);
         return true;
     }
-    
+
+    @Override
+    public boolean isAuthenticated() {
+        if (!sessionCreated()) {
+            return false;
+        }
+        return getUserId() != null;
+    }
+
     @Override
     public String getRemoteHost() {
         return request.getRemoteHost();
@@ -166,19 +163,19 @@ public class DefaultHttpCurrentContext implements HttpCurrentContext {
     public String getParameter(String name) {
         return request.getParameter(name);
     }
-    
+
     @SuppressWarnings("unchecked")
     @Override
     public <T> T getAttribute(String name) {
         return (T) request.getAttribute(name);
     }
-    
+
     @SuppressWarnings("unchecked")
     @Override
     public <T> T getSessionAttribute(String name) {
         return (T) getHttpSession().getAttribute(name);
     }
-    
+
     @Override
     public String getHttpCookie(String name) {
         for (Cookie cookie : getHttpCookies()) {
@@ -188,7 +185,7 @@ public class DefaultHttpCurrentContext implements HttpCurrentContext {
         }
         return null;
     }
-    
+
     @Override
     public void setAttribute(String name, Object o) {
         request.setAttribute(name, o);
@@ -268,13 +265,15 @@ public class DefaultHttpCurrentContext implements HttpCurrentContext {
     }
 
     /**
-     * 一经设置不允许修改的属性有{@code HTTP_REQUEST}, {@code HTTP_RESPONSE}, {@code HTTP_SESSION}
+     * 一经设置不允许修改的属性有{@code HTTP_REQUEST}, {@code HTTP_RESPONSE},
+     * {@code HTTP_SESSION}
      */
     @Override
     public void put(String name, Object o) {
         if ((HTTP_REQUEST.equals(name) || HTTP_RESPONSE.equals(name) || HTTP_SESSION.equals(name))) {
-            if (!currentMap.containsKey(name))
+            if (!currentMap.containsKey(name)) {
                 currentMap.put(name, o);
+            }
         } else {
             currentMap.put(name, o);
         }
@@ -316,9 +315,9 @@ public class DefaultHttpCurrentContext implements HttpCurrentContext {
     }
 
     private int getScope(int scope) {
-        return scope <= SCOPE_CURRENT ? SCOPE_CURRENT : 
-                scope <= SCOPE_REQUEST ? SCOPE_REQUEST : 
-                scope <= SCOPE_SESSION ? SCOPE_SESSION : SCOPE_COOKIE;
+        return scope <= SCOPE_CURRENT ? SCOPE_CURRENT : //
+                scope <= SCOPE_REQUEST ? SCOPE_REQUEST : //
+                        scope <= SCOPE_SESSION ? SCOPE_SESSION : SCOPE_COOKIE;
     }
 
 }

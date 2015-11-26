@@ -32,6 +32,7 @@ import javax.servlet.http.HttpServletResponse;
 import com.harmony.umbrella.context.ApplicationContext;
 import com.harmony.umbrella.context.CurrentContext;
 import com.harmony.umbrella.context.DefaultHttpCurrentContext;
+import com.harmony.umbrella.util.StringUtils;
 import com.harmony.umbrella.web.util.FrontUtils;
 
 /**
@@ -63,8 +64,10 @@ public class CurrentContextFilter implements Filter {
     public void init(FilterConfig filterConfig) throws ServletException {
         context = ApplicationContext.getApplicationContext();
         String urls = filterConfig.getInitParameter("exclude-url");
-        for (String url : urls.split(",")) {
-            excludeUrls.add(url.trim());
+        if (StringUtils.isNotBlank(urls)) {
+            for (String url : urls.split(",")) {
+                excludeUrls.add(url.trim());
+            }
         }
     }
 
