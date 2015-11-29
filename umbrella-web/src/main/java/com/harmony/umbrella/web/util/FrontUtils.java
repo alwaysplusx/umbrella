@@ -36,7 +36,7 @@ public abstract class FrontUtils {
     private static final Set<String> DEFAULT_EXCLUDES = new HashSet<String>(Arrays.asList("*.id", "*.new"));
 
     public static String getRequestUrl(HttpServletRequest request) {
-        return request.getRequestURL().toString();
+        return request.getRequestURI().toString();
     }
 
     /**
