@@ -3,3 +3,4 @@
 /target/
 /harmony-umbrella.iml
 /.idea/
+/**/rebel.xml
