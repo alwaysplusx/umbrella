@@ -57,6 +57,9 @@ public class WebRender extends AbstractRender implements HttpTextRender, HttpBin
 
     private final Map<String, String> headerProperties = new HashMap<String, String>();
 
+    public WebRender() {
+    }
+    
     public WebRender(Map<String, String> headProperties) {
         headerProperties.putAll(headProperties);
     }
