@@ -36,7 +36,7 @@ public interface Business<T extends Model<ID>, ID extends Serializable> {
 
     void delete(Iterable<T> entities);
 
-    void deleteById(ID id);
+    T deleteById(ID id);
 
     void deleteByIds(Iterable<ID> ids);
 

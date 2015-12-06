@@ -31,16 +31,16 @@ import com.harmony.umbrella.data.query.SpecificationTransform;
 /**
  * @author wuxii@foxmail.com
  */
-public abstract class AbstractBusiness<T extends Model<ID>, ID extends Serializable> implements Business<T, ID> {
+public abstract class BusinessSupport<T extends Model<ID>, ID extends Serializable> implements Business<T, ID> {
 
     private Class<T> entityClass;
 
     protected BondParser parser = SpecificationTransform.getInstance();
 
-    public AbstractBusiness() {
+    public BusinessSupport() {
     }
 
-    public AbstractBusiness(Class<T> entityClass) {
+    public BusinessSupport(Class<T> entityClass) {
         this.entityClass = entityClass;
     }
 
@@ -58,7 +58,7 @@ public abstract class AbstractBusiness<T extends Model<ID>, ID extends Serializa
     }
 
     protected ParameterizedType getParameterizedType(Class<?> subClass) {
-        return findParameterizedType(getClass(), AbstractBusiness.class);
+        return findParameterizedType(getClass(), BusinessSupport.class);
     }
 
     protected final ParameterizedType findParameterizedType(Class<?> clazz, Class<?> targetSuperClass) {
@@ -98,13 +98,13 @@ public abstract class AbstractBusiness<T extends Model<ID>, ID extends Serializa
     }
 
     @Override
-    public void deleteById(ID id) {
-        getJpaDao().delete(id);
+    public T deleteById(ID id) {
+        return getJpaDao().delete(getEntityClass(), id);
     }
 
     @Override
     public void deleteByIds(Iterable<ID> ids) {
-        getJpaDao().delete(ids);
+        getJpaDao().delete(getEntityClass(), ids);
     }
 
     @Override

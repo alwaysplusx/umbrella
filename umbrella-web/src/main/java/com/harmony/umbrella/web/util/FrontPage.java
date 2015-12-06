@@ -33,7 +33,7 @@ public class FrontPage {
 
     @JSONField(ordinal = 0)
     public long getTotalCount() {
-        return page.getNumberOfElements();
+        return page.getTotalElements();
     }
 
     @JSONField(ordinal = 1)

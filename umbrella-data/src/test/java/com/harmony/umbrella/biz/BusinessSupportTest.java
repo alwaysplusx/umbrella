@@ -31,13 +31,13 @@ import com.harmony.umbrella.data.query.SpecificationTransform;
 /**
  * @author wuxii@foxmail.com
  */
-public abstract class BusinessSupport<T extends Model<ID>, ID extends Serializable> implements Business<T, ID> {
+public abstract class BusinessSupportTest<T extends Model<ID>, ID extends Serializable> implements Business<T, ID> {
 
     protected final EntityMetadata<T, ID> entityMeta;
 
     protected BondParser parser = SpecificationTransform.getInstance();
 
-    public BusinessSupport(Class<T> entityClass) {
+    public BusinessSupportTest(Class<T> entityClass) {
         this.entityMeta = new DefaultEntityMetadata<T, ID>(entityClass);
     }
 
@@ -64,8 +64,8 @@ public abstract class BusinessSupport<T extends Model<ID>, ID extends Serializab
     }
 
     @Override
-    public void deleteById(ID id) {
-        getDao().delete(entityMeta.getJavaType(), id);
+    public T deleteById(ID id) {
+        return getDao().delete(entityMeta.getJavaType(), id);
     }
 
     @Override
