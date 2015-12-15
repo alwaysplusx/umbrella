@@ -19,7 +19,9 @@ import static com.harmony.umbrella.context.ApplicationMetadata.*;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Properties;
 import java.util.ServiceLoader;
 import java.util.Set;
@@ -57,7 +59,7 @@ public abstract class ApplicationContext implements BeanFactory {
     /**
      * 应用的配置属性
      */
-    protected final Properties contextProperties = new Properties();
+    protected final Map<Object, Object> contextProperties = new HashMap<Object, Object>();
 
     protected Locale locale;
 
@@ -73,8 +75,8 @@ public abstract class ApplicationContext implements BeanFactory {
     public ApplicationContext() {
     }
 
-    public ApplicationContext(Properties props) {
-        this.contextProperties.putAll(props);
+    public ApplicationContext(Map<?, ?> properties) {
+        this.contextProperties.putAll(properties);
     }
 
     /**
@@ -171,16 +173,22 @@ public abstract class ApplicationContext implements BeanFactory {
         return context;
     }
 
-    public String getProperty(String key) {
-        return contextProperties.getProperty(key);
+    public Object getProperty(Object key) {
+        return contextProperties.get(key);
     }
 
-    public String getProperty(String key, String defaultValue) {
-        return contextProperties.getProperty(key, defaultValue);
+    @SuppressWarnings("unchecked")
+    public <T> T getProperty(Class<T> key) {
+        return (T) contextProperties.get(key);
     }
 
-    public Set<String> getPropertyNames() {
-        return contextProperties.stringPropertyNames();
+    @SuppressWarnings("unchecked")
+    public <T> T getProperty(Object key, Class<T> type) {
+        return (T) contextProperties.get(key);
+    }
+
+    public Set<Object> getKeySet() {
+        return contextProperties.keySet();
     }
 
     public Locale getLocale() {

@@ -15,7 +15,8 @@
  */
 package com.harmony.umbrella.ee;
 
-import java.util.Properties;
+import java.util.Collections;
+import java.util.Map;
 
 import com.harmony.umbrella.context.ApplicationContext;
 import com.harmony.umbrella.context.ContextProvider;
@@ -29,12 +30,12 @@ public class EJBContextProvider extends ContextProvider {
 
     @Override
     public ApplicationContext createApplicationContext() {
-        return createApplicationContext(null);
+        return createApplicationContext(Collections.emptyMap());
     }
 
     @Override
-    public ApplicationContext createApplicationContext(Properties props) {
-        return EJBApplicationContext.getInstance(props);
+    public ApplicationContext createApplicationContext(Map<?, ?> properties) {
+        return null;
     }
 
 }

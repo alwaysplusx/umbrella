@@ -15,7 +15,8 @@
  */
 package com.harmony.umbrella.context;
 
-import java.util.Properties;
+import java.util.Collections;
+import java.util.Map;
 
 import com.harmony.umbrella.core.BeanFactory;
 import com.harmony.umbrella.core.NoSuchBeanFindException;
@@ -29,7 +30,7 @@ import com.harmony.umbrella.core.SimpleBeanFactory;
 public class ContextProvider {
 
     public ApplicationContext createApplicationContext() {
-        return createApplicationContext(new Properties());
+        return createApplicationContext(Collections.emptyMap());
     }
 
     /**
@@ -37,16 +38,16 @@ public class ContextProvider {
      * 
      * @return 应用上下文
      */
-    public ApplicationContext createApplicationContext(Properties props) {
-        return new SimpleApplicationContext(props);
+    public ApplicationContext createApplicationContext(Map<?, ?> properties) {
+        return new SimpleApplicationContext(properties);
     }
 
     static final class SimpleApplicationContext extends ApplicationContext {
 
         private BeanFactory beanFactory = new SimpleBeanFactory();
 
-        public SimpleApplicationContext(Properties props) {
-            super(props);
+        public SimpleApplicationContext(Map<?, ?> properties) {
+            super(properties);
         }
 
         @Override

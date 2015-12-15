@@ -24,7 +24,6 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
-import com.harmony.umbrella.context.ApplicationContext;
 import com.harmony.umbrella.data.Bond;
 import com.harmony.umbrella.data.Bond.Link;
 import com.harmony.umbrella.data.bond.BondBuilder;
@@ -47,7 +46,7 @@ public class RequestQueryUtils {
 
     static {
 
-        ApplicationContext applicationContext = ApplicationContext.getApplicationContext();
+        /*ApplicationContext applicationContext = ApplicationContext.getApplicationContext();
 
         String linkClassName = Link.class.getName();
         for (Link link : Link.values()) {
@@ -62,7 +61,7 @@ public class RequestQueryUtils {
         }
 
         filter = applicationContext.getProperty("application.web.front.filter", "f");
-        split = applicationContext.getProperty("application.web.front.split", "_");
+        split = applicationContext.getProperty("application.web.front.split", "_");*/
 
     }
 

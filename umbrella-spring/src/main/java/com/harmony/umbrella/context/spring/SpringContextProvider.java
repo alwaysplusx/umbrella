@@ -15,6 +15,7 @@
  */
 package com.harmony.umbrella.context.spring;
 
+import java.util.Map;
 import java.util.Properties;
 
 import com.harmony.umbrella.context.ApplicationContext;
@@ -31,8 +32,8 @@ public class SpringContextProvider extends ContextProvider {
     }
 
     @Override
-    public ApplicationContext createApplicationContext(Properties props) {
-        return SpringApplicationContext.getInstance(props);
+    public ApplicationContext createApplicationContext(Map<?, ?> properties) {
+        return null;
     }
 
 }

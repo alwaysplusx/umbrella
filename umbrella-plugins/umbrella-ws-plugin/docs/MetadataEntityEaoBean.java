@@ -24,7 +24,7 @@ import com.harmony.modules.ejb.eao.GenericEaoImpl;
 import com.harmony.umbrella.util.Assert;
 import com.harmony.umbrella.ws.Metadata;
 import com.harmony.umbrella.ws.MetadataLoader;
-import com.harmony.umbrella.ws.ext.MetadataEntity;
+import com.harmony.umbrella.ws.persistence.MetadataEntity;
 import com.harmony.umbrella.ws.ext.MetadataEntityEaoRemote;
 
 /**

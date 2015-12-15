@@ -6,7 +6,6 @@
   <persistence-unit name="harmonycore" transaction-type="JTA">
     <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
     <jta-data-source>jdbc/harmonycore</jta-data-source>
-    <class>com.harmony.umbrella.monitor.ext.GraphEntity</class>
     <exclude-unlisted-classes>false</exclude-unlisted-classes>
     <shared-cache-mode>NONE</shared-cache-mode>
     <validation-mode>NONE</validation-mode>

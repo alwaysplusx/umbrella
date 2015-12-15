@@ -80,9 +80,11 @@ public class EJBApplicationContext extends ApplicationContext implements EJBCont
     private int lifeCycle = STANDBY;
 
     private EJBApplicationContext(Properties props) {
+        Properties properties = new Properties(props);
         this.jndiPropertiesFileLocation = props.getProperty("jndi.properties.file", APPLICATION_PROPERTIES_LOCATION);
         this.applyContextProperties(props);
-        this.contextResolver = createContextResolver(getInformationOfServer(), contextProperties);
+        properties.putAll(contextProperties);
+        this.contextResolver = createContextResolver(getInformationOfServer(), properties);
     }
 
     public static EJBApplicationContext getInstance() {
@@ -130,7 +132,7 @@ public class EJBApplicationContext extends ApplicationContext implements EJBCont
     }
 
     private void initDB() {
-        String name = contextProperties.getProperty("application.datasource.name");
+        String name = getProperty("application.datasource.name", String.class);
         if (StringUtils.isNotBlank(name)) {
             try {
                 DataSource ds = (DataSource) lookup(name);
@@ -240,7 +242,9 @@ public class EJBApplicationContext extends ApplicationContext implements EJBCont
      */
     public Context getContext() {
         try {
-            return new InitialContext(contextProperties);
+            Properties props = new Properties();
+            props.putAll(contextProperties);
+            return new InitialContext(props);
         } catch (NamingException e) {
             throw new ApplicationContextException(e.getMessage(), e.getCause());
         }
