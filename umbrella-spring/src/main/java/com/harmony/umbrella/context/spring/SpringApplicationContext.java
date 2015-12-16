@@ -15,6 +15,8 @@
  */
 package com.harmony.umbrella.context.spring;
 
+import java.util.Map;
+
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
@@ -29,8 +31,9 @@ public class SpringApplicationContext extends ApplicationContext implements Bean
 
     private org.springframework.context.ApplicationContext springContext;
 
-    public SpringApplicationContext(org.springframework.context.ApplicationContext springContext) {
+    public SpringApplicationContext(org.springframework.context.ApplicationContext springContext, Map<?, ?> properties) {
         this.springContext = springContext;
+        this.contextProperties.putAll(properties);
     }
 
     @SuppressWarnings("unchecked")

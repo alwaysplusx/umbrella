@@ -18,6 +18,10 @@ package com.harmony.umbrella.context.spring;
 import java.util.Map;
 import java.util.Properties;
 
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContextAware;
+import org.springframework.util.Assert;
+
 import com.harmony.umbrella.context.ApplicationContext;
 import com.harmony.umbrella.context.ContextProvider;
 
@@ -33,7 +37,21 @@ public class SpringContextProvider extends ContextProvider {
 
     @Override
     public ApplicationContext createApplicationContext(Map<?, ?> properties) {
-        return null;
+        Assert.notNull(SpringContextHolder.springApplication, "spring application context not set, configuration spring bean class" + SpringContextHolder.class);
+        return new SpringApplicationContext(SpringContextHolder.springApplication, properties);
+    }
+
+    public static class SpringContextHolder implements ApplicationContextAware {
+
+        private static org.springframework.context.ApplicationContext springApplication;
+
+        @Override
+        public void setApplicationContext(org.springframework.context.ApplicationContext applicationContext) throws BeansException {
+            if (springApplication == null) {
+                SpringContextHolder.springApplication = applicationContext;
+            }
+        }
+
     }
 
 }
