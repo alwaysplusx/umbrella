@@ -13,31 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.umbrella.data.dao;
+package com.harmony.bang.module.controller;
 
-import java.io.Serializable;
-
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-
-import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
  * @author wuxii@foxmail.com
  */
-@Repository
-public class UmbrellaJpaDao<E, ID extends Serializable> extends JpaDaoSupport<E, ID> {
+@Controller
+@RequestMapping("/module")
+public class ModuleController {
 
-    @PersistenceContext(unitName = "umbrella")
-    private EntityManager entityManager;
-
-    @Override
-    protected EntityManager getEntityManager() {
-        return entityManager;
+    @RequestMapping("")
+    public String index() {
+        return "module/module_list";
     }
 
-    public void setEntityManager(EntityManager entityManager) {
-        this.entityManager = entityManager;
+    @ResponseBody
+    @RequestMapping("list")
+    public String list() {
+        return "{}";
     }
 
 }

@@ -58,6 +58,7 @@ under the License.
     <!-- <module>umbrella-web</module> -->
     <!-- <module>examples</module> -->
     <!-- <module>umbrella-activity</module> -->
+    <module>umbrella-bang</module>
   </modules>
 
 
@@ -185,6 +186,11 @@ under the License.
         <version>${umbrella.version}</version>
       </dependency>
       <dependency>
+        <groupId>com.harmony.umbrella</groupId>
+        <artifactId>umbrella-spring</artifactId>
+        <version>${umbrella.version}</version>
+      </dependency>      
+      <dependency>
         <groupId>com.harmony.umbrella.plugins</groupId>
         <artifactId>message-ws-plugin</artifactId>
         <version>${umbrella.version}</version>
@@ -268,6 +274,11 @@ under the License.
         <version>${activiti.version}</version>
       </dependency>
       <!-- hibernate -->
+      <dependency>
+        <groupId>org.hibernate</groupId>
+        <artifactId>hibernate-core</artifactId>
+        <version>${hibernate.version}</version>
+      </dependency>      
       <dependency>
         <groupId>org.hibernate</groupId>
         <artifactId>hibernate-entitymanager</artifactId>

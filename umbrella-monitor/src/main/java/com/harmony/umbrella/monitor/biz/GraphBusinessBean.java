@@ -13,39 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.umbrella.ws.biz;
+package com.harmony.umbrella.monitor.biz;
 
 import org.springframework.stereotype.Service;
 
 import com.harmony.umbrella.biz.BusinessSupport;
 import com.harmony.umbrella.data.JpaDao;
-import com.harmony.umbrella.util.Assert;
-import com.harmony.umbrella.ws.Metadata;
-import com.harmony.umbrella.ws.dao.MetadataDao;
-import com.harmony.umbrella.ws.persistence.MetadataEntity;
+import com.harmony.umbrella.monitor.dao.GraphDao;
+import com.harmony.umbrella.monitor.persistence.GraphEntity;
 
 /**
  * @author wuxii@foxmail.com
  */
 @Service
-public class MetadataBusinessBean extends BusinessSupport<MetadataEntity, String> implements MetadataBusiness {
+public class GraphBusinessBean extends BusinessSupport<GraphEntity, Long> implements GraphBusiness {
 
-    private MetadataDao metadataDao;
-
-    @Override
-    protected JpaDao<MetadataEntity, String> getJpaDao() {
-        return metadataDao;
-    }
+    private GraphDao graphDao;
 
     @Override
-    public Metadata loadMetadata(Class<?> serviceClass) {
-        Assert.notNull(serviceClass, "service class is null, please set service class");
-        return loadMetadata(serviceClass.getName());
-    }
-
-    @Override
-    public Metadata loadMetadata(String serviceClassName) {
-        return findOne(serviceClassName);
+    protected JpaDao<GraphEntity, Long> getJpaDao() {
+        return graphDao;
     }
 
 }

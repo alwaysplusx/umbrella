@@ -15,12 +15,15 @@
  */
 package com.harmony.umbrella.ws.dao;
 
+import org.springframework.stereotype.Repository;
+
 import com.harmony.umbrella.data.dao.UmbrellaJpaDao;
 import com.harmony.umbrella.ws.persistence.MetadataEntity;
 
 /**
  * @author wuxii@foxmail.com
  */
+@Repository
 public class MetadataJpaDao extends UmbrellaJpaDao<MetadataEntity, String> implements MetadataDao {
 
 }

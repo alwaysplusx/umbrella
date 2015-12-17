@@ -13,31 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.umbrella.data.dao;
+package com.harmony.umbrella.monitor.dao;
 
-import java.io.Serializable;
-
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-
-import org.springframework.stereotype.Repository;
+import com.harmony.umbrella.data.JpaDao;
+import com.harmony.umbrella.monitor.persistence.GraphEntity;
 
 /**
  * @author wuxii@foxmail.com
  */
-@Repository
-public class UmbrellaJpaDao<E, ID extends Serializable> extends JpaDaoSupport<E, ID> {
-
-    @PersistenceContext(unitName = "umbrella")
-    private EntityManager entityManager;
-
-    @Override
-    protected EntityManager getEntityManager() {
-        return entityManager;
-    }
-
-    public void setEntityManager(EntityManager entityManager) {
-        this.entityManager = entityManager;
-    }
+public interface GraphDao extends JpaDao<GraphEntity, Long> {
 
 }
