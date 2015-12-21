@@ -2,7 +2,7 @@
 
 ## Server Side
 
-### WebService Interface `HelloService.java`
+### 服务接口 `HelloService.java`
 
 ```java
 @WebService(serviceName = "HelloService", targetNamespace = "http://www.harmony.com/hi")
@@ -15,7 +15,7 @@ public interface HelloService {
 }
 ```
 
-### WebService Service Bean `HelloWebService.java`
+### 服务实现 `HelloWebService.java`
 ```java
 @WebService(serviceName = "HelloService", targetNamespace = "http://www.harmony.com/hi")
 public class HelloWebService implements HelloService {
@@ -28,7 +28,7 @@ public class HelloWebService implements HelloService {
 
 }
 ```
-### Publish Service
+### 使用JDK自带方式发布Web服务
 ```java
 public class ServerPublishTest {
 
@@ -58,36 +58,36 @@ public class ServerPublishTest {
 
 ## JAX-WS
 
-### 生成客户端
+### 使用JDK自带的命令行生成客户端代码
 ```
-E:\Temp>wsimport -encoding utf-8 -p com.harmony.test.ws -keep http://localhost:8080/hi?wsdl
+$ wsimport -encoding utf-8 -p com.harmony.test.ws -keep http://localhost:8080/hi?wsdl
 正在解析 WSDL...
 
 正在生成代码...
 
 正在编译代码...
 
-E:\Temp>
+$
 ```
 [生成的代码](docs/jaxws/com/harmony/test/ws)
 
 ```java
 @Test
 public void testJAXWS() throws Exception {
+    // url指向文件
     Service service = Service.create(new URL("http://localhost:8080/hi?wsdl"), new QName("http://www.harmony.com/test/hi", "HelloService"));
     HelloService helloService = service.getPort(HelloService.class);
     assertEquals("Hi wuxii", helloService.sayHi("wuxii"));
 }
 ```
-> JAXWS对地址配置要求以?wsdl结尾
 
-## Apache CXF
+## 使用Apache CXF
 
-### 生成客户端
+### 使用CXF [wsdl2java](http://cxf.apache.org/docs/wsdl-to-java.html) 扩展命令生产客户端文件
 ```
-E:\Temp>wsdl2java -p com.harmony.test.ws -encoding utf-8 http://localhost:8080/hi?wsdl
+$ wsdl2java -p com.harmony.test.ws -encoding utf-8 http://localhost:8080/hi?wsdl
 
-E:\Temp>
+$
 ```
 [生成的代码](docs/cxf/com/harmony/test/ws)
 
@@ -100,10 +100,10 @@ public void testCXF() {
     assertEquals("Hi wuxii", helloService.sayHi("wuxii"));
 }
 ```
-## 简易使用法
 
-### 生成客户端
-> 与CXF相同
+### 封装使用
+
+#### 封装工具类[`JaxWsProxyBuilder`](src/main/java/com/harmony/umbrella/ws/jaxws/JaxWsProxyBuild.java)
 
 ```java
 @Test
@@ -115,7 +115,7 @@ public void test() {
 }
 ```
 
-# 扩展功能
+# 扩展功能介绍
 
 ## 抽象调用过程
 
@@ -149,15 +149,13 @@ public void test() {
 * `Object execute(Context)`同步执行交互
 * `Future<?> executeAsync(Context)`异步执行交互
 
-#### `com.harmony.umbrella.ws.PhaseVisitor`
+#### [`com.harmony.umbrella.ws.PhaseVisitor`](src/main/java/com/harmony/umbrella/ws/PhaseVisitor.java)
 
 对JaxWsExecutor的各个执行周期的访问控制
 * `visitBefore(Context)` 执行前被调用
 * `visitAbort(WebServiceAbortException, Context)`执行取消被调用
 * `visitCompletion(Object, Context)`执行完成被调用
 * `visitThrowing(Throwable, Context)`执行有异常被调用
-
-### 扩展功能
 
 #### 客户端逻辑与调用的分离
 
@@ -314,15 +312,7 @@ public class JaxWsExecutorAndPhaseValTest {
 [`com.harmony.umbrella.ws.jaxws.support.JaxWsContextSender`](src/main/java/com/harmony/umbrella/ws/jaxws/support/JaxWsContextSender.java)
 执行上下文的分离发送扩展
 
-#### 基于实际业务的扩展
-
-[Go to](../../../dark/tree/master/dark-ws/)
-
-[Link 1](http://git.oschina.net/wuxii/dark/tree/master/dark-ws)
-
-[Link 2](https://github.com/wuxii//dark/tree/master/dark-ws)
-
-# 基于业务的WebService扩展
+# 基于业务的扩展
 
 ## 业务上的扩展
 
@@ -351,7 +341,7 @@ public class JaxWsExecutorAndPhaseValTest {
 * `void sync(Iterable)` 将对象遍历同步(一个一个的同步)
 * `boolean syncInBatch(Iterable)`将所有的对象在一次同步操作中同步
 
-### [`com.harmony.dark.ws.AbstractProxyHandler`](src/main/java/com/harmony/dark/ws/AbstractProxyHandler.java)
+### [`com.harmony.dark.ws.AbstractProxyHandler`](src/main/java/com/harmony/dark/ws/proxy/ProxySupport.java)
 
 为实现`SyncCallback`、`@Syncable`功能做的基础抽象类
 
