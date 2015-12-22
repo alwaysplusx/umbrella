@@ -9,6 +9,7 @@
   </parent>
   <name>Harmony Umbrella :: Module of Web</name>
   <artifactId>umbrella-web</artifactId>
+  <packaging>war</packaging>
   <dependencies>
     <dependency>
       <groupId>com.harmony.umbrella</groupId>
@@ -26,6 +27,13 @@
       <scope>compile</scope>
       <optional>true</optional>
     </dependency>
+    <!-- javaee provider -->
+    <dependency>
+      <groupId>javax</groupId>
+      <artifactId>javaee-api</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <!-- spring -->
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-webmvc</artifactId>
@@ -50,12 +58,14 @@
       <scope>compile</scope>
       <optional>true</optional>
     </dependency>
+    <!-- struts -->
     <dependency>
       <groupId>org.apache.struts</groupId>
       <artifactId>struts2-core</artifactId>
       <scope>compile</scope>
       <optional>true</optional>
     </dependency>
+    <!-- shiro -->
     <dependency>
       <groupId>org.apache.shiro</groupId>
       <artifactId>shiro-core</artifactId>
@@ -68,16 +78,7 @@
       <scope>compile</scope>
       <optional>true</optional>
     </dependency>
-    <dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>javax.servlet-api</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.eclipse.persistence</groupId>
-      <artifactId>javax.persistence</artifactId>
-      <scope>provided</scope>
-    </dependency>
+    <!-- test dependency -->
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-log4j12</artifactId>
