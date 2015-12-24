@@ -55,7 +55,6 @@ under the License.
     <!-- <module>umbrella-resources</module> -->
     <!-- <module>umbrella-security</module> -->
     <!-- <module>umbrella-cache</module> -->
-    <!-- <module>umbrella-web</module> -->
     <!-- <module>examples</module> -->
     <!-- <module>umbrella-activity</module> -->
     <!-- <module>umbrella-bang</module> -->
@@ -150,11 +149,12 @@ under the License.
         <artifactId>umbrella-ws</artifactId>
         <version>${umbrella.version}</version>
       </dependency>
-      <dependency>
+      <!-- <dependency>
         <groupId>com.harmony.umbrella</groupId>
         <artifactId>umbrella-web</artifactId>
         <version>${umbrella.version}</version>
-      </dependency>
+        <type>war</type>
+      </dependency> -->
       <dependency>
         <groupId>com.harmony.umbrella</groupId>
         <artifactId>umbrella-mapper</artifactId>
