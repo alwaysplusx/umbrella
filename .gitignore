@@ -1,6 +1,7 @@
-/.settings/
-/.project
-/target/
-/harmony-umbrella.iml
-/.idea/
+/**/.classpath
+/**/.settings
+/**/.project
+/**/target
+/**/*.iml
 /**/rebel.xml
+/**/.idea

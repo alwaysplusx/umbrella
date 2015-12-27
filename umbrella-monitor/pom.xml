@@ -37,7 +37,7 @@
     </dependency>
     <dependency>
       <groupId>com.harmony.umbrella</groupId>
-      <artifactId>umbrella-parse</artifactId>
+      <artifactId>umbrella-json</artifactId>
     </dependency>
     <dependency>
       <groupId>com.harmony.umbrella</groupId>

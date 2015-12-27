@@ -38,7 +38,6 @@ under the License.
 
   <modules>
     <module>umbrella-core</module>
-    <module>umbrella-parse</module>
     <module>umbrella-validator</module>
     <module>umbrella-message</module>
     <module>umbrella-monitor</module>
@@ -51,6 +50,8 @@ under the License.
     <module>umbrella-plugins</module>
     <module>umbrella-mail</module>
     <module>umbrella-spring</module>
+    <module>umbrella-json</module>
+    <module>umbrella-xml</module>
     <!-- <module>umbrella-logger</module> -->
     <!-- <module>umbrella-resources</module> -->
     <!-- <module>umbrella-security</module> -->
@@ -182,14 +183,19 @@ under the License.
       </dependency>
       <dependency>
         <groupId>com.harmony.umbrella</groupId>
-        <artifactId>umbrella-parse</artifactId>
+        <artifactId>umbrella-json</artifactId>
+        <version>${umbrella.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.harmony.umbrella</groupId>
+        <artifactId>umbrella-xml</artifactId>
         <version>${umbrella.version}</version>
       </dependency>
       <dependency>
         <groupId>com.harmony.umbrella</groupId>
         <artifactId>umbrella-spring</artifactId>
         <version>${umbrella.version}</version>
-      </dependency>      
+      </dependency>
       <dependency>
         <groupId>com.harmony.umbrella.plugins</groupId>
         <artifactId>message-ws-plugin</artifactId>
@@ -278,7 +284,7 @@ under the License.
         <groupId>org.hibernate</groupId>
         <artifactId>hibernate-core</artifactId>
         <version>${hibernate.version}</version>
-      </dependency>      
+      </dependency>
       <dependency>
         <groupId>org.hibernate</groupId>
         <artifactId>hibernate-entitymanager</artifactId>
