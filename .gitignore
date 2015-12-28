@@ -5,3 +5,6 @@
 /**/*.iml
 /**/rebel.xml
 /**/.idea
+/**/src/main/webapp/index.xhtml
+/**/src/main/java/resources
+/**/*/.gitignore
