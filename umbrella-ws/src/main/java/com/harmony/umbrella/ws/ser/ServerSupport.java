@@ -37,13 +37,14 @@ import org.slf4j.LoggerFactory;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.harmony.umbrella.context.ApplicationContext;
 import com.harmony.umbrella.context.CurrentContext;
-import com.harmony.umbrella.context.MessageBundle;
 import com.harmony.umbrella.core.InvokeException;
 import com.harmony.umbrella.json.Json;
 import com.harmony.umbrella.mapper.BeanMapper;
 import com.harmony.umbrella.util.Assert;
 import com.harmony.umbrella.util.ClassUtils;
 import com.harmony.umbrella.util.Exceptions;
+import com.harmony.umbrella.util.I18NUtils;
+import com.harmony.umbrella.util.I18NUtils.MessageBundle;
 import com.harmony.umbrella.util.StringUtils;
 import com.harmony.umbrella.validator.ValidVisitor;
 import com.harmony.umbrella.validator.util.ValidatorUtils;
@@ -65,7 +66,7 @@ public abstract class ServerSupport {
 
     private final Map<Class<?>, List<MemberInvoker>> keyMembers = new HashMap<Class<?>, List<MemberInvoker>>();
 
-    protected MessageBundle messageBundle = MessageBundle.getInstance("WsMessage", getLocale());
+    protected MessageBundle messageBundle = I18NUtils.getMessageBundle("", getLocale());
 
     protected static final String MAPPING_LOCATION = "mapping.xml";
 

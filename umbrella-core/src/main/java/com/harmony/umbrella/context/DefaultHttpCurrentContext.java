@@ -25,8 +25,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import com.harmony.umbrella.context.HttpCurrentContext;
-import com.harmony.umbrella.context.MessageBundle;
 import com.harmony.umbrella.util.StringUtils;
 
 /**
@@ -130,7 +128,7 @@ public class DefaultHttpCurrentContext implements HttpCurrentContext {
 
     @Override
     public void setLocale(Locale locale) {
-        this.locale = MessageBundle.getLocale(locale);
+        this.locale = locale;
         this.response.setLocale(this.locale);
     }
 

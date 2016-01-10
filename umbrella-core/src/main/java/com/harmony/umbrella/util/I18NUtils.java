@@ -17,7 +17,6 @@ package com.harmony.umbrella.util;
 
 import java.text.MessageFormat;
 import java.util.Locale;
-import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
 /**
@@ -32,38 +31,24 @@ public class I18NUtils {
      */
     public static final Locale DEFAULT_LOCALE = Locale.getDefault();
 
-    /**
-     * @param code
-     * @return
-     */
-    public static String getMessage(String key) {
-        return getMessage(key, DEFAULT_LOCALE);
+    public static MessageBundle getDefaultMessageBundle(String baseName) {
+        return getMessageBundle(baseName, getDefaultLocale());
     }
 
-    public static String getMessage(String key, Locale locale) {
-        return getMessage(key, null, locale == null ? DEFAULT_LOCALE : locale);
-    }
-
-    public static String getMessage(String key, Object[] args, Locale locale) {
-        return getMessage(key, args, "", locale == null ? DEFAULT_LOCALE : locale);
-    }
-
-    public static String getMessage(String code, Object[] args, String defaultMessage, Locale locale) {
-        return getMessage(DEFAULT_BASE_NAME, code, args, defaultMessage, locale);
-    }
-
-    public static String getMessage(String baseName, String code, Object[] args, String defaultMessage, Locale locale) {
-        MessageBundle bundle = getMessageBundle(baseName, (locale == null) ? DEFAULT_LOCALE : locale);
-        String message = code;
-        try {
-            message = bundle.getString(code);
-        } catch (MissingResourceException e) {
-        }
-        return MessageFormat.format(message, args);
-    }
-
-    private static MessageBundle getMessageBundle(String baseName, Locale locale) {
+    public static MessageBundle getMessageBundle(String baseName, Locale locale) {
         return new MessageBundle(baseName, locale);
+    }
+
+    public static Locale getSpecificationLocale(Locale locale) {
+        if (locale == null) {
+            return null;
+        }
+        Locale realLocale = getLocale(locale.toString());
+        return realLocale == null ? locale : realLocale;
+    }
+
+    public static Locale getDefaultLocale() {
+        return Locale.getDefault();
     }
 
     public static Locale getLocale(Locale locale) {
@@ -97,7 +82,7 @@ public class I18NUtils {
 
         private MessageBundle(String baseName, Locale locale) {
             this.baseName = baseName;
-            this.bundle = ResourceBundle.getBundle(baseName, getLocale(locale));
+            this.bundle = ResourceBundle.getBundle(baseName, I18NUtils.getLocale(locale));
         }
 
         public String getString(String key) {
@@ -108,8 +93,18 @@ public class I18NUtils {
             return baseName;
         }
 
+        public Locale getLocale() {
+            return bundle.getLocale();
+        }
+
         public ResourceBundle getResourceBundle() {
             return bundle;
         }
+
+        public String getMessage(String key, Object... args) {
+            String message = bundle.getString(key);
+            return MessageFormat.format(message, args);
+        }
+
     }
 }
