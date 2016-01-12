@@ -75,7 +75,7 @@ public abstract class FrontUtils {
      * @return page的json文本
      */
     public static String toJson(Page<?> page, String... excludes) {
-        return Json.toJson(wrapPage(page), new SimplePropertyNameFilter(createExcludeProperty(Page.class, excludes)));
+        return Json.toJson(wrapPage(page), new SimplePropertyNameFilter(createExcludeProperty(Page.class, excludes), true));
     }
 
     /**
@@ -111,7 +111,7 @@ public abstract class FrontUtils {
      * @see #toJson(Page, SerializerFeature...)
      */
     public static String toJson(Page<?> page, SerializerFeature[] features, String... excludes) {
-        return Json.toJson(wrapPage(page), new SerializeFilter[] { new SimplePropertyNameFilter(createExcludeProperty(Page.class, excludes)) }, features);
+        return Json.toJson(wrapPage(page), new SerializeFilter[] { new SimplePropertyNameFilter(createExcludeProperty(Page.class, excludes), true) }, features);
     }
 
     /**
@@ -137,7 +137,7 @@ public abstract class FrontUtils {
      * @return json文本
      */
     public static String toJson(Collection<?> content, String... excludes) {
-        return Json.toJson(content, new SimplePropertyNameFilter(createExcludeProperty(Collection.class, excludes)));
+        return Json.toJson(content, new SimplePropertyNameFilter(createExcludeProperty(Collection.class, excludes), true));
     }
 
     /**
@@ -167,7 +167,7 @@ public abstract class FrontUtils {
      * @return json文本
      */
     public static String toJson(Collection<?> content, SerializerFeature[] features, String... excludes) {
-        return Json.toJson(content, new SerializeFilter[] { new SimplePropertyNameFilter(createExcludeProperty(Collection.class, excludes)) }, features);
+        return Json.toJson(content, new SerializeFilter[] { new SimplePropertyNameFilter(createExcludeProperty(Collection.class, excludes), true) }, features);
     }
 
     /**
@@ -191,7 +191,7 @@ public abstract class FrontUtils {
      * @return json文本
      */
     public static String toJson(Object object, String... excludes) {
-        return Json.toJson(object, new SimplePropertyNameFilter(createExcludeProperty(object.getClass(), excludes)));
+        return Json.toJson(object, new SimplePropertyNameFilter(createExcludeProperty(object.getClass(), excludes), true));
     }
 
     /**
@@ -206,7 +206,7 @@ public abstract class FrontUtils {
      * @return json文本
      */
     public static String toJson(Object object, SerializerFeature[] features, String... excludes) {
-        return Json.toJson(object, new SerializeFilter[] { new SimplePropertyNameFilter(createExcludeProperty(object.getClass(), excludes)) }, features);
+        return Json.toJson(object, new SerializeFilter[] { new SimplePropertyNameFilter(createExcludeProperty(object.getClass(), excludes), true) }, features);
     }
 
     private static Set<String> createExcludeProperty(Class<?> clazz, String... excludes) {

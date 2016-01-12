@@ -101,16 +101,16 @@ public abstract class Json {
      * 
      * @param object
      *            待序列化对象
-     * @param excludes
+     * @param excludeProperties
      *            object中被忽略的字段名称
      * @return json文本
      */
-    public static String toJson(final Object object, final String... excludes) {
-        return toJson(object, excludes, new SerializerFeature[0]);
+    public static String toJson(final Object object, final String... excludeProperties) {
+        return toJson(object, excludeProperties, new SerializerFeature[0]);
     }
 
-    public static String toJson(final Object object, final String[] excludes, SerializerFeature... features) {
-        return JSON.toJSONString(object, new SimplePropertyNameFilter(excludes), features);
+    public static String toJson(final Object object, final String[] excludeProperties, SerializerFeature... features) {
+        return JSON.toJSONString(object, new SimplePropertyNameFilter(excludeProperties), features);
     }
 
     public static <T> T fromJson(String json, Class<T> clazz) {

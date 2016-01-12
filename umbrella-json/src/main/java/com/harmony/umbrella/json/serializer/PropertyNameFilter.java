@@ -58,13 +58,27 @@ public abstract class PropertyNameFilter implements PropertyPreFilter {
         return filter(source, getPropertyName(serializer.getContext(), name));
     }
 
+    /**
+     * 反向追溯字段的全称
+     * 
+     * @param context
+     *            当前的serialContext
+     * @param name
+     *            在serialContext的字段名称
+     * @return 追溯的结果名称
+     */
     protected String getPropertyName(SerialContext context, String name) {
-        if (context == null)
+        if (context == null) {
             return name;
+        }
 
+        // 对于数组类的字段进行组合
         StringBuilder buf = new StringBuilder();
+
         SerialContext currentContext = context;
 
+        // <----------
+        // a.b.c.d.e.f 这是一个反溯的过程 
         while (currentContext.getParent() != null) {
 
             Object currentFieldName = currentContext.getFieldName();
@@ -84,7 +98,7 @@ public abstract class PropertyNameFilter implements PropertyPreFilter {
             } else {
                 buf.insert(0, fieldName).insert(fieldName.length(), '.');
             }
-
+            // <- 反溯
             currentContext = parentContext;
         }
 

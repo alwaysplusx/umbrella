@@ -15,6 +15,7 @@
  */
 package com.harmony.umbrella.json.serializer;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -27,6 +28,8 @@ import com.harmony.umbrella.util.PathMatcher;
 import com.harmony.umbrella.util.StringUtils;
 
 /**
+ * 对需要json格式化的对象进行字段的过滤，默认模式为exclude(excludeMode = true)
+ * 
  * @author wuxii@foxmail.com
  */
 public class SimplePropertyNameFilter extends PropertyNameFilter {
@@ -34,42 +37,32 @@ public class SimplePropertyNameFilter extends PropertyNameFilter {
     private static final Logger log = LoggerFactory.getLogger(SimplePropertyNameFilter.class);
 
     private PathMatcher matcher;
+
     /**
-     * 过滤策略
+     * 过滤的模式
      */
-    private FilterPolicy policy;
+    private boolean excludeMode;
+
     /**
      * 过滤的模版
      */
     private final Set<String> patterns = new HashSet<String>();
 
-    public SimplePropertyNameFilter(Set<String> patterns) {
-        this(FilterPolicy.EXCLUDE, new AntPathMatcher(), patterns.toArray(new String[patterns.size()]));
+    public SimplePropertyNameFilter(Set<String> patterns, boolean excludeMode) {
+        this(new AntPathMatcher(), patterns, excludeMode);
     }
 
     public SimplePropertyNameFilter(String... patterns) {
-        this(FilterPolicy.EXCLUDE, new AntPathMatcher(), patterns);
+        this(new HashSet<String>(Arrays.asList(patterns)), true);
     }
 
-    public SimplePropertyNameFilter(FilterPolicy policy, String... patterns) {
-        this(policy, new AntPathMatcher(), patterns);
-    }
-
-    public SimplePropertyNameFilter(PathMatcher matcher, String... patterns) {
-        this(FilterPolicy.EXCLUDE, matcher, patterns);
-    }
-
-    public SimplePropertyNameFilter(FilterPolicy policy, PathMatcher matcher, String... patterns) {
+    public SimplePropertyNameFilter(PathMatcher matcher, Set<String> patterns, boolean excludeMode) {
         Assert.notNull(matcher, "matcher must not be null");
-        Assert.notNull(policy, "filter policy must not be null");
         this.matcher = matcher;
-        this.policy = policy;
+        this.excludeMode = excludeMode;
         for (String property : patterns) {
             if (StringUtils.isNotBlank(property)) {
                 this.patterns.add(property);
-                if (property.startsWith("*.")) {
-                    this.patterns.add(property.substring(2));
-                }
             }
         }
     }
@@ -80,40 +73,28 @@ public class SimplePropertyNameFilter extends PropertyNameFilter {
         log.debug("filter property name -> {}", propertyName);
 
         if (patterns.isEmpty()) {
-            return isExclude() ? true : false;
+            return isExcludeMode() ? true : false;
         }
 
         if (patterns.contains(propertyName)) {
-            return isExclude() ? false : true;
+            return isExcludeMode() ? false : true;
         }
 
         for (String pattern : patterns) {
             if (matcher.match(pattern, propertyName)) {
-                return isExclude() ? false : true;
+                return isExcludeMode() ? false : true;
             }
         }
 
-        return isExclude() ? true : false;
+        return isExcludeMode() ? true : false;
     }
 
-    public boolean isExclude() {
-        return policy == FilterPolicy.EXCLUDE;
+    public boolean isExcludeMode() {
+        return excludeMode;
     }
 
-    public boolean isInclude() {
-        return policy == FilterPolicy.INCLUDE;
-    }
-
-    public FilterPolicy getFilterPolicy() {
-        return policy;
-    }
-
-    public Set<String> getExcludes() {
+    public Set<String> getPatterns() {
         return patterns;
-    }
-
-    public static enum FilterPolicy {
-        EXCLUDE, INCLUDE
     }
 
 }
