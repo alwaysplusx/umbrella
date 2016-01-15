@@ -46,7 +46,7 @@ public class MessageOutInterceptor extends AbstractMessageInterceptor {
     protected LogMessageHandler handler;
 
     public MessageOutInterceptor() {
-        this("Outbound Message");
+        this("Outbound");
     }
 
     public MessageOutInterceptor(String heading, String phase) {

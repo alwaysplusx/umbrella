@@ -10,10 +10,18 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.xml.ws.WebFault;
 
+import org.apache.cxf.interceptor.InInterceptors;
+import org.apache.cxf.interceptor.OutInterceptors;
+
+import com.harmony.umbrella.ws.ext.LogInInterceptor;
+import com.harmony.umbrella.ws.ext.LogOutInterceptor;
+
 @Path("/hi")
 @Produces("*/*")
 @WebFault(name = "HelloServiceFault")
 @WebService(serviceName = "HelloService", targetNamespace = "http://www.harmony.com/test/hi")
+@InInterceptors(classes = LogInInterceptor.class)
+@OutInterceptors(classes = LogOutInterceptor.class)
 public interface HelloService {
 
     @GET

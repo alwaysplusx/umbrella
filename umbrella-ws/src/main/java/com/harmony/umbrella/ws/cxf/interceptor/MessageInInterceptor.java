@@ -43,20 +43,16 @@ public class MessageInInterceptor extends AbstractMessageInterceptor {
     protected LogMessageHandler handler;
 
     public MessageInInterceptor() {
-        this("Inbound Message");
+        this("Inbound");
     }
 
-    public MessageInInterceptor(String heading) {
-        this(heading, Phase.RECEIVE);
+    public MessageInInterceptor(String type) {
+        this(type, Phase.RECEIVE, null);
     }
 
-    public MessageInInterceptor(String heading, LogMessageHandler handler) {
-        super(heading, Phase.RECEIVE);
+    public MessageInInterceptor(String type, String phase, LogMessageHandler handler) {
+        super(type, phase);
         this.handler = handler;
-    }
-
-    public MessageInInterceptor(String heading, String phase) {
-        super(heading, phase);
     }
 
     @Override

@@ -18,14 +18,13 @@ package com.harmony.umbrella.ws.cxf.interceptor;
 import java.io.InputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.net.URI;
+import java.lang.reflect.Method;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 import javax.xml.transform.stream.StreamSource;
 
-import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.io.CachedOutputStream;
 import org.apache.cxf.message.Exchange;
@@ -34,6 +33,7 @@ import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.staxutils.PrettyPrintXMLStreamWriter;
 import org.apache.cxf.staxutils.StaxUtils;
 
+import com.harmony.umbrella.util.StringUtils;
 import com.harmony.umbrella.ws.cxf.log.LogMessage;
 
 /**
@@ -41,19 +41,17 @@ import com.harmony.umbrella.ws.cxf.log.LogMessage;
  */
 public abstract class AbstractMessageInterceptor extends AbstractPhaseInterceptor<Message> {
 
-    protected static final String HEADING_TEMPLAGE = "\n--------------------------------------\n%s\n--------------------------------------";
-
     protected boolean prettyLogging = true;
 
-    private final String heading;
+    private final String type;
 
     public AbstractMessageInterceptor(String phase) {
-        this("Logging Message", phase);
+        this("Logging", phase);
     }
 
-    public AbstractMessageInterceptor(String heading, String phase) {
+    public AbstractMessageInterceptor(String type, String phase) {
         super(phase);
-        this.heading = String.format(HEADING_TEMPLAGE, heading);
+        this.type = type;
     }
 
     @Override
@@ -72,13 +70,70 @@ public abstract class AbstractMessageInterceptor extends AbstractPhaseIntercepto
 
     protected LogMessage buildLoggingMessage(Message message) throws Fault {
 
+        Exchange exchange = message.getExchange();
+        Message otherMessage = exchange.getInMessage() == message ? exchange.getOutMessage() : exchange.getInMessage();
+
         String id = (String) message.getExchange().get(LogMessage.ID_KEY);
         if (id == null) {
             id = LogMessage.nextId();
             message.getExchange().put(LogMessage.ID_KEY, id);
         }
 
-        final LogMessage logMessage = new LogMessage(getMessageHeading(), id);
+        final LogMessage logMessage = new LogMessage(id, type);
+
+        boolean proxyFlag = (Boolean) (message.get(Message.REQUESTOR_ROLE) == null ? false : message.get(Message.REQUESTOR_ROLE));
+
+        String address, operationName = null;
+
+        if (proxyFlag) {
+            // 判断是否是客户端来的消息
+            logMessage.setType("Proxy-" + type);
+
+            address = (String) message.get(Message.ENDPOINT_ADDRESS);
+            if (address == null && otherMessage != null) {
+                address = (String) otherMessage.get(Message.ENDPOINT_ADDRESS);
+            }
+
+            Method method = message.get(Method.class);
+            if (method == null && otherMessage != null) {
+                method = otherMessage.get(Method.class);
+            }
+
+            if (method != null) {
+                operationName = StringUtils.getMethodId(method);
+            }
+
+        } else {
+            // 来自服务端的调用
+            logMessage.setType("Server-" + type);
+
+            address = (String) message.get(Message.REQUEST_URL);
+            if (address == null && otherMessage != null) {
+                address = (String) otherMessage.get(Message.REQUEST_URL);
+            }
+
+            /*
+            // 服务实例的服务方法与wsdl的对应关系分发器
+            MethodDispatcher md = (MethodDispatcher) message.getContextualProperty(org.apache.cxf.service.invoker.MethodDispatcher.class.getName());*/
+
+            QName qname = (QName) message.get(Message.WSDL_OPERATION);
+            if (qname == null && otherMessage != null) {
+                qname = (QName) otherMessage.get(Message.WSDL_OPERATION);
+            }
+
+            if (qname != null) {
+                operationName = qname.toString();
+            }
+
+        }
+
+        if (address != null) {
+            logMessage.getAddress().append(address);
+        }
+
+        if (operationName != null) {
+            logMessage.setOperationName(operationName);
+        }
 
         Integer responseCode = (Integer) message.get(Message.RESPONSE_CODE);
         if (responseCode != null) {
@@ -90,21 +145,14 @@ public abstract class AbstractMessageInterceptor extends AbstractPhaseIntercepto
             logMessage.getEncoding().append(encoding);
         }
 
+        Object headers = message.get(Message.PROTOCOL_HEADERS);
+        if (headers != null) {
+            logMessage.getHeader().append(headers);
+        }
+
         String httpMethod = (String) message.get(Message.HTTP_REQUEST_METHOD);
         if (httpMethod != null) {
             logMessage.getHttpMethod().append(httpMethod);
-        }
-
-        String address = (String) message.get(Message.ENDPOINT_ADDRESS);
-        if (address != null) {
-            logMessage.getAddress().append(address);
-            String uri = (String) message.get(Message.REQUEST_URI);
-            if (uri != null && !address.startsWith(uri)) {
-                if (!address.endsWith("/") && !uri.startsWith("/")) {
-                    logMessage.getAddress().append("/");
-                }
-                logMessage.getAddress().append(uri);
-            }
         }
 
         String ct = (String) message.get(Message.CONTENT_TYPE);
@@ -112,51 +160,9 @@ public abstract class AbstractMessageInterceptor extends AbstractPhaseIntercepto
             logMessage.getContentType().append(ct);
         }
 
-        Object headers = message.get(Message.PROTOCOL_HEADERS);
-        if (headers != null) {
-            logMessage.getHeader().append(headers);
-            logMessage.setHeaderObject(headers);
-        }
-
-        Object requestUrl = message.get("org.apache.cxf.request.url");
-        if (requestUrl != null) {
-            logMessage.getRequestUrl().append(requestUrl);
-        } else {
-            Exchange exchange = message.getExchange();
-            Message other = exchange.getInMessage() == message ? exchange.getOutMessage() : exchange.getInMessage();
-            if (other != null && (requestUrl = other.get("org.apache.cxf.request.url")) != null) {
-                logMessage.getRequestUrl().append(requestUrl);
-            }
-        }
-
-        Object queryString = message.get(Message.QUERY_STRING);
-        if (queryString != null) {
-            logMessage.getQueryString().append(queryString);
-        }
-
         String payload = getPayload(message);
         if (payload != null) {
             logMessage.getPayload().append(payload);
-        }
-
-        Object proxy = message.getContextualProperty("javax.xml.ws.wsdl.port");
-        if (proxy instanceof QName) {
-            logMessage.setProxy((QName) proxy);
-        }
-
-        Object service = message.getContextualProperty("javax.xml.ws.wsdl.service");
-        if (service instanceof QName) {
-            logMessage.setService((QName) service);
-        }
-
-        Object wsdlUrl = message.getContextualProperty(URI.class.getName());
-        if (wsdlUrl != null) {
-            logMessage.setWsdlUrl(String.valueOf(wsdlUrl));
-        }
-
-        Object operation = message.getContextualProperty("javax.xml.ws.wsdl.operation");
-        if (operation instanceof QName) {
-            logMessage.setOperation((QName) operation);
         }
 
         Exception ex = message.getContent(Exception.class);
@@ -166,6 +172,10 @@ public abstract class AbstractMessageInterceptor extends AbstractPhaseIntercepto
 
         return logMessage;
 
+    }
+
+    public String getType() {
+        return type;
     }
 
     protected void writePayload(StringBuilder builder, CachedOutputStream cos, String encoding, String contentType) throws Exception {
@@ -216,10 +226,6 @@ public abstract class AbstractMessageInterceptor extends AbstractPhaseIntercepto
         } else {
             builder.append(stringWriter.getBuffer());
         }
-    }
-
-    protected String getMessageHeading() {
-        return heading;
     }
 
     public boolean isPrettyLogging() {

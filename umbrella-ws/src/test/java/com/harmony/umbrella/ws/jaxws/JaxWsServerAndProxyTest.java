@@ -73,4 +73,8 @@ public class JaxWsServerAndProxyTest {
         assertEquals(1, count);
     }
 
+    public static void main(String[] args) {
+        JaxWsServerBuilder.create().publish(HelloWebService.class, address);
+    }
+
 }
