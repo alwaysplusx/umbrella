@@ -5,13 +5,18 @@
     <groupId>com.harmony.umbrella</groupId>
     <artifactId>harmony-umbrella</artifactId>
     <version>0.0.5-SNAPSHOT</version>
-	<relativePath>../pom.xml</relativePath>
+    <relativePath>../pom.xml</relativePath>
   </parent>
-  <artifactId>umbrella-activity</artifactId>
+  <artifactId>umbrella-activiti</artifactId>
   <dependencies>
     <dependency>
       <groupId>org.activiti</groupId>
       <artifactId>activiti-engine</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <scope>test</scope>
     </dependency>
   </dependencies>
 </project>
