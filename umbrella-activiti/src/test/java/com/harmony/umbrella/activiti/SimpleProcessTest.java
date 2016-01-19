@@ -2,35 +2,23 @@ package com.harmony.umbrella.activiti;
 
 import static org.junit.Assert.*;
 
-import java.util.List;
+import javax.sql.DataSource;
 
-import org.activiti.engine.ProcessEngine;
-import org.activiti.engine.ProcessEngineConfiguration;
-import org.activiti.engine.RepositoryService;
-import org.activiti.engine.RuntimeService;
-import org.activiti.engine.TaskService;
-import org.activiti.engine.task.Task;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = { "classpath:/activiti-context.xml" })
 public class SimpleProcessTest {
 
-    @Test
-    public void test() {
-        // 加载配置文件产生流程配置
-        ProcessEngineConfiguration processEngineConfiguration = ProcessEngineConfiguration.createProcessEngineConfigurationFromResource("activiti-context.xml");
-        ProcessEngine processEngine = processEngineConfiguration.buildProcessEngine();
-        TaskService taskService = processEngine.getTaskService();
-        int defaultSize = taskService.createTaskQuery().list().size();
-        // 操作流程定义
-        RepositoryService repositoryService = processEngine.getRepositoryService();
-        // 部署流程模版
-        repositoryService.createDeployment().addClasspathResource("org/moon/activiti/process/xml/leave.bpmn").deploy();
-        RuntimeService runtimeService = processEngine.getRuntimeService();
-        // 根据留流程key<process id="leaveProcess"/>启动流程
-        runtimeService.startProcessInstanceByKey("leaveProcess");
-        List<Task> list = taskService.createTaskQuery().list();
-        assertNotNull(list);
-        assertEquals(defaultSize + 1, list.size());
-    }
+    @Autowired
+    private DataSource dataSource;
 
+    @Test
+    public void createProcessEngine() {
+        assertNotNull(dataSource);
+    }
 }

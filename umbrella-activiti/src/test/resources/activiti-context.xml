@@ -1,35 +1,69 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:context="http://www.springframework.org/schema/context"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tx="http://www.springframework.org/schema/tx"
   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
-        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.1.xsd">
 
-  <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
-    <property name="location" value="classpath:/jdbc.properties" />
+  <bean name="dataSource" class="org.springframework.jdbc.datasource.SimpleDriverDataSource">
+    <property name="driverClass" value="org.h2.Driver" />
+    <property name="url" value="jdbc:h2:file:~/.h2/umbrella/activiti" />
+    <property name="username" value="sa" />
+    <property name="password" value="" />
+  </bean>
+
+  <bean name="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+    <property name="dataSource" ref="dataSource" />
+    <property name="persistenceUnitName" value="umbrella" />
+    <property name="persistenceProviderClass" value="org.hibernate.jpa.HibernatePersistenceProvider" />
+    <property name="sharedCacheMode" value="ALL" />
+    <property name="validationMode" value="NONE" />
+    <property name="packagesToScan" value="com.harmony" />
+    <property name="jpaPropertyMap">
+      <map>
+        <!-- eclipse -->
+        <entry key="eclipselink.logging.level" value="FINE" />
+        <entry key="eclipselink.weaving" value="false" />
+        <entry key="eclipselink.logging.level.sql" value="FINE" />
+        <!-- hibernate -->
+        <entry key="hibernate.hbm2ddl.auto" value="" />
+        <entry key="hibernate.hbm2ddl.auto" value="create" />
+        <entry key="hibernate.show_sql" value="true" />
+        <entry key="hibernate.dialect" value="org.hibernate.dialect.H2Dialect" />
+      </map>
+    </property>
+  </bean>
+
+  <bean name="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
+    <property name="entityManagerFactory" ref="entityManagerFactory" />
   </bean>
   
   <!-- 如果不配置数据源的话,默认使用h2数据库 -->
-  <bean id="processEngineConfiguration" class="org.activiti.engine.impl.cfg.StandaloneProcessEngineConfiguration">
-    <property name="databaseSchemaUpdate" value="true" />
-    <property name="jobExecutorActivate" value="true" />
-    <property name="jdbcDriver" value="org.h2.Driver" />
-    <property name="jdbcUrl" value="jdbc:h2:file:target/h2/data" />
-    <property name="jdbcUsername" value="sa" />
-    <property name="jdbcPassword" value="" />
+  <bean name="processEngineConfiguration" class="org.activiti.spring.SpringProcessEngineConfiguration">
+    <property name="dataSource" ref="dataSource" />
+    <property name="transactionManager" ref="transactionManager" />
   </bean>
   
   <!-- 流程引擎factoryBean -->
-  <bean id="processEngine" class="org.activiti.spring.ProcessEngineFactoryBean">
+  <bean name="processEngine" class="org.activiti.spring.ProcessEngineFactoryBean">
     <property name="processEngineConfiguration" ref="processEngineConfiguration" />
   </bean>
-  
+
+  <!-- <bean name="processEngine" factory-bean="processEngineFactoryBean" factory-method="getObject" /> -->
+
   <!-- 以下都是由流程引擎factoryBean中获取到的 -->
-  <bean id="runtimeService" factory-bean="processEngine" factory-method="getRuntimeService" />
-  <bean id="repositoryService" factory-bean="processEngine" factory-method="getRepositoryService" />
-  <bean id="formService" factory-bean="processEngine" factory-method="getFormService" />
-  <bean id="identityService" factory-bean="processEngine" factory-method="getIdentityService" />
-  <bean id="taskService" factory-bean="processEngine" factory-method="getTaskService" />
-  <bean id="historyService" factory-bean="processEngine" factory-method="getHistoryService" />
-  <bean id="managementService" factory-bean="processEngine" factory-method="getManagementService" />
+  <bean name="runtimeService" factory-bean="processEngine" factory-method="getRuntimeService" />
+
+  <bean name="repositoryService" factory-bean="processEngine" factory-method="getRepositoryService" />
+
+  <bean name="formService" factory-bean="processEngine" factory-method="getFormService" />
+
+  <bean name="identityService" factory-bean="processEngine" factory-method="getIdentityService" />
+
+  <bean name="taskService" factory-bean="processEngine" factory-method="getTaskService" />
+
+  <bean name="historyService" factory-bean="processEngine" factory-method="getHistoryService" />
+
+  <bean name="managementService" factory-bean="processEngine" factory-method="getManagementService" />
 
 </beans>
