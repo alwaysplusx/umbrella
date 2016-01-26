@@ -9,3 +9,4 @@
 /**/src/main/java/resources
 /**/*/.gitignore
 /build/
+/.gradle/
