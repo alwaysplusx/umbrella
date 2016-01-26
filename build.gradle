@@ -2,6 +2,10 @@ buildscript {
     repositories {
         maven { url "http://maven.oschina.net/content/groups/public/" }
         maven { url "http://192.168.1.22:8081/nexus/content/groups/public/" }
+        maven { url "file://${rootProject.projectDir}/maven-local" }
+    }
+    dependencies {
+        classpath("org.springframework.build.gradle:propdeps-plugin:0.0.7")
     }
 }
 
@@ -14,25 +18,32 @@ configure(allprojects) { project ->
     group = "com.harmony.umbrella"
     version = '0.0.5-SNAPSHOT'
 
+    apply plugin: "propdeps"
     apply plugin: "java"
     apply plugin: "maven"
 
     compileJava {
         sourceCompatibility = 1.6
         targetCompatibility = 1.6
+        options.encoding = 'UTF-8'
     }
 
     compileTestJava {
         sourceCompatibility = 1.6
         targetCompatibility = 1.6
+        options.encoding = 'UTF-8'
     }
 
     repositories {
-        mavenCentral()
+        mavenLocal()
+        maven { url "file://${rootProject.projectDir}/maven-local" }
+        maven { url "http://maven.oschina.net/content/groups/public/" }
+        maven { url "http://192.168.1.22:8081/nexus/content/groups/public/" }
     }
 
     dependencies {
-        testCompile "junit:junit:4.11"
+        compile("org.slf4j:slf4j-api:1.7.7")
+        optional("junit:junit:4.11")
     }
 
     uploadArchives {
@@ -48,8 +59,101 @@ project("umbrella-core") {
     description = "Umbrella Core"
 
     dependencies {
-        compile "org.slf4j:slf4j-api:1.7.7"
-        compile "javax.servlet:javax.servlet-api:3.1.0"
+        optional("javax.servlet:javax.servlet-api:3.1.0")
     }
-
 }
+
+project("umbrella-message") {
+    description = "Umbrella Message"
+
+    dependencies {
+        compile(project(":umbrella-core"))
+        testCompile("org.slf4j:slf4j-log4j12:1.7.7")
+        optional("io.netty:netty-all:5.0.0.Alpha2")
+        provided("javax.jms:javax.jms-api:2.0.1")
+    }
+}
+
+project("umbrella-json") {
+    description = "Umbrella JSON"
+
+    dependencies {
+        compile(project(":umbrella-core"))
+        compile("com.alibaba:fastjson:1.2.5")
+        provided("javax.servlet:javax.servlet-api:3.1.0")
+        provided("org.springframework:spring-webmvc:4.1.6.RELEASE")
+    }
+}
+
+project("umbrella-data") {
+    description = "Umbrella Data"
+
+    dependencies {
+        compile(project(":umbrella-core"))
+        provided("org.eclipse.persistence:javax.persistence:2.1.0")
+        provided("org.hibernate:hibernate-entitymanager:4.3.8.Final")
+        provided("org.eclipse.persistence:eclipselink:2.6.1-RC1")
+        provided("org.springframework:spring-context:4.1.6.RELEASE")
+        testCompile("org.slf4j:slf4j-log4j12:1.7.7")
+        testCompile("org.aspectj:aspectjweaver:1.8.1")
+        testCompile("com.h2database:h2:1.4.187")
+        testCompile("org.springframework:spring-orm:4.1.6.RELEASE")
+        testCompile("org.springframework:spring-aop:4.1.6.RELEASE")
+        testCompile("org.springframework:spring-tx:4.1.6.RELEASE")
+        testCompile("org.springframework:spring-test:4.1.6.RELEASE")
+        testCompile("org.springframework.data:spring-data-jpa:1.8.0.RELEASE") {
+            exclude group: "org.slf4j", module: "jcl-over-slf4j"
+        }
+    }
+}
+
+project("umbrella-monitor") {
+    description = "Umbrella Monitor"
+
+    dependencies {
+        compile(project(":umbrella-core"))
+        compile(project(":umbrella-json"))
+        compile(project(":umbrella-data"))
+        provided("org.springframework:spring-context:4.1.6.RELEASE")
+        provided("org.aspectj:aspectjweaver:1.8.1")
+        provided("org.apache.struts:struts2-core:2.3.16")
+        provided("org.apache.struts.xwork:xwork-core:2.3.16")
+        provided("org.hibernate:hibernate-entitymanager:4.3.8.Final")
+        provided("org.eclipse.persistence:eclipselink:2.6.1-RC1")
+        provided("javax.servlet:javax.servlet-api:3.1.0")
+        provided("javax.interceptor:javax.interceptor-api:1.2")
+        provided("javax.ejb:javax.ejb-api:3.2")
+        optional("com.harmony.modules:modules-commons:1.0")
+        optional("com.harmony.modules:modules-ejb:1.0")
+        testCompile("com.h2database:h2:1.4.187")
+        testCompile("org.apache.openejb:openejb-core:4.7.1") {
+            exclude group: "org.slf4j", module: "slf4j-jdk14"
+        }
+    }
+}
+/*
+project("umbrella-ws") {
+    description = "Umbrella WebService"
+
+    dependencies {
+        compile(project(":umbrella-core"))
+        compile(project(":umbrella-json"))
+        compile(project(":umbrella-monitor"))
+        provided("org.springframework:spring-context:4.1.6.RELEASE")
+        provided("org.aspectj:aspectjweaver:1.8.1")
+        provided("org.apache.struts:struts2-core:2.3.16")
+        provided("org.apache.struts.xwork:xwork-core:2.3.16")
+        provided("org.hibernate:hibernate-entitymanager:4.3.8.Final")
+        provided("org.eclipse.persistence:eclipselink:2.6.1-RC1")
+        provided("javax.servlet:javax.servlet-api:3.1.0")
+        provided("javax.interceptor:javax.interceptor-api:1.2")
+        provided("javax.ejb:javax.ejb-api:3.2")
+        optional("com.harmony.modules:modules-commons:1.0")
+        optional("com.harmony.modules:modules-ejb:1.0")
+        testCompile("com.h2database:h2:1.4.187")
+        testCompile("org.apache.openejb:openejb-core:4.7.1") {
+            exclude group: "org.slf4j", module: "slf4j-jdk14"
+        }
+    }
+}
+*/

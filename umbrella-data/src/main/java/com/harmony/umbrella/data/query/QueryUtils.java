@@ -52,12 +52,11 @@ import javax.persistence.metamodel.Bindable;
 import javax.persistence.metamodel.ManagedType;
 import javax.persistence.metamodel.PluralAttribute;
 
-import org.springframework.core.annotation.AnnotationUtils;
-
 import com.harmony.umbrella.data.Bond;
 import com.harmony.umbrella.data.bond.AbstractBond;
 import com.harmony.umbrella.data.domain.Sort;
 import com.harmony.umbrella.data.domain.Sort.Order;
+import com.harmony.umbrella.util.AnnotationUtils;
 import com.harmony.umbrella.util.Assert;
 import com.harmony.umbrella.util.StringUtils;
 
@@ -435,7 +434,7 @@ public abstract class QueryUtils {
      * 
      * @param propertyPathModel
      *            must not be {@literal null}.
-     * @param for
+     * @param forPluralAttribute
      * @return
      */
     private static boolean requiresJoin(Bindable<?> propertyPathModel, boolean forPluralAttribute) {
