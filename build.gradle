@@ -18,9 +18,9 @@ configure(allprojects) { project ->
     group = "com.harmony.umbrella"
     version = '0.0.5-SNAPSHOT'
 
-    apply plugin: "propdeps"
     apply plugin: "java"
     apply plugin: "maven"
+    apply plugin: "propdeps"
 
     compileJava {
         sourceCompatibility = 1.6
@@ -59,7 +59,7 @@ project("umbrella-core") {
     description = "Umbrella Core"
 
     dependencies {
-        optional("javax.servlet:javax.servlet-api:3.1.0")
+        provided("javax.servlet:javax.servlet-api:3.1.0")
     }
 }
 
@@ -68,9 +68,9 @@ project("umbrella-message") {
 
     dependencies {
         compile(project(":umbrella-core"))
-        testCompile("org.slf4j:slf4j-log4j12:1.7.7")
-        optional("io.netty:netty-all:5.0.0.Alpha2")
         provided("javax.jms:javax.jms-api:2.0.1")
+        optional("io.netty:netty-all:5.0.0.Alpha2")
+        testCompile("org.slf4j:slf4j-log4j12:1.7.7")
     }
 }
 
@@ -85,17 +85,25 @@ project("umbrella-json") {
     }
 }
 
+project("umbrella-xml") {
+    description = "Umbrella XML"
+
+    dependencies {
+        optional("org.codehaus.woodstox:woodstox-core-asl:4.4.1")
+    }
+}
+
 project("umbrella-data") {
     description = "Umbrella Data"
 
     dependencies {
         compile(project(":umbrella-core"))
         provided("org.eclipse.persistence:javax.persistence:2.1.0")
-        provided("org.hibernate:hibernate-entitymanager:4.3.8.Final")
-        provided("org.eclipse.persistence:eclipselink:2.6.1-RC1")
-        provided("org.springframework:spring-context:4.1.6.RELEASE")
-        testCompile("org.slf4j:slf4j-log4j12:1.7.7")
+        testCompile("org.hibernate:hibernate-entitymanager:4.3.8.Final")
+        testCompile("org.eclipse.persistence:eclipselink:2.6.1-RC1")
+        testCompile("org.springframework:spring-context:4.1.6.RELEASE")
         testCompile("org.aspectj:aspectjweaver:1.8.1")
+        testCompile("org.slf4j:slf4j-log4j12:1.7.7")
         testCompile("com.h2database:h2:1.4.187")
         testCompile("org.springframework:spring-orm:4.1.6.RELEASE")
         testCompile("org.springframework:spring-aop:4.1.6.RELEASE")
@@ -131,7 +139,7 @@ project("umbrella-monitor") {
         }
     }
 }
-/*
+
 project("umbrella-ws") {
     description = "Umbrella WebService"
 
@@ -156,4 +164,27 @@ project("umbrella-ws") {
         }
     }
 }
-*/
+
+project("umbrella-validator") {
+    description = "Umbrella Validator"
+
+    dependencies {
+        compile(project(":umbrella-core"))
+        provided("javax.validation:validation-api:1.1.0.Final")
+        optional("org.hibernate:hibernate-validator:5.1.3.Final")
+        optional("org.glassfish.web:javax.el:2.2.6")
+        provided("javax.el:javax.el-api:2.2.5")
+    }
+}
+
+project("umbrella-ee") {
+    description = "Umbrella EE"
+
+    dependencies {
+        compile(project(":umbrella-core"))
+        provided("javax:javaee-api:7.0")
+        testCompile("org.apache.openejb:openejb-core:4.7.1") {
+            exclude group: "org.slf4j", module: "slf4j-jdk14"
+        }
+    }
+}
