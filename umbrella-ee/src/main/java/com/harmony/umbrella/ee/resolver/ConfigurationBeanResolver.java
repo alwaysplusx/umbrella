@@ -15,21 +15,6 @@
  */
 package com.harmony.umbrella.ee.resolver;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Properties;
-import java.util.Set;
-import java.util.StringTokenizer;
-
-import javax.naming.Context;
-import javax.naming.NamingException;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.harmony.umbrella.ee.BeanDefinition;
 import com.harmony.umbrella.ee.BeanFilter;
 import com.harmony.umbrella.ee.BeanResolver;
@@ -38,6 +23,12 @@ import com.harmony.umbrella.util.Assert;
 import com.harmony.umbrella.util.ClassUtils;
 import com.harmony.umbrella.util.ReflectionUtils;
 import com.harmony.umbrella.util.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.naming.Context;
+import javax.naming.NamingException;
+import java.util.*;
 
 /**
  * 通过配置配置的属性，来组合定义的bean
@@ -218,15 +209,15 @@ public class ConfigurationBeanResolver implements BeanResolver {
         return wrappedBeanHandlers;
     }
 
-    public Set<String> getBeanSuffixs() {
+    public Set<String> getBeanSuffixes() {
         return beanSuffixes;
     }
 
-    public Set<String> getRemoteSuffixs() {
+    public Set<String> getRemoteSuffixes() {
         return remoteSuffixes;
     }
 
-    public Set<String> getLocalSuffixs() {
+    public Set<String> getLocalSuffixes() {
         return localSuffixes;
     }
 
@@ -386,6 +377,7 @@ public class ConfigurationBeanResolver implements BeanResolver {
                         }
                     }
                 }
+
             }
 
             return result;
@@ -499,6 +491,7 @@ public class ConfigurationBeanResolver implements BeanResolver {
             Collections.addAll(result, remoteClasses);
             if (this.transformLocal) {
                 Class<?>[] localClasses = beanDefinition.getLocalClasses();
+
                 for (Class<?> localClass : localClasses) {
                     String name = localClass.getName();
                     for (String localSuffix : localSuffixes) {
@@ -513,6 +506,7 @@ public class ConfigurationBeanResolver implements BeanResolver {
                         }
                     }
                 }
+
             }
             return result;
         }

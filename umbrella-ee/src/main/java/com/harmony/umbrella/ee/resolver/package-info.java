@@ -4,4 +4,4 @@
 /**
  * @author wuxii@foxmail.com
  */
-package com.harmony.umbrella.context.ee.resolver;
+package com.harmony.umbrella.ee.resolver;

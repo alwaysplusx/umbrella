@@ -25,6 +25,7 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 import javax.xml.transform.stream.StreamSource;
 
+import com.harmony.umbrella.ws.cxf.log.LogMessageHandler;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.io.CachedOutputStream;
 import org.apache.cxf.message.Exchange;
@@ -35,19 +36,21 @@ import org.apache.cxf.staxutils.StaxUtils;
 
 import com.harmony.umbrella.util.StringUtils;
 import com.harmony.umbrella.ws.cxf.log.LogMessage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author wuxii@foxmail.com
  */
 public abstract class AbstractMessageInterceptor extends AbstractPhaseInterceptor<Message> {
 
+    private static final Logger log = LoggerFactory.getLogger(AbstractMessageInterceptor.class);
+
     protected boolean prettyLogging = true;
 
     private final String type;
 
-    public AbstractMessageInterceptor(String phase) {
-        this("Logging", phase);
-    }
+    protected LogMessageHandler handler;
 
     public AbstractMessageInterceptor(String type, String phase) {
         super(phase);
@@ -64,7 +67,17 @@ public abstract class AbstractMessageInterceptor extends AbstractPhaseIntercepto
         logging(buildLoggingMessage(message));
     }
 
-    protected abstract void logging(LogMessage loggingMessage);
+    protected void logging(LogMessage loggingMessage) {
+        if (handler != null) {
+            try {
+                handler.handle(loggingMessage);
+            } catch (Exception e) {
+                log.debug("handle log message throw exception", e);
+            }
+        } else {
+            log.info("{}", loggingMessage);
+        }
+    }
 
     protected abstract String getPayload(Message message);
 
@@ -234,5 +247,13 @@ public abstract class AbstractMessageInterceptor extends AbstractPhaseIntercepto
 
     public void setPrettyLogging(boolean prettyLogging) {
         this.prettyLogging = prettyLogging;
+    }
+
+    public LogMessageHandler getLogMessageHandler() {
+        return handler;
+    }
+
+    public void setLogMessageHandler(LogMessageHandler handler) {
+        this.handler = handler;
     }
 }

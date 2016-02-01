@@ -98,19 +98,6 @@ public class MessageOutInterceptor extends AbstractMessageInterceptor {
     }
 
     @Override
-    protected void logging(LogMessage logMessage) {
-        try {
-            if (handler != null) {
-                handler.handle(logMessage);
-            } else {
-                log.info("{}", logMessage);
-            }
-        } catch (Exception e) {
-            log.warn("handle log message throw exception", e.toString());
-        }
-    }
-
-    @Override
     protected String getPayload(Message message) {
         final OutputStream os = message.getContent(OutputStream.class);
         final Writer writer = message.getContent(Writer.class);
