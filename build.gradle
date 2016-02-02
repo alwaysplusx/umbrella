@@ -19,8 +19,10 @@ configure(allprojects) { project ->
     version = '0.0.5-SNAPSHOT'
 
     apply plugin: "java"
-    apply plugin: "maven"
+	apply plugin: "idea"
+	apply plugin: "eclipse"
     apply plugin: "propdeps"
+    apply plugin: "propdeps-maven"
 
     compileJava {
         sourceCompatibility = 1.6

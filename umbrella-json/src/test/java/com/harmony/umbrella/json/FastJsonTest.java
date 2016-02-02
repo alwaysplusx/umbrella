@@ -29,7 +29,7 @@ public class FastJsonTest {
 
 //        String json = JSON.toJSONString(child1, new SimpleExcludeFilter("parent"), SerializerFeature.PrettyFormat);
 //        System.out.println(json);
-        JSON.DUMP_CLASS = "./target";
+        JSON.DUMP_CLASS = "./build";
         String json2 = JSON.toJSONString(parent, SerializerFeature.PrettyFormat);
         System.out.println(json2);
 

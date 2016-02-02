@@ -8,5 +8,6 @@
 /**/src/main/webapp/index.xhtml
 /**/src/main/java/resources
 /**/*/.gitignore
+/**/bin/
 /**/build/
 /.gradle/
