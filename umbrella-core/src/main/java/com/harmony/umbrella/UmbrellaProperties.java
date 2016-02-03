@@ -25,7 +25,7 @@ import com.harmony.umbrella.util.PropUtils;
  * 
  * @author wuxii@foxmail.com
  */
-public abstract class Constants {
+public abstract class UmbrellaProperties {
 
     private static final String UMBRELLA_PROPERTIES_LOCATION = "umbrella.properties";
 

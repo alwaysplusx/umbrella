@@ -22,7 +22,7 @@ import java.io.Serializable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.harmony.umbrella.Constants;
+import com.harmony.umbrella.UmbrellaProperties;
 import com.harmony.umbrella.core.BeanFactory;
 import com.harmony.umbrella.core.InvokeException;
 import com.harmony.umbrella.core.SimpleBeanFactory;
@@ -45,7 +45,7 @@ public class ValidationContextVisitor extends AbstractContextVisitor implements 
 
     private final static Logger log = LoggerFactory.getLogger(ValidationContextVisitor.class);
 
-    protected static final String defaultPackage = Constants.DEFAULT_PACKAGE;
+    protected static final String defaultPackage = UmbrellaProperties.DEFAULT_PACKAGE;
 
     private final HandlerMethodFinder finder;
 

@@ -22,7 +22,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import com.harmony.umbrella.Constants;
+import com.harmony.umbrella.UmbrellaProperties;
 import com.harmony.umbrella.context.ApplicationContext;
 import com.harmony.umbrella.core.BeanFactory;
 import com.harmony.umbrella.ws.Context;
@@ -60,7 +60,7 @@ public class SyncableContextVisitor extends AbstractContextVisitor {
     private BeanFactory beanFactory;
 
     public SyncableContextVisitor() {
-        this(Constants.DEFAULT_PACKAGE);
+        this(UmbrellaProperties.DEFAULT_PACKAGE);
     }
 
     public SyncableContextVisitor(String basePackage) {

@@ -19,11 +19,11 @@ import java.lang.reflect.Method;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import com.harmony.umbrella.UmbrellaProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.harmony.modules.commons.log.Log4jUtils;
-import com.harmony.umbrella.Constants;
 import com.harmony.umbrella.json.Json;
 import com.harmony.umbrella.monitor.Graph;
 import com.harmony.umbrella.monitor.MethodGraph;
@@ -115,7 +115,7 @@ public class LogUtils {
      * @return 日志大类
      */
     public static String getLogCategory(String key) {
-        return Constants.getProperty(key, "");
+        return UmbrellaProperties.getProperty(key, "");
     }
 
     /**
@@ -150,7 +150,7 @@ public class LogUtils {
     public static String getLogModule(Class<?> clazz) {
         String module = MonitorUtils.getModule(clazz);
         if (StringUtils.isBlank(module)) {
-            module = Constants.getProperty(clazz.getName(), clazz.getName());
+            module = UmbrellaProperties.getProperty(clazz.getName(), clazz.getName());
         }
         return module;
     }
@@ -189,10 +189,10 @@ public class LogUtils {
         String operator = MonitorUtils.getOperator(clazz);
         if (StringUtils.isBlank(operator)) {
             String key = clazz.getName() + "." + methodName;
-            if (Constants.containsKey(key)) {
-                operator = Constants.getProperty(key);
+            if (UmbrellaProperties.containsKey(key)) {
+                operator = UmbrellaProperties.getProperty(key);
             } else {
-                operator = Constants.getProperty(clazz.getName(), key);
+                operator = UmbrellaProperties.getProperty(clazz.getName(), key);
             }
         }
         return operator;
@@ -206,7 +206,7 @@ public class LogUtils {
      * @return 如果未找到返回key
      */
     public static String getLogFromName(String key) {
-        return Constants.getProperty(key, key);
+        return UmbrellaProperties.getProperty(key, key);
     }
 
     /**

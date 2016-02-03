@@ -15,12 +15,12 @@
  */
 package com.harmony.umbrella.web;
 
-import com.harmony.umbrella.Constants;
+import com.harmony.umbrella.UmbrellaProperties;
 
 /**
  * @author wuxii@foxmail.com
  */
-public class WebConstants extends Constants {
+public class WebUmbrellaProperties extends UmbrellaProperties {
 
     public static final String DEFAULT_ENCODING = "UTF-8";
 

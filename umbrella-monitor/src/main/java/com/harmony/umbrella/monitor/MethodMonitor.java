@@ -17,7 +17,7 @@ package com.harmony.umbrella.monitor;
 
 import java.lang.reflect.Method;
 
-import com.harmony.umbrella.Constants;
+import com.harmony.umbrella.UmbrellaProperties;
 import com.harmony.umbrella.monitor.matcher.MethodExpressionMatcher;
 
 /**
@@ -35,6 +35,6 @@ public interface MethodMonitor extends Monitor<Method> {
     /**
      * 默认监控的方法模版
      */
-    String DEFAULT_METHOD_PATTERN = "execution(* " + Constants.DEFAULT_PACKAGE + "..*.*(..))";
+    String DEFAULT_METHOD_PATTERN = "execution(* " + UmbrellaProperties.DEFAULT_PACKAGE + "..*.*(..))";
 
 }

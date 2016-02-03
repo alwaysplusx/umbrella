@@ -21,7 +21,7 @@ package com.harmony.umbrella;
 public class UmbrellaTest {
 
     public static void main(String[] args) {
-        System.out.println(Constants.DEFAULT_PACKAGE);
+        System.out.println(UmbrellaProperties.DEFAULT_PACKAGE);
     }
 
 }

@@ -24,7 +24,7 @@ import org.apache.cxf.transport.servlet.CXFNonSpringServlet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.harmony.umbrella.Constants;
+import com.harmony.umbrella.UmbrellaProperties;
 import com.harmony.umbrella.io.ResourceManager;
 import com.harmony.umbrella.util.ClassUtils.ClassFilter;
 import com.harmony.umbrella.util.ClassUtils.ClassFilterFeature;
@@ -163,7 +163,7 @@ public class WebServiceServlet extends CXFNonSpringServlet {
     }
 
     protected String[] getScanPackages() {
-        return getInitParameter(SCAN_PACKAGE, Constants.DEFAULT_PACKAGE).split(",");
+        return getInitParameter(SCAN_PACKAGE, UmbrellaProperties.DEFAULT_PACKAGE).split(",");
     }
 
     public String getInitParameter(String name, String defaultValue) {

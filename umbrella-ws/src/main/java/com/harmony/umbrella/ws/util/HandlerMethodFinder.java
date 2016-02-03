@@ -28,10 +28,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import com.harmony.umbrella.UmbrellaProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.harmony.umbrella.Constants;
 import com.harmony.umbrella.io.ResourceManager;
 import com.harmony.umbrella.util.ClassUtils;
 import com.harmony.umbrella.util.ClassUtils.ClassFilter;
@@ -70,7 +70,7 @@ public class HandlerMethodFinder {
      * basePackage为当前classpath
      */
     public HandlerMethodFinder() {
-        this(Constants.DEFAULT_PACKAGE);
+        this(UmbrellaProperties.DEFAULT_PACKAGE);
     }
 
     /**

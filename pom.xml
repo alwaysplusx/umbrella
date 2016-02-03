@@ -47,12 +47,12 @@ under the License.
     <module>umbrella-data</module>
     <module>umbrella-web</module>
     <module>umbrella-scheduler</module>
-    <module>umbrella-plugins</module>
     <module>umbrella-mail</module>
     <module>umbrella-spring</module>
     <module>umbrella-json</module>
     <module>umbrella-xml</module>
     <module>umbrella-activiti</module>
+    <!--<module>umbrella-plugins</module>-->
     <!-- <module>umbrella-logger</module> -->
     <!-- <module>umbrella-resources</module> -->
     <!-- <module>umbrella-security</module> -->
