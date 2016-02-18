@@ -52,8 +52,8 @@ under the License.
     <module>umbrella-json</module>
     <module>umbrella-xml</module>
     <module>umbrella-activiti</module>
+    <module>umbrella-logger</module>
     <!--<module>umbrella-plugins</module>-->
-    <!-- <module>umbrella-logger</module> -->
     <!-- <module>umbrella-resources</module> -->
     <!-- <module>umbrella-security</module> -->
     <!-- <module>umbrella-cache</module> -->
