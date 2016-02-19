@@ -15,18 +15,24 @@
  */
 package com.harmony.umbrella.log;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * @author wuxii@foxmail.com
  */
 public class LogPrinter {
 
-    private static final Logger log = LoggerFactory.getLogger(LogPrinter.class);
-
+    static Log log = Logs.getLog(LogPrinter.class);
+    
     public static void main(String[] args) {
-        log.info(">>>>");
+        LogMessage.create(log)
+                .id(1L)
+                .operator("wuxii")
+                .operatorId("1")
+                .entityClass(Object.class)
+                .action("保存")
+                .module("Sample")
+                .level(Level.INFO)
+                .message("保存成功【{}, {}】成功", "10293819").log();
+        
     }
 
 }

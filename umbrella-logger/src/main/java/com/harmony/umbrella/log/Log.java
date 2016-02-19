@@ -62,15 +62,6 @@ public interface Log {
 
     void error(String msg, Throwable t);
 
-    // 可扩展的日志记录方式
-    void trace(LogMessage msg);
-
-    void debug(LogMessage msg);
-
-    void info(LogMessage msg);
-
-    void warn(LogMessage msg);
-
-    void error(LogMessage msg);
+    Log relative(String callerFQCN);
 
 }

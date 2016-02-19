@@ -15,34 +15,17 @@
  */
 package com.harmony.umbrella.log;
 
-import com.harmony.umbrella.log.impl.Log4jLogAdapter;
+import java.text.ParseException;
 
 /**
- * 
  * @author wuxii@foxmail.com
  */
-public class Logs {
+public interface LogMessageFormat {
 
-    private static LogAdapter adapter = new Log4jLogAdapter();
+    String format(LogMessage message);
 
-    public static void init() {
+    LogMessage parse(String message) throws ParseException;
 
-    }
-
-    /**
-     * 从调用栈中找到上层类名的log
-     */
-    public static Log getLog() {
-        StackTraceElement[] sts = Thread.currentThread().getStackTrace();
-        return adapter.getLogger(sts[2].getClassName());
-    }
-
-    public static Log getLog(String className) {
-        return adapter.getLogger(className);
-    }
-
-    public static Log getLog(Class<?> clazz) {
-        return adapter.getLogger(clazz.getName());
-    }
+    boolean canParse(String message);
 
 }

@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/" debug="true" reset="true"
+  threshold="info">
+  
+  <!-- 
+  or use loggerFactory tag
+  <categoryFactory>
+    <class></class>
+    <param />
+  </categoryFactory>
+   -->
+  
+  <!-- 
+    logger
+  <logger name="" class="" additivity="false">
+    <level value=""></level>
+    <priority></priority>
+
+    <appender-ref ref=""></appender-ref>
+    <param />
+  </logger>
+   -->
+
+<!-- 
+  <renderer renderingClass="" renderedClass="" />
+ -->
+
+<!-- 
+  <throwableRenderer class="">
+    <param></param>
+  </throwableRenderer>
+ -->
+
+  <!-- 
+  <appender name="" class="">
+    <layout class="">
+      <param></param>
+    </layout>
+    <filter class="">
+      <param></param>
+    </filter>
+    <errorHandler class="">
+      <appender-ref></appender-ref>
+      <logger-ref ref=""></logger-ref>
+      <root-ref />
+      <param></param>
+    </errorHandler>
+    <appender-ref></appender-ref>
+    <param></param>
+  </appender>
+   -->
+
+  <appender name="console" class="org.apache.log4j.ConsoleAppender">
+    <param name="target" value="System.out" />
+    <layout class="org.apache.log4j.PatternLayout">
+      <param name="ConversionPattern" value="[%p] %c{1}.%M(%F:%L) - %m%n" />
+    </layout>
+  </appender>
+
+  <root>
+    <level value="debug" />
+    <appender-ref ref="console" />
+    <!-- <param/> -->
+  </root>
+
+</log4j:configuration>

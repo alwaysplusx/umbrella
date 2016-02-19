@@ -22,14 +22,48 @@ import java.io.Serializable;
  */
 public class LogMessage {
 
+    public static final String FQNC = LogMessage.class.getName();
+
     private Log log;
 
+    /**
+     * 业务数据的唯一id
+     */
     private Serializable id;
+    /**
+     * 业务数据的实体类名
+     */
     private String entityClassName;
+    /**
+     * 日志消息
+     */
     private String message;
+    /**
+     * 日志消息所属的模块
+     */
     private String module;
+    /**
+     * 记录的动作
+     */
     private String action;
+    /**
+     * 记录的异常
+     */
     private Throwable exception;
+    /**
+     * 日志级别
+     */
+    private Level level;
+    /**
+     * 操作员
+     */
+    private String operator;
+    /**
+     * 操作员id
+     */
+    private Serializable operatorId;
+
+    private LogMessageFormat formater;
 
     public LogMessage(Log log) {
         this.log = log;
@@ -54,8 +88,26 @@ public class LogMessage {
         return this;
     }
 
+    public LogMessage message(String message) {
+        return message(message, new Object[0]);
+    }
+
+    /**
+     * 带格式话的消息模式
+     * 
+     * @param message
+     *            消息模版
+     * @param args
+     *            消息参数
+     * @return
+     */
     public LogMessage message(String message, Object... args) {
-        this.message = message;
+        if (message != null) {
+            this.message = message;
+        }
+        if (args[args.length - 1] instanceof Throwable) {
+            this.exception = (Throwable) args[args.length - 1];
+        }
         return this;
     }
 
@@ -74,27 +126,99 @@ public class LogMessage {
         return this;
     }
 
+    public LogMessage operator(String username) {
+        this.operator = username;
+        return this;
+    }
+
+    public LogMessage operatorId(Serializable operatorId) {
+        this.operatorId = operatorId;
+        return this;
+    }
+
+    public LogMessage level(Level level) {
+        this.level = level;
+        return this;
+    }
+
+    /**
+     * 设置日志格式化工具
+     * 
+     * @param formatter
+     * @return
+     */
+    public LogMessage formatter(LogMessageFormat formatter) {
+        this.formater = formatter;
+        return this;
+    }
+
     public void log() {
-        log.info(this);
+        log(level == null ? Level.INFO : level);
+    }
+
+    public void log(Level level) {
+        Log relative = log.relative(FQNC);
+        this.level = level;
+        String msg = formater == null ? this.toString() : formater.format(this);
+        switch (level) {
+        case TRACE:
+            relative.trace(msg);
+            break;
+        case DEBUG:
+            relative.debug(msg);
+            break;
+        case INFO:
+            relative.info(msg);
+            break;
+        case WARN:
+            relative.warn(msg);
+            break;
+        case ERROR:
+            relative.error(msg);
+            break;
+        }
+    }
+
+    public Serializable getId() {
+        return id;
+    }
+
+    public String getEntityClassName() {
+        return entityClassName;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public String getModule() {
+        return module;
+    }
+
+    public String getAction() {
+        return action;
+    }
+
+    public Throwable getException() {
+        return exception;
+    }
+
+    public Level getLevel() {
+        return level;
+    }
+
+    public String getOperator() {
+        return operator;
+    }
+
+    public Serializable getOperatorId() {
+        return operatorId;
     }
 
     @Override
     public String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("{id:");
-        builder.append(id);
-        builder.append(", entityClassName:");
-        builder.append(entityClassName);
-        builder.append(", message:");
-        builder.append(message);
-        builder.append(", module:");
-        builder.append(module);
-        builder.append(", action:");
-        builder.append(action);
-        builder.append(", exception:");
-        builder.append(exception);
-        builder.append("}");
-        return builder.toString();
+        return new StringBuilder().append(operator).append("[").append(operatorId).append("]")//
+                .append("：").append(action).append("[").append(module).append("]").append("的")//
+                .append(entityClassName).append("[").append(id).append("]").append(message).toString();
     }
-
 }

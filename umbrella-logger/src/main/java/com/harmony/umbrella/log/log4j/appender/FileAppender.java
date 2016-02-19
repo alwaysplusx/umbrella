@@ -13,12 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.umbrella.log;
+package com.harmony.umbrella.log.log4j.appender;
 
 /**
  * @author wuxii@foxmail.com
  */
-public enum Level {
+public class FileAppender {
 
-    TRACE, DEBUG, INFO, WARN, ERROR;
 }

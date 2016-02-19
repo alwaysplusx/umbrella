@@ -13,36 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.umbrella.log;
+package com.harmony.umbrella.log.log4j.appender;
 
-import com.harmony.umbrella.log.impl.Log4jLogAdapter;
+import org.apache.log4j.AppenderSkeleton;
+import org.apache.log4j.spi.LoggingEvent;
 
 /**
- * 
  * @author wuxii@foxmail.com
  */
-public class Logs {
+public class JDBCAppender extends AppenderSkeleton {
 
-    private static LogAdapter adapter = new Log4jLogAdapter();
-
-    public static void init() {
-
+    @Override
+    public void close() {
     }
 
-    /**
-     * 从调用栈中找到上层类名的log
-     */
-    public static Log getLog() {
-        StackTraceElement[] sts = Thread.currentThread().getStackTrace();
-        return adapter.getLogger(sts[2].getClassName());
+    @Override
+    public boolean requiresLayout() {
+        return true;
     }
 
-    public static Log getLog(String className) {
-        return adapter.getLogger(className);
-    }
+    @Override
+    protected void append(LoggingEvent event) {
 
-    public static Log getLog(Class<?> clazz) {
-        return adapter.getLogger(clazz.getName());
     }
 
 }
