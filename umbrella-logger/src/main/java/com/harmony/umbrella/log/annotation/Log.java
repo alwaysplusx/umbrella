@@ -21,9 +21,9 @@ import static java.lang.annotation.RetentionPolicy.*;
 import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
-import java.util.Map;
 
 import com.harmony.umbrella.log.Level;
+import com.harmony.umbrella.log.MessageTemplateFormat;
 
 /**
  * @author wuxii@foxmail.com
@@ -70,12 +70,11 @@ public @interface Log {
      */
     int[] params() default {};
 
-    Class<? extends A> a();
-
-    public interface A {
-
-        String format(String template, Object[] params, Map<String, Object> properties);
-
-    }
+    /**
+     * 消息格式化工具
+     * 
+     * @return
+     */
+    Class<? extends MessageTemplateFormat> formatClass();
 
 }

@@ -191,7 +191,7 @@ public abstract class AbstractMonitor<T> implements Monitor<T> {
             for (InternalProperty internalProperty : properties) {
                 if (mode.inRange(internalProperty.mode())) {
                     Attacker attacker = getAttacker(internalProperty.attacker());
-                    result.putAll(attacker.attack(target, internalProperty.properties()));
+                    result.putAll(attacker.attack(target, internalProperty.names()));
                 }
             }
         }

@@ -40,7 +40,7 @@ public @interface InternalProperty {
     /**
      * 监控的内部属性或无参get方法的名称
      */
-    String[] properties() default {};
+    String[] names() default {};
 
     /**
      * 何时拦截

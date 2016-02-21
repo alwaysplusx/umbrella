@@ -33,7 +33,7 @@ public class HiBean {
 
     @Interceptors({ LoggingInterceptor.class })
     @Monitored(module = "测试模块", category = "CS100000", operator = "打招呼", level = Level.INFO, //
-        internalProperties = { @InternalProperty(attacker = ReflectionAttacker.class, properties = "name") //
+        internalProperties = { @InternalProperty(attacker = ReflectionAttacker.class, names = "name") //
     })
     public String sayHi(String name) {
         this.name = name;
