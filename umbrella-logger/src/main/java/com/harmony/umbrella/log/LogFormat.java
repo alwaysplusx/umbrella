@@ -20,12 +20,22 @@ import java.text.ParseException;
 /**
  * @author wuxii@foxmail.com
  */
-public interface LogMessageFormat {
+public interface LogFormat {
+
+    String JSON_TYPE = "json";
+
+    String HTML_TYPE = "html";
+
+    String XML_TYPE = "xml";
+
+    String TEXT_TYPE = "text";
 
     String format(LogMessage message);
 
     LogMessage parse(String message) throws ParseException;
 
     boolean canParse(String message);
+
+    String formatType();
 
 }

@@ -15,6 +15,8 @@
  */
 package com.harmony.umbrella.log.persistence;
 
+import java.io.Serializable;
+
 /**
  * @author wuxii@foxmail.com
  */
@@ -22,16 +24,21 @@ public class LogEntity {
 
     private Long logId;
 
+    private Serializable bizId;
+    private String bizModule;
+
     private String module;
     private String action;
     private String level;
     private String message;
 
-    private String input;
-    private String output;
+    private String operator;
+    private Serializable operatorId;
 
     private String stack;
     private String thread;
+
+    private String formatType;
 
     public Long getLogId() {
         return logId;
@@ -39,6 +46,22 @@ public class LogEntity {
 
     public void setLogId(Long logId) {
         this.logId = logId;
+    }
+
+    public Serializable getBizId() {
+        return bizId;
+    }
+
+    public void setBizId(Serializable bizId) {
+        this.bizId = bizId;
+    }
+
+    public String getBizModule() {
+        return bizModule;
+    }
+
+    public void setBizModule(String bizModule) {
+        this.bizModule = bizModule;
     }
 
     public String getModule() {
@@ -73,6 +96,22 @@ public class LogEntity {
         this.message = message;
     }
 
+    public String getOperator() {
+        return operator;
+    }
+
+    public void setOperator(String operator) {
+        this.operator = operator;
+    }
+
+    public Serializable getOperatorId() {
+        return operatorId;
+    }
+
+    public void setOperatorId(Serializable operatorId) {
+        this.operatorId = operatorId;
+    }
+
     public String getStack() {
         return stack;
     }
@@ -89,20 +128,12 @@ public class LogEntity {
         this.thread = thread;
     }
 
-    public String getInput() {
-        return input;
+    public String getFormatType() {
+        return formatType;
     }
 
-    public void setInput(String input) {
-        this.input = input;
-    }
-
-    public String getOutput() {
-        return output;
-    }
-
-    public void setOutput(String output) {
-        this.output = output;
+    public void setFormatType(String formatType) {
+        this.formatType = formatType;
     }
 
 }

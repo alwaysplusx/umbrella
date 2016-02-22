@@ -15,34 +15,13 @@
  */
 package com.harmony.umbrella.log;
 
-import com.harmony.umbrella.log.impl.Log4jLogAdapter;
+import java.lang.reflect.Method;
 
 /**
- * 
  * @author wuxii@foxmail.com
  */
-public class Logs {
+public interface ErrorHandler {
 
-    private static LogAdapter adapter = new Log4jLogAdapter();
-
-    public static void init() {
-        // TODO 加载类路径下的日志适配器 
-    }
-
-    /**
-     * 从调用栈中找到上层类名的log
-     */
-    public static Log getLog() {
-        StackTraceElement[] sts = Thread.currentThread().getStackTrace();
-        return adapter.getLogger(sts[2].getClassName());
-    }
-
-    public static Log getLog(String className) {
-        return adapter.getLogger(className);
-    }
-
-    public static Log getLog(Class<?> clazz) {
-        return adapter.getLogger(clazz.getName());
-    }
+    void handle(LogMessage logMessage, Method method, Object target);
 
 }

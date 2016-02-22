@@ -16,14 +16,35 @@
 package com.harmony.umbrella.log;
 
 /**
+ * 暴露在外部供调用的api接口
+ * <p>
+ * 基本与slf4j接口部分一致
+ * 
  * @author wuxii@foxmail.com
  */
 public interface Log {
 
+    /**
+     * log的名称
+     * 
+     * @return log名称
+     */
     String getName();
 
+    /**
+     * 检测trace是否可用
+     * 
+     * @return true 可用
+     */
     boolean isTraceEnabled();
 
+    /**
+     * 记录trace级别的日志， msg使用{@linkplain Object#toString()}方式，如果msg为
+     * <code>null</code>直接记录"null"字符串
+     * 
+     * @param msg
+     *            被记录的消息
+     */
     void trace(Object msg);
 
     void trace(String format, Object... arguments);
@@ -62,6 +83,6 @@ public interface Log {
 
     void error(String msg, Throwable t);
 
-    Log relative(String callerFQCN);
+    Log relative(Object relativeProperties);
 
 }

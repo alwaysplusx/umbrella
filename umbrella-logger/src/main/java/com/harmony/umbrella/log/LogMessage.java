@@ -29,11 +29,11 @@ public class LogMessage {
     /**
      * 业务数据的唯一id
      */
-    private Serializable id;
+    private Serializable bizId;
     /**
-     * 业务数据的实体类名
+     * 所属的业务模块
      */
-    private String entityClassName;
+    private String bizModule;
     /**
      * 日志消息
      */
@@ -63,7 +63,7 @@ public class LogMessage {
      */
     private Serializable operatorId;
 
-    private LogMessageFormat formater;
+    private LogFormat formater;
 
     public LogMessage(Log log) {
         this.log = log;
@@ -73,21 +73,28 @@ public class LogMessage {
         return new LogMessage(log);
     }
 
-    public LogMessage id(Serializable id) {
-        this.id = id;
+    /**
+     * 设置业务数据的id
+     * 
+     * @param id
+     * @return
+     */
+    public LogMessage bizId(Serializable bizId) {
+        this.bizId = bizId;
         return this;
     }
 
-    public LogMessage entityClass(Class<?> entityClass) {
-        this.entityClassName = entityClass.getName();
+    public LogMessage bizModule(String bizModule) {
+        this.bizModule = bizModule;
         return this;
     }
 
-    public LogMessage entityClassName(String entityClassName) {
-        this.entityClassName = entityClassName;
-        return this;
-    }
-
+    /**
+     * 设置日志消息
+     * 
+     * @param message
+     * @return
+     */
     public LogMessage message(String message) {
         return message(message, new Object[0]);
     }
@@ -111,6 +118,12 @@ public class LogMessage {
         return this;
     }
 
+    /**
+     * 设置日志所属于的模块
+     * 
+     * @param module
+     * @return
+     */
     public LogMessage module(String module) {
         this.module = module;
         return this;
@@ -147,7 +160,7 @@ public class LogMessage {
      * @param formatter
      * @return
      */
-    public LogMessage formatter(LogMessageFormat formatter) {
+    public LogMessage formatter(LogFormat formatter) {
         this.formater = formatter;
         return this;
     }
@@ -179,12 +192,16 @@ public class LogMessage {
         }
     }
 
-    public Serializable getId() {
-        return id;
+    public boolean isException() {
+        return exception != null;
     }
 
-    public String getEntityClassName() {
-        return entityClassName;
+    public Serializable getBizId() {
+        return bizId;
+    }
+
+    public String getBizModule() {
+        return bizModule;
     }
 
     public String getMessage() {
@@ -215,10 +232,8 @@ public class LogMessage {
         return operatorId;
     }
 
-    @Override
-    public String toString() {
-        return new StringBuilder().append(operator).append("[").append(operatorId).append("]")//
-                .append("：").append(action).append("[").append(module).append("]").append("的")//
-                .append(entityClassName).append("[").append(id).append("]").append(message).toString();
+    public String getFormatType() {
+        return formater == null ? LogFormat.TEXT_TYPE : formater.formatType();
     }
+
 }

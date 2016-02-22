@@ -24,10 +24,10 @@ public class LogPrinter {
     
     public static void main(String[] args) {
         LogMessage.create(log)
-                .id(1L)
+                .bizId(1L)
+                .bizModule("Object")
                 .operator("wuxii")
                 .operatorId("1")
-                .entityClass(Object.class)
                 .action("保存")
                 .module("Sample")
                 .level(Level.INFO)

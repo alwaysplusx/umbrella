@@ -35,9 +35,9 @@ public class Log4jLogAdapter implements LogAdapter {
 
         public static final String SELF_FQCN = Log4jLog.class.getName();
 
-        private String callerFQCN;
+        private final String callerFQCN;
 
-        private Logger logger;
+        private final Logger logger;
 
         public Log4jLog(String className) {
             this(className, SELF_FQCN);
@@ -121,8 +121,8 @@ public class Log4jLogAdapter implements LogAdapter {
         }
 
         @Override
-        public Log relative(String callerFQCN) {
-            return new Log4jLog(getName(), callerFQCN);
+        public Log relative(Object relativeProperties) {
+            return new Log4jLog(getName(), (String) relativeProperties);
         }
 
     }

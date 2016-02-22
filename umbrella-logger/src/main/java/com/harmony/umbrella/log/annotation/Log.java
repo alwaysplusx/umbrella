@@ -18,17 +18,14 @@ package com.harmony.umbrella.log.annotation;
 import static java.lang.annotation.ElementType.*;
 import static java.lang.annotation.RetentionPolicy.*;
 
-import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
+import com.harmony.umbrella.log.ErrorHandler;
 import com.harmony.umbrella.log.Level;
-import com.harmony.umbrella.log.MessageTemplateFormat;
+import com.harmony.umbrella.log.LogFormat;
+import com.harmony.umbrella.log.TemplateFormat;
 
-/**
- * @author wuxii@foxmail.com
- */
-@Inherited
 @Target({ METHOD })
 @Retention(RUNTIME)
 public @interface Log {
@@ -39,6 +36,13 @@ public @interface Log {
      * @return
      */
     String module() default "";
+
+    /**
+     * 业务模块
+     * 
+     * @return
+     */
+    String bizModule() default "";
 
     /**
      * 操作名称
@@ -55,6 +59,20 @@ public @interface Log {
     Level level() default Level.INFO;
 
     /**
+     * id所在的位置
+     * 
+     * @return
+     */
+    int idIndex() default -1;
+
+    /**
+     * id对应的类
+     * 
+     * @return
+     */
+    Class<?> idClass() default Void.class;
+
+    /**
      * 日志消息
      * <p>
      * 可以通过模版的方式对消息日志进行装配
@@ -64,17 +82,24 @@ public @interface Log {
     String message() default "";
 
     /**
-     * 需要带入消息模版的参数的位置
-     * 
-     * @return
-     */
-    int[] params() default {};
-
-    /**
      * 消息格式化工具
      * 
      * @return
      */
-    Class<? extends MessageTemplateFormat> formatClass();
+    Class<? extends TemplateFormat> templateFormat() default TemplateFormat.class;
+
+    /**
+     * 整体消息格式输出
+     * 
+     * @return
+     */
+    Class<? extends LogFormat> logFormat() default LogFormat.class;
+
+    /**
+     * 异常处理
+     * 
+     * @return
+     */
+    Class<? extends ErrorHandler> errorHandler() default ErrorHandler.class;
 
 }
