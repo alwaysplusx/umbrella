@@ -16,52 +16,38 @@
 package com.harmony.umbrella.log;
 
 import java.io.Serializable;
+import java.text.MessageFormat;
+import java.util.Calendar;
 
 /**
+ * 统一日志消息
+ * 
  * @author wuxii@foxmail.com
  */
 public class LogMessage {
 
-    public static final String FQNC = LogMessage.class.getName();
+    public static final Level DEFAULT_LEVEL = Level.INFO;
+
+    public static final String LOGMESSAGE_FQNC = LogMessage.class.getName();
 
     private Log log;
 
-    /**
-     * 业务数据的唯一id
-     */
-    private Serializable bizId;
-    /**
-     * 所属的业务模块
-     */
     private String bizModule;
-    /**
-     * 日志消息
-     */
-    private String message;
-    /**
-     * 日志消息所属的模块
-     */
+    private Serializable bizId;
+
     private String module;
-    /**
-     * 记录的动作
-     */
     private String action;
-    /**
-     * 记录的异常
-     */
+
+    private String message;
     private Throwable exception;
-    /**
-     * 日志级别
-     */
     private Level level;
-    /**
-     * 操作员
-     */
+
     private String operator;
-    /**
-     * 操作员id
-     */
     private Serializable operatorId;
+
+    private Object result;
+    private Calendar startTime;
+    private Calendar finishTime;
 
     private LogFormat formater;
 
@@ -77,13 +63,21 @@ public class LogMessage {
      * 设置业务数据的id
      * 
      * @param id
-     * @return
+     *            业务数据的id
+     * @return current logMessage
      */
     public LogMessage bizId(Serializable bizId) {
         this.bizId = bizId;
         return this;
     }
 
+    /**
+     * 设置业务模块
+     * 
+     * @param bizModule
+     *            业务模块
+     * @return current logMessage
+     */
     public LogMessage bizModule(String bizModule) {
         this.bizModule = bizModule;
         return this;
@@ -93,14 +87,18 @@ public class LogMessage {
      * 设置日志消息
      * 
      * @param message
-     * @return
+     *            log message
+     * @return current logMessage
      */
     public LogMessage message(String message) {
-        return message(message, new Object[0]);
+        this.message = message;
+        return this;
     }
 
     /**
      * 带格式话的消息模式
+     * <p>
+     * 现只支持{@linkplain java.text.MessageFormat}方式
      * 
      * @param message
      *            消息模版
@@ -110,7 +108,7 @@ public class LogMessage {
      */
     public LogMessage message(String message, Object... args) {
         if (message != null) {
-            this.message = message;
+            this.message = MessageFormat.format(message, args);
         }
         if (args[args.length - 1] instanceof Throwable) {
             this.exception = (Throwable) args[args.length - 1];
@@ -129,8 +127,27 @@ public class LogMessage {
         return this;
     }
 
+    /**
+     * 设置日志所表示的动作
+     * 
+     * @param action
+     *            日志表示的动作
+     * @return current logMessage
+     */
     public LogMessage action(String action) {
         this.action = action;
+        return this;
+    }
+
+    /**
+     * 设置结果
+     * 
+     * @param result
+     *            结果
+     * @return current logMessage
+     */
+    public LogMessage result(Object result) {
+        this.result = result;
         return this;
     }
 
@@ -139,6 +156,13 @@ public class LogMessage {
         return this;
     }
 
+    /**
+     * 设置业务数据的操作人
+     * 
+     * @param username
+     *            操作人名称
+     * @return current logMessage
+     */
     public LogMessage operator(String username) {
         this.operator = username;
         return this;
@@ -149,6 +173,55 @@ public class LogMessage {
         return this;
     }
 
+    /**
+     * 设置开始时间 startTime = Calendar.getInstance();
+     * 
+     * @return current logMessage
+     */
+    public LogMessage start() {
+        return start(Calendar.getInstance());
+    }
+
+    /**
+     * 设置开始时间
+     * 
+     * @param startTime
+     *            开始时间
+     * @return current logMessage
+     */
+    public LogMessage start(Calendar startTime) {
+        this.startTime = startTime;
+        return this;
+    }
+
+    /**
+     * 设置结束时间 finishTime = Calendar.getInstance();
+     * 
+     * @return current logMessage
+     */
+    public LogMessage finish() {
+        return finish(Calendar.getInstance());
+    }
+
+    /**
+     * 设置结束时间
+     * 
+     * @param finishTime
+     *            结束时间
+     * @return current logMessage
+     */
+    public LogMessage finish(Calendar finishTime) {
+        this.finishTime = finishTime;
+        return this;
+    }
+
+    /**
+     * 设置日志级别
+     * 
+     * @param level
+     *            日志级别
+     * @return current logMessage
+     */
     public LogMessage level(Level level) {
         this.level = level;
         return this;
@@ -158,22 +231,31 @@ public class LogMessage {
      * 设置日志格式化工具
      * 
      * @param formatter
-     * @return
+     *            日志格式化工具
+     * @return current logMessage
      */
     public LogMessage formatter(LogFormat formatter) {
         this.formater = formatter;
         return this;
     }
 
+    /**
+     * 调用日志log记录本条日志
+     */
     public void log() {
-        log(level == null ? Level.INFO : level);
+        log(level == null ? DEFAULT_LEVEL : level);
     }
 
+    /**
+     * 调用日志log记录本条日志
+     * 
+     * @param level
+     *            日志级别
+     */
     public void log(Level level) {
-        Log relative = log.relative(FQNC);
-        this.level = level;
+        Log relative = log.relative(LOGMESSAGE_FQNC);
         String msg = formater == null ? this.toString() : formater.format(this);
-        switch (level) {
+        switch (this.level = level) {
         case TRACE:
             relative.trace(msg);
             break;
@@ -190,6 +272,15 @@ public class LogMessage {
             relative.error(msg);
             break;
         }
+    }
+
+    /**
+     * 日志开始与结束总耗时
+     * 
+     * @return 耗时时长(ms)
+     */
+    public long use() {
+        return (startTime == null || finishTime == null) ? -1 : finishTime.getTimeInMillis() - startTime.getTimeInMillis();
     }
 
     public boolean isException() {
@@ -232,8 +323,26 @@ public class LogMessage {
         return operatorId;
     }
 
+    public Object getResult() {
+        return result;
+    }
+
+    public Calendar getStartTime() {
+        return startTime;
+    }
+
+    public Calendar getFinishTime() {
+        return finishTime;
+    }
+
     public String getFormatType() {
         return formater == null ? LogFormat.TEXT_TYPE : formater.formatType();
+    }
+
+    @Override
+    public String toString() {
+        return "{\"bizId\":\"" + bizId + "\", \"bizModule\":\"" + bizModule + "\", \"message\":\"" + message + "\", \"module\":\"" + module
+                + "\", \"action\":\"" + action + "\", \"level\":\"" + level + "\", \"operator\":\"" + operator + "\", \"result\":\"" + result + "\"}";
     }
 
 }

@@ -24,7 +24,6 @@ import java.lang.annotation.Target;
 import com.harmony.umbrella.log.ErrorHandler;
 import com.harmony.umbrella.log.Level;
 import com.harmony.umbrella.log.LogFormat;
-import com.harmony.umbrella.log.TemplateFormat;
 
 @Target({ METHOD })
 @Retention(RUNTIME)
@@ -80,13 +79,6 @@ public @interface Log {
      * @return
      */
     String message() default "";
-
-    /**
-     * 消息格式化工具
-     * 
-     * @return
-     */
-    Class<? extends TemplateFormat> templateFormat() default TemplateFormat.class;
 
     /**
      * 整体消息格式输出

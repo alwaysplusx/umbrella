@@ -47,7 +47,15 @@ public interface Log {
      */
     void trace(Object msg);
 
-    void trace(String format, Object... arguments);
+    /**
+     * 格式化消息格式的记录方式
+     * <p>
+     * 现只支持{@linkplain java.text.MessageFormat#format(String, Object...)}方式
+     * 
+     * @param msg
+     * @param arguments
+     */
+    void trace(String msg, Object... arguments);
 
     void trace(String msg, Throwable t);
 
@@ -55,7 +63,7 @@ public interface Log {
 
     void debug(Object msg);
 
-    void debug(String format, Object... arguments);
+    void debug(String msg, Object... arguments);
 
     void debug(String msg, Throwable t);
 
@@ -63,7 +71,7 @@ public interface Log {
 
     void info(Object msg);
 
-    void info(String format, Object... arguments);
+    void info(String msg, Object... arguments);
 
     void info(String msg, Throwable t);
 
@@ -71,7 +79,7 @@ public interface Log {
 
     void warn(Object msg);
 
-    void warn(String format, Object... arguments);
+    void warn(String msg, Object... arguments);
 
     void warn(String msg, Throwable t);
 
@@ -79,7 +87,7 @@ public interface Log {
 
     void error(Object msg);
 
-    void error(String format, Object... arguments);
+    void error(String msg, Object... arguments);
 
     void error(String msg, Throwable t);
 

@@ -15,7 +15,7 @@
  */
 package com.harmony.umbrella.log;
 
-import com.harmony.umbrella.log.impl.Log4jLogAdapter;
+import com.harmony.umbrella.log.support.Log4jLogAdapter;
 
 /**
  * 
@@ -23,26 +23,47 @@ import com.harmony.umbrella.log.impl.Log4jLogAdapter;
  */
 public class Logs {
 
-    private static LogAdapter adapter = new Log4jLogAdapter();
+    private static LogAdapter adapter;
+
+    static {
+        init();
+    }
 
     public static void init() {
         // TODO 加载类路径下的日志适配器 
+        adapter = new Log4jLogAdapter();
     }
 
     /**
      * 从调用栈中找到上层类名的log
+     * 
+     * @return log
      */
     public static Log getLog() {
         StackTraceElement[] sts = Thread.currentThread().getStackTrace();
         return adapter.getLogger(sts[2].getClassName());
     }
 
-    public static Log getLog(String className) {
-        return adapter.getLogger(className);
-    }
-
+    /**
+     * 通过类名创建对应的log
+     * 
+     * @param clazz
+     *            log的类名
+     * @return log
+     */
     public static Log getLog(Class<?> clazz) {
         return adapter.getLogger(clazz.getName());
+    }
+
+    /**
+     * 通过名称创建对应的log
+     * 
+     * @param className
+     *            log名称
+     * @return log
+     */
+    public static Log getLog(String className) {
+        return adapter.getLogger(className);
     }
 
 }

@@ -15,11 +15,14 @@
  */
 package com.harmony.umbrella.log;
 
+import com.harmony.umbrella.log.annotation.Log;
+
 /**
  * @author wuxii@foxmail.com
  */
 public interface SampleService {
 
+    @Log(module = "测试模块", action = "保存", message = "对数据Sample[${0#sampleId}]进行保存操作", bizModule = "Sample")
     public String save(SampleEntity entity);
 
 }
