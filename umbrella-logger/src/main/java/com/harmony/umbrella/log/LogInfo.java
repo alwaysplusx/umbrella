@@ -15,27 +15,40 @@
  */
 package com.harmony.umbrella.log;
 
-import java.text.ParseException;
+import java.io.Serializable;
+import java.util.Calendar;
 
 /**
  * @author wuxii@foxmail.com
  */
-public interface LogFormat {
+public interface LogInfo {
 
-    String JSON_TYPE = "json";
+    String getModule();
 
-    String HTML_TYPE = "html";
+    String getAction();
 
-    String XML_TYPE = "xml";
+    String getMessage();
 
-    String TEXT_TYPE = "text";
+    Throwable getException();
 
-    String format(LogInfo logInfo);
+    Level getLevel();
 
-    LogInfo parse(String message) throws ParseException;
+    Object getResult();
 
-    boolean canParse(String message);
+    Calendar getStartTime();
 
-    String formatType();
+    Calendar getFinishTime();
+
+    String getOperator();
+
+    Serializable getOperatorId();
+
+    String getBizModule();
+
+    Serializable getBizId();
+
+    boolean isException();
+
+    long use();
 
 }

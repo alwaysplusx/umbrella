@@ -62,7 +62,7 @@ public @interface Log {
      * 
      * @return
      */
-    int idIndex() default -1;
+    String id() default "";
 
     /**
      * id对应的类

@@ -254,7 +254,7 @@ public class LogMessage {
      */
     public void log(Level level) {
         Log relative = log.relative(LOGMESSAGE_FQNC);
-        String msg = formater == null ? this.toString() : formater.format(this);
+        String msg = formater == null ? this.toString() : formater.format(asInfo());
         switch (this.level = level) {
         case TRACE:
             relative.trace(msg);
@@ -274,69 +274,79 @@ public class LogMessage {
         }
     }
 
-    /**
-     * 日志开始与结束总耗时
-     * 
-     * @return 耗时时长(ms)
-     */
-    public long use() {
-        return (startTime == null || finishTime == null) ? -1 : finishTime.getTimeInMillis() - startTime.getTimeInMillis();
-    }
+    public LogInfo asInfo() {
+        return new LogInfo() {
 
-    public boolean isException() {
-        return exception != null;
-    }
+            @Override
+            public boolean isException() {
+                return exception != null;
+            }
 
-    public Serializable getBizId() {
-        return bizId;
-    }
+            @Override
+            public Calendar getStartTime() {
+                return startTime;
+            }
 
-    public String getBizModule() {
-        return bizModule;
-    }
+            @Override
+            public Object getResult() {
+                return result;
+            }
 
-    public String getMessage() {
-        return message;
-    }
+            @Override
+            public Serializable getOperatorId() {
+                return operatorId;
+            }
 
-    public String getModule() {
-        return module;
-    }
+            @Override
+            public String getOperator() {
+                return operator;
+            }
 
-    public String getAction() {
-        return action;
-    }
+            @Override
+            public String getModule() {
+                return module;
+            }
 
-    public Throwable getException() {
-        return exception;
-    }
+            @Override
+            public String getMessage() {
+                return message;
+            }
 
-    public Level getLevel() {
-        return level;
-    }
+            @Override
+            public Level getLevel() {
+                return level;
+            }
 
-    public String getOperator() {
-        return operator;
-    }
+            @Override
+            public Calendar getFinishTime() {
+                return finishTime;
+            }
 
-    public Serializable getOperatorId() {
-        return operatorId;
-    }
+            @Override
+            public Throwable getException() {
+                return exception;
+            }
 
-    public Object getResult() {
-        return result;
-    }
+            @Override
+            public String getBizModule() {
+                return bizModule;
+            }
 
-    public Calendar getStartTime() {
-        return startTime;
-    }
+            @Override
+            public Serializable getBizId() {
+                return bizId;
+            }
 
-    public Calendar getFinishTime() {
-        return finishTime;
-    }
+            @Override
+            public String getAction() {
+                return action;
+            }
 
-    public String getFormatType() {
-        return formater == null ? LogFormat.TEXT_TYPE : formater.formatType();
+            @Override
+            public long use() {
+                return (startTime == null || finishTime == null) ? -1 : finishTime.getTimeInMillis() - startTime.getTimeInMillis();
+            }
+        };
     }
 
     @Override

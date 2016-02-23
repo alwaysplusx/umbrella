@@ -32,6 +32,15 @@ public interface Log {
     String getName();
 
     /**
+     * 通过一定的属性创建相关联的log
+     * 
+     * @param relativeProperties
+     *            log创建需要用到的相关属性
+     * @return relative log
+     */
+    Log relative(Object relativeProperties);
+
+    /**
      * 检测trace是否可用
      * 
      * @return true 可用
@@ -90,7 +99,5 @@ public interface Log {
     void error(String msg, Object... arguments);
 
     void error(String msg, Throwable t);
-
-    Log relative(Object relativeProperties);
 
 }
