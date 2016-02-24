@@ -23,8 +23,8 @@ import java.util.Map;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.harmony.umbrella.json.Json;
 import com.harmony.umbrella.monitor.Graph;
+import com.harmony.umbrella.monitor.Monitor.MonitorPolicy;
 import com.harmony.umbrella.util.Formats;
-import com.harmony.umbrella.util.StringUtils;
 import com.harmony.umbrella.util.Formats.NullableDateFormat;
 
 /**
@@ -47,19 +47,15 @@ public abstract class AbstractGraph implements Graph, Serializable {
 
     protected final Map<String, Object> result = new LinkedHashMap<String, Object>();
 
+    protected String monitorName;
+
+    protected MonitorPolicy policy;
+
     protected Calendar requestTime = Calendar.getInstance();
 
     protected Calendar responseTime;
 
     protected Exception exception;
-
-    protected String module;
-
-    protected String operator;
-
-    protected String category;
-
-    protected Level level;
 
     public AbstractGraph(String identifier) {
         this.identifier = identifier;
@@ -68,6 +64,16 @@ public abstract class AbstractGraph implements Graph, Serializable {
     @Override
     public String getIdentifier() {
         return identifier;
+    }
+
+    @Override
+    public String getMonitorName() {
+        return monitorName;
+    }
+
+    @Override
+    public MonitorPolicy getPolicy() {
+        return policy;
     }
 
     @Override
@@ -108,42 +114,6 @@ public abstract class AbstractGraph implements Graph, Serializable {
     @Override
     public Exception getException() {
         return exception;
-    }
-
-    @Override
-    public String getModule() {
-        return module;
-    }
-
-    public void setModule(String module) {
-        this.module = module;
-    }
-
-    @Override
-    public String getOperator() {
-        return operator;
-    }
-
-    @Override
-    public String getCategory() {
-        return category;
-    }
-
-    @Override
-    public Level getLevel() {
-        return level;
-    }
-
-    public void setLevel(Level level) {
-        this.level = level;
-    }
-
-    public void setOperator(String operator) {
-        this.operator = operator;
-    }
-
-    public void setCategory(String category) {
-        this.category = category;
     }
 
     public void setException(Exception exception) {
@@ -196,18 +166,6 @@ public abstract class AbstractGraph implements Graph, Serializable {
         StringBuilder buffer = new StringBuilder();
         buffer.append("{\n");
         buffer.append("  id:").append(identifier).append("\n");//
-        if (StringUtils.isNotBlank(module)) {
-            buffer.append("  module:").append(module).append("\n");
-        }
-        if (StringUtils.isNotBlank(operator)) {
-            buffer.append("  operator:").append(operator).append("\n");
-        }
-        if (StringUtils.isNotBlank(category)) {
-            buffer.append("  category:").append(category).append("\n");
-        }
-        if (level != null) {
-            buffer.append("  level:").append(level).append("\n");
-        }
         buffer.append("  requestTime:").append(ndf.format(requestTime)).append("\n");//
         buffer.append("  use:").append(use()).append("\n");//
         buffer.append("  arguments:").append(getJsonArguments()).append("\n");//

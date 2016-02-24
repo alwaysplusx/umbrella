@@ -28,8 +28,6 @@ public interface LogFormat {
 
     String XML_TYPE = "xml";
 
-    String TEXT_TYPE = "text";
-
     String format(LogInfo logInfo);
 
     LogInfo parse(String message) throws ParseException;

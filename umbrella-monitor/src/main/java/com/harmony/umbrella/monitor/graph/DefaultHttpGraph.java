@@ -16,7 +16,6 @@
 package com.harmony.umbrella.monitor.graph;
 
 import com.harmony.umbrella.monitor.HttpGraph;
-import com.harmony.umbrella.util.StringUtils;
 
 /**
  * 基于http请求监控的结果视图
@@ -86,15 +85,6 @@ public class DefaultHttpGraph extends AbstractGraph implements HttpGraph {
         StringBuilder buffer = new StringBuilder();
         buffer.append("{\n")//
                 .append("  url:").append(identifier).append("\n");//
-        if (StringUtils.isNotBlank(module)) {
-            buffer.append("  module:").append(module).append("\n");
-        }
-        if (StringUtils.isNotBlank(operator)) {
-            buffer.append("  operator:").append(operator).append("\n");
-        }
-        if (level != null) {
-            buffer.append("  level:").append(level).append("\n");
-        }
         buffer.append("  remoteAddr:").append(remoteAddr).append("\n")//
                 .append("  httpMethod:").append(httpMethod).append("\n")//
                 .append("  requestTime:").append(ndf.format(requestTime)).append("\n")//

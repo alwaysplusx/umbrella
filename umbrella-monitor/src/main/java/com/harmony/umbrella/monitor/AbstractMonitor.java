@@ -26,8 +26,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.harmony.umbrella.monitor.annotation.InternalProperty;
+
+import com.harmony.umbrella.monitor.annotation.Monitor;
 import com.harmony.umbrella.monitor.annotation.Mode;
-import com.harmony.umbrella.monitor.annotation.Monitored;
 import com.harmony.umbrella.monitor.graph.AbstractGraph;
 import com.harmony.umbrella.util.Assert;
 import com.harmony.umbrella.util.ReflectionUtils;
@@ -39,7 +40,7 @@ import com.harmony.umbrella.util.ReflectionUtils;
  *            监控的资源类型，由子类指定
  * @author wuxii@foxmail.com
  */
-public abstract class AbstractMonitor<T> implements Monitor<T> {
+public abstract class AbstractMonitor<T> implements com.harmony.umbrella.monitor.Monitor<T> {
 
     protected static final Logger LOG = LoggerFactory.getLogger(AbstractMonitor.class);
 
@@ -147,14 +148,11 @@ public abstract class AbstractMonitor<T> implements Monitor<T> {
      *
      * @param graph
      *            监控结果视图
-     * @param monitored
+     * @param monitor
      *            被监控对象的注解信息
      */
-    protected void applyMonitorInformation(AbstractGraph graph, Monitored monitored) {
-        graph.setLevel(monitored.level());
-        graph.setModule(monitored.module());
-        graph.setOperator(monitored.operator());
-        graph.setCategory(monitored.category());
+    protected void applyMonitorInformation(AbstractGraph graph, Monitor monitor) {
+        // TODO apply monitor information
     }
 
     /**
@@ -199,7 +197,7 @@ public abstract class AbstractMonitor<T> implements Monitor<T> {
     }
 
     /**
-     * 获取method上的{@linkplain Monitored}注解，并获取注解内对于的属性(传入的propertyType)
+     * 获取method上的{@linkplain Monitor}注解，并获取注解内对于的属性(传入的propertyType)
      *
      * @param method
      *            监控的方法
@@ -209,12 +207,12 @@ public abstract class AbstractMonitor<T> implements Monitor<T> {
      */
     @SuppressWarnings("unchecked")
     protected final <E extends Annotation> E[] getMonitorProperty(Method method, Class<E> propertyType) {
-        Monitored ann = method.getAnnotation(Monitored.class);
+        Monitor ann = method.getAnnotation(Monitor.class);
         return (E[]) (ann == null ? null : propertyType == InternalProperty.class ? ann.internalProperties() : ann.httpProperties());
     }
 
     /**
-     * 获取clazz上的{@linkplain Monitored}注解，并获取注解内对于的属性(传入的propertyType)
+     * 获取clazz上的{@linkplain Monitor}注解，并获取注解内对于的属性(传入的propertyType)
      *
      * @param clazz
      *            监控的类
@@ -224,7 +222,7 @@ public abstract class AbstractMonitor<T> implements Monitor<T> {
      */
     @SuppressWarnings("unchecked")
     protected final <E extends Annotation> E[] getMonitorProperty(Class<?> clazz, Class<E> propertyType) {
-        Monitored ann = clazz.getAnnotation(Monitored.class);
+        Monitor ann = clazz.getAnnotation(Monitor.class);
         return (E[]) (ann == null ? null : propertyType == InternalProperty.class ? ann.internalProperties() : ann.httpProperties());
     }
 

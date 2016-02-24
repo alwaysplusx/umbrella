@@ -1,0 +1,13 @@
+{
+    "bizModule" : "Sample",
+    "bizId" : "null",
+    "module" : "测试模块",
+    "action" : "保存",
+    "message" : "null",
+    "level" : "INFO",
+    "operator" : "wuxii",
+    "operatorId" : "1",
+    "result" : "success",
+    "stack" : "com.harmony.umbrella.log.aop.SimpleServiceProxy.invoke(SimpleServiceProxy.java:69)",
+    "threadName" : "main"
+}

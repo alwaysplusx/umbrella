@@ -20,7 +20,7 @@ import java.util.Calendar;
 
 import javax.interceptor.InvocationContext;
 
-import com.harmony.umbrella.monitor.annotation.Monitored;
+import com.harmony.umbrella.monitor.annotation.Monitor;
 import com.harmony.umbrella.monitor.graph.DefaultMethodGraph;
 
 /**
@@ -35,7 +35,7 @@ public abstract class EJBMethodInterceptor extends AbstractMethodMonitorIntercep
         Object target = ctx.getTarget();
         DefaultMethodGraph graph = new DefaultMethodGraph(target, method, ctx.getParameters());
 
-        Monitored ann = method.getAnnotation(Monitored.class);
+        Monitor ann = method.getAnnotation(Monitor.class);
         if (ann != null) {
             applyMonitorInformation(graph, ann);
         }

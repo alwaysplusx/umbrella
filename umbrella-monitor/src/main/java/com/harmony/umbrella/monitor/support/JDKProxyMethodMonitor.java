@@ -19,7 +19,7 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.util.Calendar;
 
-import com.harmony.umbrella.monitor.annotation.Monitored;
+import com.harmony.umbrella.monitor.annotation.Monitor;
 import com.harmony.umbrella.monitor.graph.DefaultMethodGraph;
 import com.harmony.umbrella.util.MethodUtils;
 
@@ -48,7 +48,7 @@ public class JDKProxyMethodMonitor extends AbstractMethodMonitorInterceptor<Prox
         graph.setTarget(target);
         graph.setMethodArgumets(ctx.arguments);
 
-        Monitored ann = method.getAnnotation(Monitored.class);
+        Monitor ann = method.getAnnotation(Monitor.class);
         if (ann != null) {
             applyMonitorInformation(graph, ann);
         }

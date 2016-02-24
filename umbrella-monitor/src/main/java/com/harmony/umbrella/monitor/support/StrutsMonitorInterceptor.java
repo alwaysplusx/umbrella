@@ -25,7 +25,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.struts2.ServletActionContext;
 
 import com.harmony.umbrella.monitor.HttpAttacker;
-import com.harmony.umbrella.monitor.annotation.Monitored;
+import com.harmony.umbrella.monitor.annotation.Monitor;
 import com.harmony.umbrella.monitor.attack.SimpleHttpAttacker;
 import com.harmony.umbrella.monitor.graph.HybridGraph;
 import com.opensymphony.xwork2.ActionInvocation;
@@ -67,7 +67,7 @@ public class StrutsMonitorInterceptor extends AbstractHttpMonitor<ActionInvocati
         HybridGraph graph = new HybridGraph(resourceId, nexus.getAction());
         graph.setMethod(method);
 
-        Monitored ann = method.getAnnotation(Monitored.class);
+        Monitor ann = method.getAnnotation(Monitor.class);
         if (ann != null) {
             applyMonitorInformation(graph, ann);
         }

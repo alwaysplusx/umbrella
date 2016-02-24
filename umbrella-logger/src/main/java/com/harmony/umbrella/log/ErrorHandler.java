@@ -22,6 +22,6 @@ import java.lang.reflect.Method;
  */
 public interface ErrorHandler {
 
-    void handle(LogMessage logMessage, Method method, Object target);
+    void handle(LogInfo logInfo, Method method, Object target);
 
 }

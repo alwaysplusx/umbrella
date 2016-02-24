@@ -34,7 +34,8 @@ public class JDBCAppender extends AppenderSkeleton {
 
     @Override
     protected void append(LoggingEvent event) {
-
+        Object message = event.getMessage();
+        System.out.println(message);
     }
 
 }

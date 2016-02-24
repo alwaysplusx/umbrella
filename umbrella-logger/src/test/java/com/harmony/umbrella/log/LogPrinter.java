@@ -43,6 +43,8 @@ public class LogPrinter {
         .action("保存")
         .module("Sample")
         .level(Level.INFO)
+        .currentStack()
+        .currentThread()
         .message("保存成功【{0}, {1}】成功", "10293819").log();
     }
 

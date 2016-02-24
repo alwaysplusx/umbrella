@@ -18,6 +18,8 @@ package com.harmony.umbrella.monitor;
 import java.util.Calendar;
 import java.util.Map;
 
+import com.harmony.umbrella.monitor.Monitor.MonitorPolicy;
+
 /**
  * 监控记录
  * 
@@ -37,28 +39,9 @@ public interface Graph {
      * 
      * @return 模块名称
      */
-    String getModule();
+    String getMonitorName();
 
-    /**
-     * 监控的操作
-     * 
-     * @return 操作名称
-     */
-    String getOperator();
-
-    /**
-     * 视图大类别
-     * 
-     * @return 视图大类
-     */
-    String getCategory();
-
-    /**
-     * 监控的级别
-     * 
-     * @return 监控级
-     */
-    Level getLevel();
+    MonitorPolicy getPolicy();
 
     /**
      * 请求时间, 默认为创建Graph对象时间
@@ -168,15 +151,4 @@ public interface Graph {
      */
     String getDescription();
 
-    /**
-     * 监控级别
-     * 
-     * @author wuxii@foxmail.com
-     */
-    public enum Level {
-        TRACE, //
-        INFO, //
-        WARN, //
-        ERROR
-    }
 }

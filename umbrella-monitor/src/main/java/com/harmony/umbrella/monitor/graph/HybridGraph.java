@@ -20,7 +20,6 @@ import java.lang.reflect.Method;
 import com.harmony.umbrella.monitor.HttpGraph;
 import com.harmony.umbrella.monitor.MethodGraph;
 import com.harmony.umbrella.monitor.util.MonitorUtils;
-import com.harmony.umbrella.util.StringUtils;
 
 /**
  * 混合视图, 既包括了Http部分信息, 也包括了方法拦截的信息
@@ -160,15 +159,6 @@ public class HybridGraph extends AbstractGraph implements MethodGraph, HttpGraph
                 .append("  url:").append(identifier).append("\n");//
         if (method != null) {
             buffer.append("  method:").append(MonitorUtils.methodId(method)).append("\n");
-        }
-        if (StringUtils.isNotBlank(module)) {
-            buffer.append("  module:").append(module).append("\n");
-        }
-        if (StringUtils.isNotBlank(operator)) {
-            buffer.append("  operator:").append(operator).append("\n");
-        }
-        if (level != null) {
-            buffer.append("  level:").append(level).append("\n");
         }
         buffer.append("  remoteAddr:").append(remoteAddr).append("\n")//
                 .append("  httpMethod:").append(httpMethod).append("\n")//

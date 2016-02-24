@@ -15,7 +15,7 @@
 
   <root>
     <level value="debug" />
-    <appender-ref ref="console" />
+    <appender-ref ref="jdbc" />
   </root>
 
 </log4j:configuration>

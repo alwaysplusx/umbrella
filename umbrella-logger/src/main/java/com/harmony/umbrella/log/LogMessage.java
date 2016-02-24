@@ -21,7 +21,7 @@ import java.util.Calendar;
 
 /**
  * 统一日志消息
- * 
+ *
  * @author wuxii@foxmail.com
  */
 public class LogMessage {
@@ -49,10 +49,27 @@ public class LogMessage {
     private Calendar startTime;
     private Calendar finishTime;
 
+    private String stack;
+    private String threadName;
+
     private LogFormat formater;
 
     public LogMessage(Log log) {
         this.log = log;
+    }
+
+    private String getStack() {
+        String stack = null;
+        StackTraceElement[] elements = new Throwable().getStackTrace();
+
+        for (int max = elements.length - 1, i = max; i > 0; i--) {
+            if (elements[i].getClassName().equals(LOGMESSAGE_FQNC)) {
+                stack = elements[i + 1].toString();
+                break;
+            }
+        }
+
+        return stack;
     }
 
     public static LogMessage create(Log log) {
@@ -61,8 +78,8 @@ public class LogMessage {
 
     /**
      * 设置业务数据的id
-     * 
-     * @param id
+     *
+     * @param bizId
      *            业务数据的id
      * @return current logMessage
      */
@@ -73,7 +90,7 @@ public class LogMessage {
 
     /**
      * 设置业务模块
-     * 
+     *
      * @param bizModule
      *            业务模块
      * @return current logMessage
@@ -85,7 +102,7 @@ public class LogMessage {
 
     /**
      * 设置日志消息
-     * 
+     *
      * @param message
      *            log message
      * @return current logMessage
@@ -99,7 +116,7 @@ public class LogMessage {
      * 带格式话的消息模式
      * <p>
      * 现只支持{@linkplain java.text.MessageFormat}方式
-     * 
+     *
      * @param message
      *            消息模版
      * @param args
@@ -118,7 +135,7 @@ public class LogMessage {
 
     /**
      * 设置日志所属于的模块
-     * 
+     *
      * @param module
      * @return
      */
@@ -129,7 +146,7 @@ public class LogMessage {
 
     /**
      * 设置日志所表示的动作
-     * 
+     *
      * @param action
      *            日志表示的动作
      * @return current logMessage
@@ -141,7 +158,7 @@ public class LogMessage {
 
     /**
      * 设置结果
-     * 
+     *
      * @param result
      *            结果
      * @return current logMessage
@@ -158,7 +175,7 @@ public class LogMessage {
 
     /**
      * 设置业务数据的操作人
-     * 
+     *
      * @param username
      *            操作人名称
      * @return current logMessage
@@ -175,7 +192,7 @@ public class LogMessage {
 
     /**
      * 设置开始时间 startTime = Calendar.getInstance();
-     * 
+     *
      * @return current logMessage
      */
     public LogMessage start() {
@@ -184,7 +201,7 @@ public class LogMessage {
 
     /**
      * 设置开始时间
-     * 
+     *
      * @param startTime
      *            开始时间
      * @return current logMessage
@@ -196,7 +213,7 @@ public class LogMessage {
 
     /**
      * 设置结束时间 finishTime = Calendar.getInstance();
-     * 
+     *
      * @return current logMessage
      */
     public LogMessage finish() {
@@ -205,7 +222,7 @@ public class LogMessage {
 
     /**
      * 设置结束时间
-     * 
+     *
      * @param finishTime
      *            结束时间
      * @return current logMessage
@@ -217,7 +234,7 @@ public class LogMessage {
 
     /**
      * 设置日志级别
-     * 
+     *
      * @param level
      *            日志级别
      * @return current logMessage
@@ -227,9 +244,29 @@ public class LogMessage {
         return this;
     }
 
+    public LogMessage currentStack() {
+        this.stack = getStack();
+        return this;
+    }
+
+    public LogMessage currentThread() {
+        this.threadName = Thread.currentThread().getName();
+        return this;
+    }
+
+    public LogMessage stack(String stack) {
+        this.stack = stack;
+        return this;
+    }
+
+    public LogMessage threadName(String threadName) {
+        this.threadName = threadName;
+        return this;
+    }
+
     /**
      * 设置日志格式化工具
-     * 
+     *
      * @param formatter
      *            日志格式化工具
      * @return current logMessage
@@ -248,14 +285,25 @@ public class LogMessage {
 
     /**
      * 调用日志log记录本条日志
-     * 
+     *
      * @param level
      *            日志级别
      */
     public void log(Level level) {
+        this.level = level;
+
+        if (threadName == null) {
+            this.threadName = Thread.currentThread().getName();
+        }
+
+        if (this.stack == null) {
+            this.stack = getStack();
+        }
+
         Log relative = log.relative(LOGMESSAGE_FQNC);
         String msg = formater == null ? this.toString() : formater.format(asInfo());
-        switch (this.level = level) {
+
+        switch (level) {
         case TRACE:
             relative.trace(msg);
             break;
@@ -343,16 +391,28 @@ public class LogMessage {
             }
 
             @Override
+            public String getStack() {
+                return stack;
+            }
+
+            @Override
+            public String getThreadName() {
+                return threadName;
+            }
+
+            @Override
             public long use() {
                 return (startTime == null || finishTime == null) ? -1 : finishTime.getTimeInMillis() - startTime.getTimeInMillis();
             }
+
         };
     }
 
     @Override
     public String toString() {
-        return "{\"bizId\":\"" + bizId + "\", \"bizModule\":\"" + bizModule + "\", \"message\":\"" + message + "\", \"module\":\"" + module
-                + "\", \"action\":\"" + action + "\", \"level\":\"" + level + "\", \"operator\":\"" + operator + "\", \"result\":\"" + result + "\"}";
+        return "{\"bizModule\": \"" + bizModule + "\", \"bizId\": \"" + bizId + "\", \"module\": \"" + module + "\", \"action\": \"" + action
+                + "\", \"message\": \"" + message + "\", \"level\": \"" + level + "\", \"operator\": \"" + operator + "\", \"operatorId\": \"" + operatorId
+                + "\", \"result\": \"" + result + "\", \"stack\": \"" + stack + "\", \"threadName\": \"" + threadName + "\"}";
     }
 
 }

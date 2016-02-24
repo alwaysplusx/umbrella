@@ -18,9 +18,8 @@ package com.harmony.umbrella.monitor;
 import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
 
-import com.harmony.umbrella.monitor.Graph.Level;
 import com.harmony.umbrella.monitor.annotation.InternalProperty;
-import com.harmony.umbrella.monitor.annotation.Monitored;
+import com.harmony.umbrella.monitor.annotation.Monitor;
 import com.harmony.umbrella.monitor.attack.ReflectionAttacker;
 
 /**
@@ -32,7 +31,7 @@ public class HiBean {
     private String name;
 
     @Interceptors({ LoggingInterceptor.class })
-    @Monitored(module = "测试模块", category = "CS100000", operator = "打招呼", level = Level.INFO, //
+    @Monitor(
         internalProperties = { @InternalProperty(attacker = ReflectionAttacker.class, names = "name") //
     })
     public String sayHi(String name) {

@@ -7,7 +7,7 @@ import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
-import com.harmony.umbrella.monitor.Graph.Level;
+import com.harmony.umbrella.monitor.Monitor.MonitorPolicy;
 
 /**
  * 用于标注方法或类， 表示该方法或类需要被监控
@@ -17,27 +17,14 @@ import com.harmony.umbrella.monitor.Graph.Level;
 @Inherited
 @Target({ TYPE, METHOD })
 @Retention(RUNTIME)
-public @interface Monitored {
+public @interface Monitor {
 
     /**
      * 模块名称
      */
-    String module() default "";
+    String name() default "";
 
-    /**
-     * 操作类型
-     */
-    String operator() default "";
-
-    /**
-     * 日志大类
-     */
-    String category() default "";
-
-    /**
-     * 对应日志的级别
-     */
-    Level level() default Level.INFO;
+    MonitorPolicy policy() default MonitorPolicy.All;
 
     /**
      * 代理对象的内部参数获取工具
