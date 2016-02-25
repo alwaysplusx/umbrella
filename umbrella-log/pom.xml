@@ -7,7 +7,7 @@
     <version>0.0.5-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
-  <artifactId>umbrella-logger</artifactId>
+  <artifactId>umbrella-log</artifactId>
   <dependencies>
     <dependency>
       <groupId>com.harmony.umbrella</groupId>

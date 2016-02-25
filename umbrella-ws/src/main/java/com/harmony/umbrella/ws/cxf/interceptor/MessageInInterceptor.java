@@ -27,18 +27,13 @@ import org.apache.cxf.io.CachedWriter;
 import org.apache.cxf.io.DelegatingInputStream;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.Phase;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import com.harmony.umbrella.ws.cxf.log.LogMessage;
 import com.harmony.umbrella.ws.cxf.log.LogMessageHandler;
 
 /**
  * @author wuxii@foxmail.com
  */
 public class MessageInInterceptor extends AbstractMessageInterceptor {
-
-    private static final Logger log = LoggerFactory.getLogger(MessageInInterceptor.class);
 
     protected LogMessageHandler handler;
 
