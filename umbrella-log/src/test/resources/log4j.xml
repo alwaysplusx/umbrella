@@ -10,12 +10,9 @@
     </layout>
   </appender>
 
-  <appender name="jdbc" class="com.harmony.umbrella.log.log4j.appender.JDBCAppender">
-  </appender>
-
   <root>
     <level value="debug" />
-    <appender-ref ref="jdbc" />
+    <appender-ref ref="console" />
   </root>
 
 </log4j:configuration>

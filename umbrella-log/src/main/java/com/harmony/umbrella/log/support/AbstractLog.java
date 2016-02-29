@@ -15,19 +15,20 @@
  */
 package com.harmony.umbrella.log.support;
 
-import java.text.MessageFormat;
-
 import com.harmony.umbrella.log.Level;
 import com.harmony.umbrella.log.Log;
+import com.harmony.umbrella.log.LogInfo;
+import com.harmony.umbrella.log.Message;
+import com.harmony.umbrella.log.MessageFactory;
+import com.harmony.umbrella.log.message.ParameterizedMessageFactory;
 
 /**
  * @author wuxii@foxmail.com
  */
 public abstract class AbstractLog implements Log {
 
-    private final String className;
-
-    private static final Object[] EMPTY_ARGS = new Object[0];
+    protected final String className;
+    protected final MessageFactory messageFactory;
 
     protected boolean isTraceEnabled = false;
     protected boolean isDebugEnabled = false;
@@ -37,29 +38,30 @@ public abstract class AbstractLog implements Log {
 
     public AbstractLog(String className) {
         this.className = className;
+        this.messageFactory = createDefaultMessageFactory();
+    }
+
+    public AbstractLog(String className, MessageFactory messageFactory) {
+        this.className = className;
+        this.messageFactory = messageFactory;
+    }
+
+    protected MessageFactory createDefaultMessageFactory() {
+        return new ParameterizedMessageFactory();
     }
 
     /**
      * 记录日志汇总入口
      * <p>
      * 此之前已经对带参数的message做了格式化处理
-     * 
-     * @param message
+     *
      * @param level
-     * @param exception
+     * @param message
+     * @param t
      */
-    protected abstract void log(String message, Level level, Throwable exception);
+    protected abstract void logMessage(Level level, Message message, Throwable t);
 
-    protected void log(String message, Level level, Throwable exception, Object[] arguments) {
-        message = format(message, arguments);
-        if (exception == null && arguments.length != 0) {
-            Object lastArgument = arguments[arguments.length - 1];
-            if (lastArgument instanceof Throwable) {
-                exception = (Throwable) lastArgument;
-            }
-        }
-        log(message, level, exception);
-    }
+    protected abstract void logMessage(Level level, LogInfo logInfo);
 
     @Override
     public String getName() {
@@ -91,124 +93,160 @@ public abstract class AbstractLog implements Log {
         return isErrorEnabled;
     }
 
-    /**
-     * 扩展方法
-     * <p>
-     * 现支持{@linkplain MessageFormat#format(String, Object...)}
-     * 
-     * @param msg
-     * @param arguments
-     */
-    protected String format(String msg, Object[] arguments) {
-        if (arguments == null || arguments.length == 0) {
-            return msg;
+    protected void logIfEnable(Level level, Object message) {
+        if (isEnable(level)) {
+            Message msg = messageFactory.newMessage(message);
+            logMessage(level, msg, msg.getThrowable());
         }
-        return MessageFormat.format(msg, arguments);
+    }
+
+    protected void logIfEnable(Level level, LogInfo logInfo) {
+        if (isEnable(level)) {
+            logMessage(level, logInfo);
+        }
+    }
+
+    protected void logIfEnable(Level level, Object message, Throwable t) {
+        if (isEnable(level)) {
+            logMessage(level, messageFactory.newMessage(message), t);
+        }
+    }
+
+    protected void logIfEnable(Level level, String message, Object... params) {
+        if (isEnable(level)) {
+            Message msg = messageFactory.newMessage(message, params);
+            logMessage(level, msg, msg.getThrowable());
+        }
+    }
+
+    protected void logIfEnable(Level level, String message, Throwable t) {
+        if (isEnable(level)) {
+            logMessage(level, messageFactory.newMessage(message), t);
+        }
+    }
+
+    public boolean isEnable(Level level) {
+        if (level == null) {
+            return isInfoEnabled();
+        }
+        switch (level) {
+        case TRACE:
+            return isTraceEnabled();
+        case DEBUG:
+            return isDebugEnabled();
+        case INFO:
+            return isInfoEnabled();
+        case WARN:
+            return isWarnEnabled();
+        case ERROR:
+            return isErrorEnabled();
+        }
+        return isInfoEnabled();
     }
 
     @Override
     public void trace(Object msg) {
-        if (isTraceEnabled()) {
-            log(String.valueOf(msg), Level.TRACE, null, EMPTY_ARGS);
-        }
+        logIfEnable(Level.TRACE, msg);
     }
 
     @Override
     public void trace(String msg, Object... arguments) {
-        if (isTraceEnabled()) {
-            log(msg, Level.TRACE, null, arguments);
-        }
+        logIfEnable(Level.TRACE, msg, arguments);
     }
 
     @Override
     public void trace(String msg, Throwable t) {
-        if (isTraceEnabled()) {
-            log(msg, Level.TRACE, t, EMPTY_ARGS);
-        }
+        logIfEnable(Level.TRACE, msg, t);
+    }
+
+    @Override
+    public void trace(LogInfo logInfo) {
+        logIfEnable(Level.TRACE, logInfo);
     }
 
     @Override
     public void debug(Object msg) {
-        if (isDebugEnabled()) {
-            log(String.valueOf(msg), Level.DEBUG, null, EMPTY_ARGS);
-        }
+        logIfEnable(Level.DEBUG, msg);
     }
 
     @Override
     public void debug(String msg, Object... arguments) {
-        if (isDebugEnabled()) {
-            log(msg, Level.DEBUG, null, arguments);
-        }
+        logIfEnable(Level.DEBUG, msg, arguments);
     }
 
     @Override
     public void debug(String msg, Throwable t) {
-        if (isDebugEnabled()) {
-            log(msg, Level.DEBUG, t, EMPTY_ARGS);
-        }
+        logIfEnable(Level.DEBUG, msg, t);
+    }
+
+    @Override
+    public void debug(LogInfo logInfo) {
+        logIfEnable(Level.DEBUG, logInfo);
     }
 
     @Override
     public void info(Object msg) {
-        if (isInfoEnabled()) {
-            log(String.valueOf(msg), Level.INFO, null, EMPTY_ARGS);
-        }
+        logIfEnable(Level.INFO, msg);
     }
 
     @Override
     public void info(String msg, Object... arguments) {
-        if (isInfoEnabled()) {
-            log(msg, Level.INFO, null, arguments);
-        }
+        logIfEnable(Level.INFO, msg, arguments);
     }
 
     @Override
     public void info(String msg, Throwable t) {
-        if (isInfoEnabled()) {
-            log(msg, Level.INFO, t, EMPTY_ARGS);
-        }
+        logIfEnable(Level.INFO, msg, t);
+    }
+
+    @Override
+    public void info(LogInfo logInfo) {
+        logIfEnable(Level.INFO, logInfo);
     }
 
     @Override
     public void warn(Object msg) {
-        if (isWarnEnabled()) {
-            log(String.valueOf(msg), Level.WARN, null, EMPTY_ARGS);
-        }
+        logIfEnable(Level.WARN, msg);
     }
 
     @Override
     public void warn(String msg, Object... arguments) {
-        if (isWarnEnabled()) {
-            log(msg, Level.WARN, null, arguments);
-        }
+        logIfEnable(Level.WARN, msg, arguments);
     }
 
     @Override
     public void warn(String msg, Throwable t) {
-        if (isWarnEnabled()) {
-            log(msg, Level.WARN, t, EMPTY_ARGS);
-        }
+        logIfEnable(Level.WARN, msg, t);
+    }
+
+    @Override
+    public void warn(LogInfo logInfo) {
+        logIfEnable(Level.WARN, logInfo);
     }
 
     @Override
     public void error(Object msg) {
-        if (isErrorEnabled()) {
-            log(String.valueOf(msg), Level.ERROR, null, EMPTY_ARGS);
-        }
+        logIfEnable(Level.ERROR, msg);
     }
 
     @Override
     public void error(String msg, Object... arguments) {
-        if (isErrorEnabled()) {
-            log(msg, Level.ERROR, null, arguments);
-        }
+        logIfEnable(Level.ERROR, msg, arguments);
     }
 
     @Override
     public void error(String msg, Throwable t) {
-        if (isErrorEnabled()) {
-            log(msg, Level.ERROR, t, EMPTY_ARGS);
-        }
+        logIfEnable(Level.ERROR, msg, t);
+    }
+
+    @Override
+    public void error(LogInfo logInfo) {
+        logIfEnable(Level.ERROR, logInfo);
+    }
+
+    @Override
+    public MessageFactory getMessageFactory() {
+        return messageFactory;
     }
 
 }

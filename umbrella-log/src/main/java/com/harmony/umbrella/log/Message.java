@@ -18,8 +18,14 @@ package com.harmony.umbrella.log;
 /**
  * @author wuxii@foxmail.com
  */
-public interface LogAdapter {
+public interface Message {
 
-    Log getLogger(String className);
+    String getFormat();
+
+    String getFormattedMessage();
+
+    Object[] getParameters();
+
+    Throwable getThrowable();
 
 }

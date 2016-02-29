@@ -87,7 +87,7 @@ under the License.
     <!-- apache -->
     <apache.cxf.version>3.0.2</apache.cxf.version>
     <apache.openejb.version>4.7.1</apache.openejb.version>
-    <apache.log4j2.version>2.4</apache.log4j2.version>
+    <apache.log4j2.version>2.5</apache.log4j2.version>
     <apache.shiro.version>1.2.3</apache.shiro.version>
     <apache.struts.version>2.3.16</apache.struts.version>
     <apache.httpclient.version>4.5</apache.httpclient.version>

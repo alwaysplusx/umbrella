@@ -13,27 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.umbrella.log;
+package com.harmony.umbrella.log.spi;
 
-import java.text.ParseException;
+import com.harmony.umbrella.log.Log;
 
 /**
  * @author wuxii@foxmail.com
  */
-public interface LogFormat<T> {
+public interface LogProvider {
 
-    String JSON_TYPE = "json";
-
-    String HTML_TYPE = "html";
-
-    String XML_TYPE = "xml";
-
-    T format(LogInfo logInfo);
-
-    LogInfo parse(T message) throws ParseException;
-
-    boolean canParse(T message);
-
-    String formatType();
+    Log getLogger(String className);
 
 }

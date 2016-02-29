@@ -56,17 +56,11 @@ public interface Log {
      */
     void trace(Object msg);
 
-    /**
-     * 格式化消息格式的记录方式
-     * <p>
-     * 现只支持{@linkplain java.text.MessageFormat#format(String, Object...)}方式
-     * 
-     * @param msg
-     * @param arguments
-     */
     void trace(String msg, Object... arguments);
 
     void trace(String msg, Throwable t);
+
+    void trace(LogInfo logInfo);
 
     boolean isDebugEnabled();
 
@@ -76,6 +70,8 @@ public interface Log {
 
     void debug(String msg, Throwable t);
 
+    void debug(LogInfo logInfo);
+
     boolean isInfoEnabled();
 
     void info(Object msg);
@@ -83,6 +79,8 @@ public interface Log {
     void info(String msg, Object... arguments);
 
     void info(String msg, Throwable t);
+
+    void info(LogInfo logInfo);
 
     boolean isWarnEnabled();
 
@@ -92,6 +90,8 @@ public interface Log {
 
     void warn(String msg, Throwable t);
 
+    void warn(LogInfo logInfo);
+
     boolean isErrorEnabled();
 
     void error(Object msg);
@@ -99,5 +99,9 @@ public interface Log {
     void error(String msg, Object... arguments);
 
     void error(String msg, Throwable t);
+
+    void error(LogInfo logInfo);
+
+    MessageFactory getMessageFactory();
 
 }

@@ -85,6 +85,7 @@ public @interface Log {
      * 
      * @return
      */
+    @SuppressWarnings("rawtypes")
     Class<? extends LogFormat> logFormat() default LogFormat.class;
 
     /**

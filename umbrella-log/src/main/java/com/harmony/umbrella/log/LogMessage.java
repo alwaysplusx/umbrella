@@ -16,8 +16,11 @@
 package com.harmony.umbrella.log;
 
 import java.io.Serializable;
-import java.text.MessageFormat;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.Map;
+
+import com.harmony.umbrella.log.util.StackUtils;
 
 /**
  * 统一日志消息
@@ -31,6 +34,7 @@ public class LogMessage {
     public static final String LOGMESSAGE_FQNC = LogMessage.class.getName();
 
     private Log log;
+    private MessageFactory messageFactory;
 
     private String bizModule;
     private Serializable bizId;
@@ -38,7 +42,7 @@ public class LogMessage {
     private String module;
     private String action;
 
-    private String message;
+    private Message message;
     private Throwable exception;
     private Level level;
 
@@ -46,30 +50,18 @@ public class LogMessage {
     private Serializable operatorId;
 
     private Object result;
-    private Calendar startTime;
-    private Calendar finishTime;
+
+    private long startTime = -1;
+    private long finishTime = -1;
 
     private String stack;
     private String threadName;
 
-    private LogFormat formater;
+    private Map<String, Object> context;
 
     public LogMessage(Log log) {
         this.log = log;
-    }
-
-    private String getStack() {
-        String stack = null;
-        StackTraceElement[] elements = new Throwable().getStackTrace();
-
-        for (int max = elements.length - 1, i = max; i > 0; i--) {
-            if (elements[i].getClassName().equals(LOGMESSAGE_FQNC)) {
-                stack = elements[i + 1].toString();
-                break;
-            }
-        }
-
-        return stack;
+        this.messageFactory = log.getMessageFactory();
     }
 
     public static LogMessage create(Log log) {
@@ -100,36 +92,18 @@ public class LogMessage {
         return this;
     }
 
-    /**
-     * 设置日志消息
-     *
-     * @param message
-     *            log message
-     * @return current logMessage
-     */
     public LogMessage message(String message) {
-        this.message = message;
+        this.message = messageFactory.newMessage(message);
         return this;
     }
 
-    /**
-     * 带格式话的消息模式
-     * <p>
-     * 现只支持{@linkplain java.text.MessageFormat}方式
-     *
-     * @param message
-     *            消息模版
-     * @param args
-     *            消息参数
-     * @return
-     */
     public LogMessage message(String message, Object... args) {
-        if (message != null) {
-            this.message = MessageFormat.format(message, args);
-        }
-        if (args[args.length - 1] instanceof Throwable) {
-            this.exception = (Throwable) args[args.length - 1];
-        }
+        this.message = messageFactory.newMessage(message, args);
+        return this;
+    }
+
+    public LogMessage message(Message message) {
+        this.message = message;
         return this;
     }
 
@@ -196,7 +170,8 @@ public class LogMessage {
      * @return current logMessage
      */
     public LogMessage start() {
-        return start(Calendar.getInstance());
+        this.startTime = System.currentTimeMillis();
+        return this;
     }
 
     /**
@@ -207,7 +182,12 @@ public class LogMessage {
      * @return current logMessage
      */
     public LogMessage start(Calendar startTime) {
-        this.startTime = startTime;
+        this.startTime = startTime.getTimeInMillis();
+        return this;
+    }
+
+    public LogMessage start(Date startTime) {
+        this.startTime = startTime.getTime();
         return this;
     }
 
@@ -217,7 +197,8 @@ public class LogMessage {
      * @return current logMessage
      */
     public LogMessage finish() {
-        return finish(Calendar.getInstance());
+        this.finishTime = System.currentTimeMillis();
+        return this;
     }
 
     /**
@@ -228,7 +209,26 @@ public class LogMessage {
      * @return current logMessage
      */
     public LogMessage finish(Calendar finishTime) {
-        this.finishTime = finishTime;
+        this.finishTime = finishTime.getTimeInMillis();
+        return this;
+    }
+
+    public LogMessage finish(Date finishTime) {
+        this.finishTime = finishTime.getTime();
+        return this;
+    }
+
+    /**
+     * 用于收集其他扩展属性
+     * <p>
+     * 当要记录http相关信息时使用
+     * 
+     * @param key
+     * @param value
+     * @return
+     */
+    public LogMessage put(String key, Object value) {
+        this.context.put(key, value);
         return this;
     }
 
@@ -245,7 +245,7 @@ public class LogMessage {
     }
 
     public LogMessage currentStack() {
-        this.stack = getStack();
+        this.stack = StackUtils.fullyQualifiedClassName(LogMessage.LOGMESSAGE_FQNC, 1);
         return this;
     }
 
@@ -265,18 +265,6 @@ public class LogMessage {
     }
 
     /**
-     * 设置日志格式化工具
-     *
-     * @param formatter
-     *            日志格式化工具
-     * @return current logMessage
-     */
-    public LogMessage formatter(LogFormat formatter) {
-        this.formater = formatter;
-        return this;
-    }
-
-    /**
      * 调用日志log记录本条日志
      */
     public void log() {
@@ -292,16 +280,8 @@ public class LogMessage {
     public void log(Level level) {
         this.level = level;
 
-        if (threadName == null) {
-            this.threadName = Thread.currentThread().getName();
-        }
-
-        if (this.stack == null) {
-            this.stack = getStack();
-        }
-
         Log relative = log.relative(LOGMESSAGE_FQNC);
-        String msg = formater == null ? this.toString() : formater.format(asInfo());
+        LogInfo msg = asInfo();
 
         switch (level) {
         case TRACE:
@@ -331,7 +311,7 @@ public class LogMessage {
             }
 
             @Override
-            public Calendar getStartTime() {
+            public long getStartTime() {
                 return startTime;
             }
 
@@ -356,7 +336,7 @@ public class LogMessage {
             }
 
             @Override
-            public String getMessage() {
+            public Message getMessage() {
                 return message;
             }
 
@@ -366,7 +346,7 @@ public class LogMessage {
             }
 
             @Override
-            public Calendar getFinishTime() {
+            public long getFinishTime() {
                 return finishTime;
             }
 
@@ -402,7 +382,17 @@ public class LogMessage {
 
             @Override
             public long use() {
-                return (startTime == null || finishTime == null) ? -1 : finishTime.getTimeInMillis() - startTime.getTimeInMillis();
+                return (startTime == -1 || finishTime == -1) ? -1 : finishTime - startTime;
+            }
+
+            @Override
+            public String toString() {
+                return LogMessage.this.toString();
+            }
+
+            @Override
+            public Map<String, Object> getContext() {
+                return context;
             }
 
         };
@@ -411,8 +401,9 @@ public class LogMessage {
     @Override
     public String toString() {
         return "{\"bizModule\": \"" + bizModule + "\", \"bizId\": \"" + bizId + "\", \"module\": \"" + module + "\", \"action\": \"" + action
-                + "\", \"message\": \"" + message + "\", \"level\": \"" + level + "\", \"operator\": \"" + operator + "\", \"operatorId\": \"" + operatorId
-                + "\", \"result\": \"" + result + "\", \"stack\": \"" + stack + "\", \"threadName\": \"" + threadName + "\"}";
+                + "\", \"message\": \"" + ((message != null) ? message.getFormattedMessage() : null) + "\", \"level\": \"" + level + "\", \"operator\": \""
+                + operator + "\", \"operatorId\": \"" + operatorId + "\", \"result\": \"" + result + "\", \"stack\": \"" + stack + "\", \"threadName\": \""
+                + threadName + "\"}";
     }
 
 }

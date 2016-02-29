@@ -16,7 +16,7 @@
 package com.harmony.umbrella.log;
 
 import java.io.Serializable;
-import java.util.Calendar;
+import java.util.Map;
 
 /**
  * 日志信息Bean
@@ -44,7 +44,7 @@ public interface LogInfo {
      * 
      * @return
      */
-    String getMessage();
+    Message getMessage();
 
     /**
      * 日志的异常信息
@@ -72,14 +72,14 @@ public interface LogInfo {
      * 
      * @return
      */
-    Calendar getStartTime();
+    long getStartTime();
 
     /**
      * 记录结束事件
      * 
      * @return
      */
-    Calendar getFinishTime();
+    long getFinishTime();
 
     /**
      * 操作人
@@ -136,5 +136,7 @@ public interface LogInfo {
      * @return
      */
     String getThreadName();
+
+    Map<String, Object> getContext();
 
 }

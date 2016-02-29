@@ -15,7 +15,10 @@
  */
 package com.harmony.umbrella.log;
 
-import com.harmony.umbrella.log.support.Log4jLogAdapter;
+import java.util.ServiceLoader;
+
+import com.harmony.umbrella.log.spi.LogProvider;
+import com.harmony.umbrella.log.support.Log4j2LogProvider;
 
 /**
  * 
@@ -23,7 +26,7 @@ import com.harmony.umbrella.log.support.Log4jLogAdapter;
  */
 public class Logs {
 
-    private static LogAdapter adapter;
+    private static LogProvider adapter;
 
     static {
         init();
@@ -31,7 +34,14 @@ public class Logs {
 
     public static void init() {
         // TODO 加载类路径下的日志适配器 
-        adapter = new Log4jLogAdapter();
+        ServiceLoader<LogProvider> providers = ServiceLoader.load(LogProvider.class);
+        for (LogProvider provider : providers) {
+            adapter = provider;
+            break;
+        }
+        if (adapter == null) {
+            adapter = new Log4j2LogProvider();
+        }
     }
 
     /**

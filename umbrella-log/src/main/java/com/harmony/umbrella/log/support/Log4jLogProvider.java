@@ -19,12 +19,14 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 import com.harmony.umbrella.log.Log;
-import com.harmony.umbrella.log.LogAdapter;
+import com.harmony.umbrella.log.LogInfo;
+import com.harmony.umbrella.log.Message;
+import com.harmony.umbrella.log.spi.LogProvider;
 
 /**
  * @author wuxii@foxmail.com
  */
-public class Log4jLogAdapter implements LogAdapter {
+public class Log4jLogProvider implements LogProvider {
 
     @Override
     public Log getLogger(String className) {
@@ -36,7 +38,7 @@ public class Log4jLogAdapter implements LogAdapter {
         public static final String SELF_FQCN = Log4jLog.class.getName();
 
         public static final String SUPER_FQCN = AbstractLog.class.getName();
-        
+
         private final String callerFQCN;
 
         private final Logger logger;
@@ -66,8 +68,13 @@ public class Log4jLogAdapter implements LogAdapter {
         }
 
         @Override
-        protected void log(String message, com.harmony.umbrella.log.Level level, Throwable exception) {
-            logger.log(callerFQCN, exchange(level), message, exception);
+        protected void logMessage(com.harmony.umbrella.log.Level level, Message message, Throwable t) {
+            logger.log(callerFQCN, exchange(level), message.getFormattedMessage(), t);
+        }
+
+        @Override
+        protected void logMessage(com.harmony.umbrella.log.Level level, LogInfo logInfo) {
+            logger.log(callerFQCN, exchange(level), logInfo, logInfo.getException());
         }
 
         private Level exchange(com.harmony.umbrella.log.Level level) {
