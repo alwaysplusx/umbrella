@@ -20,6 +20,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Map;
 
+import com.harmony.umbrella.log.Level.StandardLevel;
 import com.harmony.umbrella.log.util.StackUtils;
 
 /**
@@ -244,6 +245,11 @@ public class LogMessage {
         return this;
     }
 
+    public LogMessage level(StandardLevel level) {
+        this.level = Level.toLevel(level.name());
+        return this;
+    }
+
     public LogMessage currentStack() {
         this.stack = StackUtils.fullyQualifiedClassName(LogMessage.LOGMESSAGE_FQNC, 1);
         return this;
@@ -283,21 +289,26 @@ public class LogMessage {
         Log relative = log.relative(LOGMESSAGE_FQNC);
         LogInfo msg = asInfo();
 
-        switch (level) {
-        case TRACE:
-            relative.trace(msg);
-            break;
-        case DEBUG:
-            relative.debug(msg);
-            break;
-        case INFO:
-            relative.info(msg);
+        switch (level.standardLevel) {
+        case ERROR:
+            relative.error(msg);
             break;
         case WARN:
             relative.warn(msg);
             break;
-        case ERROR:
-            relative.error(msg);
+        case INFO:
+            relative.info(msg);
+            break;
+        case DEBUG:
+            relative.debug(msg);
+            break;
+        case ALL:
+        case TRACE:
+            relative.trace(msg);
+            break;
+        case OFF:
+            break;
+        default:
             break;
         }
     }

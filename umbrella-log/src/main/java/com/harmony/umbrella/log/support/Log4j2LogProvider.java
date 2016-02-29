@@ -83,7 +83,7 @@ public class Log4j2LogProvider implements LogProvider {
         }
 
         private org.apache.logging.log4j.Level exchange(Level level) {
-            switch (level) {
+            switch (level.getStandardLevel()) {
             case DEBUG:
                 return org.apache.logging.log4j.Level.DEBUG;
             case ERROR:
@@ -94,6 +94,10 @@ public class Log4j2LogProvider implements LogProvider {
                 return org.apache.logging.log4j.Level.TRACE;
             case WARN:
                 return org.apache.logging.log4j.Level.WARN;
+            case ALL:
+                return org.apache.logging.log4j.Level.ALL;
+            case OFF:
+                return org.apache.logging.log4j.Level.OFF;
             }
             return org.apache.logging.log4j.Level.INFO;
         }

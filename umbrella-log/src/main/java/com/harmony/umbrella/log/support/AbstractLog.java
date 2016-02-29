@@ -31,8 +31,8 @@ public abstract class AbstractLog implements Log {
     protected final MessageFactory messageFactory;
 
     protected boolean isTraceEnabled = false;
-    protected boolean isDebugEnabled = false;
-    protected boolean isInfoEnabled = false;
+    protected boolean isDebugEnabled = true;
+    protected boolean isInfoEnabled = true;
     protected boolean isWarnEnabled = true;
     protected boolean isErrorEnabled = true;
 
@@ -129,17 +129,20 @@ public abstract class AbstractLog implements Log {
         if (level == null) {
             return isInfoEnabled();
         }
-        switch (level) {
+        switch (level.getStandardLevel()) {
+        case ERROR:
+            return isErrorEnabled();
+        case WARN:
+            return isWarnEnabled();
+        case INFO:
+            return isInfoEnabled();
+        case ALL:
         case TRACE:
             return isTraceEnabled();
         case DEBUG:
             return isDebugEnabled();
-        case INFO:
-            return isInfoEnabled();
-        case WARN:
-            return isWarnEnabled();
-        case ERROR:
-            return isErrorEnabled();
+        case OFF:
+            return false;
         }
         return isInfoEnabled();
     }

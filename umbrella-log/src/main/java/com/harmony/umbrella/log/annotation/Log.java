@@ -22,7 +22,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
 import com.harmony.umbrella.log.ErrorHandler;
-import com.harmony.umbrella.log.Level;
+import com.harmony.umbrella.log.Level.StandardLevel;
 import com.harmony.umbrella.log.LogFormat;
 
 @Target({ METHOD })
@@ -55,7 +55,7 @@ public @interface Log {
      * 
      * @return
      */
-    Level level() default Level.INFO;
+    StandardLevel level() default StandardLevel.INFO;
 
     /**
      * id所在的位置

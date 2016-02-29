@@ -15,10 +15,13 @@
  */
 package com.harmony.umbrella.log;
 
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ServiceLoader;
 
 import com.harmony.umbrella.log.spi.LogProvider;
-import com.harmony.umbrella.log.support.Log4j2LogProvider;
+import com.harmony.umbrella.log.support.AbstractLog;
+import com.harmony.umbrella.log.util.StackUtils;
 
 /**
  * 
@@ -26,21 +29,20 @@ import com.harmony.umbrella.log.support.Log4j2LogProvider;
  */
 public class Logs {
 
-    private static LogProvider adapter;
+    private static LogProvider logProvider;
 
     static {
         init();
     }
 
     public static void init() {
-        // TODO 加载类路径下的日志适配器 
         ServiceLoader<LogProvider> providers = ServiceLoader.load(LogProvider.class);
         for (LogProvider provider : providers) {
-            adapter = provider;
+            logProvider = provider;
             break;
         }
-        if (adapter == null) {
-            adapter = new Log4j2LogProvider();
+        if (logProvider == null) {
+            logProvider = new SystemLogProvider();
         }
     }
 
@@ -51,7 +53,7 @@ public class Logs {
      */
     public static Log getLog() {
         StackTraceElement[] sts = Thread.currentThread().getStackTrace();
-        return adapter.getLogger(sts[2].getClassName());
+        return logProvider.getLogger(sts[2].getClassName());
     }
 
     /**
@@ -62,7 +64,7 @@ public class Logs {
      * @return log
      */
     public static Log getLog(Class<?> clazz) {
-        return adapter.getLogger(clazz.getName());
+        return logProvider.getLogger(clazz.getName());
     }
 
     /**
@@ -73,7 +75,67 @@ public class Logs {
      * @return log
      */
     public static Log getLog(String className) {
-        return adapter.getLogger(className);
+        return logProvider.getLogger(className);
     }
 
+    static class SystemLogProvider implements LogProvider {
+
+        @Override
+        public Log getLogger(String className) {
+            return new SystemLog(className);
+        }
+
+    }
+
+    static class SystemLog extends AbstractLog {
+
+        private static final OutputStream out = System.out;
+        private static final OutputStream err = System.err;
+
+        public SystemLog(String className) {
+            super(className);
+        }
+
+        public SystemLog(String className, Object obj) {
+            super(className);
+        }
+
+        @Override
+        public Log relative(Object relativeProperties) {
+            return this;
+        }
+
+        @Override
+        protected void logMessage(Level level, Message message, Throwable t) {
+            print(level, message.getFormattedMessage());
+        }
+
+        @Override
+        protected void logMessage(Level level, LogInfo logInfo) {
+            print(level, logInfo.toString());
+        }
+
+        private void print(Level level, String message) {
+            OutputStream stream;
+
+            if (level.isMoreSpecificThan(Level.WARN)) {
+                stream = err;
+            } else {
+                stream = out;
+            }
+
+            String threadName = Thread.currentThread().getName();
+            String levelName = level.getName();
+
+            StringBuilder sb = new StringBuilder();
+            sb.append("[").append(threadName).append("] [").append(levelName).append("] ");
+            sb.append(StackUtils.fullyQualifiedClassName(AbstractLog.class.getName(), 1)).append("- ").append(message).append("\n");
+
+            try {
+                stream.write(sb.toString().getBytes());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 }

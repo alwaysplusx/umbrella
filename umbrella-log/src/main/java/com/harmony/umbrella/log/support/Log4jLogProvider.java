@@ -78,23 +78,23 @@ public class Log4jLogProvider implements LogProvider {
         }
 
         private Level exchange(com.harmony.umbrella.log.Level level) {
-            if (level == com.harmony.umbrella.log.Level.TRACE) {
-                return Level.TRACE;
-            }
-            if (level == com.harmony.umbrella.log.Level.DEBUG) {
-                return Level.DEBUG;
-            }
-            if (level == com.harmony.umbrella.log.Level.INFO) {
-                return Level.INFO;
-            }
-            if (level == com.harmony.umbrella.log.Level.WARN) {
-                return Level.WARN;
-            }
-            if (level == com.harmony.umbrella.log.Level.ERROR) {
+            switch (level.getStandardLevel()) {
+            case ERROR:
                 return Level.ERROR;
+            case WARN:
+                return Level.WARN;
+            case INFO:
+                return Level.INFO;
+            case ALL:
+                return Level.ALL;
+            case TRACE:
+                return Level.TRACE;
+            case DEBUG:
+                return Level.DEBUG;
+            case OFF:
+                return Level.OFF;
             }
             return Level.INFO;
         }
-
     }
 }

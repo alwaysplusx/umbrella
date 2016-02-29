@@ -31,9 +31,9 @@ public class LogPrinter {
 
     public static void main(String[] args) {
         
-        // log.info("do save success, data is {0}", "123123123");
+        log.info("do save success, data is {}", "123123123");
         
-        // log.error(new Exception("this is wrong"));
+        log.error(new Exception("this is wrong"));
 
         LogMessage.create(log)
         .bizId(1L)
