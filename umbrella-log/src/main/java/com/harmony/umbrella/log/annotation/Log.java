@@ -23,7 +23,6 @@ import java.lang.annotation.Target;
 
 import com.harmony.umbrella.log.ErrorHandler;
 import com.harmony.umbrella.log.Level.StandardLevel;
-import com.harmony.umbrella.log.LogFormat;
 
 @Target({ METHOD })
 @Retention(RUNTIME)
@@ -31,67 +30,38 @@ public @interface Log {
 
     /**
      * 模块
-     * 
-     * @return
      */
     String module() default "";
 
     /**
      * 业务模块
-     * 
-     * @return
      */
     String bizModule() default "";
 
     /**
      * 操作名称
-     * 
-     * @return
      */
     String action() default "";
 
     /**
      * 日志级别
-     * 
-     * @return
      */
     StandardLevel level() default StandardLevel.INFO;
 
     /**
-     * id所在的位置
-     * 
-     * @return
+     * id所在的位置或名称
      */
     String id() default "";
-
-    /**
-     * id对应的类
-     * 
-     * @return
-     */
-    Class<?> idClass() default Void.class;
 
     /**
      * 日志消息
      * <p>
      * 可以通过模版的方式对消息日志进行装配
-     * 
-     * @return
      */
     String message() default "";
 
     /**
-     * 整体消息格式输出
-     * 
-     * @return
-     */
-    @SuppressWarnings("rawtypes")
-    Class<? extends LogFormat> logFormat() default LogFormat.class;
-
-    /**
      * 异常处理
-     * 
-     * @return
      */
     Class<? extends ErrorHandler> errorHandler() default ErrorHandler.class;
 

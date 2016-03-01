@@ -19,6 +19,7 @@ package com.harmony.umbrella.log.message;
 import com.harmony.umbrella.log.Message;
 import com.harmony.umbrella.log.MessageFactory;
 
+
 /**
  * Enables use of <code>{}</code> parameter markers in message strings.
  * <p>

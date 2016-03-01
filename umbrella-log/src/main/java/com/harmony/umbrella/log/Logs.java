@@ -21,6 +21,7 @@ import java.util.ServiceLoader;
 
 import com.harmony.umbrella.log.spi.LogProvider;
 import com.harmony.umbrella.log.support.AbstractLog;
+import com.harmony.umbrella.log.support.Log4jLogProvider;
 import com.harmony.umbrella.log.util.StackUtils;
 
 /**
@@ -42,7 +43,7 @@ public class Logs {
             break;
         }
         if (logProvider == null) {
-            logProvider = new SystemLogProvider();
+            logProvider = new Log4jLogProvider();
         }
     }
 
@@ -92,17 +93,21 @@ public class Logs {
         private static final OutputStream out = System.out;
         private static final OutputStream err = System.err;
 
+        private String callerFQCN;
+
         public SystemLog(String className) {
             super(className);
+            this.callerFQCN = AbstractLog.class.getName();
         }
 
         public SystemLog(String className, Object obj) {
             super(className);
+            this.callerFQCN = (String) obj;
         }
 
         @Override
         public Log relative(Object relativeProperties) {
-            return this;
+            return new SystemLog(callerFQCN, relativeProperties);
         }
 
         @Override
@@ -129,7 +134,7 @@ public class Logs {
 
             StringBuilder sb = new StringBuilder();
             sb.append("[").append(threadName).append("] [").append(levelName).append("] ");
-            sb.append(StackUtils.fullyQualifiedClassName(AbstractLog.class.getName(), 1)).append("- ").append(message).append("\n");
+            sb.append(StackUtils.fullyQualifiedClassName(callerFQCN, 1)).append("- ").append(message).append("\n");
 
             try {
                 stream.write(sb.toString().getBytes());

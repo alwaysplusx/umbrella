@@ -20,7 +20,7 @@ import java.lang.reflect.Proxy;
 
 import org.junit.Test;
 
-import com.harmony.umbrella.log.aop.SimpleServiceProxy;
+import com.harmony.umbrella.log.proxy.SampleServiceProxy;
 
 /**
  * @author wuxii@foxmail.com
@@ -51,7 +51,7 @@ public class LogPrinter {
     @Test
     public void logTest() {
         SampleService service = (SampleService) Proxy.newProxyInstance(Thread.currentThread().getContextClassLoader(), new Class[] { SampleService.class },
-                new SimpleServiceProxy(new SampleServiceImpl()));
+                new SampleServiceProxy(new SampleServiceImpl()));
 
         service.save(new SampleEntity(123l));
     }

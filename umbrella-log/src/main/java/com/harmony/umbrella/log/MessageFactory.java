@@ -15,6 +15,8 @@
  */
 package com.harmony.umbrella.log;
 
+import com.harmony.umbrella.log.message.ParameterizedMessageFactory;
+
 /**
  * @author wuxii@foxmail.com
  */
@@ -50,4 +52,5 @@ public interface MessageFactory {
      * @see StringFormatterMessageFactory
      */
     Message newMessage(String message, Object... params);
+
 }

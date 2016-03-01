@@ -15,28 +15,21 @@
  */
 package com.harmony.umbrella.log;
 
-import java.lang.reflect.Proxy;
-
-import org.junit.Test;
-
-import com.harmony.umbrella.log.proxy.SampleServiceProxy;
+import java.io.Serializable;
 
 /**
  * @author wuxii@foxmail.com
  */
-public class SampleServiceImpl implements SampleService {
+public interface Template {
 
-    @Override
-    public String save(SampleEntity entity) {
-        return "success";
-    }
+    char DELIM_START = '{';
 
-    @Test
-    public void testProxyLog() {
-        ClassLoader cl = Thread.currentThread().getContextClassLoader();
+    char DELIM_END = '}';
 
-        SampleService proxy = (SampleService) Proxy.newProxyInstance(cl, new Class[] { SampleService.class }, new SampleServiceProxy(new SampleServiceImpl()));
+    char ESCAPE_CHAR = '\\';
 
-        proxy.save(new SampleEntity(1l));
-    }
+    Message newMessage(Object target, Object result, Object[] params);
+
+    <T extends Serializable> T getId(Object target, Object result, Object[] params);
+
 }
