@@ -20,18 +20,19 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Stack;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
+
+import com.harmony.umbrella.log.Log;
+import com.harmony.umbrella.log.Logs;
 
 /**
  * @author wuxii@foxmail.com
  */
 public class RssHandler extends DefaultHandler {
 
-    private static final Logger log = LoggerFactory.getLogger(RssHandler.class);
+    private static final Log log = Logs.getLog(RssHandler.class);
     public static final String CHANNEL = "channel";
     public static final String ITEM = "item";
 

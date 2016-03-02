@@ -17,8 +17,8 @@ package com.harmony.umbrella.ws.ext;
 
 import java.lang.reflect.Method;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.harmony.umbrella.log.Log;
+import com.harmony.umbrella.log.Logs;
 
 import com.harmony.umbrella.json.Json;
 import com.harmony.umbrella.monitor.MethodGraph;
@@ -37,7 +37,7 @@ import com.harmony.umbrella.ws.visitor.AbstractContextVisitor;
  */
 public class HarmonyContextVisitor extends AbstractContextVisitor {
 
-    private static final Logger log = LoggerFactory.getLogger(HarmonyContextVisitor.class);
+    private static final Log log = Logs.getLog(HarmonyContextVisitor.class);
 
     @Override
     public void visitFinally(Object result, Throwable throwable, final Context context) {

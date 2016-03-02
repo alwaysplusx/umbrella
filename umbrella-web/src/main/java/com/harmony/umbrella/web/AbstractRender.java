@@ -19,15 +19,15 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.harmony.umbrella.log.Log;
+import com.harmony.umbrella.log.Logs;
 
 /**
  * @author wuxii@foxmail.com
  */
 public abstract class AbstractRender implements Render {
 
-    protected static final Logger LOG = LoggerFactory.getLogger(Render.class);
+    protected static final Log LOG = Logs.getLog(Render.class);
 
     @Override
     public void render(byte[] buf, OutputStream out) throws IOException {

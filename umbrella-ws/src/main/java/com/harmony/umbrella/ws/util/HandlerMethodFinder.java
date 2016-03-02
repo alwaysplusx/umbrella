@@ -29,8 +29,8 @@ import java.util.List;
 import java.util.Map;
 
 import com.harmony.umbrella.UmbrellaProperties;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.harmony.umbrella.log.Log;
+import com.harmony.umbrella.log.Logs;
 
 import com.harmony.umbrella.io.ResourceManager;
 import com.harmony.umbrella.util.ClassUtils;
@@ -46,7 +46,7 @@ import com.harmony.umbrella.ws.WebServiceAbortException;
  */
 public class HandlerMethodFinder {
 
-    private static final Logger log = LoggerFactory.getLogger(HandlerMethodFinder.class);
+    private static final Log log = Logs.getLog(HandlerMethodFinder.class);
 
     private final Class<?>[] handlerClasses;
 

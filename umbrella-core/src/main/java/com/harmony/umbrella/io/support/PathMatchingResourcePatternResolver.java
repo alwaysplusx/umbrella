@@ -30,14 +30,13 @@ import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.harmony.umbrella.io.DefaultResourceLoader;
 import com.harmony.umbrella.io.FileSystemResource;
 import com.harmony.umbrella.io.Resource;
 import com.harmony.umbrella.io.ResourceLoader;
 import com.harmony.umbrella.io.UrlResource;
+import com.harmony.umbrella.log.Log;
+import com.harmony.umbrella.log.Logs;
 import com.harmony.umbrella.util.AntPathMatcher;
 import com.harmony.umbrella.util.PathMatcher;
 import com.harmony.umbrella.util.ResourceUtils;
@@ -160,7 +159,7 @@ import com.harmony.umbrella.util.StringUtils;
  */
 public class PathMatchingResourcePatternResolver implements ResourcePatternResolver {
 
-    private static final Logger logger = LoggerFactory.getLogger(PathMatchingResourcePatternResolver.class);
+    private static final Log logger = Logs.getLog(PathMatchingResourcePatternResolver.class);
 
     private final ResourceLoader resourceLoader;
 

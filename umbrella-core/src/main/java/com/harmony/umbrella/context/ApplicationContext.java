@@ -28,14 +28,13 @@ import java.util.Set;
 
 import javax.servlet.ServletContext;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.harmony.umbrella.context.ApplicationMetadata.DBInformation;
 import com.harmony.umbrella.context.ApplicationMetadata.JVMInformation;
 import com.harmony.umbrella.context.ApplicationMetadata.OSInformation;
 import com.harmony.umbrella.context.ApplicationMetadata.ServerInformation;
 import com.harmony.umbrella.core.BeanFactory;
+import com.harmony.umbrella.log.Log;
+import com.harmony.umbrella.log.Logs;
 import com.harmony.umbrella.util.PropUtils;
 
 /**
@@ -52,7 +51,7 @@ public abstract class ApplicationContext implements BeanFactory {
 
     protected static final ThreadLocal<CurrentContext> current = new InheritableThreadLocal<CurrentContext>();
 
-    protected static final Logger LOG = LoggerFactory.getLogger(ApplicationContext.class);
+    protected static final Log LOG = Logs.getLog(ApplicationContext.class);
 
     private static final ServiceLoader<ContextProvider> providers = ServiceLoader.load(ContextProvider.class);
 

@@ -17,8 +17,8 @@ package com.harmony.umbrella.ws.cxf;
 
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.service.invoker.AbstractInvoker;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.harmony.umbrella.log.Log;
+import com.harmony.umbrella.log.Logs;
 
 import com.harmony.umbrella.core.BeanFactory;
 import com.harmony.umbrella.core.NoSuchBeanFindException;
@@ -30,7 +30,7 @@ import com.harmony.umbrella.ws.jaxws.JaxWsServerBuilder.BeanFactoryInvoker;
  */
 public class SimpleBeanFactoryInvoker extends AbstractInvoker implements BeanFactoryInvoker {
 
-    private static final Logger log = LoggerFactory.getLogger(SimpleBeanFactoryInvoker.class);
+    private static final Log log = Logs.getLog(SimpleBeanFactoryInvoker.class);
     protected final Class<?> serviceClass;
     private BeanFactory beanFactory;
 

@@ -28,9 +28,6 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.harmony.umbrella.monitor.HttpAttacker;
 import com.harmony.umbrella.monitor.attack.SimpleHttpAttacker;
 import com.harmony.umbrella.monitor.graph.DefaultHttpGraph;
@@ -45,7 +42,6 @@ import com.harmony.umbrella.util.StringUtils;
  */
 public class HttpMonitorFilter extends AbstractHttpMonitor<FilterChain> implements Filter {
 
-    protected static final Logger LOG = LoggerFactory.getLogger(HttpMonitorFilter.class);
     private HttpAttacker httpAttacker = new SimpleHttpAttacker();
 
     private boolean raiseError;

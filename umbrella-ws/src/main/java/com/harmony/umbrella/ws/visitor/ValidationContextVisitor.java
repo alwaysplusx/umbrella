@@ -19,8 +19,8 @@ import static com.harmony.umbrella.ws.Phase.*;
 
 import java.io.Serializable;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.harmony.umbrella.log.Log;
+import com.harmony.umbrella.log.Logs;
 
 import com.harmony.umbrella.UmbrellaProperties;
 import com.harmony.umbrella.core.BeanFactory;
@@ -43,7 +43,7 @@ public class ValidationContextVisitor extends AbstractContextVisitor implements 
 
     private static final long serialVersionUID = 3905871275755920058L;
 
-    private final static Logger log = LoggerFactory.getLogger(ValidationContextVisitor.class);
+    private static final Log log = Logs.getLog(ValidationContextVisitor.class);
 
     protected static final String defaultPackage = UmbrellaProperties.DEFAULT_PACKAGE;
 

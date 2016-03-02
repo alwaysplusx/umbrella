@@ -15,8 +15,8 @@
  */
 package com.harmony.umbrella.scheduling.jmx;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.harmony.umbrella.log.Log;
+import com.harmony.umbrella.log.Logs;
 
 import com.harmony.umbrella.scheduling.Scheduler;
 import com.harmony.umbrella.scheduling.SchedulerException;
@@ -30,7 +30,7 @@ import com.harmony.umbrella.scheduling.SchedulerException;
  */
 public class JMXSchedule implements JMXScheduleMBean {
 
-    private static final Logger log = LoggerFactory.getLogger(JMXSchedule.class);
+    private static final Log log = Logs.getLog(JMXSchedule.class);
     private Scheduler scheduler;
 
     @Override

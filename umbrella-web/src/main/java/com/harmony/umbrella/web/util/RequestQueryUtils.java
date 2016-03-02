@@ -36,7 +36,7 @@ import com.harmony.umbrella.util.StringUtils;
  */
 public class RequestQueryUtils {
 
-    //private static final Logger log = LoggerFactory.getLogger(RequestQueryUtils.class);
+    //private static final Log log = Logs.getLog(RequestQueryUtils.class);
 
     private static final Map<String, Link> linkMap = new HashMap<String, Link>();
     private static final Map<String, Operator> operatorMap = new HashMap<String, Operator>();

@@ -21,8 +21,8 @@ import javax.servlet.ServletException;
 import javax.ws.rs.Path;
 
 import org.apache.cxf.transport.servlet.CXFNonSpringServlet;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.harmony.umbrella.log.Log;
+import com.harmony.umbrella.log.Logs;
 
 import com.harmony.umbrella.UmbrellaProperties;
 import com.harmony.umbrella.io.ResourceManager;
@@ -39,7 +39,7 @@ public class WebServiceServlet extends CXFNonSpringServlet {
 
     private static final long serialVersionUID = 1907515077730725429L;
 
-    private static final Logger log = LoggerFactory.getLogger(WebServiceServlet.class);
+    private static final Log log = Logs.getLog(WebServiceServlet.class);
 
     /**
      * 根据web.xml中filter的启动参数scan-package来设置扫描路径

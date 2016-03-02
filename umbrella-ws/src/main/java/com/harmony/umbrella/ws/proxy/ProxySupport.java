@@ -22,8 +22,8 @@ import java.util.Map;
 
 import javax.xml.ws.WebServiceException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.harmony.umbrella.log.Log;
+import com.harmony.umbrella.log.Logs;
 
 import com.harmony.umbrella.util.Assert;
 import com.harmony.umbrella.util.StringUtils;
@@ -47,7 +47,7 @@ public abstract class ProxySupport<T> implements Proxy<T> {
 
     public static final String SERVICE_METHOD_NAME = ProxySupport.class.getName() + ".serviceMethodName";
 
-    private static final Logger log = LoggerFactory.getLogger(ProxySupport.class);
+    private static final Log log = Logs.getLog(ProxySupport.class);
 
     /**
      * 执行上下文的发送者支持

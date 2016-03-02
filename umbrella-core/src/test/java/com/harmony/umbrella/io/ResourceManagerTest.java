@@ -16,15 +16,16 @@
 package com.harmony.umbrella.io;
 
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import com.harmony.umbrella.log.Log;
+import com.harmony.umbrella.log.Logs;
 
 /**
  * @author wuxii@foxmail.com
  */
 public class ResourceManagerTest {
 
-    private static final Logger log = LoggerFactory.getLogger(ResourceManagerTest.class);
+    private static final Log log = Logs.getLog(ResourceManagerTest.class);
 
     @Test
     public void test() {

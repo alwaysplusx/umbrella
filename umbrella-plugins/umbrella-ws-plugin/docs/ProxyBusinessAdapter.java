@@ -21,8 +21,8 @@ import java.util.Map;
 
 import javax.xml.ws.WebServiceException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.harmony.umbrella.log.Log;
+import com.harmony.umbrella.log.Logs;
 
 import com.harmony.umbrella.biz.AbstractBusiness;
 import com.harmony.umbrella.data.domain.Model;
@@ -38,7 +38,7 @@ import com.harmony.umbrella.ws.support.SimpleContext;
  */
 public abstract class ProxyBusinessAdapter<T extends Model<ID>, ID extends Serializable> extends AbstractBusiness<T, ID> implements ProxyBusiness<T, ID> {
 
-    private static final Logger log = LoggerFactory.getLogger(ProxySupport.class);
+    private static final Log log = Logs.getLog(ProxySupport.class);
 
     /**
      * 执行上下文的发送者支持

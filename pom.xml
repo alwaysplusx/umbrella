@@ -60,6 +60,8 @@ under the License.
     <!-- <module>examples</module> -->
     <!-- <module>umbrella-bang</module> -->
     <module>umbrella-notify</module>
+    <module>umbrella-log-log4j</module>
+    <module>umbrella-log-log4j2</module>
   </modules>
 
 

@@ -19,8 +19,8 @@ import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.harmony.umbrella.log.Log;
+import com.harmony.umbrella.log.Logs;
 
 import com.harmony.umbrella.ee.WrappedBeanHandler;
 
@@ -29,7 +29,7 @@ import com.harmony.umbrella.ee.WrappedBeanHandler;
  */
 public class WebLogicContextResolver extends InternalContextResolver {
 
-    private static final Logger log = LoggerFactory.getLogger(WebLogicContextResolver.class);
+    private static final Log log = Logs.getLog(WebLogicContextResolver.class);
     private static final Set<WrappedBeanHandler> handlers = new HashSet<WrappedBeanHandler>();
 
     static {

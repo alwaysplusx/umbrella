@@ -28,8 +28,8 @@ import javax.naming.NameClassPair;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.harmony.umbrella.log.Log;
+import com.harmony.umbrella.log.Logs;
 
 import com.harmony.umbrella.ee.BeanDefinition;
 import com.harmony.umbrella.ee.BeanFilter;
@@ -44,7 +44,7 @@ import com.harmony.umbrella.util.ClassUtils;
  */
 public class InternalContextResolver extends ConfigurationBeanResolver implements ContextResolver {
 
-    private static final Logger log = LoggerFactory.getLogger(InternalContextResolver.class);
+    private static final Log log = Logs.getLog(InternalContextResolver.class);
     // class - jndi
     private final Map<Class<?>, Set<String>> fastCache = new HashMap<Class<?>, Set<String>>();
     private final Set<String> roots = new HashSet<String>();

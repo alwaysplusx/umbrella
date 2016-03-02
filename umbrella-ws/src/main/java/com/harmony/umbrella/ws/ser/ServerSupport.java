@@ -31,8 +31,8 @@ import java.util.Map.Entry;
 
 import javax.validation.groups.Default;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.harmony.umbrella.log.Log;
+import com.harmony.umbrella.log.Logs;
 
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.harmony.umbrella.context.ApplicationContext;
@@ -58,7 +58,7 @@ import com.harmony.umbrella.ws.ser.ServerValidation.MemberInvoker;
  */
 public abstract class ServerSupport {
 
-    protected static final Logger LOG = LoggerFactory.getLogger(ServerSupport.class);
+    protected static final Log LOG = Logs.getLog(ServerSupport.class);
 
     public static final String MESSAG_ERROR = "{harmony.server.error}";
     public static final String MESSAGE_SUCCESS = "{harmony.server.success}";

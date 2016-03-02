@@ -25,12 +25,11 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.harmony.umbrella.asm.ClassReader;
 import com.harmony.umbrella.io.support.PathMatchingResourcePatternResolver;
 import com.harmony.umbrella.io.support.ResourcePatternResolver;
+import com.harmony.umbrella.log.Log;
+import com.harmony.umbrella.log.Logs;
 import com.harmony.umbrella.util.AntPathMatcher;
 import com.harmony.umbrella.util.Assert;
 import com.harmony.umbrella.util.ClassUtils;
@@ -46,7 +45,7 @@ import com.harmony.umbrella.util.StringUtils;
  */
 class ResourceScaner {
 
-    private final static Logger log = LoggerFactory.getLogger(ResourceScaner.class);
+    private final static Log log = Logs.getLog(ResourceScaner.class);
 
     private static final List<String> extensions = Arrays.asList(".class", ".xml", ".properties");
 

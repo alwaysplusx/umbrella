@@ -21,8 +21,8 @@ import java.util.concurrent.FutureTask;
 
 import javax.xml.ws.WebServiceException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.harmony.umbrella.log.Log;
+import com.harmony.umbrella.log.Logs;
 
 import com.harmony.umbrella.ws.jaxws.JaxWsExecutor;
 
@@ -33,7 +33,7 @@ import com.harmony.umbrella.ws.jaxws.JaxWsExecutor;
  */
 public abstract class ProxyExecutorSupport implements JaxWsExecutor {
 
-    protected static final Logger LOG = LoggerFactory.getLogger(ProxyExecutorSupport.class);
+    protected static final Log LOG = Logs.getLog(ProxyExecutorSupport.class);
 
     /**
      * 标记执行出现错误是抛出还是隐藏

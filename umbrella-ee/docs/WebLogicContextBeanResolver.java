@@ -25,8 +25,8 @@ import javax.naming.NameClassPair;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.harmony.umbrella.log.Log;
+import com.harmony.umbrella.log.Logs;
 
 import com.harmony.umbrella.context.ee.BeanDefinition;
 import com.harmony.umbrella.context.ee.ContextBean;
@@ -39,7 +39,7 @@ import com.harmony.umbrella.context.ee.resolver.AbstractContextBeanResolver;
  */
 public class WebLogicContextBeanResolver extends AbstractContextBeanResolver {
 
-    private static final Logger log = LoggerFactory.getLogger(WebLogicContextBeanResolver.class);
+    private static final Log log = Logs.getLog(WebLogicContextBeanResolver.class);
     private static final Set<WrappedBeanHandler> handlers = new HashSet<WrappedBeanHandler>();
     private long waitTime;
     private static final AtomicLong searchThreadCount = new AtomicLong();

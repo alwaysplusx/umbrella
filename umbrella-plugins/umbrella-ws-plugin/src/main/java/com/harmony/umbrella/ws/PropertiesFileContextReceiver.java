@@ -22,8 +22,8 @@ import javax.ejb.EJB;
 import javax.ejb.Remote;
 import javax.ejb.Singleton;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.harmony.umbrella.log.Log;
+import com.harmony.umbrella.log.Logs;
 
 import com.harmony.umbrella.core.SimpleBeanFactory;
 import com.harmony.umbrella.message.MessageResolver;
@@ -44,7 +44,7 @@ public class PropertiesFileContextReceiver extends AbstractJaxWsContextReceiver 
 
     protected final static String JAXWS_HANDLERS_LOCATION = "META-INF/jaxws/jaxws-receiver.txt";
 
-    protected static final Logger log = LoggerFactory.getLogger(PropertiesFileContextReceiver.class);
+    private static final Log log = Logs.getLog(PropertiesFileContextReceiver.class);
 
     /**
      * 用于加载用户名密码地址

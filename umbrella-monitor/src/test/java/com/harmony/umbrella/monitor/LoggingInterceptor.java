@@ -19,8 +19,8 @@ import javax.interceptor.AroundInvoke;
 import javax.interceptor.Interceptor;
 import javax.interceptor.InvocationContext;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.harmony.umbrella.log.Log;
+import com.harmony.umbrella.log.Logs;
 
 import com.harmony.umbrella.monitor.support.EJBMethodInterceptor;
 
@@ -30,7 +30,7 @@ import com.harmony.umbrella.monitor.support.EJBMethodInterceptor;
 @Interceptor
 public class LoggingInterceptor extends EJBMethodInterceptor {
 
-    private static final Logger log = LoggerFactory.getLogger(LoggingInterceptor.class);
+    private static final Log log = Logs.getLog(LoggingInterceptor.class);
 
     public LoggingInterceptor() {
         this.policy = MonitorPolicy.All;

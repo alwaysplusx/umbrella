@@ -26,8 +26,8 @@ import java.util.Map;
 
 import javax.validation.groups.Default;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.harmony.umbrella.log.Log;
+import com.harmony.umbrella.log.Logs;
 
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.harmony.umbrella.core.InvokeException;
@@ -47,7 +47,7 @@ import com.harmony.umbrella.ws.Key;
  */
 public abstract class ServerValidation {
 
-    private static final Logger log = LoggerFactory.getLogger(ServerValidation.class);
+    private static final Log log = Logs.getLog(ServerValidation.class);
 
     public static boolean isValid(Object obj, MessageContent content) {
         return isValid(obj, content, Default.class);

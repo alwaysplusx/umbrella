@@ -29,9 +29,8 @@ import io.netty.handler.codec.serialization.ClassResolvers;
 import io.netty.handler.codec.serialization.ObjectDecoder;
 import io.netty.handler.codec.serialization.ObjectEncoder;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import com.harmony.umbrella.log.Log;
+import com.harmony.umbrella.log.Logs;
 import com.harmony.umbrella.message.Message;
 import com.harmony.umbrella.message.MessageSender;
 
@@ -40,7 +39,7 @@ import com.harmony.umbrella.message.MessageSender;
  */
 public class ChannelHandlerMessageSender implements MessageSender {
 
-    private static final Logger log = LoggerFactory.getLogger(ChannelHandlerMessageSender.class);
+    private static final Log log = Logs.getLog(ChannelHandlerMessageSender.class);
 
     protected final String host;
     protected final int port;

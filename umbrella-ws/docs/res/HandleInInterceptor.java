@@ -18,8 +18,8 @@ package com.harmony.umbrella.ws.cxf.interceptor;
 import java.lang.reflect.Method;
 
 import org.apache.cxf.message.Message;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.harmony.umbrella.log.Log;
+import com.harmony.umbrella.log.Logs;
 
 import com.harmony.umbrella.util.StringUtils;
 import com.harmony.umbrella.ws.Phase;
@@ -27,7 +27,7 @@ import com.harmony.umbrella.ws.util.HandleMethodInvoker;
 
 public class HandleInInterceptor extends AbstractHandleInterceptor {
 
-    private static final Logger log = LoggerFactory.getLogger(HandleInInterceptor.class);
+    private static final Log log = Logs.getLog(HandleInInterceptor.class);
 
     public HandleInInterceptor() {
         // super(POST_UNMARSHAL);

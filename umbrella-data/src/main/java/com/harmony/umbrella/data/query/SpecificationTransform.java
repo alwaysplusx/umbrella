@@ -39,8 +39,8 @@ import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.harmony.umbrella.log.Log;
+import com.harmony.umbrella.log.Logs;
 
 import com.harmony.umbrella.data.Bond;
 import com.harmony.umbrella.data.BondParser;
@@ -383,7 +383,7 @@ public class SpecificationTransform implements BondParser {
         });
     }
 
-    private static final Logger log = LoggerFactory.getLogger("com.harmony.umbrella.data.SQL");
+    private static final Log log = Logs.getLog("com.harmony.umbrella.data.SQL");
 
     private void logStatement(String message, String sql) {
         if (log.isDebugEnabled()) {

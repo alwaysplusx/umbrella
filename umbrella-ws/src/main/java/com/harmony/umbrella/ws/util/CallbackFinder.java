@@ -20,10 +20,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.harmony.umbrella.io.ResourceManager;
+import com.harmony.umbrella.log.Log;
+import com.harmony.umbrella.log.Logs;
 import com.harmony.umbrella.util.ClassUtils.ClassFilter;
 import com.harmony.umbrella.ws.SyncCallback;
 import com.harmony.umbrella.ws.Syncable;
@@ -35,7 +34,7 @@ import com.harmony.umbrella.ws.Syncable;
  */
 public class CallbackFinder {
 
-    private static final Logger log = LoggerFactory.getLogger(CallbackFinder.class);
+    private static final Log log = Logs.getLog(CallbackFinder.class);
 
     private final String basePackage;
 

@@ -15,20 +15,28 @@
  */
 package com.harmony.umbrella.ee.resolver;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Properties;
+import java.util.Set;
+import java.util.StringTokenizer;
+
+import javax.naming.Context;
+import javax.naming.NamingException;
+
 import com.harmony.umbrella.ee.BeanDefinition;
 import com.harmony.umbrella.ee.BeanFilter;
 import com.harmony.umbrella.ee.BeanResolver;
 import com.harmony.umbrella.ee.WrappedBeanHandler;
+import com.harmony.umbrella.log.Log;
+import com.harmony.umbrella.log.Logs;
 import com.harmony.umbrella.util.Assert;
 import com.harmony.umbrella.util.ClassUtils;
 import com.harmony.umbrella.util.ReflectionUtils;
 import com.harmony.umbrella.util.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.naming.Context;
-import javax.naming.NamingException;
-import java.util.*;
 
 /**
  * 通过配置配置的属性，来组合定义的bean
@@ -37,7 +45,7 @@ import java.util.*;
  */
 public class ConfigurationBeanResolver implements BeanResolver {
 
-    private static final Logger log = LoggerFactory.getLogger(ConfigurationBeanResolver.class);
+    private static final Log log = Logs.getLog(ConfigurationBeanResolver.class);
 
     /**
      * jndi的全局前缀

@@ -22,8 +22,8 @@ import java.util.Map;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.harmony.umbrella.log.Log;
+import com.harmony.umbrella.log.Logs;
 
 import com.harmony.umbrella.ws.Handler;
 import com.harmony.umbrella.ws.Handler.HandleMethod;
@@ -41,7 +41,7 @@ import com.harmony.umbrella.ws.visitor.ValidationContextVisitor;
  */
 public class JaxWsExecutorAndPhaseValTest {
 
-    private static final Logger log = LoggerFactory.getLogger(JaxWsExecutorAndPhaseValTest.class);
+    private static final Log log = Logs.getLog(JaxWsExecutorAndPhaseValTest.class);
     private static final String address = "http://localhost:8081/hello";
     private static final JaxWsExecutor executor = new JaxWsCXFExecutor();
 

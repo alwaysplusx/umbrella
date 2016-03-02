@@ -17,8 +17,8 @@ package com.harmony.umbrella.examples.eclipselink;
 
 import org.eclipse.persistence.logging.AbstractSessionLog;
 import org.eclipse.persistence.logging.SessionLogEntry;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.harmony.umbrella.log.Log;
+import com.harmony.umbrella.log.Logs;
 
 import com.harmony.umbrella.util.StringUtils;
 
@@ -27,7 +27,7 @@ import com.harmony.umbrella.util.StringUtils;
  */
 public class QueryLogger extends AbstractSessionLog {
 
-    private static final Logger log = LoggerFactory.getLogger(QueryLogger.class);
+    private static final Log log = Logs.getLog(QueryLogger.class);
 
     @Override
     public void log(SessionLogEntry entry) {

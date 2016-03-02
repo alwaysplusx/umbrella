@@ -15,8 +15,8 @@
  */
 package com.harmony.umbrella.xml;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.harmony.umbrella.log.Log;
+import com.harmony.umbrella.log.Logs;
 
 import com.ctc.wstx.stax.WstxInputFactory;
 
@@ -25,7 +25,7 @@ import com.ctc.wstx.stax.WstxInputFactory;
  */
 public class UmbrellaXMLInputFactory extends WstxInputFactory {
 
-    private static final Logger log = LoggerFactory.getLogger(UmbrellaXMLInputFactory.class);
+    private static final Log log = Logs.getLog(UmbrellaXMLInputFactory.class);
 
     @Override
     public void setProperty(String propName, Object value) {

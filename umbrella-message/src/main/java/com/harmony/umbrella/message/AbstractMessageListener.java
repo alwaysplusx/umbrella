@@ -17,15 +17,15 @@ package com.harmony.umbrella.message;
 
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.harmony.umbrella.log.Log;
+import com.harmony.umbrella.log.Logs;
 
 /**
  * @author wuxii@foxmail.com
  */
 public abstract class AbstractMessageListener implements MessageListener {
 
-    protected final static Logger LOG = LoggerFactory.getLogger(AbstractMessageListener.class);
+    protected static final Log LOG = Logs.getLog(AbstractMessageListener.class);
 
     public AbstractMessageListener() {
     }

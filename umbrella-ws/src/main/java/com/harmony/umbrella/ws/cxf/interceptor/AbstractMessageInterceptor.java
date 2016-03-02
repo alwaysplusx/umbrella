@@ -25,7 +25,6 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 import javax.xml.transform.stream.StreamSource;
 
-import com.harmony.umbrella.ws.cxf.log.LogMessageHandler;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.io.CachedOutputStream;
 import org.apache.cxf.message.Exchange;
@@ -34,17 +33,18 @@ import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.staxutils.PrettyPrintXMLStreamWriter;
 import org.apache.cxf.staxutils.StaxUtils;
 
+import com.harmony.umbrella.log.Log;
+import com.harmony.umbrella.log.Logs;
 import com.harmony.umbrella.util.StringUtils;
 import com.harmony.umbrella.ws.cxf.log.LogMessage;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.harmony.umbrella.ws.cxf.log.LogMessageHandler;
 
 /**
  * @author wuxii@foxmail.com
  */
 public abstract class AbstractMessageInterceptor extends AbstractPhaseInterceptor<Message> {
 
-    private static final Logger log = LoggerFactory.getLogger(AbstractMessageInterceptor.class);
+    private static final Log log = Logs.getLog(AbstractMessageInterceptor.class);
 
     protected boolean prettyLogging = true;
 

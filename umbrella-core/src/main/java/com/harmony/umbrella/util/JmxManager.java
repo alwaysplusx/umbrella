@@ -25,8 +25,8 @@ import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.harmony.umbrella.log.Log;
+import com.harmony.umbrella.log.Logs;
 
 /**
  * one class one jmx bean
@@ -37,7 +37,7 @@ public class JmxManager {
 
     public static final String DEFAULT_PREFIX = "com.harmony.umbrella.jmx";
     public static final String JMX_HTML_MBEAN_NAME = "com.harmony.umbrella.jmx:type=webConsole";
-    private static final Logger log = LoggerFactory.getLogger(JmxManager.class);
+    private static final Log log = Logs.getLog(JmxManager.class);
 
     private static JmxManager instance;
     private final MBeanServer server;

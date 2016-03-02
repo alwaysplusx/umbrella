@@ -22,8 +22,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.harmony.umbrella.log.Log;
+import com.harmony.umbrella.log.Logs;
 
 import com.harmony.umbrella.monitor.annotation.InternalProperty;
 
@@ -42,7 +42,7 @@ import com.harmony.umbrella.util.ReflectionUtils;
  */
 public abstract class AbstractMonitor<T> implements com.harmony.umbrella.monitor.Monitor<T> {
 
-    protected static final Logger LOG = LoggerFactory.getLogger(AbstractMonitor.class);
+    protected static final Log LOG = Logs.getLog(AbstractMonitor.class);
 
     /**
      * 受到监控的模版名单

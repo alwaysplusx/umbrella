@@ -31,9 +31,8 @@ import io.netty.handler.codec.serialization.ObjectEncoder;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import com.harmony.umbrella.log.Log;
+import com.harmony.umbrella.log.Logs;
 import com.harmony.umbrella.message.Message;
 import com.harmony.umbrella.message.MessageListener;
 
@@ -46,7 +45,7 @@ public class ChannelHandlerMessageListener extends ChannelHandlerAdapter impleme
 
     private int port = DEFAULT_PORT;
 
-    private static final Logger log = LoggerFactory.getLogger(ChannelHandlerMessageListener.class);
+    private static final Log log = Logs.getLog(ChannelHandlerMessageListener.class);
 
     private ChannelFuture channelFuture;
 

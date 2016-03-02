@@ -19,8 +19,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.harmony.umbrella.log.Log;
+import com.harmony.umbrella.log.Logs;
 
 /**
  * Scheduler基础抽象类
@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class AbstractScheduler<T extends Scheduler.JobInfo> implements Scheduler {
 
-	protected static final Logger log = LoggerFactory.getLogger(AbstractScheduler.class);
+	protected static final Log log = Logs.getLog(AbstractScheduler.class);
 
 	protected Map<String, T> jobInfoMap = new HashMap<String, T>();
 

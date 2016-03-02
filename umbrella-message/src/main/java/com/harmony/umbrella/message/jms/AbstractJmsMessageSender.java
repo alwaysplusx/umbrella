@@ -23,8 +23,8 @@ import javax.jms.MessageProducer;
 import javax.jms.ObjectMessage;
 import javax.jms.Session;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.harmony.umbrella.log.Log;
+import com.harmony.umbrella.log.Logs;
 
 import com.harmony.umbrella.message.Message;
 import com.harmony.umbrella.message.MessageSender;
@@ -36,7 +36,7 @@ import com.harmony.umbrella.message.MessageSender;
  */
 public abstract class AbstractJmsMessageSender implements MessageSender {
 
-    protected static final Logger log = LoggerFactory.getLogger(AbstractJmsMessageSender.class);
+    private static final Log log = Logs.getLog(AbstractJmsMessageSender.class);
 
     @Override
     public boolean send(Message message) {

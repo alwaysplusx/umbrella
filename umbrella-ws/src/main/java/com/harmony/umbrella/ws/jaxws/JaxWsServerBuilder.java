@@ -25,8 +25,8 @@ import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.jaxws.JaxWsServerFactoryBean;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.service.invoker.Invoker;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.harmony.umbrella.log.Log;
+import com.harmony.umbrella.log.Logs;
 
 import com.harmony.umbrella.core.BeanFactory;
 import com.harmony.umbrella.core.NoSuchBeanFindException;
@@ -45,7 +45,7 @@ import com.harmony.umbrella.ws.cxf.SimpleBeanFactoryInvoker;
  */
 public class JaxWsServerBuilder {
 
-    private static final Logger log = LoggerFactory.getLogger(JaxWsServerBuilder.class);
+    private static final Log log = Logs.getLog(JaxWsServerBuilder.class);
 
     /**
      * 创建服务的服务工厂

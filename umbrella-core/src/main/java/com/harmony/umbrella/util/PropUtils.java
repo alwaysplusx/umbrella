@@ -23,10 +23,9 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.harmony.umbrella.io.ClassPathResource;
+import com.harmony.umbrella.log.Log;
+import com.harmony.umbrella.log.Logs;
 
 /**
  * 属性加载工具
@@ -35,7 +34,7 @@ import com.harmony.umbrella.io.ClassPathResource;
  */
 public abstract class PropUtils {
 
-    private static final Logger log = LoggerFactory.getLogger(PropUtils.class);
+    private static final Log log = Logs.getLog(PropUtils.class);
 
     /**
      * 判断是否存在且是资源文件

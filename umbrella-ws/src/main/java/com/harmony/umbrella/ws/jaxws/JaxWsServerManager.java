@@ -18,8 +18,8 @@ package com.harmony.umbrella.ws.jaxws;
 import javax.xml.ws.WebServiceException;
 
 import org.apache.cxf.jaxws.JaxWsProxyFactoryBean;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.harmony.umbrella.log.Log;
+import com.harmony.umbrella.log.Logs;
 
 import com.harmony.umbrella.util.Assert;
 import com.harmony.umbrella.ws.FactoryConfig;
@@ -34,7 +34,7 @@ import com.harmony.umbrella.ws.cxf.interceptor.MessageOutInterceptor;
  */
 public class JaxWsServerManager extends ServerManager<JaxWsProxyFactoryBean> {
 
-    private static final Logger log = LoggerFactory.getLogger(JaxWsServerManager.class);
+    private static final Log log = Logs.getLog(JaxWsServerManager.class);
 
     private static JaxWsServerManager INSTANCE;
 

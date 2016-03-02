@@ -25,8 +25,8 @@ import java.util.Map;
 
 import javax.xml.ws.WebServiceException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.harmony.umbrella.log.Log;
+import com.harmony.umbrella.log.Logs;
 
 import com.harmony.umbrella.core.InvokeException;
 import com.harmony.umbrella.core.Invoker;
@@ -44,7 +44,7 @@ import com.harmony.umbrella.ws.util.JaxWsInvoker;
  */
 public class JaxWsCXFExecutor extends ProxyExecutorSupport {
 
-    private static final Logger log = LoggerFactory.getLogger(JaxWsCXFExecutor.class);
+    private static final Log log = Logs.getLog(JaxWsCXFExecutor.class);
 
     /**
      * 代理对象缓存池

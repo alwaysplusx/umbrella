@@ -24,9 +24,6 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.harmony.umbrella.monitor.AbstractMonitor;
 import com.harmony.umbrella.monitor.GraphListener;
 import com.harmony.umbrella.monitor.HttpAttacker;
@@ -49,8 +46,6 @@ import com.harmony.umbrella.monitor.util.MonitorUtils;
  * @author wuxii@foxmail.com
  */
 public abstract class AbstractHttpMonitor<N> extends AbstractMonitor<String> implements HttpMonitor {
-
-    protected static final Logger LOG = LoggerFactory.getLogger(AbstractHttpMonitor.class);
 
     protected List<GraphListener<HttpGraph>> graphListeners = new ArrayList<GraphListener<HttpGraph>>();
 

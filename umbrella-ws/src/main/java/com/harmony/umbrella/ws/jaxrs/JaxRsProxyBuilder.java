@@ -24,8 +24,8 @@ import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.jaxrs.client.Client;
 import org.apache.cxf.jaxrs.client.JAXRSClientFactoryBean;
 import org.apache.cxf.message.Message;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.harmony.umbrella.log.Log;
+import com.harmony.umbrella.log.Logs;
 
 import com.harmony.umbrella.util.Assert;
 import com.harmony.umbrella.ws.FactoryConfig;
@@ -35,7 +35,7 @@ import com.harmony.umbrella.ws.FactoryConfig;
  */
 public class JaxRsProxyBuilder {
 
-    private static final Logger log = LoggerFactory.getLogger(JaxRsProxyBuilder.class);
+    private static final Log log = Logs.getLog(JaxRsProxyBuilder.class);
 
     private final JAXRSClientFactoryBean clientFactoryBean = new JAXRSClientFactoryBean();
 

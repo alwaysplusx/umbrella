@@ -20,8 +20,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import com.harmony.umbrella.UmbrellaProperties;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.harmony.umbrella.log.Log;
+import com.harmony.umbrella.log.Logs;
 
 import com.harmony.modules.commons.log.Log4jUtils;
 import com.harmony.umbrella.json.Json;
@@ -36,7 +36,7 @@ import com.harmony.umbrella.util.StringUtils;
  */
 public class LogUtils {
 
-    private static final Logger log = LoggerFactory.getLogger(LogUtils.class);
+    private static final Log log = Logs.getLog(LogUtils.class);
 
     /**
      * 记录harmony日志

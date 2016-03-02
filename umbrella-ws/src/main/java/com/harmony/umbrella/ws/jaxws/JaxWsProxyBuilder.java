@@ -27,8 +27,8 @@ import org.apache.cxf.jaxws.JaxWsProxyFactoryBean;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.transport.http.HTTPConduit;
 import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.harmony.umbrella.log.Log;
+import com.harmony.umbrella.log.Logs;
 
 import com.harmony.umbrella.util.Assert;
 import com.harmony.umbrella.ws.FactoryConfig;
@@ -46,7 +46,7 @@ public class JaxWsProxyBuilder {
     // add configuration all the time when call create method
     private final JaxWsProxyFactoryBean factoryBean = new JaxWsProxyFactoryBean();
 
-    private static final Logger log = LoggerFactory.getLogger(JaxWsProxyBuilder.class);
+    private static final Log log = Logs.getLog(JaxWsProxyBuilder.class);
 
     private String address;
     private String username;

@@ -20,8 +20,8 @@ import java.util.Map;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.harmony.umbrella.log.Log;
+import com.harmony.umbrella.log.Logs;
 
 import com.harmony.umbrella.ws.Syncable;
 import com.harmony.umbrella.ws.User;
@@ -37,7 +37,7 @@ import com.harmony.umbrella.ws.ser.Message;
 @Syncable(endpoint = UserService.class, methodName = "accessUser", address = "http://localhost:8080/user")
 public class UserProxyBean extends ProxySupport<User> implements UserProxy {
 
-    private static final Logger log = LoggerFactory.getLogger(UserProxyBean.class);
+    private static final Log log = Logs.getLog(UserProxyBean.class);
 
     @EJB
     private JaxWsExecutorSupport executorSupport;

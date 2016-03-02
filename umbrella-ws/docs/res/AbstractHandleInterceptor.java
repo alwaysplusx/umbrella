@@ -27,8 +27,8 @@ import org.apache.cxf.service.Service;
 import org.apache.cxf.service.invoker.MethodDispatcher;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.validation.AbstractValidationInterceptor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.harmony.umbrella.log.Log;
+import com.harmony.umbrella.log.Logs;
 
 import com.harmony.umbrella.core.BeanFactory;
 import com.harmony.umbrella.core.DefaultInvoker;
@@ -45,7 +45,7 @@ import com.harmony.umbrella.ws.util.HandlerMethodFinder;
  */
 public abstract class AbstractHandleInterceptor extends AbstractValidationInterceptor {
 
-    private static final Logger log = LoggerFactory.getLogger(AbstractHandleInterceptor.class);
+    private static final Log log = Logs.getLog(AbstractHandleInterceptor.class);
     protected static final ThreadLocal<Message> PREVIOUS_SERVER_MESSAGE = new ThreadLocal<Message>();
     protected static final ThreadLocal<Message> PREVIOUS_PROXY_MESSAGE = new ThreadLocal<Message>();
 

@@ -19,8 +19,8 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.harmony.umbrella.log.Log;
+import com.harmony.umbrella.log.Logs;
 
 import com.harmony.umbrella.util.AntPathMatcher;
 import com.harmony.umbrella.util.Assert;
@@ -34,7 +34,7 @@ import com.harmony.umbrella.util.StringUtils;
  */
 public class SimplePropertyNameFilter extends PropertyNameFilter {
 
-    private static final Logger log = LoggerFactory.getLogger(SimplePropertyNameFilter.class);
+    private static final Log log = Logs.getLog(SimplePropertyNameFilter.class);
 
     private PathMatcher matcher;
 

@@ -31,8 +31,8 @@ import org.apache.cxf.interceptor.InterceptorChain;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.harmony.umbrella.log.Log;
+import com.harmony.umbrella.log.Logs;
 
 import com.harmony.umbrella.context.ApplicationContext;
 import com.harmony.umbrella.core.BeanFactory;
@@ -44,7 +44,7 @@ import com.harmony.umbrella.util.StringUtils;
  */
 public class BeanInjectInterceptor extends AbstractPhaseInterceptor<Message> {
 
-    private static final Logger log = LoggerFactory.getLogger(BeanInjectInterceptor.class);
+    private static final Log log = Logs.getLog(BeanInjectInterceptor.class);
     private BeanFactory beanFactory;
 
     public BeanInjectInterceptor() {
