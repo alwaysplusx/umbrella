@@ -89,6 +89,15 @@ public abstract class ApplicationContext implements BeanFactory {
     public abstract void destroy();
 
     /**
+     * 判断是否存在用户上下文
+     * 
+     * @return
+     */
+    public boolean existsCurrentContext() {
+        return current.get() != null;
+    }
+
+    /**
      * 设置当前线程的用户环境
      * 
      * @param currentCtx

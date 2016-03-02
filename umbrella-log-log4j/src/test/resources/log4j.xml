@@ -10,9 +10,23 @@
     </layout>
   </appender>
 
+  <appender name="jdbc" class="com.harmony.umbrella.log.JDBCAppender">
+    <param name="tableName" value="S_LOGINFO"></param>
+    <param name="upperCase" value="true"></param>
+    <param name="columnNames" value="module, action, message, level, result, startTime, finishTime, operator, operatorId, bizId, bizModule, stack, threadName"></param>
+    
+    <param name="url" value="jdbc:h2:file:~/.h2/harmony/log"></param>
+    <param name="user" value="sa"></param>
+    <param name="password" value=""></param>
+    
+    <layout class="org.apache.log4j.PatternLayout">
+      <param name="ConversionPattern" value="[%p] %c{1}.%M(%F:%L) - %m%n" />
+    </layout>
+  </appender>
+
   <root>
     <level value="debug" />
-    <appender-ref ref="console" />
+    <appender-ref ref="jdbc" />
   </root>
 
 </log4j:configuration>
