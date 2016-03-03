@@ -322,8 +322,8 @@ public class LogMessage {
             }
 
             @Override
-            public long getStartTime() {
-                return startTime;
+            public Date getStartTime() {
+                return new Date(startTime);
             }
 
             @Override
@@ -357,8 +357,8 @@ public class LogMessage {
             }
 
             @Override
-            public long getFinishTime() {
-                return finishTime;
+            public Date getFinishTime() {
+                return new Date(finishTime);
             }
 
             @Override

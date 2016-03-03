@@ -16,6 +16,7 @@
 package com.harmony.umbrella.log;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.Map;
 
 /**
@@ -72,14 +73,14 @@ public interface LogInfo {
      * 
      * @return
      */
-    long getStartTime();
+    Date getStartTime();
 
     /**
      * 记录结束事件
      * 
      * @return
      */
-    long getFinishTime();
+    Date getFinishTime();
 
     /**
      * 操作人

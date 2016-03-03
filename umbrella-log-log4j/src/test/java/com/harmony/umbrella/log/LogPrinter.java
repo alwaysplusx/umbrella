@@ -27,7 +27,7 @@ public class LogPrinter {
 
     private static final Log log = Logs.getLog(LogPrinter.class);
 
-    private static String message;
+    static String message;
 
     static {
         InputStream inputStream = ClassLoader.getSystemResourceAsStream("message");
@@ -37,11 +37,15 @@ public class LogPrinter {
         }
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
 
-        LogMessage.create(log)//
+        LogMessage msg = LogMessage.create(log)//
                 .bizId(1L)//
-                .bizModule("Object")//
+                .start();
+        
+        Thread.sleep(1000);
+        
+        msg.finish().bizModule("Object")//
                 .operator("wuxii")//
                 .operatorId("1")//
                 .action("保存")//
@@ -49,7 +53,7 @@ public class LogPrinter {
                 .level(Level.INFO)//
                 .currentStack()//
                 .currentThread()//
-                .message(message).log();
+                .message("some text").log();
     }
 
 }
