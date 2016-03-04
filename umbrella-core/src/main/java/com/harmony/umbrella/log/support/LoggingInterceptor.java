@@ -21,6 +21,8 @@ import javax.interceptor.InvocationContext;
 
 import com.harmony.umbrella.context.ApplicationContext;
 import com.harmony.umbrella.context.CurrentContext;
+import com.harmony.umbrella.log.ErrorHandlerManager;
+import com.harmony.umbrella.log.LogInfo;
 import com.harmony.umbrella.log.LogMessage;
 import com.harmony.umbrella.log.Logs;
 import com.harmony.umbrella.log.Template;
@@ -34,12 +36,14 @@ import com.harmony.umbrella.log.template.MessageTemplateFactory;
 public class LoggingInterceptor {
 
     protected TemplateFactory templateFactory = new MessageTemplateFactory();
-    
+
+    private ErrorHandlerManager errorHandlerManager = ErrorHandlerManager.INSTANCE;
+
     protected ApplicationContext context = ApplicationContext.getApplicationContext();
 
     public Object log(InvocationContext ctx) throws Exception {
         Object result = null;
-        
+
         Object target = ctx.getTarget();
         Method method = ctx.getMethod();
         Object[] params = ctx.getParameters();
@@ -84,6 +88,13 @@ public class LoggingInterceptor {
             msg.bizId(template.getId(target, result, params));
 
             msg.log();
+
+            if (errorHandlerManager != null) {
+                LogInfo logInfo = msg.asInfo();
+                if (logInfo.isException()) {
+                    errorHandlerManager.dispatch(logInfo, method, target, ann.errorHandler());
+                }
+            }
 
         } else {
             result = method.invoke(target, params);

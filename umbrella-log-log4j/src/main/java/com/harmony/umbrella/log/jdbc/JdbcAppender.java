@@ -196,7 +196,7 @@ public class JdbcAppender extends AppenderSkeleton implements UnrecognizedElemen
 
     @Override
     public boolean requiresLayout() {
-        return true;
+        return false;
     }
 
     @Override
