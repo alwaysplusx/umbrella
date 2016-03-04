@@ -17,6 +17,10 @@ package com.harmony.umbrella.log;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.sql.Connection;
+import java.sql.SQLException;
+
+import org.h2.jdbcx.JdbcConnectionPool;
 
 import com.harmony.umbrella.util.IOUtils;
 
@@ -24,8 +28,6 @@ import com.harmony.umbrella.util.IOUtils;
  * @author wuxii@foxmail.com
  */
 public class LogPrinter {
-
-    private static final Log log = Logs.getLog(LogPrinter.class);
 
     static String message;
 
@@ -36,6 +38,10 @@ public class LogPrinter {
         } catch (IOException e) {
         }
     }
+
+    static JdbcConnectionPool ds = JdbcConnectionPool.create("jdbc:h2:file:~/.h2/harmony/log", "sa", "");
+
+    private static final Log log = Logs.getLog(LogPrinter.class);
 
     public static void main(String[] args) throws InterruptedException {
 
@@ -56,4 +62,7 @@ public class LogPrinter {
                 .message("some text").log();
     }
 
+    public static Connection getConnection() throws SQLException {
+        return ds.getConnection();
+    }
 }

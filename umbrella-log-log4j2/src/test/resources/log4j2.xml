@@ -1,26 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
-<configuration>
+<configuration packages="com.harmony.umbrella.log.jdbc">
   <properties>
     <property name="pattern">
       [%p{length=4}] [%d{MM/dd HH:mm:ss,SSS}] %c{1}.%M(%F:%L) - %m%n
     </property>
   </properties>
   <appenders>
-    <!-- <appender name="" type="">
-      <layout type="">
-        <pattern>${pattern}</pattern>
-      </layout>
-    </appender> -->
+
     <console name="console" target="system_out">
       <patternlayout pattern="${pattern}" />
     </console>
+
+    <jdbc name="jdbc" tableName="S_LOGINFO">
+      <connectionfactory class="com.harmony.umbrella.log.LogPrinter" method="getConnection" />
+      <column name="level" pattern="%level" />
+      <column name="message" pattern="%message" />
+      <column name="exception" pattern="%ex{full}" />
+    </jdbc>
+
   </appenders>
   <loggers>
     <root level="info">
-      <appenderRef ref="console" />
+      <appenderRef ref="jdbc" />
     </root>
-    <!-- <logger name="com.harmony.umbrella.test" level="debug">
-      <appenderRef ref="console" />
-    </logger> -->
   </loggers>
 </configuration>
