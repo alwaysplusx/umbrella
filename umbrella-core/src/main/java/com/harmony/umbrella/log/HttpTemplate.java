@@ -15,19 +15,13 @@
  */
 package com.harmony.umbrella.log;
 
+import javax.servlet.http.HttpServletRequest;
+
 /**
  * @author wuxii@foxmail.com
  */
-public interface Template {
+public interface HttpTemplate extends Template {
 
-    char DELIM_START = '{';
-
-    char DELIM_END = '}';
-
-    char ESCAPE_CHAR = '\\';
-
-    Message newMessage(Object target, Object result, Object[] params);
-
-    String getId(Object target, Object result, Object[] params);
+    HttpServletRequest getHttpRequest();
 
 }

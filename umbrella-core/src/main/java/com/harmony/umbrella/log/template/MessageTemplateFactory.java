@@ -16,9 +16,10 @@
 package com.harmony.umbrella.log.template;
 
 import java.lang.reflect.Method;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
+import javax.servlet.http.HttpServletRequest;
+
+import com.harmony.umbrella.log.HttpTemplate;
 import com.harmony.umbrella.log.Template;
 import com.harmony.umbrella.log.TemplateFactory;
 
@@ -27,16 +28,14 @@ import com.harmony.umbrella.log.TemplateFactory;
  */
 public class MessageTemplateFactory implements TemplateFactory {
 
-    private ConcurrentMap<Method, Template> templateCache = new ConcurrentHashMap<Method, Template>();
-
     @Override
     public Template createTemplate(Method method) {
-        Template template = templateCache.get(method);
-        if (template == null) {
-            template = new MessageTemplate(method);
-            templateCache.putIfAbsent(method, template);
-        }
-        return templateCache.get(method);
+        return new MessageTemplate(method);
+    }
+
+    @Override
+    public HttpTemplate createHttpTemplate(Method method, HttpServletRequest request) {
+        return new HttpMessageTemplate(method, request);
     }
 
 }

@@ -17,11 +17,15 @@ package com.harmony.umbrella.log;
 
 import java.lang.reflect.Method;
 
+import javax.servlet.http.HttpServletRequest;
+
 /**
  * @author wuxii@foxmail.com
  */
 public interface TemplateFactory {
 
     Template createTemplate(Method method);
+
+    HttpTemplate createHttpTemplate(Method method, HttpServletRequest request);
 
 }
