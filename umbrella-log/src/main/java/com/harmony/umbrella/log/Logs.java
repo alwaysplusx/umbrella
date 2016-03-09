@@ -20,7 +20,7 @@ import java.io.OutputStream;
 import java.util.ServiceLoader;
 
 import com.harmony.umbrella.log.support.AbstractLog;
-import com.harmony.umbrella.util.StackUtils;
+import com.harmony.umbrella.log.util.StackUtils;
 
 /**
  * 

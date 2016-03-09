@@ -21,7 +21,7 @@ import java.util.Date;
 import java.util.Map;
 
 import com.harmony.umbrella.log.Level.StandardLevel;
-import com.harmony.umbrella.util.StackUtils;
+import com.harmony.umbrella.log.util.StackUtils;
 
 /**
  * 统一日志消息

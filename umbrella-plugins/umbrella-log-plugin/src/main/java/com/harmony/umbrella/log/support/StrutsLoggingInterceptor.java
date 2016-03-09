@@ -22,6 +22,8 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.struts2.ServletActionContext;
 
+import com.harmony.umbrella.context.ApplicationContext;
+import com.harmony.umbrella.context.CurrentContext;
 import com.harmony.umbrella.log.LogMessage;
 import com.harmony.umbrella.log.Template;
 import com.harmony.umbrella.log.annotation.Log;
@@ -36,8 +38,11 @@ public class StrutsLoggingInterceptor extends AbstractLoggingInterceptor impleme
 
     private static final long serialVersionUID = 8379237026930289206L;
 
+    private ApplicationContext context;
+    
     @Override
     public void init() {
+        context = ApplicationContext.getApplicationContext();
     }
 
     @Override
@@ -51,11 +56,11 @@ public class StrutsLoggingInterceptor extends AbstractLoggingInterceptor impleme
             LogMessage msg = createLogMessage(target, ann);
 
             // http request or session support
-            /*CurrentContext cctx = context.getCurrentContext();
+            CurrentContext cctx = context.getCurrentContext();
             if (cctx != null) {
                 msg.operator(cctx.getUsername())//
                         .operatorId(cctx.getUserId());
-            }*/
+            }
 
             msg.start();
 

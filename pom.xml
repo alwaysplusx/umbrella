@@ -53,15 +53,15 @@ under the License.
     <module>umbrella-xml</module>
     <module>umbrella-activiti</module>
     <module>umbrella-log</module>
-    <!--<module>umbrella-plugins</module>-->
+    <module>umbrella-plugins</module>
+    <module>umbrella-notify</module>
+    <module>umbrella-log-log4j</module>
+    <module>umbrella-log-log4j2</module>
     <!-- <module>umbrella-resources</module> -->
     <!-- <module>umbrella-security</module> -->
     <!-- <module>umbrella-cache</module> -->
     <!-- <module>examples</module> -->
     <!-- <module>umbrella-bang</module> -->
-    <module>umbrella-notify</module>
-    <module>umbrella-log-log4j</module>
-    <module>umbrella-log-log4j2</module>
   </modules>
 
 
