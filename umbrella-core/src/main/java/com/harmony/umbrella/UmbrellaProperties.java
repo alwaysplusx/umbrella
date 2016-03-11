@@ -35,7 +35,7 @@ public abstract class UmbrellaProperties {
 
     static {
 
-        globalProperties.putAll(PropUtils.loadProperties(UMBRELLA_PROPERTIES_LOCATION));
+        globalProperties.putAll(PropUtils.loadPropertiesSilently(UMBRELLA_PROPERTIES_LOCATION));
 
         DEFAULT_PACKAGE = globalProperties.getProperty("default.package", "com.harmony");
 

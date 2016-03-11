@@ -39,7 +39,6 @@ under the License.
   <modules>
     <module>umbrella-core</module>
     <module>umbrella-validator</module>
-    <module>umbrella-message</module>
     <module>umbrella-monitor</module>
     <module>umbrella-mapper</module>
     <module>umbrella-ee</module>
@@ -54,9 +53,9 @@ under the License.
     <module>umbrella-activiti</module>
     <module>umbrella-log</module>
     <module>umbrella-plugins</module>
-    <module>umbrella-notify</module>
     <module>umbrella-log-log4j</module>
-    <module>umbrella-log-log4j2</module>
+    <module>umbrella-message</module>
+    <!-- <module>umbrella-log-log4j2</module> -->
     <!-- <module>umbrella-resources</module> -->
     <!-- <module>umbrella-security</module> -->
     <!-- <module>umbrella-cache</module> -->

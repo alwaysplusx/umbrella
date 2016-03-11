@@ -13,11 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.umbrella.notify;
+package com.harmony.umbrella.asm;
+
+import java.io.IOException;
+import java.io.InputStream;
+
+import org.junit.Test;
+
+import com.harmony.umbrella.io.FileSystemResource;
+import com.harmony.umbrella.io.Resource;
 
 /**
  * @author wuxii@foxmail.com
  */
-public class NotifyInfo {
+public class ClassReaderTest {
 
+    @Test
+    public void test() throws IOException {
+        Resource resource = new FileSystemResource("target/classes/com/harmony/umbrella/core/BeanFactory.class");
+        InputStream is = resource.getInputStream();
+
+        ClassReader reader = new ClassReader(is);
+        String className = reader.getClassName();
+
+        System.out.println(className);
+    }
 }

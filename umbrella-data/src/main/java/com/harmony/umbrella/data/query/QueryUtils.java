@@ -56,7 +56,6 @@ import com.harmony.umbrella.data.Bond;
 import com.harmony.umbrella.data.bond.AbstractBond;
 import com.harmony.umbrella.data.domain.Sort;
 import com.harmony.umbrella.data.domain.Sort.Order;
-import com.harmony.umbrella.util.AnnotationUtils;
 import com.harmony.umbrella.util.Assert;
 import com.harmony.umbrella.util.StringUtils;
 
@@ -479,7 +478,15 @@ public abstract class QueryUtils {
             }
         } catch (Exception ex) {
         }
-        return annotation == null ? true : (Boolean) AnnotationUtils.getValue(annotation, "optional");
+        return annotation == null ? true : (Boolean) getAnnotationValue(annotation, "optional");
+    }
+    
+    private static Object getAnnotationValue(Annotation ann, String name) {
+        try {
+            return ann.getClass().getMethod(name).invoke(ann);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     /**

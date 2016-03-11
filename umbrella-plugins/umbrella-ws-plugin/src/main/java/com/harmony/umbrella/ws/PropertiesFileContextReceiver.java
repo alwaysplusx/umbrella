@@ -81,7 +81,7 @@ public class PropertiesFileContextReceiver extends AbstractJaxWsContextReceiver 
             synchronized (this) {
                 if (!init) {
                     SimpleBeanFactory beanFactory = new SimpleBeanFactory();
-                    Properties props = PropUtils.loadProperties(propertiesFileLocation);
+                    Properties props = PropUtils.loadPropertiesSilently(propertiesFileLocation);
                     for (String name : props.stringPropertyNames()) {
                         try {
                             Class<?> clazz = Class.forName(name);

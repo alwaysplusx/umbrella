@@ -44,7 +44,6 @@ import com.harmony.umbrella.log.Level;
 import com.harmony.umbrella.log.LogInfo;
 import com.harmony.umbrella.log.LoggingException;
 import com.harmony.umbrella.log.Message;
-import com.harmony.umbrella.util.Exceptions;
 
 /**
  * @author wuxii@foxmail.com
@@ -302,11 +301,6 @@ public class JdbcAppender extends AppenderSkeleton implements UnrecognizedElemen
                 setString(pstmt, ((Message) value).getFormattedMessage());
 
             } else if (value instanceof Throwable) {
-                if (columnElement.isClob) {
-                    value = Exceptions.getAllMessage((Throwable) value);
-                } else {
-                    value = Exceptions.getRootCause((Throwable) value);
-                }
                 setString(pstmt, String.valueOf(value));
 
             } else if (value instanceof Level) {

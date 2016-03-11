@@ -53,7 +53,7 @@ public class PropertiesFileJobFactory implements JobFactory {
     @Override
     public Class<? extends Job> getJobClass(String jobName) {
         try {
-            Properties props = PropUtils.loadProperties(jobFileLocation);
+            Properties props = PropUtils.loadPropertiesSilently(jobFileLocation);
             String jobClassName = props.getProperty(jobName);
             if (jobClassName != null) {
                 Class<?> clazz = Class.forName(jobClassName);
@@ -71,7 +71,7 @@ public class PropertiesFileJobFactory implements JobFactory {
 
     @Override
     public Trigger getJobTrigger(String jobName) {
-        Properties props = PropUtils.loadProperties(triggerFileLocation);
+        Properties props = PropUtils.loadPropertiesSilently(triggerFileLocation);
         String expression = props.getProperty(jobName);
         if (expression != null) {
             return new ExpressionTrigger(expression);
@@ -95,7 +95,7 @@ public class PropertiesFileJobFactory implements JobFactory {
 
     @Override
     public Set<String> getAllJobNames() {
-        Properties props = PropUtils.loadProperties(jobFileLocation);
+        Properties props = PropUtils.loadPropertiesSilently(jobFileLocation);
         return props.stringPropertyNames();
     }
 }

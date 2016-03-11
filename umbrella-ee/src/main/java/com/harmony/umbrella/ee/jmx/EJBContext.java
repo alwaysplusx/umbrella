@@ -37,23 +37,18 @@ public class EJBContext implements EJBContextMBean {
     }
 
     @Override
-    public String jndiPropertiesFilePath() {
-        return context.jndiPropertiesFilePath();
-    }
-
-    @Override
     public boolean exists(String className) {
         return context.exists(className);
     }
 
     @Override
-    public void clear() {
-        context.clear();
+    public String showProperties() {
+        return context.showProperties();
     }
 
     @Override
-    public void clear(String jndi) {
-        context.clear(jndi);
+    public String jndiPropertiesFileLocation() {
+        return context.jndiPropertiesFileLocation();
     }
 
 }

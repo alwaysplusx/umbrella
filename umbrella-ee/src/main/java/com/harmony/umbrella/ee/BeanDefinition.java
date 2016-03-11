@@ -31,7 +31,7 @@ import javax.ejb.Stateful;
 import javax.ejb.Stateless;
 
 import com.harmony.umbrella.util.ClassUtils;
-import com.harmony.umbrella.util.MethodUtils;
+import com.harmony.umbrella.util.ReflectionUtils;
 import com.harmony.umbrella.util.StringUtils;
 
 /**
@@ -83,7 +83,7 @@ public class BeanDefinition {
             Annotation ann = getSessionBeanAnnotation(beanClass);
             if (ann != null) {
                 try {
-                    return (String) MethodUtils.invokeMethod("description", ann);
+                    return (String) ReflectionUtils.invokeMethod("description", ann);
                 } catch (NoSuchMethodException e) {
                 }
             }
@@ -99,7 +99,7 @@ public class BeanDefinition {
             Annotation ann = getSessionBeanAnnotation(beanClass);
             if (ann != null) {
                 try {
-                    return (String) MethodUtils.invokeMethod("name", ann);
+                    return (String) ReflectionUtils.invokeMethod("name", ann);
                 } catch (NoSuchMethodException e) {
                 }
             }
@@ -343,7 +343,7 @@ public class BeanDefinition {
         Annotation ann = getSessionBeanAnnotation(clazz);
         if (ann != null) {
             try {
-                return (String) MethodUtils.invokeMethod("mappedName", ann);
+                return (String) ReflectionUtils.invokeMethod("mappedName", ann);
             } catch (NoSuchMethodException e) {
             }
         }

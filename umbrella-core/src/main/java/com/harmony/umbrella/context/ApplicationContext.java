@@ -17,14 +17,13 @@ package com.harmony.umbrella.context;
 
 import static com.harmony.umbrella.context.ApplicationMetadata.*;
 
+import java.io.IOException;
+import java.net.URL;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.HashMap;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Properties;
 import java.util.ServiceLoader;
-import java.util.Set;
 
 import javax.servlet.ServletContext;
 
@@ -58,7 +57,15 @@ public abstract class ApplicationContext implements BeanFactory {
     /**
      * 应用的配置属性
      */
-    protected final Map<Object, Object> contextProperties = new HashMap<Object, Object>();
+    protected static final Properties applicationProperties = new Properties();
+
+    static {
+        try {
+            applicationProperties.putAll(PropUtils.loadProperties(APPLICATION_PROPERTIES_LOCATION));
+        } catch (IOException e) {
+            LOG.info("META-INF/application.properties file not find, no default application properties");
+        }
+    }
 
     protected Locale locale;
 
@@ -71,11 +78,68 @@ public abstract class ApplicationContext implements BeanFactory {
      */
     private static DBInformation dbInfo;
 
-    public ApplicationContext() {
+    protected ApplicationContext() {
     }
 
-    public ApplicationContext(Map<?, ?> properties) {
-        this.contextProperties.putAll(properties);
+    /**
+     * 获取当前应用的应用上下文
+     * <p>
+     * 加载
+     * {@code META-INF/services/com.harmony.umbrella.context.spi.ApplicationContextProvider}
+     * 文件中的实际类型来创建
+     *
+     * @return 应用上下文
+     */
+    public static final ApplicationContext getApplicationContext() {
+        return getApplicationContext0(null);
+    }
+
+    /**
+     * 获取当前应用的上下文, 并使用初始化属性{@code props}对应用进行初始化
+     *
+     * @param url
+     *            配置文件url
+     * @return 应用上下文
+     */
+    public static final ApplicationContext getApplicationContext(URL url) {
+        return getApplicationContext0(url);
+    }
+
+    /**
+     * 获取当前应用的上下文, 并使用初始化属性{@code props}对应用进行初始化
+     *
+     * @param url
+     *            配置文件url
+     * @return 应用上下文
+     */
+    private static final ApplicationContext getApplicationContext0(URL url) {
+
+        ApplicationContext context = null;
+        synchronized (providers) {
+            providers.reload();
+            LOG.debug("current providers -> {}", providers);
+            for (ContextProvider provider : providers) {
+                try {
+                    context = provider.createApplicationContext(url);
+                    if (context != null) {
+                        LOG.debug("create context [{}] by [{}]", context, provider);
+                        break;
+                    }
+                } catch (Exception e) {
+                    LOG.warn("", e);
+                }
+            }
+        }
+
+        if (context == null) {
+            LOG.warn("no context provider find, use default {}", ContextProvider.class.getName());
+            context = ContextProvider.INSTANCE.createApplicationContext(url);
+        }
+
+        // 初始化
+        context.init();
+
+        return context;
     }
 
     /**
@@ -90,16 +154,16 @@ public abstract class ApplicationContext implements BeanFactory {
 
     /**
      * 判断是否存在用户上下文
-     * 
+     *
      * @return
      */
-    public boolean existsCurrentContext() {
+    public boolean hasCurrentContext() {
         return current.get() != null;
     }
 
     /**
      * 设置当前线程的用户环境
-     * 
+     *
      * @param currentCtx
      *            用户环境
      */
@@ -109,94 +173,11 @@ public abstract class ApplicationContext implements BeanFactory {
 
     /**
      * 获取当前线程的用户环境
-     * 
+     *
      * @return 用户环境
      */
     public CurrentContext getCurrentContext() {
         return current.get();
-    }
-
-    /**
-     * 获取当前应用的应用上下文
-     * <p>
-     * 加载
-     * {@code META-INF/services/com.harmony.umbrella.context.spi.ApplicationContextProvider}
-     * 文件中的实际类型来创建
-     * 
-     * @return 应用上下文
-     */
-    public static final ApplicationContext getApplicationContext() {
-        return getApplicationContext0(new Properties());
-    }
-
-    /**
-     * 获取当前应用的上下文, 并使用初始化属性{@code props}对应用进行初始化
-     * 
-     * @param props
-     *            引用的初始化属性
-     * @return 应用上下文
-     */
-    public static final ApplicationContext getApplicationContext(Properties props) {
-        return getApplicationContext0(props);
-    }
-
-    /**
-     * 获取当前应用的上下文, 并使用初始化属性{@code props}对应用进行初始化
-     * 
-     * @param props
-     *            引用的初始化属性
-     * @return 应用上下文
-     */
-    private static final ApplicationContext getApplicationContext0(Properties props) {
-
-        Properties applicationProperties = new Properties();
-
-        if (PropUtils.exists(APPLICATION_PROPERTIES_LOCATION)) {
-            applicationProperties.putAll(PropUtils.loadProperties(APPLICATION_PROPERTIES_LOCATION));
-        }
-
-        // cover properties file property
-        applicationProperties.putAll(props);
-
-        ApplicationContext context = null;
-        synchronized (providers) {
-            providers.reload();
-            LOG.debug("current providers -> {}", providers);
-            for (ContextProvider provider : providers) {
-                try {
-                    context = provider.createApplicationContext(applicationProperties);
-                    if (context != null) {
-                        LOG.debug("create context [{}] by [{}]", context, provider);
-                        break;
-                    }
-                } catch (Exception e) {
-                    LOG.warn("", e);
-                }
-            }
-        }
-        if (context == null) {
-            LOG.warn("can't find any application context provider to create context, use default {}", ContextProvider.SimpleApplicationContext.class.getName());
-            context = new ContextProvider.SimpleApplicationContext(applicationProperties);
-        }
-        return context;
-    }
-
-    public Object getProperty(Object key) {
-        return contextProperties.get(key);
-    }
-
-    @SuppressWarnings("unchecked")
-    public <T> T getProperty(Class<T> key) {
-        return (T) contextProperties.get(key);
-    }
-
-    @SuppressWarnings("unchecked")
-    public <T> T getProperty(Object key, Class<T> type) {
-        return (T) contextProperties.get(key);
-    }
-
-    public Set<Object> getKeySet() {
-        return contextProperties.keySet();
     }
 
     public Locale getLocale() {
@@ -209,7 +190,7 @@ public abstract class ApplicationContext implements BeanFactory {
 
     /**
      * 获取应用的jvm信息
-     * 
+     *
      * @return jvm信息
      */
     public JVMInformation getInformationOfJVM() {
@@ -218,7 +199,7 @@ public abstract class ApplicationContext implements BeanFactory {
 
     /**
      * 获取应用的服务信息
-     * 
+     *
      * @return web服务器信息， 如果未初始化泽返回{@code null}
      */
     public ServerInformation getInformationOfServer() {
@@ -227,7 +208,7 @@ public abstract class ApplicationContext implements BeanFactory {
 
     /**
      * 获取应用的操作系统信息
-     * 
+     *
      * @return 操作系统的信息
      */
     public OSInformation getInformationOfOS() {
@@ -236,7 +217,7 @@ public abstract class ApplicationContext implements BeanFactory {
 
     /**
      * 获取应用的数据库信息
-     * 
+     *
      * @return 数据库信息, 未初始化返回{@code null}
      */
     public DBInformation getInformationOfDB() {
@@ -247,7 +228,7 @@ public abstract class ApplicationContext implements BeanFactory {
      * 注册应用的web服务信息
      * <p>
      * 一经注册就不在更改
-     * 
+     *
      * @param servletContext
      *            web上下文
      */
@@ -262,7 +243,7 @@ public abstract class ApplicationContext implements BeanFactory {
      * 初始化应用的数据源信息
      * <p>
      * 一经初始化就不在更改
-     * 
+     *
      * @param conn
      *            数据源的一个连接
      * @param close
@@ -298,6 +279,14 @@ public abstract class ApplicationContext implements BeanFactory {
                 .append("\"server\":").append(getInformationOfServer() == null ? "{}" : getInformationOfServer()).append("\n")//
                 .append("}");
         return sb.toString();
+    }
+
+    public static String getProperty(String key) {
+        return applicationProperties.getProperty(key);
+    }
+
+    public static String getProperty(String key, String defaultValue) {
+        return applicationProperties.getProperty(key, defaultValue);
     }
 
 }

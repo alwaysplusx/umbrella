@@ -48,12 +48,13 @@ public class InternalContextResolver extends ConfigurationBeanResolver implement
     // class - jndi
     private final Map<Class<?>, Set<String>> fastCache = new HashMap<Class<?>, Set<String>>();
     private final Set<String> roots = new HashSet<String>();
+
     private final int deeps;
 
     public InternalContextResolver(Properties props) {
         super(props);
         this.deeps = Integer.valueOf(props.getProperty("jndi.search.deeps", "10"));
-        this.roots.addAll(fromProps(props, "jndi.context.root"));
+        this.roots.addAll(splitProperty(props.getProperty("jndi.context.root", "java:, ")));
     }
 
     /**
@@ -206,7 +207,7 @@ public class InternalContextResolver extends ConfigurationBeanResolver implement
         return !(beanDefinition.isRemoteClass() //
                 || beanDefinition.isSessionBean() //
                 || beanDefinition.isLocalClass() //
-                || beanDefinition.getBeanClass().isInterface());
+        || beanDefinition.getBeanClass().isInterface());
     }
 
 }

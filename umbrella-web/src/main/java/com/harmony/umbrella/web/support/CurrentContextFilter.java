@@ -27,11 +27,9 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import com.harmony.umbrella.context.ApplicationContext;
 import com.harmony.umbrella.context.CurrentContext;
-import com.harmony.umbrella.context.DefaultHttpCurrentContext;
 import com.harmony.umbrella.util.StringUtils;
 import com.harmony.umbrella.web.util.FrontUtils;
 
@@ -78,13 +76,14 @@ public class CurrentContextFilter implements Filter {
         // 业务相关的链接才设置应用环境
         if (isBusinessUrl(requestUrl)) {
 
-            HttpServletRequest req = (HttpServletRequest) request;
-            HttpServletResponse resp = (HttpServletResponse) response;
+            // HttpServletRequest req = (HttpServletRequest) request;
+            // HttpServletResponse resp = (HttpServletResponse) response;
 
             CurrentContext occ = context.getCurrentContext();
 
             try {
-                context.setCurrentContext(new DefaultHttpCurrentContext(req, resp));
+                // TODO set htto current context
+                // context.setCurrentContext(new DefaultHttpCurrentContext(req, resp));
                 chain.doFilter(request, response);
             } finally {
                 context.setCurrentContext(occ);

@@ -15,11 +15,9 @@
  */
 package com.harmony.umbrella.context;
 
-import java.net.HttpCookie;
 import java.util.Enumeration;
 import java.util.Locale;
 
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -61,7 +59,7 @@ public interface HttpCurrentContext extends CurrentContext {
      * 设置用户环境的本地化
      *
      * @param locale
-     *         {@linkplain Locale}
+     *            {@linkplain Locale}
      */
     void setLocale(Locale locale);
 
@@ -106,147 +104,9 @@ public interface HttpCurrentContext extends CurrentContext {
     <T> T get(String name);
 
     /**
-     * 在指定的范围获取值
-     *
-     * @param name
-     *         key of value
-     * @param scope
-     *         作用域
-     * @return if not exists return {@code null}
-     */
-    <T> T get(String name, int scope);
-
-    /**
-     * 获取request中的params
-     *
-     * @param name
-     *         key of value
-     * @return if not exists return {@code null}
-     * @see javax.servlet.http.HttpServletRequest#getParameter(String)
-     */
-    String getParameter(String name);
-
-    /**
-     * 获取作用域为{@linkplain #SCOPE_REQUEST}的值
-     *
-     * @param name
-     *         key of value
-     * @return if not exists return {@code null}
-     */
-    <T> T getAttribute(String name);
-
-    /**
-     * 获取作用域为{@linkplain #SCOPE_SESSION}的值
-     *
-     * @param name
-     *         key of value
-     * @return if not exists return {@code null}
-     */
-    <T> T getSessionAttribute(String name);
-
-    /**
-     * 获取作用域为{@linkplain #SCOPE_COOKIE}的值
-     *
-     * @param name
-     *         key of value
-     * @return if not exists return {@code null}
-     */
-    String getHttpCookie(String name);
-
-    /**
      * 在当前的环境中设置作用域为{@linkplain #SCOPE_CURRENT}的值
      */
     void put(String name, Object o);
-
-    /**
-     * 在指定的范围设置值
-     *
-     * @param name
-     *         key of value
-     * @param o
-     *         value
-     * @param scope
-     *         作用域
-     */
-    void put(String name, Object o, int scope);
-
-    /**
-     * 设置scope为{@linkplain #SCOPE_REQUEST}的值
-     *
-     * @param name
-     *         key of value
-     * @param value
-     *         value
-     */
-    void setAttribute(String name, Object value);
-
-    /**
-     * 设置scope为{@linkplain #SCOPE_SESSION}的值
-     *
-     * @param name
-     *         key of value
-     * @param value
-     *         value
-     */
-    void setSessionAttribute(String name, Object value);
-
-    /**
-     * 设置scope为{@linkplain #SCOPE_COOKIE}的值
-     *
-     * @param cookie
-     *         {@linkplain HttpCookie}
-     */
-    void addCookie(Cookie cookie);
-
-    /**
-     * 设置scope为{@linkplain #SCOPE_COOKIE}的值，并指定最大生存时间{@code maxAge}
-     *
-     * @param name
-     *         key of cookies
-     * @param value
-     *         value
-     * @param maxAge
-     *         max age
-     */
-    void addCookie(String name, String value, int maxAge);
-
-    /**
-     * 判断是否存在scope为{@linkplain #SCOPE_CURRENT}的key为{@code name}的值
-     */
-    boolean containsKey(String name);
-
-    /**
-     * 判断request中{@linkplain javax.servlet.http.HttpServletRequest#getParameter(java.lang.String)}是否存在对应值
-     *
-     * @param name
-     *         key
-     * @return {@code true} exists
-     */
-    boolean containsParameter(String name);
-
-    /**
-     * 判断是否存在scope为{@linkplain #SCOPE_REQUEST}的key为{@code name}的值
-     *
-     * @param name
-     * @return
-     */
-    boolean containsAttribute(String name);
-
-    /**
-     * 判断是否存在scope为{@linkplain #SCOPE_SESSION}的key为{@code name}的值
-     *
-     * @param name
-     * @return
-     */
-    boolean containsSessionAttribute(String name);
-
-    /**
-     * 判断是否存在scope为{@linkplain #SCOPE_COOKIE}的key为{@code name}的值
-     *
-     * @param name
-     * @return
-     */
-    boolean containsCookie(String name);
 
     /**
      * 获取scope为{@linkplain #SCOPE_CURRENT}的所有key名称

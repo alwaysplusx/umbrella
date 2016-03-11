@@ -29,11 +29,9 @@ import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 
 import com.harmony.umbrella.data.Persistable;
-import com.harmony.umbrella.util.FieldUtils;
-import com.harmony.umbrella.util.FieldUtils.FieldFilter;
-import com.harmony.umbrella.util.MethodUtils;
-import com.harmony.umbrella.util.MethodUtils.MethodFilter;
 import com.harmony.umbrella.util.ReflectionUtils;
+import com.harmony.umbrella.util.ReflectionUtils.FieldFilter;
+import com.harmony.umbrella.util.ReflectionUtils.MethodFilter;
 
 /**
  * @author wuxii@foxmail.com
@@ -142,8 +140,8 @@ public abstract class Model<ID extends Serializable> implements Persistable<ID> 
         Field idField = getIdField();
         if (idField != null) {
             try {
-                method = MethodUtils.findReadMethod(getClass(), idField);
-                return (ID) MethodUtils.invokeMethod(method, this);
+                method = ReflectionUtils.findReadMethod(getClass(), idField);
+                return (ID) ReflectionUtils.invokeMethod(method, this);
             } catch (Exception e) {
                 try {
                     ReflectionUtils.makeAccessible(idField);
@@ -169,7 +167,7 @@ public abstract class Model<ID extends Serializable> implements Persistable<ID> 
      * @return 主键的获取方法
      */
     private Method getIdMethod() {
-        return MethodUtils.findMethod(getClass(), new MethodFilter() {
+        return ReflectionUtils.findMethod(getClass(), new MethodFilter() {
             @Override
             @SuppressWarnings({ "rawtypes", "unchecked" })
             public boolean matches(Method method) {
@@ -189,7 +187,7 @@ public abstract class Model<ID extends Serializable> implements Persistable<ID> 
      * @return
      */
     private Field getIdField() {
-        return FieldUtils.findField(getClass(), new FieldFilter() {
+        return ReflectionUtils.findField(getClass(), new FieldFilter() {
             @SuppressWarnings({ "unchecked", "rawtypes" })
             @Override
             public boolean matches(Field field) {

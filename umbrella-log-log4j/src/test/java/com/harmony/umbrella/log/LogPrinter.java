@@ -15,11 +15,6 @@
  */
 package com.harmony.umbrella.log;
 
-import java.io.IOException;
-import java.io.InputStream;
-
-import com.harmony.umbrella.util.IOUtils;
-
 /**
  * @author wuxii@foxmail.com
  */
@@ -30,11 +25,6 @@ public class LogPrinter {
     static String message;
 
     static {
-        InputStream inputStream = ClassLoader.getSystemResourceAsStream("message");
-        try {
-            message = IOUtils.toString(inputStream);
-        } catch (IOException e) {
-        }
     }
 
     public static void main(String[] args) throws InterruptedException {

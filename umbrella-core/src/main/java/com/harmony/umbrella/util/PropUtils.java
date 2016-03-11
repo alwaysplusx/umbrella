@@ -24,8 +24,6 @@ import java.util.Properties;
 import java.util.Set;
 
 import com.harmony.umbrella.io.ClassPathResource;
-import com.harmony.umbrella.log.Log;
-import com.harmony.umbrella.log.Logs;
 
 /**
  * 属性加载工具
@@ -34,13 +32,11 @@ import com.harmony.umbrella.log.Logs;
  */
 public abstract class PropUtils {
 
-    private static final Log log = Logs.getLog(PropUtils.class);
-
     /**
      * 判断是否存在且是资源文件
      *
      * @param path
-     *         文件路径
+     *            文件路径
      */
     public static boolean exists(String path) {
         File file = new File(path);
@@ -60,18 +56,35 @@ public abstract class PropUtils {
                 }
             }
         }
-        return true;
+        return inStream != null;
+    }
+
+    /**
+     * 如果所对应的资源文件不存在忽略
+     */
+    public static Properties loadPropertiesSilently(String... paths) {
+        Properties props = new Properties();
+        if (paths == null || paths.length == 0) {
+            return props;
+        }
+        for (String path : paths) {
+            try {
+                loadProperties(path, props);
+            } catch (IOException e) {
+            }
+        }
+        return props;
     }
 
     /**
      * 加载指定文件下的资源文件
      *
      * @param paths
-     *         资源文件的路径
+     *            资源文件的路径
      * @return 资源文件中的属性
      * @throws IOException
      */
-    public static Properties loadProperties(String... paths) {
+    public static Properties loadProperties(String... paths) throws IOException {
         Properties props = new Properties();
         if (paths == null || paths.length == 0) {
             return props;
@@ -82,13 +95,11 @@ public abstract class PropUtils {
         return props;
     }
 
-    private static void loadProperties(String path, Properties props) {
+    private static void loadProperties(String path, Properties props) throws IOException {
         InputStream inStream = null;
         try {
             inStream = new ClassPathResource(path).getInputStream();
             props.load(inStream);
-        } catch (IOException e) {
-            log.warn("properties file {} not exists", path);
         } finally {
             if (inStream != null) {
                 try {
@@ -103,7 +114,7 @@ public abstract class PropUtils {
      * 系统{@linkplain java.lang.System#getProperty(String)}
      *
      * @param key
-     *         环境属性key
+     *            环境属性key
      * @return 系统环境属性值
      */
     public static String getSystemProperty(String key) {
@@ -114,9 +125,9 @@ public abstract class PropUtils {
      * 系统{@linkplain System#getProperty(String)}
      *
      * @param key
-     *         环境属性key
+     *            环境属性key
      * @param defaultValue
-     *         默认值
+     *            默认值
      * @return 系统环境属性值
      */
     public static String getSystemProperty(String key, String defaultValue) {
@@ -127,9 +138,9 @@ public abstract class PropUtils {
      * 从属性中过滤出前缀为指定值的属性集合
      *
      * @param prefix
-     *         前缀
+     *            前缀
      * @param props
-     *         待过滤的属性
+     *            待过滤的属性
      * @return 前缀符合要求的新属性集合
      */
     public static Properties filterStartWith(String prefix, Properties props) {
@@ -140,11 +151,11 @@ public abstract class PropUtils {
      * 在属性集合中过滤出前缀相同的属性集合
      *
      * @param prefix
-     *         key的前缀
+     *            key的前缀
      * @param props
-     *         属性集合
+     *            属性集合
      * @param ignoreCase
-     *         是否忽略大小写
+     *            是否忽略大小写
      * @return key前缀相同的属性集合
      */
     public static Properties filterStartWith(String prefix, Properties props, boolean ignoreCase) {
@@ -166,9 +177,9 @@ public abstract class PropUtils {
      * map中过滤出key前缀相同的属性集合
      *
      * @param prefix
-     *         key前缀
+     *            key前缀
      * @param map
-     *         属性集合
+     *            属性集合
      * @return key前缀相同的属性集合
      */
     public static Map<String, Object> filterStartWith(String prefix, Map<String, Object> map) {
@@ -179,11 +190,11 @@ public abstract class PropUtils {
      * map中过滤出key前缀相同的属性集合
      *
      * @param prefix
-     *         key前缀
+     *            key前缀
      * @param map
-     *         属性集合
+     *            属性集合
      * @param ignoreCase
-     *         是否忽略大小写
+     *            是否忽略大小写
      * @return key前缀相同的属性集合
      */
     public static Map<String, Object> filterStartWith(String prefix, Map<String, Object> map, boolean ignoreCase) {

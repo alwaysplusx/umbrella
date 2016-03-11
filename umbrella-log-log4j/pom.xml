@@ -10,7 +10,8 @@
   <dependencies>
     <dependency>
       <groupId>com.harmony.umbrella</groupId>
-      <artifactId>umbrella-core</artifactId>
+      <artifactId>umbrella-log</artifactId>
+      <version>0.0.5-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>log4j</groupId>

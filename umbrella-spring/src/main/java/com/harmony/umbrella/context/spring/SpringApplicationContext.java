@@ -15,7 +15,7 @@
  */
 package com.harmony.umbrella.context.spring;
 
-import java.util.Map;
+import java.net.URL;
 
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
@@ -31,9 +31,8 @@ public class SpringApplicationContext extends ApplicationContext implements Bean
 
     private org.springframework.context.ApplicationContext springContext;
 
-    public SpringApplicationContext(org.springframework.context.ApplicationContext springContext, Map<?, ?> properties) {
+    public SpringApplicationContext(org.springframework.context.ApplicationContext springContext, URL url) {
         this.springContext = springContext;
-        this.contextProperties.putAll(properties);
     }
 
     @SuppressWarnings("unchecked")

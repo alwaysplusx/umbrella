@@ -29,7 +29,6 @@ import javax.persistence.metamodel.Metamodel;
 import javax.persistence.metamodel.SingularAttribute;
 
 import com.harmony.umbrella.data.EntityInformation;
-import com.harmony.umbrella.util.FieldUtils;
 import com.harmony.umbrella.util.ReflectionUtils;
 
 /**
@@ -72,17 +71,17 @@ public class JpaEntityInformation<T, ID extends Serializable> extends DefaultEnt
     public ID getId(T entity) {
         if (identifiableType.hasSingleIdAttribute()) {
             SingularAttribute<? super T, ?> idAttr = identifiableType.getId(identifiableType.getIdType().getJavaType());
-            return (ID) FieldUtils.getFieldValue(idAttr.getName(), entity);
+            return (ID) ReflectionUtils.getFieldValue(idAttr.getName(), entity);
         }
         try {
             boolean partialIdValueFound = false;
             ID id = ReflectionUtils.instantiateClass(getIdType());
             for (SingularAttribute<? super T, ?> attr : getIdAttributes()) {
-                Object value = FieldUtils.getFieldValue(attr.getName(), entity);
+                Object value = ReflectionUtils.getFieldValue(attr.getName(), entity);
                 if (value != null) {
                     partialIdValueFound = true;
                 }
-                FieldUtils.setFieldValue(attr.getName(), id, value);
+                ReflectionUtils.setFieldValue(attr.getName(), id, value);
             }
             return partialIdValueFound ? id : null;
         } catch (Exception e) {
@@ -135,7 +134,7 @@ public class JpaEntityInformation<T, ID extends Serializable> extends DefaultEnt
     public Object getCompositeIdAttributeValue(Serializable id, String idAttribute) {
         if (!hasCompositeId())
             throw new IllegalArgumentException("not composite id entity");
-        return FieldUtils.getFieldValue(idAttribute, id);
+        return ReflectionUtils.getFieldValue(idAttribute, id);
     }
 
 }

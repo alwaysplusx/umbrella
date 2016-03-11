@@ -33,7 +33,7 @@ import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.harmony.umbrella.core.InvokeException;
 import com.harmony.umbrella.json.Json;
 import com.harmony.umbrella.util.Assert;
-import com.harmony.umbrella.util.MethodUtils;
+import com.harmony.umbrella.util.ReflectionUtils;
 import com.harmony.umbrella.util.StringUtils;
 import com.harmony.umbrella.validator.ValidVisitor;
 import com.harmony.umbrella.validator.util.ValidatorUtils;
@@ -160,8 +160,8 @@ public abstract class ServerValidation {
             }
 
             try {
-                method = MethodUtils.findReadMethod(targetClass, field);
-                return MethodUtils.invokeMethod(method, target);
+                method = ReflectionUtils.findReadMethod(targetClass, field);
+                return ReflectionUtils.invokeMethod(method, target);
             } catch (NoSuchMethodException e1) {
                 throw new InvokeException(e1);
             }

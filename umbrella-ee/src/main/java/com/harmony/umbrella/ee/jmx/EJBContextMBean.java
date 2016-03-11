@@ -34,29 +34,17 @@ public interface EJBContextMBean {
 
     /**
      * 查看是否存在类型为clazz的会话bean
-     * 
-     * @return
      */
     boolean exists(String className);
 
     /**
      * 当前上下文属性文件所在位置
-     * 
-     * @return
      */
-    String jndiPropertiesFilePath();
+    String jndiPropertiesFileLocation();
 
     /**
-     * 清除指定jndi的缓存
-     * 
-     * @param jndi
-     *            jndi名称
+     * 展示现在所有的资源属性
      */
-    void clear(String jndi);
-
-    /**
-     * 清除缓存资源
-     */
-    void clear();
+    String showProperties();
 
 }

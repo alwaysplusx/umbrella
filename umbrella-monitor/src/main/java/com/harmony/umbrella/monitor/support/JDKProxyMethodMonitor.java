@@ -21,7 +21,7 @@ import java.util.Calendar;
 
 import com.harmony.umbrella.monitor.annotation.Monitor;
 import com.harmony.umbrella.monitor.graph.DefaultMethodGraph;
-import com.harmony.umbrella.util.MethodUtils;
+import com.harmony.umbrella.util.ReflectionUtils;
 
 /**
  * @author wuxii@foxmail.com
@@ -81,7 +81,7 @@ public class JDKProxyMethodMonitor extends AbstractMethodMonitorInterceptor<Prox
 
     @Override
     protected Object process(ProxyInvocationContext ctx) throws Exception {
-        return MethodUtils.invokeMethod(ctx.method, target, ctx.arguments);
+        return ReflectionUtils.invokeMethod(ctx.method, target, ctx.arguments);
     }
 
     @Override

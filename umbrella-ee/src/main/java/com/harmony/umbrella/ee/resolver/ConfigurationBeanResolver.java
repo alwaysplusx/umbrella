@@ -47,30 +47,32 @@ public class ConfigurationBeanResolver implements BeanResolver {
 
     private static final Log log = Logs.getLog(ConfigurationBeanResolver.class);
 
+    private final Properties containerProperties = new Properties();
+
     /**
      * jndi的全局前缀
      */
-    protected final String globalPrefix;
+    protected String globalPrefix;
 
     /**
      * jndi名称与remoteClass中间的分割符, default '#'
      */
-    protected final Set<String> separators = new HashSet<String>();
+    protected final List<String> separators = new ArrayList<String>();
 
     /**
      * 组装mappedName需要添加的后缀
      */
-    protected final Set<String> beanSuffixes = new HashSet<String>();
+    protected final List<String> beanSuffixes = new ArrayList<String>();
 
     /**
      * jndi需要添加的class后缀
      */
-    protected final Set<String> remoteSuffixes = new HashSet<String>();
+    protected final List<String> remoteSuffixes = new ArrayList<String>();
 
     /**
      * local对于的后缀
      */
-    protected final Set<String> localSuffixes = new HashSet<String>();
+    protected final List<String> localSuffixes = new ArrayList<String>();
 
     /**
      * lookup到的bean如果是对应于应用服务器的封装类的解析工具
@@ -83,48 +85,37 @@ public class ConfigurationBeanResolver implements BeanResolver {
     private boolean transformLocal;
 
     public ConfigurationBeanResolver(Properties props) {
-        this.globalPrefix = props.getProperty("jndi.format.global.prefix", "");
-        this.transformLocal = Boolean.valueOf(props.getProperty("jndi.format.transformLocal"));
-        this.beanSuffixes.addAll(fromProps(props, "jndi.format.bean"));
-        this.separators.addAll(fromProps(props, "jndi.format.separator"));
-        this.remoteSuffixes.addAll(fromProps(props, "jndi.format.remote"));
-        this.localSuffixes.addAll(fromProps(props, "jndi.format.local"));
-        this.wrappedBeanHandlers.addAll(createFromProps(props, "jndi.wrapped.handler", WrappedBeanHandler.class));
+        this.containerProperties.putAll(props);
+        init();
     }
 
-    /**
-     * 读取资源文件中的值， 根据值对于的内容创建需要的实例
-     */
-    @SuppressWarnings("unchecked")
-    protected <T> Set<T> createFromProps(Properties props, String key, Class<T> requireType) {
-        String value = props.getProperty(key);
-        if (StringUtils.isBlank(value)) {
-            return Collections.emptySet();
-        }
-        StringTokenizer st = new StringTokenizer(value, ",");
-        Set<T> result = new HashSet<T>(st.countTokens());
-        while (st.hasMoreTokens()) {
-            String className = st.nextToken().trim();
-            Class<T> clazz;
-            try {
-                clazz = (Class<T>) Class.forName(className, false, ClassUtils.getDefaultClassLoader());
-                result.add(ReflectionUtils.instantiateClass(clazz));
-            } catch (Exception e) {
-                log.warn("", e);
+    private void init() {
+        final Properties p = containerProperties;
+        this.globalPrefix = p.getProperty("jndi.format.global.prefix", "");
+        this.transformLocal = Boolean.valueOf(p.getProperty("jndi.format.transformLocal", "true"));
+        this.beanSuffixes.addAll(splitProperty(p.getProperty("jndi.format.bean", "Bean, ")));
+        this.remoteSuffixes.addAll(splitProperty(p.getProperty("jndi.format.remote", "Remote, ")));
+        this.localSuffixes.addAll(splitProperty(p.getProperty("jndi.format.local", "Local, ")));
+        this.separators.addAll(splitProperty(p.getProperty("jndi.format.separator", "#")));
+        String property = p.getProperty("jndi.wrapped.handler");
+        if (property != null) {
+            Set<String> classNames = splitProperty(property);
+            for (String className : classNames) {
+                try {
+                    Class<?> clazz = Class.forName(className);
+                    this.wrappedBeanHandlers.add((WrappedBeanHandler) ReflectionUtils.instantiateClass(clazz));
+                } catch (Throwable e) {
+                    log.warn("{}", e);
+                }
             }
         }
-        return result;
     }
 
     /**
      * 读取资源文件的内容， 并将内容分割问set对象
      */
-    protected Set<String> fromProps(Properties props, String key) {
-        String value = props.getProperty(key);
-        if (StringUtils.isBlank(value)) {
-            return Collections.emptySet();
-        }
-        StringTokenizer st = new StringTokenizer(value, ",");
+    protected Set<String> splitProperty(String property) {
+        StringTokenizer st = new StringTokenizer(property, ",");
         Set<String> result = new HashSet<String>(st.countTokens());
         while (st.hasMoreTokens()) {
             result.add(st.nextToken().trim());
@@ -141,9 +132,9 @@ public class ConfigurationBeanResolver implements BeanResolver {
         Class<?> remoteClass = declare.getSuitableRemoteClass();
         if (log.isDebugEnabled()) {
             log.debug("\ntest it is declare bean? "//
-                            + "\n\tremoteClass -> {}"//
-                            + "\n\tbeanClass   -> {}"//
-                            + "\n\tbean        -> {}",//
+                    + "\n\tremoteClass -> {}"//
+                    + "\n\tbeanClass   -> {}"//
+                    + "\n\tbean        -> {}",//
                     remoteClass, declare.getBeanClass(), bean);
         }
         return declare.getBeanClass().isInstance(bean) || (remoteClass != null && remoteClass.isInstance(bean));
@@ -213,22 +204,6 @@ public class ConfigurationBeanResolver implements BeanResolver {
         }
     }
 
-    public List<WrappedBeanHandler> getWrappedBeanHandlers() {
-        return wrappedBeanHandlers;
-    }
-
-    public Set<String> getBeanSuffixes() {
-        return beanSuffixes;
-    }
-
-    public Set<String> getRemoteSuffixes() {
-        return remoteSuffixes;
-    }
-
-    public Set<String> getLocalSuffixes() {
-        return localSuffixes;
-    }
-
     public String getGlobalPrefix() {
         return globalPrefix;
     }
@@ -271,14 +246,15 @@ public class ConfigurationBeanResolver implements BeanResolver {
         /**
          * 格式划jndi, 再判断jndi是否存在于上下文中
          * <p/>
+         * 
          * <pre>
          *   JNDI = prefix() + beanSuffix + separator + package + . + prefix() + remoteSuffix
          * </pre>
          *
          * @param mappedName
-         *         bean的映射名称
+         *            bean的映射名称
          * @param remoteClass
-         *         remote的类型
+         *            remote的类型
          */
         protected void addIfNotExists(String mappedName, Class<?> remoteClass) {
             for (String separator : separators) {
@@ -305,18 +281,19 @@ public class ConfigurationBeanResolver implements BeanResolver {
      * 通过local接口查找会话bean解决策略
      * <p/>
      * <p/>
+     * 
      * <pre>
      *  如：com.harmony.FooLocal
      *      beanSuffix = Bean
      *      localSuffix = Local
      *      remoteSuffix = Remote
-     *
+     * 
      *  结果为 ：
-     *
+     * 
      *      FooBean#com.harmony.FooLocal
-     *
+     * 
      *  另，可开启local转化关系{@linkplain ConfigurationBeanResolver#transformLocal transformLocal}为true， 将local的结尾转为remote形式
-     *
+     * 
      *  结果为:
      *      FooBean#com.harmony.FooRemote
      * </pre>
@@ -396,15 +373,16 @@ public class ConfigurationBeanResolver implements BeanResolver {
      * 通过remote接口查找会话bean的解决策略
      * <p/>
      * <p/>
+     * 
      * <pre>
      * 如: com.harmony.FooRemote
-     *
+     * 
      *      remoteSuffixs = Remote
      *      beanSuffixs = Bean
      *      beanSeparators = #
-     *
+     * 
      * 结果为：
-     *
+     * 
      *      FooBean#com.harmony.FooRemote
      * </pre>
      */
@@ -455,13 +433,14 @@ public class ConfigurationBeanResolver implements BeanResolver {
      * 通过会话bean找到会话beans实例
      * <p/>
      * <p/>
+     * 
      * <pre>
      *  如：com.harmony.FooBean
-     *
+     * 
      *      remoteSuffix = Remote
      *      beanSuffix = Bean
      *  结果为：
-     *
+     * 
      *     FooBean#com.harmony.FooRemote
      *
      * </pre>

@@ -110,15 +110,15 @@ public class Logs {
 
         @Override
         protected void logMessage(Level level, Message message, Throwable t) {
-            print(level, message.getFormattedMessage());
+            print(level, message.getFormattedMessage(), t);
         }
 
         @Override
         protected void logMessage(Level level, LogInfo logInfo) {
-            print(level, logInfo.toString());
+            print(level, logInfo.toString(), logInfo.getException());
         }
 
-        private void print(Level level, String message) {
+        private void print(Level level, String message, Throwable t) {
             OutputStream stream;
 
             if (level.isMoreSpecificThan(Level.WARN)) {
@@ -136,6 +136,9 @@ public class Logs {
 
             try {
                 stream.write(sb.toString().getBytes());
+                if (t != null) {
+                    t.printStackTrace();
+                }
             } catch (IOException e) {
                 e.printStackTrace();
             }

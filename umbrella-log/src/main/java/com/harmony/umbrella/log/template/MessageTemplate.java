@@ -24,7 +24,7 @@ import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.regex.Pattern;
 
-import com.harmony.umbrella.log.Logs;
+import com.harmony.umbrella.log.IllegalExpressionException;
 import com.harmony.umbrella.log.Message;
 import com.harmony.umbrella.log.Template;
 import com.harmony.umbrella.log.annotation.Log;
@@ -39,12 +39,14 @@ public class MessageTemplate implements Template {
     public static final String ARRAY_EXPRESSION_PATTERN = "\\w+\\[[0-9]+\\]";
     public static final String MAP_EXPRESSION_PATTERN = "\\w+\\[\\w+\\]";
     public static final String NUMBER_EXPRESSION_PATTERN = "[0-9]+";
+    public static final String STARTWITHNUMBER_EXPRESSION_PATTERN = "[0-9]+(\\[\\w*\\])?|(\\.\\w*)?";
 
     protected static final Pattern arrayExpressionPattern = Pattern.compile(ARRAY_EXPRESSION_PATTERN);
     protected static final Pattern mapExpressionPattern = Pattern.compile(MAP_EXPRESSION_PATTERN);
     protected static final Pattern numberExpressionPattern = Pattern.compile(NUMBER_EXPRESSION_PATTERN);
+    protected static final Pattern startWithNumberExpressionPattern = Pattern.compile(STARTWITHNUMBER_EXPRESSION_PATTERN);
 
-    private static final com.harmony.umbrella.log.Log log = Logs.getLog(MessageTemplate.class);
+    // private static final com.huiju.module.logging.Log log = Logs.getLog(MessageTemplate.class);
 
     protected final Log ann;
     protected final Method method;
@@ -99,45 +101,48 @@ public class MessageTemplate implements Template {
      */
     protected final Object getExpressionValue(final String expression, Object target, Object result, Object[] params) {
         if (expression == null || "".equals(expression)) {
-            throw new IllegalArgumentException("expression is null or empty");
+            throw new IllegalExpressionException("expression is null or empty");
         }
 
         final String exp = clearExpression(expression);
 
         if ("target".equals(exp)) {
             return target;
+
         } else if ("result".equals(exp)) {
             return result;
+
         } else if ("id".equals(exp)) {
             return getId(target, result, params);
-        } else if (exp.startsWith("target.")) {
-            return getValue(exp, target);
-        } else if (exp.startsWith("result.")) {
-            return getValue(exp, result);
-        } else if (exp.startsWith("id.")) {
-            return getValue(exp, getId(target, result, params));
-        } else if (isNumberExpression(exp)) {
-            // 表达式为数字，由params参数中找出值
-            int index = Integer.parseInt(exp);
-            if (index >= params.length) {
-                throw new ArrayIndexOutOfBoundsException(index);
-            }
-            return params[index];
+
         } else {
             int dotIndex = exp.indexOf(".");
-            if (dotIndex > 0) {
-                String firstExpression = exp.substring(0, dotIndex);
-                if (isNumberExpression(firstExpression)) {
-                    int index = Integer.parseInt(firstExpression);
-                    if (index >= params.length) {
-                        throw new ArrayIndexOutOfBoundsException(index);
-                    }
-                    return getValue(exp.substring(dotIndex + 1), params[index]);
-                }
+            String firstExp = dotIndex > 0 ? exp.substring(0, dotIndex) : exp;
+
+            Object value = null;
+            if (firstExp.startsWith("target")) {
+                value = target;
+            } else if (firstExp.startsWith("result")) {
+                value = result;
+            } else if (firstExp.startsWith("id")) {
+                value = getId(target, result, params);
+            } else if (startWithNumber(firstExp)) {
+                value = params[getFirstNumber(firstExp)];
+            } else {
+                return getUnrecognizedExpressionValue(expression, target, result, params);
             }
+
+            if (isComplexExpression(firstExp)) {
+                value = getComplexExpressionValue(firstExp, value);
+            }
+
+            if (dotIndex == -1) {
+                return value;
+            }
+
+            return getValue(exp.substring(dotIndex + 1), value);
         }
 
-        return getUnrecognizedExpressionValue(expression, target, result, params);
     }
 
     public final String clearExpression(String expression) {
@@ -150,7 +155,7 @@ public class MessageTemplate implements Template {
         return expression.trim();
     }
 
-    protected Object getUnrecognizedExpressionValue(String expression, Object value, Object result, Object[] params) {
+    protected Object getUnrecognizedExpressionValue(String expression, Object target, Object result, Object[] params) {
         return null;
     }
 
@@ -173,43 +178,83 @@ public class MessageTemplate implements Template {
 
     /**
      * 求单个表达式的值
-     * @throws Exception 
+     * 
+     * @throws Exception
      */
-    @SuppressWarnings("rawtypes")
     protected Object getSingleExpressionValue(String expression, Object value) throws Exception {
         final int index = expression.indexOf("[");
         final String name = index > 0 ? expression.substring(0, index) : expression;
 
         Object result = accessValue(name, value);
 
-        if (index > 0) {
-            if (isArrayExpression(expression)) {
-                return getValueInArrayOrCollection(getArrayExpressionIndex(expression), result);
-            } else if (isMapExpression(expression) && result instanceof Map) {
-                return ((Map) result).get(getMapExpressionKey(expression));
-            }
-            log.warn("expression {} exist '[' but result is not array or map", result);
+        if (isComplexExpression(expression)) {
+            result = getComplexExpressionValue(expression, result);
         }
 
         return result;
     }
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
-    private Object getValueInArrayOrCollection(int expressionArrayIndex, Object result) {
-        Class<?> resultClass = result.getClass();
-        if (result instanceof Collection) {
-            ArrayList list = new ArrayList((Collection) result);
-            if (list.size() > expressionArrayIndex) {
-                return list.get(expressionArrayIndex);
+    /**
+     * 通过表达式中的[xx]部分找到对应的value值
+     */
+    protected Object getComplexExpressionValue(String expression, Object value) {
+        if (value != null) {
+            if (isArrayExpression(expression)) {
+                Class<?> resultClass = value.getClass();
+                int arrayIndex = getArrayExpressionIndex(expression);
+                if (resultClass.isArray()) {
+                    value = getValueInArray(arrayIndex, value);
+                } else if (value instanceof Collection) {
+                    value = getValueInCollection(arrayIndex, value);
+                } else {
+                    throw new IllegalArgumentException("expression is array expression, but value object is not collection or array");
+                }
+            } else if (isMapExpression(expression)) {
+                String key = getMapExpressionKey(expression);
+                if (value instanceof Map) {
+                    value = getValueInMap(key, value);
+                } else {
+                    throw new IllegalArgumentException("expression is map expression, but value is not map");
+                }
             }
-            throw new ArrayIndexOutOfBoundsException(expressionArrayIndex);
-        } else if (resultClass.isArray()) {
-            // TODO 数组支持
         }
-        throw new RuntimeException("unsupported array type " + resultClass.getName());
+        return value;
     }
 
-    private Object accessValue(String name, Object value) throws Exception {
+    private Object getValueInArray(int index, Object value) {
+        Object result = null;
+        if (value instanceof Object[]) {
+            result = ((Object[]) value)[index];
+        } else if (value instanceof String[]) {
+            result = ((String[]) value)[index];
+        } else if (value instanceof Integer[]) {
+            result = ((Integer[]) value)[index];
+        } else if (value instanceof Long[]) {
+            result = ((Long[]) value)[index];
+        } else if (value instanceof long[]) {
+            result = ((long[]) value)[index];
+        } else if (value instanceof int[]) {
+            result = ((int[]) value)[index];
+        } else {
+            throw new IllegalArgumentException("unsupported array type " + value.getClass().getName());
+        }
+        return result;
+    }
+
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    private Object getValueInCollection(int index, Object value) {
+        return new ArrayList((Collection) value).get(index);
+    }
+
+    @SuppressWarnings("rawtypes")
+    private Object getValueInMap(String key, Object value) {
+        return ((Map) value).get(key);
+    }
+
+    /**
+     * 使用反射获取value中对应的name
+     */
+    protected final Object accessValue(String name, Object value) throws Exception {
         Object result = null;
         Class<?> targetClass = value.getClass();
         try {
@@ -230,18 +275,43 @@ public class MessageTemplate implements Template {
     /**
      * 检测表达式是否是数组表达式
      */
-    public boolean isArrayExpression(String expression) {
+    public final boolean isArrayExpression(String expression) {
         return arrayExpressionPattern.matcher(expression).matches();
     }
 
-    public boolean isMapExpression(String expression) {
+    public final boolean isMapExpression(String expression) {
         return mapExpressionPattern.matcher(expression).matches();
     }
 
-    public boolean isNumberExpression(String expression) {
+    public final boolean isNumberExpression(String expression) {
         return numberExpressionPattern.matcher(expression).matches();
     }
 
+    public final boolean startWithNumber(String expression) {
+        return startWithNumberExpressionPattern.matcher(expression).matches();
+    }
+
+    /**
+     * 判断是否为复合型表达式，复合型表达式为name[value],带有[]来表示数组以及map中的index或key
+     */
+    public final boolean isComplexExpression(String expression) {
+        return isArrayExpression(expression) || isMapExpression(expression);
+    }
+
+    protected final int getFirstNumber(String expression) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0, max = expression.length(); i < max; i++) {
+            if (Character.isDigit(expression.charAt(i))) {
+                sb.append(expression.charAt(i));
+            }
+        }
+        return Integer.parseInt(sb.toString());
+    }
+
+    /**
+     * 配合{@linkplain #isMapExpression(String)}确定为map的表达式，再使用该方法取
+     * <code>name[xx]</code>中的xx值
+     */
     protected final String getMapExpressionKey(String expression) {
         int left = expression.indexOf("[");
         int right = expression.indexOf("]");
@@ -251,6 +321,10 @@ public class MessageTemplate implements Template {
         return null;
     }
 
+    /**
+     * 配合{@linkplain #isArrayExpression(String)}确定为array表达式，在使用该方法取
+     * <code>name[num]</code>中的数字num
+     */
     protected final int getArrayExpressionIndex(String expression) {
         int left = expression.indexOf("[");
         int right = expression.indexOf("]");
