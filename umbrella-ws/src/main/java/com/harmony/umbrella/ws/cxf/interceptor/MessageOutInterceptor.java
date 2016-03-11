@@ -31,14 +31,14 @@ import org.apache.cxf.io.CachedOutputStreamCallback;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.Phase;
 
-import com.harmony.umbrella.ws.cxf.log.LogMessageHandler;
+import com.harmony.umbrella.ws.cxf.log.CXFLogMessageHandler;
 
 /**
  * @author wuxii@foxmail.com
  */
 public class MessageOutInterceptor extends AbstractMessageInterceptor {
 
-    protected LogMessageHandler handler;
+    protected CXFLogMessageHandler handler;
 
     public MessageOutInterceptor() {
         this("Outbound");
@@ -49,7 +49,7 @@ public class MessageOutInterceptor extends AbstractMessageInterceptor {
         addBefore(StaxOutInterceptor.class.getName());
     }
 
-    public MessageOutInterceptor(String heading, LogMessageHandler handler) {
+    public MessageOutInterceptor(String heading, CXFLogMessageHandler handler) {
         super(heading, Phase.PRE_STREAM);
         this.handler = handler;
         addBefore(StaxOutInterceptor.class.getName());
@@ -125,11 +125,11 @@ public class MessageOutInterceptor extends AbstractMessageInterceptor {
         return payload.toString();
     }
 
-    public LogMessageHandler getHandler() {
+    public CXFLogMessageHandler getHandler() {
         return handler;
     }
 
-    public void setHandler(LogMessageHandler handler) {
+    public void setHandler(CXFLogMessageHandler handler) {
         this.handler = handler;
     }
 

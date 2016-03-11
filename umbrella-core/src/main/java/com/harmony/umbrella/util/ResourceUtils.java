@@ -44,9 +44,9 @@ import java.net.URLConnection;
  * @author Juergen Hoeller
  * @since 1.1.5
  * @see org.springframework.core.io.Resource
- * @see org.springframework.core.io.ClassPathResource
- * @see org.springframework.core.io.FileSystemResource
- * @see org.springframework.core.io.UrlResource
+ * @see com.harmony.umbrella.io.resource.springframework.core.io.ClassPathResource
+ * @see com.harmony.umbrella.io.resource.springframework.core.io.FileSystemResource
+ * @see com.harmony.umbrella.io.resource.springframework.core.io.UrlResource
  * @see org.springframework.core.io.ResourceLoader
  */
 public abstract class ResourceUtils {

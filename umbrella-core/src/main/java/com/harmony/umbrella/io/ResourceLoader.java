@@ -15,6 +15,8 @@
  */
 package com.harmony.umbrella.io;
 
+import com.harmony.umbrella.io.resource.DefaultResourceLoader;
+
 /**
  * Strategy interface for loading resources (e.. class path or file system
  * resources). An {@link org.springframework.context.ApplicationContext}

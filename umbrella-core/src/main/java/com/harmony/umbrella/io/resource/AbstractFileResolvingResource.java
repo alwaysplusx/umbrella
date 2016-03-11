@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.umbrella.io.support;
+package com.harmony.umbrella.io.resource;
 
 import java.io.File;
 import java.io.IOException;
@@ -23,9 +23,6 @@ import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
 
-import com.harmony.umbrella.io.AbstractResource;
-import com.harmony.umbrella.io.ClassPathResource;
-import com.harmony.umbrella.io.UrlResource;
 import com.harmony.umbrella.util.ResourceUtils;
 
 /**

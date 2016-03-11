@@ -13,11 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.umbrella.io;
+package com.harmony.umbrella.io.resource;
 
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import com.harmony.umbrella.io.Resource;
+import com.harmony.umbrella.io.ResourceLoader;
 import com.harmony.umbrella.util.ClassUtils;
 import com.harmony.umbrella.util.StringUtils;
 

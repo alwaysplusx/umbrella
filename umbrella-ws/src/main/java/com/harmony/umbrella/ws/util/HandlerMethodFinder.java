@@ -31,13 +31,12 @@ import java.util.Map;
 import com.harmony.umbrella.UmbrellaProperties;
 import com.harmony.umbrella.log.Log;
 import com.harmony.umbrella.log.Logs;
-
-import com.harmony.umbrella.io.ResourceManager;
+import com.harmony.umbrella.io.support.ResourceManager;
 import com.harmony.umbrella.util.ClassUtils;
 import com.harmony.umbrella.util.ClassUtils.ClassFilter;
 import com.harmony.umbrella.util.ClassUtils.ClassFilterFeature;
-import com.harmony.umbrella.ws.Handler;
-import com.harmony.umbrella.ws.Handler.HandleMethod;
+import com.harmony.umbrella.ws.annotation.Handler;
+import com.harmony.umbrella.ws.annotation.Handler.HandleMethod;
 import com.harmony.umbrella.ws.Phase;
 import com.harmony.umbrella.ws.WebServiceAbortException;
 

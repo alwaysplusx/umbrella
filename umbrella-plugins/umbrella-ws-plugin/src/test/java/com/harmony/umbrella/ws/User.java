@@ -18,6 +18,8 @@ package com.harmony.umbrella.ws;
 import java.io.Serializable;
 import java.util.Calendar;
 
+import com.harmony.umbrella.ws.annotation.Key;
+
 /**
  * @author wuxii@foxmail.com
  */

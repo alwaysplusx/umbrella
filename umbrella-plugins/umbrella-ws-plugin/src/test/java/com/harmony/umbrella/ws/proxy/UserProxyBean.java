@@ -22,11 +22,10 @@ import javax.ejb.Stateless;
 
 import com.harmony.umbrella.log.Log;
 import com.harmony.umbrella.log.Logs;
-
-import com.harmony.umbrella.ws.Syncable;
 import com.harmony.umbrella.ws.User;
 import com.harmony.umbrella.ws.UserProxy;
 import com.harmony.umbrella.ws.UserService;
+import com.harmony.umbrella.ws.annotation.Syncable;
 import com.harmony.umbrella.ws.jaxws.JaxWsExecutorSupport;
 import com.harmony.umbrella.ws.ser.Message;
 

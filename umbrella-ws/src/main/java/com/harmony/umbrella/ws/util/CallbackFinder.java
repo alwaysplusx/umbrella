@@ -20,12 +20,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.harmony.umbrella.io.ResourceManager;
+import com.harmony.umbrella.io.support.ResourceManager;
 import com.harmony.umbrella.log.Log;
 import com.harmony.umbrella.log.Logs;
 import com.harmony.umbrella.util.ClassUtils.ClassFilter;
-import com.harmony.umbrella.ws.SyncCallback;
-import com.harmony.umbrella.ws.Syncable;
+import com.harmony.umbrella.ws.annotation.Syncable;
+import com.harmony.umbrella.ws.proxy.SyncCallback;
 
 /**
  * 通过扫描类路径下的类，过滤标注有{@linkplain Syncable}注解的类

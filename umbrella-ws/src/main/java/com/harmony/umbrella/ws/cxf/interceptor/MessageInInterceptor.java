@@ -28,14 +28,14 @@ import org.apache.cxf.io.DelegatingInputStream;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.Phase;
 
-import com.harmony.umbrella.ws.cxf.log.LogMessageHandler;
+import com.harmony.umbrella.ws.cxf.log.CXFLogMessageHandler;
 
 /**
  * @author wuxii@foxmail.com
  */
 public class MessageInInterceptor extends AbstractMessageInterceptor {
 
-    protected LogMessageHandler handler;
+    protected CXFLogMessageHandler handler;
 
     public MessageInInterceptor() {
         this("Inbound");
@@ -45,7 +45,7 @@ public class MessageInInterceptor extends AbstractMessageInterceptor {
         this(type, Phase.RECEIVE, null);
     }
 
-    public MessageInInterceptor(String type, String phase, LogMessageHandler handler) {
+    public MessageInInterceptor(String type, String phase, CXFLogMessageHandler handler) {
         super(type, phase);
         this.handler = handler;
     }
@@ -105,11 +105,11 @@ public class MessageInInterceptor extends AbstractMessageInterceptor {
         return buffer.toString();
     }
 
-    public LogMessageHandler getHandler() {
+    public CXFLogMessageHandler getHandler() {
         return handler;
     }
 
-    public void setHandler(LogMessageHandler handler) {
+    public void setHandler(CXFLogMessageHandler handler) {
         this.handler = handler;
     }
 

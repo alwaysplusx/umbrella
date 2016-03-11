@@ -27,11 +27,11 @@ import com.harmony.umbrella.context.ApplicationContext;
 import com.harmony.umbrella.core.BeanFactory;
 import com.harmony.umbrella.ws.Context;
 import com.harmony.umbrella.ws.ProxyExecutor;
-import com.harmony.umbrella.ws.SyncCallback;
-import com.harmony.umbrella.ws.Syncable;
 import com.harmony.umbrella.ws.WebServiceAbortException;
+import com.harmony.umbrella.ws.annotation.Syncable;
 import com.harmony.umbrella.ws.proxy.Proxy;
 import com.harmony.umbrella.ws.proxy.ProxySyncCallback;
+import com.harmony.umbrella.ws.proxy.SyncCallback;
 import com.harmony.umbrella.ws.util.CallbackFinder;
 
 /**

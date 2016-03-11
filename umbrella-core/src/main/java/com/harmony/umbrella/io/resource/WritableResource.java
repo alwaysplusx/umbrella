@@ -13,10 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.umbrella.io;
+package com.harmony.umbrella.io.resource;
 
 import java.io.IOException;
 import java.io.OutputStream;
+
+import com.harmony.umbrella.io.Resource;
 
 /**
  * Extended interface for a resource that supports writing to it.

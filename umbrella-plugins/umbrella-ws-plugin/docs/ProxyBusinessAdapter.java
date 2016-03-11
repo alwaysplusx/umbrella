@@ -28,7 +28,7 @@ import com.harmony.umbrella.biz.AbstractBusiness;
 import com.harmony.umbrella.data.domain.Model;
 import com.harmony.umbrella.util.Assert;
 import com.harmony.umbrella.util.StringUtils;
-import com.harmony.umbrella.ws.Syncable;
+import com.harmony.umbrella.ws.annotation.Syncable;
 import com.harmony.umbrella.ws.jaxws.JaxWsExecutorSupport;
 import com.harmony.umbrella.ws.proxy.ProxySupport;
 import com.harmony.umbrella.ws.support.SimpleContext;

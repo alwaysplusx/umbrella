@@ -13,13 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.umbrella.ws;
+package com.harmony.umbrella.ws.annotation;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+
+import com.harmony.umbrella.ws.Context;
+import com.harmony.umbrella.ws.Phase;
+import com.harmony.umbrella.ws.WebServiceAbortException;
 
 /**
  * 为class标记{@linkplain Handler}, 表示被标记的class为{@linkplain Context}的处理类

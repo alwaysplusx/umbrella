@@ -42,7 +42,7 @@ import com.harmony.umbrella.ws.util.JaxWsInvoker;
  *
  * @author wuxii@foxmail.com
  */
-public class JaxWsCXFExecutor extends ProxyExecutorSupport {
+public class JaxWsCXFExecutor extends ProxyExecutorSupport implements JaxWsExecutor {
 
     private static final Log log = Logs.getLog(JaxWsCXFExecutor.class);
 

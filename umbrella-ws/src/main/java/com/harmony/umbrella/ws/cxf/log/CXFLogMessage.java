@@ -22,9 +22,9 @@ import com.harmony.umbrella.util.Exceptions;
 /**
  * @author wuxii@foxmail.com
  */
-public class LogMessage {
+public class CXFLogMessage {
 
-    public static final String ID_KEY = LogMessage.class.getName() + ".ID";
+    public static final String ID_KEY = CXFLogMessage.class.getName() + ".ID";
 
     private static final AtomicInteger ID = new AtomicInteger();
 
@@ -40,7 +40,7 @@ public class LogMessage {
     private Throwable exception; // 服务返回的异常信息
     private String operationName;
 
-    public LogMessage(String id, String type) {
+    public CXFLogMessage(String id, String type) {
         this.id = id;
         this.type = type;
         this.contentType = new StringBuilder();

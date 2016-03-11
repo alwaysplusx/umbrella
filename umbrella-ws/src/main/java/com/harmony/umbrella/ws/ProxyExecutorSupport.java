@@ -24,14 +24,12 @@ import javax.xml.ws.WebServiceException;
 import com.harmony.umbrella.log.Log;
 import com.harmony.umbrella.log.Logs;
 
-import com.harmony.umbrella.ws.jaxws.JaxWsExecutor;
-
 /**
- * 将{@linkplain JaxWsExecutor}的执行分为各个周期的抽象类
+ * 将{@linkplain ProxyExecutor}的执行分为各个周期的抽象类
  * 
  * @author wuxii@foxmail.com
  */
-public abstract class ProxyExecutorSupport implements JaxWsExecutor {
+public abstract class ProxyExecutorSupport implements ProxyExecutor {
 
     protected static final Log LOG = Logs.getLog(ProxyExecutorSupport.class);
 

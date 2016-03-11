@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.umbrella.ws;
+package com.harmony.umbrella.ws.proxy;
 
 import java.util.Map;
 

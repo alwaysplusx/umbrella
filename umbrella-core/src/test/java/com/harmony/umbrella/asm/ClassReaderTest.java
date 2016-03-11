@@ -20,8 +20,8 @@ import java.io.InputStream;
 
 import org.junit.Test;
 
-import com.harmony.umbrella.io.FileSystemResource;
 import com.harmony.umbrella.io.Resource;
+import com.harmony.umbrella.io.resource.FileSystemResource;
 
 /**
  * @author wuxii@foxmail.com

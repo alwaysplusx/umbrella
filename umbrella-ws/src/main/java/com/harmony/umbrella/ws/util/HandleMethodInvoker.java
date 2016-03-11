@@ -23,7 +23,7 @@ import com.harmony.umbrella.core.Invoker;
 import com.harmony.umbrella.ws.Phase;
 
 /**
- * 专为{@linkplain com.harmony.umbrella.ws.Handler.HandleMethod}提供的invoker
+ * 专为{@linkplain com.harmony.umbrella.ws.annotation.Handler.HandleMethod}提供的invoker
  * 
  * @author wuxii@foxmail.com
  */

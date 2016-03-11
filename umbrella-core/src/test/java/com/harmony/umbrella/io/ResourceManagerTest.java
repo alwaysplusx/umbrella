@@ -17,6 +17,7 @@ package com.harmony.umbrella.io;
 
 import org.junit.Test;
 
+import com.harmony.umbrella.io.support.ResourceManager;
 import com.harmony.umbrella.log.Log;
 import com.harmony.umbrella.log.Logs;
 

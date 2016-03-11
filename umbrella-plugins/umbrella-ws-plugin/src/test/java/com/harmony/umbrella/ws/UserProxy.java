@@ -17,8 +17,8 @@ package com.harmony.umbrella.ws;
 
 import javax.ejb.Remote;
 
-import com.harmony.umbrella.ws.SyncCallback;
 import com.harmony.umbrella.ws.proxy.Proxy;
+import com.harmony.umbrella.ws.proxy.SyncCallback;
 import com.harmony.umbrella.ws.ser.Message;
 
 /**

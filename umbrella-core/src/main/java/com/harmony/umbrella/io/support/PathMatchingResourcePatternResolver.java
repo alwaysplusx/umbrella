@@ -30,11 +30,11 @@ import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
-import com.harmony.umbrella.io.DefaultResourceLoader;
-import com.harmony.umbrella.io.FileSystemResource;
 import com.harmony.umbrella.io.Resource;
 import com.harmony.umbrella.io.ResourceLoader;
-import com.harmony.umbrella.io.UrlResource;
+import com.harmony.umbrella.io.resource.DefaultResourceLoader;
+import com.harmony.umbrella.io.resource.FileSystemResource;
+import com.harmony.umbrella.io.resource.UrlResource;
 import com.harmony.umbrella.log.Log;
 import com.harmony.umbrella.log.Logs;
 import com.harmony.umbrella.util.AntPathMatcher;
@@ -170,7 +170,7 @@ public class PathMatchingResourcePatternResolver implements ResourcePatternResol
      * DefaultResourceLoader. <p>ClassLoader access will happen via the thread
      * context class loader.
      * 
-     * @see org.springframework.core.io.DefaultResourceLoader
+     * @see com.harmony.umbrella.io.resource.springframework.core.io.DefaultResourceLoader
      */
     public PathMatchingResourcePatternResolver() {
         this.resourceLoader = new DefaultResourceLoader();
@@ -196,7 +196,7 @@ public class PathMatchingResourcePatternResolver implements ResourcePatternResol
      *            the ClassLoader to load classpath resources with, or
      *            {@code null} for using the thread context class loader at the
      *            time of actual resource access
-     * @see org.springframework.core.io.DefaultResourceLoader
+     * @see com.harmony.umbrella.io.resource.springframework.core.io.DefaultResourceLoader
      */
     public PathMatchingResourcePatternResolver(ClassLoader classLoader) {
         this.resourceLoader = new DefaultResourceLoader(classLoader);

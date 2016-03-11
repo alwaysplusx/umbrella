@@ -22,13 +22,13 @@ import java.util.Map;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
+
 import com.harmony.umbrella.log.Log;
 import com.harmony.umbrella.log.Logs;
-
-import com.harmony.umbrella.ws.Handler;
-import com.harmony.umbrella.ws.Handler.HandleMethod;
 import com.harmony.umbrella.ws.Phase;
 import com.harmony.umbrella.ws.WebServiceAbortException;
+import com.harmony.umbrella.ws.annotation.Handler;
+import com.harmony.umbrella.ws.annotation.Handler.HandleMethod;
 import com.harmony.umbrella.ws.services.HelloService;
 import com.harmony.umbrella.ws.services.HelloWebService;
 import com.harmony.umbrella.ws.support.SimpleContext;

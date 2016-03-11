@@ -33,7 +33,6 @@ import javax.validation.groups.Default;
 
 import com.harmony.umbrella.log.Log;
 import com.harmony.umbrella.log.Logs;
-
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.harmony.umbrella.context.ApplicationContext;
 import com.harmony.umbrella.context.CurrentContext;
@@ -48,7 +47,7 @@ import com.harmony.umbrella.util.I18NUtils.MessageBundle;
 import com.harmony.umbrella.util.StringUtils;
 import com.harmony.umbrella.validator.ValidVisitor;
 import com.harmony.umbrella.validator.util.ValidatorUtils;
-import com.harmony.umbrella.ws.Key;
+import com.harmony.umbrella.ws.annotation.Key;
 import com.harmony.umbrella.ws.ser.ServerValidation.MemberInvoker;
 
 /**
@@ -384,7 +383,7 @@ public abstract class ServerSupport {
     }
 
     /**
-     * 根据{@linkplain com.harmony.umbrella.ws.Key Key}获取传入的vo的对于key值
+     * 根据{@linkplain com.harmony.umbrella.ws.annotation.Key Key}获取传入的vo的对于key值
      * 
      * @param obj
      *            传入的vo

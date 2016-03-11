@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.umbrella.io;
+package com.harmony.umbrella.io.resource;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 
-import com.harmony.umbrella.io.support.AbstractFileResolvingResource;
+import com.harmony.umbrella.io.Resource;
 import com.harmony.umbrella.util.ClassUtils;
 import com.harmony.umbrella.util.ObjectUtils;
 import com.harmony.umbrella.util.StringUtils;

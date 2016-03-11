@@ -36,8 +36,8 @@ import org.apache.cxf.staxutils.StaxUtils;
 import com.harmony.umbrella.log.Log;
 import com.harmony.umbrella.log.Logs;
 import com.harmony.umbrella.util.StringUtils;
-import com.harmony.umbrella.ws.cxf.log.LogMessage;
-import com.harmony.umbrella.ws.cxf.log.LogMessageHandler;
+import com.harmony.umbrella.ws.cxf.log.CXFLogMessage;
+import com.harmony.umbrella.ws.cxf.log.CXFLogMessageHandler;
 
 /**
  * @author wuxii@foxmail.com
@@ -50,7 +50,7 @@ public abstract class AbstractMessageInterceptor extends AbstractPhaseIntercepto
 
     private final String type;
 
-    protected LogMessageHandler handler;
+    protected CXFLogMessageHandler handler;
 
     public AbstractMessageInterceptor(String type, String phase) {
         super(phase);
@@ -67,7 +67,7 @@ public abstract class AbstractMessageInterceptor extends AbstractPhaseIntercepto
         logging(buildLoggingMessage(message));
     }
 
-    protected void logging(LogMessage loggingMessage) {
+    protected void logging(CXFLogMessage loggingMessage) {
         if (handler != null) {
             try {
                 handler.handle(loggingMessage);
@@ -81,18 +81,18 @@ public abstract class AbstractMessageInterceptor extends AbstractPhaseIntercepto
 
     protected abstract String getPayload(Message message);
 
-    protected LogMessage buildLoggingMessage(Message message) throws Fault {
+    protected CXFLogMessage buildLoggingMessage(Message message) throws Fault {
 
         Exchange exchange = message.getExchange();
         Message otherMessage = exchange.getInMessage() == message ? exchange.getOutMessage() : exchange.getInMessage();
 
-        String id = (String) message.getExchange().get(LogMessage.ID_KEY);
+        String id = (String) message.getExchange().get(CXFLogMessage.ID_KEY);
         if (id == null) {
-            id = LogMessage.nextId();
-            message.getExchange().put(LogMessage.ID_KEY, id);
+            id = CXFLogMessage.nextId();
+            message.getExchange().put(CXFLogMessage.ID_KEY, id);
         }
 
-        final LogMessage logMessage = new LogMessage(id, type);
+        final CXFLogMessage cXFLogMessage = new CXFLogMessage(id, type);
 
         boolean proxyFlag = (Boolean) (message.get(Message.REQUESTOR_ROLE) == null ? false : message.get(Message.REQUESTOR_ROLE));
 
@@ -100,7 +100,7 @@ public abstract class AbstractMessageInterceptor extends AbstractPhaseIntercepto
 
         if (proxyFlag) {
             // 判断是否是客户端来的消息
-            logMessage.setType("Proxy-" + type);
+            cXFLogMessage.setType("Proxy-" + type);
 
             address = (String) message.get(Message.ENDPOINT_ADDRESS);
             if (address == null && otherMessage != null) {
@@ -118,7 +118,7 @@ public abstract class AbstractMessageInterceptor extends AbstractPhaseIntercepto
 
         } else {
             // 来自服务端的调用
-            logMessage.setType("Server-" + type);
+            cXFLogMessage.setType("Server-" + type);
 
             address = (String) message.get(Message.REQUEST_URL);
             if (address == null && otherMessage != null) {
@@ -141,49 +141,49 @@ public abstract class AbstractMessageInterceptor extends AbstractPhaseIntercepto
         }
 
         if (address != null) {
-            logMessage.getAddress().append(address);
+            cXFLogMessage.getAddress().append(address);
         }
 
         if (operationName != null) {
-            logMessage.setOperationName(operationName);
+            cXFLogMessage.setOperationName(operationName);
         }
 
         Integer responseCode = (Integer) message.get(Message.RESPONSE_CODE);
         if (responseCode != null) {
-            logMessage.getResponseCode().append(responseCode);
+            cXFLogMessage.getResponseCode().append(responseCode);
         }
 
         String encoding = (String) message.get(Message.ENCODING);
         if (encoding != null) {
-            logMessage.getEncoding().append(encoding);
+            cXFLogMessage.getEncoding().append(encoding);
         }
 
         Object headers = message.get(Message.PROTOCOL_HEADERS);
         if (headers != null) {
-            logMessage.getHeader().append(headers);
+            cXFLogMessage.getHeader().append(headers);
         }
 
         String httpMethod = (String) message.get(Message.HTTP_REQUEST_METHOD);
         if (httpMethod != null) {
-            logMessage.getHttpMethod().append(httpMethod);
+            cXFLogMessage.getHttpMethod().append(httpMethod);
         }
 
         String ct = (String) message.get(Message.CONTENT_TYPE);
         if (ct != null) {
-            logMessage.getContentType().append(ct);
+            cXFLogMessage.getContentType().append(ct);
         }
 
         String payload = getPayload(message);
         if (payload != null) {
-            logMessage.getPayload().append(payload);
+            cXFLogMessage.getPayload().append(payload);
         }
 
         Exception ex = message.getContent(Exception.class);
         if (ex != null) {
-            logMessage.setException(ex);
+            cXFLogMessage.setException(ex);
         }
 
-        return logMessage;
+        return cXFLogMessage;
 
     }
 
@@ -249,11 +249,11 @@ public abstract class AbstractMessageInterceptor extends AbstractPhaseIntercepto
         this.prettyLogging = prettyLogging;
     }
 
-    public LogMessageHandler getLogMessageHandler() {
+    public CXFLogMessageHandler getLogMessageHandler() {
         return handler;
     }
 
-    public void setLogMessageHandler(LogMessageHandler handler) {
+    public void setLogMessageHandler(CXFLogMessageHandler handler) {
         this.handler = handler;
     }
 }

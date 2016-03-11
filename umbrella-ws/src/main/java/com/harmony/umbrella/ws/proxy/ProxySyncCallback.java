@@ -15,7 +15,6 @@
  */
 package com.harmony.umbrella.ws.proxy;
 
-import com.harmony.umbrella.ws.SyncCallback;
 
 /**
  * @author wuxii@foxmail.com

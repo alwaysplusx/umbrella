@@ -23,7 +23,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
-import com.harmony.umbrella.io.ClassPathResource;
+import com.harmony.umbrella.io.resource.ClassPathResource;
 
 /**
  * 属性加载工具

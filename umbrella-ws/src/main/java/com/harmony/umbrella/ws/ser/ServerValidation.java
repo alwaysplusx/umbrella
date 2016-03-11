@@ -28,7 +28,6 @@ import javax.validation.groups.Default;
 
 import com.harmony.umbrella.log.Log;
 import com.harmony.umbrella.log.Logs;
-
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.harmony.umbrella.core.InvokeException;
 import com.harmony.umbrella.json.Json;
@@ -37,7 +36,7 @@ import com.harmony.umbrella.util.ReflectionUtils;
 import com.harmony.umbrella.util.StringUtils;
 import com.harmony.umbrella.validator.ValidVisitor;
 import com.harmony.umbrella.validator.util.ValidatorUtils;
-import com.harmony.umbrella.ws.Key;
+import com.harmony.umbrella.ws.annotation.Key;
 
 /**
  * 服务端的简单数据校验工具类,实际校验依赖于{@linkplain javax.validation.Validator}
