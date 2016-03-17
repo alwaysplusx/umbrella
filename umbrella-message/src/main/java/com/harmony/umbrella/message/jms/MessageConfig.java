@@ -15,16 +15,20 @@
  */
 package com.harmony.umbrella.message.jms;
 
+import javax.jms.Message;
 import javax.jms.MessageProducer;
-import javax.jms.Session;
 
 /**
  * @author wuxii@foxmail.com
  */
 public interface MessageConfig {
 
-    void configSession(Session session);
+    void configMessage(Message message);
 
     void configMessageProducer(MessageProducer messageProducer);
+
+    int sessionMode();
+
+    boolean transacted();
 
 }

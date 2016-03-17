@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2014 the original author or authors.
+ * Copyright 2012-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,23 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.umbrella.message;
+package com.harmony.umbrella.message.jms;
+
+import com.harmony.umbrella.message.Message;
+import com.harmony.umbrella.message.MessageSender;
 
 /**
- * 消息发送工具接口
- * 
  * @author wuxii@foxmail.com
  */
-public interface MessageSender {
+public interface JmsMessageSender extends MessageSender {
 
-    /**
-     * 发送消息给消息中心(JMS, NIO)
-     *
-     * @param message
-     *            需要发送的消息
-     * @return if return {@code true} 发送成功
-     * @see javax.jms.MessageProducer#send(javax.jms.Message)
-     */
-    boolean send(Message message);
+    boolean send(Message message, MessageConfig config);
 
 }

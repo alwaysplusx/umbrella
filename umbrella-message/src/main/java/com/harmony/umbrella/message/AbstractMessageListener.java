@@ -47,7 +47,7 @@ public abstract class AbstractMessageListener implements MessageListener {
         for (MessageResolver mr : getMessageResolvers()) {
             if (mr.support(message)) {
                 LOG.debug("{}处理消息{}", mr, message);
-                mr.handle(message);
+                mr.resolve(message);
             }
         }
     }

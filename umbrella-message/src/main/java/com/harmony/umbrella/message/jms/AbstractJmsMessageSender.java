@@ -25,16 +25,14 @@ import javax.jms.Session;
 
 import com.harmony.umbrella.log.Log;
 import com.harmony.umbrella.log.Logs;
-
 import com.harmony.umbrella.message.Message;
-import com.harmony.umbrella.message.MessageSender;
 
 /**
  * 基于JMS的消息发送基础抽象类
  * 
  * @author wuxii@foxmail.com
  */
-public abstract class AbstractJmsMessageSender implements MessageSender {
+public abstract class AbstractJmsMessageSender implements JmsMessageSender {
 
     private static final Log log = Logs.getLog(AbstractJmsMessageSender.class);
 
@@ -51,17 +49,22 @@ public abstract class AbstractJmsMessageSender implements MessageSender {
         try {
             connection = getConnectionFactory().createConnection();
             connection.start();
-            session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
             if (config != null) {
-                config.configSession(session);
+                connection.createSession(config.transacted(), config.sessionMode());
+            } else {
+                session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
             }
             producer = session.createProducer(getDestination());
             if (config != null) {
                 config.configMessageProducer(producer);
             }
             ObjectMessage om = session.createObjectMessage();
+            if (config != null) {
+                config.configMessage(om);
+            }
             om.setObject(message);
-            producer.send(om);
+            // custom in subclass can use jms more feature
+            send(producer, om);
         } catch (JMSException e) {
             log.error("发送失败{}", message, e);
             return false;
@@ -81,6 +84,10 @@ public abstract class AbstractJmsMessageSender implements MessageSender {
             }
         }
         return true;
+    }
+
+    protected void send(MessageProducer producer, javax.jms.Message message) throws JMSException {
+        producer.send(message);
     }
 
     /**

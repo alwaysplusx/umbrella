@@ -23,8 +23,8 @@ package com.harmony.umbrella.message;
 public abstract class AbstractMessageResolver<T> implements MessageResolver {
 
     @Override
-    public void handle(Message message) {
-        process(resolver(message));
+    public void resolve(Message message) {
+        process(convert(message));
     }
 
     /**
@@ -42,6 +42,6 @@ public abstract class AbstractMessageResolver<T> implements MessageResolver {
      *            待解析的消息
      * @return 解析后的消息
      */
-    protected abstract T resolver(Message message);
+    protected abstract T convert(Message message);
 
 }

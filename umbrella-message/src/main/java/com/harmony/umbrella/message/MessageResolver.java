@@ -37,6 +37,6 @@ public interface MessageResolver {
      * @param message
      *            消息
      */
-    void handle(Message message);
+    void resolve(Message message);
 
 }
