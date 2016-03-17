@@ -15,6 +15,8 @@
  */
 package com.harmony.umbrella.message;
 
+import com.harmony.umbrella.message.jms.MessageConfig;
+
 /**
  * 消息发送工具接口
  * 
@@ -31,5 +33,16 @@ public interface MessageSender {
      * @see javax.jms.MessageProducer#send(javax.jms.Message)
      */
     boolean send(Message message);
+
+    /**
+     * 发送消息
+     * 
+     * @param message
+     *            消息
+     * @param config
+     *            消息配置信息
+     * @return if return {@code true} 发送成功
+     */
+    boolean send(Message message, MessageConfig config);
 
 }

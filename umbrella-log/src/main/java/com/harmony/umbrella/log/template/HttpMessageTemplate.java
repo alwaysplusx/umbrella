@@ -17,10 +17,11 @@ package com.harmony.umbrella.log.template;
 
 import java.lang.reflect.Method;
 
+import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 import com.harmony.umbrella.log.HttpTemplate;
-import com.harmony.umbrella.log.IllegalExpressionException;
 
 /**
  * @author wuxii@foxmail.com
@@ -35,102 +36,35 @@ public class HttpMessageTemplate extends MessageTemplate implements HttpTemplate
     }
 
     @Override
-    protected Object getUnrecognizedExpressionValue(final String expression, Object target, Object result, Object[] params) {
-        String exp = clearExpression(expression);
-
-        String firstExp = getExpressionByIndex(exp, 0);
-        String secondExp = getExpressionByIndex(exp, 1);
-
-        Object value = null;
-
-        if (firstExp != null && secondExp != null) {
-            String name = getNamePart(secondExp);
-
-            if (firstExp.equals("request")) {
-                value = getRequestValue(name);
-
-            } else if (firstExp.equals("session")) {
-                value = getSessionValue(name);
-
-            } else if (firstExp.equals("parameter")) {
-                return request.getParameter(name);
-
-            } else if (firstExp.equals("application")) {
-                value = getApplicationValue(name);
-
-            }
-
-            if (isComplexExpression(secondExp)) {
-                value = getComplexExpressionValue(secondExp, value);
-            }
-
-            String aheadExpression = firstExp + "." + secondExp + ".";
-            if (exp.length() > aheadExpression.length()) {
-                String subExpression = exp.substring(aheadExpression.length());
-                return getValue(subExpression, value);
-            }
-
-        }
-
-        return value;
-    }
-
-    private String getExpressionByIndex(String expression, int index) {
-        try {
-            return expression.split("\\.")[index];
-        } catch (ArrayIndexOutOfBoundsException e) {
-            return null;
-        }
-    }
-
-    private String getNamePart(String expression) {
-        StringBuilder sb = new StringBuilder();
-        sb.append(expression.charAt(0));
-        for (int i = 1, max = expression.length(); i < max; i++) {
-            if (!Character.isAlphabetic(expression.charAt(i))) {
-                break;
-            }
-            sb.append(expression.charAt(i));
-        }
-        return sb.toString();
-    }
-
-    private Object getRequestValue(String name) {
-        if (name.startsWith("#")) {
-            try {
-                return accessValue(name.substring(1), request);
-            } catch (Exception e) {
-                throw new IllegalExpressionException("request expression start with '#' but not get method of " + name, e);
-            }
-        }
-        return request.getAttribute(name);
-    }
-
-    private Object getSessionValue(String name) {
-        if (name.startsWith("#")) {
-            try {
-                return accessValue(name.substring(1), request.getSession());
-            } catch (Exception e) {
-                throw new IllegalExpressionException("session expression start with '#' but not get method of " + name, e);
-            }
-        }
-        return request.getSession().getAttribute(name);
-    }
-
-    private Object getApplicationValue(String name) {
-        if (name.startsWith("#")) {
-            try {
-                return accessValue(name.substring(1), request.getServletContext());
-            } catch (Exception e) {
-                throw new IllegalExpressionException("session expression start with '#' but not get method of " + name, e);
-            }
-        }
-        return request.getServletContext().getAttribute(name);
+    protected Object wrapObject(Object target, Object result, Object[] arguments) {
+        return new HttpHolder(target, result, arguments);
     }
 
     @Override
     public HttpServletRequest getHttpRequest() {
         return request;
+    }
+
+    protected class HttpHolder extends Holder {
+
+        private static final long serialVersionUID = 1L;
+
+        public HttpHolder(Object target, Object result, Object[] arguments) {
+            super(target, result, arguments);
+        }
+
+        public HttpServletRequest getRequest() {
+            return request;
+        }
+
+        public HttpSession getSession() {
+            return request.getSession();
+        }
+
+        public ServletContext getApplication() {
+            return request.getServletContext();
+        }
+
     }
 
 }

@@ -38,23 +38,23 @@ under the License.
 
   <modules>
     <module>umbrella-core</module>
+    <module>umbrella-ee</module>
+    <module>umbrella-data</module>
+    <module>umbrella-xml</module>
+    <module>umbrella-json</module>
+    <module>umbrella-log</module>
+    <module>umbrella-log-log4j</module>
+    <module>umbrella-message</module>
     <module>umbrella-validator</module>
     <module>umbrella-monitor</module>
     <module>umbrella-mapper</module>
-    <module>umbrella-ee</module>
     <module>umbrella-ws</module>
-    <module>umbrella-data</module>
-    <module>umbrella-web</module>
-    <module>umbrella-scheduler</module>
-    <module>umbrella-mail</module>
-    <module>umbrella-spring</module>
-    <module>umbrella-json</module>
-    <module>umbrella-xml</module>
-    <module>umbrella-activiti</module>
-    <module>umbrella-log</module>
     <module>umbrella-plugins</module>
-    <module>umbrella-log-log4j</module>
-    <module>umbrella-message</module>
+    <!-- <module>umbrella-web</module> -->
+    <!-- <module>umbrella-scheduler</module> -->
+    <!-- <module>umbrella-mail</module> -->
+    <!-- <module>umbrella-spring</module> -->
+    <!-- <module>umbrella-activiti</module> -->
     <!-- <module>umbrella-log-log4j2</module> -->
     <!-- <module>umbrella-resources</module> -->
     <!-- <module>umbrella-security</module> -->

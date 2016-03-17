@@ -40,6 +40,11 @@ public abstract class AbstractJmsMessageSender implements MessageSender {
 
     @Override
     public boolean send(Message message) {
+        return send(message, null);
+    }
+
+    @Override
+    public boolean send(Message message, MessageConfig config) {
         Connection connection = null;
         Session session = null;
         MessageProducer producer = null;
@@ -47,7 +52,13 @@ public abstract class AbstractJmsMessageSender implements MessageSender {
             connection = getConnectionFactory().createConnection();
             connection.start();
             session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+            if (config != null) {
+                config.configSession(session);
+            }
             producer = session.createProducer(getDestination());
+            if (config != null) {
+                config.configMessageProducer(producer);
+            }
             ObjectMessage om = session.createObjectMessage();
             om.setObject(message);
             producer.send(om);
