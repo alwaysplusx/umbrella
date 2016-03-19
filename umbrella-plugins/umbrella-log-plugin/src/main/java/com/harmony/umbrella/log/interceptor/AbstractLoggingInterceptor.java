@@ -1,5 +1,6 @@
 package com.harmony.umbrella.log.interceptor;
 
+import java.io.Serializable;
 import java.lang.reflect.Method;
 
 import com.harmony.umbrella.context.ApplicationContext;
@@ -49,7 +50,7 @@ public abstract class AbstractLoggingInterceptor<C> {
 
         if (applicationContext.hasCurrentContext()) {
             CurrentContext cc = applicationContext.getCurrentContext();
-            logMessage.operatorId(cc.getUserId())
+            logMessage.operatorId((Serializable) cc.getUserId())
                     .operator(cc.getUsername());
         }
 

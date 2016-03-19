@@ -27,11 +27,6 @@ import java.util.Locale;
 public interface CurrentContext extends Serializable {
 
     /**
-     * key:客户端的地址
-     */
-    String REMOTE_HOST = CurrentContext.class.getName() + ".REMOTE_HOST";
-
-    /**
      * key: 用户
      */
     String USER = CurrentContext.class.getName() + ".USER";
@@ -40,6 +35,11 @@ public interface CurrentContext extends Serializable {
      * key:用户id
      */
     String USER_ID = CurrentContext.class.getName() + ".USER_ID";
+
+    /**
+     * key:client id
+     */
+    String CLIENT_ID = CurrentContext.class.getName() + ".CLIENT_ID";
 
     /**
      * key:用户的名称
@@ -51,27 +51,14 @@ public interface CurrentContext extends Serializable {
      */
     String USER_NICKNAME = CurrentContext.class.getName() + ".USER_NICKNAME";
 
-    /**
-     * key:用户的当前http请求
-     */
-    String HTTP_REQUEST = CurrentContext.class.getName() + ".HTTP_REQUEST";
-
-    /**
-     * key:用户的当前http应答
-     */
-    String HTTP_RESPONSE = CurrentContext.class.getName() + ".HTTP_RESPONSE";
-
-    /**
-     * key:用户的当前session
-     */
-    String HTTP_SESSION = CurrentContext.class.getName() + ".HTTP_SESSION";
+    <T> T getUser();
 
     /**
      * 用户id
      *
      * @return 用户id
      */
-    Long getUserId();
+    <T> T getUserId();
 
     /**
      * 用户名
@@ -95,16 +82,24 @@ public interface CurrentContext extends Serializable {
     boolean isAuthenticated();
 
     /**
-     * 用户的客户端地址
+     * 用户的客户端ID
      *
-     * @return 用户的客户端地址
+     * @return 用户的客户端ID
      */
-    String getRemoteHost();
+    <T> T getClientId();
 
     /**
      * 客户端的本地化
      */
     Locale getLocale();
+
+    /**
+     * 设置用户环境的本地化
+     *
+     * @param locale
+     *            {@linkplain Locale}
+     */
+    void setLocale(Locale locale);
 
     /**
      * 当前是否是http发起的请求
