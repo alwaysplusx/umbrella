@@ -50,7 +50,7 @@ public class MethodExpressionMatcher implements ResourceMatcher<Method> {
     }
 
     @Override
-    public boolean matches(String pattern, Method resource) {
+    public boolean match(String pattern, Method resource) {
         if (!matchers.containsKey(pattern)) {
             matchers.put(pattern, new MethodMatcher(pattern));
         }

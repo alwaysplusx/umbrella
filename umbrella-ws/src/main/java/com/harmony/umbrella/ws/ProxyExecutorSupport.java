@@ -107,7 +107,7 @@ public abstract class ProxyExecutorSupport implements ProxyExecutor {
 
     @SuppressWarnings("unchecked")
     @Override
-    public <V> void executeAsync(final Context context, AsyncCallback<V> callback) throws WebServiceException {
+    public <V> void executeAsync(final Context context, ResponseCallback<V> callback) throws WebServiceException {
         Future<V> future = (Future<V>) executeAsync(context);
         if (callback != null) {
             while (!future.isCancelled()) {

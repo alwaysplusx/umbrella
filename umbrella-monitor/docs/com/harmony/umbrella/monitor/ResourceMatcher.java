@@ -13,24 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.umbrella.ws;
-
-import java.util.Map;
+package com.harmony.umbrella.monitor;
 
 /**
- * 基于{@linkplain com.harmony.umbrella.ws.jaxws.JaxWsExecutor}的结果回调支持
- *
- * @param <V> 数据交互结果
+ * 资源匹配器
+ * <p>
+ * 如:监控http资源，使用url匹配原则。 方法则匹配方法签名
+ * 
  * @author wuxii@foxmail.com
+ * @see com.harmony.umbrella.monitor.matcher.UrlPathMatcher
+ * @see com.harmony.umbrella.monitor.matcher.MethodExpressionMatcher
  */
-public interface AsyncCallback<V> {
+public interface ResourceMatcher<T> {
 
     /**
-     * 回调处理方法
-     *
-     * @param result  接口返回的结果
-     * @param content 执行的上下文内容{@linkplain Context#getContextMap()}
+     * 匹配资源是否符合当前定义的规则
+     * 
+     * @param pattern
+     *            资源的模版
+     * @param resource
+     *            待检查的资源
+     * @return true匹配成功
      */
-    void handle(V result, Map<String, Object> content);
+    boolean match(String pattern, T resource);
 
 }

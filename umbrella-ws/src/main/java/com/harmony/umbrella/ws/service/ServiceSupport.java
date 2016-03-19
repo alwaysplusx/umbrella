@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.umbrella.ws.ser;
+package com.harmony.umbrella.ws.service;
 
-import static com.harmony.umbrella.ws.ser.Message.*;
-import static com.harmony.umbrella.ws.ser.ServerValidation.*;
+import static com.harmony.umbrella.ws.service.Message.*;
+import static com.harmony.umbrella.ws.service.ServiceValidation.*;
 
 import java.net.URL;
 import java.util.Arrays;
@@ -48,16 +48,16 @@ import com.harmony.umbrella.util.StringUtils;
 import com.harmony.umbrella.validator.ValidVisitor;
 import com.harmony.umbrella.validator.util.ValidatorUtils;
 import com.harmony.umbrella.ws.annotation.Key;
-import com.harmony.umbrella.ws.ser.ServerValidation.MemberInvoker;
+import com.harmony.umbrella.ws.service.ServiceValidation.MemberInvoker;
 
 /**
  * 同步服务端部分
  * 
  * @author wuxii@foxmail.com
  */
-public abstract class ServerSupport {
+public abstract class ServiceSupport {
 
-    protected static final Log LOG = Logs.getLog(ServerSupport.class);
+    protected static final Log LOG = Logs.getLog(ServiceSupport.class);
 
     public static final String MESSAG_ERROR = "{harmony.server.error}";
     public static final String MESSAGE_SUCCESS = "{harmony.server.success}";
@@ -95,8 +95,8 @@ public abstract class ServerSupport {
 
     private boolean exists(String mappingFile) {
         URL result = ClassUtils.getDefaultClassLoader().getResource(mappingFile);
-        if (result == null && ClassUtils.getDefaultClassLoader() != ServerSupport.class.getClassLoader()) {
-            ClassLoader classLoader = ServerSupport.class.getClassLoader();
+        if (result == null && ClassUtils.getDefaultClassLoader() != ServiceSupport.class.getClassLoader()) {
+            ClassLoader classLoader = ServiceSupport.class.getClassLoader();
             if (classLoader != null) {
                 result = classLoader.getResource(mappingFile);
             }

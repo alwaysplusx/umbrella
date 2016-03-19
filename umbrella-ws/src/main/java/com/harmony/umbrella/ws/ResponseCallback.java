@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2015 the original author or authors.
+ * Copyright 2002-2014 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,16 +15,22 @@
  */
 package com.harmony.umbrella.ws;
 
-import javax.ejb.Remote;
-
-import com.harmony.umbrella.ws.proxy.Proxy;
-import com.harmony.umbrella.ws.proxy.SyncCallback;
-import com.harmony.umbrella.ws.service.Message;
+import java.util.Map;
 
 /**
+ * 基于{@linkplain com.harmony.umbrella.ws.jaxws.JaxWsExecutor}的结果回调支持
+ *
+ * @param <V> 数据交互结果
  * @author wuxii@foxmail.com
  */
-@Remote
-public interface UserProxy extends Proxy<User>, SyncCallback<User, Message> {
+public interface ResponseCallback<V> {
+
+    /**
+     * 回调处理方法
+     *
+     * @param result  接口返回的结果
+     * @param content 执行的上下文内容{@linkplain Context#getContextMap()}
+     */
+    void handle(V result, Map<String, Object> content);
 
 }

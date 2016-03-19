@@ -113,6 +113,6 @@ public interface ProxyExecutor {
      * @param <V>
      *            服务返回值类型
      */
-    <V> void executeAsync(Context context, AsyncCallback<V> callback);
+    <V> void executeAsync(Context context, ResponseCallback<V> callback);
 
 }

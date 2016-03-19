@@ -20,7 +20,7 @@ import java.util.List;
 import javax.jws.WebParam;
 import javax.jws.WebService;
 
-import com.harmony.umbrella.ws.ser.Message;
+import com.harmony.umbrella.ws.service.Message;
 
 /**
  * @author wuxii@foxmail.com

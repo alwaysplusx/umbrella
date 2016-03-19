@@ -18,19 +18,16 @@ package com.harmony.umbrella.ws.jaxws;
 import static com.harmony.umbrella.ws.jaxws.JaxWsProxyBuilder.*;
 
 import java.lang.reflect.Method;
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
 import javax.xml.ws.WebServiceException;
 
+import com.harmony.umbrella.core.Invoker;
 import com.harmony.umbrella.log.Log;
 import com.harmony.umbrella.log.Logs;
-
-import com.harmony.umbrella.core.InvokeException;
-import com.harmony.umbrella.core.Invoker;
-import com.harmony.umbrella.monitor.graph.DefaultMethodGraph;
+import com.harmony.umbrella.monitor.support.InvocationContext;
 import com.harmony.umbrella.util.Exceptions;
 import com.harmony.umbrella.ws.Context;
 import com.harmony.umbrella.ws.ProxyExecutorSupport;
@@ -61,43 +58,35 @@ public class JaxWsCXFExecutor extends ProxyExecutorSupport implements JaxWsExecu
     @SuppressWarnings("unchecked")
     @Override
     public <T> T executeQuite(Context context, Class<T> resultType) {
-        DefaultMethodGraph graph = null;
         T result = null;
+        JaxWsInvocationContext invocationContext = null;
         try {
             Method method = context.getMethod();
-            graph = new DefaultMethodGraph(method);
-
             Object proxy = loadProxy(context);
+            Object[] parameters = context.getParameters();
             log.info("使用代理[{}]执行交互{}, invoker is [{}]", proxy, context, invoker);
-            graph.setTarget(proxy);
-            graph.setMethodArgumets(context.getParameters());
-
-            graph.setRequestTime(Calendar.getInstance());
-            result = (T) invoker.invoke(proxy, method, context.getParameters());
-            graph.setResponseTime(Calendar.getInstance());
-
-            graph.setMethodResult(result);
+            invocationContext = new JaxWsInvocationContext(proxy, method, parameters);
+            result = (T) invocationContext.process();
         } catch (NoSuchMethodException e) {
             throw new WebServiceException("未找到接口方法" + context, e);
-        } catch (InvokeException e) {
-            graph.setException(e);
+        } catch (Exception e) {
             // 执行失败时候移除缓存的代理服务
             this.removeProxy(context.getServiceInterface());
             throw new WebServiceException("执行交互失败", Exceptions.getRootCause(e));
         } finally {
-            if (graph != null) {
-                LOG.debug("执行情况概要如下:{}", graph);
-                context.put(WS_EXECUTION_GRAPH, graph);
+            if (invocationContext != null) {
+                context.put(WS_EXECUTION_GRAPH, invocationContext.toGraph());
             }
         }
         return result;
     }
 
     /**
-     * 加载代理对象， 如果{@linkplain #cacheable} 允许从缓存中加载泽加载缓存中的代理对象，如果缓存中不存在则新建一个代理对象，并将代理对象放置在缓存中
+     * 加载代理对象， 如果{@linkplain #cacheable}
+     * 允许从缓存中加载泽加载缓存中的代理对象，如果缓存中不存在则新建一个代理对象，并将代理对象放置在缓存中
      *
      * @param context
-     *         执行的上下文
+     *            执行的上下文
      * @return 代理对象
      */
     protected Object loadProxy(Context context) {
@@ -109,7 +98,7 @@ public class JaxWsCXFExecutor extends ProxyExecutorSupport implements JaxWsExecu
      * 创建当前{@linkplain Context}对应的服务代理, 创建只使用基础的信息(地址、用户名密码、接口类)，不会配置其他代理特性
      *
      * @param context
-     *         执行上下文
+     *            执行上下文
      * @return 代理对象
      */
     private Object createProxy(Context context) {
@@ -127,7 +116,7 @@ public class JaxWsCXFExecutor extends ProxyExecutorSupport implements JaxWsExecu
      * 缓存中获取执行上下文对应的代理服务，缓存仅在这个方法体内控制
      *
      * @param context
-     *         执行的上下文
+     *            执行的上下文
      * @return 代理对象， 如果不存在缓存中不存在则创建
      */
     private Object getProxy(Context context) {
@@ -225,10 +214,23 @@ public class JaxWsCXFExecutor extends ProxyExecutorSupport implements JaxWsExecu
         this.invoker = invoker;
     }
 
+    final class JaxWsInvocationContext extends InvocationContext {
+
+        public JaxWsInvocationContext(Object target, Method method, Object[] parameters) {
+            super(target, method, parameters);
+        }
+
+        @Override
+        protected Object doProcess() throws Exception {
+            return invoker.invoke(getTarget(), getMethod(), getParameter());
+        }
+
+    }
+
     /**
      * 代理缓存的key, 唯一键只与服务名，服务地址， 用户密码有关
      */
-    private static class JaxWsContextKey {
+    private static final class JaxWsContextKey {
 
         private String serviceName;
         private String address;

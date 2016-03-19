@@ -25,15 +25,15 @@ import javax.jws.WebService;
 
 import com.harmony.umbrella.ws.User;
 import com.harmony.umbrella.ws.UserService;
-import com.harmony.umbrella.ws.ser.Message;
-import com.harmony.umbrella.ws.ser.MessageContent;
-import com.harmony.umbrella.ws.ser.ServerSupport;
+import com.harmony.umbrella.ws.service.Message;
+import com.harmony.umbrella.ws.service.MessageContent;
+import com.harmony.umbrella.ws.service.ServiceSupport;
 
 /**
  * @author wuxii@foxmail.com
  */
 @WebService(serviceName = "UserService", targetNamespace = "http://www.umbrella.com/user")
-public class UserWebService extends ServerSupport implements UserService {
+public class UserWebService extends ServiceSupport implements UserService {
 
     private static final List<User> users = new ArrayList<User>();
 

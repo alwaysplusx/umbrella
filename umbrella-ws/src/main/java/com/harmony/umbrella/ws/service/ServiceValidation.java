@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.umbrella.ws.ser;
+package com.harmony.umbrella.ws.service;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -44,9 +44,9 @@ import com.harmony.umbrella.ws.annotation.Key;
  * @author wuxii@foxmail.com
  * @see ValidatorUtils
  */
-public abstract class ServerValidation {
+public abstract class ServiceValidation {
 
-    private static final Log log = Logs.getLog(ServerValidation.class);
+    private static final Log log = Logs.getLog(ServiceValidation.class);
 
     public static boolean isValid(Object obj, MessageContent content) {
         return isValid(obj, content, Default.class);

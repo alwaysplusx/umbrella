@@ -35,6 +35,6 @@ public interface ResourceMatcher<T> {
      *            待检查的资源
      * @return true匹配成功
      */
-    boolean match(String pattern, T resource);
+    boolean matches(String pattern, T resource);
 
 }

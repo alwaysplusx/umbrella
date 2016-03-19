@@ -79,9 +79,9 @@ public abstract class AbstractJaxWsContextReceiver extends AbstractMessageResolv
     public void process(Context message) {
         this.receive(message);
     }
-
+    
     @Override
-    protected Context resolver(Message message) {
+    protected Context convert(Message message) {
         return ((ContextMessage) message).getContext();
     }
 

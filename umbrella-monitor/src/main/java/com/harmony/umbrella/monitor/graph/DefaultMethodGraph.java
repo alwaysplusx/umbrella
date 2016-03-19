@@ -1,60 +1,48 @@
-/*
- * Copyright 2002-2014 the original author or authors.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package com.harmony.umbrella.monitor.graph;
-
-import static com.harmony.umbrella.monitor.util.MonitorUtils.*;
 
 import java.lang.reflect.Method;
 
 import com.harmony.umbrella.monitor.MethodGraph;
+import com.harmony.umbrella.monitor.Monitor.MonitorPolicy;
+import com.harmony.umbrella.util.StringUtils;
 
 /**
- * 基于方法监控的结果视图
- * 
  * @author wuxii@foxmail.com
  */
-public class DefaultMethodGraph extends AbstractGraph implements MethodGraph {
+public class DefaultMethodGraph implements MethodGraph {
 
-    private static final long serialVersionUID = -3818216781456549358L;
+    protected final Method method;
+    protected final String graphId;
 
-    protected final transient Method method;
-    protected transient Object target;
+    protected Object target;
+    protected Object result;
+    protected Object[] parameters;
+
+    protected MonitorPolicy policy;
+    protected long requestTime = -1;
+    protected long responseTime = -1;
+    protected Throwable throwable;
 
     public DefaultMethodGraph(Method method) {
-        this(null, method, null);
-    }
-
-    public DefaultMethodGraph(Object target, Method method, Object[] args) {
-        super(methodId(method));
-        this.target = target;
         this.method = method;
-        this.setMethodArgumets(args);
+        this.graphId = StringUtils.getMethodId(method);
     }
 
+    public DefaultMethodGraph(Object target, Method method, Object[] parameters) {
+        this.method = method;
+        this.graphId = StringUtils.getMethodId(method);
+        this.parameters = parameters;
+        this.target = target;
+    }
+
+    @Override
     public Object getTarget() {
         return target;
     }
 
     @Override
     public Class<?> getTargetClass() {
-        return target != null ? target.getClass() : null;
-    }
-
-    public void setTarget(Object target) {
-        this.target = target;
+        return target.getClass();
     }
 
     @Override
@@ -63,21 +51,100 @@ public class DefaultMethodGraph extends AbstractGraph implements MethodGraph {
     }
 
     @Override
-    public Object getMethodResult() {
-        return result.get(METHOD_RESULT);
+    public Object[] getParameters() {
+        return parameters;
     }
 
     @Override
-    public Object[] getMethodArguments() {
-        return (Object[]) this.arguments.get(METHOD_ARGUMENT);
+    public Object getResult() {
+        return result;
     }
 
-    public void setMethodResult(Object result) {
-        this.result.put(METHOD_RESULT, result);
+    @Override
+    public String getGraphType() {
+        return GRAPH_TYPE;
     }
 
-    public void setMethodArgumets(Object... arguments) {
-        this.arguments.put(METHOD_ARGUMENT, arguments);
+    @Override
+    public String getGraphId() {
+        return graphId;
     }
 
+    @Override
+    public MonitorPolicy getPolicy() {
+        return policy;
+    }
+
+    @Override
+    public long getRequestTime() {
+        return requestTime;
+    }
+
+    @Override
+    public long getResponseTime() {
+        return responseTime;
+    }
+
+    @Override
+    public long use() {
+        return requestTime > 0 && responseTime > 0 ? responseTime - requestTime : -1;
+    }
+
+    @Override
+    public Throwable getThrowable() {
+        return throwable;
+    }
+
+    @Override
+    public boolean isThrowable() {
+        return throwable != null;
+    }
+
+    public void setTarget(Object target) {
+        this.target = target;
+    }
+
+    public void setResult(Object result) {
+        this.result = result;
+    }
+
+    public void setParameters(Object[] parameters) {
+        this.parameters = parameters;
+    }
+
+    public void setPolicy(MonitorPolicy policy) {
+        this.policy = policy;
+    }
+
+    public void setRequestTime(long requestTime) {
+        this.requestTime = requestTime;
+    }
+
+    public void setResponseTime(long responseTime) {
+        this.responseTime = responseTime;
+    }
+
+    public void setThrowable(Throwable throwable) {
+        this.throwable = throwable;
+    }
+    
+    @Override
+    public String getDescription() {
+        StringBuilder buffer = new StringBuilder();
+        buffer.append("{\n");
+        buffer.append("  graphId:").append(graphId).append("\n");//
+        buffer.append("  requestTime:").append(requestTime).append("\n");//
+        buffer.append("  use:").append(use()).append("\n");//
+        buffer.append("  parameters:").append(parameters).append("\n");//
+        buffer.append("  result:").append(result).append("\n");//
+        buffer.append("  throwable:").append(isThrowable()).append("\n");
+        if (isThrowable()) {
+            buffer.append("  exceptionMessage:").append(throwable).append("\n");
+        }
+        return buffer.append("}").toString();
+    }
+    @Override
+    public String toString() {
+        return getDescription();
+    }
 }

@@ -27,7 +27,7 @@ import com.harmony.umbrella.ws.UserProxy;
 import com.harmony.umbrella.ws.UserService;
 import com.harmony.umbrella.ws.annotation.Syncable;
 import com.harmony.umbrella.ws.jaxws.JaxWsExecutorSupport;
-import com.harmony.umbrella.ws.ser.Message;
+import com.harmony.umbrella.ws.service.Message;
 
 /**
  * @author wuxii@foxmail.com

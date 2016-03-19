@@ -22,7 +22,7 @@ import java.util.Map;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.harmony.umbrella.ws.AsyncCallback;
+import com.harmony.umbrella.ws.ResponseCallback;
 import com.harmony.umbrella.ws.cxf.interceptor.MessageInInterceptor;
 import com.harmony.umbrella.ws.cxf.interceptor.MessageOutInterceptor;
 import com.harmony.umbrella.ws.services.HelloService;
@@ -61,7 +61,7 @@ public class JaxWsServerAndProxyTest {
 
         assertEquals(0, count);
 
-        executor.executeAsync(context, new AsyncCallback<String>() {
+        executor.executeAsync(context, new ResponseCallback<String>() {
 
             @Override
             public void handle(String result, Map<String, Object> content) {
