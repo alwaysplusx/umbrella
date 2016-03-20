@@ -22,7 +22,7 @@ import javax.ejb.EJB;
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
 
-import com.harmony.umbrella.context.ee.ConfigurationBeans;
+import com.harmony.umbrella.config.ConfigurationBeans;
 import com.harmony.umbrella.message.MessageResolver;
 
 /**

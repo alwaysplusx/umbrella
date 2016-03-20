@@ -25,7 +25,7 @@ import javax.ejb.MessageDriven;
 import javax.ejb.Remote;
 import javax.jms.MessageListener;
 
-import com.harmony.umbrella.context.ee.ConfigurationBeans;
+import com.harmony.umbrella.config.ConfigurationBeans;
 import com.harmony.umbrella.message.MessageResolver;
 import com.harmony.umbrella.message.jms.AbstractJmsMessageListener;
 

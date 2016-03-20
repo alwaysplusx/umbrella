@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.umbrella.context.ee;
+package com.harmony.umbrella.config;
 
 import java.util.List;
 
