@@ -20,6 +20,8 @@ import javax.ejb.embeddable.EJBContainer;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.harmony.umbrella.context.ee.EJBApplicationContext;
+
 /**
  * @author wuxii@foxmail.com
  */

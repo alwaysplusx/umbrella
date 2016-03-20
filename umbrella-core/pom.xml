@@ -11,11 +11,6 @@
   <artifactId>umbrella-core</artifactId>
   <dependencies>
     <dependency>
-      <groupId>com.harmony.umbrella</groupId>
-      <artifactId>umbrella-log</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
       <groupId>javax</groupId>
       <artifactId>javaee-api</artifactId>
       <scope>provided</scope>

@@ -31,19 +31,16 @@ import java.util.Map.Entry;
 
 import javax.validation.groups.Default;
 
-import com.harmony.umbrella.log.Log;
-import com.harmony.umbrella.log.Logs;
 import com.alibaba.fastjson.serializer.SerializerFeature;
-import com.harmony.umbrella.context.ApplicationContext;
-import com.harmony.umbrella.context.CurrentContext;
 import com.harmony.umbrella.core.InvokeException;
 import com.harmony.umbrella.json.Json;
+import com.harmony.umbrella.log.Log;
+import com.harmony.umbrella.log.Logs;
 import com.harmony.umbrella.mapper.BeanMapper;
 import com.harmony.umbrella.util.Assert;
 import com.harmony.umbrella.util.ClassUtils;
 import com.harmony.umbrella.util.Exceptions;
-import com.harmony.umbrella.util.I18NUtils;
-import com.harmony.umbrella.util.I18NUtils.MessageBundle;
+import com.harmony.umbrella.util.MessageBundleManager;
 import com.harmony.umbrella.util.StringUtils;
 import com.harmony.umbrella.validator.ValidVisitor;
 import com.harmony.umbrella.validator.util.ValidatorUtils;
@@ -65,7 +62,11 @@ public abstract class ServiceSupport {
 
     private final Map<Class<?>, List<MemberInvoker>> keyMembers = new HashMap<Class<?>, List<MemberInvoker>>();
 
-    protected MessageBundle messageBundle = I18NUtils.getMessageBundle("", getLocale());
+    private MessageBundleManager bundleManager = MessageBundleManager.getInstance();
+
+    protected String messageBundleBaseName = "WsMessage";
+
+    protected Locale locale;
 
     protected static final String MAPPING_LOCATION = "mapping.xml";
 
@@ -332,7 +333,7 @@ public abstract class ServiceSupport {
     private Message buildMessage(String message, String type, Map<String, String> content) {
         message = message.trim();
         if (message.startsWith("{") && message.endsWith("}")) {
-            message = messageBundle.getMessage(message.substring(1, message.length() - 1));
+            message = getText(message.substring(1, message.length() - 1));
         }
         if (!extractContent) {
             return new Message(message, type, content);
@@ -340,16 +341,15 @@ public abstract class ServiceSupport {
         return new Message(extractContentMessage(new StringBuilder(message), content), type);
     }
 
-    private Locale getLocale() {
-        Locale locale = null;
-        ApplicationContext context = ApplicationContext.getApplicationContext();
-        CurrentContext cc = context.getCurrentContext();
-        if (cc != null) {
-            locale = cc.getLocale();
-        } else {
-            locale = context.getLocale();
+    protected String getText(String name) {
+        return bundleManager.getMessageBundle(messageBundleBaseName, getLocale()).getString(name);
+    }
+
+    protected Locale getLocale() {
+        if (locale == null) {
+            locale = Locale.getDefault();
         }
-        return locale == null ? Locale.getDefault() : locale;
+        return locale;
     }
 
     /**

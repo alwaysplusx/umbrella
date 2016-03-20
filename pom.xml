@@ -40,9 +40,7 @@ under the License.
     <module>umbrella-core</module>
     <module>umbrella-ee</module>
     <module>umbrella-data</module>
-    <module>umbrella-xml</module>
     <module>umbrella-json</module>
-    <module>umbrella-log</module>
     <module>umbrella-log-log4j</module>
     <module>umbrella-message</module>
     <module>umbrella-validator</module>
@@ -50,6 +48,7 @@ under the License.
     <module>umbrella-mapper</module>
     <module>umbrella-ws</module>
     <module>umbrella-plugins</module>
+    <!-- <module>umbrella-xml</module> -->
     <!-- <module>umbrella-web</module> -->
     <!-- <module>umbrella-scheduler</module> -->
     <!-- <module>umbrella-mail</module> -->
@@ -72,7 +71,6 @@ under the License.
     <maven.compiler.target>1.6</maven.compiler.target>
     <!-- harmony project -->
     <umbrella.version>0.0.5-SNAPSHOT</umbrella.version>
-    <dark.version>0.0.1-SNAPSHOT</dark.version>
     <!-- javax api -->
     <javax.ee.version>7.0</javax.ee.version>
     <javax.ejb.version>3.2</javax.ejb.version>
@@ -152,12 +150,11 @@ under the License.
         <artifactId>umbrella-ws</artifactId>
         <version>${umbrella.version}</version>
       </dependency>
-      <!-- <dependency>
+      <dependency>
         <groupId>com.harmony.umbrella</groupId>
         <artifactId>umbrella-web</artifactId>
         <version>${umbrella.version}</version>
-        <type>war</type>
-      </dependency> -->
+      </dependency>
       <dependency>
         <groupId>com.harmony.umbrella</groupId>
         <artifactId>umbrella-mapper</artifactId>

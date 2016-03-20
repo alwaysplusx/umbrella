@@ -5,31 +5,11 @@
     <groupId>com.harmony.umbrella</groupId>
     <artifactId>harmony-umbrella</artifactId>
     <version>0.0.5-SNAPSHOT</version>
+    <relativePath>../pom.xml</relativePath>
   </parent>
   <artifactId>umbrella-ws</artifactId>
   <name>Harmony Umbrella :: Module of WebService</name>
-  <repositories>
-    <repository>
-      <id>harmony-local</id>
-      <name>Harmony Local Dependencies</name>
-      <url>file://${project.basedir}/../maven-local</url>
-    </repository>
-  </repositories>
   <dependencies>
-    <dependency>
-      <groupId>com.harmony.modules</groupId>
-      <artifactId>modules-commons</artifactId>
-      <version>1.0</version>
-      <scope>compile</scope>
-      <optional>true</optional>
-    </dependency>
-    <dependency>
-      <groupId>com.harmony.modules</groupId>
-      <artifactId>modules-ejb</artifactId>
-      <version>1.0</version>
-      <scope>compile</scope>
-      <optional>true</optional>
-    </dependency>
     <dependency>
       <groupId>com.harmony.umbrella</groupId>
       <artifactId>umbrella-core</artifactId>
@@ -41,45 +21,27 @@
     <dependency>
       <groupId>com.harmony.umbrella</groupId>
       <artifactId>umbrella-validator</artifactId>
-      <scope>compile</scope>
-      <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>com.harmony.umbrella</groupId>
       <artifactId>umbrella-message</artifactId>
-      <scope>compile</scope>
-      <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>com.harmony.umbrella</groupId>
       <artifactId>umbrella-mapper</artifactId>
-      <scope>compile</scope>
-      <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>com.harmony.umbrella</groupId>
       <artifactId>umbrella-data</artifactId>
-      <scope>compile</scope>
-      <optional>true</optional>
     </dependency>
-    <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-context</artifactId>
-      <scope>compile</scope>
-      <optional>true</optional>
-    </dependency>    
     <!-- jaxws -->
     <dependency>
       <groupId>org.apache.cxf</groupId>
       <artifactId>cxf-rt-frontend-jaxws</artifactId>
-      <scope>compile</scope>
-      <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>org.apache.cxf</groupId>
       <artifactId>cxf-rt-transports-http</artifactId>
-      <scope>compile</scope>
-      <optional>true</optional>
     </dependency>
     <!-- jaxrs -->
     <dependency>
@@ -98,6 +60,11 @@
     <dependency>
       <groupId>org.apache.openejb</groupId>
       <artifactId>javaee-api</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-context</artifactId>
       <scope>provided</scope>
     </dependency>
     <!-- test -->

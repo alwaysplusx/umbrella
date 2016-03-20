@@ -15,7 +15,6 @@
  */
 package com.harmony.umbrella.ws;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
@@ -26,6 +25,7 @@ import javax.ejb.MessageDriven;
 import javax.ejb.Remote;
 import javax.jms.MessageListener;
 
+import com.harmony.umbrella.context.ee.ConfigurationBeans;
 import com.harmony.umbrella.message.MessageResolver;
 import com.harmony.umbrella.message.jms.AbstractJmsMessageListener;
 
@@ -42,26 +42,22 @@ import com.harmony.umbrella.message.jms.AbstractJmsMessageListener;
 @Remote({ com.harmony.umbrella.message.MessageListener.class })
 public class ContextMessageListener extends AbstractJmsMessageListener implements MessageListener {
 
-    @EJB(mappedName = "PropertiesFileContextReceiver")
-    private MessageResolver resolver;
-
-    private final List<MessageResolver> resolvers = new ArrayList<MessageResolver>();
+    @EJB(mappedName = "MessageResolverBeanConfiguration")
+    private ConfigurationBeans<MessageResolver> configuration;
 
     @Override
     @PostConstruct
     public void init() {
-        resolvers.add(resolver);
     }
 
     @Override
     protected List<MessageResolver> getMessageResolvers() {
-        return resolvers;
+        return configuration.getBeans();
     }
 
     @Override
     @PreDestroy
     public void destroy() {
-        resolvers.clear();
     }
 
 }

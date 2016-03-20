@@ -71,7 +71,7 @@ public class JaxWsServerManager extends ServerManager<JaxWsProxyFactoryBean> {
             return new ServerImpl(serviceClass, serviceBean, builder.publish(factoryConfig));
 
         } catch (Exception e) {
-            throw new WebServiceException("publish server " + serviceBean.getClass() + " failed!", e);
+            throw new WebServiceException("publish server failed!", e);
         }
     }
 
