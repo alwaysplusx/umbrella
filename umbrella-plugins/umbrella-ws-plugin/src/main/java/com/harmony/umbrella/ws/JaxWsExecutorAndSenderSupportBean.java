@@ -15,14 +15,11 @@
  */
 package com.harmony.umbrella.ws;
 
-import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
 
-import com.harmony.umbrella.ws.Context;
-import com.harmony.umbrella.ws.Metadata;
-import com.harmony.umbrella.ws.MetadataLoader;
+import com.harmony.umbrella.message.jms.JmsMessageSender;
 import com.harmony.umbrella.ws.jaxws.JaxWsCXFExecutor;
 import com.harmony.umbrella.ws.jaxws.JaxWsExecutorSupport;
 import com.harmony.umbrella.ws.support.ContextSender;
@@ -35,24 +32,19 @@ import com.harmony.umbrella.ws.support.SimpleContext;
  */
 @Remote({ JaxWsExecutorSupport.class })
 @Stateless(mappedName = "JaxWsExecutorSupportBean")
-public class JaxWsExecutorSupportBean extends JaxWsCXFExecutor implements JaxWsExecutorSupport {
+public class JaxWsExecutorAndSenderSupportBean extends JaxWsCXFExecutor implements JaxWsExecutorSupport, ContextSender {
 
-    @EJB(mappedName = "ContextSenderBean")
-    private ContextSender contextSender;
-
+    @EJB(mappedName = JmsMessageSender.DEFAULT_MESSAGE_SENDER_MAPPEDNAME)
+    private JmsMessageSender messageSender;
     @EJB
     private MetadataLoader metadataLoader;
 
     private boolean reload;
 
-    @PostConstruct
-    public void postConstruct() {
-
-    }
-
     @Override
     public boolean send(Context context) {
-        return contextSender.send(reloadContext(context));
+        context = reloadContext(context);
+        return messageSender.send(new ContextMessage(context));
     }
 
     protected Context reloadContext(Context context) {
@@ -73,6 +65,19 @@ public class JaxWsExecutorSupportBean extends JaxWsCXFExecutor implements JaxWsE
             }
         }
         return context;
+    }
+
+    @Override
+    public void open() {
+    }
+
+    @Override
+    public void close() throws Exception {
+    }
+
+    @Override
+    public boolean isClosed() {
+        return false;
     }
 
 }

@@ -24,10 +24,6 @@
     </dependency>
     <dependency>
       <groupId>com.harmony.umbrella</groupId>
-      <artifactId>umbrella-message</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.harmony.umbrella</groupId>
       <artifactId>umbrella-mapper</artifactId>
     </dependency>
     <dependency>

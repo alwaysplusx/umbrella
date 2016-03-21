@@ -23,6 +23,14 @@ import javax.jms.MessageProducer;
  */
 public interface MessageConfig {
 
+    String DEFAULT_CONNECTION_FACTORY = "jms/connectionFactory";
+
+    String DEFAULT_QUEUE = "jms/queue";
+
+    String DEFAULT_TOPIC = "jms/topic";
+
+    String DEFAULT_DESTINATION = DEFAULT_QUEUE;
+
     void configMessage(Message message);
 
     void configMessageProducer(MessageProducer messageProducer);

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2015 the original author or authors.
+ * Copyright 2012-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.umbrella.ws;
+package com.harmony.umbrella.message;
 
 import javax.annotation.Resource;
 import javax.ejb.Remote;
@@ -22,49 +22,28 @@ import javax.jms.ConnectionFactory;
 import javax.jms.Destination;
 
 import com.harmony.umbrella.message.jms.AbstractJmsMessageSender;
-import com.harmony.umbrella.ws.Context;
-import com.harmony.umbrella.ws.support.ContextMessage;
-import com.harmony.umbrella.ws.support.ContextSender;
+import com.harmony.umbrella.message.jms.JmsMessageSender;
+import com.harmony.umbrella.message.jms.MessageConfig;
 
 /**
- * JaxWs Context 消息发送工具类
- * 
  * @author wuxii@foxmail.com
  */
-@Remote(ContextSender.class)
-@Stateless(mappedName = "ContextSenderBean")
-public class ContextSenderBean extends AbstractJmsMessageSender implements ContextSender {
+@Remote({ MessageSender.class, JmsMessageSender.class })
+@Stateless(mappedName = JmsMessageSender.DEFAULT_MESSAGE_SENDER_MAPPEDNAME)
+public class ApplicationMessageSender extends AbstractJmsMessageSender {
 
-    @Resource(name = "jms.jaxws.connectionFactory")
+    @Resource(name = MessageConfig.DEFAULT_CONNECTION_FACTORY)
     private ConnectionFactory connectionFactory;
-    @Resource(name = "jms.jaxws.queue")
+    @Resource(name = MessageConfig.DEFAULT_DESTINATION)
     private Destination destination;
 
     @Override
-    public void open() {
-    }
-
-    @Override
-    public boolean send(Context context) {
-        return super.send(new ContextMessage(context));
-    }
-
-    @Override
-    public void close() throws Exception {
-    }
-
-    @Override
-    public boolean isClosed() {
-        return false;
-    }
-
-    @Override
-    public ConnectionFactory getConnectionFactory() {
+    protected ConnectionFactory getConnectionFactory() {
         return connectionFactory;
     }
 
     @Override
-    public Destination getDestination() {
+    protected Destination getDestination() {
         return destination;
     }
 

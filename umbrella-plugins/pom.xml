@@ -10,6 +10,7 @@
   <modules>
     <module>umbrella-ws-plugin</module>
     <module>umbrella-log-plugin</module>
+    <module>umbrella-message-plugin</module>
   </modules>
   <name>Harmony Umbrella :: Plugins</name>
 </project>

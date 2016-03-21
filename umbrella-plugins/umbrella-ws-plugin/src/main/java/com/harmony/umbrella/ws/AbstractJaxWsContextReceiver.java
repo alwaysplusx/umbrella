@@ -13,36 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.umbrella.ws.support;
-
-import java.util.ArrayList;
-import java.util.List;
+package com.harmony.umbrella.ws;
 
 import com.harmony.umbrella.message.AbstractMessageResolver;
 import com.harmony.umbrella.message.Message;
-import com.harmony.umbrella.message.MessageResolver;
-import com.harmony.umbrella.ws.Context;
-import com.harmony.umbrella.ws.ContextVisitor;
-import com.harmony.umbrella.ws.Metadata;
-import com.harmony.umbrella.ws.MetadataLoader;
 import com.harmony.umbrella.ws.jaxws.JaxWsExecutor;
+import com.harmony.umbrella.ws.support.ContextReceiver;
+import com.harmony.umbrella.ws.support.SimpleContext;
 
 /**
  * JaxWs Context接受与消息处理的抽象
  * 
  * @author wuxii@foxmail.com
  */
-public abstract class AbstractJaxWsContextReceiver extends AbstractMessageResolver<Context> implements MessageResolver, ContextReceiver {
+public abstract class AbstractJaxWsContextReceiver extends AbstractMessageResolver<Context> implements ContextReceiver {
 
     /**
      * 接收后是否重新加载Context内元数据的标识符Key
      */
     public static final String RELOAD_CONTEXT = ContextReceiver.class.getName() + ".RELOAD_CONTEXT";
-
-    /**
-     * 接收处理的周期访问者
-     */
-    protected final List<ContextVisitor> visitors = new ArrayList<ContextVisitor>();
 
     /**
      * 接收者是否重新reload{@linkplain Context}
@@ -65,9 +54,13 @@ public abstract class AbstractJaxWsContextReceiver extends AbstractMessageResolv
         return null;
     }
 
+    protected ContextVisitor[] getContextVisitor() {
+        return new ContextVisitor[0];
+    }
+
     @Override
     public void receive(Context context) {
-        getJaxWsExecutor().execute(reloadContext(context), visitors.toArray(new ContextVisitor[visitors.size()]));
+        getJaxWsExecutor().execute(reloadContext(context), getContextVisitor());
     }
 
     @Override
@@ -79,7 +72,7 @@ public abstract class AbstractJaxWsContextReceiver extends AbstractMessageResolv
     public void process(Context message) {
         this.receive(message);
     }
-    
+
     @Override
     protected Context convert(Message message) {
         return ((ContextMessage) message).getContext();
@@ -120,35 +113,6 @@ public abstract class AbstractJaxWsContextReceiver extends AbstractMessageResolv
     }
 
     /**
-     * 设置执行周期访问者
-     * 
-     * @param visitors
-     *            访问者
-     */
-    public void setContextVisitors(List<ContextVisitor> visitors) {
-        this.visitors.clear();
-        this.visitors.addAll(visitors);
-    }
-
-    /**
-     * 增加执行周期访问者
-     * 
-     * @param visitor
-     *            访问者
-     * @return 增加成功标识
-     */
-    public boolean addPhaseVisitor(ContextVisitor visitor) {
-        return this.visitors.add(visitor);
-    }
-
-    /**
-     * 清楚周期访问者
-     */
-    public void clearVisitor() {
-        this.visitors.clear();
-    }
-
-    /**
      * 是否重新加载context的标识
      * 
      * @param reload
@@ -158,4 +122,17 @@ public abstract class AbstractJaxWsContextReceiver extends AbstractMessageResolv
         this.reload = reload;
     }
 
+    // empty implement
+    @Override
+    public void open() throws Exception {
+    }
+
+    @Override
+    public void close() throws Exception {
+    }
+
+    @Override
+    public boolean isClosed() {
+        return false;
+    }
 }

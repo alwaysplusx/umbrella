@@ -13,31 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.umbrella.ws;
-
-import java.util.Arrays;
-import java.util.List;
-
-import javax.ejb.EJB;
-import javax.ejb.Remote;
-import javax.ejb.Stateless;
-
-import com.harmony.umbrella.config.ConfigurationBeans;
-import com.harmony.umbrella.message.MessageResolver;
+package com.harmony.umbrella.config;
 
 /**
  * @author wuxii@foxmail.com
  */
-@Remote(ConfigurationBeans.class)
-@Stateless(mappedName = "MessageResolverBeanConfiguration")
-public class MessageResolverBeanConfiguration implements ConfigurationBeans<MessageResolver> {
+public class ConfigurationException extends RuntimeException {
 
-    @EJB(mappedName = "PropertiesFileContextReceiver")
-    private MessageResolver resolver;
+    private static final long serialVersionUID = 1L;
 
-    @Override
-    public List<MessageResolver> getBeans() {
-        return Arrays.asList(resolver);
+    public ConfigurationException() {
+        super();
+    }
+
+    public ConfigurationException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
+    public ConfigurationException(String message) {
+        super(message);
+    }
+
+    public ConfigurationException(Throwable cause) {
+        super(cause);
     }
 
 }

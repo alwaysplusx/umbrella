@@ -71,6 +71,7 @@ public abstract class PropUtils {
             try {
                 loadProperties(path, props);
             } catch (IOException e) {
+                // ignore
             }
         }
         return props;

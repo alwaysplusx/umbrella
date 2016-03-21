@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2015 the original author or authors.
+ * Copyright 2012-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,40 +13,36 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.umbrella.ws;
+package com.harmony.umbrella.message;
 
 import java.util.List;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import javax.ejb.ActivationConfigProperty;
 import javax.ejb.EJB;
 import javax.ejb.MessageDriven;
-import javax.ejb.Remote;
 import javax.jms.MessageListener;
 
 import com.harmony.umbrella.config.ConfigurationBeans;
-import com.harmony.umbrella.message.MessageResolver;
 import com.harmony.umbrella.message.jms.AbstractJmsMessageListener;
+import com.harmony.umbrella.message.jms.MessageConfig;
+
 
 /**
- * JaxWs Context 消息监听类
- * 
  * @author wuxii@foxmail.com
  */
 @MessageDriven(activationConfig = { 
         @ActivationConfigProperty(propertyName = "acknowledgeMode", propertyValue = "Auto-acknowledge"),
         @ActivationConfigProperty(propertyName = "destinationType", propertyValue = "javax.jms.Queue"),
-        @ActivationConfigProperty(propertyName = "destination", propertyValue = "jms.jaxws.queue") 
+        @ActivationConfigProperty(propertyName = "destination", propertyValue = MessageConfig.DEFAULT_QUEUE) 
 })
-@Remote({ com.harmony.umbrella.message.MessageListener.class })
-public class ContextMessageListener extends AbstractJmsMessageListener implements MessageListener {
+public class ApplicationMessageListener extends AbstractJmsMessageListener implements MessageListener {
 
-    @EJB(mappedName = "MessageResolverBeanConfiguration")
+    public static final String ApplicationMessageListenerInjectMappedName = "ApplicationMessageListenerConfigurationBeans";
+
+    @EJB(mappedName = ApplicationMessageListenerInjectMappedName)
     private ConfigurationBeans<MessageResolver> configuration;
 
     @Override
-    @PostConstruct
     public void init() {
     }
 
@@ -56,7 +52,6 @@ public class ContextMessageListener extends AbstractJmsMessageListener implement
     }
 
     @Override
-    @PreDestroy
     public void destroy() {
     }
 

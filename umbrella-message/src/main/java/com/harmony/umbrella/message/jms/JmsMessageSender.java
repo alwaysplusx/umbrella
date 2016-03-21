@@ -23,6 +23,8 @@ import com.harmony.umbrella.message.MessageSender;
  */
 public interface JmsMessageSender extends MessageSender {
 
+    String DEFAULT_MESSAGE_SENDER_MAPPEDNAME = "ApplicationMessageSender";
+
     boolean send(Message message, MessageConfig config);
 
 }
