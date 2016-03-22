@@ -26,6 +26,7 @@ import javax.jms.Session;
 import com.harmony.umbrella.log.Log;
 import com.harmony.umbrella.log.Logs;
 import com.harmony.umbrella.message.Message;
+import com.harmony.umbrella.message.MessageException;
 
 /**
  * 基于JMS的消息发送基础抽象类
@@ -37,12 +38,12 @@ public abstract class AbstractJmsMessageSender implements JmsMessageSender {
     private static final Log log = Logs.getLog(AbstractJmsMessageSender.class);
 
     @Override
-    public boolean send(Message message) {
+    public boolean send(Message message) throws MessageException {
         return send(message, null);
     }
 
     @Override
-    public boolean send(Message message, MessageConfig config) {
+    public boolean send(Message message, JmsProducerConfig config) throws MessageException {
         Connection connection = null;
         Session session = null;
         MessageProducer producer = null;
@@ -50,7 +51,7 @@ public abstract class AbstractJmsMessageSender implements JmsMessageSender {
             connection = getConnectionFactory().createConnection();
             connection.start();
             if (config != null) {
-                connection.createSession(config.transacted(), config.sessionMode());
+                session = connection.createSession(config.transacted(), config.sessionMode());
             } else {
                 session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
             }

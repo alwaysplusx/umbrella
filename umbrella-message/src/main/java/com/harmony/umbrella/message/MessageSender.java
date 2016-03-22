@@ -30,6 +30,6 @@ public interface MessageSender {
      * @return if return {@code true} 发送成功
      * @see javax.jms.MessageProducer#send(javax.jms.Message)
      */
-    boolean send(Message message);
+    boolean send(Message message) throws MessageException;
 
 }

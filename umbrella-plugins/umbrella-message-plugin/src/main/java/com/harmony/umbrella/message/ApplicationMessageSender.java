@@ -23,7 +23,7 @@ import javax.jms.Destination;
 
 import com.harmony.umbrella.message.jms.AbstractJmsMessageSender;
 import com.harmony.umbrella.message.jms.JmsMessageSender;
-import com.harmony.umbrella.message.jms.MessageConfig;
+import com.harmony.umbrella.message.jms.JmsConfig;
 
 /**
  * @author wuxii@foxmail.com
@@ -32,9 +32,9 @@ import com.harmony.umbrella.message.jms.MessageConfig;
 @Stateless(mappedName = JmsMessageSender.DEFAULT_MESSAGE_SENDER_MAPPEDNAME)
 public class ApplicationMessageSender extends AbstractJmsMessageSender {
 
-    @Resource(name = MessageConfig.DEFAULT_CONNECTION_FACTORY)
+    @Resource(name = JmsConfig.DEFAULT_CONNECTION_FACTORY)
     private ConnectionFactory connectionFactory;
-    @Resource(name = MessageConfig.DEFAULT_DESTINATION)
+    @Resource(name = JmsConfig.DEFAULT_DESTINATION)
     private Destination destination;
 
     @Override

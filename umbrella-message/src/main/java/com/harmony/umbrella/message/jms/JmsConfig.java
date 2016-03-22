@@ -16,12 +16,13 @@
 package com.harmony.umbrella.message.jms;
 
 import javax.jms.Message;
-import javax.jms.MessageProducer;
+
+import com.harmony.umbrella.message.MessageException;
 
 /**
  * @author wuxii@foxmail.com
  */
-public interface MessageConfig {
+public interface JmsConfig {
 
     String DEFAULT_CONNECTION_FACTORY = "jms/connectionFactory";
 
@@ -31,12 +32,14 @@ public interface MessageConfig {
 
     String DEFAULT_DESTINATION = DEFAULT_QUEUE;
 
-    void configMessage(Message message);
-
-    void configMessageProducer(MessageProducer messageProducer);
+    void configMessage(Message message) throws MessageException;
 
     int sessionMode();
 
     boolean transacted();
+
+    String username();
+
+    String password();
 
 }
