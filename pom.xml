@@ -62,7 +62,6 @@ under the License.
     <!-- <module>umbrella-bang</module> -->
   </modules>
 
-
   <properties>
     <!-- basic property -->
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -584,5 +583,4 @@ under the License.
       </dependency>
     </dependencies>
   </dependencyManagement>
-
 </project>

@@ -20,6 +20,7 @@ import java.util.List;
 import javax.ejb.ActivationConfigProperty;
 import javax.ejb.EJB;
 import javax.ejb.MessageDriven;
+import javax.ejb.Remote;
 import javax.jms.MessageListener;
 
 import com.harmony.umbrella.config.ConfigurationBeans;
@@ -35,6 +36,7 @@ import com.harmony.umbrella.message.jms.MessageConfig;
         @ActivationConfigProperty(propertyName = "destinationType", propertyValue = "javax.jms.Queue"),
         @ActivationConfigProperty(propertyName = "destination", propertyValue = MessageConfig.DEFAULT_QUEUE) 
 })
+@Remote({ MessageListener.class, com.harmony.umbrella.message.MessageListener.class })
 public class ApplicationMessageListener extends AbstractJmsMessageListener implements MessageListener {
 
     public static final String ApplicationMessageListenerInjectMappedName = "ApplicationMessageListenerConfigurationBeans";
@@ -42,6 +44,9 @@ public class ApplicationMessageListener extends AbstractJmsMessageListener imple
     @EJB(mappedName = ApplicationMessageListenerInjectMappedName)
     private ConfigurationBeans<MessageResolver> configuration;
 
+    @EJB
+    private MessageResolver resolver;
+    
     @Override
     public void init() {
     }
