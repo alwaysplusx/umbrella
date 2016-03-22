@@ -19,7 +19,6 @@ import com.harmony.umbrella.message.AbstractMessageResolver;
 import com.harmony.umbrella.message.Message;
 import com.harmony.umbrella.ws.jaxws.JaxWsExecutor;
 import com.harmony.umbrella.ws.support.ContextReceiver;
-import com.harmony.umbrella.ws.support.SimpleContext;
 
 /**
  * JaxWs Context接受与消息处理的抽象
@@ -97,16 +96,7 @@ public abstract class AbstractJaxWsContextReceiver extends AbstractMessageResolv
         if (loader != null && (reload || Boolean.valueOf(String.valueOf(context.get(RELOAD_CONTEXT))))) {
             Metadata metadata = loader.loadMetadata(context.getServiceInterface());
             if (metadata != null) {
-                SimpleContext copyContext = new SimpleContext(context.getServiceInterface(), context.getMethodName());
-                copyContext.setAddress(metadata.getAddress());
-                copyContext.setUsername(metadata.getUsername());
-                copyContext.setPassword(metadata.getPassword());
-                copyContext.setConnectionTimeout(metadata.getConnectionTimeout());
-                copyContext.setReceiveTimeout(metadata.getReceiveTimeout());
-
-                copyContext.setParameters(context.getParameters());
-                copyContext.putAll(context.getContextMap());
-                return copyContext;
+                context = ContextUtils.reset(context, metadata);
             }
         }
         return context;

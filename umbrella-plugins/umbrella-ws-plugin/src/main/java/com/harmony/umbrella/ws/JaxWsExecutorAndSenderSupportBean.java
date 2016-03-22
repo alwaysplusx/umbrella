@@ -18,12 +18,13 @@ package com.harmony.umbrella.ws;
 import javax.ejb.EJB;
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
+import javax.xml.ws.WebServiceException;
 
+import com.harmony.umbrella.message.MessageException;
 import com.harmony.umbrella.message.jms.JmsMessageSender;
 import com.harmony.umbrella.ws.jaxws.JaxWsCXFExecutor;
 import com.harmony.umbrella.ws.jaxws.JaxWsExecutorSupport;
 import com.harmony.umbrella.ws.support.ContextSender;
-import com.harmony.umbrella.ws.support.SimpleContext;
 
 /**
  * JaxWs 执行者的发送context扩展
@@ -44,7 +45,11 @@ public class JaxWsExecutorAndSenderSupportBean extends JaxWsCXFExecutor implemen
     @Override
     public boolean send(Context context) {
         context = reloadContext(context);
-        return messageSender.send(new ContextMessage(context));
+        try {
+            return messageSender.send(new ContextMessage(context));
+        } catch (MessageException e) {
+            throw new WebServiceException("cannot send webservice context", e);
+        }
     }
 
     protected Context reloadContext(Context context) {
@@ -52,16 +57,7 @@ public class JaxWsExecutorAndSenderSupportBean extends JaxWsCXFExecutor implemen
         if (loader != null && reload) {
             Metadata metadata = loader.loadMetadata(context.getServiceInterface());
             if (metadata != null) {
-                SimpleContext copyContext = new SimpleContext(context.getServiceInterface(), context.getMethodName());
-                copyContext.setAddress(metadata.getAddress());
-                copyContext.setUsername(metadata.getUsername());
-                copyContext.setPassword(metadata.getPassword());
-                copyContext.setConnectionTimeout(metadata.getConnectionTimeout());
-                copyContext.setReceiveTimeout(metadata.getReceiveTimeout());
-
-                copyContext.setParameters(context.getParameters());
-                copyContext.putAll(context.getContextMap());
-                return copyContext;
+                context = ContextUtils.reset(context, metadata);
             }
         }
         return context;
