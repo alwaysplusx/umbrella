@@ -60,6 +60,7 @@ under the License.
     <!-- <module>umbrella-cache</module> -->
     <!-- <module>examples</module> -->
     <!-- <module>umbrella-bang</module> -->
+    <module>umbrella-test</module>
   </modules>
 
   <properties>

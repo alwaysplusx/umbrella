@@ -16,9 +16,9 @@
 package com.harmony.umbrella.context.ee.resolver;
 
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
@@ -52,7 +52,7 @@ public class ConfigurationBeanResolver implements BeanResolver {
     /**
      * jndi的全局前缀
      */
-    protected String globalPrefix;
+    protected final String globalPrefix;
 
     /**
      * jndi名称与remoteClass中间的分割符, default '#'
@@ -70,7 +70,7 @@ public class ConfigurationBeanResolver implements BeanResolver {
     protected final List<String> remoteSuffixes = new ArrayList<String>();
 
     /**
-     * local对于的后缀
+     * local的后缀
      */
     protected final List<String> localSuffixes = new ArrayList<String>();
 
@@ -86,17 +86,19 @@ public class ConfigurationBeanResolver implements BeanResolver {
 
     public ConfigurationBeanResolver(Properties props) {
         this.containerProperties.putAll(props);
+        this.globalPrefix = props.getProperty("jndi.format.global.prefix", "");
         init();
     }
 
     private void init() {
         final Properties p = containerProperties;
-        this.globalPrefix = p.getProperty("jndi.format.global.prefix", "");
-        this.transformLocal = Boolean.valueOf(p.getProperty("jndi.format.transformLocal", "true"));
+
+        this.separators.addAll(splitProperty(p.getProperty("jndi.format.separator", "#")));
         this.beanSuffixes.addAll(splitProperty(p.getProperty("jndi.format.bean", "Bean, ")));
         this.remoteSuffixes.addAll(splitProperty(p.getProperty("jndi.format.remote", "Remote, ")));
         this.localSuffixes.addAll(splitProperty(p.getProperty("jndi.format.local", "Local, ")));
-        this.separators.addAll(splitProperty(p.getProperty("jndi.format.separator", "#")));
+        this.transformLocal = Boolean.valueOf(p.getProperty("jndi.format.transformLocal", "true"));
+
         String property = p.getProperty("jndi.wrapped.handler");
         if (property != null) {
             Set<String> classNames = splitProperty(property);
@@ -144,7 +146,8 @@ public class ConfigurationBeanResolver implements BeanResolver {
     public Object guessBean(BeanDefinition beanDefinition, Context context, BeanFilter filter) {
         Assert.notNull(filter);
         Object bean = null;
-        for (String jndi : guessNames(beanDefinition)) {
+        String[] guessJndis = guessNames(beanDefinition, context);
+        for (String jndi : guessJndis) {
             bean = tryLookup(jndi, context);
             if (bean != null && filter.accept(jndi, bean)) {
                 break;
@@ -213,14 +216,18 @@ public class ConfigurationBeanResolver implements BeanResolver {
     }
 
     public static final String removeSuffix(String target, String suffix) {
-        int index = target.lastIndexOf(suffix);
-        return index > 0 ? target.substring(0, index) : target;
+        if (target.endsWith(suffix)) {
+            int index = target.lastIndexOf(suffix);
+            return target.substring(0, index);
+        }
+        return target;
     }
 
+    @SuppressWarnings("rawtypes")
     public abstract class ConcreteBeanResolver {
 
-        protected final BeanDefinition beanDefinition;
         protected final Context context;
+        protected final BeanDefinition beanDefinition;
         protected final Set<String> jndis = new HashSet<String>();
 
         public ConcreteBeanResolver(BeanDefinition beanDefinition, Context context) {
@@ -228,20 +235,18 @@ public class ConfigurationBeanResolver implements BeanResolver {
             this.context = context;
         }
 
-        public String[] resolve() {
+        protected abstract Collection<Class> remoteClasses();
 
+        protected abstract Collection<String> mappedNames();
+
+        public final String[] resolve() {
             for (String mappedName : mappedNames()) {
-                for (Class<?> remoteClass : remoteClasses()) {
-                    addIfNotExists(mappedName, remoteClass);
+                for (Class remoteClass : remoteClasses()) {
+                    addJndiIfAbsent(mappedName, remoteClass);
                 }
             }
-
             return jndis.toArray(new String[jndis.size()]);
         }
-
-        protected abstract Set<Class<?>> remoteClasses();
-
-        protected abstract Set<String> mappedNames();
 
         /**
          * 格式划jndi, 再判断jndi是否存在于上下文中
@@ -256,24 +261,57 @@ public class ConfigurationBeanResolver implements BeanResolver {
          * @param remoteClass
          *            remote的类型
          */
-        protected void addIfNotExists(String mappedName, Class<?> remoteClass) {
+        protected void addJndiIfAbsent(String mappedName, Class<?> remoteClass) {
             for (String separator : separators) {
                 StringBuilder sb = new StringBuilder();
                 sb.append(globalPrefix);
-                if (StringUtils.isNotBlank(globalPrefix) //
-                        && !globalPrefix.endsWith("/") //
-                        && !mappedName.startsWith("/")) {
+                if (!globalPrefix.endsWith("/")) {
                     sb.append("/");
                 }
-                sb.append(mappedName)//
-                        .append(separator)//
-                        .append(remoteClass.getName());
+                sb.append(mappedName).append(separator).append(remoteClass.getName());
+
                 String jndi = sb.toString();
 
                 if (!jndis.contains(jndi) && (context == null || existsInContext(jndi, context))) {
                     jndis.add(jndi);
                 }
             }
+        }
+
+        /**
+         * 将local class的类通过local suffix + remote suffix替换方式来得出localClass
+         */
+        protected final Set<Class> transofrmLocal() {
+            Set<Class> result = new HashSet<Class>();
+            for (Class<?> localClass : beanDefinition.getLocalClasses()) {
+                String name = localClass.getName();
+                for (String localSuffix : localSuffixes) {
+                    name = removeSuffix(name, localSuffix);
+                    for (String remoteSuffix : remoteSuffixes) {
+                        try {
+                            result.add(Class.forName(name + remoteSuffix, false, ClassUtils.getDefaultClassLoader()));
+                        } catch (Throwable e) {
+                        }
+                    }
+                }
+            }
+            return result;
+        }
+
+        public Set<String> transformMappedName(List<Class> classes, List<String> suffixes) {
+            Set<String> result = new HashSet<String>(classes.size());
+            for (Class<?> clazz : classes) {
+                String name = clazz.getSimpleName();
+                for (String suffix : suffixes) {
+                    // 去除后缀, 如果没有对应的后缀则忽略
+                    name = removeSuffix(name, suffix);
+                    for (String beanSuffix : beanSuffixes) {
+                        // 给去除后缀后的localClass SimpleName增加上bean的名称后缀
+                        result.add(name + beanSuffix);
+                    }
+                }
+            }
+            return result;
         }
     }
 
@@ -300,6 +338,7 @@ public class ConfigurationBeanResolver implements BeanResolver {
      *
      * @author wuxii@foxmail.com
      */
+    @SuppressWarnings("rawtypes")
     final class LocalResolver extends ConcreteBeanResolver {
 
         private final boolean transformLocal;
@@ -313,59 +352,20 @@ public class ConfigurationBeanResolver implements BeanResolver {
          * 去除localClass上的后缀, 添加上beanSuffix组合成一个mappedName
          */
         @Override
-        protected Set<String> mappedNames() {
-            Set<String> result = new LinkedHashSet<String>();
-
+        protected Collection<String> mappedNames() {
             String mappedName = beanDefinition.getMappedName();
-
             if (StringUtils.isNotBlank(mappedName)) {
-                result.add(mappedName);
+                return Arrays.asList(mappedName);
             } else {
-                Class<?>[] localClasses = beanDefinition.getLocalClasses();
-
-                for (Class<?> localClass : localClasses) {
-                    String name = localClass.getSimpleName();
-                    for (String localSuffix : localSuffixes) {
-                        // 去除后缀, 如果没有对应的后缀则忽略
-                        name = removeSuffix(name, localSuffix);
-                        for (String beanSuffix : beanSuffixes) {
-                            // 给去除后缀后的localClass SimpleName增加上bean的名称后缀
-                            result.add(name + beanSuffix);
-                        }
-                    }
-                }
+                return transformMappedName(beanDefinition.getLocalClasses(), localSuffixes);
             }
-            return result;
         }
 
-        protected Set<Class<?>> remoteClasses() {
-            Class<?>[] localClasses = beanDefinition.getLocalClasses();
-            Set<Class<?>> result = new LinkedHashSet<Class<?>>(localClasses.length);
-
-            if (!this.transformLocal) {
-
-                Collections.addAll(result, localClasses);
-
-            } else {
-
-                for (Class<?> localClass : localClasses) {
-                    String name = localClass.getName();
-                    for (String localSuffix : localSuffixes) {
-                        if (name.endsWith(localSuffix)) {
-                            name = removeSuffix(name, localSuffix);
-                            for (String remoteSuffix : remoteSuffixes) {
-                                try {
-                                    result.add(Class.forName(name + remoteSuffix, false, ClassUtils.getDefaultClassLoader()));
-                                } catch (ClassNotFoundException e) {
-                                }
-                            }
-                        }
-                    }
-                }
-
+        protected Collection<Class> remoteClasses() {
+            if (this.transformLocal) {
+                return transofrmLocal();
             }
-
-            return result;
+            return beanDefinition.getLocalClasses();
         }
     }
 
@@ -386,45 +386,24 @@ public class ConfigurationBeanResolver implements BeanResolver {
      *      FooBean#com.harmony.FooRemote
      * </pre>
      */
+    @SuppressWarnings("rawtypes")
     final class RemoteResolver extends ConcreteBeanResolver {
 
         public RemoteResolver(BeanDefinition beanDefinition, Context context) {
             super(beanDefinition, context);
         }
 
-        protected Set<String> mappedNames() {
-            Set<String> result = new LinkedHashSet<String>();
+        protected Collection<String> mappedNames() {
             String mappedName = beanDefinition.getMappedName();
-
             if (StringUtils.isNotBlank(mappedName)) {
-                result.add(mappedName);
+                return Arrays.asList(mappedName);
             } else {
-
-                Class<?>[] remoteClasses = beanDefinition.getRemoteClasses();
-
-                for (Class<?> remoteClass : remoteClasses) {
-                    String name = remoteClass.getSimpleName();
-
-                    for (String remoteSuffix : remoteSuffixes) {
-                        if (name.endsWith(remoteSuffix)) {
-                            name = removeSuffix(name, remoteSuffix);
-                            for (String beanSuffix : beanSuffixes) {
-                                result.add(name + beanSuffix);
-                            }
-                        }
-                    }
-
-                }
-
+                return transformMappedName(beanDefinition.getRemoteClasses(), remoteSuffixes);
             }
-            return result;
         }
 
-        protected Set<Class<?>> remoteClasses() {
-            Class<?>[] remoteClasses = beanDefinition.getRemoteClasses();
-            Set<Class<?>> result = new LinkedHashSet<Class<?>>(remoteClasses.length);
-            Collections.addAll(result, remoteClasses);
-            return result;
+        protected Collection<Class> remoteClasses() {
+            return beanDefinition.getRemoteClasses();
         }
 
     }
@@ -447,6 +426,7 @@ public class ConfigurationBeanResolver implements BeanResolver {
      *
      * @author wuxii@foxmail.com
      */
+    @SuppressWarnings("rawtypes")
     final class SessionResolver extends ConcreteBeanResolver {
 
         private final boolean transformLocal;
@@ -457,45 +437,21 @@ public class ConfigurationBeanResolver implements BeanResolver {
         }
 
         @Override
-        protected Set<String> mappedNames() {
-
-            Set<String> result = new LinkedHashSet<String>();
+        protected Collection<String> mappedNames() {
             String mappedName = beanDefinition.getMappedName();
-
-            if (StringUtils.isNotBlank(mappedName)) {
-                result.add(mappedName);
-            } else {
-                result.add(beanDefinition.getBeanClass().getSimpleName());
+            if (StringUtils.isBlank(mappedName)) {
+                mappedName = beanDefinition.getBeanClass().getSimpleName();
             }
-
-            return result;
+            return Arrays.asList(mappedName);
         }
 
         @Override
-        protected Set<Class<?>> remoteClasses() {
-            Class<?>[] remoteClasses = beanDefinition.getRemoteClasses();
-            Set<Class<?>> result = new LinkedHashSet<Class<?>>();
-            Collections.addAll(result, remoteClasses);
+        protected Collection<Class> remoteClasses() {
+            Set<Class> remoteClasses = new HashSet<Class>(beanDefinition.getRemoteClasses());
             if (this.transformLocal) {
-                Class<?>[] localClasses = beanDefinition.getLocalClasses();
-
-                for (Class<?> localClass : localClasses) {
-                    String name = localClass.getName();
-                    for (String localSuffix : localSuffixes) {
-                        if (name.endsWith(localSuffix)) {
-                            name = removeSuffix(name, localSuffix);
-                            for (String remoteSuffix : remoteSuffixes) {
-                                try {
-                                    result.add(Class.forName(name + remoteSuffix, false, ClassUtils.getDefaultClassLoader()));
-                                } catch (ClassNotFoundException e) {
-                                }
-                            }
-                        }
-                    }
-                }
-
+                remoteClasses.addAll(transofrmLocal());
             }
-            return result;
+            return remoteClasses;
         }
     }
 

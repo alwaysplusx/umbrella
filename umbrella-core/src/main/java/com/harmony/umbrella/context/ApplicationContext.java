@@ -63,7 +63,7 @@ public abstract class ApplicationContext implements BeanFactory {
         try {
             applicationProperties.putAll(PropUtils.loadProperties(APPLICATION_PROPERTIES_LOCATION));
         } catch (IOException e) {
-            LOG.info("META-INF/application.properties file not find, no default application properties");
+            LOG.trace("META-INF/application.properties file not find, no default application properties");
         }
     }
 

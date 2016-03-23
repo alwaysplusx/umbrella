@@ -139,115 +139,126 @@ public class BeanDefinition {
     /**
      * 从所有RemoteClass中获取一个最合适的
      */
+    @SuppressWarnings("rawtypes")
     public Class<?> getSuitableRemoteClass() {
-        Class<?>[] classes = getRemoteClasses();
-        if (isRemoteClass() || isLocalClass()) {
+        List<Class> classes = getRemoteClasses();
+        if (isRemoteClass() || isLocalClass() || classes.isEmpty()) {
             return beanClass;
         }
-        Class<?> remoteClass = null;
-        if (classes.length > 1) {
-            remoteClass = classes[0];
-            double ratio = 0.0;
-            for (int i = 1, max = classes.length; i < max; i++) {
-                double currentRatio = matchingRate(beanClass.getSimpleName(), classes[i].getSimpleName());
-                if (currentRatio > ratio) {
-                    remoteClass = classes[i];
-                }
-            }
-        } else if (classes.length == 1) {
-            remoteClass = classes[0];
-        }
-        return remoteClass;
+        return findSuitClass(classes);
     }
 
     /**
      * 从所有LocalClass中获取一个最合适的
      */
+    @SuppressWarnings("rawtypes")
     public Class<?> getSuitableLocalClass() {
-        Class<?>[] classes = getLocalClasses();
-        if (isLocalClass()) {
+        List<Class> classes = getLocalClasses();
+        if (isLocalClass() || classes.isEmpty()) {
             return beanClass;
         }
-        Class<?> localClass = null;
-        if (classes.length > 1) {
-            localClass = classes[0];
-            double ratio = 0.0;
-            for (int i = 0, max = classes.length; i < max; i++) {
-                double currentRatio = matchingRate(beanClass.getSimpleName(), classes[i].getSimpleName());
-                if (currentRatio > ratio) {
-                    localClass = classes[i];
-                }
+        return findSuitClass(classes);
+    }
+
+    @SuppressWarnings("rawtypes")
+    private Class findSuitClass(List<Class> classes) {
+        double ratio = 0.0;
+        Class<?> result = classes.get(0);
+        String beanName = beanClass.getSimpleName();
+        for (Class clazz : classes) {
+            double currentRatio = matchingRate(beanName, clazz.getSimpleName());
+            if (ratio < currentRatio) {
+                result = clazz;
+                ratio = currentRatio;
             }
-        } else if (classes.length == 1) {
-            localClass = classes[0];
         }
-        return localClass;
+        return result;
     }
 
     /**
      * 获取sessionBean中所有的remote class
      */
     @SuppressWarnings("rawtypes")
-    public Class<?>[] getRemoteClasses() {
+    public List<Class> getRemoteClasses() {
         List<Class> result = new ArrayList<Class>();
+        // 如果本身是remote接口也算
         if (isRemoteClass() || beanClass.isInterface()) {
             result.add(beanClass);
         }
+        // 注解上配置的remote接口
         Remote ann = beanClass.getAnnotation(Remote.class);
         if (ann != null) {
-            Collections.addAll(result, ann.value());
+            for (Class clazz : ann.value()) {
+                if (!result.contains(clazz)) {
+                    result.add(clazz);
+                }
+            }
         }
+        // class 的所有接口
         for (Class clazz : ClassUtils.getAllInterfaces(beanClass)) {
             // 当前类的所有接口, 如果接口上标注了remote注解则表示是一个remote class
             if (isRemoteClass(clazz) && !result.contains(clazz)) {
                 result.add(clazz);
             }
         }
-        if (result.size() > 1) {
-            Collections.sort(result, new Comparator<Class>() {
-                @Override
-                public int compare(Class o1, Class o2) {
-                    return o1.getName().compareTo(o2.getName());
-                }
-            });
-        }
-        return result.toArray(new Class[result.size()]);
+        //排序
+        sortClasses(result);
+        return result;
     }
 
     /**
      * 获取sessionBean中所有的local class
      */
     @SuppressWarnings("rawtypes")
-    public Class<?>[] getLocalClasses() {
+    public List<Class> getLocalClasses() {
         List<Class> result = new ArrayList<Class>();
         if (isLocalClass() || (!isRemoteClass() && beanClass.isInterface())) {
             result.add(beanClass);
         }
+        //注解上的local
         Local ann = beanClass.getAnnotation(Local.class);
         if (ann != null) {
-            Collections.addAll(result, ann.value());
+            for (Class clazz : ann.value()) {
+                if (!result.contains(clazz)) {
+                    result.add(clazz);
+                }
+            }
         }
+        // 所有接口
         for (Class clazz : ClassUtils.getAllInterfaces(beanClass)) {
             if (isLocalClass(clazz) && !result.contains(clazz)) {
                 result.add(clazz);
             }
         }
+        sortClasses(result);
+        return result;
+    }
 
-        return result.toArray(new Class[result.size()]);
+    @SuppressWarnings({ "rawtypes" })
+    private void sortClasses(List<Class> classes) {
+        //排序
+        if (classes.size() > 1) {
+            Collections.sort(classes, new Comparator<Class>() {
+                @Override
+                public int compare(Class o1, Class o2) {
+                    return o1.getName().compareTo(o2.getName());
+                }
+            });
+        }
     }
 
     /**
      * session Bean 是否存在{@linkplain Remote}注解的类,或其实现的接口中
      */
     public boolean hasRemoteClass() {
-        return getRemoteClasses() != null && getRemoteClasses().length > 0;
+        return !getRemoteClasses().isEmpty();
     }
 
     /**
      * session Bean 是否存在{@linkplain Local}注解的类,或其实现的接口中
      */
     public boolean hasLocalClass() {
-        return getLocalClasses() != null && getLocalClasses().length > 0;
+        return !getLocalClasses().isEmpty();
     }
 
     /**
@@ -302,18 +313,6 @@ public class BeanDefinition {
         } else if (!mappedName.equals(other.mappedName))
             return false;
         return true;
-    }
-
-    @Override
-    public String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append(getClass().getName());
-        builder.append(" : {beanClass:");
-        builder.append(beanClass != null ? beanClass.getName() : null);
-        builder.append(", mappedName:");
-        builder.append(mappedName);
-        builder.append("}");
-        return builder.toString();
     }
 
     protected static void validBeanClass(Class<?> clazz) {

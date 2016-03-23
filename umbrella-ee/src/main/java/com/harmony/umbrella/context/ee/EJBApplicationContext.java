@@ -239,36 +239,52 @@ public class EJBApplicationContext extends ApplicationContext implements EJBCont
      */
     @SuppressWarnings("unchecked")
     public <T> T lookup(Class<T> clazz, String mappedName) {
-        validState();
-        String key = sessionKey(clazz, mappedName);
+        return (T) lookup(new BeanDefinition(clazz, mappedName));
+    }
+
+    public Object lookup(BeanDefinition bd) {
+        Object bean = getFromCacheIfAccessible(bd);
+        if (bean == null) {
+            synchronized (sessionBeanCacheMap) {
+                bean = getFromCacheIfAccessible(bd);
+                if (bean == null) {
+                    SessionBean sessionBean = contextResolver.search(bd, getContext());
+                    validState();
+                    if (sessionBean != null) {
+                        LOG.info("lookup {} by jndi [{}]", bd.getBeanClass().getName(), sessionBean.getJndi());
+                        putIntoCacheIfAbsent(bd, sessionBean);
+                        return sessionBean.getBean();
+                    }
+                }
+            }
+        }
+        LOG.warn("can't lookup {}", bd.getBeanClass().getName());
+        return null;
+    }
+
+    private Object getFromCacheIfAccessible(BeanDefinition bd) {
+        String key = cacheMappedKey(bd.getBeanClass(), bd.getMappedName());
         SessionBean sessionBean = sessionBeanCacheMap.get(key);
         if (sessionBean != null) {
             LOG.debug("lookup bean[{}] use cached session bean {}", sessionBean.getJndi(), sessionBean);
             if (sessionBean.isCacheable()) {
-                return (T) sessionBean.getBean();
+                return sessionBean.getBean();
             } else {
                 try {
-                    return (T) lookup(sessionBean.getJndi());
+                    return lookup(sessionBean.getJndi());
                 } catch (Exception e) {
                     sessionBeanCacheMap.remove(key);
                 }
             }
         }
+        return null;
+    }
 
-        synchronized (sessionBeanCacheMap) {
-            sessionBean = sessionBeanCacheMap.get(key);
-            if (sessionBean == null) {
-                sessionBean = contextResolver.search(new BeanDefinition(clazz, mappedName), getContext());
-                if (sessionBean != null) {
-                    LOG.info("lookup {} by jndi [{}]", clazz.getName(), sessionBean.getJndi());
-                    sessionBeanCacheMap.put(key, sessionBean);
-                } else {
-                    LOG.warn("can't lookup {}", clazz.getName());
-                }
-            }
+    private void putIntoCacheIfAbsent(BeanDefinition bd, SessionBean sessionBean) {
+        String key = cacheMappedKey(bd.getBeanClass(), bd.getMappedName());
+        if (!sessionBeanCacheMap.containsKey(key)) {
+            sessionBeanCacheMap.put(key, sessionBean);
         }
-
-        return (T) (sessionBean != null ? sessionBean.getBean() : null);
     }
 
     /**
@@ -280,7 +296,7 @@ public class EJBApplicationContext extends ApplicationContext implements EJBCont
      */
     public Context getContext() {
         try {
-            return new InitialContext(new Properties(containerProperties));
+            return new InitialContext(containerProperties);
         } catch (NamingException e) {
             throw new ApplicationContextException(e.getMessage(), e.getCause());
         }
@@ -296,7 +312,7 @@ public class EJBApplicationContext extends ApplicationContext implements EJBCont
         }
     }
 
-    private String sessionKey(Class<?> clazz, String mappedName) {
+    private String cacheMappedKey(Class<?> clazz, String mappedName) {
         return new StringBuilder(clazz.getName()).append(".")//
                 .append(StringUtils.isBlank(mappedName) ? "" : mappedName)//
                 .toString();
@@ -350,6 +366,16 @@ public class EJBApplicationContext extends ApplicationContext implements EJBCont
     }
 
     // ############## JMX ############
+
+    public void setContainerProperties(Properties containerProperties) {
+        this.containerProperties.clear();
+        this.containerProperties.putAll(containerProperties);
+    }
+
+    public void addContainerProperties(Properties containerProperties) {
+        this.containerProperties.putAll(containerProperties);
+    }
+
     /*
      * JMX method
      */
