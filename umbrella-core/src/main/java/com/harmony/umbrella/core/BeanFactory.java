@@ -36,40 +36,40 @@ public interface BeanFactory {
      * 根据bean的名称加载指定bean，默认获取单例的bean
      *
      * @param beanName
-     *         需要获取的bean名称
+     *            需要获取的bean名称
      * @return 指定名称的bean
      */
-    <T> T getBean(String beanName) throws NoSuchBeanFindException;
+    <T> T getBean(String beanName) throws BeansException;
 
     /**
      * 加载一个指定类型的bean
      *
      * @param beanName
-     *         需要获取的bean名称
+     *            需要获取的bean名称
      * @param scope
-     *         bean scope
+     *            bean scope
      * @return 指定名称的bean
      */
-    <T> T getBean(String beanName, String scope) throws NoSuchBeanFindException;
+    <T> T getBean(String beanName, String scope) throws BeansException;
 
     /**
      * 默认加载一个单例的bean
      *
      * @param beanClass
-     *         需要获取的bean类
+     *            需要获取的bean类
      * @return 指定类型的bean
      */
-    <T> T getBean(Class<T> beanClass) throws NoSuchBeanFindException;
+    <T> T getBean(Class<T> beanClass) throws BeansException;
 
     /**
      * 加载一个指定类型的bean
      *
      * @param beanClass
-     *         需要获取的bean类
+     *            需要获取的bean类
      * @param scope
-     *         bean scope
+     *            bean scope
      * @return 指定类型的bean
      */
-    <T> T getBean(Class<T> beanClass, String scope) throws NoSuchBeanFindException;
+    <T> T getBean(Class<T> beanClass, String scope) throws BeansException;
 
 }

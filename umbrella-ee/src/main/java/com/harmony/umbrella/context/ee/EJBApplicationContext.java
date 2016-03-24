@@ -34,7 +34,7 @@ import com.harmony.umbrella.context.ApplicationContextException;
 import com.harmony.umbrella.context.ee.jmx.EJBContext;
 import com.harmony.umbrella.context.ee.jmx.EJBContextMBean;
 import com.harmony.umbrella.core.BeanFactory;
-import com.harmony.umbrella.core.NoSuchBeanFindException;
+import com.harmony.umbrella.core.NoSuchBeanFoundException;
 import com.harmony.umbrella.util.ClassUtils;
 import com.harmony.umbrella.util.JmxManager;
 import com.harmony.umbrella.util.StringUtils;
@@ -87,8 +87,25 @@ public class EJBApplicationContext extends ApplicationContext implements EJBCont
         this.containerConfigurationUrl = url;
     }
 
+    private EJBApplicationContext(Properties props) {
+        this.containerProperties.putAll(props);
+        this.containerConfigurationUrl = null;
+    }
+
     public static EJBApplicationContext getInstance() {
-        return getInstance(null);
+        return getInstance(new Properties());
+    }
+
+    public static EJBApplicationContext getInstance(Properties props) {
+        if (INSTANCE == null) {
+            synchronized (EJBApplicationContext.class) {
+                if (INSTANCE == null) {
+                    INSTANCE = new EJBApplicationContext(props);
+                    INSTANCE.init();
+                }
+            }
+        }
+        return INSTANCE;
     }
 
     public static EJBApplicationContext getInstance(URL url) {
@@ -321,13 +338,13 @@ public class EJBApplicationContext extends ApplicationContext implements EJBCont
     // ################### BeanFactory #################
 
     @Override
-    public <T> T getBean(String beanName) throws NoSuchBeanFindException {
+    public <T> T getBean(String beanName) throws NoSuchBeanFoundException {
         return getBean(beanName, BeanFactory.PROTOTYPE);
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T> T getBean(String beanName, String scope) throws NoSuchBeanFindException {
+    public <T> T getBean(String beanName, String scope) throws NoSuchBeanFoundException {
         Exception ex = null;
         Object bean = null;
         try {
@@ -341,26 +358,26 @@ public class EJBApplicationContext extends ApplicationContext implements EJBCont
             }
         }
         if (bean == null) {
-            throw new NoSuchBeanFindException(beanName + " not find!", ex);
+            throw new NoSuchBeanFoundException(beanName + " not find!", ex);
         }
         return (T) bean;
     }
 
     @Override
-    public <T> T getBean(Class<T> beanClass) throws NoSuchBeanFindException {
+    public <T> T getBean(Class<T> beanClass) throws NoSuchBeanFoundException {
         return getBean(beanClass, BeanFactory.PROTOTYPE);
     }
 
     @Override
-    public <T> T getBean(Class<T> beanClass, String scope) throws NoSuchBeanFindException {
+    public <T> T getBean(Class<T> beanClass, String scope) throws NoSuchBeanFoundException {
         T bean = null;
         try {
             bean = lookup(beanClass);
         } catch (ApplicationContextException e) {
-            throw new NoSuchBeanFindException(beanClass + " not find!", e);
+            throw new NoSuchBeanFoundException(beanClass + " not find!", e);
         }
         if (bean == null) {
-            throw new NoSuchBeanFindException(beanClass + " not find!");
+            throw new NoSuchBeanFoundException(beanClass + " not find!");
         }
         return bean;
     }
@@ -411,7 +428,7 @@ public class EJBApplicationContext extends ApplicationContext implements EJBCont
         LOG.info("test exists bean {}", className);
         try {
             getBean(className);
-        } catch (NoSuchBeanFindException e) {
+        } catch (NoSuchBeanFoundException e) {
             return false;
         }
         return true;

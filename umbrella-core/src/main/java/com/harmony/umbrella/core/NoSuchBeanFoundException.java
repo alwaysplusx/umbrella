@@ -18,23 +18,23 @@ package com.harmony.umbrella.core;
 /**
  * @author wuxii@foxmail.com
  */
-public class NoSuchBeanFindException extends RuntimeException {
+public class NoSuchBeanFoundException extends BeansException {
 
     private static final long serialVersionUID = -6690972685293361663L;
 
-    public NoSuchBeanFindException() {
+    public NoSuchBeanFoundException() {
         super();
     }
 
-    public NoSuchBeanFindException(String message, Throwable cause) {
+    public NoSuchBeanFoundException(String message, Throwable cause) {
         super(message, cause);
     }
 
-    public NoSuchBeanFindException(String message) {
+    public NoSuchBeanFoundException(String message) {
         super(message);
     }
 
-    public NoSuchBeanFindException(Throwable cause) {
+    public NoSuchBeanFoundException(Throwable cause) {
         super(cause);
     }
 

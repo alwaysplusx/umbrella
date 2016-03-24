@@ -18,7 +18,7 @@ package com.harmony.umbrella.context;
 import java.net.URL;
 
 import com.harmony.umbrella.core.BeanFactory;
-import com.harmony.umbrella.core.NoSuchBeanFindException;
+import com.harmony.umbrella.core.NoSuchBeanFoundException;
 import com.harmony.umbrella.core.SimpleBeanFactory;
 
 /**
@@ -48,22 +48,22 @@ public class ContextProvider {
         private BeanFactory beanFactory = SimpleBeanFactory.INSTANCE;
 
         @Override
-        public <T> T getBean(String beanName) throws NoSuchBeanFindException {
+        public <T> T getBean(String beanName) throws NoSuchBeanFoundException {
             return beanFactory.getBean(beanName);
         }
 
         @Override
-        public <T> T getBean(String beanName, String scope) throws NoSuchBeanFindException {
+        public <T> T getBean(String beanName, String scope) throws NoSuchBeanFoundException {
             return beanFactory.getBean(beanName, scope);
         }
 
         @Override
-        public <T> T getBean(Class<T> beanClass) throws NoSuchBeanFindException {
+        public <T> T getBean(Class<T> beanClass) throws NoSuchBeanFoundException {
             return beanFactory.getBean(beanClass);
         }
 
         @Override
-        public <T> T getBean(Class<T> beanClass, String scope) throws NoSuchBeanFindException {
+        public <T> T getBean(Class<T> beanClass, String scope) throws NoSuchBeanFoundException {
             return beanFactory.getBean(beanClass, scope);
         }
 

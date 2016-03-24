@@ -41,6 +41,7 @@ public class EJBBeanFactoryTest {
     public void testContextResolver() throws Exception {
         context.getBean("java:global/umbrella-ee/TestBean");
         context.getBean(TestRemote.class);
+        Thread.sleep(Long.MAX_VALUE);
     }
 
 }

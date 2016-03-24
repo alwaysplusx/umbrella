@@ -51,6 +51,12 @@ public class SampleTest {
     @Test
     public void testSayHi() throws Exception {
         assertEquals("Hi wuxii", sample.sayHi("wuxii"));
+    }
+
+    public static void main(String[] args) throws Exception {
+        SampleTest bean = new SampleTest();
+        beforeClass();
+        container.getContext().bind("inject", bean);
         Thread.sleep(Long.MAX_VALUE);
     }
 

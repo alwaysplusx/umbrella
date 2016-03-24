@@ -20,12 +20,12 @@ import javax.ejb.Stateful;
 /**
  * @author wuxii@foxmail.com
  */
-@Stateful
+@Stateful(mappedName = "B")
 public class B implements I {
 
-	@Override
-	public String sayHi() {
-		return "B";
-	}
+    @Override
+    public String sayHi() {
+        return "B";
+    }
 
 }

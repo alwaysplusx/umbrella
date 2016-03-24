@@ -42,7 +42,7 @@ public class SimpleBeanFactory implements BeanFactory, Serializable {
             Class<?> clazz = ClassUtils.forName(beanName);
             return (T) getBean(clazz, SINGLETON);
         } catch (ClassNotFoundException e) {
-            throw new NoSuchBeanFindException(e.getMessage(), e);
+            throw new NoSuchBeanFoundException(e.getMessage(), e);
         }
     }
 
@@ -53,7 +53,7 @@ public class SimpleBeanFactory implements BeanFactory, Serializable {
             Class<?> clazz = ClassUtils.forName(beanName);
             return (T) getBean(clazz, scope);
         } catch (ClassNotFoundException e) {
-            throw new NoSuchBeanFindException(e.getMessage(), e);
+            throw new NoSuchBeanFoundException(e.getMessage(), e);
         }
     }
 
@@ -87,7 +87,7 @@ public class SimpleBeanFactory implements BeanFactory, Serializable {
         try {
             return ReflectionUtils.instantiateClass(beanClass);
         } catch (Exception e) {
-            throw new NoSuchBeanFindException(e.getMessage(), e);
+            throw new NoSuchBeanFoundException(e.getMessage(), e);
         }
     }
 

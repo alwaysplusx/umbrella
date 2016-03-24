@@ -20,12 +20,12 @@ import javax.ejb.Stateless;
 /**
  * @author wuxii@foxmail.com
  */
-@Stateless
+@Stateless(mappedName = "C")
 public class C implements I {
 
-	@Override
-	public String sayHi() {
-		return "C";
-	}
+    @Override
+    public String sayHi() {
+        return "C";
+    }
 
 }

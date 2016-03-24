@@ -27,8 +27,8 @@ import org.junit.runner.RunWith;
  * @author wuxii@foxmail.com
  */
 @RunWith(EJBJUnit4ClassRunner.class)
-@ContainerConfiguration(location = "classpath:/container.properties")
-public class ModuleTest {
+@ContainerConfiguration(location = "classpath:/openejb.properties")
+public class OpenEJBTest {
 
     @EJB
     private SampleRemote sample;

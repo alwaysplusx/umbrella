@@ -21,7 +21,7 @@ import com.harmony.umbrella.log.Log;
 import com.harmony.umbrella.log.Logs;
 
 import com.harmony.umbrella.core.BeanFactory;
-import com.harmony.umbrella.core.NoSuchBeanFindException;
+import com.harmony.umbrella.core.NoSuchBeanFoundException;
 import com.harmony.umbrella.core.SimpleBeanFactory;
 import com.harmony.umbrella.ws.jaxws.JaxWsServerBuilder.BeanFactoryInvoker;
 
@@ -44,22 +44,22 @@ public class SimpleBeanFactoryInvoker extends AbstractInvoker implements BeanFac
     }
 
     @Override
-    public <T> T getBean(String beanName) throws NoSuchBeanFindException {
+    public <T> T getBean(String beanName) throws NoSuchBeanFoundException {
         return beanFactory.getBean(beanName);
     }
 
     @Override
-    public <T> T getBean(String beanName, String scope) throws NoSuchBeanFindException {
+    public <T> T getBean(String beanName, String scope) throws NoSuchBeanFoundException {
         return beanFactory.getBean(beanName, scope);
     }
 
     @Override
-    public <T> T getBean(Class<T> beanClass) throws NoSuchBeanFindException {
+    public <T> T getBean(Class<T> beanClass) throws NoSuchBeanFoundException {
         return beanFactory.getBean(beanClass);
     }
 
     @Override
-    public <T> T getBean(Class<T> beanClass, String scope) throws NoSuchBeanFindException {
+    public <T> T getBean(Class<T> beanClass, String scope) throws NoSuchBeanFoundException {
         return beanFactory.getBean(beanClass, scope);
     }
 

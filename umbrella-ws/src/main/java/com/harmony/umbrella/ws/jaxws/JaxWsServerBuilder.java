@@ -29,7 +29,7 @@ import com.harmony.umbrella.log.Log;
 import com.harmony.umbrella.log.Logs;
 
 import com.harmony.umbrella.core.BeanFactory;
-import com.harmony.umbrella.core.NoSuchBeanFindException;
+import com.harmony.umbrella.core.NoSuchBeanFoundException;
 import com.harmony.umbrella.util.Assert;
 import com.harmony.umbrella.ws.FactoryConfig;
 import com.harmony.umbrella.ws.cxf.SimpleBeanFactoryInvoker;
@@ -232,7 +232,7 @@ public class JaxWsServerBuilder {
             if (serviceBean == null) {
                 try {
                     serviceBean = getBeanFactoryInvoker().getBean(serviceClass);
-                } catch (NoSuchBeanFindException e) {
+                } catch (NoSuchBeanFoundException e) {
                     throw new WebServiceException("can't create service bean", e);
                 }
             }

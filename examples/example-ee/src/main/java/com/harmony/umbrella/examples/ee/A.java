@@ -20,12 +20,12 @@ import javax.ejb.Singleton;
 /**
  * @author wuxii@foxmail.com
  */
-@Singleton
+@Singleton(mappedName = "A")
 public class A implements I {
 
-	@Override
-	public String sayHi() {
-		return "A";
-	}
+    @Override
+    public String sayHi() {
+        return "A";
+    }
 
 }

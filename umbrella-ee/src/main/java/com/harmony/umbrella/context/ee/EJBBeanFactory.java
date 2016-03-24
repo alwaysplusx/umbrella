@@ -26,7 +26,7 @@ import javax.naming.NamingException;
 import com.harmony.umbrella.context.ee.BeanFilter;
 import com.harmony.umbrella.context.ee.resolver.InternalContextResolver;
 import com.harmony.umbrella.core.BeanFactory;
-import com.harmony.umbrella.core.NoSuchBeanFindException;
+import com.harmony.umbrella.core.NoSuchBeanFoundException;
 import com.harmony.umbrella.util.ClassUtils.ClassFilterFeature;
 import com.harmony.umbrella.util.ReflectionUtils;
 import com.harmony.umbrella.util.StringUtils;
@@ -49,13 +49,13 @@ public class EJBBeanFactory implements BeanFactory {
     }
 
     @Override
-    public <T> T getBean(String beanName) throws NoSuchBeanFindException {
+    public <T> T getBean(String beanName) throws NoSuchBeanFoundException {
         return getBean(beanName, BeanFactory.SINGLETON);
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T> T getBean(String beanName, String scope) throws NoSuchBeanFindException {
+    public <T> T getBean(String beanName, String scope) throws NoSuchBeanFoundException {
         Context context = getContext();
         Object bean = contextResolver.tryLookup(beanName, context);
         if (bean == null) {
@@ -68,13 +68,13 @@ public class EJBBeanFactory implements BeanFactory {
     }
 
     @Override
-    public <T> T getBean(Class<T> beanClass) throws NoSuchBeanFindException {
+    public <T> T getBean(Class<T> beanClass) throws NoSuchBeanFoundException {
         return getBean(beanClass, BeanFactory.SINGLETON);
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T> T getBean(Class<T> beanClass, String scope) throws NoSuchBeanFindException {
+    public <T> T getBean(Class<T> beanClass, String scope) throws NoSuchBeanFoundException {
         Object bean = null;
         final BeanDefinition bd = new BeanDefinition(beanClass);
         Context context = getContext();
@@ -92,7 +92,7 @@ public class EJBBeanFactory implements BeanFactory {
             bean = ReflectionUtils.instantiateClass(beanClass);
             fillReferenceBean(bean, beanClass);
         } else {
-            throw new NoSuchBeanFindException("can't find bean of " + beanClass);
+            throw new NoSuchBeanFoundException("can't find bean of " + beanClass);
         }
         return (T) bean;
     }

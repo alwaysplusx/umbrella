@@ -16,14 +16,18 @@
 package com.harmony.umbrella.util;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Reader;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
-import com.harmony.umbrella.io.resource.ClassPathResource;
+import com.harmony.umbrella.io.Resource;
+import com.harmony.umbrella.io.ResourceLoader;
+import com.harmony.umbrella.io.resource.DefaultResourceLoader;
 
 /**
  * 属性加载工具
@@ -32,6 +36,8 @@ import com.harmony.umbrella.io.resource.ClassPathResource;
  */
 public abstract class PropUtils {
 
+    private static ResourceLoader resourceLoader = new DefaultResourceLoader();
+
     /**
      * 判断是否存在且是资源文件
      *
@@ -39,24 +45,47 @@ public abstract class PropUtils {
      *            文件路径
      */
     public static boolean exists(String path) {
-        File file = new File(path);
-        if (file.exists() && file.isFile()) {
-            return true;
+        Resource resource = resourceLoader.getResource(path);
+        return resource != null && resource.exists();
+    }
+
+    public static Properties loadProperties(InputStream is) throws IOException {
+        return loadProperties(is, false);
+    }
+
+    public static Properties loadProperties(InputStream is, boolean close) throws IOException {
+        Properties props = new Properties();
+        props.load(is);
+        if (close) {
+            try {
+                is.close();
+            } catch (Exception e) {
+            }
         }
-        InputStream inStream = null;
+        return props;
+    }
+
+    public static Properties loadProperties(File file) throws IOException {
+        return loadProperties(new FileInputStream(file), true);
+    }
+
+    public static Properties loadProperties(Reader reader) throws IOException {
+        return loadProperties(reader, false);
+    }
+
+    public static Properties loadProperties(Reader reader, boolean close) throws IOException {
+        Properties props = new Properties();
         try {
-            inStream = new ClassPathResource(path).getInputStream();
-        } catch (IOException e) {
-            return false;
-        } finally {
-            if (inStream != null) {
+            props.load(reader);
+        } catch (Exception e) {
+            if (close) {
                 try {
-                    inStream.close();
-                } catch (IOException e) {
+                    reader.close();
+                } catch (Exception e1) {
                 }
             }
         }
-        return inStream != null;
+        return props;
     }
 
     /**
@@ -99,7 +128,7 @@ public abstract class PropUtils {
     private static void loadProperties(String path, Properties props) throws IOException {
         InputStream inStream = null;
         try {
-            inStream = new ClassPathResource(path).getInputStream();
+            inStream = resourceLoader.getResource(path).getInputStream();
             props.load(inStream);
         } finally {
             if (inStream != null) {
