@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.Set;
 
 import com.harmony.umbrella.UmbrellaProperties;
-import com.harmony.umbrella.io.support.ResourceManager;
+import com.harmony.umbrella.io.ResourceManager;
 import com.harmony.umbrella.util.ClassUtils;
 import com.harmony.umbrella.util.PropUtils;
 

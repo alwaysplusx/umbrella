@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.umbrella.io.support;
+package com.harmony.umbrella.io;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -23,8 +23,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.harmony.umbrella.io.Resource;
-import com.harmony.umbrella.io.ResourceFilter;
+import com.harmony.umbrella.io.support.ClassResourceResolver;
+import com.harmony.umbrella.io.support.PathMatchingResourcePatternResolver;
+import com.harmony.umbrella.io.support.PatternClassResourceResolver;
+import com.harmony.umbrella.io.support.ResourcePatternResolver;
 import com.harmony.umbrella.util.Assert;
 import com.harmony.umbrella.util.ClassUtils.ClassFilter;
 
@@ -33,7 +35,7 @@ import com.harmony.umbrella.util.ClassUtils.ClassFilter;
  * 
  * @author wuxii@foxmail.com
  */
-public class ResourceManager {
+public class ResourceManager implements ResourceLoader {
 
     private final Map<String, Resource[]> resourcesCache = new HashMap<String, Resource[]>();
     private final Map<String, Class<?>[]> classCache = new HashMap<String, Class<?>[]>();
@@ -54,6 +56,16 @@ public class ResourceManager {
             }
         }
         return INSTANCE;
+    }
+    
+    @Override
+    public Resource getResource(String location) {
+        return classResourceResolver.getResource(location);
+    }
+
+    @Override
+    public ClassLoader getClassLoader() {
+        return classResourceResolver.getClassLoader();
     }
 
     public Class<?>[] getClasses(String packageName) {

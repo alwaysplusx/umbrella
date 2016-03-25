@@ -18,7 +18,7 @@ package com.harmony.umbrella.context;
 import org.junit.Test;
 
 import com.harmony.umbrella.io.Resource;
-import com.harmony.umbrella.io.support.ResourceManager;
+import com.harmony.umbrella.io.ResourceManager;
 
 /**
  * @author wuxii@foxmail.com

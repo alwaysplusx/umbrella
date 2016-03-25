@@ -22,7 +22,7 @@ import org.apache.cxf.jaxws.JaxWsServerFactoryBean;
 import org.apache.cxf.message.Message;
 
 import com.harmony.umbrella.io.Resource;
-import com.harmony.umbrella.io.support.ResourceManager;
+import com.harmony.umbrella.io.ResourceManager;
 import com.harmony.umbrella.ws.cxf.interceptor.MessageInInterceptor;
 import com.harmony.umbrella.ws.cxf.interceptor.MessageOutInterceptor;
 import com.harmony.umbrella.ws.jaxws.JaxWsProxyBuilder;
