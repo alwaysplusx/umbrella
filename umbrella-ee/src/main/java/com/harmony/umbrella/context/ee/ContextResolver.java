@@ -15,6 +15,7 @@
  */
 package com.harmony.umbrella.context.ee;
 
+import javax.ejb.EJB;
 import javax.naming.Context;
 
 /**
@@ -23,6 +24,17 @@ import javax.naming.Context;
  * @author wuxii@foxmail.com
  */
 public interface ContextResolver extends BeanResolver {
+
+    /**
+     * 在context中lookup jndi对象
+     * 
+     * @param jndi
+     *            环境中的jndi
+     * @param context
+     *            context
+     * @return 如果context中没有对应的jndi返回null
+     */
+    Object tryLookup(String jndi, Context context);
 
     /**
      * 在context中查找beanDefinition对于的SessionBean
@@ -36,15 +48,17 @@ public interface ContextResolver extends BeanResolver {
     SessionBean search(BeanDefinition beanDefinition, Context context);
 
     /**
-     * 在context中lookup jndi对象
+     * 通过bean定义以及外加字段上的@EJB注解来查找bean
      * 
-     * @param jndi
-     *            环境中的jndi
+     * @param beanDefinition
+     *            bean定义
+     * @param ejb
+     *            字段上的注解
      * @param context
      *            context
-     * @return 如果context中没有对应的jndi返回null
+     * @return
      */
-    Object tryLookup(String jndi, Context context);
+    SessionBean search(BeanDefinition beanDefinition, EJB ejbAnnotation, Context context);
 
     /**
      * 清除查找到的结果缓存

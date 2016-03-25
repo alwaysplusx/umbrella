@@ -235,28 +235,9 @@ public class EJBApplicationContext extends ApplicationContext implements EJBCont
      * @throws ApplicationContextException
      *             初始化JavaEE环境失败
      */
-    public <T> T lookup(Class<T> clazz) throws ApplicationContextException {
-        return lookup(clazz, null);
-    }
-
-    /**
-     * 从JavaEE环境中获取指定类实例
-     * <p/>
-     * <li>首先根据所运行的容器不同通过 {@linkplain BeanResolver} 将 {@code clazz} 格式化为特定的
-     * {@code jndi}
-     * <li>如果格式化后的jndi名称未找到对应类型的bean， 则通过 {@linkplain ContextResolver}
-     * 递归读取上下文查找需要指定的内容
-     * <li>若以上方式均为找到则返回{@code null}
-     *
-     * @param clazz
-     *            待查找的类
-     * @param mappedName
-     *            bean的映射名称
-     * @return 指定类型的bean
-     */
     @SuppressWarnings("unchecked")
-    public <T> T lookup(Class<T> clazz, String mappedName) {
-        return (T) lookup(new BeanDefinition(clazz, mappedName));
+    public <T> T lookup(Class<T> clazz) throws ApplicationContextException {
+        return (T) lookup(new BeanDefinition(clazz));
     }
 
     public Object lookup(BeanDefinition bd) {

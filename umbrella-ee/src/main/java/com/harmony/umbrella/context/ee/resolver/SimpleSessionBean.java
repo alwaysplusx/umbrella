@@ -51,7 +51,7 @@ public final class SimpleSessionBean implements SessionBean {
 
     @Override
     public boolean isCacheable() {
-        return beanDefinition.isSessionBean();
+        return beanDefinition.isStateless();
     }
 
     @Override

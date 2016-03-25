@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
+import javax.ejb.EJB;
 import javax.naming.Context;
 import javax.naming.NameClassPair;
 import javax.naming.NamingEnumeration;
@@ -46,14 +47,66 @@ public class InternalContextResolver extends ConfigurationBeanResolver implement
     private static final Log log = Logs.getLog(InternalContextResolver.class);
     // class - jndi
     private final Map<Class<?>, Set<String>> fastCache = new HashMap<Class<?>, Set<String>>();
-    private final Set<String> roots = new HashSet<String>();
+    private final Set<String> roots;
 
     private final int deeps;
 
     public InternalContextResolver(Properties props) {
         super(props);
-        this.deeps = Integer.valueOf(props.getProperty("jndi.search.deeps", "10"));
-        this.roots.addAll(splitProperty(props.getProperty("jndi.context.root", "java:, ")));
+        this.deeps = Integer.valueOf(getProperty("jndi.search.deeps", "10"));
+        this.roots = getFromProperties("jndi.context.root", "java:, ");
+    }
+
+    @Override
+    public SessionBean search(final BeanDefinition beanDefinition, Context context) {
+        final SimpleSessionBean result = new SimpleSessionBean(beanDefinition);
+
+        Class<?> beanClass = beanDefinition.getBeanClass();
+        Object bean = null;
+        Set<String> jndis = fastCache.get(beanClass);
+        if (jndis != null) {
+            double currentRatio = 0;
+            for (String jndi : jndis) {
+                bean = tryLookup(jndi, context);
+                Object unwrapBean = unwrap(bean);
+                if (isDeclare(beanDefinition, bean)) {
+                    double ratio = matchingRate(jndi, beanClass.getName());
+                    if (ratio >= currentRatio) {
+                        currentRatio = ratio;
+                        result.bean = bean;
+                        result.jndi = jndi;
+                        result.wrapped = bean != unwrapBean;
+                    }
+                }
+            }
+            if (result.bean != null && result.jndi != null) {
+                return result;
+            }
+        }
+
+        if (!filter(beanDefinition)) {
+            bean = guessBean(beanDefinition, context, new BeanFilter() {
+                @Override
+                public boolean accept(String jndi, Object bean) {
+                    recordBeanWithJndi(beanDefinition, bean, jndi);
+                    Object unwrapBean = unwrap(bean);
+                    if (isDeclare(beanDefinition, unwrapBean)) {
+                        result.bean = bean;
+                        result.jndi = jndi;
+                        result.wrapped = bean != unwrapBean;
+                        return true;
+                    }
+                    return false;
+                }
+            });
+        }
+
+        return bean == null ? deepSearch(result, context) : result;
+    }
+
+    @Override
+    public SessionBean search(BeanDefinition beanDefinition, EJB ejbAnnotation, Context context) {
+        return null;
     }
 
     /**
@@ -155,56 +208,9 @@ public class InternalContextResolver extends ConfigurationBeanResolver implement
         jndis.add(root);
     }
 
-    @Override
-    public SessionBean search(final BeanDefinition beanDefinition, Context context) {
-        final SimpleSessionBean result = new SimpleSessionBean(beanDefinition);
-        Class<?> beanClass = beanDefinition.getBeanClass();
-        Object bean = null;
-
-        Set<String> jndis = fastCache.get(beanClass);
-        if (jndis != null) {
-            double currentRatio = 0;
-            for (String jndi : jndis) {
-                bean = tryLookup(jndi, context);
-                Object unwrapBean = unwrap(bean);
-                if (isDeclare(beanDefinition, bean)) {
-                    double ratio = matchingRate(jndi, beanClass.getName());
-                    if (ratio >= currentRatio) {
-                        currentRatio = ratio;
-                        result.bean = bean;
-                        result.jndi = jndi;
-                        result.wrapped = bean != unwrapBean;
-                    }
-                }
-            }
-            if (result.bean != null && result.jndi != null) {
-                return result;
-            }
-        }
-
-        if (!filter(beanDefinition)) {
-            bean = guessBean(beanDefinition, context, new BeanFilter() {
-                @Override
-                public boolean accept(String jndi, Object bean) {
-                    recordBeanWithJndi(beanDefinition, bean, jndi);
-                    Object unwrapBean = unwrap(bean);
-                    if (isDeclare(beanDefinition, unwrapBean)) {
-                        result.bean = bean;
-                        result.jndi = jndi;
-                        result.wrapped = bean != unwrapBean;
-                        return true;
-                    }
-                    return false;
-                }
-            });
-        }
-
-        return bean == null ? deepSearch(result, context) : result;
-    }
-
     protected boolean filter(BeanDefinition beanDefinition) {
         return !(beanDefinition.isRemoteClass() //
-                || beanDefinition.isSessionBean() //
+                || beanDefinition.isSessionClass() //
                 || beanDefinition.isLocalClass() //
         || beanDefinition.getBeanClass().isInterface());
     }

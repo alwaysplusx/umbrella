@@ -30,6 +30,7 @@ import javax.ejb.Singleton;
 import javax.ejb.Stateful;
 import javax.ejb.Stateless;
 
+import com.harmony.umbrella.util.Assert;
 import com.harmony.umbrella.util.ClassUtils;
 import com.harmony.umbrella.util.ReflectionUtils;
 import com.harmony.umbrella.util.StringUtils;
@@ -47,23 +48,19 @@ public class BeanDefinition {
     @SuppressWarnings("all")
     private static final List<Class<? extends Annotation>> sessionClasses = Arrays.asList(Stateless.class, Stateful.class, Singleton.class);
     /**
-     * beanClass 会话bean的类
+     * beanClass 会话bean的类, 如果class没有标注session bean/local的注解并且是接口, 默认认为是remote接口
      */
-    private final Class<?> beanClass;
+    public final Class<?> beanClass;
 
-    /**
-     * @see {@linkplain Stateless#mappedName()}
-     */
-    private String mappedName;
+    public final Annotation ann;
 
     public BeanDefinition(Class<?> beanClass) {
-        this(beanClass, getMappedName(beanClass));
+        this(beanClass, getSessionBeanAnnotation(beanClass));
     }
 
-    public BeanDefinition(Class<?> beanClass, String mappedName) {
-        validBeanClass(beanClass);
+    public BeanDefinition(Class<?> beanClass, Annotation ann) {
         this.beanClass = beanClass;
-        this.mappedName = StringUtils.isBlank(mappedName) ? getMappedName(beanClass) : mappedName;
+        this.ann = ann;
     }
 
     /**
@@ -76,17 +73,12 @@ public class BeanDefinition {
     }
 
     /**
-     * @see Stateless#description()
+     * 工具方法, 获取会话bean的mappedName
      */
-    public String getDescription() {
-        if (isSessionBean()) {
-            Annotation ann = getSessionBeanAnnotation(beanClass);
-            if (ann != null) {
-                try {
-                    return (String) ReflectionUtils.invokeMethod("description", ann);
-                } catch (NoSuchMethodException e) {
-                }
-            }
+    public String getMappedName() {
+        String mappedName = getAnnotationValue("mappedName");
+        if (StringUtils.isBlank(mappedName) && isSessionClass()) {
+            return beanClass.getSimpleName();
         }
         return null;
     }
@@ -95,31 +87,47 @@ public class BeanDefinition {
      * @see Stateless#name()
      */
     public String getName() {
-        if (isSessionBean()) {
-            Annotation ann = getSessionBeanAnnotation(beanClass);
-            if (ann != null) {
-                try {
-                    return (String) ReflectionUtils.invokeMethod("name", ann);
-                } catch (NoSuchMethodException e) {
-                }
-            }
-        }
-        return null;
+        return getAnnotationValue("name");
     }
 
     /**
-     * @see Stateless#mappedName()
+     * @see Stateless#description()
      */
-    public String getMappedName() {
-        return mappedName;
+    public String getDescription() {
+        return getAnnotationValue("description");
+    }
+
+    /**
+     * 标记了{@linkplain Stateless}
+     */
+    public boolean isStateless() {
+        return isThatOf(Stateless.class);
+    }
+
+    /**
+     * 标记了{@linkplain Stateful}
+     */
+    public boolean isStateful() {
+        return isThatOf(Stateful.class);
+    }
+
+    /**
+     * 标记了{@linkplain Singleton}
+     */
+    public boolean isSingleton() {
+        return isThatOf(Singleton.class);
+    }
+
+    public boolean isThatOf(Class<? extends Annotation> annClass) {
+        return ann != null && ann.getClass() == annClass;
     }
 
     /**
      * 注有{@linkplain Stateless}, {@linkplain Stateful}, {@linkplain Singleton}
      * 三类注解中的一个则为sessionBean
      */
-    public boolean isSessionBean() {
-        return getSessionBeanAnnotation(beanClass) != null;
+    public boolean isSessionClass() {
+        return ann != null;
     }
 
     /**
@@ -139,13 +147,11 @@ public class BeanDefinition {
     /**
      * 从所有RemoteClass中获取一个最合适的
      */
-    @SuppressWarnings("rawtypes")
     public Class<?> getSuitableRemoteClass() {
-        List<Class> classes = getRemoteClasses();
-        if (isRemoteClass() || isLocalClass() || classes.isEmpty()) {
+        if (isRemoteClass() || isLocalClass()) {
             return beanClass;
         }
-        return findSuitClass(classes);
+        return findSuitClass(getRemoteClasses());
     }
 
     /**
@@ -176,7 +182,7 @@ public class BeanDefinition {
     }
 
     /**
-     * 获取sessionBean中所有的remote class
+     * 鑾峰彇sessionBean涓墍鏈夌殑remote class
      */
     @SuppressWarnings("rawtypes")
     public List<Class> getRemoteClasses() {
@@ -261,63 +267,18 @@ public class BeanDefinition {
         return !getLocalClasses().isEmpty();
     }
 
-    /**
-     * 标记了{@linkplain Stateless}
-     */
-    public boolean isStateless() {
-        return beanClass.getAnnotation(Stateless.class) != null;
+    private String getAnnotationValue(String name) {
+        return ann == null ? null : getAnnotationValue(ann, name);
     }
 
-    /**
-     * 标记了{@linkplain Stateful}
-     * 
-     */
-    public boolean isStateful() {
-        return beanClass.getAnnotation(Stateful.class) != null;
-    }
-
-    /**
-     * 标记了{@linkplain Singleton}
-     * 
-     */
-    public boolean isSingleton() {
-        return beanClass.getAnnotation(Singleton.class) != null;
-    }
-
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((beanClass == null) ? 0 : beanClass.hashCode());
-        result = prime * result + ((mappedName == null) ? 0 : mappedName.hashCode());
-        return result;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        BeanDefinition other = (BeanDefinition) obj;
-        if (beanClass == null) {
-            if (other.beanClass != null)
-                return false;
-        } else if (!beanClass.equals(other.beanClass))
-            return false;
-        if (mappedName == null) {
-            if (other.mappedName != null)
-                return false;
-        } else if (!mappedName.equals(other.mappedName))
-            return false;
-        return true;
-    }
-
-    protected static void validBeanClass(Class<?> clazz) {
-        if (!(clazz.isInterface() || isRemoteClass(clazz) || isLocalClass(clazz) || isSessionBean(clazz))) {
-            throw new IllegalArgumentException("class " + clazz.getName() + " not a javaee bean or interface");
+    // utils method
+    public static final String getAnnotationValue(Annotation ann, String methodName) {
+        Assert.notNull(ann, "annotation is null");
+        Assert.notNull(methodName, "annotation value name is null");
+        try {
+            return (String) ReflectionUtils.invokeMethod(methodName, ann);
+        } catch (NoSuchMethodException e) {
+            return null;
         }
     }
 
@@ -325,7 +286,7 @@ public class BeanDefinition {
      * 工具方法, 判断是否标有{@linkplain Remote}
      */
     public static boolean isRemoteClass(Class<?> clazz) {
-        return clazz.isInterface() && clazz.getAnnotation(Remote.class) != null;
+        return clazz.isInterface() && (clazz.getAnnotation(Remote.class) != null || !isLocalClass(clazz));
     }
 
     /**
@@ -336,23 +297,9 @@ public class BeanDefinition {
     }
 
     /**
-     * 工具方法, 获取会话bean的mappedName
-     */
-    public static final String getMappedName(Class<?> clazz) {
-        Annotation ann = getSessionBeanAnnotation(clazz);
-        if (ann != null) {
-            try {
-                return (String) ReflectionUtils.invokeMethod("mappedName", ann);
-            } catch (NoSuchMethodException e) {
-            }
-        }
-        return null;
-    }
-
-    /**
      * 判断是否为会话bean
      */
-    public static boolean isSessionBean(Class<?> clazz) {
+    public static boolean isSessionClass(Class<?> clazz) {
         return getSessionBeanAnnotation(clazz) != null;
     }
 
