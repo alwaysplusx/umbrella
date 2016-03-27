@@ -22,6 +22,7 @@ import java.util.Properties;
 import javax.ejb.EJB;
 import javax.ejb.embeddable.EJBContainer;
 
+import org.apache.openejb.OpenEjbContainer.Provider;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -31,6 +32,8 @@ import org.junit.Test;
  */
 public class SampleTest {
 
+    // org.glassfish.ejb.embedded.EJBContainerProviderImpl
+    // org.apache.openejb.OpenEjbContainer$Provider
     public static EJBContainer container;
 
     @EJB
@@ -40,7 +43,7 @@ public class SampleTest {
     public static void beforeClass() {
         Properties props = new Properties();
         props.put("openejb.embedded.remotable", "true");
-        container = EJBContainer.createEJBContainer(props);
+        container = new Provider().createEJBContainer(props);
     }
 
     @Before

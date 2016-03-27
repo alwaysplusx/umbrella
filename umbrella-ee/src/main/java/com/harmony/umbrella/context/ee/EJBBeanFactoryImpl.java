@@ -16,6 +16,7 @@
 package com.harmony.umbrella.context.ee;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.Properties;
 
 import javax.ejb.EJB;
@@ -25,115 +26,152 @@ import javax.naming.NamingException;
 
 import com.harmony.umbrella.context.ee.resolver.InternalContextResolver;
 import com.harmony.umbrella.core.BeanFactory;
+import com.harmony.umbrella.core.BeansException;
 import com.harmony.umbrella.core.NoSuchBeanFoundException;
-import com.harmony.umbrella.util.ReflectionUtils;
 import com.harmony.umbrella.util.ClassUtils.ClassFilterFeature;
+import com.harmony.umbrella.util.ReflectionUtils;
+import com.harmony.umbrella.util.StringUtils;
 
 /**
  * @author wuxii@foxmail.com
  */
-public class EJBBeanFactoryImpl implements BeanFactory {
+public class EJBBeanFactoryImpl implements EJBBeanFactory {
 
+    private final Properties contextProperties = new Properties();
     private ContextResolver contextResolver;
-    private final Properties props = new Properties();
 
-    public EJBBeanFactoryImpl(Properties props) {
-        this(new InternalContextResolver(props), props);
+    public static EJBBeanFactory create(Properties properties) {
+        return new EJBBeanFactoryImpl(InternalContextResolver.create(properties), properties);
     }
 
-    public EJBBeanFactoryImpl(ContextResolver contextResolver, Properties props) {
+    public EJBBeanFactoryImpl(ContextResolver contextResolver, Properties contextProperties) {
         this.contextResolver = contextResolver;
-        this.props.putAll(props);
-    }
-
-    @Override
-    public <T> T getBean(String beanName) throws NoSuchBeanFoundException {
-        return getBean(beanName, BeanFactory.SINGLETON);
+        this.contextProperties.putAll(contextProperties);
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T> T getBean(String beanName, String scope) throws NoSuchBeanFoundException {
-        Context context = getContext();
-        Object bean = contextResolver.tryLookup(beanName, context);
+    public <T> T lookup(String jndi) throws BeansException {
+        Object bean = contextResolver.tryLookup(jndi, getContext());
+        if (bean != null) {
+            return (T) bean;
+        }
+        throw new NoSuchBeanFoundException(jndi);
+    }
+
+    @Override
+    public <T> T lookup(Class<T> clazz) throws BeansException {
+        return lookup(new BeanDefinition(clazz));
+    }
+
+    @Override
+    public <T> T lookup(Class<T> clazz, EJB ejbAnnotation) throws BeansException {
+        return lookup(new BeanDefinition(clazz), ejbAnnotation);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public <T> T lookup(BeanDefinition beanDefinition) throws BeansException {
+        Object bean = contextResolver.guessBean(beanDefinition, getContext());
         if (bean == null) {
-            try {
-                bean = getBean(Class.forName(beanName), scope);
-            } catch (ClassNotFoundException e) {
-            }
+            bean = deepLookup(beanDefinition, null);
+        }
+        if (bean == null) {
+            throw new NoSuchBeanFoundException(beanDefinition.getBeanClass().getName());
+        }
+        return (T) bean;
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public <T> T lookup(BeanDefinition beanDefinition, EJB ejbAnnotation) throws BeansException {
+        Object bean = contextResolver.guessBean(beanDefinition, ejbAnnotation, getContext());
+        if (bean == null) {
+            bean = deepLookup(beanDefinition, ejbAnnotation);
+        }
+        if (bean == null) {
+            throw new NoSuchBeanFoundException(beanDefinition.getBeanClass().getName());
         }
         return (T) bean;
     }
 
     @Override
-    public <T> T getBean(Class<T> beanClass) throws NoSuchBeanFoundException {
-        return getBean(beanClass, BeanFactory.SINGLETON);
+    public void setContextProperties(Properties properties) {
+        contextProperties.clear();
+        contextProperties.putAll(properties);
     }
 
-    @SuppressWarnings("unchecked")
+    private Object deepLookup(BeanDefinition beanDefinition, EJB ejbAnnotation) {
+        if (ejbAnnotation != null && StringUtils.isNotBlank(ejbAnnotation.lookup())) {
+            Object bean = contextResolver.tryLookup(ejbAnnotation.lookup(), getContext());
+            if (contextResolver.isDeclareBean(beanDefinition, bean)) {
+                return bean;
+            }
+            throw new NoSuchBeanFoundException(ejbAnnotation.lookup());
+        }
+
+        SessionBean sessionBean = contextResolver.search(beanDefinition, getContext());
+        if (sessionBean != null) {
+            return sessionBean.getBean();
+        }
+
+        throw new NoSuchBeanFoundException(beanDefinition.getBeanClass().getName());
+    }
+
+    // base bean factory method
+
     @Override
-    public <T> T getBean(Class<T> beanClass, String scope) throws NoSuchBeanFoundException {
-        Object bean = null;
-        final BeanDefinition bd = new BeanDefinition(beanClass);
-        Context context = getContext();
-        bean = contextResolver.guessBean(bd, context, new BeanFilter() {
-
-            @Override
-            public boolean accept(String jndi, Object bean) {
-                return contextResolver.isDeclareBean(bd, bean);
-            }
-        });
-        if (bean == null) {
-            bean = contextResolver.search(bd, context);
-        }
-        if (bean == null && ClassFilterFeature.NEWABLE.accept(beanClass)) {
-            bean = ReflectionUtils.instantiateClass(beanClass);
-            fillReferenceBean(bean, beanClass);
-        } else {
-            throw new NoSuchBeanFoundException("can't find bean of " + beanClass);
-        }
-        return (T) bean;
+    public <T> T getBean(String beanName) throws BeansException {
+        return getBean(beanName, BeanFactory.PROTOTYPE);
     }
 
-    /**
-     * 注入相关依赖的bean
-     * 
-     * @param bean
-     * @param beanClass
-     */
-    private void fillReferenceBean(Object bean, Class<?> beanClass) {
-        Field[] fields = beanClass.getDeclaredFields();
-        for (Field field : fields) {
-            SessionBean sessionBean = null;
-            BeanDefinition beanDefinition = new BeanDefinition(beanClass);
-            EJB ann = field.getAnnotation(EJB.class);
-            if (ann != null) {
-                sessionBean = contextResolver.search(beanDefinition, ann, getContext());
-            } else {
-                sessionBean = contextResolver.search(beanDefinition, getContext());
-            }
-            if (sessionBean == null) {
-                throw new NoSuchBeanFoundException(bean + " cannot get reference bean of " + field.getName());
-            } else {
-                ReflectionUtils.setFieldValue(field, bean, sessionBean.getBean());
+    @Override
+    public <T> T getBean(Class<T> beanClass) throws BeansException {
+        return getBean(beanClass, BeanFactory.PROTOTYPE);
+    }
+
+    @Override
+    public <T> T getBean(String beanName, String scope) throws BeansException {
+        return lookup(beanName);
+    }
+
+    @Override
+    public <T> T getBean(Class<T> beanClass, String scope) throws BeansException {
+        T bean = null;
+        try {
+            bean = lookup(beanClass);
+        } catch (BeansException e) {
+            bean = tryNewOneBean(beanClass);
+            if (bean == null) {
+                throw e;
             }
         }
+        return bean;
+    }
+
+    public <T> T tryNewOneBean(Class<T> beanClass) {
+        if (ClassFilterFeature.NEWABLE.accept(beanClass)) {
+            T bean = ReflectionUtils.instantiateClass(beanClass);
+            Field[] fields = beanClass.getDeclaredFields();
+            for (Field field : fields) {
+                int modifiers = field.getModifiers();
+                if (!Modifier.isStatic(modifiers)) {
+                    EJB ejbAnnotation = field.getAnnotation(EJB.class);
+                    Object v = ejbAnnotation == null ? lookup(field.getType()) : lookup(field.getType(), ejbAnnotation);
+                    ReflectionUtils.setFieldValue(field, bean, v);
+                }
+            }
+            return bean;
+        }
+        return null;
     }
 
     private Context getContext() {
         try {
-            return new InitialContext(props);
+            return new InitialContext(contextProperties);
         } catch (NamingException e) {
             throw new IllegalStateException(e);
         }
-    }
-
-    public ContextResolver getContextResolver() {
-        return contextResolver;
-    }
-
-    public void setContextResolver(ContextResolver contextResolver) {
-        this.contextResolver = contextResolver;
     }
 
 }

@@ -15,6 +15,7 @@
  */
 package com.harmony.umbrella.context.ee;
 
+import javax.ejb.EJB;
 import javax.naming.Context;
 
 /**
@@ -38,22 +39,19 @@ public interface BeanResolver {
      * 
      * @param beanDefinition
      *            bean定义
-     * @param content
+     * @param context
      *            {@linkplain Context}
      * @return 所有猜想并在{@linkplain Context}中存在的jndi名称
      */
-    String[] guessNames(BeanDefinition beanDefinition, Context content);
+    String[] guessNames(BeanDefinition beanDefinition, Context context);
 
-    /**
-     * 查看bean是否与声明的类型匹配
-     * 
-     * @param declare
-     *            声明的bean定义
-     * @param bean
-     *            待检验的bean
-     * @return 符合定义的bean返回true
-     */
-    boolean isDeclareBean(BeanDefinition declare, Object bean);
+    String[] guessNames(BeanDefinition beanDefinition, EJB ejbAnnotation);
+
+    String[] guessNames(BeanDefinition beanDefinition, EJB ejbAnnotation, Context context);
+
+    Object guessBean(BeanDefinition beanDefinition, Context context);
+
+    Object guessBean(BeanDefinition beanDefinition, EJB ejbAnnotation, Context context);
 
     /**
      * 根据beanDefinition猜想context中对于的jndi， 并提供beanFilter过滤对应的猜想结果，选取最优的bean
@@ -67,5 +65,18 @@ public interface BeanResolver {
      * @return 猜想的最优解，如果未能找到返回null
      */
     Object guessBean(BeanDefinition beanDefinition, Context context, BeanFilter filter);
+
+    Object guessBean(BeanDefinition beanDefinition, EJB ejbAnnotation, Context context, BeanFilter filter);
+
+    /**
+     * 查看bean是否与声明的类型匹配
+     * 
+     * @param declare
+     *            声明的bean定义
+     * @param bean
+     *            待检验的bean
+     * @return 符合定义的bean返回true
+     */
+    boolean isDeclareBean(BeanDefinition declare, Object bean);
 
 }

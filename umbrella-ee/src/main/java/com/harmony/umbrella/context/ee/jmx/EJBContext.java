@@ -27,16 +27,6 @@ public class EJBContext implements EJBContextMBean {
     }
 
     @Override
-    public void loadProperties() {
-        context.loadProperties();
-    }
-
-    @Override
-    public void clearProperties() {
-        context.clearProperties();
-    }
-
-    @Override
     public boolean exists(String className) {
         return context.exists(className);
     }
@@ -47,8 +37,13 @@ public class EJBContext implements EJBContextMBean {
     }
 
     @Override
-    public String jndiPropertiesFileLocation() {
-        return context.jndiPropertiesFileLocation();
+    public void resetProperties() {
+        context.resetProperties();
+    }
+
+    @Override
+    public String propertiesFileLocation() {
+        return context.propertiesFileLocation();
     }
 
 }

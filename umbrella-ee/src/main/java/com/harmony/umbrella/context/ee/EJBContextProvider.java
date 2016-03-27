@@ -15,14 +15,17 @@
  */
 package com.harmony.umbrella.context.ee;
 
+import java.io.IOException;
 import java.net.URL;
 
 import com.harmony.umbrella.context.ApplicationContext;
+import com.harmony.umbrella.context.ApplicationContextException;
 import com.harmony.umbrella.context.ContextProvider;
+import com.harmony.umbrella.util.PropUtils;
 
 /**
  * {@linkplain ContextProvider}EJB环境支持
- * 
+ *
  * @author wuxii@foxmail.com
  */
 public class EJBContextProvider extends ContextProvider {
@@ -34,7 +37,14 @@ public class EJBContextProvider extends ContextProvider {
 
     @Override
     public ApplicationContext createApplicationContext(URL url) {
-        return EJBApplicationContext.getInstance(url);
+        if (url == null) {
+            return EJBApplicationContext.create();
+        }
+        try {
+            return EJBApplicationContext.create(PropUtils.loadProperties(url));
+        } catch (IOException e) {
+            throw new ApplicationContextException("cannot create application url not exists", e);
+        }
     }
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2014 the original author or authors.
+ * Copyright 2014-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,19 +15,11 @@
  */
 package com.harmony.umbrella.core;
 
-import com.harmony.umbrella.log.expression.ExpressionResolver;
-
 /**
- * @author wuxii@foxmail.com
+ * @author wuxii@foxmail.com、
  */
-public class ClassWrapperTest {
+public interface Converter<T, V> {
 
-    public static void main(String[] args) {
-        ClassWrapper<ExpressionResolver> cw = new ClassWrapper<ExpressionResolver>(ExpressionResolver.class);
-        Class<?>[] classes = cw.getAllSubClasses();
-        for (Class<?> clazz : classes) {
-            System.out.println(clazz.getName());
-        }
-    }
+    V convert(T t);
 
 }

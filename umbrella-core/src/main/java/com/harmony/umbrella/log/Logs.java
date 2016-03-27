@@ -21,6 +21,7 @@ import java.util.ServiceLoader;
 
 import com.harmony.umbrella.log.support.AbstractLog;
 import com.harmony.umbrella.log.util.StackUtils;
+import com.harmony.umbrella.util.PropUtils;
 
 /**
  * 
@@ -92,10 +93,12 @@ public class Logs {
         private static final OutputStream err = System.err;
 
         private String callerFQCN;
+        private boolean fullName;
 
         public SystemLog(String className) {
             super(className);
             this.callerFQCN = AbstractLog.class.getName();
+            this.fullName = Boolean.valueOf(PropUtils.getSystemProperty("umbrella.log.fullname", "false"));
         }
 
         public SystemLog(String className, Object obj) {
@@ -131,9 +134,8 @@ public class Logs {
             String levelName = level.getName();
 
             StringBuilder sb = new StringBuilder();
-            sb.append("[").append(threadName).append("] [").append(levelName).append("] ");
-            sb.append(StackUtils.fullyQualifiedClassName(callerFQCN, 1)).append("- ").append(message).append("\n");
-
+            sb.append("[").append(levelName.charAt(0)).append("] [").append(threadName).append("] ");
+            sb.append(getFullyQualifiedClassName()).append("- ").append(message).append("\n");
             try {
                 stream.write(sb.toString().getBytes());
                 if (t != null) {
@@ -142,6 +144,16 @@ public class Logs {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+        }
+
+        private String getFullyQualifiedClassName() {
+            StackTraceElement ste = StackUtils.find(callerFQCN, 1);
+            if (fullName) {
+                return ste.toString();
+            }
+            StringBuilder sb = new StringBuilder();
+            sb.append(".").append(ste.getMethodName()).append("(").append(ste.getFileName()).append(":").append(ste.getLineNumber()).append(")");
+            return sb.toString();
         }
     }
 }

@@ -18,11 +18,7 @@ package com.harmony.umbrella.context.ee;
 import static com.harmony.umbrella.context.ee.util.TextMatchCalculator.*;
 
 import java.lang.annotation.Annotation;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 import javax.ejb.Local;
 import javax.ejb.Remote;
@@ -30,29 +26,29 @@ import javax.ejb.Singleton;
 import javax.ejb.Stateful;
 import javax.ejb.Stateless;
 
+import com.harmony.umbrella.util.AnnotationUtils;
 import com.harmony.umbrella.util.Assert;
 import com.harmony.umbrella.util.ClassUtils;
-import com.harmony.umbrella.util.ReflectionUtils;
 import com.harmony.umbrella.util.StringUtils;
 
 /**
- * JavaEE {@linkplain Stateless}, {@linkplain Stateful}, {@linkplain Singleton}
- * 为sessionBean
- * <p>
+ * JavaEE {@linkplain Stateless}, {@linkplain Stateful}, {@linkplain Singleton} 为sessionBean
+ * <p/>
  * 将标记了这些注解的bean的基础信息定义为{@linkplain BeanDefinition}
- * 
+ *
  * @author wuxii@foxmail.com
  */
 public class BeanDefinition {
 
-    @SuppressWarnings("all")
-    private static final List<Class<? extends Annotation>> sessionClasses = Arrays.asList(Stateless.class, Stateful.class, Singleton.class);
+    @SuppressWarnings("unchecked")
+    public static final List<Class<? extends Annotation>> SESSION_ANNOTATION = Collections.unmodifiableList(Arrays.asList(Stateless.class, Stateful.class, Singleton.class));
+
     /**
      * beanClass 会话bean的类, 如果class没有标注session bean/local的注解并且是接口, 默认认为是remote接口
      */
     public final Class<?> beanClass;
 
-    public final Annotation ann;
+    public final Annotation sessionAnnotation;
 
     public BeanDefinition(Class<?> beanClass) {
         this(beanClass, getSessionBeanAnnotation(beanClass));
@@ -60,27 +56,93 @@ public class BeanDefinition {
 
     public BeanDefinition(Class<?> beanClass, Annotation ann) {
         this.beanClass = beanClass;
-        this.ann = ann;
+        this.sessionAnnotation = ann;
     }
 
     /**
      * bean 类型
-     * 
+     *
      * @return 被描述的类
      */
     public Class<?> getBeanClass() {
         return beanClass;
     }
 
+    public Class<?> getRemoteClass() {
+        return isRemoteClass() ? beanClass : findMatchingClass(getAllRemoteClasses());
+    }
+
+    public Class<?> getLocalClass() {
+        return isLocalClass() ? beanClass : findMatchingClass(getAllLocalClasses());
+    }
+
     /**
-     * 工具方法, 获取会话bean的mappedName
+     * 查找与beanClass最匹配的class, 如果输入的classes为空集合则返回null
+     */
+    @SuppressWarnings("rawtypes")
+    private Class findMatchingClass(Collection<Class> classes) {
+        if (classes.isEmpty()) {
+            return null;
+        }
+        String beanClassName = beanClass.getSimpleName();
+        Iterator<Class> iterator = classes.iterator();
+        double ratio = 0, currentRatio = 0;
+        Class<?> result = null, temp = null;
+        while (iterator.hasNext()) {
+            temp = iterator.next();
+            currentRatio = matchingRate(beanClassName, temp.getSimpleName());
+            if (ratio <= currentRatio) {
+                result = temp;
+                ratio = currentRatio;
+            }
+        }
+        return result;
+    }
+
+    /**
+     * beanClass 标记了{@linkplain Stateless}
+     */
+    public boolean isStateless() {
+        return isThatOf(Stateless.class);
+    }
+
+    /**
+     * beanClass 标记了{@linkplain Stateful}
+     */
+    public boolean isStateful() {
+        return isThatOf(Stateful.class);
+    }
+
+    /**
+     * beanClass 标记了{@linkplain Singleton}
+     */
+    public boolean isSingleton() {
+        return isThatOf(Singleton.class);
+    }
+
+    /**
+     * 测试beanClass上注解的是否是annClass
+     *
+     * @param annClass
+     * @return
+     */
+    public boolean isThatOf(Class<? extends Annotation> annClass) {
+        return sessionAnnotation != null && sessionAnnotation.getClass() == annClass;
+    }
+
+    // 注解信息
+
+    /**
+     * 获取beanClass上的SessionBean的注解, 判断注解上的mappedName, 为空则默认为类名的SampleName
+     * <p/>
+     * 如果为标注SessionBean注解返回null
      */
     public String getMappedName() {
         String mappedName = getAnnotationValue("mappedName");
         if (StringUtils.isBlank(mappedName) && isSessionClass()) {
             return beanClass.getSimpleName();
         }
-        return null;
+        return mappedName;
     }
 
     /**
@@ -98,213 +160,129 @@ public class BeanDefinition {
     }
 
     /**
-     * 标记了{@linkplain Stateless}
-     */
-    public boolean isStateless() {
-        return isThatOf(Stateless.class);
-    }
-
-    /**
-     * 标记了{@linkplain Stateful}
-     */
-    public boolean isStateful() {
-        return isThatOf(Stateful.class);
-    }
-
-    /**
-     * 标记了{@linkplain Singleton}
-     */
-    public boolean isSingleton() {
-        return isThatOf(Singleton.class);
-    }
-
-    public boolean isThatOf(Class<? extends Annotation> annClass) {
-        return ann != null && ann.getClass() == annClass;
-    }
-
-    /**
-     * 注有{@linkplain Stateless}, {@linkplain Stateful}, {@linkplain Singleton}
-     * 三类注解中的一个则为sessionBean
+     * 注有{@linkplain Stateless}, {@linkplain Stateful}, {@linkplain Singleton} 三类注解中的一个则为sessionBean
      */
     public boolean isSessionClass() {
-        return ann != null;
+        return sessionAnnotation != null;
     }
 
     /**
-     * 是接口标记了{@linkplain Remote}注解, 默认将不是local的接口定义为remote接口
+     * beanClass是interface并且接口标记了{@linkplain Remote}注解
+     * <p/>
+     * <b>默认将不是local的interface定义为remote接口</b>
      */
     public boolean isRemoteClass() {
-        return beanClass.isInterface() && (beanClass.getAnnotation(Remote.class) != null || !isLocalClass());
+        return isRemoteClass(beanClass) || (beanClass.isInterface() && !isLocalClass(beanClass));
     }
 
     /**
-     * 是接口并标记了{@linkplain Local}注解
+     * beanClass是interface并且beanClass上标记了{@linkplain Local}注解
      */
     public boolean isLocalClass() {
-        return beanClass.isInterface() && beanClass.getAnnotation(Local.class) != null;
+        return isLocalClass(beanClass);
     }
 
     /**
-     * 从所有RemoteClass中获取一个最合适的
-     */
-    public Class<?> getSuitableRemoteClass() {
-        if (isRemoteClass() || isLocalClass()) {
-            return beanClass;
-        }
-        return findSuitClass(getRemoteClasses());
-    }
-
-    /**
-     * 从所有LocalClass中获取一个最合适的
+     * 获取beanClass所有符合{@linkplain #isRemoteClass()}条件的数据
      */
     @SuppressWarnings("rawtypes")
-    public Class<?> getSuitableLocalClass() {
-        List<Class> classes = getLocalClasses();
-        if (isLocalClass() || classes.isEmpty()) {
-            return beanClass;
+    public Collection<Class> getAllRemoteClasses() {
+        Set<Class> remoteClasses = new LinkedHashSet<Class>();
+        // 如果本身是remote接口
+        if (isRemoteClass()) {
+            remoteClasses.add(beanClass);
         }
-        return findSuitClass(classes);
-    }
-
-    @SuppressWarnings("rawtypes")
-    private Class findSuitClass(List<Class> classes) {
-        double ratio = 0.0;
-        Class<?> result = classes.get(0);
-        String beanName = beanClass.getSimpleName();
-        for (Class clazz : classes) {
-            double currentRatio = matchingRate(beanName, clazz.getSimpleName());
-            if (ratio < currentRatio) {
-                result = clazz;
-                ratio = currentRatio;
-            }
-        }
-        return result;
-    }
-
-    /**
-     * 鑾峰彇sessionBean涓墍鏈夌殑remote class
-     */
-    @SuppressWarnings("rawtypes")
-    public List<Class> getRemoteClasses() {
-        List<Class> result = new ArrayList<Class>();
-        // 如果本身是remote接口也算
-        if (isRemoteClass() || beanClass.isInterface()) {
-            result.add(beanClass);
-        }
-        // 注解上配置的remote接口
-        Remote ann = beanClass.getAnnotation(Remote.class);
-        if (ann != null) {
-            for (Class clazz : ann.value()) {
-                if (!result.contains(clazz)) {
-                    result.add(clazz);
+        if (isSessionClass()) {
+            // 注解上配置的remote接口
+            Remote ann = beanClass.getAnnotation(Remote.class);
+            if (ann != null) {
+                for (Class clazz : ann.value()) {
+                    remoteClasses.add(clazz);
                 }
             }
         }
         // class 的所有接口
         for (Class clazz : ClassUtils.getAllInterfaces(beanClass)) {
             // 当前类的所有接口, 如果接口上标注了remote注解则表示是一个remote class
-            if (isRemoteClass(clazz) && !result.contains(clazz)) {
-                result.add(clazz);
+            if (isRemoteClass(clazz)) {
+                remoteClasses.add(clazz);
             }
         }
-        //排序
-        sortClasses(result);
-        return result;
+        return remoteClasses;
     }
 
     /**
-     * 获取sessionBean中所有的local class
+     * 获取beanClass中所有的local class
      */
     @SuppressWarnings("rawtypes")
-    public List<Class> getLocalClasses() {
-        List<Class> result = new ArrayList<Class>();
-        if (isLocalClass() || (!isRemoteClass() && beanClass.isInterface())) {
-            result.add(beanClass);
+    public Collection<Class> getAllLocalClasses() {
+        Set<Class> localClasses = new LinkedHashSet<Class>();
+        if (isLocalClass()) {
+            localClasses.add(beanClass);
         }
-        //注解上的local
-        Local ann = beanClass.getAnnotation(Local.class);
-        if (ann != null) {
-            for (Class clazz : ann.value()) {
-                if (!result.contains(clazz)) {
-                    result.add(clazz);
+        if (isSessionClass()) {
+            Local ann = beanClass.getAnnotation(Local.class);
+            if (ann != null) {
+                for (Class clazz : ann.value()) {
+                    localClasses.add(clazz);
                 }
             }
         }
         // 所有接口
         for (Class clazz : ClassUtils.getAllInterfaces(beanClass)) {
-            if (isLocalClass(clazz) && !result.contains(clazz)) {
-                result.add(clazz);
+            if (isLocalClass(clazz)) {
+                localClasses.add(clazz);
             }
         }
-        sortClasses(result);
+        return localClasses;
+    }
+
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+
+        BeanDefinition that = (BeanDefinition) o;
+
+        if (sessionAnnotation != null ? !sessionAnnotation.equals(that.sessionAnnotation) : that.sessionAnnotation != null)
+            return false;
+        if (beanClass != null ? !beanClass.equals(that.beanClass) : that.beanClass != null)
+            return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = beanClass != null ? beanClass.hashCode() : 0;
+        result = 31 * result + (sessionAnnotation != null ? sessionAnnotation.hashCode() : 0);
         return result;
     }
 
-    @SuppressWarnings({ "rawtypes" })
-    private void sortClasses(List<Class> classes) {
-        //排序
-        if (classes.size() > 1) {
-            Collections.sort(classes, new Comparator<Class>() {
-                @Override
-                public int compare(Class o1, Class o2) {
-                    return o1.getName().compareTo(o2.getName());
-                }
-            });
-        }
-    }
-
-    /**
-     * session Bean 是否存在{@linkplain Remote}注解的类,或其实现的接口中
-     */
-    public boolean hasRemoteClass() {
-        return !getRemoteClasses().isEmpty();
-    }
-
-    /**
-     * session Bean 是否存在{@linkplain Local}注解的类,或其实现的接口中
-     */
-    public boolean hasLocalClass() {
-        return !getLocalClasses().isEmpty();
-    }
-
     private String getAnnotationValue(String name) {
-        return ann == null ? null : getAnnotationValue(ann, name);
+        return sessionAnnotation == null ? null : getAnnotationValue(sessionAnnotation, name);
     }
 
     // utils method
-    public static final String getAnnotationValue(Annotation ann, String methodName) {
-        Assert.notNull(ann, "annotation is null");
-        Assert.notNull(methodName, "annotation value name is null");
-        try {
-            return (String) ReflectionUtils.invokeMethod(methodName, ann);
-        } catch (NoSuchMethodException e) {
-            return null;
-        }
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    public static boolean isRemoteClass(Class clazz) {
+        return clazz.isInterface() && clazz.getAnnotation(Remote.class) != null;
     }
-
-    /**
-     * 工具方法, 判断是否标有{@linkplain Remote}
-     */
-    public static boolean isRemoteClass(Class<?> clazz) {
-        return clazz.isInterface() && (clazz.getAnnotation(Remote.class) != null || !isLocalClass(clazz));
-    }
-
-    /**
-     * 工具方法, 判断是否标有{@linkplain Local}
-     */
-    public static boolean isLocalClass(Class<?> clazz) {
+    
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    public static boolean isLocalClass(Class clazz) {
         return clazz.isInterface() && clazz.getAnnotation(Local.class) != null;
     }
 
-    /**
-     * 判断是否为会话bean
-     */
-    public static boolean isSessionClass(Class<?> clazz) {
-        return getSessionBeanAnnotation(clazz) != null;
+    private static final String getAnnotationValue(Annotation ann, String methodName) {
+        Assert.notNull(ann, "annotation is null");
+        Assert.notNull(methodName, "annotation value name is null");
+        return (String) AnnotationUtils.getAnnotationValue(ann, methodName);
     }
 
     private static Annotation getSessionBeanAnnotation(Class<?> clazz) {
-        for (Class<? extends Annotation> sc : sessionClasses) {
+        for (Class<? extends Annotation> sc : SESSION_ANNOTATION) {
             Annotation ann = clazz.getAnnotation(sc);
             if (ann != null) {
                 return ann;
@@ -312,5 +290,4 @@ public class BeanDefinition {
         }
         return null;
     }
-
 }

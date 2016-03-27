@@ -13,7 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.umbrella.ee;
+package com.harmony.umbrella.context.ee;
+
+import static org.junit.Assert.*;
 
 import javax.ejb.embeddable.EJBContainer;
 
@@ -34,13 +36,17 @@ public class EJBBeanFactoryTest {
     @BeforeClass
     public static void beforeClass() throws Exception {
         container = EJBContainer.createEJBContainer();
-        context = EJBApplicationContext.getInstance();
+        context = EJBApplicationContext.create();
     }
 
     @Test
     public void testContextResolver() throws Exception {
-        context.getBean("java:global/umbrella-ee/TestBean");
-        context.getBean(TestRemote.class);
+        assertNotNull(context.getBean("java:global/umbrella-ee/TestBean"));
+        assertNotNull(context.getBean(TestRemote.class));
+    }
+
+    public static void main(String[] args) throws Exception {
+        beforeClass();
         Thread.sleep(Long.MAX_VALUE);
     }
 

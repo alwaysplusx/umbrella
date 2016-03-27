@@ -21,8 +21,6 @@ import java.lang.reflect.Constructor;
 import java.util.Properties;
 
 import com.harmony.umbrella.context.ApplicationMetadata.ServerInformation;
-import com.harmony.umbrella.context.ee.resolver.ConfigurationBeanResolver;
-import com.harmony.umbrella.context.ee.resolver.InternalContextResolver;
 import com.harmony.umbrella.util.ClassUtils;
 import com.harmony.umbrella.util.ReflectionUtils;
 import com.harmony.umbrella.util.StringUtils;
@@ -54,7 +52,7 @@ public class ResolverManager {
             case JBOSS:
             case TOMCAT:
             default:
-                return new ConfigurationBeanResolver(props);
+                return null;// new ConfigurationBeanResolver(props);
         }
     }
 
@@ -81,7 +79,7 @@ public class ResolverManager {
             case JBOSS:
             case TOMCAT:
             default:
-                return new InternalContextResolver(props);
+                return null;//new InternalContextResolver(props);
         }
     }
 

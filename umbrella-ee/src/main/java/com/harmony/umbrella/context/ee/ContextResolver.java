@@ -15,7 +15,6 @@
  */
 package com.harmony.umbrella.context.ee;
 
-import javax.ejb.EJB;
 import javax.naming.Context;
 
 /**
@@ -46,19 +45,6 @@ public interface ContextResolver extends BeanResolver {
      * @return 与beanDefinition相对应的SessionBean， 没有找到返回null
      */
     SessionBean search(BeanDefinition beanDefinition, Context context);
-
-    /**
-     * 通过bean定义以及外加字段上的@EJB注解来查找bean
-     * 
-     * @param beanDefinition
-     *            bean定义
-     * @param ejb
-     *            字段上的注解
-     * @param context
-     *            context
-     * @return
-     */
-    SessionBean search(BeanDefinition beanDefinition, EJB ejbAnnotation, Context context);
 
     /**
      * 清除查找到的结果缓存

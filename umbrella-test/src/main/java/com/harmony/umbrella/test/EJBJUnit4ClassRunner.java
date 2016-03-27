@@ -25,6 +25,7 @@ import org.junit.runners.model.Statement;
 import com.harmony.umbrella.context.ee.EJBApplicationContext;
 import com.harmony.umbrella.io.Resource;
 import com.harmony.umbrella.io.resource.DefaultResourceLoader;
+import com.harmony.umbrella.util.PropUtils;
 
 /**
  * @author wuxii@foxmail.com
@@ -53,10 +54,10 @@ public class EJBJUnit4ClassRunner extends BlockJUnit4ClassRunner {
     private EJBApplicationContext createApplicationContext(Class<?> klass) throws IOException {
         ContainerConfiguration ann = klass.getAnnotation(ContainerConfiguration.class);
         if (ann == null) {
-            return EJBApplicationContext.getInstance();
+            return EJBApplicationContext.create();
         }
         Resource resource = resourceLoader.getResource(ann.location());
-        return EJBApplicationContext.getInstance(resource.getURL());
+        return EJBApplicationContext.create(PropUtils.loadProperties(resource));
     }
     
 }

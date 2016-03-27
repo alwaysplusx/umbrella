@@ -23,14 +23,9 @@ package com.harmony.umbrella.context.ee.jmx;
 public interface EJBContextMBean {
 
     /**
-     * 加载属性文件地址为jndi.properties
-     */
-    void loadProperties();
-
-    /**
      * 清除已经加载的属性
      */
-    void clearProperties();
+    void resetProperties();
 
     /**
      * 查看是否存在类型为clazz的会话bean
@@ -40,7 +35,7 @@ public interface EJBContextMBean {
     /**
      * 当前上下文属性文件所在位置
      */
-    String jndiPropertiesFileLocation();
+    String propertiesFileLocation();
 
     /**
      * 展示现在所有的资源属性

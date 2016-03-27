@@ -22,11 +22,11 @@ public class ClassWrapper<T> {
         classes = ResourceManager.getInstance().getClasses(PropUtils.getSystemProperty("wrapper.classes", UmbrellaProperties.DEFAULT_PACKAGE));
     }
 
-    private static final Map<Class, Set<Class>> suberClassMap = new HashMap<Class, Set<Class>>();
+    private static final Map<Class, Set<Class>> subClassMap = new HashMap<Class, Set<Class>>();
 
     private Class<T> thisClass;
 
-    private Set<Class> suberClasses;
+    private Set<Class> subClasses;
 
     public ClassWrapper(Class<T> thisClass) {
         this.thisClass = thisClass;
@@ -36,15 +36,15 @@ public class ClassWrapper<T> {
         return ClassUtils.getAllInterfaces(this.thisClass);
     }
 
-    public Class<?>[] getAllSuberClasses() {
-        return getSubClassesSet().toArray(new Class[suberClasses.size()]);
+    public Class<?>[] getAllSubClasses() {
+        return getSubClassesSet().toArray(new Class[subClasses.size()]);
     }
 
     private Set<Class> getSubClassesSet() {
-        if (suberClasses == null) {
-            suberClasses = findSuberClasses(thisClass);
+        if (subClasses == null) {
+            subClasses = findSubClasses(thisClass);
         }
-        return suberClasses;
+        return subClasses;
     }
 
     public Class<?> getSuperClass() {
@@ -67,7 +67,7 @@ public class ClassWrapper<T> {
         return this.thisClass == clazz;
     }
 
-    public boolean isSuberClassOf(Class<?> clazz) {
+    public boolean isChildClassOf(Class<?> clazz) {
         return getSubClassesSet().contains(clazz);
     }
 
@@ -90,18 +90,18 @@ public class ClassWrapper<T> {
         return thisClass != null ? thisClass.hashCode() : 0;
     }
 
-    private static Set<Class> findSuberClasses(Class<?> thisClass) {
-        Set<Class> suberClasses = suberClassMap.get(thisClass);
-        if (suberClasses == null) {
-            suberClasses = new HashSet<Class>();
+    private static Set<Class> findSubClasses(Class<?> thisClass) {
+        Set<Class> subClasses = subClassMap.get(thisClass);
+        if (subClasses == null) {
+            subClasses = new HashSet<Class>();
             for (Class c : ClassWrapper.classes) {
                 if (ClassUtils.isAssignable(thisClass, c) && thisClass != c) {
-                    suberClasses.add(c);
+                    subClasses.add(c);
                 }
             }
-            suberClassMap.put(thisClass, suberClasses);
+            subClassMap.put(thisClass, subClasses);
         }
-        return suberClasses;
+        return subClasses;
     }
 
 }

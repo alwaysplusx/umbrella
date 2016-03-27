@@ -1,21 +1,19 @@
 /*
- * Copyright 2002-2015 the original author or authors.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+* Copyright 2002-2015 the original author or authors.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*      http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 package com.harmony.umbrella.context.ee.resolver;
-
-import static com.harmony.umbrella.context.ee.util.TextMatchCalculator.*;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -23,19 +21,21 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
-import javax.ejb.EJB;
 import javax.naming.Context;
 import javax.naming.NameClassPair;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 
-import com.harmony.umbrella.log.Log;
-import com.harmony.umbrella.log.Logs;
 import com.harmony.umbrella.context.ee.BeanDefinition;
 import com.harmony.umbrella.context.ee.BeanFilter;
 import com.harmony.umbrella.context.ee.ContextResolver;
 import com.harmony.umbrella.context.ee.SessionBean;
+import com.harmony.umbrella.context.ee.WrappedBeanHandler;
+import com.harmony.umbrella.core.Converter;
+import com.harmony.umbrella.log.Log;
+import com.harmony.umbrella.log.Logs;
 import com.harmony.umbrella.util.ClassUtils;
+import com.harmony.umbrella.util.StringUtils;
 
 /**
  * JavaEE环境内部解析工具，用于分析{@linkplain javax.naming.Context}
@@ -45,146 +45,175 @@ import com.harmony.umbrella.util.ClassUtils;
 public class InternalContextResolver extends ConfigurationBeanResolver implements ContextResolver {
 
     private static final Log log = Logs.getLog(InternalContextResolver.class);
-    // class - jndi
     private final Map<Class<?>, Set<String>> fastCache = new HashMap<Class<?>, Set<String>>();
+
     private final Set<String> roots;
+    private final int maxDeeps;
 
-    private final int deeps;
+    static final Converter<String, ? extends Integer> stringToIntegerConverter = new Converter<String, Integer>() {
+        @Override
+        public Integer convert(String s) {
+            if (StringUtils.isBlank(s)) {
+                return 0;
+            }
+            return Integer.valueOf(s);
+        }
+    };
 
-    public InternalContextResolver(Properties props) {
-        super(props);
-        this.deeps = Integer.valueOf(getProperty("jndi.search.deeps", "10"));
-        this.roots = getFromProperties("jndi.context.root", "java:, ");
+    public static InternalContextResolver create(Properties properties) {
+        String globalPrefix = properties.getProperty("jndi.format.global.prefix", "");
+        if (!globalPrefix.endsWith("/")) {
+            globalPrefix += "/";
+        }
+        return new InternalContextResolver(
+                globalPrefix,
+                getProperty(properties, "jndi.format.separator", "#", stringToSetStringConverter),
+                getProperty(properties, "jndi.format.bean", "Bean, ", stringToSetStringConverter),
+                getProperty(properties, "jndi.format.remote", "Remote, ", stringToSetStringConverter),
+                getProperty(properties, "jndi.format.local", "Local, ", stringToSetStringConverter),
+                getProperty(properties, "jndi.wrapped.handler", stringToSetWrappedBeanHandlerConverter),
+                getProperty(properties, "jndi.format.transformLocal", "true", stringToBooleanConverter),
+                getProperty(properties, "jndi.format.roots", "java:, ", stringToSetStringConverter),
+                getProperty(properties, "jndi.format.maxDeeps", "10", stringToIntegerConverter)
+        );
+    }
+
+    public InternalContextResolver(String globalPrefix,
+                                   Set<String> separators,
+                                   Set<String> beanSuffixes,
+                                   Set<String> remoteSuffixes,
+                                   Set<String> localSuffixes,
+                                   Set<WrappedBeanHandler> wrappedBeanHandlers,
+                                   boolean transformLocale,
+                                   Set<String> roots,
+                                   int maxDeeps) {
+        super(globalPrefix, separators, beanSuffixes, remoteSuffixes, localSuffixes, wrappedBeanHandlers, transformLocale);
+        this.roots = roots;
+        this.maxDeeps = maxDeeps;
     }
 
     @Override
-    public SessionBean search(final BeanDefinition beanDefinition, Context context) {
-        final SimpleSessionBean result = new SimpleSessionBean(beanDefinition);
-
-        Class<?> beanClass = beanDefinition.getBeanClass();
-        Object bean = null;
-        Set<String> jndis = fastCache.get(beanClass);
-        if (jndis != null) {
-            double currentRatio = 0;
-            for (String jndi : jndis) {
-                bean = tryLookup(jndi, context);
-                Object unwrapBean = unwrap(bean);
-                if (isDeclare(beanDefinition, bean)) {
-                    double ratio = matchingRate(jndi, beanClass.getName());
-                    if (ratio >= currentRatio) {
-                        currentRatio = ratio;
-                        result.bean = bean;
-                        result.jndi = jndi;
-                        result.wrapped = bean != unwrapBean;
-                    }
+    public SessionBean search(final BeanDefinition bd, Context context) {
+        MatchingSessionBean matchingSessionBean = new MatchingSessionBean(bd);
+        // 从缓存的jndi中查找最合适的
+        Set<String> jndiNames = fastCache.get(bd.getBeanClass());
+        if (jndiNames != null) {
+            for (String jndi : jndiNames) {
+                if (matchingSessionBean.accept(jndi, tryLookup(jndi, context))) {
+                    return matchingSessionBean;
                 }
             }
-            if (result.bean != null && result.jndi != null) {
-                return result;
-            }
         }
-
-        if (!filter(beanDefinition)) {
-            bean = guessBean(beanDefinition, context, new BeanFilter() {
-                @Override
-                public boolean accept(String jndi, Object bean) {
-                    recordBeanWithJndi(beanDefinition, bean, jndi);
-                    Object unwrapBean = unwrap(bean);
-                    if (isDeclare(beanDefinition, unwrapBean)) {
-                        result.bean = bean;
-                        result.jndi = jndi;
-                        result.wrapped = bean != unwrapBean;
-                        return true;
-                    }
-                    return false;
-                }
-            });
+        guessBean(bd, context, matchingSessionBean);
+        if (matchingSessionBean.hasResult()) {
+            return matchingSessionBean;
         }
-
-        return bean == null ? deepSearch(result, context) : result;
-    }
-
-    @Override
-    public SessionBean search(BeanDefinition beanDefinition, EJB ejbAnnotation, Context context) {
-        return null;
+        deepSearch(matchingSessionBean, context);
+        return matchingSessionBean.hasResult() ? matchingSessionBean : null;
     }
 
     /**
      * 深度查找BeanDefinition对应的类以及jndi
      */
-    protected SimpleSessionBean deepSearch(SimpleSessionBean bean, Context context) {
+    protected void deepSearch(MatchingSessionBean bean, Context context) {
         for (String root : roots) {
             doDeepSearch(root, bean, context, 0);
-            if (bean.bean != null && bean.jndi != null) {
-                return bean;
+            if (bean.hasResult()) {
+                return;
             }
         }
-        return null;
     }
 
-    private void doDeepSearch(String root, SimpleSessionBean sessionBean, Context context, int deeps) {
-        if (deeps > this.deeps) {
+    /**
+     * 迭代查找Context中与beanDefinition相匹配的结果
+     *
+     * @param currentJndi
+     *         parent Jndi
+     * @param sessionBean
+     *         迭代中的bean
+     * @param context
+     *         迭代的context
+     * @param deeps
+     *         当前迭代深度
+     */
+    private void doDeepSearch(String currentJndi, MatchingSessionBean sessionBean, Context context, int deeps) {
+        if (deeps > this.maxDeeps) {
+            // 超出最深迭代深度, 放弃
             return;
         }
-        log.debug("deep search in context [{}], deep index {}", root, deeps);
-        BeanDefinition beanDefinition = sessionBean.getBeanDefinition();
+        log.debug("deep search in context [{}], deep index {}", currentJndi, deeps);
         try {
-            Object bean = context.lookup(root);
+            Object bean = context.lookup(currentJndi);
             if (bean instanceof Context) {
-                NamingEnumeration<NameClassPair> subCtxs = ((Context) bean).list("");
-                while (subCtxs.hasMoreElements()) {
-                    NameClassPair subNcp = subCtxs.nextElement();
-                    // 迭代查找
-                    doDeepSearch(toJndi(root, subNcp), sessionBean, context, deeps++);
+                NamingEnumeration<NameClassPair> subContextNames = ((Context) bean).list("");
+                while (subContextNames.hasMoreElements()) {
+                    NameClassPair subNcp = subContextNames.nextElement();
+                    // 进入下层迭代查找
+                    doDeepSearch(createSubJndi(currentJndi, subNcp), sessionBean, context, deeps++);
                     if (sessionBean.bean != null && sessionBean.jndi != null) {
+                        // 迭代找到了session bean, 查找成功返回
                         return;
                     }
                 }
-            } else {
-                recordBeanWithJndi(beanDefinition, bean, root);
-                Object unwrapBean = unwrap(bean);
-                if (isDeclare(beanDefinition, unwrapBean)) {
-                    sessionBean.bean = bean;
-                    sessionBean.jndi = root;
-                    sessionBean.wrapped = bean != unwrapBean;
-                    return;
-                }
+            } else if (sessionBean.accept(currentJndi, bean)) {
+                return;
             }
         } catch (NamingException e) {
-            log.warn("context [{}] not find in {}", root, context);
+            log.warn("context [{}] not find in {}", currentJndi, context);
         }
     }
 
     /**
      * root + NameClassPair 组合生成下一个jndi名称
      */
-    private String toJndi(String root, NameClassPair subNcp) {
+    private String createSubJndi(String jndi, NameClassPair subNcp) {
         // root + ("".equals(root) ? "" : "/") + subNcp.getName();
-        StringBuilder jndi = new StringBuilder(root);
-        if (!"".equals(root)) {
-            jndi.append("/");
+        StringBuilder sb = new StringBuilder(jndi);
+        if (!"".equals(jndi)) {
+            sb.append("/");
         }
-        jndi.append(subNcp.getName());
-        return jndi.toString();
+        sb.append(subNcp.getName());
+        return sb.toString();
     }
 
     /**
      * 记录jndi以及bean到缓存中
      */
-    private void recordBeanWithJndi(BeanDefinition bd, Object bean, String root) {
-        Class<? extends Object> beanClass = bean.getClass();
-        Class<?>[] interfaces = ClassUtils.getAllInterfaces(beanClass);
-        for (Class<?> interfce : interfaces) {
-            String className = interfce.getName();
+    private void recordBeanWithJndi(Object bean, String jndi) {
+        Class<?>[] interfaces = ClassUtils.getAllInterfaces(bean.getClass());
+        for (Class<?> clazz : interfaces) {
+            String className = clazz.getName();
             if (!className.startsWith("java.") //
                     && !className.startsWith("javax.")//
                     && !className.startsWith("org.apache.") //
                     && !className.startsWith("com.weblogic") //
                     && !className.startsWith("org.glassfish")//
                     && !className.startsWith("org.jboss")) {
-                putIntoCache(interfce, root);
+                putJndiIntoCache(clazz, jndi);
             }
         }
+    }
+
+    /**
+     * 将 interface 以及对应的jndi到缓存中
+     */
+    private void putJndiIntoCache(Class<?> clazz, String jndi) {
+        Set<String> jndiNames = fastCache.get(clazz);
+        if (jndiNames == null) {
+            synchronized (fastCache) {
+                if (!fastCache.containsKey(clazz)) {
+                    jndiNames = new HashSet<String>();
+                    fastCache.put(clazz, jndiNames);
+                }
+            }
+        }
+        jndiNames.add(jndi);
+    }
+
+    protected boolean filter(BeanDefinition beanDefinition) {
+        return !(beanDefinition.isRemoteClass()
+                || beanDefinition.isSessionClass()
+                || beanDefinition.isLocalClass());
     }
 
     @Override
@@ -192,27 +221,61 @@ public class InternalContextResolver extends ConfigurationBeanResolver implement
         fastCache.clear();
     }
 
-    /**
-     * 将 interface 以及对应的jndi到缓存中
-     */
-    private void putIntoCache(Class<?> interfce, String root) {
-        Set<String> jndis = fastCache.get(interfce);
-        if (jndis == null) {
-            synchronized (fastCache) {
-                if (!fastCache.containsKey(interfce)) {
-                    jndis = new HashSet<String>();
-                    fastCache.put(interfce, jndis);
-                }
-            }
-        }
-        jndis.add(root);
-    }
+    private final class MatchingSessionBean implements BeanFilter, SessionBean {
 
-    protected boolean filter(BeanDefinition beanDefinition) {
-        return !(beanDefinition.isRemoteClass() //
-                || beanDefinition.isSessionClass() //
-                || beanDefinition.isLocalClass() //
-        || beanDefinition.getBeanClass().isInterface());
+        final BeanDefinition beanDefinition;
+        Object bean;
+        String jndi;
+        boolean wrapped;
+
+        public MatchingSessionBean(BeanDefinition beanDefinition) {
+            this.beanDefinition = beanDefinition;
+        }
+
+        @Override
+        public boolean accept(String jndi, Object bean) {
+            // 记录查找过的记录
+            recordBeanWithJndi(bean, jndi);
+            Object unwrapBean = unwrap(bean);
+            if (isDeclare(beanDefinition, unwrapBean)) {
+                this.bean = bean;
+                this.jndi = jndi;
+                this.wrapped = (bean != unwrapBean);
+                return true;
+            }
+            return false;
+        }
+
+        public boolean hasResult() {
+            return bean != null && jndi != null;
+        }
+
+        @Override
+        public Object getBean() {
+            return bean;
+        }
+
+        @Override
+        public String getJndi() {
+            return jndi;
+        }
+
+        @Override
+        public boolean isCacheable() {
+            return beanDefinition.isStateless();
+        }
+
+        @Override
+        public boolean isWrapped() {
+            return wrapped;
+        }
+
+        @Override
+        public BeanDefinition getBeanDefinition() {
+            return beanDefinition;
+        }
+
+
     }
 
 }

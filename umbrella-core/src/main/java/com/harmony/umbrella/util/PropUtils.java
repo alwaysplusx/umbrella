@@ -20,6 +20,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -28,13 +29,14 @@ import java.util.Set;
 import com.harmony.umbrella.io.Resource;
 import com.harmony.umbrella.io.ResourceLoader;
 import com.harmony.umbrella.io.resource.DefaultResourceLoader;
+import com.harmony.umbrella.io.resource.UrlResource;
 
 /**
  * 属性加载工具
  *
  * @author wuxii@foxmail.com
  */
-public abstract class PropUtils {
+public class PropUtils {
 
     private static ResourceLoader resourceLoader = new DefaultResourceLoader();
 
@@ -42,11 +44,19 @@ public abstract class PropUtils {
      * 判断是否存在且是资源文件
      *
      * @param path
-     *            文件路径
+     *         文件路径
      */
     public static boolean exists(String path) {
         Resource resource = resourceLoader.getResource(path);
         return resource != null && resource.exists();
+    }
+
+    public static Properties loadProperties(URL url) throws IOException {
+        return loadProperties(new UrlResource(url));
+    }
+
+    public static Properties loadProperties(Resource resource) throws IOException {
+        return loadProperties(resource.getInputStream(), true);
     }
 
     public static Properties loadProperties(InputStream is) throws IOException {
@@ -110,7 +120,7 @@ public abstract class PropUtils {
      * 加载指定文件下的资源文件
      *
      * @param paths
-     *            资源文件的路径
+     *         资源文件的路径
      * @return 资源文件中的属性
      * @throws IOException
      */
@@ -144,7 +154,7 @@ public abstract class PropUtils {
      * 系统{@linkplain java.lang.System#getProperty(String)}
      *
      * @param key
-     *            环境属性key
+     *         环境属性key
      * @return 系统环境属性值
      */
     public static String getSystemProperty(String key) {
@@ -155,9 +165,9 @@ public abstract class PropUtils {
      * 系统{@linkplain System#getProperty(String)}
      *
      * @param key
-     *            环境属性key
+     *         环境属性key
      * @param defaultValue
-     *            默认值
+     *         默认值
      * @return 系统环境属性值
      */
     public static String getSystemProperty(String key, String defaultValue) {
@@ -168,9 +178,9 @@ public abstract class PropUtils {
      * 从属性中过滤出前缀为指定值的属性集合
      *
      * @param prefix
-     *            前缀
+     *         前缀
      * @param props
-     *            待过滤的属性
+     *         待过滤的属性
      * @return 前缀符合要求的新属性集合
      */
     public static Properties filterStartWith(String prefix, Properties props) {
@@ -181,11 +191,11 @@ public abstract class PropUtils {
      * 在属性集合中过滤出前缀相同的属性集合
      *
      * @param prefix
-     *            key的前缀
+     *         key的前缀
      * @param props
-     *            属性集合
+     *         属性集合
      * @param ignoreCase
-     *            是否忽略大小写
+     *         是否忽略大小写
      * @return key前缀相同的属性集合
      */
     public static Properties filterStartWith(String prefix, Properties props, boolean ignoreCase) {
@@ -207,9 +217,9 @@ public abstract class PropUtils {
      * map中过滤出key前缀相同的属性集合
      *
      * @param prefix
-     *            key前缀
+     *         key前缀
      * @param map
-     *            属性集合
+     *         属性集合
      * @return key前缀相同的属性集合
      */
     public static Map<String, Object> filterStartWith(String prefix, Map<String, Object> map) {
@@ -220,11 +230,11 @@ public abstract class PropUtils {
      * map中过滤出key前缀相同的属性集合
      *
      * @param prefix
-     *            key前缀
+     *         key前缀
      * @param map
-     *            属性集合
+     *         属性集合
      * @param ignoreCase
-     *            是否忽略大小写
+     *         是否忽略大小写
      * @return key前缀相同的属性集合
      */
     public static Map<String, Object> filterStartWith(String prefix, Map<String, Object> map, boolean ignoreCase) {

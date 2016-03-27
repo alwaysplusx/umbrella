@@ -20,6 +20,7 @@ import java.util.List;
 
 import javax.ejb.EJB;
 
+import com.harmony.umbrella.core.BeansException;
 import org.junit.runners.model.FrameworkField;
 import org.junit.runners.model.Statement;
 import org.junit.runners.model.TestClass;
@@ -49,35 +50,29 @@ public class EJBRunBefores extends Statement {
     public void evaluate() throws Throwable {
         List<FrameworkField> fields = testClass.getAnnotatedFields(EJB.class);
         for (FrameworkField field : fields) {
-            Field realField = field.getField();
-            if (ReflectionUtils.getFieldValue(realField, testInstance) != null) {
+            if (field.get(testInstance) != null) {
                 continue;
             }
+            Field realField = field.getField();
+            Object bean = null;
             String jndi = getJndi(field);
             if (StringUtils.isNotBlank(jndi)) {
-                ReflectionUtils.setFieldValue(realField, testInstance, context.lookup(jndi));
-                continue;
+                try {
+                    bean = context.lookup(jndi);
+                } catch (BeansException e) {
+                    EJB ejbAnnotation = realField.getAnnotation(EJB.class);
+                    if (ejbAnnotation != null) {
+                        try {
+                            bean = context.lookup(realField.getType(), ejbAnnotation);
+                        } catch (BeansException e1) {
+                            bean = context.lookup(realField.getType());
+                        }
+                    }
+                }
             }
-            String mappedName = getMappedName(field);
-            if (StringUtils.isNotBlank(mappedName)) {
-                ReflectionUtils.setFieldValue(realField, testInstance, context.lookup(field.getType(), mappedName));
-                continue;
-            }
-            ReflectionUtils.setFieldValue(realField, testInstance, context.getBean(field.getType()));
+            ReflectionUtils.setFieldValue(realField, testInstance, bean);
         }
         this.next.evaluate();
-    }
-
-    private String getMappedName(FrameworkField field) {
-        Field realField = field.getField();
-        EJB ann = realField.getAnnotation(EJB.class);
-        if (StringUtils.isNotBlank(ann.mappedName())) {
-            return ann.mappedName();
-        }
-        if (StringUtils.isNotBlank(ann.beanName())) {
-            return ann.beanName();
-        }
-        return null;
     }
 
     private String getJndi(FrameworkField field) {

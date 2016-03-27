@@ -15,136 +15,197 @@
  */
 package com.harmony.umbrella.context.ee.resolver;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Properties;
-import java.util.Set;
-import java.util.StringTokenizer;
-
-import javax.naming.Context;
-import javax.naming.NamingException;
-
-import com.harmony.umbrella.context.ApplicationContextException;
 import com.harmony.umbrella.context.ee.BeanDefinition;
 import com.harmony.umbrella.context.ee.BeanFilter;
 import com.harmony.umbrella.context.ee.BeanResolver;
 import com.harmony.umbrella.context.ee.WrappedBeanHandler;
 import com.harmony.umbrella.core.BeansException;
 import com.harmony.umbrella.core.ClassWrapper;
+import com.harmony.umbrella.core.Converter;
 import com.harmony.umbrella.log.Log;
 import com.harmony.umbrella.log.Logs;
-import com.harmony.umbrella.util.Assert;
-import com.harmony.umbrella.util.ClassUtils;
-import com.harmony.umbrella.util.ReflectionUtils;
-import com.harmony.umbrella.util.StringUtils;
+import com.harmony.umbrella.util.*;
+
+import javax.ejb.EJB;
+import javax.naming.Context;
+import javax.naming.NamingException;
+
+import java.util.*;
 
 /**
  * 通过配置配置的属性，来组合定义的bean
  *
  * @author wuxii@foxmail.com
  */
+@SuppressWarnings("rawtypes")
 public class ConfigurationBeanResolver implements BeanResolver {
 
     private static final Log log = Logs.getLog(ConfigurationBeanResolver.class);
 
-    private final Properties containerProperties = new Properties();
-
-    /**
-     * jndi的全局前缀
-     */
     protected final String globalPrefix;
-
-    /**
-     * jndi名称与remoteClass中间的分割符, default '#'
-     */
     protected final Set<String> separators;
-
-    /**
-     * 组装mappedName需要添加的后缀
-     */
     protected final Set<String> beanSuffixes;
-
-    /**
-     * jndi需要添加的class后缀
-     */
     protected final Set<String> remoteSuffixes;
-
-    /**
-     * local的后缀
-     */
     protected final Set<String> localSuffixes;
+    protected final Set<WrappedBeanHandler> wrappedBeanHandlers;
+    protected final boolean transformLocal;
 
-    /**
-     * lookup到的bean如果是对应于应用服务器的封装类的解析工具
-     */
-    protected final List<WrappedBeanHandler> wrappedBeanHandlers = new ArrayList<WrappedBeanHandler>();
-
-    /**
-     * 开启local接口转化
-     */
-    private boolean transformLocal;
-
-    public ConfigurationBeanResolver(Properties props) {
-        this.containerProperties.putAll(props);
-
-        this.globalPrefix = getProperty("jndi.format.global.prefix", "");
-        this.separators = getFromProperties("jndi.format.separator", "#");
-        this.beanSuffixes = getFromProperties("jndi.format.bean", "Bean, ");
-        this.remoteSuffixes = getFromProperties("jndi.format.remote", "Remote, ");
-        this.localSuffixes = getFromProperties("jndi.format.local", "Local, ");
-        this.transformLocal = Boolean.valueOf(getProperty("jndi.format.transformLocal", "true"));
-        this.init();
-    }
-
-    private void init() throws ApplicationContextException {
-        Set<String> classNames = getFromProperties("jndi.wrapped.handler");
-        try {
-            for (String className : classNames) {
-                Class<?> clazz = Class.forName(className);
-                this.wrappedBeanHandlers.add((WrappedBeanHandler) ReflectionUtils.instantiateClass(clazz));
+    static final Converter<String, Set<String>> stringToSetStringConverter = new Converter<String, Set<String>>() {
+        @Override
+        public Set<String> convert(String s) {
+            Set<String> result = new HashSet<String>();
+            if (StringUtils.isBlank(s)) {
+                return result;
             }
-        } catch (Throwable e) {
-            ReflectionUtils.rethrowRuntimeException(e);
+            StringTokenizer st = new StringTokenizer(s, ",");
+            while (st.hasMoreTokens()) {
+                result.add(st.nextToken().trim());
+            }
+            return result;
         }
-    }
+    };
 
-    public String getProperty(String key) {
-        return containerProperties.getProperty(key);
-    }
-
-    public String getProperty(String key, String defaultValue) {
-        return containerProperties.getProperty(key, defaultValue);
-    }
-
-    public Set<String> getFromProperties(String key) {
-        return getFromProperties(key, null);
-    }
-
-    public Set<String> getFromProperties(String key, String defaultValue) {
-        String property = getProperty(key, defaultValue);
-        if (StringUtils.isBlank(property)) {
-            return Collections.emptySet();
+    static final Converter<String, Boolean> stringToBooleanConverter = new Converter<String, Boolean>() {
+        @Override
+        public Boolean convert(String s) {
+            if (StringUtils.isBlank(s)) {
+                return false;
+            }
+            return Boolean.valueOf(s);
         }
-        StringTokenizer st = new StringTokenizer(property, ",");
-        Set<String> result = new HashSet<String>(st.countTokens());
-        while (st.hasMoreTokens()) {
-            result.add(st.nextToken().trim());
+    };
+
+    static final Converter<String, Set<WrappedBeanHandler>> stringToSetWrappedBeanHandlerConverter = new Converter<String, Set<WrappedBeanHandler>>() {
+        @Override
+        public Set<WrappedBeanHandler> convert(String s) {
+            Set<WrappedBeanHandler> result = new HashSet<WrappedBeanHandler>();
+            if (StringUtils.isBlank(s)) {
+                return result;
+            }
+            for (String className : stringToSetStringConverter.convert(s)) {
+                try {
+                    Class<?> clazz = Class.forName(className);
+                    result.add((WrappedBeanHandler) ReflectionUtils.instantiateClass(clazz));
+                } catch (ClassNotFoundException e) {
+                    ReflectionUtils.rethrowRuntimeException(e);
+                }
+            }
+            return result;
         }
-        return result;
+    };
+
+    // jndi.format.separator
+    // jndi.format.bean
+    // jndi.format.remote
+    // jndi.format.local
+    // jndi.format.transformLocal
+    // jndi.wrapped.handler
+    public static ConfigurationBeanResolver create(Properties properties) {
+        String globalPrefix = properties.getProperty("jndi.format.global.prefix", "");
+        if (!globalPrefix.endsWith("/")) {
+            globalPrefix += "/";
+        }
+        return new ConfigurationBeanResolver(
+                globalPrefix,
+                getProperty(properties, "jndi.format.separator", "#", stringToSetStringConverter),
+                getProperty(properties, "jndi.format.bean", "Bean, ", stringToSetStringConverter),
+                getProperty(properties, "jndi.format.remote", "Remote, ", stringToSetStringConverter),
+                getProperty(properties, "jndi.format.local", "Local, ", stringToSetStringConverter),
+                getProperty(properties, "jndi.wrapped.handler", stringToSetWrappedBeanHandlerConverter),
+                getProperty(properties, "jndi.format.transformLocal", "true", stringToBooleanConverter));
+    }
+
+    public static <V> V getProperty(Properties properties, String key, Converter<String, V> converter) {
+        return getProperty(properties, key, null, converter);
+    }
+
+    public static <V> V getProperty(Properties properties, String key, String defaultValue, Converter<String, V> converter) {
+        return converter.convert(properties.getProperty(key, defaultValue));
+    }
+
+    public ConfigurationBeanResolver(String globalPrefix,
+                                     Set<String> separators,
+                                     Set<String> beanSuffixes,
+                                     Set<String> remoteSuffixes,
+                                     Set<String> localSuffixes,
+                                     Set<WrappedBeanHandler> wrappedBeanHandlers,
+                                     boolean transformLocale) {
+        this.globalPrefix = globalPrefix;
+        this.separators = separators;
+        this.beanSuffixes = beanSuffixes;
+        this.remoteSuffixes = remoteSuffixes;
+        this.localSuffixes = localSuffixes;
+        this.wrappedBeanHandlers = wrappedBeanHandlers;
+        this.transformLocal = transformLocale;
+    }
+
+    @Override
+    public String[] guessNames(BeanDefinition beanDefinition) {
+        return guessNames0(beanDefinition, null, null);
+    }
+
+    @Override
+    public String[] guessNames(BeanDefinition beanDefinition, Context context) {
+        Assert.notNull(context, "context not allow null");
+        return guessNames0(beanDefinition, null, context);
+    }
+
+    @Override
+    public String[] guessNames(BeanDefinition beanDefinition, EJB ejbAnnotation) {
+        return guessNames0(beanDefinition, ejbAnnotation, null);
+    }
+
+    @Override
+    public String[] guessNames(BeanDefinition beanDefinition, EJB ejbAnnotation, Context context) {
+        Assert.notNull(context);
+        return guessNames0(beanDefinition, ejbAnnotation, context);
+    }
+
+    private String[] guessNames0(BeanDefinition beanDefinition, EJB ejbAnnotation, Context context) {
+        if (beanDefinition.isRemoteClass()) {
+            return new RemoteClassJndiGuesser(beanDefinition, ejbAnnotation, context).guess();
+        } else if (beanDefinition.isLocalClass()) {
+            return new LocalClassJndiGuesser(beanDefinition, ejbAnnotation, context).guess();
+        } else if (beanDefinition.isSessionClass()) {
+            return new SessionClassJndiGuesser(beanDefinition, ejbAnnotation, context).guess();
+        }
+        throw new BeansException("unsupported bean definition");
+    }
+
+    @Override
+    public Object guessBean(BeanDefinition beanDefinition, Context context) {
+        Assert.notNull(context);
+        return guessBean0(beanDefinition, null, context, null);
     }
 
     @Override
     public Object guessBean(BeanDefinition beanDefinition, Context context, BeanFilter filter) {
-        Assert.notNull(filter, "bean filter not allow null");
+        Assert.notNull(filter, "filter is not allow null");
+        Assert.notNull(context);
+        return guessBean0(beanDefinition, null, context, filter);
+    }
+
+    @Override
+    public Object guessBean(BeanDefinition beanDefinition, EJB ejbAnnotation, Context context) {
+        Assert.notNull(ejbAnnotation, "ejbAnnotation is not allow null");
+        Assert.notNull(context);
+        return guessBean0(beanDefinition, ejbAnnotation, context, null);
+    }
+
+    @Override
+    public Object guessBean(BeanDefinition beanDefinition, EJB ejbAnnotation, Context context, BeanFilter filter) {
+        Assert.notNull(context);
+        Assert.notNull(filter);
+        Assert.notNull(ejbAnnotation);
+        return guessBean0(beanDefinition, ejbAnnotation, context, filter);
+    }
+
+    protected Object guessBean0(BeanDefinition beanDefinition, EJB ejbAnnotation, Context context, BeanFilter filter) {
         Object bean = null;
-        String[] guessJndis = guessNames(beanDefinition, context);
-        for (String jndi : guessJndis) {
+        String[] jndiNames = guessNames0(beanDefinition, ejbAnnotation, context);
+        for (String jndi : jndiNames) {
             bean = tryLookup(jndi, context);
-            if (bean != null && filter.accept(jndi, bean)) {
+            if (bean != null && (filter == null || filter.accept(jndi, bean))) {
                 break;
             }
         }
@@ -152,73 +213,23 @@ public class ConfigurationBeanResolver implements BeanResolver {
     }
 
     @Override
-    public String[] guessNames(BeanDefinition beanDefinition) {
-        return guessNames0(beanDefinition, null);
-    }
-
-    /*
-     * method despatch
-     * 
-     * @see com.harmony.umbrella.context.ee.BeanResolver#guessNames(BeanDefinition)
-     */
-    @Override
-    public String[] guessNames(BeanDefinition beanDefinition, Context context) {
-        Assert.notNull(context, "context not allow null");
-        return guessNames0(beanDefinition, context);
-    }
-
-    private String[] guessNames0(BeanDefinition beanDefinition, Context context) {
-        if (beanDefinition.isSessionClass()) {
-            // 为session bean
-            return new SessionResolver(beanDefinition, context).resolve();
-        } else if (beanDefinition.isRemoteClass()) {
-            // 为remote接口, 主要功能
-            return new RemoteResolver(beanDefinition, context).resolve();
-        } else if (beanDefinition.isLocalClass()) {
-            // 为local接口
-            return new LocalResolver(beanDefinition, context).resolve();
-        }
-        throw new BeansException("unsupport bean definition");
-    }
-
-    @Override
     public boolean isDeclareBean(BeanDefinition declare, Object bean) {
         return isDeclare(declare, unwrap(bean));
     }
 
+    /**
+     * 测试目标bean是否是声明的类型
+     */
     protected boolean isDeclare(BeanDefinition declare, Object bean) {
-        Class<?> remoteClass = declare.getSuitableRemoteClass();
+        Class<?> remoteClass = declare.getRemoteClass();
         if (log.isDebugEnabled()) {
-            log.debug("\ntest it is declare bean? "//
-                    + "\n\tremoteClass -> {}"//
-                    + "\n\tbeanClass   -> {}"//
-                    + "\n\tbean        -> {}",//
+            log.debug("test, it is declare bean? "
+                            + "\n\tdeclare remoteClass -> {}"
+                            + "\n\tdeclare beanClass   -> {}"
+                            + "\n\tactual  bean        -> {}",
                     remoteClass, declare.getBeanClass(), bean);
         }
-        // FIXME remoteClass isInstance
         return declare.getBeanClass().isInstance(bean) || (remoteClass != null && remoteClass.isInstance(bean));
-    }
-
-    /**
-     * 通过jndi查找对应的bean
-     *
-     * @param jndi
-     *            jndi
-     * @param context
-     *            javax.naming.Context
-     * @return 如果未找到返回null
-     */
-    public Object tryLookup(String jndi, Context context) {
-        try {
-            return context.lookup(jndi);
-        } catch (NamingException e) {
-            return null;
-        }
-    }
-
-    // 判断jndi是否在context中存在
-    private boolean existsInContext(String jndi, Context context) {
-        return tryLookup(jndi, context) != null;
     }
 
     // 通过配置的wrappedBeanHandlers来解压实际的bean
@@ -231,135 +242,136 @@ public class ConfigurationBeanResolver implements BeanResolver {
         return bean;
     }
 
-    public String getGlobalPrefix() {
-        return globalPrefix;
-    }
-
-    public void setTransformLocal(boolean transformLocal) {
-        this.transformLocal = transformLocal;
-    }
-
-    public static final String removeSuffix(String target, String suffix) {
-        if (target.endsWith(suffix)) {
-            int index = target.lastIndexOf(suffix);
-            return target.substring(0, index);
-        }
-        return target;
-    }
-
     /**
-     * 通过bean定义以及{@linkplain ConfigurationBeanResolver}中的配置属性来猜想对应的jndi名称
+     * 通过jndi查找对应的bean
      *
-     * @author wuxii@foxmail.com
+     * @param jndi
+     *         jndi
+     * @param context
+     *         javax.naming.Context
+     * @return 如果未找到返回null
      */
-    @SuppressWarnings({ "rawtypes", "unchecked" })
-    public abstract class ConcreteBeanResolver {
+    public Object tryLookup(String jndi, Context context) {
+        try {
+            return context.lookup(jndi);
+        } catch (NamingException e) {
+            return null;
+        }
+    }
 
-        protected final Context context;
-        protected final BeanDefinition beanDefinition;
-        protected final ClassWrapper classWrapper;
-        protected final Set<String> jndis = new HashSet<String>();
+    // ### jndi guesser
+    @SuppressWarnings("unchecked")
+    private abstract class JndiGuesser {
 
-        public ConcreteBeanResolver(BeanDefinition beanDefinition, Context context) {
-            this.beanDefinition = beanDefinition;
+        final Context context;
+        final BeanDefinition beanDefinition;
+        final ClassWrapper classWrapper;
+        final LinkedHashSet<String> jndiSet = new LinkedHashSet<String>();
+        final EJB ejbAnnotation;
+        final boolean transformLocal;
+
+        public JndiGuesser(BeanDefinition beanDefinition, EJB ejbAnnotation, Context context) {
             this.context = context;
+            this.beanDefinition = beanDefinition;
             this.classWrapper = new ClassWrapper(beanDefinition.getBeanClass());
+            this.ejbAnnotation = ejbAnnotation;
+            this.transformLocal = ConfigurationBeanResolver.this.transformLocal;
         }
 
         protected abstract Collection<String> mappedNames();
 
         protected abstract Collection<Class> remoteClasses();
 
-        public final String[] resolve() {
-            for (String mappedName : mappedNames()) {
-                for (String separator : separators) {
-                    for (Class remoteClass : remoteClasses()) {
-                        addJndiIfAbsent(mappedName, separator, remoteClass);
+        /**
+         * 通过配置信息猜想可能的jndi
+         */
+        public final String[] guess() {
+            if (ejbAnnotation != null && StringUtils.isNotBlank(ejbAnnotation.lookup())) {
+                // 如果直接配置了ejbAnnotation的lookup = 直接配置了jndi. 不再猜想直接返回配置项
+                this.jndiSet.add(ejbAnnotation.lookup());
+            } else {
+                for (String mappedName : mappedNames()) {
+                    for (String separator : separators) {
+                        for (Class remoteClass : remoteClasses()) {
+                            addIfAbsent(mappedName, separator, remoteClass);
+                        }
                     }
                 }
             }
-            return jndis.toArray(new String[jndis.size()]);
+            return jndiSet.toArray(new String[jndiSet.size()]);
         }
-
-        /*protected void addJndiIfAbsent(String mappedName, Class<?> remoteClass) {
-            for (String separator : separators) {
-                StringBuilder sb = new StringBuilder();
-                sb.append(globalPrefix);
-                // FIXME 全局环境添加 /
-                if (!globalPrefix.endsWith("/")) {
-                    sb.append("/");
-                }
-                sb.append(mappedName).append(separator).append(remoteClass.getName());
-                String jndi = sb.toString();
-                if (!jndis.contains(jndi) && (context == null || existsInContext(jndi, context))) {
-                    jndis.add(jndi);
-                }
-            }
-        }*/
 
         /**
          * 格式划jndi, 再判断jndi是否存在于上下文中
-         * <p>
-         * <p>
-         * 
+         * <p/>
+         * <p/>
          * <pre>
          *   JNDI = prefix() + beanSuffix + separator + package + . + prefix() + remoteSuffix
          * </pre>
          *
          * @param mappedName
-         *            bean的映射名称
+         *         bean的映射名称
          * @param separator
-         *            分割符
+         *         分割符
          * @param remoteClass
-         *            remote的类型
+         *         remote的类型
          */
-        protected void addJndiIfAbsent(String mappedName, String separator, Class<?> remoteClass) {
+        protected void addIfAbsent(String mappedName, String separator, Class<?> remoteClass) {
             String jndi = new StringBuilder(globalPrefix).append(mappedName).append(separator).append(remoteClass.getName()).toString();
-            if (!jndis.contains(jndi) && (context == null || existsInContext(jndi, context))) {
-                jndis.add(jndi);
+            if (!jndiSet.contains(jndi) && (context == null || tryLookup(jndi, context) != null)) {
+                jndiSet.add(jndi);
             }
         }
 
         /**
-         * 当前beanDefinition所有子类的mappedName, 如果beanDefinition是session
-         * class则没有子mappedName
+         * 当前beanDefinition所有子类的mappedName, 如果beanDefinition是session class则没有子mappedName
          */
-        protected Set<String> suberMappedNames() {
+        protected Set<String> subMappedNames() {
+            Set<String> mappedNames = new HashSet<String>();
             if (beanDefinition.isSessionClass()) {
                 // 如果自身就是session bean返回的值为空
-                return Collections.emptySet();
+                return mappedNames;
             }
-            Set<String> mappedNames = new HashSet<String>();
             // 事实上存在的mappedName
-            for (Class subClass : classWrapper.getAllSuberClasses()) {
-                BeanDefinition suberBeanDefinition = new BeanDefinition(subClass);
-                if (suberBeanDefinition.isSessionClass()) {
+            for (Class subClass : classWrapper.getAllSubClasses()) {
+                BeanDefinition sbd = new BeanDefinition(subClass);
+                if (sbd.isSessionClass()) {
                     // 存在session bean的注解
-                    mappedNames.add(suberBeanDefinition.getMappedName());
+                    mappedNames.add(sbd.getMappedName());
                 }
             }
             return mappedNames;
         }
 
         /**
+         * 如果有传入@EJB注解,通过注解上的mappedName为字段注入的mappedName
+         */
+        public String fieldMappedName() {
+            return ejbAnnotation != null ? (String) AnnotationUtils.getAnnotationValue(ejbAnnotation, "mappedName") : null;
+        }
+
+        /**
          * 通过接口的类名+配置bean后缀信息, 猜想对应的mappedName
-         * 
+         *
          * @param classes
-         *            接口类
+         *         接口类
          * @param suffixes
-         *            bean的后缀
+         *         bean的后缀
          * @return
          */
         public Set<String> guessMappedNames(Collection<Class> classes, Collection<String> suffixes) {
             Set<String> mappedNames = new HashSet<String>(classes.size());
             for (Class<?> clazz : classes) {
-                String name = clazz.getSimpleName();
+                final String name = clazz.getSimpleName();
                 for (String suffix : suffixes) {
                     // 去除后缀, 如果没有对应的后缀则忽略
-                    name = removeSuffix(name, suffix);
+                    String mappedName = name;
+                    if (mappedName.endsWith(suffix)) {
+                        mappedName = mappedName.substring(0, mappedName.lastIndexOf(suffix));
+                    }
                     for (String beanSuffix : beanSuffixes) {
                         // 给去除后缀后的localClass SimpleName增加上bean的名称后缀
-                        mappedNames.add(name + beanSuffix);
+                        mappedNames.add(mappedName + beanSuffix);
                     }
                 }
             }
@@ -369,12 +381,15 @@ public class ConfigurationBeanResolver implements BeanResolver {
         /**
          * 将local class的类通过local suffix + remote suffix替换方式来得出remoteClass
          */
-        protected final Set<Class> transofrmLocalToRemote() {
+        protected final Set<Class> transformLocalToRemote() {
             Set<Class> result = new HashSet<Class>();
-            for (Class<?> localClass : beanDefinition.getLocalClasses()) {
-                String name = localClass.getName();
+            for (Class<?> localClass : beanDefinition.getAllLocalClasses()) {
+                final String localClassName = localClass.getName();
                 for (String localSuffix : localSuffixes) {
-                    name = removeSuffix(name, localSuffix);
+                    String name = localClassName;
+                    if (name.endsWith(localSuffix)) {
+                        name = name.substring(0, name.lastIndexOf(localSuffix));
+                    }
                     for (String remoteSuffix : remoteSuffixes) {
                         try {
                             result.add(Class.forName(name + remoteSuffix, false, ClassUtils.getDefaultClassLoader()));
@@ -387,125 +402,67 @@ public class ConfigurationBeanResolver implements BeanResolver {
         }
     }
 
-    /**
-     * 通过remote接口查找会话bean的解决策略
-     * <p>
-     * <p>
-     * <p>
-     * 
-     * <pre>
-     * 如: com.harmony.FooRemote
-     * 
-     *      remoteSuffixs = Remote
-     *      beanSuffixs = Bean
-     *      beanSeparators = #
-     * 
-     * 结果为：
-     * 
-     *      FooBean#com.harmony.FooRemote
-     * </pre>
-     */
-    @SuppressWarnings("rawtypes")
-    final class RemoteResolver extends ConcreteBeanResolver {
+    final class RemoteClassJndiGuesser extends JndiGuesser {
 
-        public RemoteResolver(BeanDefinition beanDefinition, Context context) {
-            super(beanDefinition, context);
+
+        public RemoteClassJndiGuesser(BeanDefinition beanDefinition, EJB ejbAnnotation, Context context) {
+            super(beanDefinition, ejbAnnotation, context);
         }
 
+        /**
+         * 通过remote接口猜想mappedName
+         * <p/>
+         * <ul> <li>首先匹配remoteClass的所有子类,通过对子类的判断来获取mappedName</li> <li>如果有@EJB注解, 通过注解上的名称mappedName来获取对于的名称</li>
+         * <li>通过配置的猜想,通过替换远程接口的后缀来猜想mappedName</li> </ul>
+         */
         protected Collection<String> mappedNames() {
-            Set<String> mappedNames = suberMappedNames();
-            mappedNames.addAll(guessMappedNames(beanDefinition.getRemoteClasses(), remoteSuffixes));
+            Set<String> mappedNames = subMappedNames();
+            mappedNames.addAll(guessMappedNames(beanDefinition.getAllRemoteClasses(), remoteSuffixes));
+            String fieldMappedName = fieldMappedName();
+            if (StringUtils.isNotBlank(fieldMappedName)) {
+                mappedNames.add(fieldMappedName);
+            }
             return mappedNames;
         }
 
         protected Collection<Class> remoteClasses() {
-            return Arrays.<Class> asList(beanDefinition.getBeanClass());
+            return beanDefinition.getAllRemoteClasses();
         }
 
     }
 
-    /**
-     * 通过local接口查找会话bean解决策略
-     * <p>
-     * <p>
-     * <p>
-     * 
-     * <pre>
-     *  如：com.harmony.FooLocal
-     *      beanSuffix = Bean
-     *      localSuffix = Local
-     *      remoteSuffix = Remote
-     * 
-     *  结果为 ：
-     * 
-     *      FooBean#com.harmony.FooLocal
-     * 
-     *  另，可开启local转化关系{@linkplain ConfigurationBeanResolver#transformLocal transformLocal}为true， 将local的结尾转为remote形式
-     * 
-     *  结果为:
-     *      FooBean#com.harmony.FooRemote
-     * </pre>
-     *
-     * @author wuxii@foxmail.com
-     */
-    @SuppressWarnings("rawtypes")
-    final class LocalResolver extends ConcreteBeanResolver {
+    final class LocalClassJndiGuesser extends JndiGuesser {
 
-        private final boolean transformLocal;
-
-        public LocalResolver(BeanDefinition beanDefinition, Context context) {
-            super(beanDefinition, context);
-            this.transformLocal = ConfigurationBeanResolver.this.transformLocal;
+        public LocalClassJndiGuesser(BeanDefinition beanDefinition, EJB ejbAnnotation, Context context) {
+            super(beanDefinition, ejbAnnotation, context);
         }
 
-        /*
-         * 去除localClass上的后缀, 添加上beanSuffix组合成一个mappedName
+        /**
+         * 通过local class猜想mappedName
+         * <p/>
+         * <ul> <li>首先匹配localClass的所有子类,通过对子类的判断来获取mappedName</li> <li>如果有@EJB注解, 通过注解上的名称mappedName来获取对于的名称</li>
+         * <li>通过配置的猜想,通过替换local接口的后缀来猜想mappedName</li> </ul>
          */
         @Override
         protected Collection<String> mappedNames() {
-            Set<String> mappedNames = suberMappedNames();
-            mappedNames.addAll(guessMappedNames(beanDefinition.getLocalClasses(), localSuffixes));
+            Set<String> mappedNames = new HashSet<String>(subMappedNames());
+            mappedNames.addAll(guessMappedNames(beanDefinition.getAllLocalClasses(), localSuffixes));
             if (transformLocal) {
                 mappedNames.addAll(guessMappedNames(remoteClasses(), remoteSuffixes));
             }
             return mappedNames;
         }
 
+        @Override
         protected Collection<Class> remoteClasses() {
-            if (this.transformLocal) {
-                return transofrmLocalToRemote();
-            }
-            return beanDefinition.getLocalClasses();
+            return transformLocal ? transformLocalToRemote() : new ArrayList<Class>();
         }
     }
 
-    /**
-     * 通过会话bean找到会话beans实例
-     * <p>
-     * <p>
-     * <p>
-     * 
-     * <pre>
-     *  如：com.harmony.FooBean
-     * 
-     *      remoteSuffix = Remote
-     *      beanSuffix = Bean
-     *  结果为：
-     * 
-     *     FooBean#com.harmony.FooRemote
-     *
-     * </pre>
-     *
-     * @author wuxii@foxmail.com
-     */
-    @SuppressWarnings("rawtypes")
-    final class SessionResolver extends ConcreteBeanResolver {
+    final class SessionClassJndiGuesser extends JndiGuesser {
 
-        private final boolean transformLocal;
-
-        public SessionResolver(BeanDefinition beanDefinition, Context context) {
-            super(beanDefinition, context);
-            this.transformLocal = ConfigurationBeanResolver.this.transformLocal;
+        public SessionClassJndiGuesser(BeanDefinition beanDefinition, EJB ejbAnnotation, Context context) {
+            super(beanDefinition, ejbAnnotation, context);
         }
 
         @Override
@@ -515,12 +472,11 @@ public class ConfigurationBeanResolver implements BeanResolver {
 
         @Override
         protected Collection<Class> remoteClasses() {
-            Set<Class> remoteClasses = new HashSet<Class>(beanDefinition.getRemoteClasses());
-            if (this.transformLocal) {
-                remoteClasses.addAll(transofrmLocalToRemote());
+            Set<Class> remoteClasses = new HashSet<Class>(beanDefinition.getAllRemoteClasses());
+            if (transformLocal) {
+                remoteClasses.addAll(transformLocalToRemote());
             }
             return remoteClasses;
         }
     }
-
 }
