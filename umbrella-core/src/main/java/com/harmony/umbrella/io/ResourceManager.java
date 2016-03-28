@@ -99,7 +99,6 @@ public class ResourceManager implements ResourceLoader {
     }
 
     private Class<?>[] getCachedClasses(String pattern) {
-        Class<?>[] result = null;
         Class<?>[] classes = classCache.get(pattern);
         if (classes == null) {
             synchronized (classCache) {
@@ -109,18 +108,18 @@ public class ResourceManager implements ResourceLoader {
                         classes = classResourceResolver.getClassResources(pattern);
                         classCache.put(pattern, classes);
                     }
-                    result = new Class[classes.length];
-                    System.arraycopy(classes, 0, result, 0, classes.length);
                 } catch (IOException e) {
                     throw new IllegalArgumentException(e);
                 }
             }
         }
+        // copy resource at last step
+        Class<?>[] result = new Class[classes.length];
+        System.arraycopy(classes, 0, result, 0, classes.length);
         return result;
     }
 
     private Resource[] getCachedResources(String pattern) {
-        Resource[] result = null;
         Resource[] resources = resourcesCache.get(pattern);
         if (resources == null) {
             synchronized (resourcesCache) {
@@ -130,13 +129,13 @@ public class ResourceManager implements ResourceLoader {
                         resources = classResourceResolver.getResources(pattern);
                         resourcesCache.put(pattern, resources);
                     }
-                    result = new Resource[resources.length];
-                    System.arraycopy(resources, 0, result, 0, resources.length);
                 } catch (IOException e) {
                     throw new IllegalArgumentException(e);
                 }
             }
         }
+        Resource[] result = new Resource[resources.length];
+        System.arraycopy(resources, 0, result, 0, resources.length);
         return result;
     }
 

@@ -15,19 +15,18 @@
  */
 package com.harmony.umbrella.test;
 
-import java.lang.reflect.Field;
-import java.util.List;
-
-import javax.ejb.EJB;
-
+import com.harmony.umbrella.context.ee.EJBBeanFactory;
 import com.harmony.umbrella.core.BeansException;
+import com.harmony.umbrella.core.NoSuchBeanFoundException;
+import com.harmony.umbrella.util.ReflectionUtils;
+import com.harmony.umbrella.util.StringUtils;
 import org.junit.runners.model.FrameworkField;
 import org.junit.runners.model.Statement;
 import org.junit.runners.model.TestClass;
 
-import com.harmony.umbrella.context.ee.EJBApplicationContext;
-import com.harmony.umbrella.util.ReflectionUtils;
-import com.harmony.umbrella.util.StringUtils;
+import javax.ejb.EJB;
+import java.lang.reflect.Field;
+import java.util.List;
 
 /**
  * @author wuxii@foxmail.com
@@ -37,13 +36,13 @@ public class EJBRunBefores extends Statement {
     private Statement next;
     private Object testInstance;
     private TestClass testClass;
-    private EJBApplicationContext context;
+    private EJBBeanFactory beanFactory;
 
-    public EJBRunBefores(Statement next, Object testInstance, TestClass testClass, EJBApplicationContext context) {
+    public EJBRunBefores(Statement next, Object testInstance, TestClass testClass, EJBBeanFactory beanFactory) {
         this.next = next;
         this.testInstance = testInstance;
         this.testClass = testClass;
-        this.context = context;
+        this.beanFactory = beanFactory;
     }
 
     @Override
@@ -55,29 +54,31 @@ public class EJBRunBefores extends Statement {
             }
             Field realField = field.getField();
             Object bean = null;
-            String jndi = getJndi(field);
+            String jndi = getJndi(realField);
             if (StringUtils.isNotBlank(jndi)) {
                 try {
-                    bean = context.lookup(jndi);
+                    bean = beanFactory.lookup(jndi);
                 } catch (BeansException e) {
                     EJB ejbAnnotation = realField.getAnnotation(EJB.class);
                     if (ejbAnnotation != null) {
-                        try {
-                            bean = context.lookup(realField.getType(), ejbAnnotation);
-                        } catch (BeansException e1) {
-                            bean = context.lookup(realField.getType());
-                        }
+                        bean = beanFactory.lookup(field.getType(), ejbAnnotation);
+                    } else {
+                        bean = beanFactory.lookup(field.getType());
                     }
                 }
             }
+
+            if (bean == null) {
+                throw new NoSuchBeanFoundException(field.getName());
+            }
+
             ReflectionUtils.setFieldValue(realField, testInstance, bean);
         }
         this.next.evaluate();
     }
 
-    private String getJndi(FrameworkField field) {
-        Field realField = field.getField();
-        EJB ann = realField.getAnnotation(EJB.class);
+    private String getJndi(Field field) {
+        EJB ann = field.getAnnotation(EJB.class);
         if (StringUtils.isNotBlank(ann.lookup())) {
             return ann.lookup();
         }
