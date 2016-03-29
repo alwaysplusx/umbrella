@@ -69,8 +69,6 @@ under the License.
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <maven.compiler.source>1.6</maven.compiler.source>
     <maven.compiler.target>1.6</maven.compiler.target>
-    <!-- harmony project -->
-    <umbrella.version>0.0.5-SNAPSHOT</umbrella.version>
     <!-- javax api -->
     <javax.ee.version>7.0</javax.ee.version>
     <javax.ejb.version>3.2</javax.ejb.version>
@@ -130,77 +128,77 @@ under the License.
       <dependency>
         <groupId>com.harmony.umbrella</groupId>
         <artifactId>umbrella-core</artifactId>
-        <version>${umbrella.version}</version>
+        <version>${project.version}</version>
       </dependency>
       <dependency>
         <groupId>com.harmony.umbrella</groupId>
         <artifactId>umbrella-data</artifactId>
-        <version>${umbrella.version}</version>
+        <version>${project.version}</version>
       </dependency>
       <dependency>
         <groupId>com.harmony.umbrella</groupId>
         <artifactId>umbrella-message</artifactId>
-        <version>${umbrella.version}</version>
+        <version>${project.version}</version>
       </dependency>
       <dependency>
         <groupId>com.harmony.umbrella</groupId>
         <artifactId>umbrella-monitor</artifactId>
-        <version>${umbrella.version}</version>
+        <version>${project.version}</version>
       </dependency>
       <dependency>
         <groupId>com.harmony.umbrella</groupId>
         <artifactId>umbrella-ws</artifactId>
-        <version>${umbrella.version}</version>
+        <version>${project.version}</version>
       </dependency>
       <dependency>
         <groupId>com.harmony.umbrella</groupId>
         <artifactId>umbrella-web</artifactId>
-        <version>${umbrella.version}</version>
+        <version>${project.version}</version>
       </dependency>
       <dependency>
         <groupId>com.harmony.umbrella</groupId>
         <artifactId>umbrella-mapper</artifactId>
-        <version>${umbrella.version}</version>
+        <version>${project.version}</version>
       </dependency>
       <dependency>
         <groupId>com.harmony.umbrella</groupId>
         <artifactId>umbrella-validator</artifactId>
-        <version>${umbrella.version}</version>
+        <version>${project.version}</version>
       </dependency>
       <dependency>
         <groupId>com.harmony.umbrella</groupId>
         <artifactId>umbrella-ee</artifactId>
-        <version>${umbrella.version}</version>
+        <version>${project.version}</version>
       </dependency>
       <dependency>
         <groupId>com.harmony.umbrella</groupId>
         <artifactId>umbrella-scheduler</artifactId>
-        <version>${umbrella.version}</version>
+        <version>${project.version}</version>
       </dependency>
       <dependency>
         <groupId>com.harmony.umbrella</groupId>
         <artifactId>umbrella-security</artifactId>
-        <version>${umbrella.version}</version>
+        <version>${project.version}</version>
       </dependency>
       <dependency>
         <groupId>com.harmony.umbrella</groupId>
         <artifactId>umbrella-json</artifactId>
-        <version>${umbrella.version}</version>
+        <version>${project.version}</version>
       </dependency>
       <dependency>
         <groupId>com.harmony.umbrella</groupId>
         <artifactId>umbrella-xml</artifactId>
-        <version>${umbrella.version}</version>
+        <version>${project.version}</version>
       </dependency>
       <dependency>
         <groupId>com.harmony.umbrella</groupId>
         <artifactId>umbrella-spring</artifactId>
-        <version>${umbrella.version}</version>
+        <version>${project.version}</version>
       </dependency>
       <dependency>
         <groupId>com.harmony.umbrella</groupId>
         <artifactId>umbrella-test</artifactId>
-        <version>${umbrella.version}</version>
+        <version>${project.version}</version>
       </dependency>
       <!-- springframework -->
       <dependency>
