@@ -26,6 +26,7 @@ public class ZipUtils {
      *             文件未找到
      */
     public static byte[] zip(String src) throws IOException {
+        // TODO 将目录或文件压缩为二进制字节数组
         return null;
     }
 
@@ -41,10 +42,12 @@ public class ZipUtils {
      *             文件未找到
      */
     public static byte[] zip(String src, FileFilter filter) throws IOException {
+        // TODO 待文件过滤功能的压缩方式
         return null;
     }
 
     public static byte[] zip(File src) throws IOException {
+        // TODO 压缩文件或目录
         return null;
     }
 
@@ -66,9 +69,11 @@ public class ZipUtils {
      * @throws IOException
      */
     public static void zip(String src, String dest) throws IOException {
+        // TODO 压缩文件到指定文件中
     }
 
     public static void zip(String src, String dest, FileFilter filter) throws IOException {
+        // TODO 待过滤文件功能的压缩
     }
 
     public static void zip(File file, File destFile) throws IOException {

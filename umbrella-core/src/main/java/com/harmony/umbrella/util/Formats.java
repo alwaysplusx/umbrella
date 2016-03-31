@@ -17,10 +17,9 @@ package com.harmony.umbrella.util;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.math.MathContext;
-import java.text.DecimalFormat;
 import java.text.FieldPosition;
 import java.text.Format;
+import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
@@ -57,8 +56,15 @@ public abstract class Formats {
         return new NullableDateFormat(pattern);
     }
 
-    public static NullableNumberFormat createNumberFormat(String pattern, MathContext mathContext) {
-        return new NullableNumberFormat(pattern, mathContext);
+    /**
+     * 根据配置信息穿件数字格式化工具
+     * 
+     * @param numberConfig
+     *            数字格式化配置
+     * @return 输入可为空的数字格式化工具
+     */
+    public static NullableNumberFormat createNumberFormat(NumberConfig numberConfig) {
+        return new NullableNumberFormat(numberConfig);
     }
 
     private abstract static class NullableFormat extends Format {
@@ -88,19 +94,18 @@ public abstract class Formats {
     public static class NullableNumberFormat extends NullableFormat implements Serializable {
 
         private static final long serialVersionUID = 8770260343737030870L;
-        private final MathContext mathContext;
-        private final DecimalFormat df;
-        private final String pattern;
 
-        public NullableNumberFormat(String pattern, MathContext mathContext) {
-            this.df = new DecimalFormat(pattern);
-            this.mathContext = mathContext;
-            this.pattern = pattern;
+        private final NumberConfig nc;
+        private final NumberFormat nf;
+
+        public NullableNumberFormat(NumberConfig numberConfig) {
+            this.nc = numberConfig;
+            this.nf = numberConfig.create();
         }
 
         @Override
         protected Format getFormat() {
-            return this.df;
+            return this.nf;
         }
 
         /**
@@ -110,41 +115,44 @@ public abstract class Formats {
             if (number == null) {
                 return null;
             }
-            return df.format(number);
+            return nf.format(number);
         }
 
         /**
-         * 将数字精确到指定的位数
+         * 通过初始化的配置信息精确小数
          * 
-         * @param number
-         *            需要精确的数字
-         * @return 精确后的数字
+         * @see NumberConfig
          */
-        public Number precision(Number number) {
+        public Number scale(Number number) {
             if (number == null) {
                 return null;
             }
-            return new BigDecimal(number.doubleValue(), mathContext);
+            return new BigDecimal(number.doubleValue()).setScale(nc.scale, nc.roundingMode);
         }
 
         // 文本数字转化为数字
+
+        public Number parse(String source, boolean scale) throws ParseException {
+            if (StringUtils.isBlank(source)) {
+                return null;
+            }
+            return scale ? scale(parse(source)) : parse(source);
+        }
 
         /**
          * 将数字文本转为数字并对数字精确后返回
          */
         public Number parse(String source) throws ParseException {
-            if (source == null || "".equals(source))
+            if (StringUtils.isBlank(source)) {
                 return null;
-            return precision(df.parse(source));
+            }
+            return nf.parse(source);
         }
 
-        public MathContext getMathContext() {
-            return mathContext;
+        public NumberConfig getNumberConfig() {
+            return nc;
         }
 
-        public String getPattern() {
-            return pattern;
-        }
     }
 
     /**
