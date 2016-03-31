@@ -61,7 +61,7 @@ public class FormatsTest {
     }
 
     public static void main(String[] args) throws Exception {
-        DecimalFormat df = new DecimalFormat("#.0000000000");
+        DecimalFormat df = new DecimalFormat("#.#########");
         System.out.println(df.format(1.2));
     }
 }

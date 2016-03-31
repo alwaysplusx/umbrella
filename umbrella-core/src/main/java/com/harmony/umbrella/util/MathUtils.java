@@ -16,7 +16,6 @@
 package com.harmony.umbrella.util;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 
 /**
  * @author wuxii@foxmail.com
@@ -26,51 +25,51 @@ public class MathUtils {
     /**
      * 两数相加
      */
-    public static Number add(Number a, Number b) {
+    public static BigDecimal add(Number a, Number b) {
         return sum(a, b);
     }
 
-    /**
-     * 两数相加对得数进行精确
-     * 
-     * @see #add(Number, Number, NumberConfig)
-     */
-    public static Number add(Number a, Number b, int scale, RoundingMode roundingMode) {
-        FormatMathConverter converter = new FormatMathConverter(new NumberConfig(scale, roundingMode), false, false, true);
+    public static BigDecimal add(Number a, Number b, MathConverter converter) {
         return sum(converter, a, b);
     }
 
-    public static Number add(Number a, Number b, MathConverter converter) {
-        return _sum(converter, a, b);
+    public static BigDecimal subtract(Number a, Number b) {
+        return subtract(a, b, Original);
     }
 
-    public static Number sum(Number... numbers) {
-        return _sum(EmptyMathConverter, numbers);
+    public static BigDecimal subtract(Number a, Number b, MathConverter converter) {
+        return converter.convertLast(converter.convertResult(converter.coverterBefore(a).subtract(converter.coverterBefore(b))));
     }
 
-    public static Number sum(int scale, RoundingMode roundingMode, Number... numbers) {
-        return null;
+    public static BigDecimal multiply(Number a, Number b) {
+        return multiply(a, b, Original);
     }
 
-    public static Number sum(MathConverter converter, Number... numbers) {
-        return _sum(converter, numbers);
+    public static BigDecimal multiply(Number a, Number b, MathConverter converter) {
+        return converter.convertLast(converter.convertResult(converter.coverterBefore(a).multiply(converter.coverterBefore(b))));
     }
 
-    private static Number _sum(MathConverter converter, Number... numbers) {
-        BigDecimal sum = BigDecimal.ZERO;
-        for (Number number : numbers) {
-            sum = converter.convertResult(sum.add(converter.coverterBefore(number)));
+    public static BigDecimal divide(Number a, Number b) {
+        return divide(a, b, Original);
+    }
+
+    public static BigDecimal divide(Number a, Number b, MathConverter converter) {
+        return converter.convertLast(converter.convertResult(converter.coverterBefore(a).divide(converter.coverterBefore(b))));
+    }
+
+    public static BigDecimal sum(Number... numbers) {
+        return sum(Original, numbers);
+    }
+
+    public static BigDecimal sum(MathConverter converter, Number... numbers) {
+        BigDecimal result = BigDecimal.ZERO;
+        for (Number n : numbers) {
+            result = converter.convertResult(result.add(converter.coverterBefore(n)));
         }
-        return converter.convertLast(sum);
+        return converter.convertLast(result);
     }
 
-    // FIXME 相关加减乘除
-
-    public static void main(String[] args) {
-        System.out.println(add(1.2123, 1.2312, 2, RoundingMode.HALF_UP));
-    }
-
-    private static final MathConverter EmptyMathConverter = new MathConverter() {
+    private static final MathConverter Original = new MathConverter() {
 
         @Override
         public BigDecimal convert(Number t) {

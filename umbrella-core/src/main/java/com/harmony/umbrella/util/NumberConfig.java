@@ -24,9 +24,19 @@ import java.text.NumberFormat;
  */
 public class NumberConfig {
 
-    public static final NumberConfig DEFAULT_CONFIG = new NumberConfig("#.##", 2, RoundingMode.HALF_UP);
+    private static final String PATTERN = "#.##";
 
-    private static final String DEFAULT_PATTERN = "#.##";
+    public static final NumberConfig HALF_UP_2;
+
+    public static final NumberConfig HALF_UP_4;
+
+    public static final NumberConfig HALF_UP_6;
+
+    static {
+        HALF_UP_2 = new NumberConfig(PATTERN, 2, RoundingMode.HALF_UP);
+        HALF_UP_4 = new NumberConfig(PATTERN, 4, RoundingMode.HALF_UP);
+        HALF_UP_6 = new NumberConfig(PATTERN, 6, RoundingMode.HALF_UP);
+    }
 
     public final String pattern;
     public final int scale;
@@ -38,7 +48,7 @@ public class NumberConfig {
     public final int minimumFractionDigits;
 
     public NumberConfig(int scale, RoundingMode roundingMode) {
-        this(DEFAULT_PATTERN, scale, roundingMode, -1, -1, -1, -1);
+        this(PATTERN, scale, roundingMode, -1, -1, -1, -1);
     }
 
     public NumberConfig(String pattern, int scale, RoundingMode roundingMode) {

@@ -1,26 +1,36 @@
 package com.harmony.umbrella.util;
 
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 /**
- * 时间的工具类,方法不足可参阅{@link Calendar}或者{org.apache.commons.lang.time}包下类.
- * 
- * @author Hal
- * @version 1.0 ,before 2012-9-12
- * @see java.util.Calendar
- * @see SimpleDateFormat
  */
 public class TimeUtils {
 
-    // 时间转换 TODO 允许空输入, 输入空返回空
+    /**
+     * 将时间文本按格式转化为时间对象
+     * 
+     * @param text
+     *            时间文本
+     * @param pattern
+     *            格式
+     * @return 时间对象 {@linkplain java.util.Date}
+     * @throws ParseException
+     *             文本与格式不匹配
+     */
     public static Date toDate(String text, String pattern) throws ParseException {
         return Formats.createDateFormat(pattern).parseDate(text);
     }
 
+    /**
+     * {@linkplain Calendar}转换为{@linkplain Date}
+     * 
+     * @param date
+     *            calendar
+     * @return date
+     */
     public static Date toDate(Calendar date) {
         if (date == null) {
             return null;
@@ -28,14 +38,39 @@ public class TimeUtils {
         return date.getTime();
     }
 
+    /**
+     * 将时间与1970, 00:00:00 GMT毫秒间隔转化为时间对象
+     * 
+     * @param time
+     *            毫秒
+     * @return Date
+     */
     public static Date toDate(long time) {
         return new Date(time);
     }
 
+    /**
+     * 将时间文本按格式转化为时间对象Calendar
+     * 
+     * @param text
+     *            时间文本
+     * @param pattern
+     *            格式
+     * @return 时间对象 {@linkplain java.util.Date}
+     * @throws ParseException
+     *             文本与格式不匹配
+     */
     public static Calendar toCalendar(String text, String pattern) throws ParseException {
         return Formats.createDateFormat(pattern).parseCalendar(text);
     }
 
+    /**
+     * Date -> Calendar
+     * 
+     * @param date
+     *            Date
+     * @return Calendar
+     */
     public static Calendar toCalendar(Date date) {
         if (date == null) {
             return null;
@@ -59,68 +94,68 @@ public class TimeUtils {
 
     // java.util.Date 时间截取
     public static int getYear(Date date) {
-        return 1;
+        return getYear(toCalendar(date));
     }
 
     public static int getMonth(Date date) {
-        return 1;
+        return getMonth(toCalendar(date));
     }
 
     public static int getDayOfYear(Date date) {
-        return 1;
+        return getDayOfYear(toCalendar(date));
     }
 
     public static int getDayOfMonth(Date date) {
-        return 1;
+        return getDayOfMonth(toCalendar(date));
     }
 
     public static int getDayOfWeek(Date date) {
-        return 1;
+        return getDayOfWeek(toCalendar(date));
     }
 
     public static int getHour(Date date) {
-        return 1;
+        return getHour(toCalendar(date));
     }
 
     public static int getMinute(Date date) {
-        return 1;
+        return getMinute(toCalendar(date));
     }
 
     public static int getSecond(Date date) {
-        return 1;
+        return getSecond(toCalendar(date));
     }
 
     // java.util.Calendar 时间截取
     public static int getYear(Calendar date) {
-        return 1;
+        return get(date, Calendar.YEAR);
     }
 
     public static int getMonth(Calendar date) {
-        return 1;
+        return get(date, Calendar.MONTH);
     }
 
     public static int getDayOfYear(Calendar date) {
-        return 1;
+        return get(date, Calendar.DAY_OF_YEAR);
     }
 
     public static int getDayOfMonth(Calendar date) {
-        return 1;
+        return get(date, Calendar.DAY_OF_MONTH);
     }
 
     public static int getDayOfWeek(Calendar date) {
-        return 1;
+        return get(date, Calendar.DAY_OF_WEEK);
     }
 
     public static int getHour(Calendar date) {
-        return 1;
+        return get(date, Calendar.HOUR_OF_DAY);
     }
 
     public static int getMinute(Calendar date) {
-        return 1;
+        return get(date, Calendar.MINUTE);
     }
 
     public static int getSecond(Calendar date) {
-        return 1;
+        return get(date, Calendar.SECOND);
     }
 
     public static long get(Date date, int field) {
@@ -129,25 +164,25 @@ public class TimeUtils {
         return get(calendar, field);
     }
 
-    public static long get(Calendar c, int field) {
+    public static int get(Calendar c, int field) {
         return c.get(field);
     }
 
     // 时间转换
     public static long second(Date date) {
-        return 1;
+        return TimeUnit.MILLISECONDS.toSeconds(date.getTime());
     }
 
     public static long second(Calendar date) {
-        return 1;
+        return TimeUnit.MILLISECONDS.toSeconds(date.getTimeInMillis());
     }
 
     public static long millisecond(Date date) {
-        return 1;
+        return date.getTime();
     }
 
     public static long millisecond(Calendar date) {
-        return 1;
+        return date.getTimeInMillis();
     }
 
     // 计算时间间隔
@@ -186,7 +221,7 @@ public class TimeUtils {
     }
 
     public static void addHour(Date date, int amount) {
-        add(date, Calendar.HOUR, amount);
+        add(date, Calendar.HOUR_OF_DAY, amount);
     }
 
     public static void addMinute(Date date, int amount) {
@@ -200,6 +235,15 @@ public class TimeUtils {
     public static void addMillisecond(Date date, int amount) {
         add(date, Calendar.MILLISECOND, amount);
     }
+
+    public static void add(Date date, int field, int amount) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        add(calendar, field, amount);
+        date.setTime(calendar.getTimeInMillis());
+    }
+
+    // calendar
 
     public static void addYear(Calendar date, int amount) {
         add(date, Calendar.YEAR, amount);
@@ -218,7 +262,7 @@ public class TimeUtils {
     }
 
     public static void addHour(Calendar date, int amount) {
-        add(date, Calendar.HOUR, amount);
+        add(date, Calendar.HOUR_OF_DAY, amount);
     }
 
     public static void addMinute(Calendar date, int amount) {
@@ -231,13 +275,6 @@ public class TimeUtils {
 
     public static void addMillisecond(Calendar date, int amount) {
         add(date, Calendar.MILLISECOND, amount);
-    }
-
-    public static void add(Date date, int field, int amount) {
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(date);
-        add(calendar, field, amount);
-        date.setTime(calendar.getTimeInMillis());
     }
 
     public static void add(Calendar date, int field, int amount) {

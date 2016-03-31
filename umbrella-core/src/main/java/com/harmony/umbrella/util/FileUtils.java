@@ -13,14 +13,17 @@ import java.util.List;
  */
 public class FileUtils {
 
+    public static final String ENCODING_UTF_8 = "UTF-8";
+
     /**
      * 判断文件(夹)是否存在
      * 
-     * @param path
+     * @param pathname
+     *            文件路径
      * @return Boolean
      */
-    public static boolean exists(String path) {
-        return new File(path).exists();
+    public static boolean exists(String pathname) {
+        return new File(pathname).exists();
     }
 
     /**
@@ -33,11 +36,34 @@ public class FileUtils {
      * @throws IOException
      *             文件为深层文件且cascade为false
      */
-    public static void createFile(File file, boolean cascade) {
-        if (file.exists()) {
-            return;
+    public static void createFile(String pathname, boolean cascade) throws IOException {
+        createFile(new File(pathname), cascade);
+    }
+
+    public static void createFile(File file, boolean cascade) throws IOException {
+        if (!file.exists()) {
+            File parentFile = file.getParentFile();
+            // 上层目录存在且是文件
+            if (parentFile.exists() && parentFile.isFile()) {
+                throw new IOException("file parent not directory, " + parentFile.getPath());
+            }
+            // 上层目录不存在
+            if (!parentFile.exists()) {
+                if (!cascade) {
+                    // 不允许级联创建
+                    throw new IOException("file parent not exists, " + parentFile.getPath());
+                }
+                // 创建目录
+                parentFile.mkdirs();
+            }
+            file.createNewFile();
         }
-        // TODO 级联创建目录/文件
+    }
+
+    public static File createTempFile() throws IOException {
+        File file = File.createTempFile("Umbrella_", null);
+        file.deleteOnExit();// 在JVM退出时删除
+        return file;
     }
 
     /**
@@ -47,31 +73,50 @@ public class FileUtils {
      *            待删除的文件或文件夹
      * @param cascade
      *            是否允许删除目录
-     * @throws IOException
-     *             file为目录且cascade为false
      */
-    public static void deleteFile(File file, boolean cascade) throws IOException {
-        // TODO 级联删除目录或文件
+    public static boolean deleteFile(String pathname, boolean cascade) {
+        return deleteFile(new File(pathname), cascade);
+    }
+
+    public static boolean deleteFile(File file, boolean cascade) {
+        if (!file.exists()) {
+            return true;
+        }
+        if (file.isFile()) {
+            return file.delete();
+        }
+        return cascade ? delete(file) : false;
+    }
+
+    private static boolean delete(File file) {
+        if (file.isDirectory()) {
+            for (File f : file.listFiles()) {
+                if (!delete(f)) {
+                    return false;
+                }
+            }
+        }
+        return file.delete();
     }
 
     /**
      * 判断文件的编码格式.
      * 
      * @param path
-     *            //文件路径.
+     *            文件路径.
      * 
      * @return 文件编码格式
      * @throws IOException
      */
-    public static String getFileEncoding(String path) throws IOException {
-        return getFileEncoding(new File(path));
+    public static String getFileEncoding(String pathname) throws IOException {
+        return getFileEncoding(new File(pathname));
     }
 
     /**
      * 判断文件的编码格式.
      * 
      * @param file
-     *            //文件对象.
+     *            文件对象.
      * 
      * @return 文件编码格式
      * @throws IOException
@@ -85,7 +130,7 @@ public class FileUtils {
         int p = (fis.read() << 8) + fis.read();
         fis.close();
 
-        //其中的 0xefbb、0xfffe、0xfeff、0x5c75这些都是这个文件的前面两个字节的16进制数
+        // 其中的 0xefbb、0xfffe、0xfeff、0x5c75这些都是这个文件的前面两个字节的16进制数
         String code = null;
         switch (p) {
         case 0xefbb:
@@ -98,8 +143,7 @@ public class FileUtils {
             code = "UTF-16BE";
             break;
         case 0x5c75:
-            // FIXME encoding应该要符合Charset.forName()要求;
-            code = "ANSI|ASCII";
+            code = "ASCII";
             break;
         default:
             code = "GBK";
@@ -107,8 +151,8 @@ public class FileUtils {
         return code;
     }
 
-    public static byte[] readFile(String path) throws IOException {
-        return readFile(new File(path));
+    public static byte[] readFile(String pathname) throws IOException {
+        return readFile(new File(pathname));
     }
 
     public static byte[] readFile(File file) throws IOException {
@@ -118,19 +162,38 @@ public class FileUtils {
         return baos.toByteArray();
     }
 
-    public static String readFileText(File file) throws IOException {
-        // FIXME to file encoding, use default charset or file charset
-        return new String(readFile(file), "UTF-8");
+    public static String readFileText(String pathname) throws IOException {
+        return readFileText(new File(pathname), ENCODING_UTF_8);
     }
 
-    public static List<String> readLines(String path) throws IOException {
-        return readLines(new File(path));
+    public static String readFileText(String pathname, String encoding) throws IOException {
+        return readFileText(new File(pathname), encoding);
+    }
+
+    public static String readFileText(File file) throws IOException {
+        return readFileText(file, ENCODING_UTF_8);
+    }
+
+    public static String readFileText(File file, String encoding) throws IOException {
+        return new String(readFile(file), encoding);
+    }
+
+    public static List<String> readLines(String pathname) throws IOException {
+        return readLines(new File(pathname));
+    }
+
+    public static List<String> readLines(String pathname, String encoding) throws IOException {
+        return readLines(new File(pathname));
     }
 
     public static List<String> readLines(File file) throws IOException {
+        return readLines(file, ENCODING_UTF_8);
+    }
+
+    public static List<String> readLines(File file, String encoding) throws IOException {
         FileInputStream fis = new FileInputStream(file);
         try {
-            return IOUtils.readLines(fis);
+            return IOUtils.readLines(fis, encoding);
         } finally {
             try {
                 fis.close();
@@ -139,64 +202,38 @@ public class FileUtils {
         }
     }
 
-    /*public static void readFileByLine(String path, int startLine, FileLineAccept reader) throws IOException {
-        readFileByLine(new File(path), startLine, -1, reader);
-    }
-
-    public static void readFileByLine(File file, int startLine, FileLineAccept reader) throws IOException {
-        readFileByLine(file, startLine, -1, reader);
-    }
-
-    public static void readFileByLine(String path, int startLine, int increase, FileLineAccept reader) throws IOException {
-        readFileByLine(new File(path), startLine, increase, reader);
-    }
-
-    public static void readFileByLine(File file, int startLine, int increase, FileLineAccept reader) throws IOException {
-
-    }
-
-    public static interface FileLineAccept {
-        void read(int line, String text);
-    }
-    */
-
-    public static void writeText(String path, String text) throws IOException {
-        writeByte(new File(path), text.getBytes("UTF-8"));
-    }
-
-    public static void writeByte(String path, byte[] binary) throws IOException {
-        writeByte(new File(path), binary);
+    public static void writeText(String pathname, String text) throws IOException {
+        writeByte(new File(pathname), text.getBytes());
     }
 
     public static void writeText(File file, String text) throws IOException {
-        writeByte(file, text.getBytes("UTF-8"));
+        writeByte(file, text.getBytes());
+    }
+
+    public static void writeByte(String pathname, byte[] binary) throws IOException {
+        writeByte(new File(pathname), binary);
     }
 
     public static void writeByte(File file, byte[] binary) throws IOException {
-        if (!file.exists()) {
-            file.createNewFile();
+        if (file.exists()) {
+            throw new IOException("cannot write a new file, file already exists. " + file.getAbsolutePath());
         }
-        appendByte(file, binary);
+        createFile(file, true);
+        FileOutputStream fis = new FileOutputStream(file);
+        IOUtils.write(binary, fis);
+        fis.close();
     }
 
-    public static void appendText(String path, String text) throws IOException {
-        appendText(new File(path), text, "UTF-8");
-    }
-
-    public static void appendText(String path, String text, String encoding) throws IOException {
-        appendText(new File(path), text, encoding);
+    public static void appendText(String pathname, String text) throws IOException {
+        appendText(new File(pathname), text);
     }
 
     public static void appendText(File file, String text) throws IOException {
-        appendText(file, text, "UTF-8");
+        appendByte(file, text.getBytes());
     }
 
-    public static void appendText(File file, String text, String encoding) throws IOException {
-        appendByte(file, text.getBytes(encoding));
-    }
-
-    public static void appendByte(String path, byte[] binary) throws IOException {
-        appendByte(new File(path), binary);
+    public static void appendByte(String pathname, byte[] binary) throws IOException {
+        appendByte(new File(pathname), binary);
     }
 
     public static void appendByte(File file, byte[] binary) throws IOException {
@@ -208,22 +245,6 @@ public class FileUtils {
         raf.seek(raf.length());
         raf.write(binary);
         raf.close();
-    }
-
-    public static void insertText(String path, int lineNumber, String text) throws IOException {
-        insertByte(new File(path), lineNumber, text.getBytes());
-    }
-
-    public static void insertText(String path, int lineNumber, String text, String encoding) throws IOException {
-    }
-
-    public static void insertText(File file, int lineNumber, String text) throws IOException {
-    }
-
-    public static void insertText(File file, int lineNumber, String text, String encoding) throws IOException {
-    }
-
-    public static void insertByte(String path, int lineNumber, byte[] binary) throws IOException {
     }
 
     public static void insertByte(File file, int lineNumber, byte[] binary) throws IOException {
@@ -238,20 +259,11 @@ public class FileUtils {
         insertByteToPostion(file, postion, binary);
     }
 
-    public static void insertTextToPostion(String path, long position, String text) throws IOException {
-    }
-
-    public static void insertTextToPostion(File file, long position, String text) throws IOException {
-    }
-
-    public static void insertByteToPostion(String path, long position, byte[] binary) throws IOException {
-    }
-
     public static void insertByteToPostion(File file, long position, byte[] binary) throws IOException {
         RandomAccessFile raf = new RandomAccessFile(file, "rw");
 
         File tempFile = createTempFile();
-        //创建一个临时文件夹来保存插入点后的数据  
+        // 创建一个临时文件夹来保存插入点后的数据
         FileOutputStream tfos = new FileOutputStream(tempFile);
         FileInputStream tfis = new FileInputStream(tempFile);
 
@@ -265,14 +277,14 @@ public class FileUtils {
             tfos.write(readBuffer, 0, hasRead);
         }
 
-        //返回原来的插入处  
+        // 返回原来的插入处
         raf.seek(position);
 
         // 插入新内容
         raf.write(binary);
 
         byte[] writeBuffer = new byte[1024];
-        //将原position后的文件重新写入
+        // 将原position后的文件重新写入
         while ((hasRead = tfis.read(writeBuffer)) > 0) {
             raf.write(writeBuffer, 0, hasRead);
         }
@@ -295,14 +307,14 @@ public class FileUtils {
      */
     public static long getLinePostion(File file, int lineNumber) throws IOException {
         // FIXME 文件从1开始, 不应该从0开始
-        //位移指针
+        // 位移指针
         long currentPosition = -1L;
-        //只读
+        // 只读
         RandomAccessFile raf = new RandomAccessFile(file, "r");
 
-        //移动文件指针到起始位置
+        // 移动文件指针到起始位置
         raf.seek(0);
-        //当前读取行号
+        // 当前读取行号
         Integer curLine = 0;
 
         while (curLine < lineNumber && raf.readLine() != null) {
@@ -318,9 +330,4 @@ public class FileUtils {
         return currentPosition;
     }
 
-    private static File createTempFile() throws IOException {
-        File file = File.createTempFile("tmp", null);
-        file.deleteOnExit();//在JVM退出时删除  
-        return file;
-    }
 }

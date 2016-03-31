@@ -127,7 +127,7 @@ public abstract class Formats {
             if (number == null) {
                 return null;
             }
-            return new BigDecimal(number.doubleValue()).setScale(nc.scale, nc.roundingMode);
+            return BigDecimal.valueOf(number.doubleValue()).setScale(nc.scale, nc.roundingMode);
         }
 
         // 文本数字转化为数字

@@ -23,6 +23,8 @@ import java.io.IOException;
 public class FileUtilsTest {
 
     public static void main(String[] args) throws IOException {
-
+        // FileUtils.createFile("target/a/b/c/d/e/f.txt", true);
+        // System.out.println(FileUtils.deleteFile("target/a", true));
+        System.out.println(FileUtils.createTempFile().getAbsoluteFile());
     }
 }
