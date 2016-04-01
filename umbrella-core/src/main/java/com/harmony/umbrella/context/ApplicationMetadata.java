@@ -32,9 +32,9 @@ public class ApplicationMetadata {
 
     static final ApplicationMetadata METADATA = new ApplicationMetadata();
     
-    static final JVMInformation JVMINFO = METADATA.new JVMInformation();
+    public static final JVMInformation JVMINFO = METADATA.new JVMInformation();
     
-    static final OSInformation OSINFO = METADATA.new OSInformation();
+    public static final OSInformation OSINFO = METADATA.new OSInformation();
     
     static final DBInformation EMPTY_DATABASEINFO = METADATA.new DBInformation();
     

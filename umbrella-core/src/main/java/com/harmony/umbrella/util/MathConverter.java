@@ -31,7 +31,7 @@ public interface MathConverter extends Converter<Number, BigDecimal> {
      *            待处理的数字
      * @return 处理后的数字
      */
-    BigDecimal coverterBefore(Number number);
+    BigDecimal covertBefore(Number number);
 
     /**
      * 对计算后的得数进行处理.

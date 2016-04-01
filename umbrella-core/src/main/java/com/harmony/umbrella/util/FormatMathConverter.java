@@ -43,7 +43,7 @@ public class FormatMathConverter implements MathConverter {
     }
 
     @Override
-    public BigDecimal coverterBefore(Number number) {
+    public BigDecimal covertBefore(Number number) {
         BigDecimal num = convert(number);
         return before ? scale(num) : num;
     }
