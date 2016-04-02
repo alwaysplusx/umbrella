@@ -49,7 +49,7 @@ import java.net.URLConnection;
  * @see com.harmony.umbrella.io.resource.springframework.core.io.UrlResource
  * @see org.springframework.core.io.ResourceLoader
  */
-public abstract class ResourceUtils {
+public class ResourceUtils {
 
     /** Pseudo URL prefix for loading from the class path: "classpath:" */
     public static final String CLASSPATH_URL_PREFIX = "classpath:";

@@ -15,22 +15,33 @@
  */
 package com.harmony.umbrella.context.ee.resolver;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.Properties;
+import java.util.Set;
+import java.util.StringTokenizer;
+
+import javax.ejb.EJB;
+import javax.naming.Context;
+import javax.naming.NamingException;
+
 import com.harmony.umbrella.context.ee.BeanDefinition;
 import com.harmony.umbrella.context.ee.BeanFilter;
 import com.harmony.umbrella.context.ee.BeanResolver;
 import com.harmony.umbrella.context.ee.WrappedBeanHandler;
 import com.harmony.umbrella.core.BeansException;
 import com.harmony.umbrella.core.ClassWrapper;
-import com.harmony.umbrella.core.Converter;
 import com.harmony.umbrella.log.Log;
 import com.harmony.umbrella.log.Logs;
-import com.harmony.umbrella.util.*;
-
-import javax.ejb.EJB;
-import javax.naming.Context;
-import javax.naming.NamingException;
-
-import java.util.*;
+import com.harmony.umbrella.util.AnnotationUtils;
+import com.harmony.umbrella.util.Assert;
+import com.harmony.umbrella.util.ClassUtils;
+import com.harmony.umbrella.util.Converter;
+import com.harmony.umbrella.util.ReflectionUtils;
+import com.harmony.umbrella.util.StringUtils;
 
 /**
  * 通过配置配置的属性，来组合定义的bean

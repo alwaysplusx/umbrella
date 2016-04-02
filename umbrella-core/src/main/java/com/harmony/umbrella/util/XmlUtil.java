@@ -20,10 +20,6 @@ import org.xml.sax.helpers.DefaultHandler;
 
 /**
  * XML工具类.
- * 
- * @author Hal
- * @version 1.0
- * @date 2016-3-15 14:07:47
  */
 public class XmlUtil {
 

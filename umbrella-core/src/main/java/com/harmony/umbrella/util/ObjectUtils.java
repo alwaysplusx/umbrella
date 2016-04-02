@@ -30,7 +30,7 @@ import java.util.Arrays;
  * @author Chris Beams
  * @since 19.03.2004
  */
-public abstract class ObjectUtils {
+public class ObjectUtils {
 	
 	/**
 	 * Determine whether the given array is empty: i.e. {@code null} or of zero

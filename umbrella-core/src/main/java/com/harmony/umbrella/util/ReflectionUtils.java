@@ -26,7 +26,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author Chris Beams
  * @since 1.2.2
  */
-public abstract class ReflectionUtils {
+public class ReflectionUtils {
 
     /**
      * Cache for {@link Class#getDeclaredMethods()}, allowing for fast
@@ -259,7 +259,7 @@ public abstract class ReflectionUtils {
      * 
      * @param source
      *            目标类
-     * @param field
+     * @param fieldName
      *            字段名称
      * @return 字段对应的getter方法
      * @throws NoSuchMethodException
@@ -294,7 +294,7 @@ public abstract class ReflectionUtils {
      * 
      * @param source
      *            目标类
-     * @param field
+     * @param fieldName
      *            字段名称
      * @return 字段对应的setter方法
      * @throws NoSuchMethodException

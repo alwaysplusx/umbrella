@@ -31,7 +31,7 @@ import java.util.Date;
  * 
  * @author wuxii@foxmail.com
  */
-public abstract class Formats {
+public class Formats {
 
     public static final String FULL_DATE_PATTERN = "yyyy-MM-dd HH:mm:ss:SSS";
 

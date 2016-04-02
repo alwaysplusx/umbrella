@@ -31,10 +31,10 @@ import com.harmony.umbrella.context.ee.BeanFilter;
 import com.harmony.umbrella.context.ee.ContextResolver;
 import com.harmony.umbrella.context.ee.SessionBean;
 import com.harmony.umbrella.context.ee.WrappedBeanHandler;
-import com.harmony.umbrella.core.Converter;
 import com.harmony.umbrella.log.Log;
 import com.harmony.umbrella.log.Logs;
 import com.harmony.umbrella.util.ClassUtils;
+import com.harmony.umbrella.util.Converter;
 import com.harmony.umbrella.util.StringUtils;
 
 /**

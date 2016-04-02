@@ -24,41 +24,48 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Miscellaneous class utility methods. Mainly for internal use within the
- * framework.
+ * Miscellaneous class utility methods. Mainly for internal use within the framework.
  *
  * @author Juergen Hoeller
  * @author Keith Donald
  * @author Rob Harrop
  * @author Sam Brannen
- * @since 1.1
- * @see TypeUtils
  * @see ReflectionUtils
+ * @since 1.1
  */
-public abstract class ClassUtils {
+public class ClassUtils {
 
-    /** Suffix for array class names: "[]" */
+    /**
+     * Suffix for array class names: "[]"
+     */
     public static final String ARRAY_SUFFIX = "[]";
 
-    /** The package separator character '.' */
+    /**
+     * The package separator character '.'
+     */
     private static final char PACKAGE_SEPARATOR = '.';
 
-    /** The path separator character '/' */
+    /**
+     * The path separator character '/'
+     */
     private static final char PATH_SEPARATOR = '/';
 
-    /** The CGLIB class separator character "$$" */
+    /**
+     * The CGLIB class separator character "$$"
+     */
     public static final String CGLIB_CLASS_SEPARATOR = "$$";
 
-    /** The ".class" file suffix */
+    /**
+     * The ".class" file suffix
+     */
     public static final String CLASS_FILE_SUFFIX = ".class";
     /**
-     * Map with primitive wrapper type as key and corresponding primitive type
-     * as value, for example: Integer.class -> int.class.
+     * Map with primitive wrapper type as key and corresponding primitive type as value, for example: Integer.class ->
+     * int.class.
      */
     private static final Map<Class<?>, Class<?>> primitiveWrapperTypeMap = new HashMap<Class<?>, Class<?>>(8);
     /**
-     * Map with primitive type as key and corresponding wrapper type as value,
-     * for example: int.class -> Integer.class.
+     * Map with primitive type as key and corresponding wrapper type as value, for example: int.class -> Integer.class.
      */
     private static final Map<Class<?>, Class<?>> primitiveTypeToWrapperMap = new HashMap<Class<?>, Class<?>>(8);
 
@@ -101,17 +108,15 @@ public abstract class ClassUtils {
     }
 
     /**
-     * Given an input class object, return a string which consists of the
-     * class's package name as a pathname, i.e., all dots ('.') are replaced by
-     * slashes ('/'). Neither a leading nor trailing slash is added. The result
-     * could be concatenated with a slash and the name of a resource and fed
-     * directly to {@code ClassLoader.getResource()}. For it to be fed to
-     * {@code Class.getResource} instead, a leading slash would also have to be
-     * prepended to the returned value.
-     * 
+     * Given an input class object, return a string which consists of the class's package name as a pathname, i.e., all
+     * dots ('.') are replaced by slashes ('/'). Neither a leading nor trailing slash is added. The result could be
+     * concatenated with a slash and the name of a resource and fed directly to {@code ClassLoader.getResource()}. For
+     * it to be fed to {@code Class.getResource} instead, a leading slash would also have to be prepended to the
+     * returned value.
+     *
      * @param clazz
-     *            the input class. A {@code null} value or the default (empty)
-     *            package will result in an empty string ("") being returned.
+     *         the input class. A {@code null} value or the default (empty) package will result in an empty string ("")
+     *         being returned.
      * @return a path which represents the package name
      * @see ClassLoader#getResource
      * @see Class#getResource
@@ -131,7 +136,7 @@ public abstract class ClassUtils {
 
     /**
      * 比较两个类的全显定名称是否相同
-     * 
+     *
      * @param c1
      * @param c2
      * @return
@@ -148,11 +153,11 @@ public abstract class ClassUtils {
 
     /**
      * subClass是否是superClass的子类
-     * 
+     *
      * @param superClass
-     *            待比较父类
+     *         待比较父类
      * @param subClass
-     *            待比较子类
+     *         待比较子类
      */
     public static boolean isAssignable(Class<?> superClass, Class<?> subClass) {
         if (superClass == subClass) {
@@ -179,14 +184,13 @@ public abstract class ClassUtils {
     }
 
     /**
-     * Determine if the given type is assignable from the given value, assuming
-     * setting by reflection. Considers primitive wrapper classes as assignable
-     * to the corresponding primitive types.
-     * 
+     * Determine if the given type is assignable from the given value, assuming setting by reflection. Considers
+     * primitive wrapper classes as assignable to the corresponding primitive types.
+     *
      * @param type
-     *            the target type
+     *         the target type
      * @param value
-     *            the value that should be assigned to the type
+     *         the value that should be assigned to the type
      * @return if the type is assignable from the value
      */
     public static boolean isAssignableValue(Class<?> type, Object value) {
@@ -194,13 +198,12 @@ public abstract class ClassUtils {
     }
 
     /**
-     * 检查输入类型是否符合模版的参数. 首先类型数据的长度匹配, 再对各个类型进行
-     * {@linkplain #isAssignable(Class, Class)}匹配
-     * 
+     * 检查输入类型是否符合模版的参数. 首先类型数据的长度匹配, 再对各个类型进行 {@linkplain #isAssignable(Class, Class)}匹配
+     *
      * @param pattern
-     *            参数的模版
+     *         参数的模版
      * @param inputTypes
-     *            输入类型
+     *         输入类型
      * @return true 所有类型都匹配
      * @see ClassUtils#isAssignable(Class, Class)
      */
@@ -216,11 +219,11 @@ public abstract class ClassUtils {
 
     /**
      * 将参数转化为Class类型数组，对应于{@linkplain Method#getParameterTypes()}
-     * <p>
+     * <p/>
      * 如果args中存在{@code null}的元素, 则将对象的类映射为{@linkplain Object}
-     * 
+     *
      * @param args
-     *            参数数组
+     *         参数数组
      * @return 类型数组
      * @see Method#getParameterTypes()
      */
@@ -242,33 +245,30 @@ public abstract class ClassUtils {
     }
 
     /**
-     * Replacement for {@code Class.forName()} that also returns Class instances
-     * for primitives (e.g. "int") and array class names (e.g. "String[]").
-     * Furthermore, it is also capable of resolving inner class names in Java
-     * source style (e.g. "java.lang.Thread.State" instead of
-     * "java.lang.Thread$State").
-     * 
+     * Replacement for {@code Class.forName()} that also returns Class instances for primitives (e.g. "int") and array
+     * class names (e.g. "String[]"). Furthermore, it is also capable of resolving inner class names in Java source
+     * style (e.g. "java.lang.Thread.State" instead of "java.lang.Thread$State").
+     *
      * @param name
-     *            the name of the Class
+     *         the name of the Class
      * @param classLoader
-     *            the class loader to use (may be {@code null}, which indicates
-     *            the default class loader)
+     *         the class loader to use (may be {@code null}, which indicates the default class loader)
      * @return Class instance for the supplied name
      * @throws ClassNotFoundException
-     *             if the class was not found
+     *         if the class was not found
      * @throws LinkageError
-     *             if the class file could not be loaded
+     *         if the class file could not be loaded
      * @see Class#forName(String, boolean, ClassLoader)
      */
     public static Class<?> forName(String name, ClassLoader classLoader) throws ClassNotFoundException {
         return Class.forName(name, true, classLoader);
     }
-    
+
     /**
      * for name，use default {@linkplain #getDefaultClassLoader() classLoader}
-     * 
+     *
      * @param name
-     *            类名
+     *         类名
      * @return 类
      * @throws ClassNotFoundException
      * @see {@link #forName(String, ClassLoader)}
@@ -285,9 +285,9 @@ public abstract class ClassUtils {
 
     /**
      * Check whether the specified class is a CGLIB-generated class.
-     * 
+     *
      * @param clazz
-     *            the class to check
+     *         the class to check
      */
     public static boolean isCglibProxyClass(Class<?> clazz) {
         return (clazz != null && isCglibProxyClassName(clazz.getName()));
@@ -295,9 +295,9 @@ public abstract class ClassUtils {
 
     /**
      * Check whether the specified class name is a CGLIB-generated class.
-     * 
+     *
      * @param className
-     *            the class name to check
+     *         the class name to check
      */
     public static boolean isCglibProxyClassName(String className) {
         return (className != null && className.contains(CGLIB_CLASS_SEPARATOR));
@@ -305,7 +305,7 @@ public abstract class ClassUtils {
 
     /**
      * 获得clazz的所有接口.包括递归父类的接口. 以及递归实现类的接口
-     * 
+     *
      * @param clazz
      * @return
      */
@@ -325,7 +325,6 @@ public abstract class ClassUtils {
 
     public enum ClassFilterFeature {
         NOTNULL {
-
             @Override
             public boolean accept(Class<?> clazz) {
                 return clazz != null;
@@ -335,7 +334,7 @@ public abstract class ClassUtils {
         NEWABLE {
             @Override
             public boolean accept(Class<?> clazz) {
-                if (!NOTNULL.accept(clazz) || INTERFACE.accept(clazz) 
+                if (!NOTNULL.accept(clazz) || INTERFACE.accept(clazz)
                         || ABSTRACT.accept(clazz) || PRIVATE.accept(clazz)
                         || PROTECTED.accept(clazz)) {
                     return false;
@@ -350,40 +349,45 @@ public abstract class ClassUtils {
         ABSTRACT {
             @Override
             public boolean accept(Class<?> clazz) {
-                if (clazz == null)
+                if (clazz == null) {
                     return false;
+                }
                 return Modifier.isAbstract(clazz.getModifiers());
             }
         },
         INTERFACE {
             @Override
             public boolean accept(Class<?> clazz) {
-                if (clazz == null)
+                if (clazz == null) {
                     return false;
+                }
                 return clazz.isInterface();
             }
         },
         PUBLIC {
             @Override
             public boolean accept(Class<?> clazz) {
-                if (clazz == null)
+                if (clazz == null) {
                     return false;
+                }
                 return Modifier.isPublic(clazz.getModifiers());
             }
         },
         PROTECTED {
             @Override
             public boolean accept(Class<?> clazz) {
-                if (clazz == null)
+                if (clazz == null) {
                     return false;
+                }
                 return Modifier.isProtected(clazz.getModifiers());
             }
         },
         PRIVATE {
             @Override
             public boolean accept(Class<?> clazz) {
-                if (clazz == null)
+                if (clazz == null) {
                     return false;
+                }
                 return Modifier.isPrivate(clazz.getModifiers());
             }
         };
@@ -394,14 +398,14 @@ public abstract class ClassUtils {
 
     /**
      * 类过滤
-     * 
+     *
      * @author wuxii@foxmail.com
      */
     public interface ClassFilter {
 
         /**
          * 过滤类的信息
-         * 
+         *
          * @param clazz
          * @return
          */

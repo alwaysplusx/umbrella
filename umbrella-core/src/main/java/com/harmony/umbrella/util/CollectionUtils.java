@@ -22,7 +22,7 @@ import java.util.Map;
 /**
  * @author wuxii@foxmail.com
  */
-public abstract class CollectionUtils {
+public class CollectionUtils {
 	
 	/**
 	 * Return {@code true} if the supplied Collection is {@code null} or empty.

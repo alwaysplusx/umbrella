@@ -18,9 +18,9 @@ public class FileUtils {
 
     public static final String UTF_8 = "UTF-8";
 
-    public static final String UNIX_NEW_LINE = "\n";
+    public static final String UNIX_NEW_LINE = IOUtils.LINE_SEPARATOR_UNIX;
 
-    public static final String WINDOWS_NEW_LINE = "\r\n";
+    public static final String WINDOWS_NEW_LINE = IOUtils.LINE_SEPARATOR_WINDOWS;
 
     public static final String NEW_LINE;
 

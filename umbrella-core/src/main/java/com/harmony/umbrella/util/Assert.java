@@ -33,7 +33,7 @@ import java.util.Map;
  * @author Rob Harrop
  * @since 1.1.2
  */
-public abstract class Assert {
+public class Assert {
 
     /**
      * Assert a boolean expression, throwing {@code IllegalArgumentException} if
