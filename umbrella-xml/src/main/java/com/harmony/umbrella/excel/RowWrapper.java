@@ -50,96 +50,102 @@ public class RowWrapper implements Row {
 
     @Override
     public void removeCell(Cell cell) {
+        row.removeCell(cell);
     }
 
     @Override
     public void setRowNum(int rowNum) {
+        row.setRowNum(rowNum);
     }
 
     @Override
     public int getRowNum() {
-        return 0;
+        return row.getRowNum();
     }
 
     @Override
     public Cell getCell(int cellnum) {
-        return null;
+        return row.getCell(cellnum);
     }
 
     @Override
     public Cell getCell(int cellnum, MissingCellPolicy policy) {
-        return null;
+        return row.getCell(cellnum, policy);
     }
 
     @Override
     public short getFirstCellNum() {
-        return 0;
+        return row.getFirstCellNum();
     }
 
     @Override
     public short getLastCellNum() {
-        return 0;
+        return row.getLastCellNum();
     }
 
     @Override
     public int getPhysicalNumberOfCells() {
-        return 0;
+        return row.getPhysicalNumberOfCells();
     }
 
     @Override
     public void setHeight(short height) {
+        row.setHeight(height);
     }
 
     @Override
     public void setZeroHeight(boolean zHeight) {
+        row.setZeroHeight(zHeight);
     }
 
     @Override
     public boolean getZeroHeight() {
-        return false;
+        return row.getZeroHeight();
     }
 
     @Override
     public void setHeightInPoints(float height) {
+        row.setHeightInPoints(height);
     }
 
     @Override
     public short getHeight() {
-        return 0;
+        return row.getHeight();
     }
 
     @Override
     public float getHeightInPoints() {
-        return 0;
+        return row.getHeightInPoints();
     }
 
     @Override
     public boolean isFormatted() {
-        return false;
+        return row.isFormatted();
     }
 
     @Override
     public CellStyle getRowStyle() {
-        return null;
+        return row.getRowStyle();
     }
 
     @Override
     public void setRowStyle(CellStyle style) {
+        row.setRowStyle(style);
     }
 
     @Override
     public Iterator<Cell> cellIterator() {
-        return null;
+        return row.cellIterator();
     }
 
     @Override
     public Sheet getSheet() {
-        return null;
+        return row.getSheet();
     }
 
     @Override
     public int getOutlineLevel() {
-        return 0;
+        return row.getOutlineLevel();
     }
 
 }

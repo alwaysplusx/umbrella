@@ -1,5 +1,6 @@
 package com.harmony.umbrella.util;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -15,6 +16,8 @@ import javax.xml.xpath.XPathFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
+import org.xml.sax.EntityResolver;
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
@@ -48,14 +51,6 @@ public class XmlUtil {
         return new Element[0];
     }
 
-    public static Document getDocument(String path) throws IOException, SAXException, ParserConfigurationException {
-        return newDocumentBuilder().parse(path);
-    }
-
-    public static Document createDocument() throws ParserConfigurationException {
-        return newDocumentBuilder().newDocument();
-    }
-
     public static void parser(String path, DefaultHandler handler) throws SAXException, IOException, ParserConfigurationException {
         getSAXParser().parse(path, handler);
         getSAXParser().getXMLReader();
@@ -69,8 +64,29 @@ public class XmlUtil {
         return SAXParserFactory.newInstance().newSAXParser();
     }
 
-    private static DocumentBuilder newDocumentBuilder() throws ParserConfigurationException {
-        return DocumentBuilderFactory.newInstance().newDocumentBuilder();
+    public static Document newDocument() throws ParserConfigurationException {
+        return newDocumentBuilder(true).newDocument();
+    }
+
+    public static Document getDocument(String path, boolean ignore) throws IOException, SAXException, ParserConfigurationException {
+        return newDocumentBuilder(ignore).parse(path);
+    }
+
+    public static DocumentBuilder newDocumentBuilder(boolean ignore) throws ParserConfigurationException {
+        DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+        if (ignore) {
+            documentBuilder.setEntityResolver(new IgnoreDTDEntityResolver());
+        }
+        return documentBuilder;
+    }
+
+    private static final class IgnoreDTDEntityResolver implements EntityResolver {
+
+        @Override
+        public InputSource resolveEntity(String publicId, String systemId) throws SAXException, IOException {
+            return new InputSource(new ByteArrayInputStream("<?xml version='1.0' encoding='UTF-8'?>".getBytes()));
+        }
+
     }
 
 }

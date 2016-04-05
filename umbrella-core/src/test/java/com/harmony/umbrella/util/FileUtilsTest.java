@@ -16,10 +16,7 @@
 package com.harmony.umbrella.util;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.ByteBuffer;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -48,7 +45,7 @@ public class FileUtilsTest {
     }
 
     public static void main(String[] args) throws Exception {
-        File src = new File("target/src.txt");
+        /*File src = new File("target/src.txt");
         File dest = new File("target/dest.txt");
 
         FileInputStream fis = new FileInputStream(src);
@@ -57,7 +54,10 @@ public class FileUtilsTest {
         fos.getChannel().write(ByteBuffer.wrap("A".getBytes()), 2);
 
         fis.close();
-        fos.close();
+        fos.close();*/
+
+        String extension = FileUtils.getExtension("target/a.zip");
+        System.out.println(extension);
     }
 
     @Test

@@ -34,159 +34,180 @@ import org.apache.poi.ss.util.CellRangeAddress;
  */
 public class CellWrapper implements Cell {
 
+    private final Cell cell;
+
+    public CellWrapper(Cell cell) {
+        this.cell = cell;
+    }
+
     @Override
     public int getColumnIndex() {
-        return 0;
+        return cell.getColumnIndex();
     }
 
     @Override
     public int getRowIndex() {
-        return 0;
+        return cell.getRowIndex();
     }
 
     @Override
     public Sheet getSheet() {
-        return null;
+        return cell.getSheet();
     }
 
     @Override
     public Row getRow() {
-        return null;
+        return cell.getRow();
     }
 
     @Override
     public void setCellType(int cellType) {
+        cell.setCellType(cellType);
     }
 
     @Override
     public int getCellType() {
-        return 0;
+        return cell.getCellType();
     }
 
     @Override
     public int getCachedFormulaResultType() {
-        return 0;
+        return cell.getCachedFormulaResultType();
     }
 
     @Override
     public void setCellValue(double value) {
+        cell.setCellValue(value);
     }
 
     @Override
     public void setCellValue(Date value) {
+        cell.setCellValue(value);
     }
 
     @Override
     public void setCellValue(Calendar value) {
+        cell.setCellValue(value);
     }
 
     @Override
     public void setCellValue(RichTextString value) {
+        cell.setCellValue(value);
     }
 
     @Override
     public void setCellValue(String value) {
+        cell.setCellValue(value);
     }
 
     @Override
     public void setCellFormula(String formula) throws FormulaParseException {
+        cell.setCellFormula(formula);
     }
 
     @Override
     public String getCellFormula() {
-        return null;
+        return cell.getCellFormula();
     }
 
     @Override
     public double getNumericCellValue() {
-        return 0;
+        return cell.getNumericCellValue();
     }
 
     @Override
     public Date getDateCellValue() {
-        return null;
+        return cell.getDateCellValue();
     }
 
     @Override
     public RichTextString getRichStringCellValue() {
-        return null;
+        return cell.getRichStringCellValue();
     }
 
     @Override
     public String getStringCellValue() {
-        return null;
+        return cell.getStringCellValue();
     }
 
     @Override
     public void setCellValue(boolean value) {
+        cell.setCellValue(value);
     }
 
     @Override
     public void setCellErrorValue(byte value) {
+        cell.setCellErrorValue(value);
     }
 
     @Override
     public boolean getBooleanCellValue() {
-        return false;
+        return cell.getBooleanCellValue();
     }
 
     @Override
     public byte getErrorCellValue() {
-        return 0;
+        return cell.getErrorCellValue();
     }
 
     @Override
     public void setCellStyle(CellStyle style) {
+        cell.setCellStyle(style);
     }
 
     @Override
     public CellStyle getCellStyle() {
-        return null;
+        return cell.getCellStyle();
     }
 
     @Override
     public void setAsActiveCell() {
+        cell.setAsActiveCell();
     }
 
     @Override
     public CellAddress getAddress() {
-        return null;
+        return cell.getAddress();
     }
 
     @Override
     public void setCellComment(Comment comment) {
+        cell.setCellComment(comment);
     }
 
     @Override
     public Comment getCellComment() {
-        return null;
+        return cell.getCellComment();
     }
 
     @Override
     public void removeCellComment() {
+        cell.removeCellComment();
     }
 
     @Override
     public Hyperlink getHyperlink() {
-        return null;
+        return cell.getHyperlink();
     }
 
     @Override
     public void setHyperlink(Hyperlink link) {
+        cell.setHyperlink(link);
     }
 
     @Override
     public void removeHyperlink() {
+        cell.removeHyperlink();
     }
 
     @Override
     public CellRangeAddress getArrayFormulaRange() {
-        return null;
+        return cell.getArrayFormulaRange();
     }
 
     @Override
     public boolean isPartOfArrayFormulaGroup() {
-        return false;
+        return cell.isPartOfArrayFormulaGroup();
     }
 
 }

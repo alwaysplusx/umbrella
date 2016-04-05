@@ -35,22 +35,67 @@ public class FileUtils {
     /**
      * 判断文件(夹)是否存在
      *
-     * @param pathname 文件路径
+     * @param pathname
+     *            文件路径
      * @return Boolean
      */
     public static boolean exists(String pathname) {
         return new File(pathname).exists();
     }
 
+    public static boolean isFile(String pathname) {
+        return new File(pathname).isDirectory();
+    }
+
+    public static boolean isDirectory(String pathname) {
+        return new File(pathname).isDirectory();
+    }
+
+    /**
+     * 获取文件扩展名, 如果是文件夹/文件没有扩展名则返回空字符文本.
+     * <p>
+     * 返回的扩展名均为小写
+     * 
+     * @param pathname
+     *            文件路径
+     * @return 扩展名
+     */
+    public static String getExtension(String pathname) {
+        return getExtension(new File(pathname));
+    }
+
+    /**
+     * 获取文件扩展名, 如果是文件夹/文件没有扩展名则返回空字符文本.
+     * <p>
+     * 返回的扩展名均为小写
+     * 
+     * @param fiel
+     *            文件
+     * @return 扩展名
+     */
+    public static String getExtension(File file) {
+        if (file.exists() && file.isDirectory()) {
+            return "";
+        }
+        String name = file.getName();
+        int dotIndex = name.lastIndexOf(".");
+        return dotIndex > 0 ? name.substring(dotIndex).toLowerCase() : "";
+    }
+
     /**
      * 创建文件, 如果文件为深层次目录下的文件则判断是否级联创建
      *
-     * @param pathname 待创建的文件或文件夹
-     * @param cascade  true级联创建不存在的目录
-     * @throws IOException 文件为深层文件且cascade为false
+     * @param pathname
+     *            待创建的文件或文件夹
+     * @param cascade
+     *            true级联创建不存在的目录
+     * @throws IOException
+     *             文件为深层文件且cascade为false
      */
-    public static void createFile(String pathname, boolean cascade) throws IOException {
-        createFile(new File(pathname), cascade);
+    public static File createFile(String pathname, boolean cascade) throws IOException {
+        File file = new File(pathname);
+        createFile(file, cascade);
+        return file;
     }
 
     public static void createFile(File file, boolean cascade) throws IOException {
@@ -73,10 +118,25 @@ public class FileUtils {
         }
     }
 
+    public static void createDirectory(String pathname) throws IOException {
+        createDirectory(new File(pathname));
+    }
+
+    public static void createDirectory(File file) throws IOException {
+        if (file.exists()) {
+            if (!file.isDirectory()) {
+                throw new IOException("file is directory, " + file.getAbsolutePath());
+            }
+            return;
+        }
+        file.mkdirs();
+    }
+
     /**
      * 在临时目录中创建一个临时文件, 并根据输入设置是否在退出JVM后自动删除
      *
-     * @param deleteOnExist 是否退出jvm后删除
+     * @param deleteOnExist
+     *            是否退出jvm后删除
      * @return 临时文件
      * @throws IOException
      */
@@ -100,8 +160,10 @@ public class FileUtils {
     /**
      * 删除文件, 如果是文件夹根据级联标识判断是否删除文件夹
      *
-     * @param file    待删除的文件或文件夹
-     * @param cascade 是否允许删除目录
+     * @param file
+     *            待删除的文件或文件夹
+     * @param cascade
+     *            是否允许删除目录
      */
     public static boolean deleteFile(File file, boolean cascade) {
         if (!file.exists()) {
@@ -140,7 +202,8 @@ public class FileUtils {
     /**
      * 判断文件的编码格式.
      *
-     * @param pathname 文件路径.
+     * @param pathname
+     *            文件路径.
      * @return 文件编码格式
      * @throws IOException
      */
@@ -151,7 +214,8 @@ public class FileUtils {
     /**
      * 判断文件的编码格式.
      *
-     * @param file 文件对象.
+     * @param file
+     *            文件对象.
      * @return 文件编码格式
      * @throws IOException
      */
@@ -167,20 +231,20 @@ public class FileUtils {
         // 其中的 0xefbb、0xfffe、0xfeff、0x5c75这些都是这个文件的前面两个字节的16进制数
         String code = null;
         switch (p) {
-            case 0xefbb:
-                code = "UTF-8";
-                break;
-            case 0xfffe:
-                code = "Unicode";
-                break;
-            case 0xfeff:
-                code = "UTF-16BE";
-                break;
-            case 0x5c75:
-                code = "ASCII";
-                break;
-            default:
-                code = "GBK";
+        case 0xefbb:
+            code = "UTF-8";
+            break;
+        case 0xfffe:
+            code = "Unicode";
+            break;
+        case 0xfeff:
+            code = "UTF-16BE";
+            break;
+        case 0x5c75:
+            code = "ASCII";
+            break;
+        default:
+            code = "GBK";
         }
         return code;
     }
@@ -188,7 +252,8 @@ public class FileUtils {
     /**
      * 将文件读取为二进制字节数组
      *
-     * @param pathname 文件路径
+     * @param pathname
+     *            文件路径
      * @see #readByte(File)
      */
     public static byte[] readByte(String pathname) throws IOException {
@@ -198,9 +263,11 @@ public class FileUtils {
     /**
      * 将文件读取为二进制字节数组
      *
-     * @param file 文件
+     * @param file
+     *            文件
      * @return 文件对应的字节数组
-     * @throws IOException 不是文件或文件不存在
+     * @throws IOException
+     *             不是文件或文件不存在
      */
     public static byte[] readByte(File file) throws IOException {
         FileInputStream fis = new FileInputStream(file);
@@ -217,7 +284,8 @@ public class FileUtils {
     /**
      * 按文本方式读取文件
      *
-     * @param pathname 文件路径
+     * @param pathname
+     *            文件路径
      * @return 文件的文本内容
      * @throws IOException
      */
@@ -237,7 +305,8 @@ public class FileUtils {
     /**
      * 按文本方式读取文件
      *
-     * @param file 文件
+     * @param file
+     *            文件
      * @return 文件的文本内容
      * @throws IOException
      */
@@ -248,8 +317,10 @@ public class FileUtils {
     /**
      * 按指定编码encoding,读取文件文本
      *
-     * @param file     文件路径
-     * @param encoding 文件编码格式
+     * @param file
+     *            文件路径
+     * @param encoding
+     *            文件编码格式
      * @return 文件的文本内容
      * @throws IOException
      */
@@ -281,14 +352,17 @@ public class FileUtils {
     /**
      * 按行读取文件文本内容
      * <p>
+     * 
      * <pre>
      *     第一行 index = 0
      *     第二行 index = 1
      *     第n行 index = n+1
      * </pre>
      *
-     * @param file     待读取的文件
-     * @param encoding 指定的读取编码格式
+     * @param file
+     *            待读取的文件
+     * @param encoding
+     *            指定的读取编码格式
      * @return 文件的文本
      * @throws IOException
      */
@@ -336,8 +410,10 @@ public class FileUtils {
     /**
      * 将字节数组写入文件, 如果文件不存在将自动创建
      *
-     * @param file   待写入的文件
-     * @param binary 写入的字节数组
+     * @param file
+     *            待写入的文件
+     * @param binary
+     *            写入的字节数组
      * @throws IOException
      */
     public static void writeByte(File file, byte[] binary) throws IOException {
@@ -390,10 +466,14 @@ public class FileUtils {
     /**
      * 通过字符编码追加文本, 可以通过newLine选项是否行
      *
-     * @param file     待追加的文件
-     * @param text     追加的文本
-     * @param encoding 文本编码
-     * @param newLine  是否新行
+     * @param file
+     *            待追加的文件
+     * @param text
+     *            追加的文本
+     * @param encoding
+     *            文本编码
+     * @param newLine
+     *            是否新行
      * @throws IOException
      */
     public static void appendText(File file, String text, String encoding, boolean newLine) throws IOException {
@@ -411,8 +491,10 @@ public class FileUtils {
     /**
      * 在文件插入对应的字节内容,如果文件不存在则创建
      *
-     * @param file   待写入的文件
-     * @param binary 字节内容
+     * @param file
+     *            待写入的文件
+     * @param binary
+     *            字节内容
      * @throws IOException
      */
     public static void appendByte(File file, byte[] binary) throws IOException {
@@ -457,6 +539,7 @@ public class FileUtils {
     /**
      * 在文件指定行插入文本
      * <p>
+     * 
      * <pre>
      *     a.txt     insertText(a, 1, true, '1');   a.txt
      *     A                                        1
@@ -465,19 +548,25 @@ public class FileUtils {
      *                                              C
      *     ------------------------------------------------
      *     insertText(a, 1, false, '1')
-     *
+     * 
      *     a.txt
      *     1A
      *     B
      *     C
      * </pre>
      *
-     * @param file        待插入的文件
-     * @param lineNumber  指定的行
-     * @param autoNewLine 另取新行放置源文本
-     * @param text        插入的文本
-     * @param encoding    写入文件的字符编码
-     * @throws IOException 文件不存在
+     * @param file
+     *            待插入的文件
+     * @param lineNumber
+     *            指定的行
+     * @param autoNewLine
+     *            另取新行放置源文本
+     * @param text
+     *            插入的文本
+     * @param encoding
+     *            写入文件的字符编码
+     * @throws IOException
+     *             文件不存在
      */
     public static void insertText(File file, int lineNumber, boolean autoNewLine, String text, String encoding) throws IOException {
         if (StringUtils.isBlank(text)) {
@@ -505,8 +594,10 @@ public class FileUtils {
     /**
      * 自动插入空行
      *
-     * @param file  插入的文件
-     * @param lines 插入的行数
+     * @param file
+     *            插入的文件
+     * @param lines
+     *            插入的行数
      */
     private static void insertEmptyLine(File file, int lines) throws IOException {
         if (!file.exists() || file.isDirectory()) {
@@ -522,10 +613,14 @@ public class FileUtils {
     /**
      * 在指定seek位置插入字节内容
      *
-     * @param file     指定文件
-     * @param position 对应的seek位置
-     * @param binary   插入的字节内容
-     * @throws IOException 文件不存在
+     * @param file
+     *            指定文件
+     * @param position
+     *            对应的seek位置
+     * @param binary
+     *            插入的字节内容
+     * @throws IOException
+     *             文件不存在
      */
     public static void insertByteToPosition(File file, long position, byte[] binary) throws IOException {
         if (!file.exists() || file.isDirectory()) {
@@ -541,8 +636,10 @@ public class FileUtils {
     /**
      * 读取指定行的seek指针位置, 如果为找到指定行返回-1
      *
-     * @param file       查找的文件
-     * @param lineNumber 指定的文件行
+     * @param file
+     *            查找的文件
+     * @param lineNumber
+     *            指定的文件行
      * @return 文件中对应的行的seek
      * @throws IOException
      * @see {@link RandomAccessFile#getFilePointer()}

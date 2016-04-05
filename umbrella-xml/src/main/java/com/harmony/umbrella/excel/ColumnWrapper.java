@@ -15,15 +15,9 @@
  */
 package com.harmony.umbrella.excel;
 
-import org.apache.poi.ss.usermodel.Cell;
-
 /**
  * @author wuxii@foxmail.com
  */
-public interface CellResolver<T> {
-
-    Class<?> getTargetType();
-
-    T resolve(int rowIndex, int columnIndex, Cell cell);
+public interface ColumnWrapper {
 
 }

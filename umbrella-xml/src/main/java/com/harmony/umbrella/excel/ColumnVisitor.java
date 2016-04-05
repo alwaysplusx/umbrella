@@ -15,15 +15,13 @@
  */
 package com.harmony.umbrella.excel;
 
-import org.apache.poi.ss.usermodel.Cell;
-
 /**
  * @author wuxii@foxmail.com
  */
-public interface CellResolver<T> {
+public interface ColumnVisitor {
 
-    Class<?> getTargetType();
+    void visitHeader(int header, ColumnWrapper column);
 
-    T resolve(int rowIndex, int columnIndex, Cell cell);
+    boolean visitColumn(int y, ColumnWrapper column);
 
 }

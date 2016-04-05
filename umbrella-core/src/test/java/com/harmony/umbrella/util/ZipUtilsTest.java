@@ -13,17 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.umbrella.excel;
+package com.harmony.umbrella.util;
 
-import org.apache.poi.ss.usermodel.Cell;
+import java.io.IOException;
+import java.util.zip.ZipEntry;
+
+import com.harmony.umbrella.util.ZipUtils.ZipEntryFilter;
 
 /**
  * @author wuxii@foxmail.com
  */
-public interface CellResolver<T> {
+public class ZipUtilsTest {
 
-    Class<?> getTargetType();
-
-    T resolve(int rowIndex, int columnIndex, Cell cell);
-
+    public static void main(String[] args) throws IOException {
+        ZipUtils.unzip("a.zip", "D:/unzip", new ZipEntryFilter() {
+            @Override
+            public boolean accept(ZipEntry entry) {
+                return false;
+            }
+        });
+    }
 }

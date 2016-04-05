@@ -13,17 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.umbrella.excel;
-
-import org.apache.poi.ss.usermodel.Cell;
+package com.harmony.umbrella.util;
 
 /**
  * @author wuxii@foxmail.com
  */
-public interface CellResolver<T> {
+public class DigitTest {
 
-    Class<?> getTargetType();
-
-    T resolve(int rowIndex, int columnIndex, Cell cell);
+    public static void main(String[] args) {
+        System.out.println(Integer.toHexString(12));
+    }
 
 }

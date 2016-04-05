@@ -15,6 +15,9 @@
  */
 package com.harmony.umbrella.excel;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.poi.ss.usermodel.Sheet;
 
 /**
@@ -22,60 +25,68 @@ import org.apache.poi.ss.usermodel.Sheet;
  */
 public class SheetReader {
 
-    private int header = 0;
-    private Sheet sheet;
-    private int startRow = 0;
+    private final Sheet sheet;
 
-    public SheetReader(Sheet sheet) {
+    private int header = 0;
+
+    private int startRow = 0;
+    private int endRow = -1;
+
+    public SheetReader(Sheet sheet, int header, int startRow, int endRow) {
         this.sheet = sheet;
+        this.header = header;
+        this.startRow = startRow;
+        this.endRow = endRow;
+    }
+
+    public static SheetReader create(Sheet sheet) {
+        return create(sheet, 0, 1);
+    }
+
+    public static SheetReader create(Sheet sheet, int header, int startRow) {
+        return create(sheet, header, startRow, -1);
+    }
+
+    public static SheetReader create(Sheet sheet, int header, int startRow, int endRow) {
+        return new SheetReader(sheet, header, startRow, endRow);
     }
 
     public void read(RowVisitor visitor) {
-        int maxRow = getMaxRow();
-
-        this.readHeader(visitor);
-
-        for (int row = this.startRow; row < maxRow; row++) {
-            if (isHeaderRow(row)) {
+        // header first
+        visitor.visitHeader(header, readHeader());
+        for (int rowNum = this.startRow, maxRow = getMaxRowNumber(); rowNum < maxRow; rowNum++) {
+            if (isHeaderRow(rowNum)) {
                 continue;
             }
-            if (!visitor.visitRow(row, new RowWrapper(sheet.getRow(row)))) {
-                break;
-            }
+            visitor.visitRow(rowNum, new RowWrapper(sheet.getRow(rowNum)));
         }
+    }
+
+    public RowWrapper readHeader() {
+        return new RowWrapper(sheet.getRow(header));
+    }
+
+    public RowWrapper[] readContent() {
+        int maxRow = getMaxRowNumber();
+        List<RowWrapper> rows = new ArrayList<RowWrapper>(maxRow);
+        for (int rowNum = this.startRow; rowNum < maxRow; rowNum++) {
+            if (isHeaderRow(rowNum)) {
+                continue;
+            }
+            rows.add(new RowWrapper(sheet.getRow(rowNum)));
+        }
+        return rows.toArray(new RowWrapper[rows.size()]);
     }
 
     public boolean isHeaderRow(int row) {
         return row == header;
     }
 
-    public void readHeader(RowVisitor visitor) {
-        visitor.visitHeader(header, new RowWrapper(sheet.getRow(header)));
+    public int getMaxRowNumber() {
+        if (endRow == -1) {
+            return ExcelUtil.getMaxRowNumber(sheet);
+        }
+        return endRow;
     }
 
-    public int getMaxRow() {
-        return sheet.getLastRowNum();
-    }
-
-    /*public static void main(String[] args) throws IOException {
-        new SheetReader(ExcelUtil.getFirstSheet("src/test/resources/a.xlsx")).read(new RowVisitor() {
-
-            @Override
-            public void visitHeader(int header, RowWrapper row) {
-                for (Cell cell : row) {
-                    System.out.print("   " + ExcelUtil.getCellValue(cell) + "    ");
-                }
-                System.out.println();
-            }
-
-            @Override
-            public boolean visitRow(int y, RowWrapper row) {
-                for (Cell cell : row) {
-                    System.out.print(" " + ExcelUtil.getCellValue(cell) + "  ");
-                }
-                System.out.println();
-                return true;
-            }
-        });
-    }*/
 }

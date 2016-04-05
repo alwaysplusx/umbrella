@@ -13,17 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.umbrella.excel;
+package com.harmony.umbrella.excel.support;
 
 import org.apache.poi.ss.usermodel.Cell;
+
+import com.harmony.umbrella.excel.ExcelUtil;
 
 /**
  * @author wuxii@foxmail.com
  */
-public interface CellResolver<T> {
+public class StringCellResolver extends AbstractCellResolver<String> {
 
-    Class<?> getTargetType();
-
-    T resolve(int rowIndex, int columnIndex, Cell cell);
+    @Override
+    public String resolve(int rowIndex, int columnIndex, Cell cell) {
+        return ExcelUtil.getCellStringValue(cell);
+    }
 
 }

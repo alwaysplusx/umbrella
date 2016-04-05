@@ -19,6 +19,6 @@ public interface RowVisitor {
 
     void visitHeader(int header, RowWrapper row);
 
-    boolean visitRow(int y, RowWrapper row);
+    boolean visitRow(int rowNum, RowWrapper row);
 
 }

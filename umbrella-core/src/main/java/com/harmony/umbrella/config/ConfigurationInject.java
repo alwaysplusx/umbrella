@@ -13,17 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.umbrella.excel;
-
-import org.apache.poi.ss.usermodel.Cell;
+package com.harmony.umbrella.config;
 
 /**
  * @author wuxii@foxmail.com
  */
-public interface CellResolver<T> {
+public interface ConfigurationInject<T> {
 
-    Class<?> getTargetType();
-
-    T resolve(int rowIndex, int columnIndex, Cell cell);
+    void config(T t);
 
 }

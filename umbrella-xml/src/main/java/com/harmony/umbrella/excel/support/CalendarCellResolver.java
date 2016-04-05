@@ -13,17 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.umbrella.excel;
+package com.harmony.umbrella.excel.support;
+
+import java.util.Calendar;
 
 import org.apache.poi.ss.usermodel.Cell;
 
 /**
  * @author wuxii@foxmail.com
  */
-public interface CellResolver<T> {
+public class CalendarCellResolver extends AbstractCellResolver<Calendar> {
 
-    Class<?> getTargetType();
-
-    T resolve(int rowIndex, int columnIndex, Cell cell);
+    @Override
+    public Calendar resolve(int rowIndex, int columnIndex, Cell cell) {
+        return null;
+    }
 
 }
