@@ -4,10 +4,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
@@ -178,8 +176,16 @@ public class ExcelUtil {
 
     // cell util method
 
-    public static <T> T toEntity(Row row, Map<Integer, Method> fieldMethodMap, Class<T> entityType) {
+    /*public static <T> T toEntity(Row row, Map<Integer, Method> fieldMethodMap, Class<T> entityType) {
         return null;
+    }*/
+
+    public static void readSheet(Sheet sheet, RowVisitor visitor) {
+        readSheet(sheet, 0, 1, visitor);
+    }
+
+    public static void readSheet(Sheet sheet, int header, int startRow, RowVisitor visitor) {
+        SheetReader.create(sheet, header, startRow).read(visitor);
     }
 
     public static String getCellStringValue(Cell cell) {
@@ -199,11 +205,11 @@ public class ExcelUtil {
             result = cell.getBooleanCellValue();
             break;
         case Cell.CELL_TYPE_FORMULA:
-            //公式型
-            //result = cell.getCellFormula();   //获取公式表达式
+            // 公式型
+            // result = cell.getCellFormula(); //获取公式表达式
             try {
                 result = cell.getNumericCellValue();
-                //获取计算后结果
+                // 获取计算后结果
             } catch (IllegalStateException e) {
                 try {
                     result = cell.getRichStringCellValue();

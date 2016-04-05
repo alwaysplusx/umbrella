@@ -13,26 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.umbrella;
+package com.harmony.umbrella.excel.cell;
 
-import java.util.Map;
+import org.apache.poi.ss.usermodel.Cell;
 
-import com.harmony.umbrella.excel.cell.BooleanCellResolver;
-import com.harmony.umbrella.util.GenericUtils;
+import com.harmony.umbrella.excel.ExcelUtil;
 
 /**
  * @author wuxii@foxmail.com
  */
-@SuppressWarnings("all")
-public class GenericsTest {
+public class BooleanCellResolver extends AbstractCellResolver<Boolean> {
 
-    public static void main(String[] args) {
-        Map<Class, Class[]> generics = GenericUtils.getGenerics(BooleanCellResolver.class);
-        for (Class[] cs : generics.values()) {
-            for (Class c : cs) {
-                System.out.println(c);
-            }
-        }
+    public static final BooleanCellResolver INSTANCE = new BooleanCellResolver();
+
+    @Override
+    public Boolean resolve(int rowIndex, int columnIndex, Cell cell) {
+        return Boolean.valueOf(ExcelUtil.getCellStringValue(cell));
     }
 
 }

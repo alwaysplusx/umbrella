@@ -15,7 +15,9 @@
  */
 package com.harmony.umbrella.excel;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
@@ -31,6 +33,20 @@ public class RowWrapper implements Row {
 
     public RowWrapper(Row row) {
         this.row = row;
+    }
+
+    /*public void earchCell(CellVisitor visitor) {
+        for (Cell c : row) {
+            visitor.visitorCell(c.getRowIndex(), c.getColumnIndex(), new CellWrapper(c));
+        }
+    }*/
+
+    public List<CellWrapper> getCellWrappers() {
+        List<CellWrapper> cws = new ArrayList<CellWrapper>();
+        for (Cell c : row) {
+            cws.add(new CellWrapper(c));
+        }
+        return cws;
     }
 
     @Override
@@ -61,6 +77,14 @@ public class RowWrapper implements Row {
     @Override
     public int getRowNum() {
         return row.getRowNum();
+    }
+
+    public CellWrapper getCellWrapper(int cellnum) {
+        return new CellWrapper(getCell(cellnum));
+    }
+
+    public CellWrapper getCellWrapper(int cellnum, MissingCellPolicy policy) {
+        return new CellWrapper(getCell(cellnum, policy));
     }
 
     @Override
