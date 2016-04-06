@@ -71,7 +71,7 @@ public class ExcelUtilTest {
     @Test
     public void testSheetReader() throws IOException {
         Sheet sheet = ExcelUtil.getSheet(xls, 0);
-        SheetReader sr = SheetReader.create(sheet, 0, 0);
+        SheetReader sr = new SheetReader(sheet, 0, 0);
         sr.read(new RowVisitor() {
 
             @Override
@@ -96,7 +96,7 @@ public class ExcelUtilTest {
 
     @Test
     public void testGetCellValue() throws IOException {
-        Sheet sheet = ExcelUtil.getSheet(xls, 2);
+        Sheet sheet = ExcelUtil.getSheet(xls, "");
         Row row = sheet.getRow(0);
         for (Cell cell : row) {
             System.out.println(ExcelUtil.toCellName(cell) + ", " + ExcelUtil.getStringCellValue(cell));

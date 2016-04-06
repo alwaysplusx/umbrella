@@ -53,10 +53,24 @@ public class ExcelUtil {
      */
     private static final String TYPE_XLSX = "d0cf11e0";
 
+    /**
+     * 根据文件路径获取工作簿
+     *
+     * @param path 文件路径
+     * @return 工作簿
+     * @throws IOException 指定路径文件不存在
+     */
     public static Workbook getWorkBook(String path) throws IOException {
         return getWorkBook(new File(path));
     }
 
+    /**
+     * 根据文件获取工作簿
+     *
+     * @param file 文件
+     * @return 工作簿
+     * @throws IOException 指定文件不存在
+     */
     public static Workbook getWorkBook(File file) throws IOException {
         if (!file.isFile()) {
             throw new IOException(file.getAbsolutePath() + " not a file");
@@ -68,6 +82,14 @@ public class ExcelUtil {
         return getWorkBook(new FileInputStream(file), type);
     }
 
+    /**
+     * 从输入流中读取错指定类型的工作簿
+     *
+     * @param is   输入流
+     * @param type 文件类型 'xls'或'xlsx'
+     * @return 工作簿
+     * @throws IOException
+     */
     public static Workbook getWorkBook(InputStream is, String type) throws IOException {
         if (EXTENSION_XLS.equals(type)) {
             return new HSSFWorkbook(is);
@@ -77,18 +99,49 @@ public class ExcelUtil {
         throw new IOException("unrecognized excel file");
     }
 
+    /**
+     * 从文件中读取出指定工作表格名称的表格
+     *
+     * @param file      文件
+     * @param sheetName 表格名称
+     * @return 指定名称的表格, 如果指定名称的表格不存在返回null
+     * @throws IOException 文件不存在
+     */
     public static Sheet getSheet(File file, String sheetName) throws IOException {
         return getWorkBook(file).getSheet(sheetName);
     }
 
+    /**
+     * 读取文件中第一个表格
+     *
+     * @param file 文件
+     * @return index为0的第一个表格
+     * @throws IOException 文件不存在
+     */
     public static Sheet getFirstSheet(File file) throws IOException {
         return getSheet(file, 0);
     }
 
+    /**
+     * 读取指定index的表格, index由0开始
+     *
+     * @param file       文件
+     * @param sheetIndex 表格的index
+     * @return 表格
+     * @throws IOException              文件不存在
+     * @throws IllegalArgumentException 指定的index超出最大的index
+     */
     public static Sheet getSheet(File file, int sheetIndex) throws IOException {
         return getWorkBook(file).getSheetAt(sheetIndex);
     }
 
+    /**
+     * 读取出文件中所有的工作表格
+     *
+     * @param file excel文件
+     * @return 工作簿中的所有表格
+     * @throws IOException 文件不存在
+     */
     public static Sheet[] getSheets(File file) throws IOException {
         Workbook wb = getWorkBook(file);
         int sheetCount = wb.getNumberOfSheets();
@@ -99,12 +152,26 @@ public class ExcelUtil {
         return sheets;
     }
 
+    /**
+     * 表格的第一行做表头,从第2行内容开始读取.使用visitor读取表格
+     *
+     * @param sheet   表格
+     * @param visitor 按行读取工具
+     */
     public static void readSheet(Sheet sheet, RowVisitor visitor) {
         readSheet(sheet, 0, 1, visitor);
     }
 
+    /**
+     * 从指定的行读取sheet, 支持自定义行头以及开始行
+     *
+     * @param sheet    表格
+     * @param header   表头的行
+     * @param startRow 开始读取的行
+     * @param visitor  按行读取工具
+     */
     public static void readSheet(Sheet sheet, int header, int startRow, RowVisitor visitor) {
-        SheetReader.create(sheet, header, startRow).read(visitor);
+        new SheetReader(sheet, header, startRow).read(visitor);
     }
 
     /**
@@ -132,21 +199,10 @@ public class ExcelUtil {
         return row.getLastCellNum();
     }
 
-    public static Cell[] getCells(Sheet sheet, int rowNum) {
-        List<Cell> cells = new ArrayList<Cell>();
-        Row row = sheet.getRow(rowNum);
-        if (row != null) {
-            for (Cell cell : row) {
-                cells.add(cell);
-            }
-        }
-        return cells.toArray(new Cell[cells.size()]);
-    }
-
     /**
      * 按行列号定位cell
      *
-     * @param sheet  工作表
+     * @param sheet     工作表
      * @param rowNum    行号
      * @param columnNum 列号
      * @return cell
@@ -157,6 +213,17 @@ public class ExcelUtil {
             return row.getCell(columnNum);
         }
         return null;
+    }
+
+    public static Cell[] getCells(Sheet sheet, int rowNum) {
+        List<Cell> cells = new ArrayList<Cell>();
+        Row row = sheet.getRow(rowNum);
+        if (row != null) {
+            for (Cell cell : row) {
+                cells.add(cell);
+            }
+        }
+        return cells.toArray(new Cell[cells.size()]);
     }
 
     /**
@@ -183,16 +250,31 @@ public class ExcelUtil {
 
     // cell value util
 
+    /**
+     * 将cell对应文本值转化为输入的枚举对象, 采用文本匹配方式(忽略大小写)
+     *
+     * @param cell     单元格
+     * @param enumType 枚举类型
+     * @param <T>      枚举
+     * @return 与cell文本匹配的枚举类
+     */
     @SuppressWarnings("rawtypes")
     public static <T extends Enum> T getEnumCellValue(Cell cell, Class<T> enumType) {
         for (T t : enumType.getEnumConstants()) {
-            if (t.name().equals(cell.getStringCellValue())) {
+            if (t.name().equalsIgnoreCase(cell.getStringCellValue())) {
                 return t;
             }
         }
         return null;
     }
 
+    /**
+     * 获取cell的boolean值, 如果不是{@linkplain Cell#CELL_TYPE_BOOLEAN}
+     * 则通过Boolean.valueOf()判定boolean值
+     *
+     * @param cell 单元格
+     * @return boolean
+     */
     public static Boolean getBooleanCellValue(Cell cell) {
         if (Cell.CELL_TYPE_BOOLEAN == cell.getCellType()) {
             return cell.getBooleanCellValue();
@@ -200,6 +282,12 @@ public class ExcelUtil {
         return Boolean.valueOf(getStringCellValue(cell));
     }
 
+    /**
+     * 获取cell的数值
+     *
+     * @param cell 单元格
+     * @return number
+     */
     public static Number getNumberCellValue(Cell cell) {
         if (Cell.CELL_TYPE_NUMERIC == cell.getCellType()) {
             return cell.getNumericCellValue();
@@ -209,6 +297,13 @@ public class ExcelUtil {
         return new BigDecimal(getStringCellValue(cell));
     }
 
+    /**
+     * 如果cell是{@linkplain Cell#CELL_TYPE_NUMERIC} &&
+     * {@linkplain DateUtil#isCellDateFormatted(Cell)}成立则返回单元格对应的时间
+     *
+     * @param cell 单元格
+     * @return date
+     */
     public static Date getDateCellValue(Cell cell) {
         if (DateUtil.isCellDateFormatted(cell)) {
             return cell.getDateCellValue();
@@ -216,6 +311,15 @@ public class ExcelUtil {
         return null;
     }
 
+    /**
+     * 如果cell是{@linkplain Cell#CELL_TYPE_NUMERIC} &&
+     * {@linkplain DateUtil#isCellDateFormatted(Cell)}成立则返回单元格对应的时间.
+     * 如果对应的时间是文本格式通过{@linkplain SimpleDateFormat}转化后返回对应的时间
+     *
+     * @param cell    单元格
+     * @param pattern 时间格式化的模版
+     * @return date
+     */
     public static Date getDateCellValue(Cell cell, String pattern) throws ParseException {
         if (DateUtil.isCellDateFormatted(cell)) {
             return cell.getDateCellValue();
@@ -223,6 +327,12 @@ public class ExcelUtil {
         return new SimpleDateFormat(pattern).parse(getStringCellValue(cell));
     }
 
+    /**
+     * 将cell的值转为文本值返回
+     *
+     * @param cell 单元格
+     * @return string
+     */
     public static String getStringCellValue(Cell cell) {
         Object result = null;
         switch (cell.getCellType()) {
@@ -266,7 +376,7 @@ public class ExcelUtil {
 
     // judge method
 
-    public static String toColumnName(int column) {
+    private static String toColumnName(int column) {
         String columnName = ALPHABETIC[column % 26 - 1];
         while (column / 26 > 0) {
             column = column / 26;
@@ -275,18 +385,36 @@ public class ExcelUtil {
         return columnName;
     }
 
+    /**
+     * 返回单元格对应的坐标名称, 如: (0, 0) -> A1
+     *
+     * @param cell 单元格
+     * @return 单元格名称
+     */
     public static String toCellName(Cell cell) {
         return toColumnName(cell.getColumnIndex() + 1) + (cell.getRowIndex() + 1);
     }
 
+    /**
+     * @see #isXls(File)
+     */
     public static boolean isXls(String pathname) {
         return isXls(new File(pathname));
     }
 
+    /**
+     * @see #isXlsx(File)
+     */
     public static boolean isXlsx(String pathname) {
         return isXlsx(new File(pathname));
     }
 
+    /**
+     * 通过扩展名判断是否是excel xls类型文件, 如果无法通过文件扩展名判断则通过读取文件首的4个字符判断文件类型
+     *
+     * @param file 文件路径
+     * @return
+     */
     public static boolean isXls(File file) {
         String extension = FileUtils.getExtension(file);
         if (StringUtils.isBlank(extension)) {
@@ -299,6 +427,12 @@ public class ExcelUtil {
         return EXTENSION_XLS.equals(extension);
     }
 
+    /**
+     * 通过扩展名判断是否是excel xlsx类型文件, 如果无法通过文件扩展名判断则通过读取文件首的4个字符判断文件类型
+     *
+     * @param file 文件路径
+     * @return
+     */
     public static boolean isXlsx(File file) {
         String extension = FileUtils.getExtension(file);
         if (StringUtils.isBlank(extension)) {
