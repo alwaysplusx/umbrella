@@ -19,6 +19,8 @@ import java.util.Date;
 
 import org.apache.poi.ss.usermodel.Cell;
 
+import com.harmony.umbrella.excel.ExcelUtil;
+
 /**
  * @author wuxii@foxmail.com
  */
@@ -28,7 +30,7 @@ public class DateCellResolver extends AbstractCellResolver<Date> {
 
     @Override
     public Date resolve(int rowIndex, int columnIndex, Cell cell) {
-        return null;
+        return ExcelUtil.getDateCellValue(cell);
     }
 
 }

@@ -4,7 +4,11 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.math.BigDecimal;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -19,7 +23,7 @@ import com.harmony.umbrella.util.FileUtils;
 import com.harmony.umbrella.util.StringUtils;
 
 /**
- * 
+ *
  */
 public class ExcelUtil {
 
@@ -77,6 +81,10 @@ public class ExcelUtil {
         return getWorkBook(file).getSheet(sheetName);
     }
 
+    public static Sheet getFirstSheet(File file) throws IOException {
+        return getSheet(file, 0);
+    }
+
     public static Sheet getSheet(File file, int sheetIndex) throws IOException {
         return getWorkBook(file).getSheetAt(sheetIndex);
     }
@@ -91,11 +99,18 @@ public class ExcelUtil {
         return sheets;
     }
 
+    public static void readSheet(Sheet sheet, RowVisitor visitor) {
+        readSheet(sheet, 0, 1, visitor);
+    }
+
+    public static void readSheet(Sheet sheet, int header, int startRow, RowVisitor visitor) {
+        SheetReader.create(sheet, header, startRow).read(visitor);
+    }
+
     /**
      * 排除空行的最大行数. 文件行数从0开始
-     * 
-     * @param sheet
-     *            工作表
+     *
+     * @param sheet 工作表
      * @return 最大行数
      */
     public static int getMaxRowNumber(Sheet sheet) {
@@ -104,11 +119,9 @@ public class ExcelUtil {
 
     /**
      * 表格指定行中的最大列, 列数从0开始计算
-     * 
-     * @param sheet
-     *            工作表
-     * @param rowNum
-     *            指定行
+     *
+     * @param sheet  工作表
+     * @param rowNum 指定行
      * @return 最大列
      */
     public static int getMaxCellNumber(Sheet sheet, int rowNum) {
@@ -132,13 +145,10 @@ public class ExcelUtil {
 
     /**
      * 按行列号定位cell
-     * 
-     * @param sheet
-     *            工作表
-     * @param row
-     *            行号
-     * @param column
-     *            列号
+     *
+     * @param sheet  工作表
+     * @param rowNum    行号
+     * @param columnNum 列号
      * @return cell
      */
     public static Cell getCell(Sheet sheet, int rowNum, int columnNum) {
@@ -151,13 +161,10 @@ public class ExcelUtil {
 
     /**
      * 检测指定行列的cell是否是空cell(cell为null或者cell中的文本是empty)
-     * 
-     * @param sheet
-     *            工作表
-     * @param rowNum
-     *            行号
-     * @param columnNum
-     *            列号
+     *
+     * @param sheet     工作表
+     * @param rowNum    行号
+     * @param columnNum 列号
      * @return
      */
     public static boolean isEmptyCell(Sheet sheet, int rowNum, int columnNum) {
@@ -174,59 +181,87 @@ public class ExcelUtil {
         return row != null && row.getFirstCellNum() != -1;
     }
 
-    // cell util method
+    // cell value util
 
-    /*public static <T> T toEntity(Row row, Map<Integer, Method> fieldMethodMap, Class<T> entityType) {
-        return null;
-    }*/
-
-    public static void readSheet(Sheet sheet, RowVisitor visitor) {
-        readSheet(sheet, 0, 1, visitor);
-    }
-
-    public static void readSheet(Sheet sheet, int header, int startRow, RowVisitor visitor) {
-        SheetReader.create(sheet, header, startRow).read(visitor);
-    }
-
-    public static String getCellStringValue(Cell cell) {
-        Object result = "";
-        switch (cell.getCellType()) {
-        case Cell.CELL_TYPE_STRING:
-            result = cell.getStringCellValue();
-            break;
-        case Cell.CELL_TYPE_NUMERIC:
-            if (DateUtil.isCellDateFormatted(cell)) {
-                result = cell.getDateCellValue().toString();
-            } else {
-                result = cell.getNumericCellValue();
+    @SuppressWarnings("rawtypes")
+    public static <T extends Enum> T getEnumCellValue(Cell cell, Class<T> enumType) {
+        for (T t : enumType.getEnumConstants()) {
+            if (t.name().equals(cell.getStringCellValue())) {
+                return t;
             }
-            break;
-        case Cell.CELL_TYPE_BOOLEAN:
-            result = cell.getBooleanCellValue();
-            break;
-        case Cell.CELL_TYPE_FORMULA:
-            // 公式型
-            // result = cell.getCellFormula(); //获取公式表达式
-            try {
-                result = cell.getNumericCellValue();
-                // 获取计算后结果
-            } catch (IllegalStateException e) {
-                try {
-                    result = cell.getRichStringCellValue();
-                } catch (IllegalStateException e1) {
-                    result = cell.getCellFormula();
-                }
-            }
-            break;
-        case Cell.CELL_TYPE_ERROR:
-            result = cell.getErrorCellValue();
-            break;
-        case Cell.CELL_TYPE_BLANK:
-            break;
-        default:
-            break;
         }
-        return result.toString();
+        return null;
+    }
+
+    public static Boolean getBooleanCellValue(Cell cell) {
+        if (Cell.CELL_TYPE_BOOLEAN == cell.getCellType()) {
+            return cell.getBooleanCellValue();
+        }
+        return Boolean.valueOf(getStringCellValue(cell));
+    }
+
+    public static Number getNumberCellValue(Cell cell) {
+        if (Cell.CELL_TYPE_NUMERIC == cell.getCellType()) {
+            return cell.getNumericCellValue();
+        } else if (Cell.CELL_TYPE_FORMULA == cell.getCellType()) {
+            return cell.getNumericCellValue();
+        }
+        return new BigDecimal(getStringCellValue(cell));
+    }
+
+    public static Date getDateCellValue(Cell cell) {
+        if (DateUtil.isCellDateFormatted(cell)) {
+            return cell.getDateCellValue();
+        }
+        return null;
+    }
+
+    public static Date getDateCellValue(Cell cell, String pattern) throws ParseException {
+        if (DateUtil.isCellDateFormatted(cell)) {
+            return cell.getDateCellValue();
+        }
+        return new SimpleDateFormat(pattern).parse(getStringCellValue(cell));
+    }
+
+    public static String getStringCellValue(Cell cell) {
+        Object result = null;
+        switch (cell.getCellType()) {
+            case Cell.CELL_TYPE_STRING:
+                result = cell.getStringCellValue();
+                break;
+            case Cell.CELL_TYPE_NUMERIC:
+                if (DateUtil.isCellDateFormatted(cell)) {
+                    result = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(cell.getDateCellValue());
+                } else {
+                    result = cell.getNumericCellValue();
+                }
+                break;
+            case Cell.CELL_TYPE_BOOLEAN:
+                result = cell.getBooleanCellValue();
+                break;
+            case Cell.CELL_TYPE_FORMULA:
+                // 公式型
+                try {
+                    // 获取计算后结果
+                    result = cell.getNumericCellValue();
+                } catch (IllegalStateException e) {
+                    try {
+                        result = cell.getRichStringCellValue();
+                    } catch (IllegalStateException e1) {
+                        result = cell.getCellFormula();
+                    }
+                }
+                break;
+            case Cell.CELL_TYPE_ERROR:
+                result = cell.getErrorCellValue();
+                break;
+            case Cell.CELL_TYPE_BLANK:
+                result = "";
+                break;
+            default:
+                break;
+        }
+        return result == null ? null : result.toString();
     }
 
     // judge method
@@ -238,6 +273,10 @@ public class ExcelUtil {
             columnName = ALPHABETIC[column % 26 - 1] + columnName;
         }
         return columnName;
+    }
+
+    public static String toCellName(Cell cell) {
+        return toColumnName(cell.getColumnIndex() + 1) + (cell.getRowIndex() + 1);
     }
 
     public static boolean isXls(String pathname) {
@@ -274,7 +313,7 @@ public class ExcelUtil {
 
     /**
      * 读取文件的头, 首位的4个字节
-     * 
+     *
      * @throws IOException
      */
     private static String getType(File file) throws IOException {
@@ -292,18 +331,4 @@ public class ExcelUtil {
         return sb.toString();
     }
 
-    public static void main(String[] args) {
-        System.out.println(toColumnName(1024));
-        /*System.out.println(num + ", " + ALPHABETIC[num % 26 - 1]);
-        System.out.println(num / 26 + ", " + ALPHABETIC[num / 26 % 26 - 1]);
-        System.out.println(num / 26 / 26 + " ," + ALPHABETIC[num / 26 / 26 % 26 - 1]);
-        do {
-            System.out.print(ALPHABETIC[num % 26 - 1]);
-            num = num / 26;
-        } while (num > 26);
-        System.out.println(ALPHABETIC[num - 1]);*/
-        // System.out.println(num + ", " + ALPHABETIC[num - 1]);
-
-        // System.out.println(ALPHABETIC[num / 26]);
-    }
 }

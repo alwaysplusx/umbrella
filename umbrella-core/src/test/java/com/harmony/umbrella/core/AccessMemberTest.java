@@ -13,17 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.umbrella.excel;
-
-import org.apache.poi.ss.usermodel.Cell;
+package com.harmony.umbrella.core;
 
 /**
  * @author wuxii@foxmail.com
  */
-public interface CellResolver<T> {
+public class AccessMemberTest {
 
-    boolean isTargetType(Class<?> targetType);
+    public static void main(String[] args) {
+        AccessMember member = new AccessMember(A.class, "name");
+        A a = new A();
+        System.out.println(member.get(a));
+        member.set(a, "wuxii");
+        System.out.println(a.name);
+    }
 
-    T resolve(int rowIndex, int columnIndex, Cell cell);
+    public static class A {
+        String name = "b";
+    }
 
 }

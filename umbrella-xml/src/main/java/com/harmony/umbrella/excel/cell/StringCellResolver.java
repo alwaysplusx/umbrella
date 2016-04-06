@@ -28,7 +28,7 @@ public class StringCellResolver extends AbstractCellResolver<String> {
 
     @Override
     public String resolve(int rowIndex, int columnIndex, Cell cell) {
-        return ExcelUtil.getCellStringValue(cell);
+        return ExcelUtil.getStringCellValue(cell);
     }
 
 }

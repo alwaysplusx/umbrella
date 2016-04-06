@@ -35,12 +35,6 @@ public class RowWrapper implements Row {
         this.row = row;
     }
 
-    /*public void earchCell(CellVisitor visitor) {
-        for (Cell c : row) {
-            visitor.visitorCell(c.getRowIndex(), c.getColumnIndex(), new CellWrapper(c));
-        }
-    }*/
-
     public List<CellWrapper> getCellWrappers() {
         List<CellWrapper> cws = new ArrayList<CellWrapper>();
         for (Cell c : row) {

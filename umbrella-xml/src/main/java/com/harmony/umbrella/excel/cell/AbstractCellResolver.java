@@ -24,9 +24,14 @@ import com.harmony.umbrella.excel.CellResolver;
  */
 public abstract class AbstractCellResolver<T> implements CellResolver<T> {
 
-    @SuppressWarnings("unchecked")
     @Override
-    public Class<T> getTargetType() {
+    public boolean isTargetType(Class<?> targetType) {
+        // 直接通过泛型判断类型匹配
+        return getTargetType() == targetType;
+    }
+
+    @SuppressWarnings("unchecked")
+    protected Class<T> getTargetType() {
         ParameterizedType pt = findParameterizedType(getClass());
         if (pt != null) {
             return (Class<T>) pt.getActualTypeArguments()[0];

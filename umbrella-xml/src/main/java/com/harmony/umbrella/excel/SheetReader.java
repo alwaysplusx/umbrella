@@ -18,6 +18,7 @@ package com.harmony.umbrella.excel;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 
 /**
@@ -58,24 +59,24 @@ public class SheetReader {
             if (isHeaderRow(rowNum)) {
                 continue;
             }
-            visitor.visitRow(rowNum, new RowWrapper(sheet.getRow(rowNum)));
+            visitor.visitRow(rowNum, sheet.getRow(rowNum));
         }
     }
 
-    public RowWrapper readHeader() {
-        return new RowWrapper(sheet.getRow(header));
+    public Row readHeader() {
+        return sheet.getRow(header);
     }
 
-    public RowWrapper[] readContent() {
+    public Row[] readContent() {
         int maxRow = getMaxRowNumber();
-        List<RowWrapper> rows = new ArrayList<RowWrapper>(maxRow);
+        List<Row> rows = new ArrayList<Row>(maxRow);
         for (int rowNum = this.startRow; rowNum < maxRow; rowNum++) {
             if (isHeaderRow(rowNum)) {
                 continue;
             }
-            rows.add(new RowWrapper(sheet.getRow(rowNum)));
+            rows.add(sheet.getRow(rowNum));
         }
-        return rows.toArray(new RowWrapper[rows.size()]);
+        return rows.toArray(new Row[rows.size()]);
     }
 
     public boolean isHeaderRow(int row) {

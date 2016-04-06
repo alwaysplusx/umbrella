@@ -27,8 +27,13 @@ public class BooleanCellResolver extends AbstractCellResolver<Boolean> {
     public static final BooleanCellResolver INSTANCE = new BooleanCellResolver();
 
     @Override
+    public boolean isTargetType(Class<?> targetType) {
+        return Boolean.TYPE == targetType || Boolean.class == targetType;
+    }
+
+    @Override
     public Boolean resolve(int rowIndex, int columnIndex, Cell cell) {
-        return Boolean.valueOf(ExcelUtil.getCellStringValue(cell));
+        return ExcelUtil.getBooleanCellValue(cell);
     }
 
 }

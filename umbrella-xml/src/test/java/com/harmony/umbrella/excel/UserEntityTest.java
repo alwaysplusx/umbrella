@@ -15,15 +15,23 @@
  */
 package com.harmony.umbrella.excel;
 
-import org.apache.poi.ss.usermodel.Cell;
+import java.io.File;
+import java.io.IOException;
+
+import org.apache.poi.ss.usermodel.Sheet;
 
 /**
  * @author wuxii@foxmail.com
  */
-public interface CellResolver<T> {
+public class UserEntityTest {
 
-    boolean isTargetType(Class<?> targetType);
-
-    T resolve(int rowIndex, int columnIndex, Cell cell);
-
+    public static void main(String[] args) throws IOException {
+        Sheet sheet = ExcelUtil.getFirstSheet(new File("src/test/resources/excel/user.xls"));
+        SheetReader reader = SheetReader.create(sheet, 0, 1);
+        RowEntityMapper<User> emrv = RowEntityMapper.create(User.class, new String[] { "name", "age", "man" });
+        reader.read(emrv);
+        for (User u : emrv.getEntities()) {
+            System.out.println(u);
+        }
+    }
 }

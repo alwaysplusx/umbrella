@@ -15,7 +15,6 @@
  */
 package com.harmony.umbrella.excel.cell;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -30,7 +29,7 @@ import com.harmony.umbrella.excel.CellResolver;
 @SuppressWarnings("rawtypes")
 public class CellResolverChain {
 
-    public static final List<CellResolver> RESOLVERS;
+    protected static final List<CellResolver> RESOLVERS;
 
     static {
         List<CellResolver> resolvers = new ArrayList<CellResolver>();
@@ -43,8 +42,22 @@ public class CellResolverChain {
         RESOLVERS = Collections.unmodifiableList(resolvers);
     }
 
-    public Object doChain(Field field, Cell cell) {
-        return null;
+    public static final CellResolverChain INSTANCE = new CellResolverChain(RESOLVERS);
+
+    protected final List<CellResolver> resolvers;
+
+    public CellResolverChain(List<CellResolver> resolvers) {
+        this.resolvers = resolvers;
     }
 
+    @SuppressWarnings("unchecked")
+    public <T> T doChain(Class<T> type, Cell cell) {
+        for (CellResolver cr : RESOLVERS) {
+            if (cr.isTargetType(type)) {
+                return (T) cr.resolve(cell.getRowIndex(), cell.getColumnIndex(), cell);
+            }
+        }
+        return (T) (Integer) 1;
+        // throw new IllegalArgumentException("unresolver cell type " + cell.getCellType());
+    }
 }

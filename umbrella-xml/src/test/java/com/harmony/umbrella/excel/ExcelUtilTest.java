@@ -75,23 +75,32 @@ public class ExcelUtilTest {
         sr.read(new RowVisitor() {
 
             @Override
-            public void visitHeader(int header, RowWrapper row) {
+            public void visitHeader(int header, Row row) {
                 for (Cell cell : row) {
-                    System.out.print("  " + ExcelUtil.getCellStringValue(cell) + "   ");
+                    System.out.print("  " + ExcelUtil.getStringCellValue(cell) + "   ");
                 }
                 System.out.println();
             }
 
             @Override
-            public boolean visitRow(int rowNum, RowWrapper row) {
+            public boolean visitRow(int rowNum, Row row) {
                 for (Cell cell : row) {
-                    System.out.print(" " + ExcelUtil.getCellStringValue(cell) + " ");
+                    System.out.print(" " + ExcelUtil.getStringCellValue(cell) + " ");
                 }
                 System.out.println();
                 return true;
             }
 
         });
+    }
+
+    @Test
+    public void testGetCellValue() throws IOException {
+        Sheet sheet = ExcelUtil.getSheet(xls, 2);
+        Row row = sheet.getRow(0);
+        for (Cell cell : row) {
+            System.out.println(ExcelUtil.toCellName(cell) + ", " + ExcelUtil.getStringCellValue(cell));
+        }
     }
 
 }

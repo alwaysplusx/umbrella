@@ -13,17 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.umbrella.excel;
+package com.harmony.umbrella.excel.annotation;
 
-import org.apache.poi.ss.usermodel.Cell;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
+import com.harmony.umbrella.excel.CellResolver;
 
 /**
  * @author wuxii@foxmail.com
  */
-public interface CellResolver<T> {
+@Target(ElementType.FIELD)
+@Retention(RetentionPolicy.RUNTIME)
+public @interface ExcelColumn {
 
-    boolean isTargetType(Class<?> targetType);
+    int value() default -1;
 
-    T resolve(int rowIndex, int columnIndex, Cell cell);
+    @SuppressWarnings("rawtypes")
+    Class<? extends CellResolver> cellResolver() default CellResolver.class;
+
+    String header() default "";
 
 }

@@ -19,6 +19,9 @@ import java.util.Calendar;
 
 import org.apache.poi.ss.usermodel.Cell;
 
+import com.harmony.umbrella.excel.ExcelUtil;
+import com.harmony.umbrella.util.TimeUtils;
+
 /**
  * @author wuxii@foxmail.com
  */
@@ -28,7 +31,7 @@ public class CalendarCellResolver extends AbstractCellResolver<Calendar> {
 
     @Override
     public Calendar resolve(int rowIndex, int columnIndex, Cell cell) {
-        return null;
+        return TimeUtils.toCalendar(ExcelUtil.getDateCellValue(cell));
     }
 
 }

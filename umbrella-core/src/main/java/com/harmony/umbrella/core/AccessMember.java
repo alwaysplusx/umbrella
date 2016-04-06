@@ -1,59 +1,120 @@
 package com.harmony.umbrella.core;
 
+import static com.harmony.umbrella.util.ReflectionUtils.*;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
-import com.harmony.umbrella.util.Assert;
-import com.harmony.umbrella.util.ReflectionUtils;
-
+/**
+ * getter or setter method
+ * 
+ * @author wuxii@foxmail.com
+ */
 public class AccessMember {
 
-    private Method method;
-    private Field field;
     private final Class<?> targetClass;
 
-    private AccessMember(Class<?> targetClass, Field field) {
+    private Field field;
+    private Method readMethod;
+    private Method writeMethod;
+
+    public AccessMember(Class<?> targetClass, String fieldName) {
+        this.targetClass = targetClass;
+        this.field = findField(targetClass, fieldName);
+    }
+
+    public AccessMember(Class<?> targetClass, Field field) {
         this.targetClass = targetClass;
         this.field = field;
     }
 
-    private AccessMember(Class<?> targetClass, Method method) {
+    /*public AccessMember(Class<?> targetClass, Method readMethod, Method writeMethod) {
         this.targetClass = targetClass;
-        this.method = method;
+        this.readMethod = readMethod;
+        this.writeMethod = writeMethod;
+    }
+
+    public AccessMember(Class<?> targetClass, Field field, Method readMethod, Method writeMethod) {
+        this.targetClass = targetClass;
+        this.field = field;
+        this.readMethod = readMethod;
+        this.writeMethod = writeMethod;
+    }*/
+
+    public String getName() {
+        if (field != null) {
+            return field.getName();
+        }
+        Method method = readMethod != null ? readMethod : writeMethod;
+        String name = method.getName().substring(3);
+        return Character.toLowerCase(name.charAt(0)) + name.substring(4);
+    }
+
+    public Class<?> getType() {
+        if (field != null) {
+            return field.getType();
+        }
+        Method method = getReadMethod();
+        if (method != null) {
+            return method.getReturnType();
+        }
+        return getWriteMethod().getParameterTypes()[0];
     }
 
     public Object get(Object target) {
-        checkTargetClass(target);
-        Assert.isTrue(method != null || field != null, "target method or field not set");
-        if (method == null) {
-            try {
-                method = ReflectionUtils.findReadMethod(targetClass, field);
-            } catch (NoSuchMethodException e) {
-                return ReflectionUtils.getFieldValue(field, target);
-            }
+        if (!isTarget(target)) {
+            throw new IllegalArgumentException(target + " not " + targetClass.getName() + " object");
         }
-        return ReflectionUtils.invokeMethod(method, target);
+        Method method = getReadMethod();
+        if (method != null) {
+            return invokeMethod(method, target);
+        }
+        return getFieldValue(field, target);
     }
 
     public void set(Object target, Object value) {
-        checkTargetClass(target);
-        Assert.isTrue(method != null || field != null, "target method or field not set");
-        if (method == null) {
-            try {
-                method = ReflectionUtils.findReadMethod(targetClass, field);
-            } catch (NoSuchMethodException e) {
-                ReflectionUtils.setFieldValue(field, target, value);
-            }
-        } else {
-            ReflectionUtils.invokeMethod(method, target, value);
+        if (!isTarget(target)) {
+            throw new IllegalArgumentException(target + " not " + targetClass.getName() + " object");
         }
-
+        Method method = getWriteMethod();
+        if (method != null) {
+            invokeMethod(method, target, value);
+        } else {
+            setFieldValue(field, target, value);
+        }
     }
 
-    public void checkTargetClass(Object target) {
-        if (!targetClass.isAssignableFrom(target.getClass())) {
-            throw new IllegalArgumentException("target object not match");
+    public Method getReadMethod() {
+        if (readMethod == null) {
+            try {
+                readMethod = findReadMethod(targetClass, getName());
+            } catch (NoSuchMethodException e) {
+            }
         }
+        return readMethod;
+    }
+
+    public Method getWriteMethod() {
+        if (writeMethod == null) {
+            try {
+                writeMethod = findWriterMethod(targetClass, getName());
+            } catch (NoSuchMethodException e) {
+            }
+        }
+        return writeMethod;
+    }
+
+    public Field getField() {
+        if (field == null) {
+            Method method = readMethod != null ? readMethod : writeMethod;
+            String name = method.getName().substring(3);
+            field = findField(targetClass, Character.toLowerCase(name.charAt(0)) + name.substring(4));
+        }
+        return field;
+    }
+
+    public boolean isTarget(Object target) {
+        return target != null && targetClass.isInstance(target);
     }
 
 }

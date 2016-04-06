@@ -15,15 +15,25 @@
  */
 package com.harmony.umbrella.excel;
 
-import org.apache.poi.ss.usermodel.Cell;
+import com.harmony.umbrella.excel.annotation.ExcelColumn;
 
 /**
  * @author wuxii@foxmail.com
  */
-public interface CellResolver<T> {
+public class User {
 
-    boolean isTargetType(Class<?> targetType);
+    @ExcelColumn(0)
+    private String name;
 
-    T resolve(int rowIndex, int columnIndex, Cell cell);
+    @ExcelColumn(1)
+    private int age;
+
+    @ExcelColumn(2)
+    private boolean man;
+
+    @Override
+    public String toString() {
+        return "{name:" + name + ", age:" + age + ", man:" + man + "}";
+    }
 
 }

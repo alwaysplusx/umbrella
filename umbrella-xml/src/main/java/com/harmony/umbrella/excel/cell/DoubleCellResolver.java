@@ -13,17 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.umbrella.excel;
+package com.harmony.umbrella.excel.cell;
 
 import org.apache.poi.ss.usermodel.Cell;
+
+import com.harmony.umbrella.excel.ExcelUtil;
 
 /**
  * @author wuxii@foxmail.com
  */
-public interface CellResolver<T> {
+public class DoubleCellResolver extends AbstractCellResolver<Double> {
 
-    boolean isTargetType(Class<?> targetType);
+    public static final DoubleCellResolver INSTANCE = new DoubleCellResolver();
 
-    T resolve(int rowIndex, int columnIndex, Cell cell);
+    @Override
+    public boolean isTargetType(Class<?> targetType) {
+        return Double.TYPE == targetType || Double.class == targetType;
+    }
+
+    @Override
+    public Double resolve(int rowIndex, int columnIndex, Cell cell) {
+        Number number = ExcelUtil.getNumberCellValue(cell);
+        return number != null ? number.doubleValue() : null;
+    }
 
 }
