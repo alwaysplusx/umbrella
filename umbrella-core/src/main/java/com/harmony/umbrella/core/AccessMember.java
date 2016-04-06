@@ -28,19 +28,6 @@ public class AccessMember {
         this.field = field;
     }
 
-    /*public AccessMember(Class<?> targetClass, Method readMethod, Method writeMethod) {
-        this.targetClass = targetClass;
-        this.readMethod = readMethod;
-        this.writeMethod = writeMethod;
-    }
-
-    public AccessMember(Class<?> targetClass, Field field, Method readMethod, Method writeMethod) {
-        this.targetClass = targetClass;
-        this.field = field;
-        this.readMethod = readMethod;
-        this.writeMethod = writeMethod;
-    }*/
-
     public String getName() {
         if (field != null) {
             return field.getName();

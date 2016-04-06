@@ -16,7 +16,9 @@
 package com.harmony.umbrella.excel;
 
 import java.io.InputStream;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Set;
 import java.util.Stack;
 
 import org.apache.poi.openxml4j.opc.OPCPackage;
@@ -35,6 +37,14 @@ import org.xml.sax.helpers.XMLReaderFactory;
  * @author wuxii@foxmail.com
  */
 public class SheetSaxReader {
+
+    private static final Set<String> READ_TAGS = new HashSet<String>();
+
+    static {
+        READ_TAGS.add("row");
+        READ_TAGS.add("c");
+        READ_TAGS.add("v");
+    }
 
     XSSFReader xssfReader;
 
@@ -69,27 +79,32 @@ public class SheetSaxReader {
         @Override
         public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
             // row 属性说明: r-行号, spans-起始行(起:结束), ht-行高(磅)
-            // c  属性说明: r-坐标, t-cell类型
-
-            for (int i = 0; i < attributes.getLength(); i++) {
-                System.out.println("qname: " + qName + ", att: name=" + attributes.getLocalName(i) + ", value=" + attributes.getValue(i) + "");
-            }
-            System.out.println();
+            // c 属性说明: r-坐标, t-cell类型
+            stack.push(new E(qName, attributes));
         }
 
         @Override
         public void endElement(String uri, String localName, String qName) throws SAXException {
-            /*Attributes att = attStack.pop();
-            String startQName = qnameStack.pop();*/
+            E e = stack.pop();
+            System.out.println(e);
         }
 
         public void characters(char[] ch, int start, int length) throws SAXException {
-            try {
+            E e = stack.peek();
+            if (e.isCell()) {
+                e.attributes.getType("v");
+            }
+            /*try {
                 stack.peek().content = String.valueOf(getValue(Integer.valueOf(new String(ch, start, length))));
             } catch (NumberFormatException e) {
             } catch (Exception e) {
-            }
+            }*/
         }
+
+        public boolean isReadTag(String qname) {
+            return READ_TAGS.contains(qname);
+        }
+
     }
 
     protected class E {
@@ -98,24 +113,56 @@ public class SheetSaxReader {
         private Attributes attributes;
         private String content;
 
+        public E(String qname, Attributes attributes) {
+            this.qname = qname;
+            this.attributes = attributes;
+        }
+
         public boolean isRow() {
-            return false;
-        }
-
-        public int getRowNum() {
-            return 1;
-        }
-
-        public int getColumnNum() {
-            return 1;
+            return "row".equals(qname);
         }
 
         public boolean isCell() {
-            return false;
+            return "c".equals(qname);
+        }
+
+        public int getRowNum() {
+            if (isRow()) {
+                return Integer.parseInt(attributes.getValue("r"));
+            } else if (isCell()) {
+                String value = attributes.getValue("r");
+                int i;
+                for (i = 0; i < value.length(); i++) {
+                    if (!Character.isAlphabetic(value.charAt(i))) {
+                        break;
+                    }
+                }
+                return Integer.parseInt(value.substring(i)) - 1;
+            }
+            return -1;
+        }
+
+        public int getColumnNum() {
+            if (isCell()) {
+                String value = attributes.getValue("r");
+                int i;
+                for (i = 0; i < value.length(); i++) {
+                    if (!Character.isAlphabetic(value.charAt(i))) {
+                        break;
+                    }
+                }
+                return ExcelUtil.toColumnNumber(value.substring(0, i)) - 1;
+            }
+            return -1;
         }
 
         public int getCellType() {
             return 1;
+        }
+
+        @Override
+        public String toString() {
+            return "{qname:" + qname + ", content:" + content + "}";
         }
 
     }
