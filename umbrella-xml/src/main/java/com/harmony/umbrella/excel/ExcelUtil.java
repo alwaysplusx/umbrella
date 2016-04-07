@@ -351,7 +351,7 @@ public class ExcelUtil {
      * @return date
      */
     public static Date getDateCellValue(Cell cell) {
-        if (DateUtil.isCellDateFormatted(cell)) {
+        if (cell.getCellType() == Cell.CELL_TYPE_NUMERIC && DateUtil.isCellDateFormatted(cell)) {
             return cell.getDateCellValue();
         }
         return null;
@@ -368,10 +368,11 @@ public class ExcelUtil {
      * @return date
      */
     public static Date getDateCellValue(Cell cell, String pattern) throws ParseException {
-        if (DateUtil.isCellDateFormatted(cell)) {
-            return cell.getDateCellValue();
+        Date date = getDateCellValue(cell);
+        if (date == null) {
+            date = new SimpleDateFormat(pattern).parse(getStringCellValue(cell));
         }
-        return new SimpleDateFormat(pattern).parse(getStringCellValue(cell));
+        return date;
     }
 
     /**
@@ -444,7 +445,7 @@ public class ExcelUtil {
         return columnNumber;
     }
 
-    private static String toColumnName(int column) {
+    public static String toColumnName(int column) {
         String columnName = ALPHABETIC[column % 26 - 1];
         while (column / 26 > 0) {
             column = column / 26;

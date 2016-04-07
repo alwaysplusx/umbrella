@@ -34,11 +34,17 @@ public class CellResolverChain {
     static {
         List<CellResolver> resolvers = new ArrayList<CellResolver>();
         resolvers = new ArrayList<CellResolver>();
-        resolvers.add(BooleanCellResolver.INSTANCE);
-        resolvers.add(CalendarCellResolver.INSTANCE);
-        resolvers.add(DateCellResolver.INSTANCE);
-        resolvers.add(NumberCellResolver.INSTANCE);
         resolvers.add(StringCellResolver.INSTANCE);
+        resolvers.add(IntegerCellResolver.INSTANCE);
+        resolvers.add(DateCellResolver.INSTANCE);
+        resolvers.add(CalendarCellResolver.INSTANCE);
+        resolvers.add(LongCellResolver.INSTANCE);
+        resolvers.add(BooleanCellResolver.INSTANCE);
+        resolvers.add(ByteCellResolver.INSTANCE);
+        resolvers.add(DoubleCellResolver.INSTANCE);
+        resolvers.add(FloatCellResolver.INSTANCE);
+        resolvers.add(NumberCellResolver.INSTANCE);
+        resolvers.add(ShortCellResolver.INSTANCE);
         RESOLVERS = Collections.unmodifiableList(resolvers);
     }
 
@@ -52,12 +58,11 @@ public class CellResolverChain {
 
     @SuppressWarnings("unchecked")
     public <T> T doChain(Class<T> type, Cell cell) {
-        for (CellResolver cr : RESOLVERS) {
+        for (CellResolver cr : resolvers) {
             if (cr.isTargetType(type)) {
                 return (T) cr.resolve(cell.getRowIndex(), cell.getColumnIndex(), cell);
             }
         }
-        return (T) (Integer) 1;
-        // throw new IllegalArgumentException("unresolver cell type " + cell.getCellType());
+        throw new IllegalArgumentException("unresolver cell type " + cell.getCellType());
     }
 }

@@ -55,7 +55,7 @@ public class SheetReader {
     public void read(RowVisitor visitor) {
         // header first
         visitor.visitHeader(header, readHeader());
-        for (int rowNum = this.startRow, maxRow = getMaxRowNumber(); rowNum < maxRow; rowNum++) {
+        for (int rowNum = this.startRow, maxRow = getMaxRowNumber(); rowNum <= maxRow; rowNum++) {
             if (isHeaderRow(rowNum)) {
                 continue;
             }
@@ -80,7 +80,7 @@ public class SheetReader {
     public Row[] readContent() {
         int maxRow = getMaxRowNumber();
         List<Row> rows = new ArrayList<Row>(maxRow);
-        for (int rowNum = this.startRow; rowNum < maxRow; rowNum++) {
+        for (int rowNum = this.startRow; rowNum <= maxRow; rowNum++) {
             if (isHeaderRow(rowNum)) {
                 continue;
             }

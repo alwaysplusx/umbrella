@@ -15,8 +15,6 @@
  */
 package com.harmony.umbrella.excel;
 
-import java.util.Date;
-
 import com.harmony.umbrella.excel.annotation.ExcelColumn;
 
 /**
@@ -31,35 +29,11 @@ public class User {
     private int age;
 
     @ExcelColumn(2)
-    private Date birthday;
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public int getAge() {
-        return age;
-    }
-
-    public void setAge(int age) {
-        this.age = age;
-    }
-
-    public Date getBirthday() {
-        return birthday;
-    }
-
-    public void setBirthday(Date birthday) {
-        this.birthday = birthday;
-    }
+    private boolean man;
 
     @Override
     public String toString() {
-        return "{name:" + name + ", age:" + age + ", birthday:" + birthday + "}";
+        return "{name:" + name + ", age:" + age + ", man:" + man + "}";
     }
 
 }

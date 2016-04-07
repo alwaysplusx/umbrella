@@ -32,9 +32,17 @@ import com.harmony.umbrella.excel.cell.CellResolverChain;
 import com.harmony.umbrella.util.ClassUtils.ClassFilterFeature;
 import com.harmony.umbrella.util.CollectionUtils;
 import com.harmony.umbrella.util.ReflectionUtils;
+import org.apache.poi.ss.usermodel.Sheet;
 
 /**
+ * 通过列与字段的基础配置达到将excel文件中的行数据转为对应的entity
+ * <p>
+ * 即可以说excel中的一行数据为一个entity对象
+ * <p>
+ * PS:提供通过注解的方式支持配置
+ *
  * @author wuxii@foxmail.com
+ * @see ExcelColumn
  */
 public class RowEntityMapper<T> implements RowVisitor {
 
@@ -140,6 +148,24 @@ public class RowEntityMapper<T> implements RowVisitor {
         return endColumn;
     }
 
+    /**
+     * 为了方法的调用顺序做的扩展方法,直接通过visitor读取sheet, 将读取后的结构存在visitor中,并最终返回给调用者
+     *
+     * @param sheet 读取的表格
+     * @return 最终的结果
+     */
+    public T[] parse(Sheet sheet) {
+        return parse(sheet, 0, 1);
+    }
+
+    public T[] parse(Sheet sheet, int header) {
+        return parse(sheet, header, 0);
+    }
+
+    public T[] parse(Sheet sheet, int header, int startRow) {
+        new SheetReader(sheet, header, startRow).read(this);
+        return getEntities();
+    }
     // factory method
 
     /**
@@ -197,6 +223,26 @@ public class RowEntityMapper<T> implements RowVisitor {
      */
     public static <T> RowEntityMapper<T> createByHeaderFieldMapper(Class<T> entityClass, Map<String, String> headerFieldMap) {
         return new RowEntityMapper<T>(entityClass, headerFieldMap, null, CellResolverChain.INSTANCE, 0, -1);
+    }
+
+    /**
+     * 检查注解配置,将注解配置的行与excel中的行对应起来
+     *
+     * @param entityClass 映射为的对象
+     * @param <T>         对象泛型
+     * @return
+     */
+    public static <T> RowEntityMapper<T> createByClass(Class<T> entityClass) {
+        Map<Integer, AccessMember> converterMap = new HashMap<Integer, AccessMember>();
+        Field[] fields = entityClass.getDeclaredFields();
+        for (Field field : fields) {
+            ExcelColumn ann = field.getAnnotation(ExcelColumn.class);
+            converterMap.put(ann.value(), new AccessMember(entityClass, field));
+        }
+        if (converterMap.isEmpty()) {
+            throw new IllegalArgumentException("entity class " + entityClass.getName() + " not mapped any @ExcelColumn");
+        }
+        return new RowEntityMapper<T>(entityClass, converterMap, CellResolverChain.INSTANCE);
     }
 
 }

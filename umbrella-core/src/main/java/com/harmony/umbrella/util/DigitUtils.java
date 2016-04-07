@@ -25,6 +25,15 @@ import java.text.NumberFormat;
  * @author wuxii@foxmail.com
  */
 public class DigitUtils {
+    
+    public static boolean isDigit(String text) {
+        for (int i = 0; i < text.length(); i++) {
+            if (!Character.isDigit(text.charAt(i))) {
+                return false;
+            }
+        }
+        return true;
+    }
 
     /**
      * @see BigDecimal#setScale(int, int)
