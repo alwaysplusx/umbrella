@@ -42,7 +42,7 @@ public class DateCellResolver extends AbstractCellResolver<Date> {
     @Override
     public Date resolve(int rowIndex, int columnIndex, Cell cell) {
         Date date = ExcelUtil.getDateCellValue(cell);
-        if (date == null && cell.getCellType() == cell.CELL_TYPE_STRING) {
+        if (date == null && cell.getCellType() == Cell.CELL_TYPE_STRING) {
             for (String pattern : PATTERNS) {
                 try {
                     date = ExcelUtil.getDateCellValue(cell, pattern);

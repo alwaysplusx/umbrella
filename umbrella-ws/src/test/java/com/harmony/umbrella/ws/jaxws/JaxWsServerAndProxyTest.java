@@ -51,13 +51,15 @@ public class JaxWsServerAndProxyTest {
     public void testProxyBuilder() {
         HelloService service = JaxWsProxyBuilder//
                 .create()//
+                .addInInterceptor(new MessageInInterceptor())
+                .addOutInterceptor(new MessageOutInterceptor())
                 .build(HelloService.class, address);
         assertEquals("Hi wuxii", service.sayHi("wuxii"));
     }
 
     @Test
     public void testAsyncAndCallback() {
-        SimpleContext context = new SimpleContext(HelloService.class, "sayHi", address, new Object[] { "wuxii" });
+        SimpleContext context = new SimpleContext(HelloService.class, "sayHi", address, new Object[]{"wuxii"});
 
         assertEquals(0, count);
 
@@ -74,7 +76,7 @@ public class JaxWsServerAndProxyTest {
     }
 
     public static void main(String[] args) {
-        JaxWsServerBuilder.create().publish(HelloWebService.class, address);
+        setUp();
     }
 
 }
