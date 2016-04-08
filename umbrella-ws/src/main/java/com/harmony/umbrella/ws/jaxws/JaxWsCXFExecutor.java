@@ -28,10 +28,11 @@ import com.harmony.umbrella.core.Invoker;
 import com.harmony.umbrella.log.Log;
 import com.harmony.umbrella.log.Logs;
 import com.harmony.umbrella.monitor.support.InvocationContext;
+import com.harmony.umbrella.util.Assert;
 import com.harmony.umbrella.util.Exceptions;
 import com.harmony.umbrella.ws.Context;
+import com.harmony.umbrella.ws.Metadata;
 import com.harmony.umbrella.ws.ProxyExecutorSupport;
-import com.harmony.umbrella.ws.util.ContextValidatorUtils;
 import com.harmony.umbrella.ws.util.JaxWsInvoker;
 
 /**
@@ -58,11 +59,15 @@ public class JaxWsCXFExecutor extends ProxyExecutorSupport implements JaxWsExecu
     @SuppressWarnings("unchecked")
     @Override
     public <T> T executeQuite(Context context, Class<T> resultType) {
+        Assert.notNull(context.getServiceInterface(), "service interface not set");
+        Assert.notBlank(context.getAddress(), "service address not set");
+        Assert.notBlank(context.getMethodName(), "service method not set");
+        
         T result = null;
         JaxWsInvocationContext invocationContext = null;
         try {
             Method method = context.getMethod();
-            Object proxy = loadProxy(context);
+            Object proxy = getProxy(context);
             Object[] parameters = context.getParameters();
             log.info("使用代理[{}]执行交互{}, invoker is [{}]", proxy, context, invoker);
             invocationContext = new JaxWsInvocationContext(proxy, method, parameters);
@@ -89,27 +94,9 @@ public class JaxWsCXFExecutor extends ProxyExecutorSupport implements JaxWsExecu
      *            执行的上下文
      * @return 代理对象
      */
-    protected Object loadProxy(Context context) {
-        Object proxy = cacheable ? getProxy(context) : createProxy(context);
-        return configurationProxy(proxy, context);
-    }
-
-    /**
-     * 创建当前{@linkplain Context}对应的服务代理, 创建只使用基础的信息(地址、用户名密码、接口类)，不会配置其他代理特性
-     *
-     * @param context
-     *            执行上下文
-     * @return 代理对象
-     */
-    private Object createProxy(Context context) {
-        long start = System.currentTimeMillis();
-        Object proxy = create()//
-                .setAddress(context.getAddress())//
-                .setUsername(context.getUsername())//
-                .setPassword(context.getPassword())//
-                .build(context.getServiceInterface());
-        log.debug("创建代理{}服务, 耗时{}ms", context, System.currentTimeMillis() - start);
-        return proxy;
+    protected Object getProxy(Metadata metadata) {
+        Object proxy = isCacheable() ? getProxy0(metadata) : createProxy(metadata);
+        return configurationProxy(proxy, metadata);
     }
 
     /**
@@ -119,33 +106,22 @@ public class JaxWsCXFExecutor extends ProxyExecutorSupport implements JaxWsExecu
      *            执行的上下文
      * @return 代理对象， 如果不存在缓存中不存在则创建
      */
-    private Object getProxy(Context context) {
-        // 验证context基础属性是否满足创建条件
-        ContextValidatorUtils.validation(context);
-
+    private Object getProxy0(Metadata metadata) {
         // 代理的超时设置是次要因素，不考虑在代理对象的key中
-        JaxWsContextKey contextKey = new JaxWsContextKey(context);
+        JaxWsContextKey contextKey = new JaxWsContextKey(metadata);
         Object proxy = proxyCache.get(contextKey);
         if (proxy != null) {
             return proxy;
         }
-
-        Class<?> serviceInterface = context.getServiceInterface();
-
+        // 对应metadata不存在缓存(有可能是密码修改等原因)
+        Class<?> serviceInterface = metadata.getServiceClass();
         synchronized (proxyCache) {
-            Iterator<JaxWsContextKey> it = proxyCache.keySet().iterator();
-            while (it.hasNext()) {
-                JaxWsContextKey key = it.next();
-                // 迭代所有已经缓存的代理服务对象
-                // 根据服务名检测是否已经存在对于的缓存， 如果存在则算出原来的缓存
-                // 这种情况只在更换地址、用户名、密码的情况下发生
-                // 确保一个服务名下只有一个代理服务实例
-                if (key.serviceName.equals(serviceInterface.getName())) {
-                    it.remove();
-                    break;
-                }
-            }
-            proxy = createProxy(context);
+            // 迭代所有已经缓存的代理服务对象
+            // 根据服务名检测是否已经存在对应的缓存， 如果存在则清除原来的缓存
+            // 这种情况只在更换地址、用户名、密码的情况下发生
+            // 确保一个服务名下只有一个代理服务实例
+            removeProxy(serviceInterface);
+            proxy = createProxy(metadata);
             proxyCache.put(contextKey, proxy);
         }
 
@@ -153,12 +129,28 @@ public class JaxWsCXFExecutor extends ProxyExecutorSupport implements JaxWsExecu
     }
 
     /**
+     * 创建当前{@linkplain Context}对应的服务代理, 创建只使用基础的信息(地址、用户名密码、接口类)，不会配置其他代理特性
+     *
+     * @param metadata
+     *            执行上下文
+     * @return 代理对象
+     */
+    private Object createProxy(Metadata metadata) {
+        long start = System.currentTimeMillis();
+        Object proxy = create()//
+                .setAddress(metadata.getAddress())//
+                .setUsername(metadata.getUsername())//
+                .setPassword(metadata.getPassword())//
+                .build(metadata.getServiceClass());
+        log.debug("创建代理{}服务, 耗时{}ms", metadata, System.currentTimeMillis() - start);
+        return proxy;
+    }
+
+    /**
      * 移除缓存的代理对象
      */
     public void removeProxy(Class<?> serviceInterface) {
-        if (serviceInterface == null) {
-            return;
-        }
+        Assert.notNull(serviceInterface, "未指定待移除的代理对象");
         synchronized (proxyCache) {
             Iterator<JaxWsContextKey> it = proxyCache.keySet().iterator();
             while (it.hasNext()) {
@@ -183,10 +175,10 @@ public class JaxWsCXFExecutor extends ProxyExecutorSupport implements JaxWsExecu
     /**
      * 根据上下文配置代理对象,超时的时间设置
      */
-    private Object configurationProxy(Object proxy, Context context) {
-        setConnectionTimeout(proxy, context.getConnectionTimeout());
-        setReceiveTimeout(proxy, context.getReceiveTimeout());
-        setSynchronousTimeout(proxy, context.getSynchronousTimeout());
+    private Object configurationProxy(Object proxy, Metadata metadata) {
+        setConnectionTimeout(proxy, metadata.getConnectionTimeout());
+        setReceiveTimeout(proxy, metadata.getReceiveTimeout());
+        setSynchronousTimeout(proxy, metadata.getSynchronousTimeout());
         return proxy;
     }
 
@@ -232,16 +224,16 @@ public class JaxWsCXFExecutor extends ProxyExecutorSupport implements JaxWsExecu
      */
     private static final class JaxWsContextKey {
 
-        private String serviceName;
-        private String address;
-        private String username;
-        private String password;
+        private final String serviceName;
+        private final String address;
+        private final String username;
+        private final String password;
 
-        public JaxWsContextKey(Context context) {
-            this.serviceName = context.getServiceInterface().getName();
-            this.address = context.getAddress();
-            this.username = context.getUsername();
-            this.password = context.getPassword();
+        public JaxWsContextKey(Metadata metadata) {
+            this.serviceName = metadata.getServiceName();
+            this.address = metadata.getAddress();
+            this.username = metadata.getUsername();
+            this.password = metadata.getPassword();
         }
 
         @Override

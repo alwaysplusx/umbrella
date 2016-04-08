@@ -22,6 +22,7 @@ import javax.xml.ws.WebServiceException;
 
 import com.harmony.umbrella.message.MessageException;
 import com.harmony.umbrella.message.jms.JmsMessageSender;
+import com.harmony.umbrella.util.ClassUtils;
 import com.harmony.umbrella.ws.jaxws.JaxWsCXFExecutor;
 import com.harmony.umbrella.ws.jaxws.JaxWsExecutorSupport;
 import com.harmony.umbrella.ws.support.ContextSender;
@@ -49,6 +50,23 @@ public class JaxWsExecutorAndSenderSupportBean extends JaxWsCXFExecutor implemen
             return messageSender.send(new ContextMessage(context));
         } catch (MessageException e) {
             throw new WebServiceException("cannot send webservice context", e);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public <T> T getProxy(Class<T> serviceInterface) {
+        Metadata metadata = metadataLoader.loadMetadata(serviceInterface.getName());
+        return (T) getProxy(metadata);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public <T> T getProxy(String serviceName) {
+        try {
+            return (T) getProxy(ClassUtils.forName(serviceName));
+        } catch (ClassNotFoundException e) {
+            return null;
         }
     }
 
