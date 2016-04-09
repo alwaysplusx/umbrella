@@ -24,16 +24,16 @@ import com.harmony.umbrella.util.Assert;
 /**
  * @author wuxii@foxmail.com
  */
-public abstract class AbstractSyncResult implements SyncResult {
+public abstract class AbstractResult implements Result {
 
     private final Object result;
     private boolean wrapped;
 
-    public AbstractSyncResult(Object result) {
+    public AbstractResult(Object result) {
         this(result, false);
     }
 
-    public AbstractSyncResult(Object result, boolean wrapped) {
+    public AbstractResult(Object result, boolean wrapped) {
         this.result = result;
         this.wrapped = wrapped;
     }

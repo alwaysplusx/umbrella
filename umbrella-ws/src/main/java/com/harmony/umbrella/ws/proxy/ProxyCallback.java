@@ -26,7 +26,7 @@ import java.util.Map;
  *            同步返回的结果
  * @author wuxii@foxmail.com
  */
-public interface SyncCallback<T, R> {
+public interface ProxyCallback<T, R> {
 
     /**
      * 回调方法之, 执行同步前

@@ -1,5 +1,5 @@
 
-package com.harmony.umbrella.example.ws.wsdl2java;
+package com.harmony.umbrella.example.proxy;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;

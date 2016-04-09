@@ -30,20 +30,20 @@ import com.harmony.umbrella.ws.ProxyExecutor;
 import com.harmony.umbrella.ws.WebServiceAbortException;
 import com.harmony.umbrella.ws.annotation.Syncable;
 import com.harmony.umbrella.ws.proxy.Proxy;
-import com.harmony.umbrella.ws.proxy.ProxySyncCallback;
-import com.harmony.umbrella.ws.proxy.SyncCallback;
+import com.harmony.umbrella.ws.proxy.ProxyResultCallback;
+import com.harmony.umbrella.ws.proxy.ProxyCallback;
 import com.harmony.umbrella.ws.util.CallbackFinder;
 
 /**
  * 业务回调的扩展周期访问者
  * <p>
- * 基于 {@linkplain Syncable}, {@linkplain SyncCallback}的功能扩展，
+ * 基于 {@linkplain Syncable}, {@linkplain ProxyCallback}的功能扩展，
  * {@linkplain SyncableContextVisitor}加载类路径下的标注有{@linkplain Syncable} 注解的类（注有
  * {@linkplain Syncable}表示一个可同步的业务bean）。
  * <p>
- * {@linkplain SyncCallback}接口的实现类对注有{@linkplain Syncable} 的同步业务bean起到回调作用。将
+ * {@linkplain ProxyCallback}接口的实现类对注有{@linkplain Syncable} 的同步业务bean起到回调作用。将
  * {@linkplain SyncableContextVisitor}注入到{@linkplain ProxyExecutor}中则客户实现对
- * {@linkplain SyncCallback}的实现在同步业务上的周期回调
+ * {@linkplain ProxyCallback}的实现在同步业务上的周期回调
  * 
  * @author wuxii@foxmail.com
  */
@@ -55,7 +55,7 @@ public class SyncableContextVisitor extends AbstractContextVisitor {
     private CallbackFinder callbackFinder;
 
     /**
-     * 负责初始化回调的{@linkplain SyncCallback}
+     * 负责初始化回调的{@linkplain ProxyCallback}
      */
     private BeanFactory beanFactory;
 
@@ -78,7 +78,7 @@ public class SyncableContextVisitor extends AbstractContextVisitor {
         Object obj = context.get(Proxy.SYNC_OBJECT);
         Map<String, Object> content = context.getContextMap();
 
-        for (SyncCallback callback : getCallbacks(context)) {
+        for (ProxyCallback callback : getCallbacks(context)) {
             for (Object o : asList(obj)) {
                 callback.forward(o, content);
             }
@@ -101,11 +101,11 @@ public class SyncableContextVisitor extends AbstractContextVisitor {
             // 有值返回，返回数据的值类型与方法返回类型不相同表示结果经过封装
             boolean wrapped = result != null && result.getClass().isAssignableFrom(returnType);
 
-            for (SyncCallback callback : getCallbacks(context)) {
+            for (ProxyCallback callback : getCallbacks(context)) {
                 for (Object o : asList(obj)) {
-                    if (callback instanceof ProxySyncCallback) {
+                    if (callback instanceof ProxyResultCallback) {
                         // 支持ProxySyncResult作为结果参数
-                        callback.success(o, ((ProxySyncCallback) callback).newResult(result, wrapped), content);
+                        callback.success(o, ((ProxyResultCallback) callback).newResult(result, wrapped), content);
                     } else {
                         callback.success(o, result, content);
                     }
@@ -122,7 +122,7 @@ public class SyncableContextVisitor extends AbstractContextVisitor {
     public void visitThrowing(Throwable throwable, Context context) {
         Object obj = context.get(Proxy.SYNC_OBJECT);
         Map<String, Object> content = context.getContextMap();
-        for (SyncCallback callback : getCallbacks(context)) {
+        for (ProxyCallback callback : getCallbacks(context)) {
             for (Object o : asList(obj)) {
                 callback.failed(o, throwable, content);
             }
@@ -153,12 +153,12 @@ public class SyncableContextVisitor extends AbstractContextVisitor {
     }
 
     @SuppressWarnings("rawtypes")
-    private List<SyncCallback> getCallbacks(Context context) {
-        List<SyncCallback> result = new ArrayList<SyncCallback>();
-        Class<SyncCallback>[] classes = callbackFinder.getCallbackClasses(context.getServiceClass(), context.getMethodName());
+    private List<ProxyCallback> getCallbacks(Context context) {
+        List<ProxyCallback> result = new ArrayList<ProxyCallback>();
+        Class<ProxyCallback>[] classes = callbackFinder.getCallbackClasses(context.getServiceClass(), context.getMethodName());
         if (classes != null && classes.length > 0) {
             BeanFactory beanFactory = getBeanFactory();
-            for (Class<SyncCallback> callbackClass : classes) {
+            for (Class<ProxyCallback> callbackClass : classes) {
                 result.add(beanFactory.getBean(callbackClass));
             }
         }

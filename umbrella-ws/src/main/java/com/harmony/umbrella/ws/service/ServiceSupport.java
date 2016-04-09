@@ -16,59 +16,60 @@
 package com.harmony.umbrella.ws.service;
 
 import static com.harmony.umbrella.ws.service.Message.*;
-import static com.harmony.umbrella.ws.service.ServiceValidation.*;
 
 import java.net.URL;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.groups.Default;
+import javax.xml.ws.WebServiceContext;
+import javax.xml.ws.handler.MessageContext;
 
-import com.alibaba.fastjson.serializer.SerializerFeature;
-import com.harmony.umbrella.core.InvokeException;
-import com.harmony.umbrella.json.Json;
+import com.harmony.umbrella.i18n.MessageBundle;
+import com.harmony.umbrella.i18n.ResourceMessageBundle;
 import com.harmony.umbrella.log.Log;
 import com.harmony.umbrella.log.Logs;
 import com.harmony.umbrella.mapper.BeanMapper;
 import com.harmony.umbrella.util.Assert;
 import com.harmony.umbrella.util.ClassUtils;
 import com.harmony.umbrella.util.Exceptions;
-import com.harmony.umbrella.util.MessageBundleManager;
 import com.harmony.umbrella.util.StringUtils;
 import com.harmony.umbrella.validator.ValidVisitor;
 import com.harmony.umbrella.validator.util.ValidatorUtils;
-import com.harmony.umbrella.ws.annotation.Key;
-import com.harmony.umbrella.ws.service.ServiceValidation.MemberInvoker;
 
 /**
  * 同步服务端部分
- * 
+ *
  * @author wuxii@foxmail.com
  */
 public abstract class ServiceSupport {
 
+    // TODO 服务端的request以及response支持
+
+    @Resource
+    protected WebServiceContext webServiceContext;
+
     protected static final Log LOG = Logs.getLog(ServiceSupport.class);
 
-    public static final String MESSAG_ERROR = "{harmony.server.error}";
+    protected static final String MAPPING_LOCATION = "mapping.xml";
+
+    // 支持国际化的key - 默认国际化资源文件为WsMessage
+    public static final String MESSAGE_ERROR = "{harmony.server.error}";
     public static final String MESSAGE_SUCCESS = "{harmony.server.success}";
     public static final String MESSAGE_FAILED = "{harmony.server.failed}";
 
-    private final Map<Class<?>, List<MemberInvoker>> keyMembers = new HashMap<Class<?>, List<MemberInvoker>>();
+    private MessageBundle messageBundle;
 
-    private MessageBundleManager bundleManager = MessageBundleManager.getInstance();
-
-    protected String messageBundleBaseName = "WsMessage";
+    private Map<Class<?>, KeyAccessMember[]> keyAccessMemberCache = new HashMap<Class<?>, KeyAccessMember[]>();
 
     protected Locale locale;
-
-    protected static final String MAPPING_LOCATION = "mapping.xml";
 
     protected boolean extractContent = true;
 
@@ -78,7 +79,7 @@ public abstract class ServiceSupport {
 
     /**
      * 默认加载类路径下的配置文件mapping.xml
-     * 
+     *
      * @return 对象映射工具
      */
     protected BeanMapper getMapper() {
@@ -110,7 +111,7 @@ public abstract class ServiceSupport {
 
     /**
      * 对象映射
-     * 
+     *
      * @param src
      *            源对象
      * @param destType
@@ -127,7 +128,7 @@ public abstract class ServiceSupport {
 
     /**
      * 对象映射
-     * 
+     *
      * @param src
      *            源对象
      * @param dest
@@ -144,7 +145,7 @@ public abstract class ServiceSupport {
 
     /**
      * 对象映射
-     * 
+     *
      * @param src
      *            源
      * @param dest
@@ -163,7 +164,7 @@ public abstract class ServiceSupport {
 
     /**
      * 对象映射
-     * 
+     *
      * @param src
      *            源
      * @param destType
@@ -212,14 +213,14 @@ public abstract class ServiceSupport {
      * 便捷方法，表示服务处理异常
      */
     protected Message error() {
-        return error(MESSAG_ERROR, new HashMap<String, String>());
+        return error(MESSAGE_ERROR, new HashMap<String, String>());
     }
 
     /**
      * @see #error()
      */
     protected Message error(Exception ex) {
-        return error(MESSAG_ERROR, ex);
+        return error(MESSAGE_ERROR, ex);
     }
 
     /**
@@ -240,7 +241,7 @@ public abstract class ServiceSupport {
      * @see #error()
      */
     protected Message error(Map<String, String> content) {
-        return error(MESSAG_ERROR, content);
+        return error(MESSAGE_ERROR, content);
     }
 
     /**
@@ -310,7 +311,7 @@ public abstract class ServiceSupport {
 
     /**
      * 在执行上下文中根据key增加描述字符, 与原字符用','隔开 如果原上下文中没有对应的key，则直接添加到上下文中
-     * 
+     *
      * @param key
      *            上下文中的key
      * @param value
@@ -341,8 +342,22 @@ public abstract class ServiceSupport {
         return new Message(extractContentMessage(new StringBuilder(message), content), type);
     }
 
+    /**
+     * 根据key获取国际化文本
+     *
+     * @param name
+     *            国际化文本key
+     * @return 国际化对应值
+     */
     protected String getText(String name) {
-        return bundleManager.getMessageBundle(messageBundleBaseName, getLocale()).getString(name);
+        return getMessageBundle().getString(name);
+    }
+
+    protected MessageBundle getMessageBundle() {
+        if (messageBundle == null) {
+            messageBundle = new ResourceMessageBundle("WsMessage", getLocale());
+        }
+        return messageBundle;
     }
 
     protected Locale getLocale() {
@@ -354,7 +369,7 @@ public abstract class ServiceSupport {
 
     /**
      * 将在content中的内容全都驱赶到返回的消息message上
-     * 
+     *
      * @param buf
      *            message
      * @param content
@@ -382,36 +397,40 @@ public abstract class ServiceSupport {
         return buf.toString();
     }
 
+    // 服务端接收的值处理, 获取对应的vo唯一key
+
     /**
      * 根据{@linkplain com.harmony.umbrella.ws.annotation.Key Key}获取传入的vo的对于key值
-     * 
+     *
      * @param obj
      *            传入的vo
      * @return vo key
      */
     protected String getKey(Object obj) {
-        return extractKey(obj);
-    }
-
-    /**
-     * 通过配置的注解{@linkplain Key}解析对应vo的服务器端的唯一标识
-     * 
-     * @param obj
-     *            传入的vo
-     * @return vo的唯一标识
-     */
-    private String extractKey(Object obj) {
-        Map<String, Object> keys = new LinkedHashMap<String, Object>();
-        MemberInvoker[] keyMembers = getKeyMembers(obj.getClass());
-        for (MemberInvoker mi : keyMembers) {
-            try {
-                keys.put(mi.keyName(), mi.invoker(obj));
-            } catch (InvokeException e) {
-                LOG.warn("invok key member " + mi + " failed");
+        StringBuilder sb = new StringBuilder();
+        KeyAccessMember[] kams = getKeyAccessMember(obj.getClass());
+        for (int i = 0, max = kams.length;; i++) {
+            sb.append(kams[i].getName()).append(":").append(kams[i].get(obj));
+            if (i < max) {
+                sb.append(", ");
+            } else {
+                break;
             }
         }
-        return Json.toJson(keys, SerializerFeature.WriteMapNullValue);
+        return sb.toString();
     }
+
+    protected KeyAccessMember[] getKeyAccessMember(Class<?> targetClass) {
+        KeyAccessMember[] members = keyAccessMemberCache.get(targetClass);
+        if (members == null) {
+            members = ServiceUtils.getKeyAccessMember(targetClass);
+            ServiceUtils.sortKeyAccessMember(members);
+            keyAccessMemberCache.put(targetClass, members);
+        }
+        return members;
+    }
+
+    // 服务输入vo的检验方法
 
     /**
      * @see #isValid(Collection, MessageContent, ValidVisitor, Class...)
@@ -429,7 +448,7 @@ public abstract class ServiceSupport {
 
     /**
      * 验证vo集合
-     * 
+     *
      * @param objs
      *            vo集合
      * @param content
@@ -465,9 +484,9 @@ public abstract class ServiceSupport {
 
     /**
      * 验证vo是否符合数据格式的要求。一般地，在开始业务时候会把验证放置在前提条件
-     * <p>
+     * <p/>
      * 如果验证不通过则将在content中添加对于的vo key以及vo验证错误的信息
-     * 
+     *
      * @param obj
      *            传入的vo
      * @param content
@@ -484,47 +503,30 @@ public abstract class ServiceSupport {
             content.append("NULL", "input is null");
             return false;
         }
-        long start = System.currentTimeMillis();
-        String key = extractKey(obj);
         String message = ValidatorUtils.getViolationMessage(obj, visitor, groups);
         if (StringUtils.isNotBlank(message)) {
+            String key = getKey(obj);
             content.append(key, message);
+            return false;
         }
-        long use = System.currentTimeMillis() - start;
-        if (use > 1000) {
-            LOG.warn("valid obj[{}] is to complex, valid it use {}ms", obj, use);
-        } else {
-            LOG.debug("valid obj[{}], use {}ns", obj, use);
-        }
-        return !content.containsKey(key);
-    }
-
-    private MemberInvoker[] getKeyMembers(Class<?> clazz) {
-        List<MemberInvoker> result = keyMembers.get(clazz);
-        if (result == null) {
-            result = Arrays.asList(getKeyMemberSortByKey(clazz));
-            keyMembers.put(clazz, result);
-        }
-        return result.toArray(new MemberInvoker[result.size()]);
+        return true;
     }
 
     /**
      * 创建返回消息的内容
-     * 
+     *
      * @return new {@linkplain MessageContent}
      */
     protected MessageContent createContent() {
         return new MessageContent();
     }
 
-    /**
-     * 设置是否将执行上下文驱赶到message中输出
-     * 
-     * @param extractContent
-     *            驱赶标示
-     */
-    public void setExtractContent(boolean extractContent) {
-        this.extractContent = extractContent;
+    protected final HttpServletRequest getHttpRequest() {
+        return (HttpServletRequest) this.webServiceContext.getMessageContext().get(MessageContext.SERVLET_REQUEST);
+    }
+
+    protected final HttpServletResponse getHttpResponse() {
+        return (HttpServletResponse) this.webServiceContext.getMessageContext().get(MessageContext.SERVLET_RESPONSE);
     }
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2014 the original author or authors.
+ * Copyright 2002-2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,23 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.umbrella.example.ws;
-
-import java.util.List;
-
-import javax.jws.WebParam;
-import javax.jws.WebResult;
-import javax.jws.WebService;
-
-import com.harmony.umbrella.ws.service.Message;
+package com.harmony.umbrella.ws.proxy;
 
 /**
+ * 
  * @author wuxii@foxmail.com
  */
-@WebService(targetNamespace = "http://www.harmony.com/srm/test/user")
-public interface UserService {
+public interface Result {
 
-    @WebResult(name = "result")
-    Message saveOrUpdateUser(@WebParam(name = "users") List<User> users);
+    boolean isWrapped();
 
+    String getType();
+
+    boolean isOk();
+
+    String getMessage();
+
+    Object getResult();
+
+    <T> T unwrap(Class<T> requiredType);
 }

@@ -16,7 +16,6 @@
 package com.harmony.umbrella.ws.service;
 
 import java.io.Serializable;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -63,7 +62,7 @@ public class Message implements Serializable {
     }
 
     public Message(String message, String type) {
-        this(message, type, Collections.<String, String> emptyMap());
+        this(message, type, new HashMap<String, String>());
     }
 
     public Message(String message, String type, Map<String, String> content) {
@@ -165,7 +164,7 @@ public class Message implements Serializable {
 
     @Override
     public String toString() {
-        return "{type:" + type + ", message:" + message + ", content:" + content + "}";
+        return "Message {type:" + type + ", message:" + message + ", content:" + content + "}";
     }
 
 }

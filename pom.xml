@@ -39,7 +39,6 @@ under the License.
   <modules>
     <module>umbrella-core</module>
     <module>umbrella-ee</module>
-    <module>umbrella-data</module>
     <module>umbrella-json</module>
     <module>umbrella-log-log4j</module>
     <module>umbrella-message</module>
@@ -50,6 +49,7 @@ under the License.
     <module>umbrella-plugins</module>
     <module>umbrella-xml</module>
     <module>umbrella-test</module>
+    <module>umbrella-data</module>
     <!-- <module>umbrella-web</module> -->
     <!-- <module>umbrella-scheduler</module> -->
     <!-- <module>umbrella-mail</module> -->

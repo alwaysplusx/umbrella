@@ -13,14 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.umbrella.example.ws;
+package com.harmony.umbrella.example.proxy;
 
 import java.util.ArrayList;
 
 import javax.ejb.Stateless;
 import javax.jws.WebService;
-import javax.xml.stream.XMLInputFactory;
 
+import com.harmony.umbrella.example.ws.User;
+import com.harmony.umbrella.example.ws.UserService;
 import com.harmony.umbrella.ws.cxf.interceptor.MessageInInterceptor;
 import com.harmony.umbrella.ws.cxf.interceptor.MessageOutInterceptor;
 import com.harmony.umbrella.ws.jaxws.JaxWsProxyBuilder;
@@ -51,11 +52,6 @@ public class UserProxyBean {
         System.out.println(factory);*/
 
         service.saveOrUpdateUser(new ArrayList<User>());
-    }
-
-    public static void main(String[] args) {
-        XMLInputFactory factory = XMLInputFactory.newInstance();
-        System.out.println(factory);
     }
 
 }

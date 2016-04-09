@@ -1,5 +1,5 @@
 
-package com.harmony.umbrella.example.ws.wsdl2java;
+package com.harmony.umbrella.example.proxy;
 
 import java.util.ArrayList;
 import java.util.List;

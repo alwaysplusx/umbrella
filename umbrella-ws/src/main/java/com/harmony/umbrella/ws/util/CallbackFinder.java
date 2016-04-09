@@ -25,7 +25,7 @@ import com.harmony.umbrella.log.Log;
 import com.harmony.umbrella.log.Logs;
 import com.harmony.umbrella.util.ClassUtils.ClassFilter;
 import com.harmony.umbrella.ws.annotation.Syncable;
-import com.harmony.umbrella.ws.proxy.SyncCallback;
+import com.harmony.umbrella.ws.proxy.ProxyCallback;
 
 /**
  * 通过扫描类路径下的类，过滤标注有{@linkplain Syncable}注解的类
@@ -42,10 +42,10 @@ public class CallbackFinder {
      * 所有标注了syncable注解的class
      */
     @SuppressWarnings("rawtypes")
-    private Class<? extends SyncCallback>[] callbacks;
+    private Class<? extends ProxyCallback>[] callbacks;
 
     /**
-     * 各个类对应的{@linkplain SyncCallback}缓存
+     * 各个类对应的{@linkplain ProxyCallback}缓存
      */
     @SuppressWarnings("rawtypes")
     private final Map<String, List> callbackMap = new HashMap<String, List>();
@@ -57,7 +57,7 @@ public class CallbackFinder {
     }
 
     /**
-     * 加载类路径下所有标注有{@linkplain Syncable} 的{@linkplain SyncCallback}
+     * 加载类路径下所有标注有{@linkplain Syncable} 的{@linkplain ProxyCallback}
      * 且服务类是serviceClass，对于的同步方法为methodName的类
      * 
      * @param serviceClass
@@ -67,12 +67,12 @@ public class CallbackFinder {
      * @return 对应的SyncCallback
      */
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    public Class<SyncCallback>[] getCallbackClasses(Class<?> serviceClass, String methodName) {
+    public Class<ProxyCallback>[] getCallbackClasses(Class<?> serviceClass, String methodName) {
         String key = serviceClass.getName() + "#" + methodName;
         List classes = callbackMap.get(key);
         if (classes == null) {
             classes = new ArrayList<Class>();
-            for (Class<? extends SyncCallback> clazz : callbacks()) {
+            for (Class<? extends ProxyCallback> clazz : callbacks()) {
                 if (isMatchCallback(clazz, serviceClass, methodName)) {
                     classes.add(clazz);
                 }
@@ -80,11 +80,11 @@ public class CallbackFinder {
             callbackMap.put(key, classes);
             log.debug("{}, all callback {}", key, classes);
         }
-        return (Class<SyncCallback>[]) classes.toArray(new Class[classes.size()]);
+        return (Class<ProxyCallback>[]) classes.toArray(new Class[classes.size()]);
     }
 
     @SuppressWarnings("rawtypes")
-    protected Class<? extends SyncCallback>[] callbacks() {
+    protected Class<? extends ProxyCallback>[] callbacks() {
         if (callbacks == null) {
             callbacks = getAllCallbackClass();
         }
@@ -97,15 +97,15 @@ public class CallbackFinder {
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    private Class<? extends SyncCallback>[] getAllCallbackClass() {
-        return (Class<? extends SyncCallback>[]) resourceManager.getClasses(basePackage, new ClassFilter() {
+    private Class<? extends ProxyCallback>[] getAllCallbackClass() {
+        return (Class<? extends ProxyCallback>[]) resourceManager.getClasses(basePackage, new ClassFilter() {
 
             @Override
             public boolean accept(Class<?> clazz) {
                 if (clazz == null) {
                     return false;
                 }
-                if (SyncCallback.class.isAssignableFrom(clazz) && clazz.getAnnotation(Syncable.class) != null) {
+                if (ProxyCallback.class.isAssignableFrom(clazz) && clazz.getAnnotation(Syncable.class) != null) {
                     log.info("accept {} as callback", clazz);
                     return true;
                 }
