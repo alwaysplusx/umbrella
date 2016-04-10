@@ -49,8 +49,8 @@ under the License.
     <module>umbrella-xml</module>
     <module>umbrella-test</module>
     <module>umbrella-data</module>
+    <module>umbrella-web</module>
     <!-- <module>umbrella-mapper</module> -->
-    <!-- <module>umbrella-web</module> -->
     <!-- <module>umbrella-scheduler</module> -->
     <!-- <module>umbrella-mail</module> -->
     <!-- <module>umbrella-spring</module> -->

@@ -31,7 +31,7 @@ import java.util.Map;
 public interface Proxy<T> {
 
     // TODO 查询支持
-    
+
     /**
      * 同步对象在{@linkplain com.harmony.umbrella.ws.Context}中的key
      */

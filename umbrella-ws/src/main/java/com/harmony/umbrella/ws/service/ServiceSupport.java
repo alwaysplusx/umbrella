@@ -51,8 +51,6 @@ import com.harmony.umbrella.ws.util.BeanMapper;
  */
 public abstract class ServiceSupport {
 
-    // TODO 服务端的request以及response支持
-
     @Resource
     protected WebServiceContext webServiceContext;
 

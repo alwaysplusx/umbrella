@@ -9,7 +9,6 @@
   </parent>
   <name>Harmony Umbrella :: Module of Web</name>
   <artifactId>umbrella-web</artifactId>
-  <packaging>war</packaging>
   <dependencies>
     <dependency>
       <groupId>com.harmony.umbrella</groupId>
@@ -90,17 +89,4 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-war-plugin</artifactId>
-        <version>2.6</version>
-        <configuration>
-          <attachClasses>true</attachClasses>
-          <archiveClasses>true</archiveClasses>         
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
 </project>

@@ -17,7 +17,7 @@ package com.harmony.umbrella.web;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.PrintWriter;
+import java.io.Writer;
 
 /**
  * 前台渲染工具
@@ -46,7 +46,9 @@ public interface Render {
      * @param writer
      *            输出自字符流
      * @return true输出成功
+     * @throws IOException
+     *             if an I/O error occurs.
      */
-    boolean render(String text, PrintWriter writer);
+    boolean render(String text, Writer writer) throws IOException;
 
 }

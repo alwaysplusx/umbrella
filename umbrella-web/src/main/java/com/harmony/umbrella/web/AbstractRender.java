@@ -17,7 +17,7 @@ package com.harmony.umbrella.web;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.PrintWriter;
+import java.io.Writer;
 
 import com.harmony.umbrella.log.Log;
 import com.harmony.umbrella.log.Logs;
@@ -41,7 +41,7 @@ public abstract class AbstractRender implements Render {
     }
 
     @Override
-    public boolean render(String text, PrintWriter writer) {
+    public boolean render(String text, Writer writer) throws IOException {
         writer.write(text);
         writer.flush();
         return true;

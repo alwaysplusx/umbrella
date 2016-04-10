@@ -18,123 +18,138 @@ package com.harmony.umbrella.web.render;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.servlet.http.HttpServletResponse;
 
-import com.harmony.umbrella.util.Assert;
-import com.harmony.umbrella.util.StringUtils;
+import com.harmony.umbrella.util.FileUtils;
+import com.harmony.umbrella.util.IOUtils;
 import com.harmony.umbrella.web.AbstractRender;
-import com.harmony.umbrella.web.WebUmbrellaProperties.MediaType;
 
 /**
  * @author wuxii@foxmail.com
  */
-public class WebRender extends AbstractRender implements HttpTextRender, HttpBinaryRender {
+public class WebRender extends AbstractRender implements HttpRender {
 
     private static final String Content_Type = "Content-Type";
-    private static final String Content_Disposition = "Content-Disposition";
-    private static final String Content_Length = "Content-Length";
+    // private static final String Content_Disposition = "Content-Disposition";
+    // private static final String Content_Length = "Content-Length";
 
-    protected static final Map<String, String> HTTP_RESPONSE_JSON_HEADER = new HashMap<String, String>();
-    protected static final Map<String, String> HTTP_RESPONSE_XML_HEADER = new HashMap<String, String>();
-    protected static final Map<String, String> HTTP_RESPONSE_HTML_HEADER = new HashMap<String, String>();
-    protected static final Map<String, String> HTTP_RESPONSE_TEXT_HEADER = new HashMap<String, String>();
+    private static final String charset = "charset=utf-8";
+
+    public final static String WILDCARD = "*/*; " + charset;
+
+    public static final String TEXT_HTML = "text/html; " + charset;
+    public static final String TEXT_XML = "text/xml; " + charset;
+    public static final String TEXT_PLAIN = "text/plain; " + charset;
+
+    public static final String APPLICATION_JSON = "application/json; " + charset;
+
+    private static final Map<String, String> JSON_HEADER;
+    private static final Map<String, String> XML_HEADER;
+    private static final Map<String, String> HTML_HEADER;
+    private static final Map<String, String> PLAIN_HEADER;
 
     static {
+        Map<String, String> header = new HashMap<String, String>();
+        header.put(Content_Type, APPLICATION_JSON);
+        JSON_HEADER = Collections.unmodifiableMap(header);
 
-        HTTP_RESPONSE_JSON_HEADER.put(Content_Type, MediaType.TEXT_JSON);
+        header = new HashMap<String, String>();
+        header.put(Content_Type, TEXT_XML);
+        XML_HEADER = Collections.unmodifiableMap(header);
 
-        HTTP_RESPONSE_XML_HEADER.put(Content_Type, MediaType.TEXT_XML);
+        header = new HashMap<String, String>();
+        header.put(Content_Type, TEXT_PLAIN);
+        PLAIN_HEADER = Collections.unmodifiableMap(header);
 
-        HTTP_RESPONSE_HTML_HEADER.put(Content_Type, MediaType.TEXT_HTML);
-
-        HTTP_RESPONSE_TEXT_HEADER.put(Content_Type, MediaType.TEXT_PLAIN);
-    }
-
-    private final Map<String, String> headerProperties = new HashMap<String, String>();
-
-    public WebRender() {
-    }
-    
-    public WebRender(Map<String, String> headProperties) {
-        headerProperties.putAll(headProperties);
-    }
-
-    @Override
-    public void renderFile(File file, HttpServletResponse response) throws IOException {
-        Assert.notNull(file, "fiel must not be null");
-        if (!file.exists() || !file.isFile()) {
-            throw new IOException("file " + file.getName() + " not exists or is not fiel");
-        }
-        byte[] buf = null;
-        FileInputStream fis = null;
-        try {
-            fis = new FileInputStream(file);
-            buf = new byte[fis.available()];
-            fis.read(buf);
-        } finally {
-            if (fis != null) {
-                fis.close();
-            }
-        }
-        headerProperties.put(Content_Length, String.valueOf(buf.length));
-        headerProperties.put(Content_Disposition, "attachment;filename=" + file.getName() + "." + getFileExtensions(file.getName()));
-        applyHeaders(headerProperties, response);
-        render(buf, response.getOutputStream());
+        header = new HashMap<String, String>();
+        header.put(Content_Type, TEXT_HTML);
+        HTML_HEADER = Collections.unmodifiableMap(header);
     }
 
     @Override
     public void renderJson(String text, HttpServletResponse response) throws IOException {
-        headerProperties.putAll(HTTP_RESPONSE_JSON_HEADER);
-        headerProperties.put(Content_Length, String.valueOf(text.getBytes().length));
-        applyHeaders(headerProperties, response);
-        render(text, response.getWriter());
+        render(text, response, JSON_HEADER);
     }
 
     @Override
     public void renderXml(String text, HttpServletResponse response) throws IOException {
-        headerProperties.putAll(HTTP_RESPONSE_XML_HEADER);
-        headerProperties.put(Content_Length, String.valueOf(text.getBytes().length));
-        applyHeaders(headerProperties, response);
-        render(text, response.getWriter());
+        render(text, response, XML_HEADER);
     }
 
     @Override
     public void renderHtml(String text, HttpServletResponse response) throws IOException {
-        headerProperties.putAll(HTTP_RESPONSE_HTML_HEADER);
-        headerProperties.put(Content_Length, String.valueOf(text.getBytes().length));
-        applyHeaders(headerProperties, response);
-        render(text, response.getWriter());
+        render(text, response, HTML_HEADER);
     }
 
     @Override
     public void renderText(String text, HttpServletResponse response) throws IOException {
-        headerProperties.putAll(HTTP_RESPONSE_TEXT_HEADER);
-        headerProperties.put(Content_Length, String.valueOf(text.getBytes().length));
-        applyHeaders(headerProperties, response);
+        render(text, response, PLAIN_HEADER);
+    }
+
+    @Override
+    public void renderFile(File file, HttpServletResponse response) throws IOException {
+        renderFile(file, response, new HashMap<String, String>());
+    }
+
+    @Override
+    public void renderFile(File file, HttpServletResponse response, Map<String, String> heanders) throws IOException {
+        if (!file.isFile()) {
+            throw new IOException(file.getAbsolutePath() + " is not file");
+        }
+        applyIfAbsent(getFileHeader(file, false), heanders);
+        FileInputStream fis = new FileInputStream(file);
+        render(fis, response, heanders);
+        fis.close();
+    }
+
+    @Override
+    public void render(String text, HttpServletResponse response, Map<String, String> headers) throws IOException {
+        for (Entry<String, String> entry : headers.entrySet()) {
+            response.addHeader(entry.getKey(), entry.getValue());
+        }
         render(text, response.getWriter());
     }
 
-    /**
-     * 将header信息设置到http返回中
-     */
-    protected void applyHeaders(Map<String, String> header, HttpServletResponse response) {
-        Iterator<Entry<String, String>> it = header.entrySet().iterator();
-        while (it.hasNext()) {
-            Entry<String, String> entry = it.next();
-            response.setHeader(entry.getKey(), entry.getValue());
+    @Override
+    public void render(InputStream is, HttpServletResponse response, Map<String, String> headers) throws IOException {
+        for (Entry<String, String> entry : headers.entrySet()) {
+            response.addHeader(entry.getKey(), entry.getValue());
         }
+        IOUtils.copy(is, response.getOutputStream());
     }
 
-    private static String getFileExtensions(String fileName) {
-        if (StringUtils.isBlank(fileName) || fileName.endsWith(".")) {
-            return "";
+    protected Map<String, String> getFileHeader(File file, boolean download) {
+        String extension = FileUtils.getExtension(file);
+        Map<String, String> heanders = new HashMap<String, String>();
+        if (".txt".equals(extension)) {
+            heanders.putAll(PLAIN_HEADER);
+        } else if (".html".equals(extension)) {
+            heanders.putAll(HTML_HEADER);
+        } else if (".xml".equals(extension)) {
+            heanders.putAll(XML_HEADER);
+        } else if (".xls".equals(extension) || ".xlsx".equals(extension)) {
+            heanders.putAll(PLAIN_HEADER);
+        } else if (".doc".equals(extension) || ".docx".equals(extension)) {
+            heanders.putAll(PLAIN_HEADER);
+        } else if (".ppt".equals(extension) || ".pptx".equals(extension)) {
+            heanders.putAll(PLAIN_HEADER);
+        } else if (".pdf".equals(extension)) {
+            heanders.putAll(PLAIN_HEADER);
         }
-        return fileName.substring(fileName.lastIndexOf(".") + 1).toLowerCase().trim();
+        return heanders;
     }
 
+    protected void applyIfAbsent(Map<String, String> origin, Map<String, String> target) {
+        for (String key : origin.keySet()) {
+            if (!target.containsKey(key)) {
+                target.put(key, origin.get(key));
+            }
+        }
+    }
 }
