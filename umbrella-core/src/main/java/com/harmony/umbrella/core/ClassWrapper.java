@@ -5,21 +5,27 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import com.harmony.umbrella.UmbrellaProperties;
 import com.harmony.umbrella.io.ResourceManager;
 import com.harmony.umbrella.util.ClassUtils;
-import com.harmony.umbrella.util.PropUtils;
+import com.harmony.umbrella.util.Environments;
 
 /**
+ * Class包装类, 负责加载类路径下的类依赖关系
+ * 
+ * 可以在包装类中找到对于的父类以及所有子类的树形关系
+ * 
  * @author wuxii@foxmail.com
  */
 @SuppressWarnings("rawtypes")
 public class ClassWrapper<T> {
 
+    public static final String ALL_WRAPPER_CLASS_PACKAGE = ClassWrapper.class.getName() + ".package";
+    
     private static final Class[] classes;
-
+    
     static {
-        classes = ResourceManager.getInstance().getClasses(PropUtils.getSystemProperty("wrapper.classes", UmbrellaProperties.DEFAULT_PACKAGE));
+        String defaultPackage = Environments.getProperty(ALL_WRAPPER_CLASS_PACKAGE, "com.harmony");
+        classes = ResourceManager.getInstance().getClasses(defaultPackage);
     }
 
     private static final Map<Class, Set<Class>> subClassMap = new HashMap<Class, Set<Class>>();

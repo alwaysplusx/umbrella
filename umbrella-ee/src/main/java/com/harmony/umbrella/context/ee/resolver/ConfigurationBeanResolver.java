@@ -126,11 +126,11 @@ public class ConfigurationBeanResolver implements BeanResolver {
                 getProperty(properties, "jndi.format.transformLocal", "true", stringToBooleanConverter));
     }
 
-    public static <V> V getProperty(Properties properties, String key, Converter<String, V> converter) {
+    static <V> V getProperty(Properties properties, String key, Converter<String, V> converter) {
         return getProperty(properties, key, null, converter);
     }
 
-    public static <V> V getProperty(Properties properties, String key, String defaultValue, Converter<String, V> converter) {
+    static <V> V getProperty(Properties properties, String key, String defaultValue, Converter<String, V> converter) {
         return converter.convert(properties.getProperty(key, defaultValue));
     }
 

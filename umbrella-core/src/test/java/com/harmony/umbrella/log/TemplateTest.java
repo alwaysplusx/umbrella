@@ -19,7 +19,7 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.harmony.umbrella.log.annotation.Log;
+import com.harmony.umbrella.log.annotation.Logging;
 import com.harmony.umbrella.log.template.MessageTemplateFactory;
 
 /**
@@ -46,7 +46,7 @@ public class TemplateTest {
         System.out.println(message.getFormattedMessage());
     }
 
-    @Log(message = "保存数据【{0[key].sampleId}】, {result}", id = "{0.sampleId}")
+    @Logging(message = "保存数据【{0[key].sampleId}】, {result}", id = "{0.sampleId}")
     public String sayHi(SampleEntity entity, Map<String, Object> params) {
         return "success";
     }

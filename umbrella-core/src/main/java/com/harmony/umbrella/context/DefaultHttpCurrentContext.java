@@ -136,10 +136,6 @@ public class DefaultHttpCurrentContext implements HttpCurrentContext {
         return (T) getHttpSession().getAttribute(name);
     }
 
-    public void setSessionAttribute(String name, Object o) {
-        getHttpSession().setAttribute(name, o);
-    }
-
     @SuppressWarnings("unchecked")
     @Override
     public <T> T get(String name) {

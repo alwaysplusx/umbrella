@@ -28,9 +28,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import com.harmony.umbrella.UmbrellaProperties;
 import com.harmony.umbrella.log.Log;
 import com.harmony.umbrella.log.Logs;
+import com.harmony.umbrella.context.ApplicationContext;
 import com.harmony.umbrella.io.ResourceManager;
 import com.harmony.umbrella.util.ClassUtils;
 import com.harmony.umbrella.util.ClassUtils.ClassFilter;
@@ -47,6 +47,8 @@ public class HandlerMethodFinder {
 
     private static final Log log = Logs.getLog(HandlerMethodFinder.class);
 
+    private static final String DEFAULT_PACKAGE = ApplicationContext.APPLICATION_PACKAGE;
+    
     private final Class<?>[] handlerClasses;
 
     /**
@@ -69,7 +71,7 @@ public class HandlerMethodFinder {
      * basePackage为当前classpath
      */
     public HandlerMethodFinder() {
-        this(UmbrellaProperties.DEFAULT_PACKAGE);
+        this(DEFAULT_PACKAGE);
     }
 
     /**

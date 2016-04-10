@@ -15,32 +15,29 @@
       <artifactId>umbrella-core</artifactId>
     </dependency>
     <dependency>
-      <groupId>javax.validation</groupId>
-      <artifactId>validation-api</artifactId>
+      <groupId>javax</groupId>
+      <artifactId>javaee-api</artifactId>
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.hibernate</groupId>
       <artifactId>hibernate-validator</artifactId>
-      <scope>compile</scope>
-      <optional>true</optional>
-    </dependency>
-    <dependency>
-      <groupId>org.glassfish.web</groupId>
-      <artifactId>javax.el</artifactId>
-      <scope>compile</scope>
-      <optional>true</optional>
       <exclusions>
         <exclusion>
-          <artifactId>javax.el-api</artifactId>
-          <groupId>javax.el</groupId>
+          <groupId>javax.validation</groupId>
+          <artifactId>validation-api</artifactId>
         </exclusion>
       </exclusions>
     </dependency>
     <dependency>
-      <artifactId>javax.el-api</artifactId>
-      <groupId>javax.el</groupId>
-      <scope>provided</scope>
+      <groupId>org.glassfish.web</groupId>
+      <artifactId>javax.el</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>javax.el</groupId>
+          <artifactId>javax.el-api</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>

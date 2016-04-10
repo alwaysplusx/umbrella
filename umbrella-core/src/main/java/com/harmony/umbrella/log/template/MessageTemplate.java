@@ -23,7 +23,7 @@ import java.util.List;
 import com.harmony.umbrella.log.IllegalExpressionException;
 import com.harmony.umbrella.log.Message;
 import com.harmony.umbrella.log.Template;
-import com.harmony.umbrella.log.annotation.Log;
+import com.harmony.umbrella.log.annotation.Logging;
 import com.harmony.umbrella.log.expression.ExpressionResolverChain;
 import com.harmony.umbrella.log.message.FormattedMessage;
 import com.harmony.umbrella.log.message.SimpleMessage;
@@ -34,7 +34,7 @@ import com.harmony.umbrella.log.util.ExpressionUtils;
  */
 public class MessageTemplate implements Template {
 
-    protected final Log ann;
+    protected final Logging ann;
     protected final Method method;
     protected final String template;
     protected final String idExpression;
@@ -44,7 +44,7 @@ public class MessageTemplate implements Template {
     private String _placeholdTemplate;
 
     public MessageTemplate(Method method) {
-        this.ann = method.getAnnotation(Log.class);
+        this.ann = method.getAnnotation(Logging.class);
         if (ann == null) {
             throw new IllegalArgumentException("method not have @Log annotation");
         }

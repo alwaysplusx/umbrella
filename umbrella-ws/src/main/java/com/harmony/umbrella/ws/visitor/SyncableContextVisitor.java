@@ -22,7 +22,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import com.harmony.umbrella.UmbrellaProperties;
 import com.harmony.umbrella.context.ApplicationContext;
 import com.harmony.umbrella.core.BeanFactory;
 import com.harmony.umbrella.ws.Context;
@@ -30,8 +29,8 @@ import com.harmony.umbrella.ws.ProxyExecutor;
 import com.harmony.umbrella.ws.WebServiceAbortException;
 import com.harmony.umbrella.ws.annotation.Syncable;
 import com.harmony.umbrella.ws.proxy.Proxy;
-import com.harmony.umbrella.ws.proxy.ProxyResultCallback;
 import com.harmony.umbrella.ws.proxy.ProxyCallback;
+import com.harmony.umbrella.ws.proxy.ProxyResultCallback;
 import com.harmony.umbrella.ws.util.CallbackFinder;
 
 /**
@@ -48,7 +47,9 @@ import com.harmony.umbrella.ws.util.CallbackFinder;
  * @author wuxii@foxmail.com
  */
 public class SyncableContextVisitor extends AbstractContextVisitor {
-
+    
+    private static final String DEFAULT_PACKAGE = ApplicationContext.APPLICATION_PACKAGE;
+    
     /**
      * 用户扫描类路径下的{@linkplain Syncable}
      */
@@ -60,7 +61,7 @@ public class SyncableContextVisitor extends AbstractContextVisitor {
     private BeanFactory beanFactory;
 
     public SyncableContextVisitor() {
-        this(UmbrellaProperties.DEFAULT_PACKAGE);
+        this(DEFAULT_PACKAGE);
     }
 
     public SyncableContextVisitor(String basePackage) {

@@ -34,6 +34,7 @@ import com.harmony.umbrella.context.ApplicationMetadata.ServerInformation;
 import com.harmony.umbrella.core.BeanFactory;
 import com.harmony.umbrella.log.Log;
 import com.harmony.umbrella.log.Logs;
+import com.harmony.umbrella.util.Environments;
 import com.harmony.umbrella.util.PropUtils;
 
 /**
@@ -43,29 +44,34 @@ import com.harmony.umbrella.util.PropUtils;
  */
 public abstract class ApplicationContext implements BeanFactory {
 
+    protected static final Log LOG = Logs.getLog(ApplicationContext.class);
+    
+    public static final String APPLICATION_PACKAGE;
+
     /**
      * jndi默认配置文件地址
      */
     public static final String APPLICATION_PROPERTIES_LOCATION = "META-INF/application.properties";
-
-    protected static final ThreadLocal<CurrentContext> current = new InheritableThreadLocal<CurrentContext>();
-
-    protected static final Log LOG = Logs.getLog(ApplicationContext.class);
-
-    private static final ServiceLoader<ContextProvider> providers = ServiceLoader.load(ContextProvider.class);
-
+    
     /**
      * 应用的配置属性
      */
     protected static final Properties applicationProperties = new Properties();
 
     static {
+        APPLICATION_PACKAGE = Environments.getProperty("umbrella.application.package", "com.harmony");
         try {
-            applicationProperties.putAll(PropUtils.loadProperties(APPLICATION_PROPERTIES_LOCATION));
+            String fileLocation = Environments.getProperty("umbrella.application.properties.file", APPLICATION_PROPERTIES_LOCATION);
+            applicationProperties.putAll(PropUtils.loadProperties(fileLocation));
         } catch (IOException e) {
             LOG.trace("META-INF/application.properties file not find, no default application properties");
         }
     }
+    
+    protected static final ThreadLocal<CurrentContext> current = new InheritableThreadLocal<CurrentContext>();
+
+
+    private static final ServiceLoader<ContextProvider> providers = ServiceLoader.load(ContextProvider.class);
 
     protected Locale locale;
 
@@ -287,6 +293,10 @@ public abstract class ApplicationContext implements BeanFactory {
 
     public static String getProperty(String key, String defaultValue) {
         return applicationProperties.getProperty(key, defaultValue);
+    }
+
+    public static void setProperty(String key, String value) {
+        applicationProperties.put(key, value);
     }
 
 }

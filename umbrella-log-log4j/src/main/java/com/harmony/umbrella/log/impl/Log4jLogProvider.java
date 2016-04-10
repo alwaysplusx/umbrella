@@ -18,11 +18,11 @@ package com.harmony.umbrella.log.impl;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
+import com.harmony.umbrella.log.AbstractLog;
 import com.harmony.umbrella.log.Log;
 import com.harmony.umbrella.log.LogInfo;
 import com.harmony.umbrella.log.LogProvider;
 import com.harmony.umbrella.log.Message;
-import com.harmony.umbrella.log.support.AbstractLog;
 
 /**
  * @author wuxii@foxmail.com

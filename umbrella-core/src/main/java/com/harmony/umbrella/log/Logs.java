@@ -19,8 +19,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ServiceLoader;
 
-import com.harmony.umbrella.log.support.AbstractLog;
-import com.harmony.umbrella.log.util.StackUtils;
 import com.harmony.umbrella.util.PropUtils;
 
 /**
@@ -76,6 +74,44 @@ public class Logs {
      */
     public static Log getLog(String className) {
         return logProvider.getLogger(className);
+    }
+
+    public static String fullyQualifiedClassName(Class<?> clazz) {
+        return fullyQualifiedClassName(clazz.getName(), 0);
+    }
+
+    public static String fullyQualifiedClassName(Class<?> clazz, int beforeIndex) {
+        return fullyQualifiedClassName(clazz.getName(), beforeIndex);
+    }
+
+    public static String fullyQualifiedClassName(String className) {
+        return fullyQualifiedClassName(className, 0);
+    }
+
+    public static String fullyQualifiedClassName(String className, int beforeIndex) {
+        StackTraceElement ste = find(className, beforeIndex);
+        return ste == null ? null : ste.toString();
+    }
+
+    /**
+     * 在当前线程中查找对应类的stackTraceElement
+     * 
+     * @param className
+     * @param reversal
+     * @return
+     */
+    public static StackTraceElement find(String className, int beforeIndex) {
+        StackTraceElement[] stackTrace = new Throwable().getStackTrace();
+        for (int i = stackTrace.length - 1; i >= 0; i--) {
+            if (stackTrace[i].getClassName().equals(className)) {
+                int index = i + beforeIndex;
+                if (index > stackTrace.length - 1) {
+                    return null;
+                }
+                return stackTrace[index];
+            }
+        }
+        return null;
     }
 
     static class SystemLogProvider implements LogProvider {
@@ -147,7 +183,7 @@ public class Logs {
         }
 
         private String getFullyQualifiedClassName() {
-            StackTraceElement ste = StackUtils.find(callerFQCN, 1);
+            StackTraceElement ste = Logs.find(callerFQCN, 1);
             if (fullName) {
                 return ste.toString();
             }

@@ -15,6 +15,9 @@
  */
 package com.harmony.umbrella.json;
 
+import java.util.List;
+import java.util.Map;
+
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializeFilter;
 import com.alibaba.fastjson.serializer.SerializerFeature;
@@ -23,7 +26,7 @@ import com.harmony.umbrella.json.serializer.SimplePropertyNameFilter;
 /**
  * @author wuxii@foxmail.com
  */
-public abstract class Json {
+public class Json {
 
     /**
      * 将Object对象序列化为json文本
@@ -113,7 +116,19 @@ public abstract class Json {
         return JSON.toJSONString(object, new SimplePropertyNameFilter(excludeProperties), features);
     }
 
-    public static <T> T fromJson(String json, Class<T> clazz) {
+    public static Map<String, Object> toMap(String json) {
+        return JSON.parseObject(json);
+    }
+
+    public static List<Object> toArray(String json) {
+        return JSON.parseArray(json);
+    }
+    
+    public static <T> List<T> parseArray(String json, Class<T> clazz) {
+        return JSON.parseArray(json, clazz);
+    }
+
+    public static <T> T parse(String json, Class<T> clazz) {
         return JSON.parseObject(json, clazz);
     }
 

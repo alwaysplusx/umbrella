@@ -27,7 +27,7 @@ import com.harmony.umbrella.log.expression.ExpressionResolver;
 
 @Target({ METHOD })
 @Retention(RUNTIME)
-public @interface Log {
+public @interface Logging {
 
     /**
      * 模块

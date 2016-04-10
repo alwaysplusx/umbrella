@@ -8,7 +8,7 @@ import com.harmony.umbrella.context.CurrentContext;
 import com.harmony.umbrella.log.LogMessage;
 import com.harmony.umbrella.log.Logs;
 import com.harmony.umbrella.log.Message;
-import com.harmony.umbrella.log.annotation.Log;
+import com.harmony.umbrella.log.annotation.Logging;
 
 /**
  * @author wuxii@foxmail.com
@@ -36,7 +36,7 @@ public abstract class AbstractLoggingInterceptor<C> {
         Method method = ctx.method;
         Object target = ctx.target;
 
-        Log ann = method.getAnnotation(Log.class);
+        Logging ann = method.getAnnotation(Logging.class);
 
         LogMessage logMessage = LogMessage.create(Logs.getLog(target.getClass()));
 

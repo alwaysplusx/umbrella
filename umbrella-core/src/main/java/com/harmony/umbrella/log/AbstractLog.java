@@ -13,13 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.umbrella.log.support;
+package com.harmony.umbrella.log;
 
-import com.harmony.umbrella.log.Level;
-import com.harmony.umbrella.log.Log;
-import com.harmony.umbrella.log.LogInfo;
-import com.harmony.umbrella.log.Message;
-import com.harmony.umbrella.log.MessageFactory;
 import com.harmony.umbrella.log.message.ParameterizedMessageFactory;
 
 /**
@@ -251,5 +246,5 @@ public abstract class AbstractLog implements Log {
     public MessageFactory getMessageFactory() {
         return messageFactory;
     }
-
+    
 }

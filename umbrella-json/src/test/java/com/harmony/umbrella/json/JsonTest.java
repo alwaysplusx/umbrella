@@ -18,6 +18,7 @@ package com.harmony.umbrella.json;
 import static com.alibaba.fastjson.serializer.SerializerFeature.*;
 
 import java.util.Arrays;
+import java.util.Map;
 
 import org.junit.Test;
 
@@ -49,6 +50,13 @@ public class JsonTest {
     public void testToJsonObjectSerializerFeatureArray() {
         String json = Json.toJson(parent, PrettyFormat, QuoteFieldNames);
         System.out.println(json);
+    }
+
+    @Test
+    public void testFromJson() {
+        String json = "[{a: 'b'}]";
+        Map<String, Object> map = Json.toMap(json);
+        System.out.println(map);
     }
 
 }

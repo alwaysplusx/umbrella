@@ -21,7 +21,6 @@ import java.util.Date;
 import java.util.Map;
 
 import com.harmony.umbrella.log.Level.StandardLevel;
-import com.harmony.umbrella.log.util.StackUtils;
 
 /**
  * 统一日志消息
@@ -251,7 +250,7 @@ public class LogMessage {
     }
 
     public LogMessage currentStack() {
-        this.stack = StackUtils.fullyQualifiedClassName(LogMessage.LOGMESSAGE_FQNC, 1);
+        this.stack = Logs.fullyQualifiedClassName(LogMessage.LOGMESSAGE_FQNC, 1);
         return this;
     }
 

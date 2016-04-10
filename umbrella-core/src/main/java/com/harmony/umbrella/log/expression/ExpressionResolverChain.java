@@ -7,7 +7,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.StringTokenizer;
 
-import com.harmony.umbrella.log.annotation.Log;
+import com.harmony.umbrella.log.annotation.Logging;
 
 /**
  * @author wuxii@foxmail.com
@@ -70,7 +70,7 @@ public class ExpressionResolverChain {
         return new ExpressionResolverChain(list);
     }
 
-    public static ExpressionResolverChain createChain(Log ann) throws Exception {
+    public static ExpressionResolverChain createChain(Logging ann) throws Exception {
         if (ann.resolver().length == 0) {
             return defaultChain();
         }

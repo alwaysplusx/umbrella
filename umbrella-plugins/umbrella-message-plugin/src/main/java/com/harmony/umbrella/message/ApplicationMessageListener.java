@@ -31,7 +31,7 @@ import com.harmony.umbrella.message.jms.JmsConfig;
 /**
  * @author wuxii@foxmail.com
  */
-@MessageDriven(activationConfig = { 
+@MessageDriven(mappedName = JmsConfig.DEFAULT_QUEUE, activationConfig = { 
         @ActivationConfigProperty(propertyName = "acknowledgeMode", propertyValue = "Auto-acknowledge"),
         @ActivationConfigProperty(propertyName = "destinationType", propertyValue = "javax.jms.Queue"),
         @ActivationConfigProperty(propertyName = "destination", propertyValue = JmsConfig.DEFAULT_QUEUE) 

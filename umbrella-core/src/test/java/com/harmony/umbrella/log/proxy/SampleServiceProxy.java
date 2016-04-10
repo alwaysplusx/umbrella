@@ -22,7 +22,7 @@ import com.harmony.umbrella.log.LogMessage;
 import com.harmony.umbrella.log.Logs;
 import com.harmony.umbrella.log.Template;
 import com.harmony.umbrella.log.TemplateFactory;
-import com.harmony.umbrella.log.annotation.Log;
+import com.harmony.umbrella.log.annotation.Logging;
 import com.harmony.umbrella.log.template.MessageTemplateFactory;
 
 /**
@@ -41,7 +41,7 @@ public class SampleServiceProxy implements InvocationHandler {
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         Object result = null;
 
-        Log ann = method.getAnnotation(Log.class);
+        Logging ann = method.getAnnotation(Logging.class);
 
         if (ann != null) {
             com.harmony.umbrella.log.Log log = Logs.getLog(target.getClass());

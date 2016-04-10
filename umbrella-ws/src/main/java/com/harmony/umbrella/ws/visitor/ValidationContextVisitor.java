@@ -19,13 +19,12 @@ import static com.harmony.umbrella.ws.Phase.*;
 
 import java.io.Serializable;
 
-import com.harmony.umbrella.log.Log;
-import com.harmony.umbrella.log.Logs;
-
-import com.harmony.umbrella.UmbrellaProperties;
+import com.harmony.umbrella.context.ApplicationContext;
 import com.harmony.umbrella.core.BeanFactory;
 import com.harmony.umbrella.core.InvokeException;
 import com.harmony.umbrella.core.SimpleBeanFactory;
+import com.harmony.umbrella.log.Log;
+import com.harmony.umbrella.log.Logs;
 import com.harmony.umbrella.util.Exceptions;
 import com.harmony.umbrella.ws.Context;
 import com.harmony.umbrella.ws.WebServiceAbortException;
@@ -45,14 +44,14 @@ public class ValidationContextVisitor extends AbstractContextVisitor implements 
 
     private static final Log log = Logs.getLog(ValidationContextVisitor.class);
 
-    protected static final String defaultPackage = UmbrellaProperties.DEFAULT_PACKAGE;
+    private static final String DEFAULT_PACKAGE = ApplicationContext.APPLICATION_PACKAGE;
 
     private final HandlerMethodFinder finder;
 
     private BeanFactory beanFactory;
 
     public ValidationContextVisitor() {
-        this(defaultPackage);
+        this(DEFAULT_PACKAGE);
     }
 
     public ValidationContextVisitor(String scanPackage) {

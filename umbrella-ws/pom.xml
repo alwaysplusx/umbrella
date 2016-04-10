@@ -24,11 +24,11 @@
     </dependency>
     <dependency>
       <groupId>com.harmony.umbrella</groupId>
-      <artifactId>umbrella-mapper</artifactId>
+      <artifactId>umbrella-data</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.harmony.umbrella</groupId>
-      <artifactId>umbrella-data</artifactId>
+      <groupId>net.sf.dozer</groupId>
+      <artifactId>dozer</artifactId>
     </dependency>
     <!-- jaxws -->
     <dependency>
@@ -43,24 +43,17 @@
     <dependency>
       <groupId>org.apache.cxf</groupId>
       <artifactId>cxf-rt-frontend-jaxrs</artifactId>
-      <scope>compile</scope>
-      <optional>true</optional>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.cxf</groupId>
       <artifactId>cxf-rt-rs-client</artifactId>
-      <scope>compile</scope>
-      <optional>true</optional>
+      <scope>provided</scope>
     </dependency>
     <!-- api -->
     <dependency>
       <groupId>org.apache.openejb</groupId>
       <artifactId>javaee-api</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-context</artifactId>
       <scope>provided</scope>
     </dependency>
     <!-- test -->
@@ -93,18 +86,30 @@
   <build>
     <plugins>
       <plugin>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <configuration>
-          <encoding>UTF-8</encoding>
-          <source>1.6</source>
-          <target>1.6</target>
-          <excludes>
-            <exclude>**/package-info.java</exclude>
-          </excludes>
-          <testExcludes>
-            <testExclude>**/ext/*.java</testExclude>
-          </testExcludes>
-        </configuration>
+        <groupId>org.apache.cxf</groupId>
+        <artifactId>cxf-codegen-plugin</artifactId>
+        <version>${apache.cxf.version}</version>
+        <executions>
+          <execution>
+            <id>generate-sources</id>
+            <phase>generate-sources</phase>
+            <configuration>
+              <sourceRoot>${project.build.directory}/generated/cxf</sourceRoot>
+              <wsdlOptions>
+                <wsdlOption>
+                  <wsdl>${basedir}/src/test/resources/hello.wsdl</wsdl>
+                  <!-- <extraargs>
+                    <extraarg>-impl</extraarg>
+                    <extraarg>-verbose</extraarg>
+                  </extraargs> -->
+                </wsdlOption>
+              </wsdlOptions>
+            </configuration>
+            <goals>
+              <goal>wsdl2java</goal>
+            </goals>
+          </execution>
+        </executions>
       </plugin>
       <!-- <plugin>
         <groupId>org.apache.cxf</groupId>
@@ -135,14 +140,4 @@
       </plugin> -->
     </plugins>
   </build>
-
-  <dependencyManagement>
-    <dependencies>
-      <dependency>
-        <groupId>org.hibernate.javax.persistence</groupId>
-        <artifactId>hibernate-jpa-2.1-api</artifactId>
-        <version>1.0.0.Final</version>
-      </dependency>
-    </dependencies>
-  </dependencyManagement>
 </project>
