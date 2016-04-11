@@ -22,6 +22,4 @@ public interface MessageConsumer {
 
     Message consome() throws MessageException;
 
-    void consume(MessageResolverChain chain) throws MessageException;
-
 }

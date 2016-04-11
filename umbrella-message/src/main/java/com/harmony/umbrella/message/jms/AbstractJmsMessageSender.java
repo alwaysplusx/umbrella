@@ -15,16 +15,12 @@
  */
 package com.harmony.umbrella.message.jms;
 
-import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.Destination;
 import javax.jms.JMSException;
-import javax.jms.MessageProducer;
 import javax.jms.ObjectMessage;
 import javax.jms.Session;
 
-import com.harmony.umbrella.log.Log;
-import com.harmony.umbrella.log.Logs;
 import com.harmony.umbrella.message.Message;
 import com.harmony.umbrella.message.MessageException;
 
@@ -35,60 +31,37 @@ import com.harmony.umbrella.message.MessageException;
  */
 public abstract class AbstractJmsMessageSender implements JmsMessageSender {
 
-    private static final Log log = Logs.getLog(AbstractJmsMessageSender.class);
+    //private static final Log log = Logs.getLog(AbstractJmsMessageSender.class);
 
     @Override
     public boolean send(Message message) throws MessageException {
-        return send(message, null);
+        return send(message, createJmsConfig());
     }
 
     @Override
-    public boolean send(Message message, JmsProducerConfig config) throws MessageException {
-        Connection connection = null;
-        Session session = null;
-        MessageProducer producer = null;
+    public boolean send(Message message, JmsConfig config) throws MessageException {
         try {
-            connection = getConnectionFactory().createConnection();
-            connection.start();
-            if (config != null) {
-                session = connection.createSession(config.transacted(), config.sessionMode());
-            } else {
-                session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-            }
-            producer = session.createProducer(getDestination());
-            if (config != null) {
-                config.configMessageProducer(producer);
-            }
-            ObjectMessage om = session.createObjectMessage();
-            if (config != null) {
-                config.configMessage(om);
-            }
-            om.setObject(message);
-            // custom in subclass can use jms more feature
-            send(producer, om);
+            return sendJmsMessage(message, config);
         } catch (JMSException e) {
-            log.error("发送失败{}", message, e);
-            return false;
+            throw new MessageException(e);
+        }
+    }
+
+    protected boolean sendJmsMessage(Message message, JmsConfig config) throws JMSException {
+        try {
+            config.start();
+            Session session = config.getSession();
+            ObjectMessage om = session.createObjectMessage();
+            om.setObject(message);
+            config.getMessageProducer().send(om);
         } finally {
-            try {
-                if (producer != null) {
-                    producer.close();
-                }
-                if (session != null) {
-                    session.close();
-                }
-                if (connection != null) {
-                    connection.close();
-                }
-            } catch (JMSException e) {
-                log.debug("", e);
-            }
+            config.stop();
         }
         return true;
     }
 
-    protected void send(MessageProducer producer, javax.jms.Message message) throws JMSException {
-        producer.send(message);
+    protected JmsConfig createJmsConfig() {
+        return new SimpleJmsConfig(getConnectionFactory(), getDestination());
     }
 
     /**

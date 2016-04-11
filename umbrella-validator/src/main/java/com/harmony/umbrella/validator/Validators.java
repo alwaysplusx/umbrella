@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.umbrella.validator.util;
+package com.harmony.umbrella.validator;
 
 import java.util.Iterator;
 
@@ -23,14 +23,13 @@ import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 
 import com.harmony.umbrella.util.StringUtils;
-import com.harmony.umbrella.validator.ValidVisitor;
 
 /**
  * 用于做一些简单的检验
  * 
  * @author wuxii@foxmail.com
  */
-public abstract class ValidatorUtils {
+public class Validators {
 
     // thread-safe
     private static Validator validator;

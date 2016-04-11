@@ -15,31 +15,37 @@
  */
 package com.harmony.umbrella.message.jms;
 
-import javax.jms.Message;
-
-import com.harmony.umbrella.message.MessageException;
+import javax.jms.Connection;
+import javax.jms.ConnectionFactory;
+import javax.jms.Destination;
+import javax.jms.JMSException;
+import javax.jms.MessageConsumer;
+import javax.jms.MessageProducer;
+import javax.jms.Session;
 
 /**
+ * 通过配置信息加载jms相关的连接, 目的地, session, 消费者, 生产者 等等
+ * 
+ * <b>另配置信息是有生命周期的, start开始, stop结束.并可以循环使用</b>
+ * 
  * @author wuxii@foxmail.com
  */
 public interface JmsConfig {
 
-    String DEFAULT_CONNECTION_FACTORY = "jms/connectionFactory";
+    void start() throws JMSException;
 
-    String DEFAULT_QUEUE = "jms/queue";
+    void stop() throws JMSException;
 
-    String DEFAULT_TOPIC = "jms/topic";
+    Connection getConnection() throws JMSException;
 
-    String DEFAULT_DESTINATION = DEFAULT_QUEUE;
+    Session getSession() throws JMSException;
 
-    void configMessage(Message message) throws MessageException;
+    MessageProducer getMessageProducer() throws JMSException;
 
-    int sessionMode();
+    MessageConsumer getMessageConsumer() throws JMSException;
 
-    boolean transacted();
+    ConnectionFactory getConnectionFactory();
 
-    String username();
-
-    String password();
+    Destination getDestination();
 
 }

@@ -30,10 +30,6 @@ public class Logs {
     private static LogProvider logProvider;
 
     static {
-        init();
-    }
-
-    public static void init() {
         ServiceLoader<LogProvider> providers = ServiceLoader.load(LogProvider.class);
         for (LogProvider provider : providers) {
             logProvider = provider;
@@ -76,19 +72,11 @@ public class Logs {
         return logProvider.getLogger(className);
     }
 
-    public static String fullyQualifiedClassName(Class<?> clazz) {
-        return fullyQualifiedClassName(clazz.getName(), 0);
-    }
-
-    public static String fullyQualifiedClassName(Class<?> clazz, int beforeIndex) {
+    static String fullyQualifiedClassName(Class<?> clazz, int beforeIndex) {
         return fullyQualifiedClassName(clazz.getName(), beforeIndex);
     }
 
-    public static String fullyQualifiedClassName(String className) {
-        return fullyQualifiedClassName(className, 0);
-    }
-
-    public static String fullyQualifiedClassName(String className, int beforeIndex) {
+    static String fullyQualifiedClassName(String className, int beforeIndex) {
         StackTraceElement ste = find(className, beforeIndex);
         return ste == null ? null : ste.toString();
     }
@@ -100,7 +88,7 @@ public class Logs {
      * @param reversal
      * @return
      */
-    public static StackTraceElement find(String className, int beforeIndex) {
+    static StackTraceElement find(String className, int beforeIndex) {
         StackTraceElement[] stackTrace = new Throwable().getStackTrace();
         for (int i = stackTrace.length - 1; i >= 0; i--) {
             if (stackTrace[i].getClassName().equals(className)) {
@@ -114,7 +102,7 @@ public class Logs {
         return null;
     }
 
-    static class SystemLogProvider implements LogProvider {
+    static final class SystemLogProvider implements LogProvider {
 
         @Override
         public Log getLogger(String className) {
@@ -123,7 +111,7 @@ public class Logs {
 
     }
 
-    static class SystemLog extends AbstractLog {
+    static final class SystemLog extends AbstractLog {
 
         private static final OutputStream out = System.out;
         private static final OutputStream err = System.err;

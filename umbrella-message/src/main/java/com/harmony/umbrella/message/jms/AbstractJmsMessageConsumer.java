@@ -15,75 +15,61 @@
  */
 package com.harmony.umbrella.message.jms;
 
-import javax.jms.Connection;
+import java.io.Serializable;
+
 import javax.jms.ConnectionFactory;
 import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.jms.MessageConsumer;
-import javax.jms.Session;
+import javax.jms.ObjectMessage;
 
 import com.harmony.umbrella.message.Message;
 import com.harmony.umbrella.message.MessageException;
-import com.harmony.umbrella.message.MessageResolverChain;
 
 /**
  * @author wuxii@foxmail.com
  */
-public class AbstractJmsMessageConsumer implements JmsMessageConsumer {
-
-    protected javax.jms.Message consomeJMS(JmsConsomeConfig config) throws JMSException, MessageException {
-        Connection connection = null;
-        Session session = null;
-        MessageConsumer consumer = null;
-        try {
-            connection = getConnectionFactory().createConnection();
-            connection.start();
-            if (config != null) {
-                session = connection.createSession(config.transacted(), config.sessionMode());
-            } else {
-                session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-            }
-            consumer = session.createConsumer(getDestination());
-            if (config != null) {
-                config.configMessageConsumer(consumer);
-            }
-            return consumer.receive(DEFAULT_RECEIVE_TIMEOUT);
-        } finally {
-            if (consumer != null) {
-                consumer.close();
-            }
-            if (session != null) {
-                session.close();
-            }
-            if (connection != null) {
-                connection.close();
-            }
-        }
-    }
-
-    @Override
-    public Message consome(JmsConsomeConfig config) throws MessageException {
-        try {
-            javax.jms.Message jmsMessage = consomeJMS(config);
-            if (jmsMessage != null) {
-
-            }
-        } catch (JMSException e) {
-        }
-        return null;
-    }
-
-    @Override
-    public void consume(MessageResolverChain chain, JmsConsomeConfig config) {
-    }
+public abstract class AbstractJmsMessageConsumer implements JmsMessageConsumer {
 
     @Override
     public Message consome() throws MessageException {
-        return consome(null);
+        return consome(createJmsConfig());
     }
 
     @Override
-    public void consume(MessageResolverChain chain) {
+    public Message consome(JmsConfig config) throws MessageException {
+        return consome(config, DEFAULT_RECEIVE_TIMEOUT);
+    }
+
+    @Override
+    public Message consome(JmsConfig config, long timeout) throws MessageException {
+        try {
+            javax.jms.Message jmsMessage = consomeJMS(config, timeout);
+            if (jmsMessage != null && jmsMessage instanceof ObjectMessage) {
+                Serializable objectMessage = ((ObjectMessage) jmsMessage).getObject();
+                if (objectMessage instanceof Message) {
+                    return (Message) objectMessage;
+                }
+            }
+        } catch (JMSException e) {
+            throw new MessageException(e);
+        }
+        return null;
+        // throw new MessageException("message is not " + Message.class.getName() + " instance");
+    }
+
+    protected javax.jms.Message consomeJMS(JmsConfig config, long timeout) throws JMSException, MessageException {
+        try {
+            config.start();
+            MessageConsumer consumer = config.getMessageConsumer();
+            return timeout < 0 ? consumer.receiveNoWait() : consumer.receive(timeout);
+        } finally {
+            config.stop();
+        }
+    }
+
+    protected JmsConfig createJmsConfig() {
+        return new SimpleJmsConfig(getConnectionFactory(), getDestination());
     }
 
     /**
@@ -91,17 +77,13 @@ public class AbstractJmsMessageConsumer implements JmsMessageConsumer {
      * 
      * @return
      */
-    protected ConnectionFactory getConnectionFactory() {
-        return null;
-    }
+    protected abstract ConnectionFactory getConnectionFactory();
 
     /**
      * JMS的目的地
      * 
      * @return
      */
-    protected Destination getDestination() {
-        return null;
-    }
+    protected abstract Destination getDestination();
 
 }

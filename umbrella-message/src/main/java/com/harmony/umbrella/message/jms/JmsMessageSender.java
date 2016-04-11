@@ -26,6 +26,6 @@ public interface JmsMessageSender extends MessageSender {
 
     String DEFAULT_MESSAGE_SENDER_MAPPEDNAME = "ApplicationMessageSender";
 
-    boolean send(Message message, JmsProducerConfig config) throws MessageException;
+    boolean send(Message message, JmsConfig config) throws MessageException;
 
 }

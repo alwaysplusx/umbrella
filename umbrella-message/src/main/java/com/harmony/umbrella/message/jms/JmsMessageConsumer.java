@@ -18,7 +18,6 @@ package com.harmony.umbrella.message.jms;
 import com.harmony.umbrella.message.Message;
 import com.harmony.umbrella.message.MessageConsumer;
 import com.harmony.umbrella.message.MessageException;
-import com.harmony.umbrella.message.MessageResolverChain;
 
 /**
  * @author wuxii@foxmail.com
@@ -27,8 +26,8 @@ public interface JmsMessageConsumer extends MessageConsumer {
 
     int DEFAULT_RECEIVE_TIMEOUT = 1000 * 30;
 
-    Message consome(JmsConsomeConfig config) throws MessageException;
+    Message consome(JmsConfig config) throws MessageException;
 
-    void consume(MessageResolverChain chain, JmsConsomeConfig config) throws MessageException;
+    Message consome(JmsConfig config, long timeout) throws MessageException;
 
 }

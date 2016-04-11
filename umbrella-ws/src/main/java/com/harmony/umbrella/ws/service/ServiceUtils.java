@@ -15,7 +15,7 @@
  */
 package com.harmony.umbrella.ws.service;
 
-import com.harmony.umbrella.validator.util.ValidatorUtils;
+import com.harmony.umbrella.validator.Validators;
 import com.harmony.umbrella.ws.annotation.Key;
 
 import java.lang.reflect.Field;
@@ -29,7 +29,7 @@ import java.util.List;
  * 服务端的简单数据校验工具类,实际校验依赖于{@linkplain javax.validation.Validator}
  *
  * @author wuxii@foxmail.com
- * @see ValidatorUtils
+ * @see Validators
  */
 public class ServiceUtils {
 
