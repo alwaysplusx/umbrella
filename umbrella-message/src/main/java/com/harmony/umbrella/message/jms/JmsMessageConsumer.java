@@ -15,6 +15,8 @@
  */
 package com.harmony.umbrella.message.jms;
 
+import javax.jms.JMSException;
+
 import com.harmony.umbrella.message.Message;
 import com.harmony.umbrella.message.MessageConsumer;
 import com.harmony.umbrella.message.MessageException;
@@ -29,5 +31,7 @@ public interface JmsMessageConsumer extends MessageConsumer {
     Message consome(JmsConfig config) throws MessageException;
 
     Message consome(JmsConfig config, long timeout) throws MessageException;
+
+    javax.jms.Message consmeJmsMessage(JmsConfig config, long timeout) throws JMSException;
 
 }

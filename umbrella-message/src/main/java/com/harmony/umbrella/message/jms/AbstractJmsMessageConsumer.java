@@ -44,21 +44,26 @@ public abstract class AbstractJmsMessageConsumer implements JmsMessageConsumer {
     @Override
     public Message consome(JmsConfig config, long timeout) throws MessageException {
         try {
-            javax.jms.Message jmsMessage = consomeJMS(config, timeout);
-            if (jmsMessage != null && jmsMessage instanceof ObjectMessage) {
-                Serializable objectMessage = ((ObjectMessage) jmsMessage).getObject();
-                if (objectMessage instanceof Message) {
-                    return (Message) objectMessage;
-                }
+            javax.jms.Message jmsMessage = consmeJmsMessage(config, timeout);
+            if (jmsMessage == null) {
+                return null;
             }
+            if (jmsMessage instanceof ObjectMessage) {
+                Serializable message = ((ObjectMessage) jmsMessage).getObject();
+                if (message instanceof Message) {
+                    // 唯一正确的消息
+                    return (Message) message;
+                }
+                throw new MessageException("message is not " + Message.class.getName() + " instance");
+            }
+            throw new MessageException("message is not " + ObjectMessage.class.getName() + " instance");
         } catch (JMSException e) {
             throw new MessageException(e);
         }
-        return null;
-        // throw new MessageException("message is not " + Message.class.getName() + " instance");
     }
 
-    protected javax.jms.Message consomeJMS(JmsConfig config, long timeout) throws JMSException, MessageException {
+    @Override
+    public javax.jms.Message consmeJmsMessage(JmsConfig config, long timeout) throws JMSException {
         try {
             config.start();
             MessageConsumer consumer = config.getMessageConsumer();
