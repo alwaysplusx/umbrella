@@ -42,6 +42,8 @@ public class SimpleJmsConfig implements JmsConfig {
     }
 
     public void start() throws JMSException {
+        // stop/clear first
+        stop();
         this.connection = connectionFactory.createConnection();
         this.connection.start();
     }

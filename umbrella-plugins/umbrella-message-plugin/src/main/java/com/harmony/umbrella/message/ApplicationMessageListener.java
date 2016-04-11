@@ -15,6 +15,7 @@
  */
 package com.harmony.umbrella.message;
 
+import static com.harmony.umbrella.message.ApplicationMessageConstants.*;
 import java.util.List;
 
 import javax.ejb.ActivationConfigProperty;
@@ -25,23 +26,19 @@ import javax.jms.MessageListener;
 
 import com.harmony.umbrella.config.ConfigurationBeans;
 import com.harmony.umbrella.message.jms.AbstractJmsMessageListener;
-import com.harmony.umbrella.message.jms.JmsConfig;
 
 
 /**
  * @author wuxii@foxmail.com
  */
-@MessageDriven(mappedName = JmsConfig.DEFAULT_QUEUE, activationConfig = { 
+@MessageDriven(mappedName = QUEUE_NAME, activationConfig = { 
         @ActivationConfigProperty(propertyName = "acknowledgeMode", propertyValue = "Auto-acknowledge"),
-        @ActivationConfigProperty(propertyName = "destinationType", propertyValue = "javax.jms.Queue"),
-        @ActivationConfigProperty(propertyName = "destination", propertyValue = JmsConfig.DEFAULT_QUEUE) 
+        @ActivationConfigProperty(propertyName = "destinationType", propertyValue = "javax.jms.Queue")
 })
 @Remote({ MessageListener.class, com.harmony.umbrella.message.MessageListener.class })
 public class ApplicationMessageListener extends AbstractJmsMessageListener implements MessageListener {
 
-    public static final String ApplicationMessageListenerInjectMappedName = "ApplicationMessageListenerConfigurationBeans";
-
-    @EJB(mappedName = ApplicationMessageListenerInjectMappedName)
+    @EJB
     private ConfigurationBeans<MessageResolver> configuration;
 
     @EJB

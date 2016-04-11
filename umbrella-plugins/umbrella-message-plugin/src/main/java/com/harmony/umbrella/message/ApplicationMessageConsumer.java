@@ -23,15 +23,15 @@ import javax.ejb.Stateless;
 import javax.jms.ConnectionFactory;
 import javax.jms.Destination;
 
-import com.harmony.umbrella.message.jms.AbstractJmsMessageSender;
-import com.harmony.umbrella.message.jms.JmsMessageSender;
+import com.harmony.umbrella.message.jms.AbstractJmsMessageConsumer;
+import com.harmony.umbrella.message.jms.JmsMessageConsumer;
 
 /**
  * @author wuxii@foxmail.com
  */
-@Stateless(mappedName = "ApplicationMessageSender")
-@Remote({ MessageSender.class, JmsMessageSender.class })
-public class ApplicationMessageSender extends AbstractJmsMessageSender {
+@Stateless(mappedName = "ApplicationMessageConsumer")
+@Remote({ MessageConsumer.class, JmsMessageConsumer.class })
+public class ApplicationMessageConsumer extends AbstractJmsMessageConsumer {
 
     @Resource(name = CONNECTION_FACTORY_NAME)
     private ConnectionFactory connectionFactory;

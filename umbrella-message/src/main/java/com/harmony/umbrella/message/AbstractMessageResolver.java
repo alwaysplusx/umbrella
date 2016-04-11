@@ -18,6 +18,8 @@ package com.harmony.umbrella.message;
 /**
  * 消息解析抽象类
  *
+ * @param <T>
+ *            实际的message类型
  * @author wuxii@foxmail.com
  */
 public abstract class AbstractMessageResolver<T> implements MessageResolver {

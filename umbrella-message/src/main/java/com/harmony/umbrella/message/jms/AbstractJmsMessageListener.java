@@ -22,12 +22,15 @@ import javax.jms.MessageListener;
 import javax.jms.ObjectMessage;
 
 import com.harmony.umbrella.message.AbstractMessageListener;
+import com.harmony.umbrella.util.ReflectionUtils;
 
 /**
  * @author wuxii@foxmail.com
  */
 public abstract class AbstractJmsMessageListener extends AbstractMessageListener implements MessageListener {
-    
+
+    protected boolean raiseError;
+
     /**
      * 为JMS提供. 只处理消息类型为{@linkplain com.harmony.umbrella.message.Message}的消息.
      * 如果不为该类型的消息则忽略
@@ -37,18 +40,30 @@ public abstract class AbstractJmsMessageListener extends AbstractMessageListener
     @Override
     public void onMessage(javax.jms.Message message) {
         LOG.debug("on message, current message is {}", message);
+        Exception ex = null;
         if (message instanceof ObjectMessage) {
             try {
                 Serializable object = ((ObjectMessage) message).getObject();
                 if (object instanceof com.harmony.umbrella.message.Message) {
                     onMessage((com.harmony.umbrella.message.Message) object);
+                    // right way
                     return;
                 }
-                LOG.warn("接受的消息{}不能转化为目标类型[{}], 忽略该消息", message, com.harmony.umbrella.message.Message.class);
+                ex = new IllegalStateException("illegal message type " + object.getClass().getName());
             } catch (JMSException e) {
-                LOG.error("", e);
+                ex = e;
+            }
+        } else {
+            ex = new IllegalStateException("jms message is not object message");
+        }
+        if (ex != null) {
+            if (raiseError) {
+                // 异常重新抛出
+                ReflectionUtils.rethrowRuntimeException(ex);
+            } else {
+                // 忽略异常
+                LOG.error(ex);
             }
         }
     }
-
 }

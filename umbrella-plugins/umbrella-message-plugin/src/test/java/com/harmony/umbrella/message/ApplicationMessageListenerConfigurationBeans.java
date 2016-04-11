@@ -27,8 +27,8 @@ import com.harmony.umbrella.config.ConfigurationBeans;
 /**
  * @author wuxii@foxmail.com
  */
+@Stateless
 @Remote(ConfigurationBeans.class)
-@Stateless(name = ApplicationMessageListener.ApplicationMessageListenerInjectMappedName)
 public class ApplicationMessageListenerConfigurationBeans implements ConfigurationBeans<MessageResolver> {
 
     @EJB(mappedName = "ApplicationMessageMessageResolver")

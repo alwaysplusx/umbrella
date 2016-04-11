@@ -31,8 +31,6 @@ import com.harmony.umbrella.message.MessageException;
  */
 public abstract class AbstractJmsMessageSender implements JmsMessageSender {
 
-    //private static final Log log = Logs.getLog(AbstractJmsMessageSender.class);
-
     @Override
     public boolean send(Message message) throws MessageException {
         return send(message, createJmsConfig());

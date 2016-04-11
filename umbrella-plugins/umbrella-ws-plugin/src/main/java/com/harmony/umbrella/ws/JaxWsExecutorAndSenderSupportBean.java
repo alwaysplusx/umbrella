@@ -36,7 +36,7 @@ import com.harmony.umbrella.ws.support.ContextSender;
 @Stateless(mappedName = "JaxWsExecutorSupportBean")
 public class JaxWsExecutorAndSenderSupportBean extends JaxWsCXFExecutor implements JaxWsExecutorSupport, ContextSender {
 
-    @EJB(mappedName = JmsMessageSender.DEFAULT_MESSAGE_SENDER_MAPPEDNAME)
+    @EJB
     private JmsMessageSender messageSender;
     @EJB
     private MetadataLoader metadataLoader;

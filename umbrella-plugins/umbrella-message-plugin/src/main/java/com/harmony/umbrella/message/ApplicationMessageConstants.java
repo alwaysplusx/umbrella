@@ -13,17 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.umbrella.message.jms;
-
-import com.harmony.umbrella.message.Message;
-import com.harmony.umbrella.message.MessageException;
-import com.harmony.umbrella.message.MessageSender;
+package com.harmony.umbrella.message;
 
 /**
  * @author wuxii@foxmail.com
  */
-public interface JmsMessageSender extends MessageSender {
+public class ApplicationMessageConstants {
 
-    boolean send(Message message, JmsConfig config) throws MessageException;
+    public static final String QUEUE_NAME = "jms/queue";
+
+    public static final String TOPIC_NAME = "jms/topic";
+
+    public static final String CONNECTION_FACTORY_NAME = "jms/connectionFactory";
 
 }

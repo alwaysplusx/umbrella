@@ -38,7 +38,7 @@ public class ApplicationMessageTest {
     @EJB
     private JmsMessageSender sender;
 
-    @EJB(beanName = ApplicationMessageListener.ApplicationMessageListenerInjectMappedName)
+    @EJB
     private ConfigurationBeans<MessageResolver> configurationBeans;
 
     @BeforeClass
