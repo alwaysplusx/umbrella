@@ -17,94 +17,101 @@ package com.harmony.umbrella.util;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
+ * 泛型工具类
+ * 
  * @author wuxii@foxmail.com
  */
 public class GenericUtils {
 
-    @SuppressWarnings("rawtypes")
-    public static Class[] getGeneric(Class clazz) {
-        List<Class> list = getGenericList(clazz);
-        return list.toArray(new Class[list.size()]);
+    /**
+     * 获取当前类的父类的指定index有效泛型
+     * 
+     * @param clazz
+     *            被查找的类
+     * @param index
+     *            泛型的index
+     * @return 有效泛型
+     * @throws IllegalArgumentException
+     *             泛型未找到或者不是有效的泛型
+     */
+    public static Class<?> getSuperGeneric(Class<?> clazz, int index) {
+        Class<?> superclass = clazz.getSuperclass();
+        if (superclass == null || superclass == Object.class) {
+            throw new IllegalArgumentException(clazz + "父类不包含任何父类");
+        }
+        return getTargetGeneric(clazz, superclass, index);
     }
 
-    @SuppressWarnings({ "rawtypes" })
-    public static Map<Class, Class[]> getGenerics(Class<?> clazz) {
-        Map<Class, List<Class>> genericMap = new HashMap<Class, List<Class>>();
-        getAllGeneric(clazz, genericMap);
-        Map<Class, Class[]> result = new HashMap<Class, Class[]>();
-        for (Class cls : genericMap.keySet()) {
-            List<Class> list = genericMap.get(cls);
-            result.put(cls, list.toArray(new Class[list.size()]));
+    /**
+     * 获取类clazz的有继承或实现关系的类target的泛型
+     * 
+     * @param clazz
+     * @param target
+     * @return
+     */
+    public static Class<?> getTargetGeneric(Class<?> clazz, Class<?> target, int index) {
+        if (!target.isAssignableFrom(clazz) || clazz == target) {
+            throw new IllegalArgumentException("指定的target与原类型无继承或实现关系");
         }
-        return result;
+        if (target == Object.class) {
+            throw new IllegalArgumentException("target class is Object.class");
+        }
+        if (target.isInterface()) {
+            return getInterfaceTargetGeneric(clazz, target, index);
+        }
+        return getClassTargetGeneric(clazz, target, index);
     }
 
-    @SuppressWarnings("rawtypes")
-    private static void getAllGeneric(Class<?> clazz, Map<Class, List<Class>> map) {
-        Type[] types = getGenericTypes(clazz);
-        List<Class> generics = map.get(clazz);
-        if (generics == null) {
-            generics = new ArrayList<Class>();
-            map.put(clazz, generics);
-        }
-        for (Type type : types) {
-            if (type instanceof ParameterizedType) {
-                for (Type t : ((ParameterizedType) type).getActualTypeArguments()) {
-                    if (t instanceof Class) {
-                        generics.add((Class) t);
+    private static Class<?> getInterfaceTargetGeneric(Class<?> clazz, Class<?> target, int index) {
+        Type[] genericInterfaces = clazz.getGenericInterfaces();
+        if (genericInterfaces != null && genericInterfaces.length > 0) {
+            for (Type genericType : genericInterfaces) {
+                if (genericType instanceof ParameterizedType) {
+                    ParameterizedType ptype = (ParameterizedType) genericType;
+                    if (ptype.getRawType() == target) {
+                        // 找到了匹配的目标类型
+                        Type result = ptype.getActualTypeArguments()[index];
+                        if (result instanceof Class) {
+                            return (Class<?>) result;
+                        }
+                        throw new IllegalArgumentException(result + "不是有效的泛型类型");
                     }
+                }
+            }
+        }
+        Class<?>[] interfaces = clazz.getInterfaces();
+        for (Class<?> cls : interfaces) {
+            Class<?> result = getInterfaceTargetGeneric(cls, target, index);
+            if (result != null) {
+                return result;
+            }
+        }
+        return null;
+    }
+
+    private static Class<?> getClassTargetGeneric(Class<?> clazz, Class<?> target, int index) {
+        // 父类的泛型type
+        Type genericSuperclass = clazz.getGenericSuperclass();
+        if (genericSuperclass != null) {
+            if (genericSuperclass instanceof ParameterizedType) {
+                ParameterizedType ptype = (ParameterizedType) genericSuperclass;
+                if (ptype.getRawType() == target) {
+                    // 找到了匹配的目标类型
+                    Type result = ptype.getActualTypeArguments()[index];
+                    if (result instanceof Class) {
+                        return (Class<?>) result;
+                    }
+                    throw new IllegalArgumentException(result + "不是有效的泛型类型");
                 }
             }
         }
         Class<?> superclass = clazz.getSuperclass();
-        if (superclass != null && Object.class != superclass) {
-            getAllGeneric(superclass, map);
+        if (superclass != Object.class) {
+            return getClassTargetGeneric(clazz.getSuperclass(), target, index);
         }
-        if (clazz.getInterfaces().length > 0) {
-            for (Class cls : clazz.getInterfaces()) {
-                getAllGeneric(cls, map);
-            }
-        }
-    }
-
-    @SuppressWarnings("rawtypes")
-    private static List<Class> getGenericList(Class clazz, List<Class> generics) {
-        Type[] types = getGenericTypes(clazz);
-        for (Type type : types) {
-            if (type instanceof ParameterizedType) {
-                for (Type t : ((ParameterizedType) type).getActualTypeArguments()) {
-                    if (t instanceof Class) {
-                        generics.add((Class) t);
-                    }
-                }
-            }
-        }
-        return generics;
-    }
-
-    @SuppressWarnings("rawtypes")
-    private static List<Class> getGenericList(Class clazz) {
-        return getGenericList(clazz, new ArrayList<Class>());
-    }
-
-    private static Type[] getGenericTypes(Class<?> clazz) {
-        List<Type> types = new ArrayList<Type>();
-        Type genericSuperclass = clazz.getGenericSuperclass();
-        if (genericSuperclass != null && genericSuperclass != Object.class) {
-            types.add(genericSuperclass);
-        }
-        Type[] genericInterfaces = clazz.getGenericInterfaces();
-        if (genericInterfaces.length > 0) {
-            Collections.addAll(types, clazz.getGenericInterfaces());
-        }
-        return types.toArray(new Type[types.size()]);
+        return null;
     }
 
 }

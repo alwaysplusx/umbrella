@@ -15,8 +15,7 @@
  */
 package com.harmony.umbrella.ws;
 
-import com.harmony.umbrella.message.AbstractMessageResolver;
-import com.harmony.umbrella.message.Message;
+import com.harmony.umbrella.message.TypedMessageResolver;
 import com.harmony.umbrella.ws.jaxws.JaxWsExecutor;
 import com.harmony.umbrella.ws.support.ContextReceiver;
 
@@ -25,7 +24,7 @@ import com.harmony.umbrella.ws.support.ContextReceiver;
  * 
  * @author wuxii@foxmail.com
  */
-public abstract class AbstractJaxWsContextReceiver extends AbstractMessageResolver<Context> implements ContextReceiver {
+public abstract class AbstractJaxWsContextReceiver extends TypedMessageResolver<ContextMessage> implements ContextReceiver {
 
     /**
      * 接收后是否重新加载Context内元数据的标识符Key
@@ -63,18 +62,8 @@ public abstract class AbstractJaxWsContextReceiver extends AbstractMessageResolv
     }
 
     @Override
-    public boolean support(Message message) {
-        return message instanceof ContextMessage;
-    }
-
-    @Override
-    public void process(Context message) {
-        this.receive(message);
-    }
-
-    @Override
-    protected Context convert(Message message) {
-        return ((ContextMessage) message).getContext();
+    public void process(ContextMessage message) {
+        this.receive(message.getContext());
     }
 
     /**

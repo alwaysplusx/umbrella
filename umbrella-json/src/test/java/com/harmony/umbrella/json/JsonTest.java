@@ -16,6 +16,7 @@
 package com.harmony.umbrella.json;
 
 import static com.alibaba.fastjson.serializer.SerializerFeature.*;
+import static org.junit.Assert.*;
 
 import java.util.Arrays;
 import java.util.Map;
@@ -54,9 +55,9 @@ public class JsonTest {
 
     @Test
     public void testFromJson() {
-        String json = "[{a: 'b'}]";
+        String json = "{a: 'b'}";
         Map<String, Object> map = Json.toMap(json);
-        System.out.println(map);
+        assertEquals(map.get("a"), "b");
     }
 
 }

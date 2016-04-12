@@ -33,7 +33,7 @@ public abstract class AbstractJmsMessageConsumer implements JmsMessageConsumer {
 
     @Override
     public Message consome() throws MessageException {
-        return consome(createJmsConfig());
+        return consome(createJmsConfig(), DEFAULT_RECEIVE_TIMEOUT);
     }
 
     @Override
@@ -54,8 +54,11 @@ public abstract class AbstractJmsMessageConsumer implements JmsMessageConsumer {
                     // 唯一正确的消息
                     return (Message) message;
                 }
+                // 如果接收到不是指定类型的消息抛出异常依赖容器回滚该事务
+                // 无法服务转为 com.harmony.umbrella.message.Message
                 throw new MessageException("message is not " + Message.class.getName() + " instance");
             }
+            // 不是ObjectMessage对象
             throw new MessageException("message is not " + ObjectMessage.class.getName() + " instance");
         } catch (JMSException e) {
             throw new MessageException(e);

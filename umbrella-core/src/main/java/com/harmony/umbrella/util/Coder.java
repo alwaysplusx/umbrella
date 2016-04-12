@@ -68,11 +68,11 @@ public class Coder {
      */
     @SuppressWarnings("restriction")
     public static String encryptBASE64(String key) {
-        if (Environments.JAVA_17 >= Environments.getMajorJavaVersion()) {
-            return new sun.misc.BASE64Encoder().encode(key.getBytes());
+        return new sun.misc.BASE64Encoder().encode(key.getBytes());
+        /*if (Environments.JAVA_17 >= Environments.getMajorJavaVersion()) {
         } else {
             return new String(java.util.Base64.getEncoder().encode(key.getBytes()));
-        }
+        }*/
     }
 
     /**
@@ -84,16 +84,16 @@ public class Coder {
      */
     @SuppressWarnings("restriction")
     public static String decryptBASE64(String key) {
-        if (Environments.JAVA_17 >= Environments.getMajorJavaVersion()) {
-            try {
-                return new String(new sun.misc.BASE64Decoder().decodeBuffer(key));
-            } catch (IOException e) {
-                ReflectionUtils.rethrowRuntimeException(e);
-                throw new IllegalStateException(e);
-            }
+        try {
+            return new String(new sun.misc.BASE64Decoder().decodeBuffer(key));
+        } catch (IOException e) {
+            ReflectionUtils.rethrowRuntimeException(e);
+            throw new IllegalStateException(e);
+        }
+        /*if (Environments.JAVA_17 >= Environments.getMajorJavaVersion()) {
         } else {
             return new String(java.util.Base64.getDecoder().decode(key));
-        }
+        }*/
     }
 
     /**

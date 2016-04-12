@@ -16,17 +16,20 @@
 package com.harmony.umbrella.test;
 
 import static org.junit.Assert.*;
+
 import java.util.Properties;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
 
 import org.apache.openejb.client.RemoteInitialContextFactory;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
  * @author wuxii@foxmail.com
  */
+@Ignore
 public class LookupTest {
 
     @Test

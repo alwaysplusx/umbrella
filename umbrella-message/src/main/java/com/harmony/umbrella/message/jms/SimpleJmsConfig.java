@@ -23,6 +23,8 @@ import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 
+import com.harmony.umbrella.util.Assert;
+
 /**
  * @author wuxii@foxmail.com
  */
@@ -49,6 +51,7 @@ public class SimpleJmsConfig implements JmsConfig {
     }
 
     public Connection getConnection() throws JMSException {
+        Assert.notNull(connection, "connection not start");
         return connection;
     }
 

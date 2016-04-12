@@ -16,7 +16,6 @@
 package com.harmony.umbrella.data.dao;
 
 import java.io.Serializable;
-import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -44,6 +43,7 @@ import com.harmony.umbrella.data.domain.Sort;
 import com.harmony.umbrella.data.query.JpaEntityInformation;
 import com.harmony.umbrella.data.query.QueryUtils;
 import com.harmony.umbrella.util.Assert;
+import com.harmony.umbrella.util.GenericUtils;
 
 /**
  * @author wuxii@foxmail.com
@@ -59,26 +59,9 @@ public abstract class JpaDaoSupport<E, ID extends Serializable> extends DaoSuppo
     @SuppressWarnings("unchecked")
     protected Class<E> getEntityClass() {
         if (entityClass == null) {
-            ParameterizedType pt = findParameterizedType(getClass());
-            if (pt != null) {
-                entityClass = (Class<E>) pt.getActualTypeArguments()[0];
-            }
+            entityClass = (Class<E>) GenericUtils.getSuperGeneric(getClass(), 0);
         }
         return entityClass;
-    }
-
-    protected Class<?> getGenericsSuperClass() {
-        return JpaDaoSupport.class;
-    }
-
-    protected final ParameterizedType findParameterizedType(Class<?> subClass) {
-        Class<?> superclass = subClass.getSuperclass();
-        if (superclass == Object.class) {
-            return null;
-        } else if (getGenericsSuperClass().equals(superclass)) {
-            return (ParameterizedType) subClass.getGenericSuperclass();
-        }
-        return findParameterizedType(superclass);
     }
 
     protected EntityInformation<E, ID> getEntityInformation() {

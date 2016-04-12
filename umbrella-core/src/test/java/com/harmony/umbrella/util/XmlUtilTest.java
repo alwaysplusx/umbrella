@@ -15,59 +15,44 @@
  */
 package com.harmony.umbrella.util;
 
-import java.io.File;
-import java.io.FileInputStream;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.w3c.dom.Document;
-import org.xml.sax.InputSource;
-
-import com.harmony.umbrella.io.Resource;
-import com.harmony.umbrella.io.ResourceLoader;
-import com.harmony.umbrella.io.ResourceManager;
-
 /**
  * @author wuxii@foxmail.com
  */
 public class XmlUtilTest {
 
-    private static DocumentBuilder documentBuilder;
-    private static ResourceLoader resourceLoader = ResourceManager.getInstance();
-
-    @Before
-    public void setUp() throws Exception {
-        documentBuilder = XmlUtil.newDocumentBuilder(false);
-    }
-
-    @Test
-    public void testParseFile() throws Exception {
-        Document document = documentBuilder.parse(new File("src/test/resources/log4j.xml"));
-        System.out.println(document);
-    }
-
-    @Test
-    public void testParseInputStream() throws Exception {
-        Resource resource = resourceLoader.getResource("classpath:/log4j.xml");
-        Document document = documentBuilder.parse(resource.getInputStream());
-        System.out.println(document);
-    }
-
-    @Test
-    public void testParseInputSource() throws Exception {
-        Resource resource = resourceLoader.getResource("classpath:/log4j.xml");
-        Document document = documentBuilder.parse(new InputSource(resource.getInputStream()));
-        System.out.println(document);
-    }
-
-    public static void main(String[] args) throws Exception {
-        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-        DocumentBuilder db = dbf.newDocumentBuilder();
-        Document doc = db.parse(new FileInputStream(new File("src/test/resources/log4j.xml")));
-        System.out.println(doc);
-    }
+    //    private static DocumentBuilder documentBuilder;
+    //    private static ResourceLoader resourceLoader = ResourceManager.getInstance();
+    //
+    //    @Before
+    //    public void setUp() throws Exception {
+    //        documentBuilder = XmlUtil.newDocumentBuilder(false);
+    //    }
+    //
+    //    @Test
+    //    public void testParseFile() throws Exception {
+    //        Document document = documentBuilder.parse(new File("src/test/resources/log4j.xml"));
+    //        System.out.println(document);
+    //    }
+    //
+    //    @Test
+    //    public void testParseInputStream() throws Exception {
+    //        Resource resource = resourceLoader.getResource("classpath:/log4j.xml");
+    //        Document document = documentBuilder.parse(resource.getInputStream());
+    //        System.out.println(document);
+    //    }
+    //
+    //    @Test
+    //    public void testParseInputSource() throws Exception {
+    //        Resource resource = resourceLoader.getResource("classpath:/log4j.xml");
+    //        Document document = documentBuilder.parse(new InputSource(resource.getInputStream()));
+    //        System.out.println(document);
+    //    }
+    //
+    //    public static void main(String[] args) throws Exception {
+    //        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+    //        DocumentBuilder db = dbf.newDocumentBuilder();
+    //        Document doc = db.parse(new FileInputStream(new File("src/test/resources/log4j.xml")));
+    //        System.out.println(doc);
+    //    }
 
 }

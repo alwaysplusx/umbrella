@@ -29,6 +29,9 @@ import com.harmony.umbrella.util.ReflectionUtils;
  */
 public abstract class AbstractJmsMessageListener extends AbstractMessageListener implements MessageListener {
 
+    /**
+     * 当接收消息出现异常后是否将异常回馈给容器
+     */
     protected boolean raiseError;
 
     /**
@@ -46,7 +49,6 @@ public abstract class AbstractJmsMessageListener extends AbstractMessageListener
                 Serializable object = ((ObjectMessage) message).getObject();
                 if (object instanceof com.harmony.umbrella.message.Message) {
                     onMessage((com.harmony.umbrella.message.Message) object);
-                    // right way
                     return;
                 }
                 ex = new IllegalStateException("illegal message type " + object.getClass().getName());
@@ -58,7 +60,7 @@ public abstract class AbstractJmsMessageListener extends AbstractMessageListener
         }
         if (ex != null) {
             if (raiseError) {
-                // 异常重新抛出
+                // 异常重新抛出给容器
                 ReflectionUtils.rethrowRuntimeException(ex);
             } else {
                 // 忽略异常

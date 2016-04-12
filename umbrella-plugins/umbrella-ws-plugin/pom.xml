@@ -27,10 +27,15 @@
     </dependency>
     <!-- api -->
     <dependency>
-      <groupId>org.apache.openejb</groupId>
+      <groupId>javax</groupId>
       <artifactId>javaee-api</artifactId>
       <scope>provided</scope>
     </dependency>
+    <!-- <dependency>
+      <groupId>org.apache.openejb</groupId>
+      <artifactId>javaee-api</artifactId>
+      <scope>provided</scope>
+    </dependency> -->
     <!-- test -->
     <dependency>
       <groupId>org.apache.openejb</groupId>
@@ -46,8 +51,8 @@
           <groupId>com.sun.xml.bind</groupId>
         </exclusion>
         <exclusion>
-          <artifactId>javaee-api</artifactId>
           <groupId>org.apache.openejb</groupId>
+          <artifactId>javaee-api</artifactId>
         </exclusion>
       </exclusions>
     </dependency>

@@ -45,6 +45,16 @@ public abstract class AbstractJmsMessageSender implements JmsMessageSender {
         }
     }
 
+    /**
+     * 将message发送给JMS中间件
+     * 
+     * @param message
+     *            发送的消息
+     * @param config
+     *            jms的属性配置项目
+     * @return 发送是否成功标志
+     * @throws JMSException
+     */
     protected boolean sendJmsMessage(Message message, JmsConfig config) throws JMSException {
         try {
             config.start();
@@ -58,22 +68,21 @@ public abstract class AbstractJmsMessageSender implements JmsMessageSender {
         return true;
     }
 
-    protected JmsConfig createJmsConfig() {
-        return new SimpleJmsConfig(getConnectionFactory(), getDestination());
-    }
-
     /**
-     * JMS连接工厂
-     * 
-     * @return
+     * JMS连接工厂, 连接工厂一般采用{@linkplain javax.annotation.Resource}注解注入
      */
     protected abstract ConnectionFactory getConnectionFactory();
 
     /**
-     * JMS的目的地
-     * 
-     * @return
+     * JMS的目的地, 目的地一般采用{@linkplain javax.annotation.Resource}注解注入
      */
     protected abstract Destination getDestination();
+
+    /**
+     * 创建jms配置项
+     */
+    protected JmsConfig createJmsConfig() {
+        return new SimpleJmsConfig(getConnectionFactory(), getDestination());
+    }
 
 }

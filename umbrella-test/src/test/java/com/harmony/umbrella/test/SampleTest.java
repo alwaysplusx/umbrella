@@ -25,11 +25,13 @@ import javax.ejb.embeddable.EJBContainer;
 import org.apache.openejb.OpenEjbContainer.Provider;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
  * @author wuxii@foxmail.com
  */
+@Ignore
 public class SampleTest {
 
     // org.glassfish.ejb.embedded.EJBContainerProviderImpl

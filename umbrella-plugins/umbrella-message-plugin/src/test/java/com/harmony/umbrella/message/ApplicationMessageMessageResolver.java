@@ -23,21 +23,11 @@ import javax.ejb.Stateless;
  */
 @Remote(MessageResolver.class)
 @Stateless(mappedName = "ApplicationMessageMessageResolver")
-public class ApplicationMessageMessageResolver extends AbstractMessageResolver<String> implements MessageResolver {
+public class ApplicationMessageMessageResolver extends TypedMessageResolver<ApplicationMessage> implements MessageResolver {
 
     @Override
-    public boolean support(Message message) {
-        return message instanceof ApplicationMessage;
-    }
-
-    @Override
-    public void process(String message) {
-        System.err.println(message);
-    }
-
-    @Override
-    protected String convert(Message message) {
-        return ((ApplicationMessage) message).getMessage();
+    public void process(ApplicationMessage message) {
+        System.out.println(message.getMessage());
     }
 
 }
