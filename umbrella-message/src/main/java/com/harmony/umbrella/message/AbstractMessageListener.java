@@ -48,8 +48,10 @@ public abstract class AbstractMessageListener implements MessageListener {
             if (mr.support(message)) {
                 LOG.debug("{}处理消息{}", mr, message);
                 mr.resolve(message);
+                return;
             }
         }
+        throw new IllegalStateException(message + " no suitable message resolver");
     }
 
 }

@@ -56,7 +56,7 @@ public abstract class TypedMessageResolver<T extends Message> implements Message
     @SuppressWarnings("unchecked")
     protected Class<T> getMessageType() {
         if (messageType == null) {
-            messageType = (Class<T>) GenericUtils.getSuperGeneric(getClass(), 0);
+            messageType = (Class<T>) GenericUtils.getTargetGeneric(getClass(), TypedMessageResolver.class, 0);
         }
         return messageType;
     }
