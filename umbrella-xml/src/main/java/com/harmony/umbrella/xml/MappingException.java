@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2016 the original author or authors.
+ * Copyright 2002-2014 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,19 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.umbrella.config;
-
-import java.util.List;
+package com.harmony.umbrella.xml;
 
 /**
  * @author wuxii@foxmail.com
  */
-public interface Configurations {
+public class MappingException extends RuntimeException {
 
-    String APPLICATION_CONFIGURATIONS = "ApplicationConfigurations";
+    private static final long serialVersionUID = -3630313104460369222L;
 
-    <T> T getBean(String beanName);
+    public MappingException() {
+        super();
+    }
 
-    <T> List<T> getBeans(String beanName);
+    public MappingException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
+    public MappingException(String message) {
+        super(message);
+    }
+
+    public MappingException(Throwable cause) {
+        super(cause);
+    }
 
 }

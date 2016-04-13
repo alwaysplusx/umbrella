@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects>
+  <users>
+    <user>
+      <name>wuxii</name>
+      <age>abc123</age>
+      <birthday convert="com.huiju.module.xml.convert.StringToDateConverter">1990-03-20</birthday>
+    </user>
+    <user>
+      <name>david</name>
+      <age>omg321</age>
+      <birthday>1987-04-12</birthday>
+    </user>
+  </users>
+  <customers>
+    <customer>
+      <customerId>10000</customerId>
+      <customerName>wuxii</customerName>
+    </customer>
+  </customers>
+</objects>

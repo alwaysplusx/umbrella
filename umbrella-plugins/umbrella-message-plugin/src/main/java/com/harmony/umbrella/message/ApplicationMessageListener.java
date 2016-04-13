@@ -16,6 +16,7 @@
 package com.harmony.umbrella.message;
 
 import static com.harmony.umbrella.message.ApplicationMessageConstants.*;
+
 import java.util.List;
 
 import javax.ejb.ActivationConfigProperty;
@@ -24,9 +25,8 @@ import javax.ejb.MessageDriven;
 import javax.ejb.Remote;
 import javax.jms.MessageListener;
 
-import com.harmony.umbrella.config.ConfigurationBeans;
+import com.harmony.umbrella.config.Configurations;
 import com.harmony.umbrella.message.jms.AbstractJmsMessageListener;
-
 
 /**
  * @author wuxii@foxmail.com
@@ -38,8 +38,8 @@ import com.harmony.umbrella.message.jms.AbstractJmsMessageListener;
 @Remote({ MessageListener.class, com.harmony.umbrella.message.MessageListener.class })
 public class ApplicationMessageListener extends AbstractJmsMessageListener implements MessageListener {
 
-    @EJB
-    private ConfigurationBeans<MessageResolver> configuration;
+    @EJB(mappedName = Configurations.APPLICATION_CONFIGURATIONS)
+    private Configurations configurations;
 
     @EJB
     private MessageResolver resolver;
@@ -50,7 +50,7 @@ public class ApplicationMessageListener extends AbstractJmsMessageListener imple
 
     @Override
     protected List<MessageResolver> getMessageResolvers() {
-        return configuration.getBeans();
+        return configurations.getBeans(ApplicationMessageConstants.APPLICATION_MESSAGE_LISTENER_MESSAGE_RESOLVERS);
     }
 
     @Override

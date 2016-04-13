@@ -101,6 +101,8 @@
                   <!-- <extraargs>
                     <extraarg>-impl</extraarg>
                     <extraarg>-verbose</extraarg>
+                    <extraarg>-client</extraarg>
+                    <extraarg>-server</extraarg>
                   </extraargs> -->
                 </wsdlOption>
               </wsdlOptions>

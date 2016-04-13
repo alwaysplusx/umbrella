@@ -25,7 +25,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.harmony.umbrella.config.ConfigurationBeans;
+import com.harmony.umbrella.config.Configurations;
 import com.harmony.umbrella.message.jms.JmsMessageSender;
 
 /**
@@ -39,7 +39,7 @@ public class ApplicationMessageTest {
     private JmsMessageSender sender;
 
     @EJB
-    private ConfigurationBeans<MessageResolver> configurationBeans;
+    private Configurations configurations;
 
     @BeforeClass
     public static void beforeClass() throws Exception {

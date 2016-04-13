@@ -13,30 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.umbrella.message;
+package com.harmony.umbrella.xml;
 
-import java.util.Arrays;
-import java.util.List;
-
-import javax.ejb.EJB;
-import javax.ejb.Remote;
-import javax.ejb.Stateless;
-
-import com.harmony.umbrella.config.ConfigurationBeans;
+import org.w3c.dom.Element;
 
 /**
  * @author wuxii@foxmail.com
  */
-@Stateless
-@Remote(ConfigurationBeans.class)
-public class ApplicationMessageListenerConfigurationBeans implements ConfigurationBeans<MessageResolver> {
+public interface NodeVisitor {
 
-    @EJB(mappedName = "ApplicationMessageMessageResolver")
-    private MessageResolver resolver;
-
-    @Override
-    public List<MessageResolver> getBeans() {
-        return Arrays.asList(resolver);
-    }
+    void visitElement(String path, Element element);
 
 }
