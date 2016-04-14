@@ -120,6 +120,7 @@ under the License.
     <netty.version>5.0.0.Alpha2</netty.version>
     <jackson.version>2.6.2</jackson.version>
     <junit.version>4.11</junit.version>
+    <jetty.version>8.1.15.v20140411</jetty.version>
   </properties>
 
   <dependencyManagement>
@@ -593,6 +594,21 @@ under the License.
         <artifactId>junit</artifactId>
         <version>${junit.version}</version>
       </dependency>
+      <dependency>
+        <groupId>org.eclipse.jetty</groupId>
+        <artifactId>jetty-server</artifactId>
+        <version>${jetty.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.eclipse.jetty</groupId>
+        <artifactId>jetty-servlet</artifactId>
+        <version>${jetty.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.eclipse.jetty</groupId>
+        <artifactId>jetty-webapp</artifactId>
+        <version>${jetty.version}</version>
+      </dependency>      
     </dependencies>
   </dependencyManagement>
 </project>

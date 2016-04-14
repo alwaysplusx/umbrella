@@ -15,57 +15,27 @@
  */
 package com.harmony.umbrella.log.interceptor;
 
-import javax.annotation.PostConstruct;
-import javax.interceptor.AroundInvoke;
 import javax.interceptor.Interceptor;
-import javax.interceptor.InvocationContext;
 
-import com.harmony.umbrella.log.Message;
-import com.harmony.umbrella.log.TemplateFactory;
-import com.harmony.umbrella.log.template.MessageTemplateFactory;
+import com.harmony.umbrella.monitor.support.AbstractEJBMonitorInterceptor;
 
 /**
  * @author wuxii@foxmail.com
  */
 @Interceptor
-public class EJBLoggingInterceptor extends AbstractLoggingInterceptor<InvocationContext> {
+public class EJBLoggingInterceptor extends AbstractEJBMonitorInterceptor {
 
-    protected TemplateFactory templateFactory;
-
-    @PostConstruct
-    private void postConstruct() {
-        this.init();
-        this.templateFactory = new MessageTemplateFactory();
-    }
-
-    @AroundInvoke
-    public Object interceptor(InvocationContext ctx) throws Exception {
-        return logging(ctx);
-    }
+    private LogGraphReporter reporter = new DefaultLogGraphReporter();
 
     @Override
-    protected com.harmony.umbrella.log.interceptor.InvocationContext convert(InvocationContext invocationContext) {
-        return new EJBInvocationContext(invocationContext);
+    protected Object doInterceptor(com.harmony.umbrella.monitor.support.InvocationContext invocationContext) throws Exception {
+        Object result = invocationContext.process();
+        reporter.report(invocationContext.toGraph());
+        return result;
     }
 
-    @Override
-    protected Message newMessage(com.harmony.umbrella.log.interceptor.InvocationContext ctx) {
-        return templateFactory.createTemplate(ctx.method).newMessage(ctx.target, ctx.result, ctx.parameters);
-    }
-
-    private static final class EJBInvocationContext extends com.harmony.umbrella.log.interceptor.InvocationContext {
-
-        private final InvocationContext invocationContext;
-
-        public EJBInvocationContext(InvocationContext context) {
-            super(context.getTarget(), context.getMethod(), context.getParameters());
-            this.invocationContext = context;
-        }
-
-        @Override
-        protected Object doProcess() throws Exception {
-            return invocationContext.proceed();
-        }
+    public void setReporter(LogGraphReporter reporter) {
+        this.reporter = reporter;
     }
 
 }

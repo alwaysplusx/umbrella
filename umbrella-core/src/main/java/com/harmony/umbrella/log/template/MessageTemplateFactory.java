@@ -22,6 +22,7 @@ import javax.servlet.http.HttpServletRequest;
 import com.harmony.umbrella.log.HttpTemplate;
 import com.harmony.umbrella.log.Template;
 import com.harmony.umbrella.log.TemplateFactory;
+import com.harmony.umbrella.log.annotation.Logging;
 
 /**
  * @author wuxii@foxmail.com
@@ -29,13 +30,35 @@ import com.harmony.umbrella.log.TemplateFactory;
 public class MessageTemplateFactory implements TemplateFactory {
 
     @Override
+    public Template createTemplate(Logging logAnnotation) {
+        if (logAnnotation == null) {
+            throw new IllegalArgumentException("@Log annotation cannot be null");
+        }
+        return new MessageTemplate(logAnnotation);
+    }
+
     public Template createTemplate(Method method) {
-        return new MessageTemplate(method);
+        Logging logAnnotation = method.getAnnotation(Logging.class);
+        if (logAnnotation == null) {
+            throw new IllegalArgumentException(method + " not have @Log annotation ");
+        }
+        return createTemplate(logAnnotation);
     }
 
     @Override
+    public HttpTemplate createHttpTemplate(Logging logAnnotation, HttpServletRequest request) {
+        if (logAnnotation == null) {
+            throw new IllegalArgumentException("@Log annotation cannot be null");
+        }
+        return new HttpMessageTemplate(logAnnotation, request);
+    }
+
     public HttpTemplate createHttpTemplate(Method method, HttpServletRequest request) {
-        return new HttpMessageTemplate(method, request);
+        Logging logAnnotation = method.getAnnotation(Logging.class);
+        if (logAnnotation == null) {
+            throw new IllegalArgumentException(method + " not have @Log annotation ");
+        }
+        return createHttpTemplate(logAnnotation, request);
     }
 
 }

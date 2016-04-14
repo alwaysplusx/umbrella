@@ -15,13 +15,12 @@
  */
 package com.harmony.umbrella.log.template;
 
-import java.lang.reflect.Method;
-
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import com.harmony.umbrella.log.HttpTemplate;
+import com.harmony.umbrella.log.annotation.Logging;
 
 /**
  * @author wuxii@foxmail.com
@@ -30,8 +29,8 @@ public class HttpMessageTemplate extends MessageTemplate implements HttpTemplate
 
     private final HttpServletRequest request;
 
-    public HttpMessageTemplate(Method method, HttpServletRequest request) {
-        super(method);
+    public HttpMessageTemplate(Logging logAnnotation, HttpServletRequest request) {
+        super(logAnnotation);
         this.request = request;
     }
 

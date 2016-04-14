@@ -15,14 +15,15 @@
  */
 package com.harmony.umbrella.excel.cell;
 
-import java.lang.reflect.ParameterizedType;
-
 import com.harmony.umbrella.excel.CellResolver;
+import com.harmony.umbrella.util.GenericUtils;
 
 /**
  * @author wuxii@foxmail.com
  */
 public abstract class AbstractCellResolver<T> implements CellResolver<T> {
+
+    private Class<T> targetType;
 
     @Override
     public boolean isTargetType(Class<?> targetType) {
@@ -32,25 +33,10 @@ public abstract class AbstractCellResolver<T> implements CellResolver<T> {
 
     @SuppressWarnings("unchecked")
     protected Class<T> getTargetType() {
-        ParameterizedType pt = findParameterizedType(getClass());
-        if (pt != null) {
-            return (Class<T>) pt.getActualTypeArguments()[0];
+        if (targetType == null) {
+            targetType = (Class<T>) GenericUtils.getTargetGeneric(getClass(), AbstractCellResolver.class, 0);
         }
-        throw new UnsupportedOperationException();
-    }
-
-    protected Class<?> getGenericSuperClass() {
-        return AbstractCellResolver.class;
-    }
-
-    protected final ParameterizedType findParameterizedType(Class<?> subClass) {
-        Class<?> superclass = subClass.getSuperclass();
-        if (superclass == Object.class) {
-            return null;
-        } else if (getGenericSuperClass().equals(superclass)) {
-            return (ParameterizedType) subClass.getGenericSuperclass();
-        }
-        return findParameterizedType(superclass);
+        return targetType;
     }
 
 }

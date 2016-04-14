@@ -15,7 +15,6 @@
  */
 package com.harmony.umbrella.log;
 
-import java.io.Serializable;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Map;
@@ -37,7 +36,7 @@ public class LogMessage {
     private MessageFactory messageFactory;
 
     private String bizModule;
-    private Serializable bizId;
+    private Object bizId;
 
     private String module;
     private String action;
@@ -47,7 +46,7 @@ public class LogMessage {
     private Level level;
 
     private String operator;
-    private Serializable operatorId;
+    private Object operatorId;
 
     private Object result;
 
@@ -71,11 +70,10 @@ public class LogMessage {
     /**
      * 设置业务数据的id
      *
-     * @param bizId
-     *            业务数据的id
+     * @param bizId 业务数据的id
      * @return current logMessage
      */
-    public LogMessage bizId(Serializable bizId) {
+    public LogMessage bizId(Object bizId) {
         this.bizId = bizId;
         return this;
     }
@@ -83,8 +81,7 @@ public class LogMessage {
     /**
      * 设置业务模块
      *
-     * @param bizModule
-     *            业务模块
+     * @param bizModule 业务模块
      * @return current logMessage
      */
     public LogMessage bizModule(String bizModule) {
@@ -121,8 +118,7 @@ public class LogMessage {
     /**
      * 设置日志所表示的动作
      *
-     * @param action
-     *            日志表示的动作
+     * @param action 日志表示的动作
      * @return current logMessage
      */
     public LogMessage action(String action) {
@@ -133,8 +129,7 @@ public class LogMessage {
     /**
      * 设置结果
      *
-     * @param result
-     *            结果
+     * @param result 结果
      * @return current logMessage
      */
     public LogMessage result(Object result) {
@@ -150,8 +145,7 @@ public class LogMessage {
     /**
      * 设置业务数据的操作人
      *
-     * @param username
-     *            操作人名称
+     * @param username 操作人名称
      * @return current logMessage
      */
     public LogMessage operator(String username) {
@@ -159,7 +153,7 @@ public class LogMessage {
         return this;
     }
 
-    public LogMessage operatorId(Serializable operatorId) {
+    public LogMessage operatorId(Object operatorId) {
         this.operatorId = operatorId;
         return this;
     }
@@ -174,11 +168,15 @@ public class LogMessage {
         return this;
     }
 
+    public LogMessage start(long startTime) {
+        this.startTime = startTime;
+        return this;
+    }
+
     /**
      * 设置开始时间
      *
-     * @param startTime
-     *            开始时间
+     * @param startTime 开始时间
      * @return current logMessage
      */
     public LogMessage start(Calendar startTime) {
@@ -201,11 +199,15 @@ public class LogMessage {
         return this;
     }
 
+    public LogMessage finish(long finishTime) {
+        this.finishTime = finishTime;
+        return this;
+    }
+
     /**
      * 设置结束时间
      *
-     * @param finishTime
-     *            结束时间
+     * @param finishTime 结束时间
      * @return current logMessage
      */
     public LogMessage finish(Calendar finishTime) {
@@ -222,7 +224,7 @@ public class LogMessage {
      * 用于收集其他扩展属性
      * <p>
      * 当要记录http相关信息时使用
-     * 
+     *
      * @param key
      * @param value
      * @return
@@ -235,8 +237,7 @@ public class LogMessage {
     /**
      * 设置日志级别
      *
-     * @param level
-     *            日志级别
+     * @param level 日志级别
      * @return current logMessage
      */
     public LogMessage level(Level level) {
@@ -279,8 +280,7 @@ public class LogMessage {
     /**
      * 调用日志log记录本条日志
      *
-     * @param level
-     *            日志级别
+     * @param level 日志级别
      */
     public void log(Level level) {
         this.level = level;
@@ -289,26 +289,26 @@ public class LogMessage {
         LogInfo msg = asInfo();
 
         switch (level.standardLevel) {
-        case ERROR:
-            relative.error(msg);
-            break;
-        case WARN:
-            relative.warn(msg);
-            break;
-        case INFO:
-            relative.info(msg);
-            break;
-        case DEBUG:
-            relative.debug(msg);
-            break;
-        case ALL:
-        case TRACE:
-            relative.trace(msg);
-            break;
-        case OFF:
-            break;
-        default:
-            break;
+            case ERROR:
+                relative.error(msg);
+                break;
+            case WARN:
+                relative.warn(msg);
+                break;
+            case INFO:
+                relative.info(msg);
+                break;
+            case DEBUG:
+                relative.debug(msg);
+                break;
+            case ALL:
+            case TRACE:
+                relative.trace(msg);
+                break;
+            case OFF:
+                break;
+            default:
+                break;
         }
     }
 
@@ -331,7 +331,7 @@ public class LogMessage {
             }
 
             @Override
-            public Serializable getOperatorId() {
+            public Object getOperatorId() {
                 return operatorId;
             }
 
@@ -371,7 +371,7 @@ public class LogMessage {
             }
 
             @Override
-            public Serializable getBizId() {
+            public Object getBizId() {
                 return bizId;
             }
 

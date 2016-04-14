@@ -15,7 +15,6 @@
  */
 package com.harmony.umbrella.log.template;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -35,7 +34,6 @@ import com.harmony.umbrella.log.util.ExpressionUtils;
 public class MessageTemplate implements Template {
 
     protected final Logging ann;
-    protected final Method method;
     protected final String template;
     protected final String idExpression;
 
@@ -43,8 +41,8 @@ public class MessageTemplate implements Template {
     private List<String> _templateExpressions;
     private String _placeholdTemplate;
 
-    public MessageTemplate(Method method) {
-        this.ann = method.getAnnotation(Logging.class);
+    public MessageTemplate(Logging logAnnotation) {
+        this.ann =  logAnnotation;
         if (ann == null) {
             throw new IllegalArgumentException("method not have @Log annotation");
         }
@@ -53,7 +51,6 @@ public class MessageTemplate implements Template {
         }
         this.template = ann.message();
         this.idExpression = ann.id();
-        this.method = method;
     }
 
     @Override

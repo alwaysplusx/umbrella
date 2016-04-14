@@ -72,7 +72,7 @@ public class SampleServiceProxy implements InvocationHandler {
             msg.finish();
 
             // messageTemplate + method + target + params + result
-            Template template = templateFactory.createTemplate(method);
+            Template template = templateFactory.createTemplate(method.getAnnotation(Logging.class));
 
             msg.message(template.newMessage(target, result, args));
             msg.bizId(template.getId(target, result, args));

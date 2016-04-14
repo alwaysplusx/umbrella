@@ -15,17 +15,17 @@
  */
 package com.harmony.umbrella.log;
 
-import java.lang.reflect.Method;
-
 import javax.servlet.http.HttpServletRequest;
+
+import com.harmony.umbrella.log.annotation.Logging;
 
 /**
  * @author wuxii@foxmail.com
  */
 public interface TemplateFactory {
 
-    Template createTemplate(Method method);
+    Template createTemplate(Logging logAnnotation);
 
-    HttpTemplate createHttpTemplate(Method method, HttpServletRequest request);
+    HttpTemplate createHttpTemplate(Logging logAnnotation, HttpServletRequest request);
 
 }

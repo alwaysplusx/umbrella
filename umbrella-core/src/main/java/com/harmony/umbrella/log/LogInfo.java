@@ -15,7 +15,6 @@
  */
 package com.harmony.umbrella.log;
 
-import java.io.Serializable;
 import java.util.Date;
 import java.util.Map;
 
@@ -94,7 +93,7 @@ public interface LogInfo {
      * 
      * @return
      */
-    Serializable getOperatorId();
+    Object getOperatorId();
 
     /**
      * 业务日志模块
@@ -108,7 +107,7 @@ public interface LogInfo {
      * 
      * @return
      */
-    Serializable getBizId();
+    Object getBizId();
 
     /**
      * 检查是否有异常

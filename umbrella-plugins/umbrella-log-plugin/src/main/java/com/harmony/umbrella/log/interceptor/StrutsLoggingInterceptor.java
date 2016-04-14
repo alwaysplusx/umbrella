@@ -15,90 +15,38 @@
  */
 package com.harmony.umbrella.log.interceptor;
 
-import java.lang.reflect.Method;
-
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.struts2.interceptor.ServletRequestAware;
-
-import com.harmony.umbrella.log.Logs;
-import com.harmony.umbrella.log.Message;
-import com.harmony.umbrella.log.TemplateFactory;
-import com.harmony.umbrella.log.template.MessageTemplateFactory;
-import com.opensymphony.xwork2.ActionInvocation;
-import com.opensymphony.xwork2.ActionProxy;
-import com.opensymphony.xwork2.interceptor.Interceptor;
+import com.harmony.umbrella.monitor.support.AbstractStrutsMonitorInterceptor;
 
 /**
  * @author wuxii@foxmail.com
  */
-public class StrutsLoggingInterceptor extends AbstractLoggingInterceptor<ActionInvocation> implements Interceptor, ServletRequestAware {
+public class StrutsLoggingInterceptor extends AbstractStrutsMonitorInterceptor {
 
     private static final long serialVersionUID = 1136087148041235740L;
 
-    private static final com.harmony.umbrella.log.Log log = Logs.getLog(StrutsLoggingInterceptor.class);
-
-    protected TemplateFactory templateFactory;
     private HttpServletRequest request;
+    private LogGraphReporter reporter;
 
     @Override
     public void init() {
-        super.init();
-        this.templateFactory = new MessageTemplateFactory();
+        reporter = new DefaultLogGraphReporter();
     }
 
     @Override
-    public String intercept(ActionInvocation invocation) throws Exception {
-        return (String) logging(invocation);
-    }
-
-    @Override
-    protected InvocationContext convert(ActionInvocation invocation) {
-        return new StrutsInvocationContext(invocation);
-    }
-
-    @Override
-    protected Message newMessage(InvocationContext ctx) {
-        return templateFactory.createHttpTemplate(ctx.method, request).newMessage(ctx.target, ctx.result, ctx.parameters);
-    }
-
-    @Override
-    public void setServletRequest(HttpServletRequest request) {
-        this.request = request;
+    protected Object doInterceptor(com.harmony.umbrella.monitor.support.InvocationContext invocationContext) throws Exception {
+        Object result = invocationContext.process();
+        reporter.report(invocationContext.toGraph(), request);
+        return result;
     }
 
     @Override
     public void destroy() {
-
     }
 
-    protected static final Method getMethod(ActionInvocation ctx) {
-        // action 的方法一般为无参的public方法，再此不做过多判断
-        ActionProxy proxy = ctx.getProxy();
-        String methodName = proxy.getMethod();
-        if (methodName == null) {
-            methodName = proxy.getConfig().getMethodName();
-        }
-        try {
-            return ctx.getAction().getClass().getMethod(methodName);
-        } catch (NoSuchMethodException e) {
-            log.warn("cannot found action method {}", methodName);
-            return null;
-        }
+    public void setReporter(LogGraphReporter reporter) {
+        this.reporter = reporter;
     }
 
-    private static final class StrutsInvocationContext extends InvocationContext {
-
-        private final ActionInvocation invocation;
-
-        public StrutsInvocationContext(ActionInvocation invocation) {
-            super(invocation.getAction(), getMethod(invocation), new Object[0]);
-            this.invocation = invocation;
-        }
-
-        @Override
-        protected Object doProcess() throws Exception {
-            return invocation.invoke();
-        }
-    }
 }
