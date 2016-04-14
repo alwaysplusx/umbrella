@@ -15,8 +15,6 @@
  */
 package com.harmony.umbrella.context;
 
-import static com.harmony.umbrella.util.PropUtils.*;
-
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
@@ -187,6 +185,10 @@ public class ApplicationMetadata {
             return builder.toString();
         }
 
+    }
+
+    private static String getSystemProperty(String key) {
+        return System.getProperty(key);
     }
 
     /**

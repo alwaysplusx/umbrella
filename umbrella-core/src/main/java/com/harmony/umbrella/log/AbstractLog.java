@@ -15,6 +15,7 @@
  */
 package com.harmony.umbrella.log;
 
+import com.harmony.umbrella.log.Level.StandardLevel;
 import com.harmony.umbrella.log.message.ParameterizedMessageFactory;
 
 /**
@@ -120,6 +121,14 @@ public abstract class AbstractLog implements Log {
         }
     }
 
+    protected void setLevel(StandardLevel level) {
+        this.isTraceEnabled = StandardLevel.TRACE.isMoreSpecificThan(level);
+        this.isDebugEnabled = StandardLevel.DEBUG.isMoreSpecificThan(level);
+        this.isInfoEnabled = StandardLevel.INFO.isMoreSpecificThan(level);
+        this.isWarnEnabled = StandardLevel.WARN.isMoreSpecificThan(level);
+        this.isErrorEnabled = StandardLevel.ERROR.isMoreSpecificThan(level);
+    }
+    
     public boolean isEnable(Level level) {
         if (level == null) {
             return isInfoEnabled();

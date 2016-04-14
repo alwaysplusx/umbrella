@@ -151,30 +151,6 @@ public class PropUtils {
     }
 
     /**
-     * 系统{@linkplain java.lang.System#getProperty(String)}
-     *
-     * @param key
-     *         环境属性key
-     * @return 系统环境属性值
-     */
-    public static String getSystemProperty(String key) {
-        return System.getProperty(key);
-    }
-
-    /**
-     * 系统{@linkplain System#getProperty(String)}
-     *
-     * @param key
-     *         环境属性key
-     * @param defaultValue
-     *         默认值
-     * @return 系统环境属性值
-     */
-    public static String getSystemProperty(String key, String defaultValue) {
-        return System.getProperty(key, defaultValue);
-    }
-
-    /**
      * 从属性中过滤出前缀为指定值的属性集合
      *
      * @param prefix

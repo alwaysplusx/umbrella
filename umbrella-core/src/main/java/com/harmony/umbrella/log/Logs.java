@@ -19,17 +19,29 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ServiceLoader;
 
-import com.harmony.umbrella.util.PropUtils;
+import com.harmony.umbrella.log.Level.StandardLevel;
+import com.harmony.umbrella.util.Environments;
 
 /**
  * 
  * @author wuxii@foxmail.com
  */
-public class Logs {
+public final class Logs {
 
     private static LogProvider logProvider;
+    static final boolean LOG_FULL_NAME;
+    static final StandardLevel LOG_LEVEL;
 
     static {
+        
+        LOG_FULL_NAME = Boolean.valueOf(Environments.getProperty("umbrella.log.fullname", "false"));
+        LOG_LEVEL = StandardLevel.valueOf(Environments.getProperty("umbrella.log.level", "DEBUG"));
+        
+        flushProvider();
+        
+    }
+
+    public static void flushProvider() {
         ServiceLoader<LogProvider> providers = ServiceLoader.load(LogProvider.class);
         for (LogProvider provider : providers) {
             logProvider = provider;
@@ -39,7 +51,7 @@ public class Logs {
             logProvider = new SystemLogProvider();
         }
     }
-
+    
     /**
      * 从调用栈中找到上层类名的log
      * 
@@ -120,9 +132,14 @@ public class Logs {
         private boolean fullName;
 
         public SystemLog(String className) {
+            this(className, LOG_LEVEL, LOG_FULL_NAME);
+        }
+
+        SystemLog(String className, StandardLevel level, boolean fullName) {
             super(className);
             this.callerFQCN = AbstractLog.class.getName();
-            this.fullName = Boolean.valueOf(PropUtils.getSystemProperty("umbrella.log.fullname", "false"));
+            this.fullName = fullName;
+            this.setLevel(level);
         }
 
         public SystemLog(String className, Object obj) {

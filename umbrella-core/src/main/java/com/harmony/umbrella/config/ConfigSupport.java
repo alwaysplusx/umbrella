@@ -24,6 +24,8 @@ import com.harmony.umbrella.config.annotation.Bean;
 import com.harmony.umbrella.util.ReflectionUtils;
 
 /**
+ * 全局配置, 类似于Spring {@linkplain org.springframework.context.annotation.Configuration}
+ * 
  * @author wuxii@foxmail.com
  */
 public class ConfigSupport implements Configurations {
