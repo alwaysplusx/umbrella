@@ -155,13 +155,13 @@ public class ReflectionUtils {
     }
 
     public static Object getFieldValue(String fieldName, Object target) {
-        String getMethodName = readMethodName(fieldName);
+        String readMethodName = readMethodName(fieldName);
         try {
-            return ReflectionUtils.invokeMethod(getMethodName, target);
-        } catch (Exception e) {
+            return ReflectionUtils.invokeMethod(readMethodName, target);
+        } catch (NoSuchMethodException e) {
             Field field = findField(target.getClass(), fieldName);
             if (field == null) {
-                throw new IllegalArgumentException("field not find");
+                throw new IllegalArgumentException(target.getClass().getName() + "#" + fieldName + " not find");
             }
             try {
                 if (!field.isAccessible()) {

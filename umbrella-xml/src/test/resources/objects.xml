@@ -3,12 +3,12 @@
   <users>
     <user>
       <name>wuxii</name>
-      <age>abc123</age>
+      <age>18</age>
       <birthday convert="com.huiju.module.xml.convert.StringToDateConverter">1990-03-20</birthday>
     </user>
     <user>
       <name>david</name>
-      <age>omg321</age>
+      <age>18</age>
       <birthday>1987-04-12</birthday>
     </user>
   </users>
@@ -16,6 +16,23 @@
     <customer>
       <customerId>10000</customerId>
       <customerName>wuxii</customerName>
+      <user>
+        <name>david</name>
+        <age>20</age>
+        <birthday>1987-04-12</birthday>
+      </user>
+      <!-- <family type="java.util.ArrayList">
+        <user type="com.harmony.umbrella.excel.User">
+          <name>david</name>
+          <age>20</age>
+          <birthday>1987-04-12</birthday>
+        </user>
+        <user type="com.harmony.umbrella.excel.User">
+          <name>david</name>
+          <age>20</age>
+          <birthday>1987-04-12</birthday>
+        </user>
+      </family> -->
     </customer>
   </customers>
 </objects>

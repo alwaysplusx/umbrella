@@ -18,89 +18,52 @@ package com.harmony.umbrella.util;
 import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-
-import com.harmony.umbrella.util.Converter;
-import com.harmony.umbrella.util.ReflectionUtils;
-import com.harmony.umbrella.util.TimeUtils;
 
 /**
  * @author wuxii@foxmail.com
  */
 public class Converters {
 
-    // FIXME ClassUtils也有使用
-    private static final Map<Class<?>, Class<?>> primitiveWrapperTypeMap = new HashMap<Class<?>, Class<?>>(8);
-
-    /**
-     * Map with primitive type as key and corresponding wrapper type as value,
-     * for example: int.class -> Integer.class.
-     */
-    private static final Map<Class<?>, Class<?>> primitiveTypeToWrapperMap = new HashMap<Class<?>, Class<?>>(8);
-
-    static {
-        primitiveWrapperTypeMap.put(Boolean.class, boolean.class);
-        primitiveWrapperTypeMap.put(Byte.class, byte.class);
-        primitiveWrapperTypeMap.put(Character.class, char.class);
-        primitiveWrapperTypeMap.put(Double.class, double.class);
-        primitiveWrapperTypeMap.put(Float.class, float.class);
-        primitiveWrapperTypeMap.put(Integer.class, int.class);
-        primitiveWrapperTypeMap.put(Long.class, long.class);
-        primitiveWrapperTypeMap.put(Short.class, short.class);
-        for (Map.Entry<Class<?>, Class<?>> entry : primitiveWrapperTypeMap.entrySet()) {
-            primitiveTypeToWrapperMap.put(entry.getValue(), entry.getKey());
+    private static Date format(String text) {
+        if (StringUtils.isBlank(text)) {
+            return null;
         }
-    }
-
-    public static boolean isPrimitive(Class<?> clazz) {
-        return primitiveTypeToWrapperMap.containsKey(clazz);
+        Date date = null;
+        for (String pattern : Formats.DATA_PATTERNS) {
+            try {
+                date = TimeUtils.toDate(text, pattern);
+                return date;
+            } catch (ParseException e) {
+            }
+        }
+        return date;
     }
 
     public static final class StringToDateConverter implements Converter<String, Date> {
 
-        private String pattern;
-
         public StringToDateConverter() {
-            this("yyyy-MM-dd HH:mm:ss");
-        }
-
-        public StringToDateConverter(String pattern) {
-            this.pattern = pattern;
         }
 
         @Override
         public Date convert(String t) {
-            try {
-                return TimeUtils.toDate(t, pattern);
-            } catch (ParseException e) {
-                ReflectionUtils.rethrowRuntimeException(e);
-                throw new IllegalArgumentException(e);
+            Date date = format(t);
+            if (date == null) {
+                throw new IllegalArgumentException("illegal date format " + t);
             }
+            return date;
         }
 
     }
 
     public static final class StringToCalendarConverter implements Converter<String, Calendar> {
 
-        private String pattern;
-
-        public StringToCalendarConverter() {
-            this("yyyy-MM-dd HH:mm:ss");
-        }
-
-        public StringToCalendarConverter(String pattern) {
-            this.pattern = pattern;
-        }
-
         @Override
         public Calendar convert(String t) {
-            try {
-                return TimeUtils.toCalendar(t, pattern);
-            } catch (ParseException e) {
-                ReflectionUtils.rethrowRuntimeException(e);
-                throw new IllegalArgumentException(e);
+            Date date = format(t);
+            if (date == null) {
+                throw new IllegalArgumentException("illegal date format " + t);
             }
+            return TimeUtils.toCalendar(date);
         }
 
     }

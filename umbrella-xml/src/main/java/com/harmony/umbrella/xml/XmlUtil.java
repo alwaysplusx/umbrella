@@ -145,6 +145,22 @@ public class XmlUtil {
     }
 
     /**
+     * 判断element是否是最终节点
+     * 
+     * @param element
+     * @return
+     */
+    public static boolean isLeafElement(Element element) {
+        NodeList nodeList = element.getChildNodes();
+        for (int i = 0; i < nodeList.getLength(); i++) {
+            if (nodeList.item(i) instanceof Element) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
      * 获得dom指定xpath下的element
      * 
      * @param item

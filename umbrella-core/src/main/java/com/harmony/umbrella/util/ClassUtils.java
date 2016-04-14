@@ -63,11 +63,11 @@ public class ClassUtils {
      * Map with primitive wrapper type as key and corresponding primitive type as value, for example: Integer.class ->
      * int.class.
      */
-    private static final Map<Class<?>, Class<?>> primitiveWrapperTypeMap = new HashMap<Class<?>, Class<?>>(8);
+    static final Map<Class<?>, Class<?>> primitiveWrapperTypeMap = new HashMap<Class<?>, Class<?>>(8);
     /**
      * Map with primitive type as key and corresponding wrapper type as value, for example: int.class -> Integer.class.
      */
-    private static final Map<Class<?>, Class<?>> primitiveTypeToWrapperMap = new HashMap<Class<?>, Class<?>>(8);
+    static final Map<Class<?>, Class<?>> primitiveTypeToWrapperMap = new HashMap<Class<?>, Class<?>>(8);
 
     static {
         primitiveWrapperTypeMap.put(Boolean.class, boolean.class);
@@ -83,6 +83,17 @@ public class ClassUtils {
         }
     }
 
+    /**
+     * 元类型的包装类
+     * 
+     * @param primitiveType
+     *            元数据类型
+     * @return 包装类类型
+     */
+    public static Class<?> getPrimitiveWrapperType(Class<?> primitiveType) {
+        return primitiveTypeToWrapperMap.get(primitiveType);
+    }
+    
     public static ClassLoader getDefaultClassLoader() {
         ClassLoader cl = null;
         try {

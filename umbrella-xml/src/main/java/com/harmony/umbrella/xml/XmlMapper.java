@@ -17,16 +17,38 @@ package com.harmony.umbrella.xml;
 
 import org.w3c.dom.Element;
 
-import com.harmony.umbrella.util.Converter;
+import com.harmony.umbrella.util.ClassUtils;
 import com.harmony.umbrella.util.ReflectionUtils;
+import com.harmony.umbrella.util.StringUtils;
 
 /**
  * @author wuxii@foxmail.com
  */
 public class XmlMapper {
 
-    public static Object mapper(Element element) {
-        return null;
+    /**
+     * 通过xml节点中指定的mapper将节点映射为对应的java对象
+     * 
+     * @param element
+     *            映射的xml节点
+     * @return
+     */
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    public static <T> T mapping(Element element) {
+        String mapperName = element.getAttribute("mapper");
+        if (StringUtils.isBlank(mapperName)) {
+            throw new MappingException("unknow element mapper, please set attribute 'mapper'");
+        }
+        try {
+            Class<?> mapperClass = ClassUtils.forName(mapperName);
+            if (XmlBeanMapper.class.isAssignableFrom(mapperClass)) {
+                XmlBeanMapper mapper = (XmlBeanMapper) ReflectionUtils.instantiateClass(mapperClass);
+                return (T) mapping(element, mapper);
+            }
+            throw new MappingException(mapperName + " is not XmlBeanMapper");
+        } catch (Exception e) {
+            throw new MappingException("unsupported mapper type of " + mapperName, e);
+        }
     }
 
     /**
@@ -34,35 +56,30 @@ public class XmlMapper {
      * 
      * @param element
      *            xml节点
-     * @param mapperType
+     * @param mappedType
      *            映射的java类型
      * @return
      */
-    public static <T> T mapper(Element element, Class<T> mapperType) {
-        XmlBeanMapper<T> visitor = new SingleJavaBeanMapper<T>(mapperType);
-        XmlUtil.forEachElement(element, visitor);
-        return visitor.getResult();
+    public static <T> T mapping(Element element, Class<T> mappedType) {
+        return mapping(element, new SingleJavaBeanMapper<T>(mappedType));
     }
 
-    private static final class SingleJavaBeanMapper<T> extends XmlBeanMapper<T> {
-
-        public SingleJavaBeanMapper(Class<T> mapperType) {
-            super(mapperType);
-        }
-
-        @SuppressWarnings({ "rawtypes", "unchecked" })
-        @Override
-        protected void setTargetValue(String path, Element element) {
-            Object target = getPathTarget(path);
-            Object content = element.getTextContent();
-            Class<?> fieldType = getFieldType(target, element.getTagName());
-            Converter converter = getCustomeConvert(element, fieldType);
-            if (converter != null) {
-                content = converter.convert(content);
-            }
-            ReflectionUtils.setFieldValue(element.getTagName(), target, content);
-        }
-
+    /**
+     * 使用指定的XmlBeanMapper将节点映射为java对象
+     * 
+     * @param element
+     *            xml节点
+     * @param mapperType
+     *            映射mapper
+     * @return
+     */
+    public static <T> T mappingByMapper(Element element, Class<? extends XmlBeanMapper<T>> mapperType) {
+        XmlBeanMapper<T> mapper = ReflectionUtils.instantiateClass(mapperType);
+        return mapping(element, mapper);
     }
 
+    private static <T> T mapping(Element element, XmlBeanMapper<T> mapper) {
+        XmlUtil.forEachElement(element, mapper);
+        return mapper.getResult();
+    }
 }

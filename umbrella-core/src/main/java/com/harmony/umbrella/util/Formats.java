@@ -25,6 +25,8 @@ import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * 时间格式化工具
@@ -42,6 +44,17 @@ public class Formats {
     public static final String DIAGONAL_DATE_PATTERN = "dd/MM/yyyy";
 
     public static final String COMMON_DATE_PATTERN = "yyyyMMdd";
+
+    static final Set<String> DATA_PATTERNS = new HashSet<String>();
+
+    static {
+        DATA_PATTERNS.add(FULL_DATE_PATTERN);
+        DATA_PATTERNS.add(DEFAULT_DATE_PATTERN);
+        DATA_PATTERNS.add(SHORT_DATE_PATTERN);
+        DATA_PATTERNS.add(DIAGONAL_DATE_PATTERN);
+        DATA_PATTERNS.add(COMMON_DATE_PATTERN);
+        DATA_PATTERNS.add(COMMON_DATE_PATTERN);
+    }
 
     public static final String DEFAULT_NUMBER_PATTERN = "#.##";
 

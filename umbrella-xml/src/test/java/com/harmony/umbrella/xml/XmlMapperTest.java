@@ -20,8 +20,6 @@ import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import com.harmony.umbrella.excel.User;
-
 /**
  * @author wuxii@foxmail.com
  */
@@ -36,9 +34,9 @@ public class XmlMapperTest {
 
     @Test
     public void testMapper() throws Exception {
-        Element element = XmlUtil.getElement(doc, "objects/users/user[1]");
-        User user = XmlMapper.mapper(element, User.class);
-        System.out.println(user);
+        Element element = XmlUtil.getElement(doc, "objects/customers/customer");
+        Customer customer = XmlMapper.mapping(element, Customer.class);
+        System.out.println(customer);
     }
 
 }
