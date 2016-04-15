@@ -35,7 +35,7 @@ import com.harmony.umbrella.util.StringUtils;
  * @author wuxii@foxmail.com
  */
 @SuppressWarnings("rawtypes")
-public abstract class XmlBeanMapper<T> implements NodeVisitor {
+public abstract class XmlBeanMapper<T> extends ElementAcceptor {
 
     /**
      * 所有支持string转化的converter
@@ -73,15 +73,16 @@ public abstract class XmlBeanMapper<T> implements NodeVisitor {
     }
 
     @Override
-    public void visitElement(String path, Element element) {
+    public boolean acceptElement(String path, Element element) {
         if (root) {
             root = false;
             rootPath = path;
             result = instanceBean();
-            return;
+            return true;
         }
         String fieldPath = path.replace(XmlUtil.PATH_SPLIT, ".");
         setTargetValue(fieldPath.substring(rootPath.length() + 1), element);
+        return true;
     }
 
     /**

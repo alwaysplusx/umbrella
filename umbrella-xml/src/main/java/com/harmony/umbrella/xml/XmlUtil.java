@@ -3,10 +3,8 @@ package com.harmony.umbrella.xml;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -35,86 +33,64 @@ public class XmlUtil {
 
     public static final String PATH_SPLIT = "/";
 
-    /**
-     * 循环遍历document的所有element
-     * 
-     * @param document
-     *            xml document
-     * @param visitor
-     *            NodeVisitor
-     */
-    public static void forEachElement(Document document, NodeVisitor visitor) {
-        forEachElement(document.getDocumentElement(), visitor);
+    public static ElementIterator iterator(Document document) {
+        return new ElementIteratorImpl(document.getDocumentElement());
     }
 
-    /**
-     * 循环遍历element的所有子element, 包括自身
-     * 
-     * @param element
-     * @param visitor
-     */
-    public static void forEachElement(Element element, NodeVisitor visitor) {
-        _forEachElement(element.getTagName(), element, visitor);
+    public static ElementIterator iterator(Element element) {
+        return new ElementIteratorImpl(element);
     }
 
-    private static void _forEachElement(String path, Element element, NodeVisitor visitor) {
-        visitor.visitElement(path, element);
-        NodeList nodeList = element.getChildNodes();
-        Map<String, Integer> tagCountMap = new HashMap<String, Integer>();
-        Map<String, Integer> repeatCountMap = new HashMap<String, Integer>();
-        for (int i = 0; i < nodeList.getLength(); i++) {
-            Node node = nodeList.item(i);
-            if (isElement(node)) {
-                Element e = (Element) node;
-                String tagName = e.getTagName();
-                Integer tagCount = tagCountMap.get(tagName);
-                if (tagCount == null) {
-                    // 同名称的节点个数
-                    tagCountMap.put(tagName, tagCount = countElement(element, tagName));
-                }
-                StringBuilder sb = new StringBuilder();
-                sb.append(path).append(PATH_SPLIT).append(tagName);
-                if (tagCount > 1) {
-                    Integer repeatCount = repeatCountMap.get(tagName);
-                    repeatCountMap.put(tagName, repeatCount == null ? repeatCount = 0 : repeatCount++);
-                    sb.append("[").append(repeatCount).append("]");
-                }
-                _forEachElement(sb.toString(), e, visitor);
+    public static void iterator(Document document, NodeAcceptor acceptor) {
+        iterator(document.getDocumentElement(), acceptor);
+    }
+
+    public static void iterator(Element element, NodeAcceptor acceptor) {
+        iterator(iterator(element), acceptor);
+    }
+
+    private static boolean iterator(ElementIterator eit, NodeAcceptor acceptor) {
+        if (!acceptor.accept(eit.getPath(), eit.getCurrent())) {
+            return false;
+        }
+        while (eit.hasNext()) {
+            if (!iterator(eit.next(), acceptor)) {
+                return false;
             }
         }
+        return true;
     }
 
     /**
-     * 获取element的所有下级子element
+     * 循环遍历node下一级的所有node, 通过下层的节点acceptor的返回值{@code false}可以中断遍历
      * 
-     * @param element
-     *            dom节点
-     * @return 所有下级子节点
+     * @param node
+     *            待遍历的node
+     * @param acceptor
+     *            下个节点的受理
      */
-    public static Iterator<Element> getChildElements(Element element) {
-        NodeList nodes = element.getChildNodes();
-        List<Element> elements = new ArrayList<Element>();
+    public static void forEach(Node node, NodeAcceptor acceptor) {
+        NodeList nodes = node.getChildNodes();
         for (int i = 0, max = nodes.getLength(); i < max; i++) {
-            Node node = nodes.item(i);
-            if (isElement(node)) {
-                elements.add((Element) node);
+            Node item = nodes.item(i);
+            if (!acceptor.accept(item.getNodeName(), item)) {
+                break;
             }
         }
-        return elements.iterator();
     }
 
     /**
      * 检查xpath下是否存在element
      * 
      * @param document
-     *            xml document
+     *            xml node
      * @param xpath
      *            xpath expression
      * @return
      * @throws XPathExpressionException
      */
-    public static boolean hasElement(Document document, String xpath) throws XPathExpressionException {
-        return getElement(document, xpath) != null;
+    public static boolean hasElement(Node node, String xpath) throws XPathExpressionException {
+        return countElement(node, xpath) > 0;
     }
 
     /**
@@ -124,7 +100,34 @@ public class XmlUtil {
      * @return
      */
     public static boolean isElement(Object node) {
-        return node instanceof Element;
+        return node instanceof Node && ((Node) node).getNodeType() == Node.ELEMENT_NODE;
+    }
+
+    public static boolean isAttribute(Object node) {
+        return node instanceof Node && ((Node) node).getNodeType() == Node.ATTRIBUTE_NODE;
+    }
+
+    public static boolean isDocument(Object node) {
+        return node instanceof Node && ((Node) node).getNodeType() == Node.DOCUMENT_NODE;
+    }
+
+    /**
+     * 获取element的所有下一级element
+     * 
+     * @param node
+     *            dom节点
+     * @return 所有下级子节点
+     */
+    public static Iterator<Element> getChildElements(Node node) {
+        NodeList nodes = node.getChildNodes();
+        List<Element> elements = new ArrayList<Element>();
+        for (int i = 0, max = nodes.getLength(); i < max; i++) {
+            Node item = nodes.item(i);
+            if (isElement(item)) {
+                elements.add((Element) item);
+            }
+        }
+        return elements.iterator();
     }
 
     /**
@@ -136,9 +139,19 @@ public class XmlUtil {
      *            xpath expression
      * @return
      */
-    public static int countElement(Object item, String xpath) {
+    public static int countElement(Node node, String xpath) {
+        int count = 0;
         try {
-            return getElements(item, xpath).length;
+            NodeList nodes = (NodeList) getXPath().evaluate(xpath, node, XPathConstants.NODESET);
+            if (nodes.getLength() > 0) {
+                for (int i = 0, max = nodes.getLength(); i < max; i++) {
+                    Node item = nodes.item(i);
+                    if (isElement(item)) {
+                        count++;
+                    }
+                }
+            }
+            return count;
         } catch (XPathExpressionException e) {
             return -1;
         }
@@ -153,7 +166,7 @@ public class XmlUtil {
     public static boolean isLeafElement(Element element) {
         NodeList nodeList = element.getChildNodes();
         for (int i = 0; i < nodeList.getLength(); i++) {
-            if (nodeList.item(i) instanceof Element) {
+            if (isElement(nodeList.item(i))) {
                 return false;
             }
         }

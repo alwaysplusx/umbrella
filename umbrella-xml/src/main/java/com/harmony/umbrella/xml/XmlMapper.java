@@ -79,7 +79,16 @@ public class XmlMapper {
     }
 
     private static <T> T mapping(Element element, XmlBeanMapper<T> mapper) {
-        XmlUtil.forEachElement(element, mapper);
+        iteratorMapping(XmlUtil.iterator(element), mapper);
         return mapper.getResult();
     }
+
+    @SuppressWarnings("rawtypes")
+    private static void iteratorMapping(ElementIterator eit, XmlBeanMapper mapper) {
+        mapper.accept(eit.getPath(), eit.getCurrent());
+        while (eit.hasNext()) {
+            iteratorMapping(eit.next(), mapper);
+        }
+    }
+
 }

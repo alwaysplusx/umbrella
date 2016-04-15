@@ -16,12 +16,18 @@
 package com.harmony.umbrella.xml;
 
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 
 /**
  * @author wuxii@foxmail.com
  */
-public interface NodeVisitor {
+public abstract class ElementAcceptor implements NodeAcceptor {
 
-    void visitElement(String path, Element element);
+    @Override
+    public final boolean accept(String path, Node node) {
+        return XmlUtil.isElement(node) ? acceptElement(path, (Element) node) : true;
+    }
+
+    public abstract boolean acceptElement(String path, Element element);
 
 }

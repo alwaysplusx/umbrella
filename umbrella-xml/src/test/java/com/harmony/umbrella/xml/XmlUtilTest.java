@@ -15,14 +15,11 @@
  */
 package com.harmony.umbrella.xml;
 
-import org.dom4j.Attribute;
-import org.dom4j.DocumentFactory;
-import org.dom4j.Node;
-import org.dom4j.io.SAXReader;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 
 /**
  * @author wuxii@foxmail.com
@@ -37,39 +34,27 @@ public class XmlUtilTest {
     }
 
     @Test
-    public void testDocument() {
-        XmlUtil.forEachElement(doc, new NodeVisitor() {
+    public void testForEach() {
+        XmlUtil.forEach(doc, new ElementAcceptor() {
+
             @Override
-            public void visitElement(String path, Element element) {
-                System.out.println(path);
+            public boolean acceptElement(String path, Element element) {
+                System.out.println(path + ", " + element.getTextContent());
+                return true;
             }
         });
     }
 
     @Test
-    public void testGetElement() throws Exception {
-        Element element = XmlUtil.getElement(doc, "objects/users/user");
+    public void testIterator() {
+        XmlUtil.iterator(doc, new NodeAcceptor() {
 
-        XmlUtil.forEachElement(element, new NodeVisitor() {
             @Override
-            public void visitElement(String path, Element element) {
+            public boolean accept(String path, Node node) {
                 System.out.println(path);
+                return true;
             }
         });
     }
 
-    @Test
-    public void testGetAttribute() throws Exception {
-        String name = XmlUtil.getAttribute(doc, "objects/users/self/@type");
-        System.out.println(name);
-    }
-
-    @Test
-    public void testXPath() throws Exception {
-        SAXReader saxReader = new SAXReader(DocumentFactory.getInstance());
-        org.dom4j.Document documents = saxReader.read("src/test/resources/objects.xml");
-        Node node = documents.selectSingleNode("objects/users/self/@type");
-        String value = ((Attribute) node).getValue();
-        System.out.println(value);
-    }
 }
