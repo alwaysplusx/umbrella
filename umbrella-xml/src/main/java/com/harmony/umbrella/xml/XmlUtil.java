@@ -33,18 +33,48 @@ public class XmlUtil {
 
     public static final String PATH_SPLIT = "/";
 
+    /**
+     * 将document包装为element iterator迭代器
+     * 
+     * @param document
+     *            document
+     * @return elementIterator
+     */
     public static ElementIterator iterator(Document document) {
         return new ElementIteratorImpl(document.getDocumentElement());
     }
 
+    /**
+     * 将element包装为element iterator迭代器
+     * 
+     * @param element
+     *            element
+     * @return elementIterator
+     */
     public static ElementIterator iterator(Element element) {
         return new ElementIteratorImpl(element);
     }
 
+    /**
+     * 迭代doument下的所有element
+     * 
+     * @param document
+     *            document
+     * @param acceptor
+     *            element接收
+     */
     public static void iterator(Document document, NodeAcceptor acceptor) {
         iterator(document.getDocumentElement(), acceptor);
     }
 
+    /**
+     * 迭代element下的所有element
+     * 
+     * @param element
+     *            element
+     * @param acceptor
+     *            element接收
+     */
     public static void iterator(Element element, NodeAcceptor acceptor) {
         iterator(iterator(element), acceptor);
     }
@@ -97,16 +127,31 @@ public class XmlUtil {
      * 判断对象是否是element
      * 
      * @param node
+     *            节点
      * @return
      */
     public static boolean isElement(Object node) {
         return node instanceof Node && ((Node) node).getNodeType() == Node.ELEMENT_NODE;
     }
 
+    /**
+     * 判断节点是否是attribute
+     * 
+     * @param node
+     *            节点
+     * @return
+     */
     public static boolean isAttribute(Object node) {
         return node instanceof Node && ((Node) node).getNodeType() == Node.ATTRIBUTE_NODE;
     }
 
+    /**
+     * 判断阶段是否是document
+     * 
+     * @param node
+     *            节点
+     * @return
+     */
     public static boolean isDocument(Object node) {
         return node instanceof Node && ((Node) node).getNodeType() == Node.DOCUMENT_NODE;
     }
@@ -215,6 +260,16 @@ public class XmlUtil {
         return elements.toArray(new Element[elements.size()]);
     }
 
+    /**
+     * 根据xpath获取节点的属性值
+     * 
+     * @param item
+     *            节点
+     * @param xpath
+     *            xpath expression
+     * @return
+     * @throws XPathExpressionException
+     */
     public static String getAttribute(Object item, String xpath) throws XPathExpressionException {
         Object obj = getXPath().evaluate(xpath, item, XPathConstants.STRING);
         return obj instanceof String ? (String) obj : null;

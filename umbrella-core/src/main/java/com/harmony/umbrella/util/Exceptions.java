@@ -7,6 +7,7 @@ package com.harmony.umbrella.util;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.lang.reflect.UndeclaredThrowableException;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -28,7 +29,7 @@ public abstract class Exceptions {
         if (ex instanceof RuntimeException) {
             return (RuntimeException) ex;
         } else {
-            return new RuntimeException(ex);
+            return new UndeclaredThrowableException(ex);
         }
     }
 
@@ -39,7 +40,7 @@ public abstract class Exceptions {
         if (ex instanceof RuntimeException) {
             return (RuntimeException) ex;
         } else {
-            return new RuntimeException(message, ex);
+            return new UndeclaredThrowableException(ex, message);
         }
     }
 

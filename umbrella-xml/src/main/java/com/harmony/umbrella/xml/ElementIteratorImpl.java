@@ -3,11 +3,17 @@ package com.harmony.umbrella.xml;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.NoSuchElementException;
 
-import org.w3c.dom.Document;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpressionException;
+
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+
+import com.harmony.umbrella.util.Exceptions;
 
 /**
  * 
@@ -15,10 +21,14 @@ import org.w3c.dom.NodeList;
  */
 public class ElementIteratorImpl implements ElementIterator {
 
+    // 当前的节点
     private Element element;
+    // 当前节点的下级子节点
     private NodeList nodeList;
     private ElementIterator parent;
+    // 迭代指针
     private int cursor;
+    // 迭代路径
     private String path;
 
     public ElementIteratorImpl(Element element) {
@@ -46,7 +56,7 @@ public class ElementIteratorImpl implements ElementIterator {
         if (hasNext()) {
             return new ElementIteratorImpl((Element) nodeList.item(cursor++), this);
         }
-        throw new ArrayIndexOutOfBoundsException("element out of bounds " + cursor);
+        throw new NoSuchElementException("element out of bounds " + cursor);
     }
 
     @Override
@@ -125,23 +135,30 @@ public class ElementIteratorImpl implements ElementIterator {
                     }
                     currentName += "[" + position + "]";
                 }
-                pathBuffer.insert(0, currentName + XmlUtil.PATH_SPLIT);
+                pathBuffer.insert(0, XmlUtil.PATH_SPLIT + currentName);
 
                 currentNode = parrentNode;
                 parrentNode = parrentNode.getParentNode();
             }
 
-            this.path = rootNode.getNodeName() + XmlUtil.PATH_SPLIT + pathBuffer.toString();
+            this.path = rootNode.getNodeName() + pathBuffer.toString();
         }
         return path;
     }
 
-    private NodeList getNodesByNodeName(Node node, String nodeName) {
+    protected NodeList getNodesByNodeName(Node node, String nodeName) {
+        XPath xPath = XmlUtil.getXPath();
+        try {
+            return (NodeList) xPath.evaluate(nodeName, node, XPathConstants.NODESET);
+        } catch (XPathExpressionException e) {
+            throw Exceptions.unchecked(e);
+        }
+        /*return XmlUtil.getElements(item, xpath);
         if (XmlUtil.isElement(node)) {
             return ((Element) node).getElementsByTagName(nodeName);
         } else if (XmlUtil.isDocument(node)) {
             return ((Document) node).getElementsByTagName(nodeName);
         }
-        return null;
+        return null;*/
     }
 }

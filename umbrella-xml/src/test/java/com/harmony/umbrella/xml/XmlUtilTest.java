@@ -15,6 +15,9 @@
  */
 package com.harmony.umbrella.xml;
 
+import java.util.Arrays;
+import java.util.Iterator;
+
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.w3c.dom.Document;
@@ -52,9 +55,15 @@ public class XmlUtilTest {
             @Override
             public boolean accept(String path, Node node) {
                 System.out.println(path);
-                return true;
+                return true;// !"objects/users/user[0]".equals(path);
             }
         });
+    }
+
+    @Test
+    public void test() {
+        Iterator<Object> iterator = Arrays.asList().iterator();
+        iterator.next();
     }
 
 }

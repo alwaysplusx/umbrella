@@ -61,7 +61,7 @@ public class XmlMapper {
      * @return
      */
     public static <T> T mapping(Element element, Class<T> mappedType) {
-        return mapping(element, new SingleJavaBeanMapper<T>(mappedType));
+        return null;
     }
 
     /**
@@ -78,14 +78,16 @@ public class XmlMapper {
         return mapping(element, mapper);
     }
 
-    private static <T> T mapping(Element element, XmlBeanMapper<T> mapper) {
+    static <T> T mapping(Element element, XmlBeanMapper<T> mapper) {
         iteratorMapping(XmlUtil.iterator(element), mapper);
         return mapper.getResult();
     }
 
     @SuppressWarnings("rawtypes")
     private static void iteratorMapping(ElementIterator eit, XmlBeanMapper mapper) {
-        mapper.accept(eit.getPath(), eit.getCurrent());
+        if (!mapper.accept(eit.getPath(), eit.getCurrent())) {
+            return;
+        }
         while (eit.hasNext()) {
             iteratorMapping(eit.next(), mapper);
         }

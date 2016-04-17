@@ -28,7 +28,6 @@ import com.harmony.umbrella.util.ClassUtils.ClassFilterFeature;
 import com.harmony.umbrella.util.Converter;
 import com.harmony.umbrella.util.GenericUtils;
 import com.harmony.umbrella.util.ReflectionUtils;
-import com.harmony.umbrella.util.StringUtils;
 
 /**
  * 
@@ -45,6 +44,7 @@ public abstract class XmlBeanMapper<T> extends ElementAcceptor {
     static {
         final List<Converter> cvs = new ArrayList<Converter>();
         ResourceManager.getInstance().getClasses(ApplicationContext.APPLICATION_PACKAGE, new ClassFilter() {
+
             @Override
             public boolean accept(Class<?> clazz) {
                 if (Converter.class.isAssignableFrom(clazz) //
@@ -80,48 +80,10 @@ public abstract class XmlBeanMapper<T> extends ElementAcceptor {
             result = instanceBean();
             return true;
         }
-        String fieldPath = path.replace(XmlUtil.PATH_SPLIT, ".");
-        setTargetValue(fieldPath.substring(rootPath.length() + 1), element);
-        return true;
+        return setTargetFieldValue(result, toFieldPath(path), element);
     }
 
-    /**
-     * 根据element的中的属性name来获取字段的名称, 如果不存在对应的name属性则取对应的tagName
-     * 
-     * @param element
-     * @return
-     */
-    protected String getFieldName(Element element) {
-        String fieldName = element.getAttribute("name");
-        return StringUtils.isBlank(fieldName) ? element.getTagName() : fieldName;
-    }
-
-    /**
-     * 给指定的字段设置值
-     * 
-     * 给User设置值的路径, a.nameA 指向User对象内的A中nameA字段
-     * 
-     * <pre>
-     * class A {
-     *     String nameA;
-     * }
-     * 
-     * class B {
-     *     String nameB;
-     * }
-     * 
-     * class User {
-     *     A a;
-     *     B b;
-     * }
-     * </pre>
-     * 
-     * @param path
-     *            映射的结果对象的字段的路径
-     * @param element
-     *            对应的xml element
-     */
-    protected abstract void setTargetValue(String path, Element element);
+    protected abstract boolean setTargetFieldValue(T target, String fieldPath, Element element);
 
     /**
      * 映射的结果
@@ -130,23 +92,6 @@ public abstract class XmlBeanMapper<T> extends ElementAcceptor {
      */
     public T getResult() {
         return result;
-    }
-
-    /**
-     * 根据字段路径找寻字段对应的对象
-     * 
-     * @param path
-     *            字段路径
-     * @return 字段路径对应的值
-     */
-    protected Object getTarget(String path) {
-        Object target = getResult();
-        if (StringUtils.isNotBlank(path)) {
-            for (String token : path.split("\\.")) {
-                target = ReflectionUtils.getFieldValue(token, target);
-            }
-        }
-        return target;
     }
 
     /**
@@ -170,8 +115,14 @@ public abstract class XmlBeanMapper<T> extends ElementAcceptor {
         return null;
     }
 
+    protected String toFieldPath(String path) {
+        return path.replace(XmlUtil.PATH_SPLIT, ".");
+    }
+
     /**
      * 初始化映射的对象
+     * 
+     * @param element
      */
     protected T instanceBean() {
         return ReflectionUtils.instantiateClass(getMappedType());

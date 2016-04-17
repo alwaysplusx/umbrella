@@ -29,14 +29,28 @@ public class XmlMapperTest {
 
     @BeforeClass
     public static void beforeClass() throws Exception {
+        System.setProperty("umbrella.log.level", "INFO");
         doc = XmlUtil.getDocument("src/test/resources/objects.xml", true);
     }
 
     @Test
     public void testMapper() throws Exception {
         Element element = XmlUtil.getElement(doc, "objects/customers/customer");
-        Customer customer = XmlMapper.mapping(element, Customer.class);
-        System.out.println(customer);
+        XmlMapper.mapping(element, new XmlBeanMapper<Customer>() {
+
+            @Override
+            protected boolean setTargetFieldValue(Customer target, String fieldPath, Element element) {
+                System.out.println(fieldPath);
+                return true;
+            }
+
+        });
     }
 
+    @Test
+    public void testSingleMapper() throws Exception {
+        Element element = XmlUtil.getElement(doc, "objects/customers/customer");
+        XmlMapper.mapping(element, new SingleJavaBeanMapper<Customer>(Customer.class));
+
+    }
 }
