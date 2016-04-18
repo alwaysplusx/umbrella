@@ -30,6 +30,14 @@ public class Customer {
 
     private List<User> family;
 
+    public Customer() {
+    }
+
+    public Customer(Long customerId, String customerName) {
+        this.customerId = customerId;
+        this.customerName = customerName;
+    }
+
     public Long getCustomerId() {
         return customerId;
     }

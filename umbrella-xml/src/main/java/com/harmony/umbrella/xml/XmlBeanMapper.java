@@ -58,6 +58,8 @@ public abstract class XmlBeanMapper<T> extends ElementAcceptor {
         allStringConverters = cvs;
     }
 
+    public static final String ROOT = "$";
+
     // 标志位
     private boolean root = true;
     protected String rootPath;
@@ -116,7 +118,8 @@ public abstract class XmlBeanMapper<T> extends ElementAcceptor {
     }
 
     protected String toFieldPath(String path) {
-        return path.replace(XmlUtil.PATH_SPLIT, ".");
+        return path.substring(rootPath.length() + 1).replace(XmlUtil.PATH_SPLIT, ".");
+        // return ROOT + "." + path.substring(rootPath.length() + 1).replace(XmlUtil.PATH_SPLIT, ".");
     }
 
     /**

@@ -15,6 +15,8 @@
  */
 package com.harmony.umbrella.xml;
 
+import java.util.Arrays;
+
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.w3c.dom.Document;
@@ -52,5 +54,20 @@ public class XmlMapperTest {
         Element element = XmlUtil.getElement(doc, "objects/customers/customer");
         XmlMapper.mapping(element, new SingleJavaBeanMapper<Customer>(Customer.class));
 
+    }
+
+    public static void main(String[] args) {
+        Customer[] cms = new Customer[] { new Customer() };
+        Object cs = cms;
+        for (Object c : Arrays.asList(Customer[].class.cast(cs))) {
+            System.out.println(c);
+        }
+
+        System.out.println(cs.getClass());
+        System.out.println(Customer[].class);
+
+        for (Object c : Arrays.asList(cs.getClass().cast(cs))) {
+            System.out.println(c);
+        }
     }
 }
