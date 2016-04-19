@@ -19,16 +19,12 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.servlet.http.HttpServletResponse;
 
-import com.harmony.umbrella.io.Resource;
-import com.harmony.umbrella.io.ResourceManager;
-import com.harmony.umbrella.json.Json;
 import com.harmony.umbrella.util.FileUtils;
 import com.harmony.umbrella.util.IOUtils;
 import com.harmony.umbrella.web.AbstractRender;
@@ -45,53 +41,24 @@ public class WebRender extends AbstractRender implements HttpRender {
 
     public final static String WILDCARD = "*/*; charset=utf-8";
 
-    public static final String TEXT_HTML = "text/html; charset=utf-8";
-    public static final String TEXT_XML = "text/xml; charset=utf-8";
-    public static final String TEXT_PLAIN = "text/plain; charset=utf-8";
-
-    public static final String APPLICATION_JSON = "application/json; charset=utf-8";
-
-    private static final Map<String, String> JSON_HEADER;
-    private static final Map<String, String> XML_HEADER;
-    private static final Map<String, String> HTML_HEADER;
-    private static final Map<String, String> PLAIN_HEADER;
-
-    static {
-        Map<String, String> header = new HashMap<String, String>();
-        header.put(Content_Type, APPLICATION_JSON);
-        JSON_HEADER = Collections.unmodifiableMap(header);
-
-        header = new HashMap<String, String>();
-        header.put(Content_Type, TEXT_XML);
-        XML_HEADER = Collections.unmodifiableMap(header);
-
-        header = new HashMap<String, String>();
-        header.put(Content_Type, TEXT_PLAIN);
-        PLAIN_HEADER = Collections.unmodifiableMap(header);
-
-        header = new HashMap<String, String>();
-        header.put(Content_Type, TEXT_HTML);
-        HTML_HEADER = Collections.unmodifiableMap(header);
-    }
-
     @Override
     public void renderJson(String text, HttpServletResponse response) throws IOException {
-        render(text, response, JSON_HEADER);
+        render(text, response, getMimeHeader(".json"));
     }
 
     @Override
     public void renderXml(String text, HttpServletResponse response) throws IOException {
-        render(text, response, XML_HEADER);
+        render(text, response, getMimeHeader(".xml"));
     }
 
     @Override
     public void renderHtml(String text, HttpServletResponse response) throws IOException {
-        render(text, response, HTML_HEADER);
+        render(text, response, getMimeHeader(".html"));
     }
 
     @Override
     public void renderText(String text, HttpServletResponse response) throws IOException {
-        render(text, response, PLAIN_HEADER);
+        render(text, response, getMimeHeader(".txt"));
     }
 
     @Override
@@ -105,8 +72,7 @@ public class WebRender extends AbstractRender implements HttpRender {
             throw new IOException(file.getAbsolutePath() + " is not file");
         }
         String extension = FileUtils.getExtension(file);
-        Map<String, String> mimeHeader = getMimeHeader(extension);
-        applyIfAbsent(mimeHeader, heanders);
+        applyIfAbsent(getMimeHeader(extension), heanders);
         FileInputStream fis = new FileInputStream(file);
         render(fis, response, heanders);
         fis.close();
@@ -134,7 +100,7 @@ public class WebRender extends AbstractRender implements HttpRender {
         return heanders;
     }
 
-    private String getMimeType(String extension) {
+    protected String getMimeType(String extension) {
         String mimeType = MimeTypes.getMimeType(extension);
         return mimeType == null ? WILDCARD : mimeType + "; charset=utf-8";
     }
@@ -145,13 +111,6 @@ public class WebRender extends AbstractRender implements HttpRender {
                 target.put(key, origin.get(key));
             }
         }
-    }
-
-    public static void main(String[] args) throws IOException {
-        Resource resource = ResourceManager.getInstance().getResource("mime.json");
-        String jsonText = IOUtils.toString(resource.getInputStream());
-        Map<String, Object> map = Json.toMap(jsonText);
-        System.out.println(map);
     }
 
 }
