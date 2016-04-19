@@ -19,9 +19,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.harmony.umbrella.io.support.ClassResourceResolver;
 import com.harmony.umbrella.io.support.PathMatchingResourcePatternResolver;
@@ -37,8 +37,8 @@ import com.harmony.umbrella.util.ClassUtils.ClassFilter;
  */
 public class ResourceManager implements ResourceLoader {
 
-    private final Map<String, Resource[]> resourcesCache = new HashMap<String, Resource[]>();
-    private final Map<String, Class<?>[]> classCache = new HashMap<String, Class<?>[]>();
+    private final Map<String, Resource[]> resourcesCache = new ConcurrentHashMap<String, Resource[]>();
+    private final Map<String, Class<?>[]> classCache = new ConcurrentHashMap<String, Class<?>[]>();
 
     private ClassResourceResolver classResourceResolver = new PatternClassResourceResolver(new PathMatchingResourcePatternResolver());
 

@@ -18,8 +18,8 @@ package com.harmony.umbrella.util;
 import java.lang.management.ManagementFactory;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
@@ -45,7 +45,7 @@ public class JmxManager {
     /**
      * 类和jmx objectName对应关系map
      */
-    private Map<Class<?>, String> objNameMap = new HashMap<Class<?>, String>();
+    private Map<Class<?>, String> objNameMap = new ConcurrentHashMap<Class<?>, String>();
 
     private JmxManager() {
         server = ManagementFactory.getPlatformMBeanServer();

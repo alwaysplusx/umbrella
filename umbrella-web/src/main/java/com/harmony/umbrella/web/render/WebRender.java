@@ -26,9 +26,13 @@ import java.util.Map.Entry;
 
 import javax.servlet.http.HttpServletResponse;
 
+import com.harmony.umbrella.io.Resource;
+import com.harmony.umbrella.io.ResourceManager;
+import com.harmony.umbrella.json.Json;
 import com.harmony.umbrella.util.FileUtils;
 import com.harmony.umbrella.util.IOUtils;
 import com.harmony.umbrella.web.AbstractRender;
+import com.harmony.umbrella.web.MimeTypes;
 
 /**
  * @author wuxii@foxmail.com
@@ -39,15 +43,13 @@ public class WebRender extends AbstractRender implements HttpRender {
     // private static final String Content_Disposition = "Content-Disposition";
     // private static final String Content_Length = "Content-Length";
 
-    private static final String charset = "charset=utf-8";
+    public final static String WILDCARD = "*/*; charset=utf-8";
 
-    public final static String WILDCARD = "*/*; " + charset;
+    public static final String TEXT_HTML = "text/html; charset=utf-8";
+    public static final String TEXT_XML = "text/xml; charset=utf-8";
+    public static final String TEXT_PLAIN = "text/plain; charset=utf-8";
 
-    public static final String TEXT_HTML = "text/html; " + charset;
-    public static final String TEXT_XML = "text/xml; " + charset;
-    public static final String TEXT_PLAIN = "text/plain; " + charset;
-
-    public static final String APPLICATION_JSON = "application/json; " + charset;
+    public static final String APPLICATION_JSON = "application/json; charset=utf-8";
 
     private static final Map<String, String> JSON_HEADER;
     private static final Map<String, String> XML_HEADER;
@@ -102,7 +104,9 @@ public class WebRender extends AbstractRender implements HttpRender {
         if (!file.isFile()) {
             throw new IOException(file.getAbsolutePath() + " is not file");
         }
-        applyIfAbsent(getFileHeader(file, false), heanders);
+        String extension = FileUtils.getExtension(file);
+        Map<String, String> mimeHeader = getMimeHeader(extension);
+        applyIfAbsent(mimeHeader, heanders);
         FileInputStream fis = new FileInputStream(file);
         render(fis, response, heanders);
         fis.close();
@@ -124,25 +128,15 @@ public class WebRender extends AbstractRender implements HttpRender {
         IOUtils.copy(is, response.getOutputStream());
     }
 
-    protected Map<String, String> getFileHeader(File file, boolean download) {
-        String extension = FileUtils.getExtension(file);
+    protected Map<String, String> getMimeHeader(String extension) {
         Map<String, String> heanders = new HashMap<String, String>();
-        if (".txt".equals(extension)) {
-            heanders.putAll(PLAIN_HEADER);
-        } else if (".html".equals(extension)) {
-            heanders.putAll(HTML_HEADER);
-        } else if (".xml".equals(extension)) {
-            heanders.putAll(XML_HEADER);
-        } else if (".xls".equals(extension) || ".xlsx".equals(extension)) {
-            heanders.putAll(PLAIN_HEADER);
-        } else if (".doc".equals(extension) || ".docx".equals(extension)) {
-            heanders.putAll(PLAIN_HEADER);
-        } else if (".ppt".equals(extension) || ".pptx".equals(extension)) {
-            heanders.putAll(PLAIN_HEADER);
-        } else if (".pdf".equals(extension)) {
-            heanders.putAll(PLAIN_HEADER);
-        }
+        heanders.put(Content_Type, getMimeType(extension));
         return heanders;
+    }
+
+    private String getMimeType(String extension) {
+        String mimeType = MimeTypes.getMimeType(extension);
+        return mimeType == null ? WILDCARD : mimeType + "; charset=utf-8";
     }
 
     protected void applyIfAbsent(Map<String, String> origin, Map<String, String> target) {
@@ -152,4 +146,12 @@ public class WebRender extends AbstractRender implements HttpRender {
             }
         }
     }
+
+    public static void main(String[] args) throws IOException {
+        Resource resource = ResourceManager.getInstance().getResource("mime.json");
+        String jsonText = IOUtils.toString(resource.getInputStream());
+        Map<String, Object> map = Json.toMap(jsonText);
+        System.out.println(map);
+    }
+
 }

@@ -1,9 +1,9 @@
 package com.harmony.umbrella.core;
 
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.harmony.umbrella.io.ResourceManager;
 import com.harmony.umbrella.util.ClassUtils;
@@ -28,7 +28,7 @@ public class ClassWrapper<T> {
         classes = ResourceManager.getInstance().getClasses(defaultPackage);
     }
 
-    private static final Map<Class, Set<Class>> subClassMap = new HashMap<Class, Set<Class>>();
+    private static final Map<Class, Set<Class>> subClassMap = new ConcurrentHashMap<Class, Set<Class>>();
 
     private Class<T> thisClass;
 

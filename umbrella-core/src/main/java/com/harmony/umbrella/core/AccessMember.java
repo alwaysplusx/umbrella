@@ -6,7 +6,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
 /**
- * getter or setter method
+ * field / getter or setter method
  * 
  * @author wuxii@foxmail.com
  */

@@ -16,8 +16,8 @@
 package com.harmony.umbrella.core;
 
 import java.io.Serializable;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.harmony.umbrella.util.ClassUtils;
 import com.harmony.umbrella.util.ReflectionUtils;
@@ -33,7 +33,7 @@ public class SimpleBeanFactory implements BeanFactory, Serializable {
 
     public static final BeanFactory INSTANCE = new SimpleBeanFactory();
 
-    private Map<Class<?>, Object> beans = new HashMap<Class<?>, Object>();
+    private Map<Class<?>, Object> beans = new ConcurrentHashMap<Class<?>, Object>();
 
     @SuppressWarnings("unchecked")
     @Override

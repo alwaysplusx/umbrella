@@ -30,7 +30,7 @@ import com.harmony.umbrella.util.ReflectionUtils;
  */
 public class ConfigSupport implements Configurations {
 
-    private Method[] methods = getClass().getMethods();
+    private Method[] methods;
 
     public final <T> T getBean(Class<T> beanClass) {
         return getBean(beanClass.getName());
