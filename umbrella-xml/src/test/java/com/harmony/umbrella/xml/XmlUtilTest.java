@@ -61,6 +61,11 @@ public class XmlUtilTest {
     }
 
     @Test
+    public void testToXML() throws Exception {
+        System.out.println(XmlUtil.toXML(XmlUtil.getElement(doc, "objects/users/user[1]")));
+    }
+
+    @Test
     public void test() {
         Iterator<Object> iterator = Arrays.asList().iterator();
         iterator.next();
