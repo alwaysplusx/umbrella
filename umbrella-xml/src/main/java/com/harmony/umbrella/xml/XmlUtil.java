@@ -2,6 +2,7 @@ package com.harmony.umbrella.xml;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -294,6 +295,18 @@ public class XmlUtil {
     public static Document getDocument(String pathname, boolean ignore) throws XmlException {
         try {
             return newDocumentBuilder(ignore).parse(pathname);
+        } catch (Exception e) {
+            throw new XmlException(e);
+        }
+    }
+
+    public static Document getDocument(byte[] buff, boolean ignore) throws XmlException {
+        return getDocument(new ByteArrayInputStream(buff), ignore);
+    }
+
+    public static Document getDocument(InputStream is, boolean ignore) throws XmlException {
+        try {
+            return newDocumentBuilder(ignore).parse(is);
         } catch (Exception e) {
             throw new XmlException(e);
         }

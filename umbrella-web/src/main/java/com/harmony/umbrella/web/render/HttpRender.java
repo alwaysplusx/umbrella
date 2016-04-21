@@ -17,7 +17,6 @@ package com.harmony.umbrella.web.render;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
@@ -80,6 +79,18 @@ public interface HttpRender extends Render {
     void renderText(String text, HttpServletResponse response) throws IOException;
 
     /**
+     * 渲染文本
+     * 
+     * @param text
+     *            待渲染的文本
+     * @param response
+     *            http response
+     * @param headers
+     *            http header
+     */
+    void render(String text, HttpServletResponse response, Map<String, String> headers) throws IOException;
+
+    /**
      * 渲染文件
      * 
      * @param file
@@ -101,28 +112,4 @@ public interface HttpRender extends Render {
      */
     void renderFile(File file, HttpServletResponse response, Map<String, String> heanders) throws IOException;
 
-    /**
-     * 渲染文本
-     * 
-     * @param text
-     *            待渲染的文本
-     * @param response
-     *            http response
-     * @param headers
-     *            http header
-     */
-    void render(String text, HttpServletResponse response, Map<String, String> headers) throws IOException;
-
-    /**
-     * 将输入流的内容输出到response中
-     * 
-     * @param is
-     *            输入流
-     * @param response
-     *            http response
-     * @param headers
-     *            http header
-     * @throws IOException
-     */
-    void render(InputStream is, HttpServletResponse response, Map<String, String> headers) throws IOException;
 }

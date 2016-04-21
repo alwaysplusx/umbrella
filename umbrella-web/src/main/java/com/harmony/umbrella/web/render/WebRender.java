@@ -35,9 +35,9 @@ import com.harmony.umbrella.web.MimeTypes;
  */
 public class WebRender extends AbstractRender implements HttpRender {
 
-    private static final String Content_Type = "Content-Type";
-    // private static final String Content_Disposition = "Content-Disposition";
-    // private static final String Content_Length = "Content-Length";
+    public static final String Content_Type = "Content-Type";
+    public static final String Content_Length = "Content-Length";
+    public static final String Content_Disposition = "Content-Disposition";
 
     public final static String WILDCARD = "*/*; charset=utf-8";
 
@@ -86,7 +86,6 @@ public class WebRender extends AbstractRender implements HttpRender {
         render(text, response.getWriter());
     }
 
-    @Override
     public void render(InputStream is, HttpServletResponse response, Map<String, String> headers) throws IOException {
         for (Entry<String, String> entry : headers.entrySet()) {
             response.addHeader(entry.getKey(), entry.getValue());

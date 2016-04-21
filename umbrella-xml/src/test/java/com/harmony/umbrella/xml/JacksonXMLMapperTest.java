@@ -28,7 +28,6 @@ import org.junit.Test;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.fasterxml.jackson.dataformat.xml.ser.ToXmlGenerator.Feature;
-import com.harmony.umbrella.excel.User;
 
 /**
  * @author wuxii@foxmail.com

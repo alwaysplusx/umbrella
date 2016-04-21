@@ -16,6 +16,7 @@
 package com.harmony.umbrella.web;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Writer;
 
@@ -36,7 +37,19 @@ public interface Render {
      * @throws IOException
      *             if an I/O error occurs.
      */
-    void render(byte[] buf, OutputStream out) throws IOException;
+    void render(byte[] buf, OutputStream os) throws IOException;
+
+    /**
+     * 将输如流内的信息输出到输出流中
+     * 
+     * @param is
+     *            输入流
+     * @param os
+     *            输出流
+     * @throws IOException
+     *             if an I/O error occurs.
+     */
+    void render(InputStream is, OutputStream os) throws IOException;
 
     /**
      * 将文本输出到writer中

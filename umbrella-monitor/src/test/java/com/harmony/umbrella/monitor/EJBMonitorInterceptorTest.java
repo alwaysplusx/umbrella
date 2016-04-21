@@ -44,7 +44,8 @@ public class EJBMonitorInterceptorTest {
     public void testInterceptor() {
         assertEquals(0, check++);
         bean.monitor();
-        assertEquals(3, check);
+        assertEquals(3, check++);
+        bean.second();
     }
 
     @Interceptor
@@ -62,6 +63,13 @@ public class EJBMonitorInterceptorTest {
         @Interceptors(EJBMonitorInterceptor.class)
         public void monitor() {
             assertEquals(2, check++);
+            // 在bean内部自己调用方法不触发拦截器
+            second();
+        }
+        
+        @Interceptors(EJBMonitorInterceptor.class)
+        public void second() {
+            System.out.println("second");
         }
     }
 }

@@ -17,8 +17,6 @@ package com.harmony.umbrella.xml;
 
 import java.util.List;
 
-import com.harmony.umbrella.excel.User;
-
 /**
  * @author wuxii@foxmail.com
  */
