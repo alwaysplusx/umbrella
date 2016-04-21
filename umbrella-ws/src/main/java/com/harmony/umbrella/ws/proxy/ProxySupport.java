@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.xml.ws.WebServiceException;
 
@@ -26,6 +27,7 @@ import com.harmony.umbrella.log.Log;
 import com.harmony.umbrella.log.Logs;
 import com.harmony.umbrella.util.Assert;
 import com.harmony.umbrella.util.StringUtils;
+import com.harmony.umbrella.ws.Context;
 import com.harmony.umbrella.ws.annotation.Syncable;
 import com.harmony.umbrella.ws.jaxws.JaxWsExecutorSupport;
 import com.harmony.umbrella.ws.support.SimpleContext;
@@ -35,16 +37,13 @@ import com.harmony.umbrella.ws.support.SimpleContext;
  * <p/>
  * 配合使用{@linkplain Syncable}来实现在代码编写阶段的配置， 配置同步业务的接口以及业务方法
  * <p/>
- * 如果不希望使用{@linkplain Syncable}则可以通过覆盖方法{@linkplain #getServiceInterface()} ...等，来实现子类的具体服务接口以及方法名的指定
+ * 如果不希望使用{@linkplain Syncable}则可以通过覆盖方法{@linkplain #getServiceInterface()}
+ * ...等，来实现子类的具体服务接口以及方法名的指定
  *
  * @author wuxii@foxmail.com
  * @see Syncable
  */
 public abstract class ProxySupport<T> implements Proxy<T> {
-
-    public static final String SERVICE_INTERFACE_NAME = ProxySupport.class.getName() + ".serviceInterfaceName";
-
-    public static final String SERVICE_METHOD_NAME = ProxySupport.class.getName() + ".serviceMethodName";
 
     private static final Log log = Logs.getLog(ProxySupport.class);
 
@@ -59,9 +58,9 @@ public abstract class ProxySupport<T> implements Proxy<T> {
      * 将待同步对象封装为业务方法对于的请求参数数组，参数顺序需要与方法的要求相同
      *
      * @param object
-     *         待同步对象
+     *            待同步对象
      * @param properties
-     *         上下文中的属性
+     *            上下文中的属性
      * @return 同步方法参数数组
      */
     protected abstract Object[] packing(T object, Map<String, Object> properties);
@@ -70,9 +69,9 @@ public abstract class ProxySupport<T> implements Proxy<T> {
      * 批量同步的封装
      *
      * @param objects
-     *         待同步的对象
+     *            待同步的对象
      * @param properties
-     *         上下文中的属性
+     *            上下文中的属性
      * @return
      */
     protected Object[] packing(List<T> objects, Map<String, Object> properties) {
@@ -110,7 +109,7 @@ public abstract class ProxySupport<T> implements Proxy<T> {
     }
 
     /**
-     * @see com.harmony.umbrella.ws.proxy.Proxy#syncInBatch(List)
+     * @see com.huiju.module.ws.proxy.Proxy#syncInBatch(List)
      * @see #syncInBatch(List, Map)
      */
     @Override
@@ -121,7 +120,7 @@ public abstract class ProxySupport<T> implements Proxy<T> {
     /**
      * 默认不开启批量同步
      *
-     * @see com.harmony.umbrella.ws.proxy.Proxy#syncInBatch(List)
+     * @see com.huiju.module.ws.proxy.Proxy#syncInBatch(List)
      */
     @Override
     public boolean syncInBatch(List<T> objects, Map<String, Object> properties) {
@@ -143,50 +142,59 @@ public abstract class ProxySupport<T> implements Proxy<T> {
      * 将需要同步的对象通过上下文的发送者发送给接收者
      *
      * @param packer
-     *         封装工具类
+     *            封装工具类
      * @return true 发送成功(不代表同步成功)
      */
     protected boolean doSync(Packer packer) {
-        Class<?> serviceInterface = getServiceInterface();
-        Assert.notNull(serviceInterface, "service interface is null, use @Syncable#endpoint or override getServiceInterface method");
+        // 通过配置信息与配置方法生成默认的上下文，上下文中包括配置的服务接口，方法，服务地址
+        SimpleContext context = createDefaultContext();
+        // 先设置context的其他属性, 超时时间，用户名密码等
+        this.configContext(context);
 
-        String serviceMethod = getServiceMethod();
-        Assert.notBlank(serviceMethod, "service method is null or blank, use @Syncable#methodName or override getServiceMethod method");
-
-        SimpleContext context = new SimpleContext(serviceInterface, serviceMethod);
-
-        packer.properties.put(SERVICE_METHOD_NAME, serviceMethod);
-        packer.properties.put(SERVICE_INTERFACE_NAME, serviceInterface.getName());
-        context.putAll(packer.properties);
-
-        this.configContext(context, packer.properties);
-
+        // 将entity打包问接口说需要的vo
         Object[] parameters = packer.packing();
-        log.debug("sync object [{}] packing result [{}]", packer.object, parameters);
         context.setParameters(parameters == null ? new Object[0] : parameters);
-
-        context.setAddress(getAddress());
-        context.put(SYNC_OBJECT, packer.object);
-
-        packer.applySyncing();
-
-        log.debug("sync object {} -> context {}", packer.object, context);
-
+        log.debug("sync object [{}] packing result [{}]", packer.object, parameters);
         try {
             // 设置完必须元素后检测是否能找到接口类的对应方法， 不能找到直接异常退出
+            // 必须的元素 = 服务类 + 服务方法名 + 服务参数
             context.getMethod();
         } catch (NoSuchMethodException e) {
             throw new WebServiceException("method not find " + e.getMessage(), e);
         }
-
+        context.put(SYNC_OBJECT, packer.object);
+        // 要同步前调用applySyncing
+        packer.applySyncing();
+        // 将传入的属性设置到上下文中
+        applyProperty(context, packer.properties);
+        // 将上下文发送给jms
         return getJaxWsExecutorSupport().send(context);
+    }
+
+    private void applyProperty(Context context, Map<String, Object> properties) {
+        for (Entry<String, Object> entry : properties.entrySet()) {
+            context.put(entry.getKey(), entry.getValue());
+        }
+    }
+
+    /**
+     * 通过配置信息与配置方法生成默认的上下文，上下文中包括配置的服务接口，方法，服务地址
+     * 
+     * @return
+     */
+    protected final SimpleContext createDefaultContext() {
+        Class<?> serviceInterface = getServiceInterface();
+        Assert.notNull(serviceInterface, "service interface is null, use @Syncable#endpoint or override getServiceInterface method");
+        String serviceMethod = getServiceMethod();
+        Assert.notBlank(serviceMethod, "service method is null or blank, use @Syncable#methodName or override getServiceMethod method");
+        return new SimpleContext(serviceInterface, serviceMethod, getAddress());
     }
 
     /**
      * 通过待同步对象的自身属性，判断同步对象是否需要同步，起到过滤已经同步过的对象以及不需要同步对象的作用
      *
      * @param object
-     *         待同步对象
+     *            待同步对象
      * @return 返回true表示待同步对象被过滤不需要同步，false表示需要同步
      */
     protected boolean filter(T object) {
@@ -197,7 +205,7 @@ public abstract class ProxySupport<T> implements Proxy<T> {
      * 抓取待同步对象的关联对象
      *
      * @param object
-     *         待同步的对象
+     *            待同步的对象
      * @return 抓取后的对象
      */
     protected T fetchReference(T object) {
@@ -208,9 +216,9 @@ public abstract class ProxySupport<T> implements Proxy<T> {
      * 将待同步的对象更新为同步中
      *
      * @param object
-     *         待同步的对象
+     *            待同步的对象
      * @param properties
-     *         同步的业务方法
+     *            同步的业务方法
      */
     protected void applySyncing(T object, Map<String, Object> properties) {
         // apply syncing in sub class
@@ -220,9 +228,9 @@ public abstract class ProxySupport<T> implements Proxy<T> {
      * 将待同步的对象更新为同步中
      *
      * @param objects
-     *         待同步的对象
+     *            待同步的对象
      * @param properties
-     *         同步的业务方法
+     *            同步的业务方法
      */
     protected void applySyncing(List<T> objects, Map<String, Object> properties) {
         for (T object : objects) {
@@ -234,10 +242,10 @@ public abstract class ProxySupport<T> implements Proxy<T> {
      * 配置上下文中的一些属性，{@linkplain SimpleContext#setReceiveTimeout(long)}等
      *
      * @param context
-     *         需要配置的执行上下文
+     *            需要配置的执行上下文
      * @see com.harmony.umbrella.ws.Metadata Metadata
      */
-    protected void configContext(SimpleContext context, Map<String, Object> properties) {
+    protected void configContext(SimpleContext context) {
     }
 
     /**
@@ -298,7 +306,7 @@ public abstract class ProxySupport<T> implements Proxy<T> {
             this.properties.putAll(properties);
         }
 
-        @SuppressWarnings({"unchecked", "rawtypes"})
+        @SuppressWarnings({ "unchecked", "rawtypes" })
         public Object[] packing() {
             if (object instanceof List) {
                 return ProxySupport.this.packing((List) object, properties);

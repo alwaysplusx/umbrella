@@ -106,210 +106,110 @@ public interface Bond extends Serializable {
      */
     public static enum Link {
 
-        EQUAL {
+        EQUAL("=", "eq") {
 
             @Override
             public Link negated() {
                 return NOT_EQUAL;
             }
 
-            @Override
-            public String desc() {
-                return "=";
-            }
-
-            @Override
-            public String shortName() {
-                return "eq";
-            }
         },
-        NOT_EQUAL {
+        NOT_EQUAL("<>", "ne") {
 
             @Override
             public Link negated() {
                 return EQUAL;
             }
 
-            @Override
-            public String desc() {
-                return "<>";
-            }
-
-            @Override
-            public String shortName() {
-                return "ne";
-            }
         },
-        LESS_THAN {
+        LESS_THAN("<", "lt") {
 
             @Override
             public Link negated() {
                 return GREATER_THAN_OR_EQUAL;
             }
 
-            @Override
-            public String desc() {
-                return "<";
-            }
-
-            @Override
-            public String shortName() {
-                return "lt";
-            }
         },
-        LESS_THAN_OR_EQUAL {
+        LESS_THAN_OR_EQUAL("<=", "le") {
 
             @Override
             public Link negated() {
                 return GREATER_THAN;
             }
 
-            @Override
-            public String desc() {
-                return "<=";
-            }
-
-            @Override
-            public String shortName() {
-                return "le";
-            }
         },
-        GREATER_THAN {
+        GREATER_THAN(">", "gt") {
 
             @Override
             public Link negated() {
                 return LESS_THAN_OR_EQUAL;
             }
 
-            @Override
-            public String desc() {
-                return ">";
-            }
-
-            @Override
-            public String shortName() {
-                return "gt";
-            }
         },
-        GREATER_THAN_OR_EQUAL {
+        GREATER_THAN_OR_EQUAL(">=", "ge") {
 
             @Override
             public Link negated() {
                 return LESS_THAN;
             }
 
-            @Override
-            public String desc() {
-                return ">=";
-            }
-
-            @Override
-            public String shortName() {
-                return "ge";
-            }
         },
-        IN {
+        IN("in", "in") {
 
             @Override
             public Link negated() {
                 return NOT_IN;
             }
 
-            @Override
-            public String desc() {
-                return "in";
-            }
-
-            @Override
-            public String shortName() {
-                return "in";
-            }
         },
-        NOT_IN {
+        NOT_IN("not in", "ni") {
 
             @Override
             public Link negated() {
                 return IN;
             }
 
-            @Override
-            public String desc() {
-                return "not in";
-            }
-
-            @Override
-            public String shortName() {
-                return "ni";
-            }
         },
-        NULL {
+        NULL("is null", "uu") {
 
             @Override
             public Link negated() {
                 return NOT_NULL;
             }
 
-            @Override
-            public String desc() {
-                return "is null";
-            }
-
-            @Override
-            public String shortName() {
-                return "uu";
-            }
         },
-        NOT_NULL {
+        NOT_NULL("is not null", "nu") {
 
             @Override
             public Link negated() {
                 return NULL;
             }
 
-            @Override
-            public String desc() {
-                return "is not null";
-            }
-
-            @Override
-            public String shortName() {
-                return "nu";
-            }
         },
-        LIKE {
+        LIKE("like", "lk") {
 
             @Override
             public Link negated() {
                 return NOT_LIKE;
             }
 
-            @Override
-            public String desc() {
-                return "like";
-            }
-
-            @Override
-            public String shortName() {
-                return "lk";
-            }
         },
-        NOT_LIKE {
+        NOT_LIKE("not like", "nl") {
 
             @Override
             public Link negated() {
                 return LIKE;
             }
 
-            @Override
-            public String desc() {
-                return "not like";
-            }
-
-            @Override
-            public String shortName() {
-                return "nl";
-            }
         };
+
+        private String desc;
+        private String shortName;
+
+        private Link(String desc, String shortName) {
+            this.desc = desc;
+            this.shortName = shortName;
+        }
 
         /**
          * 对当前的link取反
@@ -323,9 +223,13 @@ public interface Bond extends Serializable {
          * 
          * @return 连接字符
          */
-        public abstract String desc();
+        public String desc() {
+            return desc;
+        }
 
-        public abstract String shortName();
+        public String shortName() {
+            return shortName;
+        }
 
     }
 
