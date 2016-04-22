@@ -41,16 +41,18 @@ public class ApplicationMessageListener extends AbstractJmsMessageListener imple
     @EJB(mappedName = Configurations.APPLICATION_CONFIGURATIONS)
     private Configurations configurations;
 
+    public static final String ApplicationMessageResolver = "applicationMessageResolver";
+
     @EJB
     private MessageResolver resolver;
-    
+
     @Override
     public void init() {
     }
 
     @Override
     protected List<MessageResolver> getMessageResolvers() {
-        return configurations.getBeans(ApplicationMessageConstants.APPLICATION_MESSAGE_LISTENER_MESSAGE_RESOLVERS);
+        return configurations.getBeans(ApplicationMessageResolver);
     }
 
     @Override

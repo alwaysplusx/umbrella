@@ -33,23 +33,4 @@ public interface ContextSender {
      */
     boolean send(Context context);
 
-    /**
-     * 打开发送资源
-     */
-    void open();
-
-    /**
-     * 关闭资源
-     *
-     * @throws Exception
-     */
-    void close() throws Exception;
-
-    /**
-     * 查看是否关闭
-     *
-     * @return true已关闭, false未关闭
-     */
-    boolean isClosed();
-
 }

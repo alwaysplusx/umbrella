@@ -26,6 +26,4 @@ public class ApplicationMessageConstants {
 
     public static final String CONNECTION_FACTORY_NAME = "jms/connectionFactory";
 
-    public static final String APPLICATION_MESSAGE_LISTENER_MESSAGE_RESOLVERS = "ApplicationMessageListenerMessageResolvers";
-
 }

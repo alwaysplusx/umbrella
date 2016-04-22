@@ -15,14 +15,15 @@
  */
 package com.harmony.umbrella.message;
 
-import static com.harmony.umbrella.message.ApplicationMessageConstants.*;
+import static com.harmony.umbrella.config.Configurations.*;
 
-import javax.annotation.Resource;
+import javax.ejb.EJB;
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
 import javax.jms.ConnectionFactory;
 import javax.jms.Destination;
 
+import com.harmony.umbrella.config.Configurations;
 import com.harmony.umbrella.message.jms.AbstractJmsMessageSender;
 import com.harmony.umbrella.message.jms.JmsMessageSender;
 
@@ -33,19 +34,20 @@ import com.harmony.umbrella.message.jms.JmsMessageSender;
 @Remote({ MessageSender.class, JmsMessageSender.class })
 public class ApplicationMessageSender extends AbstractJmsMessageSender {
 
-    @Resource(name = CONNECTION_FACTORY_NAME)
-    private ConnectionFactory connectionFactory;
-    @Resource(name = QUEUE_NAME)
-    private Destination destination;
+    public static final String ApplicationDestination = "applicationDestination";
+    public static final String ApplicationConnectionFactory = "applicationConnectionFactory";
+
+    @EJB(mappedName = APPLICATION_CONFIGURATIONS, beanName = APPLICATION_CONFIGURATIONS)
+    private Configurations config;
 
     @Override
     protected ConnectionFactory getConnectionFactory() {
-        return connectionFactory;
+        return config.getBean(ApplicationConnectionFactory);
     }
 
     @Override
     protected Destination getDestination() {
-        return destination;
+        return config.getBean(ApplicationDestination);
     }
 
 }

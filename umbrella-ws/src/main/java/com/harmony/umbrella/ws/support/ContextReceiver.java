@@ -33,25 +33,4 @@ public interface ContextReceiver {
      */
     void receive(Context context);
 
-    /**
-     * 打开Receiver所需要的资源
-     * 
-     * @throws Exception
-     */
-    void open() throws Exception;
-
-    /**
-     * 关闭资源
-     * 
-     * @throws Exception
-     */
-    void close() throws Exception;
-
-    /**
-     * 查看Receicer是否关闭
-     * 
-     * @return true已关闭, false未关闭
-     */
-    boolean isClosed();
-
 }

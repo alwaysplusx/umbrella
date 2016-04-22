@@ -24,7 +24,7 @@ import com.harmony.umbrella.ws.support.ContextReceiver;
  * 
  * @author wuxii@foxmail.com
  */
-public abstract class AbstractJaxWsContextReceiver extends TypedMessageResolver<ContextMessage> implements ContextReceiver {
+public abstract class AbstractContextReceiver extends TypedMessageResolver<ContextMessage> implements ContextReceiver {
 
     /**
      * 接收后是否重新加载Context内元数据的标识符Key
@@ -85,7 +85,7 @@ public abstract class AbstractJaxWsContextReceiver extends TypedMessageResolver<
         if (loader != null && (reload || Boolean.valueOf(String.valueOf(context.get(RELOAD_CONTEXT))))) {
             Metadata metadata = loader.loadMetadata(context.getServiceInterface());
             if (metadata != null) {
-                context = ContextUtils.reset(context, metadata);
+                context = new ContextWrapper(context, metadata);
             }
         }
         return context;
@@ -101,17 +101,4 @@ public abstract class AbstractJaxWsContextReceiver extends TypedMessageResolver<
         this.reload = reload;
     }
 
-    // empty implement
-    @Override
-    public void open() throws Exception {
-    }
-
-    @Override
-    public void close() throws Exception {
-    }
-
-    @Override
-    public boolean isClosed() {
-        return false;
-    }
 }

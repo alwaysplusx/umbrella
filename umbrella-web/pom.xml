@@ -9,6 +9,9 @@
   </parent>
   <name>Harmony Umbrella :: Module of Web</name>
   <artifactId>umbrella-web</artifactId>
+  <properties>
+    <apache.struts.version>2.5-BETA3</apache.struts.version>
+  </properties>
   <dependencies>
     <dependency>
       <groupId>com.harmony.umbrella</groupId>
@@ -17,15 +20,21 @@
     <dependency>
       <groupId>com.harmony.umbrella</groupId>
       <artifactId>umbrella-data</artifactId>
-      <scope>compile</scope>
-      <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>com.harmony.umbrella</groupId>
       <artifactId>umbrella-json</artifactId>
-      <scope>compile</scope>
-      <optional>true</optional>
     </dependency>
+    <!-- struts -->
+    <dependency>
+      <groupId>org.apache.struts</groupId>
+      <artifactId>struts2-core</artifactId>
+    </dependency>
+    <!-- <dependency>
+      <groupId>org.apache.struts</groupId>
+      <artifactId>struts2-spring-plugin</artifactId>
+      <version>2.5-BETA3</version>
+    </dependency> -->
     <!-- javaee provider -->
     <dependency>
       <groupId>javax</groupId>
@@ -33,7 +42,7 @@
       <scope>provided</scope>
     </dependency>
     <!-- spring -->
-    <dependency>
+    <!-- <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-webmvc</artifactId>
       <scope>compile</scope>
@@ -56,16 +65,9 @@
       <artifactId>spring-beans</artifactId>
       <scope>compile</scope>
       <optional>true</optional>
-    </dependency>
-    <!-- struts -->
-    <dependency>
-      <groupId>org.apache.struts</groupId>
-      <artifactId>struts2-core</artifactId>
-      <scope>compile</scope>
-      <optional>true</optional>
-    </dependency>
+    </dependency> -->
     <!-- shiro -->
-    <dependency>
+    <!-- <dependency>
       <groupId>org.apache.shiro</groupId>
       <artifactId>shiro-core</artifactId>
       <scope>compile</scope>
@@ -76,13 +78,8 @@
       <artifactId>shiro-web</artifactId>
       <scope>compile</scope>
       <optional>true</optional>
-    </dependency>
+    </dependency> -->
     <!-- test dependency -->
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-log4j12</artifactId>
-      <scope>test</scope>
-    </dependency>
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>

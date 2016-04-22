@@ -41,6 +41,7 @@ public class ResourceMessageBundle implements MessageBundle {
         return resourceBundle.getString(key);
     }
 
+    @Override
     public String getString(String key, Object... objects) {
         String text = resourceBundle.getString(key);
         return String.format(text, objects);

@@ -22,10 +22,8 @@ import javax.xml.ws.WebServiceException;
 
 import com.harmony.umbrella.message.MessageException;
 import com.harmony.umbrella.message.jms.JmsMessageSender;
-import com.harmony.umbrella.util.ClassUtils;
 import com.harmony.umbrella.ws.jaxws.JaxWsCXFExecutor;
 import com.harmony.umbrella.ws.jaxws.JaxWsExecutorSupport;
-import com.harmony.umbrella.ws.support.ContextSender;
 
 /**
  * JaxWs 执行者的发送context扩展
@@ -33,19 +31,20 @@ import com.harmony.umbrella.ws.support.ContextSender;
  * @author wuxii@foxmail.com
  */
 @Remote({ JaxWsExecutorSupport.class })
-@Stateless(mappedName = "JaxWsExecutorSupportBean")
-public class JaxWsExecutorAndSenderSupportBean extends JaxWsCXFExecutor implements JaxWsExecutorSupport, ContextSender {
+@Stateless(mappedName = "ExecutorSupportBean")
+public class JaxWsExecutorSupportBean extends JaxWsCXFExecutor implements JaxWsExecutorSupport {
 
     @EJB
     private JmsMessageSender messageSender;
+
     @EJB
     private MetadataLoader metadataLoader;
 
-    private boolean reload;
+    private boolean reload = false;
 
     @Override
     public boolean send(Context context) {
-        context = reloadContext(context);
+        context = reload(context);
         try {
             return messageSender.send(new ContextMessage(context));
         } catch (MessageException e) {
@@ -53,7 +52,16 @@ public class JaxWsExecutorAndSenderSupportBean extends JaxWsCXFExecutor implemen
         }
     }
 
-    @SuppressWarnings("unchecked")
+    protected Context reload(Context context) {
+        final MetadataLoader loader = metadataLoader;
+        if (loader != null && reload) {
+            Metadata metadata = loader.loadMetadata(context.getServiceInterface());
+            return new ContextWrapper(context, metadata);
+        }
+        return context;
+    }
+
+    /*@SuppressWarnings("unchecked")
     @Override
     public <T> T getProxy(Class<T> serviceInterface) {
         Metadata metadata = metadataLoader.loadMetadata(serviceInterface.getName());
@@ -68,30 +76,6 @@ public class JaxWsExecutorAndSenderSupportBean extends JaxWsCXFExecutor implemen
         } catch (ClassNotFoundException e) {
             return null;
         }
-    }
-
-    protected Context reloadContext(Context context) {
-        final MetadataLoader loader = metadataLoader;
-        if (loader != null && reload) {
-            Metadata metadata = loader.loadMetadata(context.getServiceInterface());
-            if (metadata != null) {
-                context = ContextUtils.reset(context, metadata);
-            }
-        }
-        return context;
-    }
-
-    @Override
-    public void open() {
-    }
-
-    @Override
-    public void close() throws Exception {
-    }
-
-    @Override
-    public boolean isClosed() {
-        return false;
-    }
+    }*/
 
 }

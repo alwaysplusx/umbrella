@@ -34,22 +34,4 @@ public interface JaxWsExecutorSupport extends JaxWsExecutor {
      */
     boolean send(Context context);
 
-    /**
-     * 获取原代理实例
-     * 
-     * @param serviceInterface
-     *            代理类
-     * @return 代理实例
-     */
-    <T> T getProxy(Class<T> serviceInterface);
-
-    /**
-     * 根据服务名称获取代理实例
-     * 
-     * @param serviceName
-     *            服务名称
-     * @return 代理实例
-     */
-    <T> T getProxy(String serviceName);
-
 }

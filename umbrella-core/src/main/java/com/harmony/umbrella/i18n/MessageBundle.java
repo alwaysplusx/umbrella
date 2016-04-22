@@ -11,6 +11,8 @@ public interface MessageBundle {
 
     String getString(String key);
 
+    String getString(String key, Object... objects);
+
     Locale getLocale();
 
 }
