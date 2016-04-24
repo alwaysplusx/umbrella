@@ -36,7 +36,7 @@ public abstract class ProxyExecutorSupport implements ProxyExecutor {
     /**
      * 标记执行出现错误是抛出还是隐藏
      */
-    protected boolean throwOutException = false;
+    protected boolean raiseError = false;
 
     /**
      * 不触发visitor的情况下执行交互
@@ -130,7 +130,7 @@ public abstract class ProxyExecutorSupport implements ProxyExecutor {
      *            异常信息
      */
     private void throwOutException(Exception e) {
-        if (!throwOutException) {
+        if (raiseError) {
             if (e instanceof RuntimeException) {
                 throw (RuntimeException) e;
             }
