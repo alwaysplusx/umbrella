@@ -24,10 +24,10 @@ import com.harmony.umbrella.context.CurrentContext;
 import com.harmony.umbrella.log.LogMessage;
 import com.harmony.umbrella.log.Logs;
 import com.harmony.umbrella.log.Message;
-import com.harmony.umbrella.log.Template;
-import com.harmony.umbrella.log.TemplateFactory;
 import com.harmony.umbrella.log.annotation.Logging;
 import com.harmony.umbrella.log.template.MessageTemplateFactory;
+import com.harmony.umbrella.log.template.Template;
+import com.harmony.umbrella.log.template.TemplateFactory;
 import com.harmony.umbrella.monitor.MethodGraph;
 
 /**
@@ -72,7 +72,7 @@ public class DefaultLogGraphReporter implements LogGraphReporter {
                     .module(ann.module())
                     .level(ann.level());
 
-            Template template = request == null ? templateFactory.createTemplate(ann) : templateFactory.createHttpTemplate(ann, request);
+            Template template = templateFactory.createTemplate(ann, request);
             
             Message message = template.newMessage(graph.getTarget(), graph.getResult(), graph.getParameters());
             Object bizId = template.getId(graph.getTarget(), graph.getResult(), graph.getParameters());

@@ -3,7 +3,7 @@ package com.harmony.umbrella.ws.service;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
-import com.harmony.umbrella.core.AccessMember;
+import com.harmony.umbrella.core.accessor.AccessMember;
 import com.harmony.umbrella.ws.annotation.Key;
 
 /**

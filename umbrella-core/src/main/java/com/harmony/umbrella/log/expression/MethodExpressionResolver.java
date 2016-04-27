@@ -4,6 +4,7 @@ import java.lang.reflect.Method;
 
 import com.harmony.umbrella.log.IllegalExpressionException;
 import com.harmony.umbrella.log.util.ExpressionUtils;
+import com.harmony.umbrella.util.ReflectionUtils;
 
 /**
  * 表达式指定为一个get方法，通过value对应的get方法取值。
@@ -30,8 +31,8 @@ public class MethodExpressionResolver extends ComparableExpressionResolver {
         if (support(expression, value)) {
             Class<?> targetClass = value.getClass();
             try {
-                Method method = targetClass.getDeclaredMethod(readMethodName(expression.substring(1)));
-                return method.invoke(value);
+                Method method = ReflectionUtils.findReadMethod(targetClass, expression.substring(1));
+                return ReflectionUtils.invokeMethod(method, value);
             } catch (Exception e) {
                 throw new IllegalExpressionException("unsupported method expression " + expression, e);
             }
@@ -39,7 +40,4 @@ public class MethodExpressionResolver extends ComparableExpressionResolver {
         throw new IllegalExpressionException("unsupported method expression " + expression);
     }
 
-    protected static final String readMethodName(String name) {
-        return "get" + Character.toUpperCase(name.charAt(0)) + name.substring(1);
-    }
 }

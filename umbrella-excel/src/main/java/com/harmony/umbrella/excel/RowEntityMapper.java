@@ -26,12 +26,13 @@ import java.util.Map.Entry;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 
-import com.harmony.umbrella.core.AccessMember;
+import com.harmony.umbrella.core.accessor.AccessMember;
 import com.harmony.umbrella.excel.annotation.ExcelColumn;
 import com.harmony.umbrella.excel.cell.CellResolverChain;
 import com.harmony.umbrella.util.ClassUtils.ClassFilterFeature;
 import com.harmony.umbrella.util.CollectionUtils;
 import com.harmony.umbrella.util.ReflectionUtils;
+
 import org.apache.poi.ss.usermodel.Sheet;
 
 /**

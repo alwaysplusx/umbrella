@@ -21,6 +21,7 @@ import java.util.Map;
 
 import com.harmony.umbrella.log.annotation.Logging;
 import com.harmony.umbrella.log.template.MessageTemplateFactory;
+import com.harmony.umbrella.log.template.Template;
 
 /**
  * @author wuxii@foxmail.com

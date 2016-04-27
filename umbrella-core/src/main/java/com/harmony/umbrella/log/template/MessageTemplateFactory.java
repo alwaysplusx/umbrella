@@ -18,24 +18,14 @@ package com.harmony.umbrella.log.template;
 import java.lang.reflect.Method;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
-import com.harmony.umbrella.log.HttpTemplate;
-import com.harmony.umbrella.log.Template;
-import com.harmony.umbrella.log.TemplateFactory;
 import com.harmony.umbrella.log.annotation.Logging;
 
 /**
  * @author wuxii@foxmail.com
  */
 public class MessageTemplateFactory implements TemplateFactory {
-
-    @Override
-    public Template createTemplate(Logging logAnnotation) {
-        if (logAnnotation == null) {
-            throw new IllegalArgumentException("@Log annotation cannot be null");
-        }
-        return new MessageTemplate(logAnnotation);
-    }
 
     public Template createTemplate(Method method) {
         Logging logAnnotation = method.getAnnotation(Logging.class);
@@ -46,19 +36,21 @@ public class MessageTemplateFactory implements TemplateFactory {
     }
 
     @Override
-    public HttpTemplate createHttpTemplate(Logging logAnnotation, HttpServletRequest request) {
+    public Template createTemplate(Logging logAnnotation) {
         if (logAnnotation == null) {
             throw new IllegalArgumentException("@Log annotation cannot be null");
         }
-        return new HttpMessageTemplate(logAnnotation, request);
+        return new MessageTemplate(logAnnotation);
     }
 
-    public HttpTemplate createHttpTemplate(Method method, HttpServletRequest request) {
-        Logging logAnnotation = method.getAnnotation(Logging.class);
-        if (logAnnotation == null) {
-            throw new IllegalArgumentException(method + " not have @Log annotation ");
-        }
-        return createHttpTemplate(logAnnotation, request);
+    @Override
+    public Template createTemplate(Logging logAnnotation, HttpServletRequest request) {
+        return null;
+    }
+
+    @Override
+    public Template createTemplate(Logging logAnnotation, HttpServletRequest request, HttpServletResponse response) {
+        return null;
     }
 
 }

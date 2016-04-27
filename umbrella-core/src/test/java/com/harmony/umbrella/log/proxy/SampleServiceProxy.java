@@ -20,10 +20,10 @@ import java.lang.reflect.Method;
 
 import com.harmony.umbrella.log.LogMessage;
 import com.harmony.umbrella.log.Logs;
-import com.harmony.umbrella.log.Template;
-import com.harmony.umbrella.log.TemplateFactory;
 import com.harmony.umbrella.log.annotation.Logging;
 import com.harmony.umbrella.log.template.MessageTemplateFactory;
+import com.harmony.umbrella.log.template.Template;
+import com.harmony.umbrella.log.template.TemplateFactory;
 
 /**
  * @author wuxii@foxmail.com

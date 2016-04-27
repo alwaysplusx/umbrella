@@ -13,15 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.umbrella.log;
+package com.harmony.umbrella.log.template;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import com.harmony.umbrella.log.annotation.Logging;
 
 /**
  * @author wuxii@foxmail.com
  */
-public interface HttpTemplate extends Template {
+public interface TemplateFactory {
 
-    HttpServletRequest getHttpRequest();
+    Template createTemplate(Logging logAnnotation);
+
+    Template createTemplate(Logging logAnnotation, HttpServletRequest request);
+    
+    Template createTemplate(Logging logAnnotation, HttpServletRequest request, HttpServletResponse response);
 
 }

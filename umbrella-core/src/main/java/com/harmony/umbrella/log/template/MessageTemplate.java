@@ -21,7 +21,6 @@ import java.util.List;
 
 import com.harmony.umbrella.log.IllegalExpressionException;
 import com.harmony.umbrella.log.Message;
-import com.harmony.umbrella.log.Template;
 import com.harmony.umbrella.log.annotation.Logging;
 import com.harmony.umbrella.log.expression.ExpressionResolverChain;
 import com.harmony.umbrella.log.message.FormattedMessage;

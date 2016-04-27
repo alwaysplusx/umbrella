@@ -15,6 +15,8 @@
  */
 package com.harmony.umbrella.core;
 
+import com.harmony.umbrella.core.accessor.AccessMember;
+
 /**
  * @author wuxii@foxmail.com
  */

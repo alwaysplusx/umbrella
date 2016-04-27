@@ -1,4 +1,4 @@
-package com.harmony.umbrella.core;
+package com.harmony.umbrella.core.accessor;
 
 import static com.harmony.umbrella.util.ReflectionUtils.*;
 
