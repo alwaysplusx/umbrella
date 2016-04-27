@@ -15,6 +15,7 @@
  */
 package com.harmony.umbrella.util;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 
@@ -24,6 +25,40 @@ import java.lang.reflect.Type;
  * @author wuxii@foxmail.com
  */
 public class GenericUtils {
+
+    /**
+     * 获取字段指定index的泛型
+     * 
+     * @param field
+     *            字段
+     * @param index
+     *            泛型的index
+     * @return
+     */
+    public static Class<?> getFieldGeneric(Field field, int index) {
+        Type type = field.getGenericType();
+        if (type instanceof ParameterizedType) {
+            Type[] actualTypeArguments = ((ParameterizedType) type).getActualTypeArguments();
+            Type genericType = actualTypeArguments[index];
+            if (genericType instanceof Class) {
+                return (Class<?>) genericType;
+            }
+            throw new IllegalArgumentException(field.getName() + "[" + index + "]=" + genericType + " not class");
+        }
+        throw new IllegalArgumentException(field.getName() + " not have generic");
+    }
+
+    public static boolean isJavaTypeGeneric(Field field, int index) {
+        Type type = field.getGenericType();
+        if (type instanceof ParameterizedType) {
+            Type[] actualTypeArguments = ((ParameterizedType) type).getActualTypeArguments();
+            Type genericType = actualTypeArguments[index];
+            if (genericType instanceof Class) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     /**
      * 获取当前类的父类的指定index有效泛型

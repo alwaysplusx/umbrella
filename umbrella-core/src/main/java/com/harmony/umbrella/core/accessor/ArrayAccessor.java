@@ -9,6 +9,8 @@ import java.lang.reflect.Array;
  */
 public class ArrayAccessor extends AbstractAccessor {
 
+    public static final ArrayAccessor INSTANCE = new ArrayAccessor();
+    
     @Override
     public boolean isAccessible(String name, Object target) {
         if (target == null) {

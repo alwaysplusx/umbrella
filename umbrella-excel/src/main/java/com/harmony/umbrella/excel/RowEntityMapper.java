@@ -26,10 +26,10 @@ import java.util.Map.Entry;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 
-import com.harmony.umbrella.core.accessor.AccessMember;
 import com.harmony.umbrella.excel.annotation.ExcelColumn;
 import com.harmony.umbrella.excel.cell.CellResolverChain;
 import com.harmony.umbrella.util.ClassUtils.ClassFilterFeature;
+import com.harmony.umbrella.util.AccessUtils;
 import com.harmony.umbrella.util.CollectionUtils;
 import com.harmony.umbrella.util.ReflectionUtils;
 
@@ -49,7 +49,7 @@ public class RowEntityMapper<T> implements RowVisitor {
 
     private Class<T> entityClass;
 
-    private Map<Integer, AccessMember> converterMap;
+    private Map<Integer, AccessUtils> converterMap;
 
     private Map<String, String> headerFieldMap;
 
@@ -61,7 +61,7 @@ public class RowEntityMapper<T> implements RowVisitor {
 
     private int endColumn = -1;
 
-    public RowEntityMapper(Class<T> entityClass, Map<Integer, AccessMember> converterMap, CellResolverChain chain) {
+    public RowEntityMapper(Class<T> entityClass, Map<Integer, AccessUtils> converterMap, CellResolverChain chain) {
         this.entityClass = entityClass;
         this.converterMap = converterMap;
         this.chain = chain;
@@ -69,7 +69,7 @@ public class RowEntityMapper<T> implements RowVisitor {
 
     public RowEntityMapper(Class<T> entityClass,
                            Map<String, String> headerFieldMap,
-                           Map<Integer, AccessMember> converterMap,
+                           Map<Integer, AccessUtils> converterMap,
                            CellResolverChain chain,
                            int startColumn,
                            int endColumn) {
@@ -90,7 +90,7 @@ public class RowEntityMapper<T> implements RowVisitor {
                     if (cell == null) {
                         throw new IllegalArgumentException(ExcelUtil.toCellName(cell) + " empty cell of header column");
                     }
-                    converterMap.put(i, new AccessMember(entityClass, headerFieldMap.get(cell.getStringCellValue())));
+                    converterMap.put(i, new AccessUtils(entityClass, headerFieldMap.get(cell.getStringCellValue())));
                 }
             }
         }
@@ -101,19 +101,19 @@ public class RowEntityMapper<T> implements RowVisitor {
     public boolean visitRow(int rowNum, Row row) {
         T entity = newEntity();
         for (int i = startColumn, max = getMaxColumnNumber(row); i < max; i++) {
-            AccessMember accessMember = converterMap.get(i);
-            if (accessMember == null) {
+            AccessUtils accessUtils = converterMap.get(i);
+            if (accessUtils == null) {
                 throw new IllegalStateException("unknow column " + i);
             }
             Cell cell = row.getCell(i);
-            CellResolver cr = getCellResolver(accessMember);
+            CellResolver cr = getCellResolver(accessUtils);
             Object cellValue = null;
             if (cr != null) {
                 cellValue = cr.resolve(cell.getRowIndex(), cell.getColumnIndex(), cell);
             } else {
-                cellValue = chain.doChain(accessMember.getType(), cell);
+                cellValue = chain.doChain(accessUtils.getType(), cell);
             }
-            accessMember.set(entity, cellValue);
+            accessUtils.set(entity, cellValue);
         }
         // when entity all access member already set add to result
         result.add(entity);
@@ -121,8 +121,8 @@ public class RowEntityMapper<T> implements RowVisitor {
     }
 
     @SuppressWarnings("rawtypes")
-    protected CellResolver getCellResolver(AccessMember accessMember) {
-        Field field = accessMember.getField();
+    protected CellResolver getCellResolver(AccessUtils accessUtils) {
+        Field field = accessUtils.getField();
         ExcelColumn ann = field.getAnnotation(ExcelColumn.class);
         if (ann != null && ClassFilterFeature.NEWABLE.accept(ann.cellResolver())) {
             return ReflectionUtils.instantiateClass(ann.cellResolver());
@@ -184,9 +184,9 @@ public class RowEntityMapper<T> implements RowVisitor {
      * @return
      */
     public static <T> RowEntityMapper<T> create(Class<T> entityClass, String[] fields) {
-        Map<Integer, AccessMember> converterMap = new HashMap<Integer, AccessMember>();
+        Map<Integer, AccessUtils> converterMap = new HashMap<Integer, AccessUtils>();
         for (int i = 0; i < fields.length; i++) {
-            converterMap.put(i, new AccessMember(entityClass, fields[i]));
+            converterMap.put(i, new AccessUtils(entityClass, fields[i]));
         }
         return new RowEntityMapper<T>(entityClass, converterMap, CellResolverChain.INSTANCE);
     }
@@ -206,9 +206,9 @@ public class RowEntityMapper<T> implements RowVisitor {
      * @return
      */
     public static <T> RowEntityMapper<T> create(Class<T> entityClass, Map<Integer, String> fieldMap) {
-        Map<Integer, AccessMember> converterMap = new HashMap<Integer, AccessMember>();
+        Map<Integer, AccessUtils> converterMap = new HashMap<Integer, AccessUtils>();
         for (Entry<Integer, String> entry : fieldMap.entrySet()) {
-            converterMap.put(entry.getKey(), new AccessMember(entityClass, entry.getValue()));
+            converterMap.put(entry.getKey(), new AccessUtils(entityClass, entry.getValue()));
         }
         return new RowEntityMapper<T>(entityClass, converterMap, CellResolverChain.INSTANCE);
     }
@@ -234,11 +234,11 @@ public class RowEntityMapper<T> implements RowVisitor {
      * @return
      */
     public static <T> RowEntityMapper<T> createByClass(Class<T> entityClass) {
-        Map<Integer, AccessMember> converterMap = new HashMap<Integer, AccessMember>();
+        Map<Integer, AccessUtils> converterMap = new HashMap<Integer, AccessUtils>();
         Field[] fields = entityClass.getDeclaredFields();
         for (Field field : fields) {
             ExcelColumn ann = field.getAnnotation(ExcelColumn.class);
-            converterMap.put(ann.value(), new AccessMember(entityClass, field));
+            converterMap.put(ann.value(), new AccessUtils(entityClass, field));
         }
         if (converterMap.isEmpty()) {
             throw new IllegalArgumentException("entity class " + entityClass.getName() + " not mapped any @ExcelColumn");

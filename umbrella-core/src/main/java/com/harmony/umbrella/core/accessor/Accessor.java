@@ -1,6 +1,8 @@
 package com.harmony.umbrella.core.accessor;
 
 /**
+ * thread safe
+ * 
  * @author wuxii@foxmail.com
  */
 public interface Accessor {

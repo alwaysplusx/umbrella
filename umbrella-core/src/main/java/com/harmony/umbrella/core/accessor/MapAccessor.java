@@ -8,6 +8,8 @@ import java.util.Map;
  */
 public class MapAccessor extends AbstractAccessor {
 
+    public static final MapAccessor INSTANCE = new MapAccessor();
+
     @Override
     public boolean isAccessible(String name, Object target) {
         if (target instanceof Map) {
@@ -23,7 +25,7 @@ public class MapAccessor extends AbstractAccessor {
         return ((Map<?, ?>) target).get(name);
     }
 
-    @SuppressWarnings({"rawtypes", "unchecked"})
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     @Override
     public void setNameValue(String name, Object target, Object value) {
         ((Map) target).put(name, value);

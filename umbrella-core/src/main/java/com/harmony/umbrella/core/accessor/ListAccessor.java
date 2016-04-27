@@ -9,6 +9,8 @@ import java.util.List;
  */
 public class ListAccessor extends AbstractAccessor {
 
+    public static final ListAccessor INSTANCE = new ListAccessor();
+
     @Override
     public boolean isAccessible(String name, Object target) {
         return target instanceof List && DigitUtils.isDigit(name);
