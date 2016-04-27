@@ -1,6 +1,8 @@
 package com.harmony.umbrella.core.accessor;
 
+import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.StringTokenizer;
 
@@ -11,15 +13,33 @@ import com.harmony.umbrella.util.Assert;
  */
 public class AccessorChain {
 
-    private static final Set<Accessor> ACCESSOR = new HashSet<Accessor>();
+    private static final Set<Accessor> ACCESSORS = new HashSet<Accessor>();
 
     static {
-        ACCESSOR.add(ArrayAccessor.INSTANCE);
-        ACCESSOR.add(ClassFieldAccessor.INSTANCE);
-        ACCESSOR.add(ClassMethodAccessor.INSTANCE);
-        ACCESSOR.add(ListAccessor.INSTANCE);
-        ACCESSOR.add(MapAccessor.INSTANCE);
-        ACCESSOR.add(ReflectionAccessor.INSTANCE);
+        ACCESSORS.add(ArrayAccessor.INSTANCE);
+        ACCESSORS.add(ClassFieldAccessor.INSTANCE);
+        ACCESSORS.add(ClassMethodAccessor.INSTANCE);
+        ACCESSORS.add(ListAccessor.INSTANCE);
+        ACCESSORS.add(MapAccessor.INSTANCE);
+        ACCESSORS.add(ReflectionAccessor.INSTANCE);
+    }
+
+    private List<Accessor> accessors;
+
+    public AccessorChain(List<Accessor> accessor) {
+        this.accessors = accessor;
+    }
+
+    public static AccessorChain createDefaultChain() {
+        return createChain(defaultAccessors());
+    }
+
+    public static AccessorChain createChain(List<Accessor> accessors) {
+        return new AccessorChain(accessors);
+    }
+
+    private static List<Accessor> defaultAccessors() {
+        return Arrays.asList(ACCESSORS.toArray(new Accessor[ACCESSORS.size()]));
     }
 
     public Object get(String path, Object target) {
@@ -50,7 +70,7 @@ public class AccessorChain {
     }
 
     private void setTokenValue(String token, Object target, Object value) {
-        for (Accessor ac : ACCESSOR) {
+        for (Accessor ac : accessors) {
             if (ac.isAccessible(token, target)) {
                 ac.set(token, target, value);
                 return;
@@ -60,12 +80,20 @@ public class AccessorChain {
     }
 
     private Object getTokenValue(String token, Object target) {
-        for (Accessor ac : ACCESSOR) {
+        for (Accessor ac : accessors) {
             if (ac.isAccessible(token, target)) {
                 return ac.get(token, target);
             }
         }
         throw new IllegalArgumentException(target + " " + token + " not suitable accessor");
+    }
+
+    public List<Accessor> getAccessors() {
+        return accessors;
+    }
+
+    public void setAccessors(List<Accessor> accessors) {
+        this.accessors = accessors;
     }
 
 }

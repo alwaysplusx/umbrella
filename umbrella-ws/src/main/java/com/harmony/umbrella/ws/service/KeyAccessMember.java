@@ -3,13 +3,13 @@ package com.harmony.umbrella.ws.service;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
-import com.harmony.umbrella.util.AccessUtils;
+import com.harmony.umbrella.core.AccessMember;
 import com.harmony.umbrella.ws.annotation.Key;
 
 /**
  * @author wuxii@foxmail.com
  */
-public final class KeyAccessMember extends AccessUtils {
+public final class KeyAccessMember extends AccessMember {
 
     final Key key;
 
@@ -27,7 +27,7 @@ public final class KeyAccessMember extends AccessUtils {
         return key.ordinal();
     }
 
-    public String getName() {
+    public String getKeyName() {
         return key.name();
     }
 

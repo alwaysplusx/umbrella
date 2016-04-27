@@ -15,6 +15,13 @@
  */
 package com.harmony.umbrella.core;
 
+import static org.junit.Assert.*;
+
+import java.util.Arrays;
+import java.util.List;
+
+import org.junit.Test;
+
 import com.harmony.umbrella.core.accessor.AccessorChain;
 
 /**
@@ -24,42 +31,62 @@ public class AccessorTest {
 
     private static Person person;
 
+    //   A-B
+    //    |
+    //|--------|----------|       
+    //C√       D---E      F
+    //           |
+    //      |---------|
+    //      G         H
+
     static {
-        // TODO 填充数据
-        person = new Person("A");
-        person.family = new Family();
-        person.family.me = person;
-        person.family.spouse = new Person("A's spouse");
-        person.family.father = new Person("A's father B");
-        person.family.mother = new Person("A's father C");
-        person.family.son = new Person[] { new Person("son0"), new Person("son1") };
-        person.family.brother = new Person[] { new Person("brother0"), new Person("brother1") };
+        // 以C为起点
+        person = new Person("C");
+        person.father = new Person("A");
+        person.mother = new Person("B");
+
+        Person brotherD = new Person("D");
+        brotherD.father = person.father;
+        brotherD.mother = person.mother;
+        brotherD.spouse = new Person("E");
+
+        Person g = new Person("G");
+        Person h = new Person("H");
+
+        g.brother = Arrays.asList(h);
+        h.brother = Arrays.asList(g);
+
+        brotherD.children = Arrays.asList(g, h);
+        brotherD.spouse.children = brotherD.children;
+
+        Person brotherF = new Person("F");
+        brotherF.father = person.father;
+        brotherF.mother = person.mother;
+
+        person.brother = Arrays.asList(brotherD, brotherF);
     }
 
-    public static void main(String[] args) {
-        AccessorChain chain = new AccessorChain();
-        chain.get("family.father.brother[1].spouse.son[0]", person);
+    @Test
+    public void testAccessor() {
+        AccessorChain chain = AccessorChain.createDefaultChain();
+        assertEquals("C", chain.get("name", person));
+        assertEquals("D", chain.get("brother[0].name", person));
+        assertEquals("E", chain.get("brother[0].spouse.name", person));
+        assertEquals("G", chain.get("brother[0].spouse.children[0].name", person));
     }
 
     static class Person {
 
         public String name;
-        public Family family;
+        public Person spouse;
+        public Person father;
+        public Person mother;
+        public List<Person> brother;
+        public List<Person> children;
 
         public Person(String name) {
             this.name = name;
         }
-    }
-
-    static class Family {
-
-        public Person me;
-        public Person spouse;
-        public Person father;
-        public Person mother;
-        public Person[] son;
-        public Person[] brother;
-
     }
 
 }
