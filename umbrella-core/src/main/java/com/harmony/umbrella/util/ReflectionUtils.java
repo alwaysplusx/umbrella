@@ -218,10 +218,8 @@ public class ReflectionUtils {
      * @param fieldName
      * @return
      */
-    static String readMethodName(String fieldName) {
-        if (StringUtils.isBlank(fieldName)) {
-            throw new IllegalArgumentException("field name is blank");
-        }
+    public static String readMethodName(String fieldName) {
+        Assert.notBlank(fieldName, "field name is blank");
         return "get" + Character.toUpperCase(fieldName.charAt(0)) + fieldName.substring(1);
     }
 
@@ -231,10 +229,8 @@ public class ReflectionUtils {
      * @param fieldName
      * @return
      */
-    static String writerMethodName(String fieldName) {
-        if (StringUtils.isBlank(fieldName)) {
-            throw new IllegalArgumentException("field name is blank");
-        }
+    public static String writerMethodName(String fieldName) {
+        Assert.notBlank(fieldName, "field name is blank");
         return "set" + Character.toUpperCase(fieldName.charAt(0)) + fieldName.substring(1);
     }
 
@@ -249,7 +245,7 @@ public class ReflectionUtils {
      * @throws NoSuchMethodException
      *             如果未找到getter方法
      */
-    public static Method findReadMethod(Class<?> source, Field field) throws NoSuchMethodException {
+    public static Method findReadMethod(Class<?> source, Field field) {
         Assert.notNull(field, "field must not be null");
         return findReadMethod(source, field.getName());
     }
@@ -265,12 +261,8 @@ public class ReflectionUtils {
      * @throws NoSuchMethodException
      *             如果未找到getter方法
      */
-    public static Method findReadMethod(Class<?> source, String fieldName) throws NoSuchMethodException {
-        Method method = findMethod(source, readMethodName(fieldName));
-        if (method == null) {
-            throw new NoSuchMethodException(fieldName);
-        }
-        return method;
+    public static Method findReadMethod(Class<?> source, String fieldName) {
+        return findMethod(source, readMethodName(fieldName));
     }
 
     /**
@@ -284,7 +276,7 @@ public class ReflectionUtils {
      * @throws NoSuchMethodException
      *             如果未找到getter方法
      */
-    public static Method findWriterMethod(Class<?> source, Field field) throws NoSuchMethodException {
+    public static Method findWriterMethod(Class<?> source, Field field) {
         Assert.notNull(field, "field must not be null");
         return findWriterMethod(source, field.getName());
     }
@@ -300,11 +292,7 @@ public class ReflectionUtils {
      * @throws NoSuchMethodException
      *             如果未找到getter方法
      */
-    public static Method findWriterMethod(Class<?> source, String fieldName) throws NoSuchMethodException {
-        Method method = findMethod(source, writerMethodName(fieldName));
-        if (method == null) {
-            throw new NoSuchMethodException(fieldName);
-        }
+    public static Method findWriterMethod(Class<?> source, String fieldName) {
         return findMethod(source, writerMethodName(fieldName));
     }
 
@@ -690,6 +678,21 @@ public class ReflectionUtils {
         return false;
     }
 
+    public static boolean isReadMethod(Method method) {
+        String methodName = method.getName();
+        return methodName.length() > 3
+                && methodName.startsWith("get")
+                && method.getParameterTypes().length == 0;
+    }
+
+    public static boolean isWriteMethod(Method method) {
+        String methodName = method.getName();
+        return methodName.length() > 3
+                && methodName.startsWith("set")
+                && method.getReturnType() != void.class
+                && method.getParameterTypes().length == 1;
+    }
+    
     /**
      * Determine whether the given field is a "public static final" constant.
      * 

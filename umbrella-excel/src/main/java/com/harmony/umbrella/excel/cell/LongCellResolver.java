@@ -27,11 +27,6 @@ public class LongCellResolver extends AbstractCellResolver<Long> {
     public static final LongCellResolver INSTANCE = new LongCellResolver();
 
     @Override
-    public boolean isTargetType(Class<?> targetType) {
-        return Long.TYPE == targetType || Long.class == targetType;
-    }
-
-    @Override
     public Long resolve(int rowIndex, int columnIndex, Cell cell) {
         Number number = ExcelUtil.getNumberCellValue(cell);
         return number != null ? number.longValue() : null;

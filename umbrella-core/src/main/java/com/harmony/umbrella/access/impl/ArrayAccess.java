@@ -1,5 +1,6 @@
-package com.harmony.umbrella.core.accessor;
+package com.harmony.umbrella.access.impl;
 
+import com.harmony.umbrella.access.AbstractAccess;
 import com.harmony.umbrella.util.DigitUtils;
 
 import java.lang.reflect.Array;
@@ -7,10 +8,8 @@ import java.lang.reflect.Array;
 /**
  * @author wuxii@foxmail.com
  */
-public class ArrayAccessor extends AbstractAccessor {
+public class ArrayAccess extends AbstractAccess {
 
-    public static final ArrayAccessor INSTANCE = new ArrayAccessor();
-    
     @Override
     public boolean isAccessible(String name, Object target) {
         if (target == null) {
@@ -20,12 +19,12 @@ public class ArrayAccessor extends AbstractAccessor {
     }
 
     @Override
-    public Object getNameValue(String name, Object target) {
+    protected Object getNameValue(String name, Object target) {
         return Array.get(target, Integer.parseInt(name));
     }
 
     @Override
-    public void setNameValue(String name, Object target, Object value) {
+    protected void setNameValue(String name, Object target, Object value) {
         Array.set(target, Integer.parseInt(name), value);
     }
 }

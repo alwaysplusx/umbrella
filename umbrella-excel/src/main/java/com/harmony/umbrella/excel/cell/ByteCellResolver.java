@@ -27,11 +27,6 @@ public class ByteCellResolver extends AbstractCellResolver<Byte> {
     public static final ByteCellResolver INSTANCE = new ByteCellResolver();
 
     @Override
-    public boolean isTargetType(Class<?> targetType) {
-        return Byte.TYPE == targetType || Byte.class == targetType;
-    }
-
-    @Override
     public Byte resolve(int rowIndex, int columnIndex, Cell cell) {
         Number number = ExcelUtil.getNumberCellValue(cell);
         return number != null ? number.byteValue() : null;

@@ -27,11 +27,6 @@ public class DoubleCellResolver extends AbstractCellResolver<Double> {
     public static final DoubleCellResolver INSTANCE = new DoubleCellResolver();
 
     @Override
-    public boolean isTargetType(Class<?> targetType) {
-        return Double.TYPE == targetType || Double.class == targetType;
-    }
-
-    @Override
     public Double resolve(int rowIndex, int columnIndex, Cell cell) {
         Number number = ExcelUtil.getNumberCellValue(cell);
         return number != null ? number.doubleValue() : null;

@@ -457,15 +457,11 @@ public class ExcelUtil {
      * @return
      */
     public static boolean isXls(File file) {
-        String extension = FileUtils.getExtension(file);
-        if (StringUtils.isBlank(extension)) {
-            try {
-                return Arrays.equals(TYPE_XLS, getFileHeaderType(file));
-            } catch (IOException e) {
-                return false;
-            }
+        try {
+            return ExcelType.XLS.equals(getType(file));
+        } catch (IOException e1) {
+            return false;
         }
-        return ExcelType.XLS.extension().equals(extension);
     }
 
     /**
@@ -476,25 +472,29 @@ public class ExcelUtil {
      * @return
      */
     public static boolean isXlsx(File file) {
+        try {
+            return ExcelType.XLSX.equals(getType(file));
+        } catch (IOException e1) {
+            return false;
+        }
+    }
+
+    public static boolean isExcelFile(File file) {
+        try {
+            return getType(file) != null;
+        } catch (IOException e) {
+            return false;
+        }
+    }
+
+    private static ExcelType getType(File file) throws IOException {
         String extension = FileUtils.getExtension(file);
         if (StringUtils.isBlank(extension)) {
-            try {
-                return Arrays.equals(TYPE_XLSX, getFileHeaderType(file));
-            } catch (IOException e) {
-                return false;
-            }
+            byte[] headerType = getFileHeaderType(file);
+            return Arrays.equals(TYPE_XLS, headerType) ? ExcelType.XLS : Arrays.equals(TYPE_XLSX, headerType) ? ExcelType.XLSX : null;
         }
-        return ExcelType.XLSX.extension().equals(extension);
+        return ExcelType.fromExtension(extension);
     }
-
-    protected static ExcelType getType(File file) throws IOException {
-        byte[] headerType = getFileHeaderType(file);
-        return Arrays.equals(TYPE_XLS, headerType) ? ExcelType.XLS : Arrays.equals(TYPE_XLSX, headerType) ? ExcelType.XLSX : null;
-    }
-
-    private static final byte[] TYPE_XLS = { 0x50, 0x4b, 0x03, 0x04 };
-
-    private static final byte[] TYPE_XLSX = { (byte) 0xd0, (byte) 0xcf, 0x11, (byte) 0xe0 };
 
     /**
      * 读取文件的头, 首位的4个字节
@@ -511,4 +511,8 @@ public class ExcelUtil {
         fis.close();
         return buf;
     }
+
+    private static final byte[] TYPE_XLSX = { 0x50, 0x4b, 0x03, 0x04 };
+
+    private static final byte[] TYPE_XLS = { (byte) 0xd0, (byte) 0xcf, 0x11, (byte) 0xe0 };
 }

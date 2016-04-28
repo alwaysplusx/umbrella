@@ -27,11 +27,6 @@ public class ShortCellResolver extends AbstractCellResolver<Short> {
     public static final ShortCellResolver INSTANCE = new ShortCellResolver();
 
     @Override
-    public boolean isTargetType(Class<?> targetType) {
-        return Short.TYPE == targetType || Short.class == targetType;
-    }
-
-    @Override
     public Short resolve(int rowIndex, int columnIndex, Cell cell) {
         Number number = ExcelUtil.getNumberCellValue(cell);
         return number != null ? number.shortValue() : null;

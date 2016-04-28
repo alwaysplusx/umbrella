@@ -408,7 +408,8 @@ public abstract class ServiceSupport {
         StringBuilder sb = new StringBuilder();
         KeyAccessMember[] kams = getKeyAccessMember(obj.getClass());
         for (int i = 0, max = kams.length;; i++) {
-            sb.append(kams[i].getName()).append(":").append(kams[i].get(obj));
+            // FIXME key access member
+            sb.append(kams[i].getMemberName()).append(":").append(kams[i].get(obj));
             if (i < max) {
                 sb.append(", ");
             } else {

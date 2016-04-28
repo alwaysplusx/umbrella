@@ -21,27 +21,24 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
-import com.harmony.umbrella.util.StringUtils;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 
-import com.harmony.umbrella.core.AccessMember;
-import com.harmony.umbrella.core.accessor.Accessor;
-import com.harmony.umbrella.core.accessor.ReflectionAccessor;
+import com.harmony.umbrella.access.AccessMember;
 import com.harmony.umbrella.excel.annotation.ExcelColumn;
-import com.harmony.umbrella.excel.cell.CellResolverChain;
+import com.harmony.umbrella.excel.cell.CellResolverFactory;
 import com.harmony.umbrella.util.ClassUtils.ClassFilterFeature;
 import com.harmony.umbrella.util.CollectionUtils;
 import com.harmony.umbrella.util.ReflectionUtils;
+import com.harmony.umbrella.util.StringUtils;
 
 /**
  * 通过列与字段的基础配置达到将excel文件中的行数据转为对应的entity
- * <p/>
+ * <p>
  * 即可以说excel中的一行数据为一个entity对象
- * <p/>
+ * <p>
  * PS:提供通过注解的方式支持配置
  *
  * @author wuxii@foxmail.com
@@ -49,96 +46,58 @@ import com.harmony.umbrella.util.ReflectionUtils;
  */
 public class RowEntityMapper<T> implements RowVisitor {
 
-    private Accessor accessor = new ReflectionAccessor();
-
     private Class<T> entityClass;
 
-    private final Map<String, String> headerNameToFieldMap = new HashMap<String, String>();
+    // 最终直接使用的是headerIndex->fieldName, headerName->fieldName是中间过程的map
+    private final Map<String, String> headerNameToFieldNameMap = new HashMap<String, String>();
 
-    private final Map<Integer, String> headerIndexToFieldMap = new HashMap<Integer, String>();
-
-    private CellResolverChain chain;
+    // 如果有设置headerName->fieldName的对应关系则覆盖原来的headerIndex->fieldName
+    private final Map<Integer, String> headerIndexToFieldNameMap = new HashMap<Integer, String>();
 
     private final List<T> result = new ArrayList<T>();
 
-    private int startColumn;
+    @SuppressWarnings("rawtypes")
+    private final List<CellResolver> cellResolvers = new ArrayList<CellResolver>();
 
-    private int endColumn;
+    private int startColumn = 0;
 
-    public RowEntityMapper(Class<T> entityClass, Map<Integer, String> headerIndexToFieldMap, CellResolverChain chain) {
-        this(entityClass, null, headerIndexToFieldMap, chain, 0, -1);
-    }
+    private int endColumn = -1;
 
-    public RowEntityMapper(Class<T> entityClass,
-                           Map<Integer, String> headerIndexToFieldMap,
-                           CellResolverChain chain,
-                           int startColumn,
-                           int endColumn) {
-        this(entityClass, null, headerIndexToFieldMap, chain, startColumn, endColumn);
-    }
-
-    public RowEntityMapper(Class<T> entityClass,
-                           Map<String, String> headerNameToFieldMap,
-                           Map<Integer, String> headerIndexToFieldMap,
-                           CellResolverChain chain,
-                           int startColumn,
-                           int endColumn) {
+    @SuppressWarnings("rawtypes")
+    public RowEntityMapper(Class<T> entityClass, Map<Integer, String> headerIndexToFieldNameMap, List<CellResolver> cellResolvers) {
         this.entityClass = entityClass;
-        if (headerNameToFieldMap != null) {
-            this.headerNameToFieldMap.putAll(headerNameToFieldMap);
-        }
-        if (headerIndexToFieldMap != null) {
-            this.headerIndexToFieldMap.putAll(headerIndexToFieldMap);
-        }
-        this.chain = chain;
-        this.startColumn = startColumn;
-        this.endColumn = endColumn;
+        this.cellResolvers.addAll(cellResolvers);
+        this.headerIndexToFieldNameMap.putAll(headerIndexToFieldNameMap);
     }
 
     @Override
     public void visitHeader(int header, Row row) {
-        for (int i = startColumn, max = getMaxColumnNumber(row); i < max; i++) {
-            String headerName = ExcelUtil.getStringCellValue(row.getCell(i));
-            String fieldName = headerNameToFieldMap.get(headerName);
-            if (StringUtils.isNotBlank(fieldName)) {
-                headerIndexToFieldMap.put(i, fieldName);
+        // 如果有设置headerName->fieldName的对应关系则覆盖原来的headerIndex->fieldName
+        // 最终直接使用的是headerIndex->fieldName, headerName->fieldName是中间过程的map
+        if (!headerNameToFieldNameMap.isEmpty()) {
+            for (int i = startColumn, max = getMaxColumnNumber(row); i < max; i++) {
+                String headerName = ExcelUtil.getStringCellValue(row.getCell(i));
+                String fieldName = headerNameToFieldNameMap.get(headerName);
+                if (StringUtils.isNotBlank(fieldName)) {
+                    headerIndexToFieldNameMap.put(i, fieldName);
+                }
             }
         }
     }
 
-    @SuppressWarnings("rawtypes")
     @Override
     public boolean visitRow(int rowNum, Row row) {
         T entity = newEntity();
         for (int i = startColumn, max = getMaxColumnNumber(row); i < max; i++) {
-            String fieldName = headerIndexToFieldMap.get(i);
             Cell cell = row.getCell(i);
-            CellResolver cr = getCellResolver(accessMember);
-            Object cellValue = null;
-            if (cr != null) {
-                cellValue = cr.resolve(cell.getRowIndex(), cell.getColumnIndex(), cell);
-            } else {
-                cellValue = chain.doChain(accessMember.getType(), cell);
+            if (cell != null) {
+                AccessMember member = new AccessMember(entityClass, headerIndexToFieldNameMap.get(i));
+                CellResolver<?> cellResolver = getCellResolver(member);
+                member.set(entity, cellResolver.resolve(cell.getRowIndex(), cell.getColumnIndex(), cell));
             }
-            accessMember.set(entity, cellValue);
         }
-        // when entity all access member already set add to result
         result.add(entity);
         return true;
-    }
-
-    @SuppressWarnings("rawtypes")
-    protected CellResolver getCellResolver(AccessMember accessMember) {
-        Field field = accessMember.getField();
-        ExcelColumn ann = field.getAnnotation(ExcelColumn.class);
-        if (ann != null && ClassFilterFeature.NEWABLE.accept(ann.cellResolver())) {
-            return ReflectionUtils.instantiateClass(ann.cellResolver());
-        }
-        return null;
-    }
-
-    protected T newEntity() {
-        return ReflectionUtils.instantiateClass(entityClass);
     }
 
     public Iterator<T> iteratorEntity() {
@@ -149,7 +108,33 @@ public class RowEntityMapper<T> implements RowVisitor {
         return CollectionUtils.toArray(result, entityClass);
     }
 
-    protected int getMaxColumnNumber(Row row) {
+    @SuppressWarnings("rawtypes")
+    private CellResolver<?> getCellResolver(AccessMember member) {
+        Field field = member.getField();
+        ExcelColumn ann = null;
+        if (field != null && (ann = field.getAnnotation(ExcelColumn.class)) != null) {
+            // 存在定制化的cellResolver
+            Class<? extends CellResolver> cellResolverClass = ann.cellResolver();
+            if (ClassFilterFeature.NEWABLE.accept(cellResolverClass)) {
+                try {
+                    return ReflectionUtils.instantiateClass(cellResolverClass);
+                } catch (Exception e) {
+                    ReflectionUtils.rethrowRuntimeException(e);
+                }
+            }
+        }
+        CellResolver<?> cellResolver = CellResolverFactory.createCellResolver(field.getType());
+        if (cellResolver != null) {
+            return cellResolver;
+        }
+        throw new IllegalArgumentException(member.getMemberName() + " no suitable cell resolver to use");
+    }
+
+    private T newEntity() {
+        return ReflectionUtils.instantiateClass(entityClass);
+    }
+
+    private int getMaxColumnNumber(Row row) {
         if (endColumn == -1) {
             return row.getLastCellNum();
         }
@@ -160,102 +145,66 @@ public class RowEntityMapper<T> implements RowVisitor {
      * 为了方法的调用顺序做的扩展方法,直接通过visitor读取sheet, 将读取后的结构存在visitor中,并最终返回给调用者
      *
      * @param sheet
-     *         读取的表格
-     * @return 最终的结果
+     *            读取的表格
      */
-    public T[] parse(Sheet sheet) {
-        return parse(sheet, 0, 1);
+    public void parse(Sheet sheet) {
+        parse(sheet, 0, 1);
     }
 
-    public T[] parse(Sheet sheet, int header) {
-        return parse(sheet, header, 0);
+    public void parse(Sheet sheet, int header) {
+        parse(sheet, header, 0);
     }
 
-    public T[] parse(Sheet sheet, int header, int startRow) {
+    public void parse(Sheet sheet, int header, int startRow) {
         new SheetReader(sheet, header, startRow).read(this);
-        return getEntities();
     }
+
     // factory method
 
     /**
-     * 通过字段与列的关系建立RowEntityMapper
-     * <p/>
-     * <pre>
-     * fields[0] = excel中的第1列
-     * fields[1] = excel中的第2列
-     * ...
-     * fields[n] = excel中的第n+1列
-     * </pre>
+     * 检查注解配置,将注解配置的行与excel中的行对应起来
      *
      * @param entityClass
-     *         映射为的类
-     * @param fields
-     *         映射的字段
+     *            映射为的对象
+     * @param <T>
+     *            对象泛型
      * @return
      */
-    public static <T> RowEntityMapper<T> create(Class<T> entityClass, String[] fields) {
-        Map<Integer, String> headerToFieldMap = new HashMap<Integer, String>();
-        for (int i = 0; i < fields.length; i++) {
-            headerToFieldMap.put(i, fields[i]);
+    @SuppressWarnings("rawtypes")
+    public static <T> RowEntityMapper<T> createByClass(Class<T> entityClass) {
+        Map<Integer, String> headerIndexToFieldNameMap = new HashMap<Integer, String>();
+        Field[] fields = entityClass.getDeclaredFields();
+        for (Field field : fields) {
+            ExcelColumn ann = field.getAnnotation(ExcelColumn.class);
+            headerIndexToFieldNameMap.put(ann.value(), field.getName());
         }
-        return new RowEntityMapper<T>(entityClass, headerToFieldMap, CellResolverChain.INSTANCE);
-    }
-
-    /**
-     * 通过字段的列与字段名称建立RowEntityMapper
-     * <p/>
-     * <pre>
-     * fieldMap.key = 0 = excel中的第1列
-     * fieldMap.key = 1 = excel中的第2列
-     * ...
-     * fieldMap.key = n = excel中的第n+1列
-     * </pre>
-     *
-     * @param entityClass
-     *         映射为的类
-     * @param headerIndexToFieldMap
-     *         列好与映射的字段对应关系
-     * @return
-     */
-    public static <T> RowEntityMapper<T> create(Class<T> entityClass, Map<Integer, String> headerIndexToFieldMap) {
-        return new RowEntityMapper<T>(entityClass, headerIndexToFieldMap, CellResolverChain.INSTANCE);
-    }
-
-    /**
-     * 通过表头与字段的关系来建立RowEntityMapper
-     * <p/>
-     * 只有在解析完具体的表格后才能得出具体的列与字段的映射关系. 在表头名称不表的情况下,用户可以任意修改表列的顺序而不影响映射关系
-     *
-     * @param entityClass
-     *         映射为的类
-     * @param headerNameToFieldMap
-     *         表头与字段的映射关系
-     * @return
-     */
-    public static <T> RowEntityMapper<T> createByHeaderFieldMapper(Class<T> entityClass, Map<String, String> headerNameToFieldMap) {
-        return new RowEntityMapper<T>(entityClass, headerNameToFieldMap, null, CellResolverChain.INSTANCE, 0, -1);
+        if (headerIndexToFieldNameMap.isEmpty()) {
+            throw new IllegalArgumentException("entity class " + entityClass.getName() + " not mapped any @ExcelColumn");
+        }
+        return new RowEntityMapper<T>(entityClass, headerIndexToFieldNameMap, new ArrayList<CellResolver>());
     }
 
     /**
      * 检查注解配置,将注解配置的行与excel中的行对应起来
      *
      * @param entityClass
-     *         映射为的对象
+     *            映射为的对象
      * @param <T>
-     *         对象泛型
+     *            对象泛型
      * @return
      */
-    public static <T> RowEntityMapper<T> createByClass(Class<T> entityClass) {
-        Map<Integer, AccessMember> converterMap = new HashMap<Integer, AccessMember>();
+    @SuppressWarnings("rawtypes")
+    public static <T> RowEntityMapper<T> createByClass(Class<T> entityClass, List<CellResolver> cellResolvers) {
+        Map<Integer, String> headerIndexToFieldNameMap = new HashMap<Integer, String>();
         Field[] fields = entityClass.getDeclaredFields();
         for (Field field : fields) {
             ExcelColumn ann = field.getAnnotation(ExcelColumn.class);
-            converterMap.put(ann.value(), new AccessMember(entityClass, field));
+            headerIndexToFieldNameMap.put(ann.value(), field.getName());
         }
-        if (converterMap.isEmpty()) {
+        if (headerIndexToFieldNameMap.isEmpty()) {
             throw new IllegalArgumentException("entity class " + entityClass.getName() + " not mapped any @ExcelColumn");
         }
-        return new RowEntityMapper<T>(entityClass, converterMap, CellResolverChain.INSTANCE);
+        return new RowEntityMapper<T>(entityClass, headerIndexToFieldNameMap, cellResolvers);
     }
 
 }

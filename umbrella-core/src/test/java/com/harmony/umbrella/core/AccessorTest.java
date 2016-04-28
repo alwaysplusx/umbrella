@@ -19,10 +19,11 @@ import static org.junit.Assert.*;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.StringTokenizer;
 
 import org.junit.Test;
 
-import com.harmony.umbrella.core.accessor.AccessorChain;
+import com.harmony.umbrella.access.AccessChain;
 
 /**
  * @author wuxii@foxmail.com
@@ -68,11 +69,21 @@ public class AccessorTest {
 
     @Test
     public void testAccessor() {
-        AccessorChain chain = AccessorChain.createDefaultChain();
+        AccessChain chain = AccessChain.createDefaultChain();
         assertEquals("C", chain.get("name", person));
         assertEquals("D", chain.get("brother[0].name", person));
         assertEquals("E", chain.get("brother[0].spouse.name", person));
         assertEquals("G", chain.get("brother[0].spouse.children[0].name", person));
+    }
+
+    @Test
+    public void testAccessMember() {
+        StringTokenizer st = new StringTokenizer("brother[0].spouse.name", ".[]");
+        while (st.hasMoreTokens()) {
+            System.out.println(st.nextToken(".[]"));
+        }
+        // CopyOfAccessMember member = new CopyOfAccessMember(Person.class, "brother[0].spouse.name");
+        // member.getField();
     }
 
     static class Person {

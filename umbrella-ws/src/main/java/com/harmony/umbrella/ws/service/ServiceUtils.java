@@ -15,15 +15,14 @@
  */
 package com.harmony.umbrella.ws.service;
 
-import com.harmony.umbrella.validator.Validators;
-import com.harmony.umbrella.ws.annotation.Key;
-
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+
+import com.harmony.umbrella.validator.Validators;
+import com.harmony.umbrella.ws.annotation.Key;
 
 /**
  * 服务端的简单数据校验工具类,实际校验依赖于{@linkplain javax.validation.Validator}
@@ -45,12 +44,13 @@ public class ServiceUtils {
         }
 
         // 配置有@Key的字段
-        for (Field field : targetClass.getDeclaredFields()) {
+        // FIXME field annoation with @Key
+        /*for (Field field : targetClass.getDeclaredFields()) {
             Key ann = field.getAnnotation(Key.class);
             if (ann != null) {
                 result.add(new KeyAccessMember(targetClass, field, ann));
             }
-        }
+        }*/
 
         return result.toArray(new KeyAccessMember[result.size()]);
     }

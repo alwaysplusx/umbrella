@@ -27,11 +27,6 @@ public class IntegerCellResolver extends AbstractCellResolver<Integer> {
     public static final IntegerCellResolver INSTANCE = new IntegerCellResolver();
 
     @Override
-    public boolean isTargetType(Class<?> targetType) {
-        return Integer.TYPE == targetType || Integer.class == targetType;
-    }
-
-    @Override
     public Integer resolve(int rowIndex, int columnIndex, Cell cell) {
         Number number = ExcelUtil.getNumberCellValue(cell);
         return number != null ? number.intValue() : null;

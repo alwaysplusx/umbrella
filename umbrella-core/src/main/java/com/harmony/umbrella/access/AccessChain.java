@@ -1,4 +1,4 @@
-package com.harmony.umbrella.core.accessor;
+package com.harmony.umbrella.access;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -6,40 +6,50 @@ import java.util.List;
 import java.util.Set;
 import java.util.StringTokenizer;
 
+import com.harmony.umbrella.access.impl.ArrayAccess;
+import com.harmony.umbrella.access.impl.ClassFieldAccess;
+import com.harmony.umbrella.access.impl.ClassMethodAccess;
+import com.harmony.umbrella.access.impl.ListAccess;
+import com.harmony.umbrella.access.impl.MapAccess;
+import com.harmony.umbrella.access.impl.ReflectionAccess;
 import com.harmony.umbrella.util.Assert;
 
 /**
  * @author wuxii@foxmail.com
  */
-public class AccessorChain {
+public class AccessChain {
 
-    private static final Set<Accessor> ACCESSORS = new HashSet<Accessor>();
+    private static final Set<Access> ACCESSES = new HashSet<Access>();
 
     static {
-        ACCESSORS.add(ArrayAccessor.INSTANCE);
-        ACCESSORS.add(ClassFieldAccessor.INSTANCE);
-        ACCESSORS.add(ClassMethodAccessor.INSTANCE);
-        ACCESSORS.add(ListAccessor.INSTANCE);
-        ACCESSORS.add(MapAccessor.INSTANCE);
-        ACCESSORS.add(ReflectionAccessor.INSTANCE);
+        ACCESSES.add(new ArrayAccess());
+        ACCESSES.add(new ClassFieldAccess());
+        ACCESSES.add(new ClassMethodAccess());
+        ACCESSES.add(new ListAccess());
+        ACCESSES.add(new MapAccess());
+        ACCESSES.add(new ReflectionAccess());
     }
 
-    private List<Accessor> accessors;
+    private List<Access> access;
 
-    public AccessorChain(List<Accessor> accessor) {
-        this.accessors = accessor;
+    public AccessChain(List<Access> access) {
+        this.access = access;
     }
 
-    public static AccessorChain createDefaultChain() {
+    public static AccessChain createDefaultChain() {
         return createChain(defaultAccessors());
     }
 
-    public static AccessorChain createChain(List<Accessor> accessors) {
-        return new AccessorChain(accessors);
+    public static AccessChain createChain(List<Access> access) {
+        return new AccessChain(access);
     }
 
-    private static List<Accessor> defaultAccessors() {
-        return Arrays.asList(ACCESSORS.toArray(new Accessor[ACCESSORS.size()]));
+    public static AccessChain createChain(Access... accessors) {
+        return new AccessChain(Arrays.asList(accessors));
+    }
+
+    static List<Access> defaultAccessors() {
+        return Arrays.asList(ACCESSES.toArray(new Access[ACCESSES.size()]));
     }
 
     public Object get(String path, Object target) {
@@ -70,7 +80,7 @@ public class AccessorChain {
     }
 
     private void setTokenValue(String token, Object target, Object value) {
-        for (Accessor ac : accessors) {
+        for (Access ac : access) {
             if (ac.isAccessible(token, target)) {
                 ac.set(token, target, value);
                 return;
@@ -80,7 +90,7 @@ public class AccessorChain {
     }
 
     private Object getTokenValue(String token, Object target) {
-        for (Accessor ac : accessors) {
+        for (Access ac : access) {
             if (ac.isAccessible(token, target)) {
                 return ac.get(token, target);
             }
@@ -88,12 +98,12 @@ public class AccessorChain {
         throw new IllegalArgumentException(target + " " + token + " not suitable accessor");
     }
 
-    public List<Accessor> getAccessors() {
-        return accessors;
+    public List<Access> getAccessors() {
+        return access;
     }
 
-    public void setAccessors(List<Accessor> accessors) {
-        this.accessors = accessors;
+    public void setAccessors(List<Access> access) {
+        this.access = access;
     }
 
 }

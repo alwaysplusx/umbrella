@@ -29,11 +29,6 @@ public class NumberCellResolver extends AbstractCellResolver<Number> {
     public static final NumberCellResolver INSTANCE = new NumberCellResolver();
 
     @Override
-    public boolean isTargetType(Class<?> targetType) {
-        return targetType.isAssignableFrom(Number.class);
-    }
-
-    @Override
     public Number resolve(int rowIndex, int columnIndex, Cell cell) {
         return new BigDecimal(ExcelUtil.getStringCellValue(cell));
     }

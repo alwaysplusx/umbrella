@@ -1,9 +1,9 @@
-package com.harmony.umbrella.core.accessor;
+package com.harmony.umbrella.access;
 
 /**
  * @author wuxii@foxmail.com
  */
-public abstract class AbstractAccessor implements Accessor {
+public abstract class AbstractAccess implements Access {
 
     @Override
     public Class<?> getType(String name, Object target) {
@@ -30,7 +30,7 @@ public abstract class AbstractAccessor implements Accessor {
         }
     }
 
-    public abstract Object getNameValue(String name, Object target);
+    protected abstract Object getNameValue(String name, Object target);
 
-    public abstract void setNameValue(String name, Object target, Object value);
+    protected abstract void setNameValue(String name, Object target, Object value);
 }

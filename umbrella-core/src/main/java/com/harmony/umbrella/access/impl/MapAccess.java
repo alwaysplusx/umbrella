@@ -1,14 +1,14 @@
-package com.harmony.umbrella.core.accessor;
+package com.harmony.umbrella.access.impl;
 
 import java.util.HashMap;
 import java.util.Map;
 
+import com.harmony.umbrella.access.AbstractAccess;
+
 /**
  * @author wuxii@foxmail.com
  */
-public class MapAccessor extends AbstractAccessor {
-
-    public static final MapAccessor INSTANCE = new MapAccessor();
+public class MapAccess extends AbstractAccess {
 
     @Override
     public boolean isAccessible(String name, Object target) {
@@ -21,13 +21,13 @@ public class MapAccessor extends AbstractAccessor {
     }
 
     @Override
-    public Object getNameValue(String name, Object target) {
+    protected Object getNameValue(String name, Object target) {
         return ((Map<?, ?>) target).get(name);
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
     @Override
-    public void setNameValue(String name, Object target, Object value) {
+    protected void setNameValue(String name, Object target, Object value) {
         ((Map) target).put(name, value);
     }
 

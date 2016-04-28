@@ -1,9 +1,8 @@
 package com.harmony.umbrella.ws.service;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
-import com.harmony.umbrella.core.AccessMember;
+import com.harmony.umbrella.access.AccessMember;
 import com.harmony.umbrella.ws.annotation.Key;
 
 /**
@@ -11,15 +10,11 @@ import com.harmony.umbrella.ws.annotation.Key;
  */
 public final class KeyAccessMember extends AccessMember {
 
+    // FIXME key annotation
     final Key key;
 
     public KeyAccessMember(Class<?> targetClass, Method readMethod, Key key) {
-        super(targetClass, readMethod);
-        this.key = key;
-    }
-
-    public KeyAccessMember(Class<?> targetClass, Field field, Key key) {
-        super(targetClass, field);
+        super(targetClass, readMethod.getName());
         this.key = key;
     }
 

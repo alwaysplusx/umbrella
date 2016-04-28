@@ -1,11 +1,11 @@
-package com.harmony.umbrella.core.accessor;
+package com.harmony.umbrella.access;
 
 /**
  * thread safe
  * 
  * @author wuxii@foxmail.com
  */
-public interface Accessor {
+public interface Access {
 
     Class<?> getType(String name, Object target);
 

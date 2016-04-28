@@ -19,20 +19,17 @@ import com.harmony.umbrella.excel.CellResolver;
 import com.harmony.umbrella.util.GenericUtils;
 
 /**
+ * 针对泛型做的类型匹配
+ * 
  * @author wuxii@foxmail.com
  */
 public abstract class AbstractCellResolver<T> implements CellResolver<T> {
 
     private Class<T> targetType;
 
-    @Override
-    public boolean isTargetType(Class<?> targetType) {
-        // 直接通过泛型判断类型匹配
-        return getTargetType() == targetType;
-    }
-
     @SuppressWarnings("unchecked")
-    protected Class<T> getTargetType() {
+    @Override
+    public Class<T> targetType() {
         if (targetType == null) {
             targetType = (Class<T>) GenericUtils.getTargetGeneric(getClass(), AbstractCellResolver.class, 0);
         }

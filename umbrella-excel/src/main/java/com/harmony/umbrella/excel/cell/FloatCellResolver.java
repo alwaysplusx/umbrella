@@ -27,11 +27,6 @@ public class FloatCellResolver extends AbstractCellResolver<Float> {
     public static final FloatCellResolver INSTANCE = new FloatCellResolver();
 
     @Override
-    public boolean isTargetType(Class<?> targetType) {
-        return Float.TYPE == targetType || Float.class == targetType;
-    }
-
-    @Override
     public Float resolve(int rowIndex, int columnIndex, Cell cell) {
         Number number = ExcelUtil.getNumberCellValue(cell);
         return number != null ? number.floatValue() : null;

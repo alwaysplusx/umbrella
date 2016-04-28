@@ -1,15 +1,14 @@
-package com.harmony.umbrella.core.accessor;
+package com.harmony.umbrella.access.impl;
 
+import com.harmony.umbrella.access.AbstractAccess;
 import com.harmony.umbrella.util.ReflectionUtils;
 import com.harmony.umbrella.util.StringUtils;
 
 /**
  * @author wuxii@foxmail.com
  */
-public class ClassMethodAccessor extends AbstractAccessor {
+public class ClassMethodAccess extends AbstractAccess {
 
-    public static final ClassMethodAccessor INSTANCE = new ClassMethodAccessor();
-    
     @Override
     public boolean isAccessible(String name, Object target) {
         return target instanceof Class && StringUtils.isNotBlank(name);
