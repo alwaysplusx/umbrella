@@ -1,62 +1,197 @@
 package com.harmony.umbrella.access;
 
+import static com.harmony.umbrella.util.ReflectionUtils.*;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.StringTokenizer;
+
+import com.harmony.umbrella.util.Assert;
+import com.harmony.umbrella.util.ReflectionUtils;
 
 /**
- * field / getter or setter method
+ * 带路径的getter/setter 通过路径指向最终的字段
  * 
  * @author wuxii@foxmail.com
  */
 public class PathMember implements Member {
 
-    @Override
-    public String getName() {
-        return null;
+    protected final Class<?> rootClass;
+    protected final String fullName;
+
+    // 指向member拥有者的path
+    protected final String path;
+    // 通过path找到的class
+    protected Class<?> pathClass;
+
+    // path指向的最终目标
+    protected final String memberName;
+    private Field field;
+    private Class<?> type;
+    private Method readMethod;
+    private Method writeMethod;
+
+    protected PathMember(Class<?> rootClass, String path, String memberName) {
+        this(rootClass, path, memberName, null);
+    }
+
+    private PathMember(Class<?> rootClass, String path, String memberName, Class<?> pathClass) {
+        this.rootClass = rootClass;
+        this.path = path;
+        this.fullName = path + "." + memberName;
+        this.memberName = memberName;
+        this.pathClass = pathClass;
+    }
+
+    PathMember(Class<?> rootClass, String memberName, Field field) {
+        this.rootClass = rootClass;
+        this.path = "";
+        this.pathClass = rootClass;
+        this.fullName = memberName;
+        this.memberName = memberName;
+        this.field = field;
+        this.type = field.getType();
+    }
+
+    PathMember(Class<?> rootClass, String memberName, Method readMethod) {
+        this.rootClass = rootClass;
+        this.path = "";
+        this.pathClass = rootClass;
+        this.fullName = memberName;
+        this.memberName = memberName;
+        this.readMethod = readMethod;
+        this.type = readMethod.getReturnType();
     }
 
     @Override
     public Class<?> getOwnerType() {
-        return null;
+        return rootClass;
+    }
+
+    @Override
+    public String getName() {
+        return fullName;
+    }
+
+    public String getMemberName() {
+        return memberName;
     }
 
     @Override
     public Class<?> getType() {
-        return null;
+        if (type == null) {
+            type = getTokenType(memberName, getPathClass());
+        }
+        return type;
     }
 
-    @Override
     public Field getField() {
-        return null;
+        if (field == null) {
+            field = ReflectionUtils.findField(getPathClass(), memberName);
+        }
+        return field;
     }
 
-    @Override
     public Method getReadMethod() {
-        return null;
+        if (readMethod == null) {
+            readMethod = ReflectionUtils.findReadMethod(getPathClass(), memberName);
+        }
+        return readMethod;
     }
 
-    @Override
     public Method getWriteMethod() {
-        return null;
+        if (writeMethod == null) {
+            writeMethod = ReflectionUtils.findWriterMethod(getPathClass(), memberName);
+        }
+        return writeMethod;
     }
 
-    @Override
     public boolean isReadable() {
-        return false;
+        return getField() != null || getReadMethod() != null;
     }
 
-    @Override
     public boolean isWriteable() {
-        return false;
+        return getField() != null || getWriteMethod() != null;
     }
 
     @Override
-    public Object get(Object obj) {
-        return null;
+    public Member createRelative(String name) {
+        if (memberName.equals(name)) {
+            return this;
+        }
+        return new PathMember(rootClass, path, name, pathClass);
     }
 
-    @Override
+    public Object get(Object root) {
+        Assert.isTrue(isReadable(), rootClass + " " + fullName + " unreadable");
+        Object pathObject = getPathObject(root);
+        if (pathObject == null) {
+            throw new IllegalArgumentException("path object is null");
+        }
+        return getTokenValue(memberName, pathObject);
+    }
+
     public void set(Object obj, Object val) {
+        Assert.isTrue(isWriteable(), rootClass + " " + fullName + " unwriteable");
+        // 获取$.user.name中的user
+        Object pathObject = getPathObject(obj);
+        if (pathObject == null) {
+            throw new IllegalArgumentException("path object is null");
+        }
+        setTokenValue(memberName, pathObject, val);
     }
 
+    protected Object getPathObject(Object obj) {
+        Object result = obj;
+        StringTokenizer st = new StringTokenizer(path, ".");
+        while (st.hasMoreTokens()) {
+            String token = st.nextToken();
+            Object tmp = getFieldValue(token, result);
+            if (tmp == null && st.hasMoreTokens()) {
+                throw new IllegalArgumentException(result + " " + token + " got null value");
+            }
+            result = tmp;
+        }
+        return result;
+    }
+
+    protected Class<?> getPathClass() {
+        if (pathClass == null) {
+            Class<?> tmpClass = rootClass;
+            StringTokenizer st = new StringTokenizer(path, ".");
+            while (st.hasMoreTokens()) {
+                tmpClass = getTokenType(st.nextToken(), tmpClass);
+            }
+            pathClass = tmpClass;
+        }
+        return pathClass;
+    }
+
+    protected final Object getTokenValue(String token, Object target) {
+        return getFieldValue(token, target);
+    }
+
+    protected final void setTokenValue(String token, Object target, Object value) {
+        setFieldValue(token, target, value);
+    }
+
+    protected final Class<?> getTokenType(String token, Class<?> clazz) {
+        // 通过token找字段
+        Field f = findField(clazz, token);
+        if (f != null) {
+            // 使用field的类型设置接下去要查找的token
+            return clazz = f.getType();
+        }
+        // 未找到通过getter方法查找
+        Method m = findReadMethod(clazz, token);
+        if (m != null) {
+            return m.getReturnType();
+        }
+        // 通过setter方法查找
+        m = findWriterMethod(clazz, token);
+        if (m != null) {
+            return m.getParameterTypes()[0];
+        }
+        throw new IllegalArgumentException(clazz + " no such member " + token);
+    }
 }

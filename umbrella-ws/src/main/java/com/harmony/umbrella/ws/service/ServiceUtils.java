@@ -15,12 +15,16 @@
  */
 package com.harmony.umbrella.ws.service;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 
+import com.harmony.umbrella.access.Member;
+import com.harmony.umbrella.access.MemberAccess;
+import com.harmony.umbrella.util.ReflectionUtils;
 import com.harmony.umbrella.validator.Validators;
 import com.harmony.umbrella.ws.annotation.Key;
 
@@ -32,36 +36,60 @@ import com.harmony.umbrella.ws.annotation.Key;
  */
 public class ServiceUtils {
 
-    public static KeyAccessMember[] getKeyAccessMember(Class<?> targetClass) {
-        List<KeyAccessMember> result = new ArrayList<KeyAccessMember>();
-
+    public static Member[] getKeyMembers(Class<?> targetClass) {
+        List<Member> result = new ArrayList<Member>();
         // 配置有@Key的get方法
         for (Method method : targetClass.getMethods()) {
             Key ann = method.getAnnotation(Key.class);
-            if (ann != null && method.getParameterTypes().length == 0) {
-                result.add(new KeyAccessMember(targetClass, method, ann));
+            if (ann != null && ReflectionUtils.isReadMethod(method)) {
+                result.add(MemberAccess.access(targetClass, method));
             }
         }
-
         // 配置有@Key的字段
-        // FIXME field annoation with @Key
-        /*for (Field field : targetClass.getDeclaredFields()) {
+        for (Field field : targetClass.getDeclaredFields()) {
             Key ann = field.getAnnotation(Key.class);
             if (ann != null) {
-                result.add(new KeyAccessMember(targetClass, field, ann));
+                result.add(MemberAccess.access(targetClass, field));
             }
-        }*/
-
-        return result.toArray(new KeyAccessMember[result.size()]);
+        }
+        return result.toArray(new Member[result.size()]);
     }
 
-    public static void sortKeyAccessMember(KeyAccessMember[] keyAccessMembers) {
-        Arrays.sort(keyAccessMembers, new Comparator<KeyAccessMember>() {
+    public static void sortMember(Member[] keyAccessMembers) {
+        Arrays.sort(keyAccessMembers, new Comparator<Member>() {
             @Override
-            public int compare(KeyAccessMember o1, KeyAccessMember o2) {
-                return o1.getOrdinal() - o2.getOrdinal();
+            public int compare(Member o1, Member o2) {
+                Key a1 = getKeyAnnotation(o1);
+                Key a2 = getKeyAnnotation(o2);
+                return (a1 == null) ? -1 : (a2 == null) ? 1 : (a1 == null && a2 == null) ? 0 : (a1.ordinal() < a2.ordinal()) ? -1 : (a1.ordinal() == a2
+                        .ordinal()) ? 0 : 1;
             }
         });
     }
 
+    /**
+     * method 优先
+     * 
+     * @param member
+     * @return
+     */
+    public static Key getKeyAnnotation(Member member) {
+        Method method = member.getReadMethod();
+        Key ann = null;
+        if (method != null) {
+            ann = method.getAnnotation(Key.class);
+            if (ann == null) {
+                Field field = member.getField();
+                if (field != null) {
+                    ann = field.getAnnotation(Key.class);
+                }
+            }
+        }
+        return ann;
+    }
+
+    public static String getKeyName(Member member) {
+        Key ann = getKeyAnnotation(member);
+        return ann != null ? ann.name() : member.getName();
+    }
 }

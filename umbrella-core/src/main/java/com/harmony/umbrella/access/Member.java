@@ -30,4 +30,6 @@ public interface Member {
 
     void set(Object obj, Object val);
 
+    Member createRelative(String name);
+
 }

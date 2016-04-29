@@ -293,7 +293,7 @@ public class ReflectionUtils {
      *             如果未找到getter方法
      */
     public static Method findWriterMethod(Class<?> source, String fieldName) {
-        return findMethod(source, writerMethodName(fieldName));
+        return findMethod(source, writerMethodName(fieldName), Object.class);
     }
 
     /**

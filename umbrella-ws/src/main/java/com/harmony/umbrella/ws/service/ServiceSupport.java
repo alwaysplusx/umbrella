@@ -32,6 +32,7 @@ import javax.validation.groups.Default;
 import javax.xml.ws.WebServiceContext;
 import javax.xml.ws.handler.MessageContext;
 
+import com.harmony.umbrella.access.Member;
 import com.harmony.umbrella.i18n.MessageBundle;
 import com.harmony.umbrella.i18n.ResourceMessageBundle;
 import com.harmony.umbrella.log.Log;
@@ -65,7 +66,7 @@ public abstract class ServiceSupport {
 
     private MessageBundle messageBundle;
 
-    private Map<Class<?>, KeyAccessMember[]> keyAccessMemberCache = new HashMap<Class<?>, KeyAccessMember[]>();
+    private Map<Class<?>, Member[]> keyAccessMemberCache = new HashMap<Class<?>, Member[]>();
 
     protected Locale locale;
 
@@ -406,10 +407,10 @@ public abstract class ServiceSupport {
      */
     protected String getKey(Object obj) {
         StringBuilder sb = new StringBuilder();
-        KeyAccessMember[] kams = getKeyAccessMember(obj.getClass());
-        for (int i = 0, max = kams.length;; i++) {
-            // FIXME key access member
-            sb.append(kams[i].getMemberName()).append(":").append(kams[i].get(obj));
+        Member[] members = getKeyMember(obj.getClass());
+        for (int i = 0, max = members.length;; i++) {
+            Member member = members[i];
+            sb.append(ServiceUtils.getKeyName(member)).append(":").append(member.get(obj));
             if (i < max) {
                 sb.append(", ");
             } else {
@@ -419,11 +420,11 @@ public abstract class ServiceSupport {
         return sb.toString();
     }
 
-    protected KeyAccessMember[] getKeyAccessMember(Class<?> targetClass) {
-        KeyAccessMember[] members = keyAccessMemberCache.get(targetClass);
+    protected Member[] getKeyMember(Class<?> targetClass) {
+        Member[] members = keyAccessMemberCache.get(targetClass);
         if (members == null) {
-            members = ServiceUtils.getKeyAccessMember(targetClass);
-            ServiceUtils.sortKeyAccessMember(members);
+            members = ServiceUtils.getKeyMembers(targetClass);
+            ServiceUtils.sortMember(members);
             keyAccessMemberCache.put(targetClass, members);
         }
         return members;

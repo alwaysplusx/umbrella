@@ -26,7 +26,8 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 
-import com.harmony.umbrella.access.AccessMember;
+import com.harmony.umbrella.access.Member;
+import com.harmony.umbrella.access.MemberAccess;
 import com.harmony.umbrella.excel.annotation.ExcelColumn;
 import com.harmony.umbrella.excel.cell.CellResolverFactory;
 import com.harmony.umbrella.util.ClassUtils.ClassFilterFeature;
@@ -91,7 +92,7 @@ public class RowEntityMapper<T> implements RowVisitor {
         for (int i = startColumn, max = getMaxColumnNumber(row); i < max; i++) {
             Cell cell = row.getCell(i);
             if (cell != null) {
-                AccessMember member = new AccessMember(entityClass, headerIndexToFieldNameMap.get(i));
+                Member member = MemberAccess.access(entityClass, headerIndexToFieldNameMap.get(i));
                 CellResolver<?> cellResolver = getCellResolver(member);
                 member.set(entity, cellResolver.resolve(cell.getRowIndex(), cell.getColumnIndex(), cell));
             }
@@ -109,7 +110,7 @@ public class RowEntityMapper<T> implements RowVisitor {
     }
 
     @SuppressWarnings("rawtypes")
-    private CellResolver<?> getCellResolver(AccessMember member) {
+    private CellResolver<?> getCellResolver(Member member) {
         Field field = member.getField();
         ExcelColumn ann = null;
         if (field != null && (ann = field.getAnnotation(ExcelColumn.class)) != null) {
@@ -127,7 +128,7 @@ public class RowEntityMapper<T> implements RowVisitor {
         if (cellResolver != null) {
             return cellResolver;
         }
-        throw new IllegalArgumentException(member.getMemberName() + " no suitable cell resolver to use");
+        throw new IllegalArgumentException(member.getName() + " no suitable cell resolver to use");
     }
 
     private T newEntity() {
