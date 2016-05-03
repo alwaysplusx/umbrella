@@ -1,4 +1,3 @@
-
 package com.harmony.test.ws;
 
 import javax.jws.WebMethod;

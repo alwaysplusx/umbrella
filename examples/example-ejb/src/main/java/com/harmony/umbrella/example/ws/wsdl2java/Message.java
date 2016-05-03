@@ -1,4 +1,3 @@
-
 package com.harmony.umbrella.example.ws.wsdl2java;
 
 import java.util.ArrayList;

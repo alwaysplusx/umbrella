@@ -1,4 +1,3 @@
-
 package com.harmony.test.ws;
 
 import java.net.MalformedURLException;

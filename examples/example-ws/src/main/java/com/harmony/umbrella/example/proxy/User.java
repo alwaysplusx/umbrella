@@ -1,4 +1,3 @@
-
 package com.harmony.umbrella.example.proxy;
 
 import javax.xml.bind.annotation.XmlAccessType;
