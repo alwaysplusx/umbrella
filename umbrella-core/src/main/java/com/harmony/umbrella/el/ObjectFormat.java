@@ -18,8 +18,8 @@ package com.harmony.umbrella.el;
 /**
  * @author wuxii@foxmail.com
  */
-public interface ExpressionResolver {
+public interface ObjectFormat {
 
-    Object resolver(Expression expression, Object val);
+    String format(Object val);
 
 }

@@ -80,7 +80,7 @@ public class PathMember implements Member {
     @Override
     public Class<?> getType() {
         if (type == null) {
-            type = getTokenType(memberName, getPathClass());
+            type = MemberAccess.getTokenType(getPathClass(), memberName);
         }
         return type;
     }
@@ -160,7 +160,7 @@ public class PathMember implements Member {
             Class<?> tmpClass = rootClass;
             StringTokenizer st = new StringTokenizer(path, ".");
             while (st.hasMoreTokens()) {
-                tmpClass = getTokenType(st.nextToken(), tmpClass);
+                tmpClass = MemberAccess.getTokenType(tmpClass, st.nextToken());
             }
             pathClass = tmpClass;
         }
@@ -175,23 +175,4 @@ public class PathMember implements Member {
         setFieldValue(token, target, value);
     }
 
-    protected final Class<?> getTokenType(String token, Class<?> clazz) {
-        // 通过token找字段
-        Field f = findField(clazz, token);
-        if (f != null) {
-            // 使用field的类型设置接下去要查找的token
-            return clazz = f.getType();
-        }
-        // 未找到通过getter方法查找
-        Method m = findReadMethod(clazz, token);
-        if (m != null) {
-            return m.getReturnType();
-        }
-        // 通过setter方法查找
-        m = findWriterMethod(clazz, token);
-        if (m != null) {
-            return m.getParameterTypes()[0];
-        }
-        throw new IllegalArgumentException(clazz + " no such member " + token);
-    }
 }

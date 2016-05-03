@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2014 the original author or authors.
+ * Copyright 2012-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,32 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.umbrella.log.expression;
+package com.harmony.umbrella.el.resolver;
+
+import com.harmony.umbrella.access.MemberAccess;
+import com.harmony.umbrella.el.CheckedResolver;
+import com.harmony.umbrella.util.ReflectionUtils;
 
 /**
- * 可比较排序的表达式解析工具
- *
  * @author wuxii@foxmail.com
  */
-public abstract class ComparableExpressionResolver implements ExpressionResolver {
+public class NamedResolver extends CheckedResolver<Object> {
 
-    protected final int priority;
-
-    public ComparableExpressionResolver(int priority) {
-        this.priority = priority;
+    public NamedResolver(int priority) {
+        super(priority);
     }
 
     @Override
-    public final int priority() {
-        return priority;
+    public boolean support(String name, Object obj) {
+        return obj != null && MemberAccess.isReadable(obj.getClass(), name);
     }
 
     @Override
-    public int compareTo(ExpressionResolver o) {
-        // 数字从小到大优先级递升
-        int x = o.priority();
-        int y = this.priority();
-        return (x < y) ? -1 : ((x == y) ? 0 : 1);
+    protected Object doResolve(String name, Object obj) {
+        return ReflectionUtils.getFieldValue(name, obj);
     }
 
 }

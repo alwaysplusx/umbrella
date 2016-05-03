@@ -13,13 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.umbrella.el;
+package com.harmony.umbrella.el.resolver;
+
+import java.util.List;
+
+import com.harmony.umbrella.el.CheckedResolver;
+import com.harmony.umbrella.util.DigitUtils;
 
 /**
  * @author wuxii@foxmail.com
  */
-public interface ExpressionResolver {
+public class ListResolver extends CheckedResolver<List<?>> {
 
-    Object resolver(Expression expression, Object val);
+    public ListResolver(Class<List<?>> type, int priority) {
+        super(type, priority);
+    }
+
+    @Override
+    public boolean support(String name, Object obj) {
+        return DigitUtils.isDigit(name) && obj instanceof List;
+    }
+
+    @Override
+    protected Object doResolve(String name, List<?> obj) {
+        return obj.get(Integer.valueOf(name));
+    }
 
 }

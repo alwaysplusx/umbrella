@@ -13,13 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.harmony.umbrella.el;
+package com.harmony.umbrella.log.template;
+
+import com.harmony.umbrella.el.Expression;
+
 
 /**
  * @author wuxii@foxmail.com
  */
-public interface ExpressionResolver {
+public class TemplateExpression extends Expression {
 
-    Object resolver(Expression expression, Object val);
+    private boolean isText;
+    private int index;
+
+    public TemplateExpression(String expressionText, String delimiter, boolean isText, int index) {
+        super(expressionText, delimiter);
+        this.isText = isText;
+        this.index = index;
+    }
+
+    public boolean isText() {
+        return isText;
+    }
+
+    public int getIndex() {
+        return index;
+    }
 
 }

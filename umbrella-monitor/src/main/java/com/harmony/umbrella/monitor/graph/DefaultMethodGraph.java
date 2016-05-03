@@ -135,7 +135,13 @@ public class DefaultMethodGraph implements MethodGraph {
         buffer.append("  graphId:").append(graphId).append("\n");//
         buffer.append("  requestTime:").append(requestTime).append("\n");//
         buffer.append("  use:").append(use()).append("\n");//
-        buffer.append("  parameters:").append(parameters).append("\n");//
+        if (parameters != null) {
+            for (int i = 0; i < parameters.length; i++) {
+                buffer.append("  parameters[").append(i).append("]").append(parameters[i]).append("\n");//
+            }
+        } else {
+            buffer.append("  parameters:").append(parameters).append("\n");//
+        }
         buffer.append("  result:").append(result).append("\n");//
         buffer.append("  throwable:").append(isThrowable()).append("\n");
         if (isThrowable()) {
@@ -143,6 +149,7 @@ public class DefaultMethodGraph implements MethodGraph {
         }
         return buffer.append("}").toString();
     }
+    
     @Override
     public String toString() {
         return getDescription();

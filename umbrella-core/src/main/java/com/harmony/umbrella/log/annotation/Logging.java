@@ -21,9 +21,9 @@ import static java.lang.annotation.RetentionPolicy.*;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
+import com.harmony.umbrella.el.CheckedResolver;
 import com.harmony.umbrella.log.ErrorHandler;
 import com.harmony.umbrella.log.Level.StandardLevel;
-import com.harmony.umbrella.log.expression.ExpressionResolver;
 
 @Target({ METHOD })
 @Retention(RUNTIME)
@@ -69,6 +69,6 @@ public @interface Logging {
     /**
      * 自定义表达式支持
      */
-    Class<? extends ExpressionResolver>[] resolver() default {};
+    Class<? extends CheckedResolver<?>>[] resolvers() default {};
 
 }

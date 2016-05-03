@@ -5,8 +5,7 @@ import java.lang.reflect.Method;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.struts2.interceptor.ServletRequestAware;
-import org.apache.struts2.interceptor.ServletResponseAware;
+import org.apache.struts2.ServletActionContext;
 
 import com.opensymphony.xwork2.ActionInvocation;
 import com.opensymphony.xwork2.ActionProxy;
@@ -15,11 +14,9 @@ import com.opensymphony.xwork2.interceptor.Interceptor;
 /**
  * @author wuxii@foxmail.com
  */
-public abstract class AbstractStrutsMonitorInterceptor extends AbstractMonitorInterceptor<ActionInvocation> implements Interceptor, ServletRequestAware, ServletResponseAware {
+public abstract class AbstractStrutsMonitorInterceptor extends AbstractMonitorInterceptor<ActionInvocation> implements Interceptor {
 
     private static final long serialVersionUID = 1L;
-    private HttpServletRequest request;
-    private HttpServletResponse response;
 
     @Override
     protected InvocationContext convert(ActionInvocation invocation) {
@@ -45,22 +42,12 @@ public abstract class AbstractStrutsMonitorInterceptor extends AbstractMonitorIn
         }
     }
 
-    @Override
-    public void setServletRequest(HttpServletRequest request) {
-        this.request = request;
-    }
-
-    @Override
-    public void setServletResponse(HttpServletResponse response) {
-        this.response = response;
-    }
-
     public HttpServletRequest getRequest() {
-        return request;
+        return ServletActionContext.getRequest();
     }
 
     public HttpServletResponse getResponse() {
-        return response;
+        return ServletActionContext.getResponse();
     }
 
     static final class StrutsInvocationContext extends InvocationContext {

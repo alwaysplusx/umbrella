@@ -4,6 +4,7 @@ import static com.harmony.umbrella.util.ReflectionUtils.*;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.StringTokenizer;
 
 import com.harmony.umbrella.util.ClassUtils;
 
@@ -86,6 +87,47 @@ public class MemberAccess {
             throw new IllegalArgumentException(readMethod + " not in " + clazz);
         }
         return new PathMember(clazz, toFieldName(readMethod), readMethod);
+    }
+
+    public static boolean isReadable(Class<?> clazz, String name) {
+        return findField(clazz, name) != null || findReadMethod(clazz, name) != null;
+    }
+
+    public static boolean isWriteable(Class<?> clazz, String name) {
+        return findField(clazz, name) != null || findWriterMethod(clazz, name) != null;
+    }
+
+    static Class<?> getPathType(Class<?> clazz, String name) {
+        StringTokenizer st = new StringTokenizer(name, ".");
+        while (st.hasMoreTokens()) {
+            String token = st.nextToken();
+            Class<?> tmp = getTokenType(clazz, token);
+            if (tmp == null) {
+                throw new IllegalArgumentException(clazz + " no such member " + token);
+            }
+            clazz = tmp;
+        }
+        return clazz;
+    }
+
+    static Class<?> getTokenType(Class<?> clazz, String token) {
+        // 通过token找字段
+        Field f = findField(clazz, token);
+        if (f != null) {
+            // 使用field的类型设置接下去要查找的token
+            return clazz = f.getType();
+        }
+        // 未找到通过getter方法查找
+        Method m = findReadMethod(clazz, token);
+        if (m != null) {
+            return m.getReturnType();
+        }
+        // 通过setter方法查找
+        m = findWriterMethod(clazz, token);
+        if (m != null) {
+            return m.getParameterTypes()[0];
+        }
+        return null;
     }
 
     static boolean contains(Class<?> clazz, Method method) {
