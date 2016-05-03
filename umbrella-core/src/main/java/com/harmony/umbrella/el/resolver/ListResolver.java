@@ -8,10 +8,11 @@ import com.harmony.umbrella.util.DigitUtils;
 /**
  * @author wuxii@foxmail.com
  */
-public class ListResolver extends CheckedResolver<List<?>> {
+@SuppressWarnings("rawtypes")
+public class ListResolver extends CheckedResolver<List> {
 
-    public ListResolver(Class<List<?>> type, int priority) {
-        super(type, priority);
+    public ListResolver(int priority) {
+        super(List.class, priority);
     }
 
     @Override
@@ -20,7 +21,7 @@ public class ListResolver extends CheckedResolver<List<?>> {
     }
 
     @Override
-    protected Object doResolve(String name, List<?> obj) {
+    protected Object doResolve(String name, List obj) {
         return obj.get(Integer.valueOf(name));
     }
 

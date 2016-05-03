@@ -1,17 +1,16 @@
-package com.harmony.umbrella.log.template;
+package com.harmony.umbrella.el;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.StringTokenizer;
 
-import com.harmony.umbrella.el.ObjectFormat;
 import com.harmony.umbrella.util.StringUtils;
 
 /**
  * @author wuxii@foxmail.com
  */
-public class Template implements Iterable<TemplateExpression> {
+public class Template implements Iterable<Expression> {
 
     public static final char DELIM_START = '{';
 
@@ -22,6 +21,8 @@ public class Template implements Iterable<TemplateExpression> {
     protected final String templateText;
     private char delimiterStart;
     private char delimiterEnd;
+
+    private List<Expression> expressions;
 
     public Template(String templateText) {
         this(templateText, DELIM_START, DELIM_END);
@@ -34,33 +35,36 @@ public class Template implements Iterable<TemplateExpression> {
     }
 
     @Override
-    public Iterator<TemplateExpression> iterator() {
-        return iterator(delimiterStart, delimiterEnd, EXPRESSION_DELIMITER);
+    public Iterator<Expression> iterator() {
+        return getExpressions().iterator();
     }
 
-    public Iterator<TemplateExpression> iterator(String expressionDelimiter) {
-        return iterator(delimiterStart, delimiterEnd, expressionDelimiter);
+    private List<Expression> getExpressions() {
+        if (expressions == null) {
+            expressions = getExpressions(EXPRESSION_DELIMITER);
+        }
+        return expressions;
     }
 
-    public Iterator<TemplateExpression> iterator(char startDelimiter, char endDelimiter, String expressionDelimiter) {
-        List<TemplateExpression> expressions = new ArrayList<TemplateExpression>();
+    public List<Expression> getExpressions(String expressionDelimiter) {
+        List<Expression> expressions = new ArrayList<Expression>();
         StringTokenizer st = new StringTokenizer(templateText);
 
         int index = 0;
         boolean isText = true;
-        String currentDelimiter = startDelimiter + "";
+        String currentDelimiter = delimiterStart + "";
 
         while (st.hasMoreTokens()) {
             String token = st.nextToken(currentDelimiter);
             if (index > 0 && StringUtils.isNotBlank(token)) {
                 token = token.substring(1);
             }
-            expressions.add(new TemplateExpression(token, expressionDelimiter, isText, index));
-            currentDelimiter = ((isText = !isText) ? startDelimiter : endDelimiter) + "";
+            expressions.add(new Expression(token, expressionDelimiter, isText));
+            currentDelimiter = ((isText = !isText) ? delimiterStart : delimiterEnd) + "";
             index++;
         }
 
-        return expressions.iterator();
+        return expressions;
     }
 
     public String format(Object... args) {
@@ -69,19 +73,30 @@ public class Template implements Iterable<TemplateExpression> {
 
     public String format(Object[] args, ObjectFormat format) {
         StringBuilder out = new StringBuilder();
-        Iterator<TemplateExpression> it = iterator();
-        int index = 0;
-        while (it.hasNext()) {
-            TemplateExpression templateExpression = it.next();
-            if (templateExpression.isText()) {
-                out.append(templateExpression.getExpressionText());
-            } else if (index >= args.length) {
-                out.append(delimiterStart).append(templateExpression.getExpressionText()).append(delimiterEnd);
+        List<Expression> expressions = getExpressions();
+        for (int i = 0; i < expressions.size(); i++) {
+            Expression expression = expressions.get(i);
+            if (expression.isText()) {
+                out.append(expression.getExpressionText());
+            } else if (i >= args.length) {
+                out.append(delimiterStart).append(expression.getExpressionText()).append(delimiterEnd);
             } else {
-                out.append(format == null ? String.valueOf(args[index++]) : format.format(args[index++]));
+                out.append(format == null ? String.valueOf(args[i]) : format.format(args[i]));
             }
         }
         return out.toString();
+    }
+
+    public boolean isEmpty() {
+        return getExpressions().isEmpty();
+    }
+
+    public int size() {
+        return getExpressions().size();
+    }
+
+    public Expression get(int index) {
+        return getExpressions().get(index);
     }
 
     public String getTemplateText() {

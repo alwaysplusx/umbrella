@@ -1,6 +1,6 @@
 package com.harmony.umbrella.core;
 
-import com.harmony.umbrella.log.expression.ExpressionResolver;
+import com.harmony.umbrella.el.TypedResolver;
 
 /**
  * @author wuxii@foxmail.com
@@ -8,7 +8,7 @@ import com.harmony.umbrella.log.expression.ExpressionResolver;
 public class ClassWrapperTest {
 
     public static void main(String[] args) {
-        ClassWrapper<ExpressionResolver> cw = new ClassWrapper<ExpressionResolver>(ExpressionResolver.class);
+        ClassWrapper<TypedResolver> cw = new ClassWrapper<TypedResolver>(TypedResolver.class);
         Class<?>[] classes = cw.getAllSubClasses();
         for (Class<?> clazz : classes) {
             System.out.println(clazz.getName());
