@@ -1,6 +1,6 @@
-package com.harmony.umbrella.message;
+package com.harmony.umbrella.plugin.message;
 
-import static com.harmony.umbrella.message.ApplicationMessageConstants.*;
+import static com.harmony.umbrella.plugin.message.ApplicationMessageConstants.*;
 
 import javax.annotation.Resource;
 import javax.ejb.Remote;
@@ -8,6 +8,7 @@ import javax.ejb.Stateless;
 import javax.jms.ConnectionFactory;
 import javax.jms.Destination;
 
+import com.harmony.umbrella.message.MessageConsumer;
 import com.harmony.umbrella.message.jms.AbstractJmsMessageConsumer;
 import com.harmony.umbrella.message.jms.JmsMessageConsumer;
 

@@ -1,4 +1,4 @@
-package com.harmony.umbrella.ws;
+package com.harmony.umbrella.plugin.ws;
 
 import com.harmony.umbrella.message.Message;
 import com.harmony.umbrella.util.Assert;

@@ -1,8 +1,11 @@
-package com.harmony.umbrella.ws;
+package com.harmony.umbrella.plugin.ws;
 
 import java.lang.reflect.Method;
 import java.util.Enumeration;
 import java.util.Map;
+
+import com.harmony.umbrella.ws.Context;
+import com.harmony.umbrella.ws.Metadata;
 
 /**
  * @author wuxii@foxmail.com

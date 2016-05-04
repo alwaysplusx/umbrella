@@ -1,4 +1,4 @@
-package com.harmony.umbrella.ws;
+package com.harmony.umbrella.plugin.ws;
 
 import static com.harmony.umbrella.config.Configurations.*;
 

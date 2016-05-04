@@ -1,4 +1,4 @@
-package com.harmony.umbrella.message;
+package com.harmony.umbrella.plugin.message;
 
 /**
  * @author wuxii@foxmail.com

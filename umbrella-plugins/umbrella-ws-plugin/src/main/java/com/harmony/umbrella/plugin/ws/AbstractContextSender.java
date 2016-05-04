@@ -1,9 +1,10 @@
-package com.harmony.umbrella.ws;
+package com.harmony.umbrella.plugin.ws;
 
 import javax.xml.ws.WebServiceException;
 
 import com.harmony.umbrella.message.MessageException;
 import com.harmony.umbrella.message.MessageSender;
+import com.harmony.umbrella.ws.Context;
 import com.harmony.umbrella.ws.support.ContextSender;
 
 /**

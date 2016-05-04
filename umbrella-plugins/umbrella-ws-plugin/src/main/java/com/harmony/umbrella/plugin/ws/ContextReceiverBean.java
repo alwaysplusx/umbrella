@@ -1,4 +1,4 @@
-package com.harmony.umbrella.ws;
+package com.harmony.umbrella.plugin.ws;
 
 import static com.harmony.umbrella.config.Configurations.*;
 
@@ -10,6 +10,8 @@ import javax.ejb.Stateless;
 
 import com.harmony.umbrella.config.Configurations;
 import com.harmony.umbrella.message.MessageResolver;
+import com.harmony.umbrella.ws.ContextVisitor;
+import com.harmony.umbrella.ws.MetadataLoader;
 import com.harmony.umbrella.ws.jaxws.JaxWsCXFExecutor;
 import com.harmony.umbrella.ws.jaxws.JaxWsExecutor;
 import com.harmony.umbrella.ws.support.ContextReceiver;

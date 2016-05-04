@@ -1,6 +1,10 @@
-package com.harmony.umbrella.ws;
+package com.harmony.umbrella.plugin.ws;
 
 import com.harmony.umbrella.message.TypedMessageResolver;
+import com.harmony.umbrella.ws.Context;
+import com.harmony.umbrella.ws.ContextVisitor;
+import com.harmony.umbrella.ws.Metadata;
+import com.harmony.umbrella.ws.MetadataLoader;
 import com.harmony.umbrella.ws.jaxws.JaxWsExecutor;
 import com.harmony.umbrella.ws.support.ContextReceiver;
 

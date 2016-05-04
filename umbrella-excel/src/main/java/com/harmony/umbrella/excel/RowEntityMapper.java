@@ -11,8 +11,8 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 
-import com.harmony.umbrella.access.Member;
-import com.harmony.umbrella.access.MemberAccess;
+import com.harmony.umbrella.core.Member;
+import com.harmony.umbrella.core.MemberAccess;
 import com.harmony.umbrella.excel.annotation.ExcelColumn;
 import com.harmony.umbrella.excel.cell.CellResolverFactory;
 import com.harmony.umbrella.util.ClassUtils.ClassFilterFeature;

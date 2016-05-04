@@ -1,4 +1,4 @@
-package com.harmony.umbrella.message;
+package com.harmony.umbrella.plugin.message;
 
 import static com.harmony.umbrella.config.Configurations.*;
 
@@ -9,6 +9,7 @@ import javax.jms.ConnectionFactory;
 import javax.jms.Destination;
 
 import com.harmony.umbrella.config.Configurations;
+import com.harmony.umbrella.message.MessageSender;
 import com.harmony.umbrella.message.jms.AbstractJmsMessageSender;
 import com.harmony.umbrella.message.jms.JmsMessageSender;
 

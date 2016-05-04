@@ -1,4 +1,4 @@
-package com.harmony.umbrella.ws;
+package com.harmony.umbrella.plugin.ws;
 
 import javax.ejb.EJB;
 import javax.ejb.Remote;
@@ -7,6 +7,9 @@ import javax.xml.ws.WebServiceException;
 
 import com.harmony.umbrella.message.MessageException;
 import com.harmony.umbrella.message.jms.JmsMessageSender;
+import com.harmony.umbrella.ws.Context;
+import com.harmony.umbrella.ws.Metadata;
+import com.harmony.umbrella.ws.MetadataLoader;
 import com.harmony.umbrella.ws.jaxws.JaxWsCXFExecutor;
 import com.harmony.umbrella.ws.jaxws.JaxWsExecutorSupport;
 
