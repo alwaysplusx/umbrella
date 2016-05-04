@@ -75,12 +75,13 @@ public class AccessorHolder {
         for (TypedAccessor t : accessor) {
             if (t instanceof CheckedAccessor && ((CheckedAccessor) t).support(name)) {
                 return t.get(name, obj);
-            } else {
-                try {
-                    return t.get(name, obj);
-                } catch (Exception e) {
-                    ex = e;
-                }
+            }
+        }
+        for (TypedAccessor t : accessor) {
+            try {
+                return t.get(name, obj);
+            } catch (Exception e) {
+                ex = e;
             }
         }
         if (ex != null) {

@@ -81,4 +81,9 @@ public class Expression implements Iterable<String> {
         }
         return result;
     }
+
+    @Override
+    public String toString() {
+        return "expression {text:" + expressionText + ", isText:" + isText + "}";
+    }
 }

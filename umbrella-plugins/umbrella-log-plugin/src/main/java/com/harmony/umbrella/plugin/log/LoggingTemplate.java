@@ -17,8 +17,8 @@ public class LoggingTemplate {
 
     private String expressionDelimiter = ".";
 
-    private char delimiterStart;
-    private char delimiterEnd;
+    private char delimiterStart = '{';
+    private char delimiterEnd = '}';
 
     private List<Expression> templateExpressions;
     private Expression idExpression;
@@ -85,7 +85,7 @@ public class LoggingTemplate {
 
     public List<Expression> getTemplateExpressions(String expressionDelimiter) {
         List<Expression> expressions = new ArrayList<Expression>();
-        StringTokenizer st = new StringTokenizer(templateText);
+        StringTokenizer st = new StringTokenizer(templateText, delimiterStart + "" + delimiterEnd);
         int index = 0;
         boolean isText = true;
         String currentDelimiter = delimiterStart + "";

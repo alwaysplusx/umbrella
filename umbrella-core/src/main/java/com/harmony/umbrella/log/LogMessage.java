@@ -55,7 +55,8 @@ public class LogMessage {
     /**
      * 设置业务数据的id
      *
-     * @param bizId 业务数据的id
+     * @param bizId
+     *            业务数据的id
      * @return current logMessage
      */
     public LogMessage bizId(Object bizId) {
@@ -66,7 +67,8 @@ public class LogMessage {
     /**
      * 设置业务模块
      *
-     * @param bizModule 业务模块
+     * @param bizModule
+     *            业务模块
      * @return current logMessage
      */
     public LogMessage bizModule(String bizModule) {
@@ -103,7 +105,8 @@ public class LogMessage {
     /**
      * 设置日志所表示的动作
      *
-     * @param action 日志表示的动作
+     * @param action
+     *            日志表示的动作
      * @return current logMessage
      */
     public LogMessage action(String action) {
@@ -114,7 +117,8 @@ public class LogMessage {
     /**
      * 设置结果
      *
-     * @param result 结果
+     * @param result
+     *            结果
      * @return current logMessage
      */
     public LogMessage result(Object result) {
@@ -130,7 +134,8 @@ public class LogMessage {
     /**
      * 设置业务数据的操作人
      *
-     * @param username 操作人名称
+     * @param username
+     *            操作人名称
      * @return current logMessage
      */
     public LogMessage operator(String username) {
@@ -161,7 +166,8 @@ public class LogMessage {
     /**
      * 设置开始时间
      *
-     * @param startTime 开始时间
+     * @param startTime
+     *            开始时间
      * @return current logMessage
      */
     public LogMessage start(Calendar startTime) {
@@ -192,7 +198,8 @@ public class LogMessage {
     /**
      * 设置结束时间
      *
-     * @param finishTime 结束时间
+     * @param finishTime
+     *            结束时间
      * @return current logMessage
      */
     public LogMessage finish(Calendar finishTime) {
@@ -222,7 +229,8 @@ public class LogMessage {
     /**
      * 设置日志级别
      *
-     * @param level 日志级别
+     * @param level
+     *            日志级别
      * @return current logMessage
      */
     public LogMessage level(Level level) {
@@ -265,7 +273,8 @@ public class LogMessage {
     /**
      * 调用日志log记录本条日志
      *
-     * @param level 日志级别
+     * @param level
+     *            日志级别
      */
     public void log(Level level) {
         this.level = level;
@@ -274,26 +283,26 @@ public class LogMessage {
         LogInfo msg = asInfo();
 
         switch (level.standardLevel) {
-            case ERROR:
-                relative.error(msg);
-                break;
-            case WARN:
-                relative.warn(msg);
-                break;
-            case INFO:
-                relative.info(msg);
-                break;
-            case DEBUG:
-                relative.debug(msg);
-                break;
-            case ALL:
-            case TRACE:
-                relative.trace(msg);
-                break;
-            case OFF:
-                break;
-            default:
-                break;
+        case ERROR:
+            relative.error(msg);
+            break;
+        case WARN:
+            relative.warn(msg);
+            break;
+        case INFO:
+            relative.info(msg);
+            break;
+        case DEBUG:
+            relative.debug(msg);
+            break;
+        case ALL:
+        case TRACE:
+            relative.trace(msg);
+            break;
+        case OFF:
+            break;
+        default:
+            break;
         }
     }
 
@@ -395,10 +404,19 @@ public class LogMessage {
 
     @Override
     public String toString() {
-        return "{\"bizModule\": \"" + bizModule + "\", \"bizId\": \"" + bizId + "\", \"module\": \"" + module + "\", \"action\": \"" + action
-                + "\", \"message\": \"" + ((message != null) ? message.getFormattedMessage() : null) + "\", \"level\": \"" + level + "\", \"operator\": \""
-                + operator + "\", \"operatorId\": \"" + operatorId + "\", \"result\": \"" + result + "\", \"stack\": \"" + stack + "\", \"threadName\": \""
-                + threadName + "\"}";
+        StringBuilder out = new StringBuilder();
+        out.append("{\"bizModule\":\"").append(bizModule)//
+                .append("\", \"bizId\":\"").append(bizId)//
+                .append("\", \"module\":\"").append(module)//
+                .append("\", \"action\":\"").append(action)//
+                .append("\", \"message\":\"").append(((message != null) ? message.getFormattedMessage() : null))//
+                .append("\", \"level\":\"").append(level == null ? null : level.getName())//
+                .append("\", \"operator\":\"").append(operator)//
+                .append("\", \"result\":\"").append(result)//
+                .append("\", \"stack\":\"").append(stack)//
+                .append("\", \"threadName\":\"").append(threadName)//
+                .append("\"}");
+        return out.toString();
     }
 
 }

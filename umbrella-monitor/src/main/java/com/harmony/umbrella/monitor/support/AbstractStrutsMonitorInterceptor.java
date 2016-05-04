@@ -42,11 +42,11 @@ public abstract class AbstractStrutsMonitorInterceptor extends AbstractMonitorIn
         }
     }
 
-    public HttpServletRequest getRequest() {
+    protected HttpServletRequest getRequest() {
         return ServletActionContext.getRequest();
     }
 
-    public HttpServletResponse getResponse() {
+    protected HttpServletResponse getResponse() {
         return ServletActionContext.getResponse();
     }
 

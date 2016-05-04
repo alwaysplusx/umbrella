@@ -1,5 +1,6 @@
 package com.harmony.umbrella.plugin.log;
 
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -14,7 +15,7 @@ public class ValueContext {
 
     //private static final ThreadLocal<ValueContext> valueContextThreadLocal = new InheritableThreadLocal<ValueContext>();
 
-    private Map<String, Object> context;
+    private Map<String, Object> context = new HashMap<String, Object>();
     private AccessorHolder accessorHolder = new AccessorHolder();
 
     private ValueContext() {
@@ -29,7 +30,7 @@ public class ValueContext {
     }
 
     public void set(String name, Object val) {
-        context.get(name);
+        context.put(name, val);
     }
 
     public Object find(String expression) {
@@ -57,7 +58,7 @@ public class ValueContext {
             }
             value = tmp;
         }
-        return context;
+        return value;
     }
 
     @SuppressWarnings("rawtypes")

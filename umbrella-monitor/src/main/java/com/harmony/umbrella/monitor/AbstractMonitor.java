@@ -128,6 +128,7 @@ public abstract class AbstractMonitor<T> implements com.harmony.umbrella.monitor
 
     @Override
     public void destroy() {
+        this.clear();
     }
 
 }

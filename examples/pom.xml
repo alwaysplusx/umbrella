@@ -12,15 +12,7 @@
   <artifactId>examples</artifactId>
   <packaging>pom</packaging>
   <modules>
-    <module>example-ear</module>
-    <module>example-war</module>
-    <module>example-ejb</module>
-    <module>example-data</module>
-    <module>example-ee</module>
-    <module>example-shiro</module>
     <module>example-web</module>
-    <module>example-ws</module>
-    <module>example-jpa</module>
   </modules>
   <build>
     <!-- To define the plugin version in your parent POM -->
