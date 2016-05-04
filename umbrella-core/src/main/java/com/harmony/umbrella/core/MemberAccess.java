@@ -1,4 +1,4 @@
-package com.harmony.umbrella.access;
+package com.harmony.umbrella.core;
 
 import static com.harmony.umbrella.util.ReflectionUtils.*;
 
@@ -7,6 +7,7 @@ import java.lang.reflect.Method;
 import java.util.StringTokenizer;
 
 import com.harmony.umbrella.util.ClassUtils;
+import com.harmony.umbrella.util.ReflectionUtils;
 
 /**
  * 
@@ -97,6 +98,10 @@ public class MemberAccess {
         return findField(clazz, name) != null || findWriterMethod(clazz, name) != null;
     }
 
+    static Object get(String name, Object val) {
+        return ReflectionUtils.getFieldValue(name, val);
+    }
+    
     static Class<?> getPathType(Class<?> clazz, String name) {
         StringTokenizer st = new StringTokenizer(name, ".");
         while (st.hasMoreTokens()) {

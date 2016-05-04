@@ -1,18 +1,22 @@
 package com.harmony.umbrella.el;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.StringTokenizer;
 
 /**
  * @author wuxii@foxmail.com
  */
-public class Expression implements Iterable<Expression> {
+public class Expression implements Iterable<String> {
 
     protected final String expressionText;
 
     protected final String delimiter;
 
     private boolean isText;
+
+    private List<String> tokens;
 
     public Expression(String expressionText) {
         this(expressionText, ".");
@@ -38,29 +42,43 @@ public class Expression implements Iterable<Expression> {
     }
 
     @Override
-    public Iterator<Expression> iterator() {
-        return iterator(delimiter);
+    public Iterator<String> iterator() {
+        return getTokens().iterator();
     }
 
-    public Iterator<Expression> iterator(final String delimiter) {
-        return new Iterator<Expression>() {
-
-            StringTokenizer st = new StringTokenizer(expressionText, delimiter);
-
-            @Override
-            public Expression next() {
-                return new Expression(st.nextToken(), delimiter, isText);
-            }
-
-            @Override
-            public boolean hasNext() {
-                return st.hasMoreTokens();
-            }
-        };
+    public Iterator<String> iterator(final String delimiter) {
+        return getTokens(delimiter).iterator();
     }
 
     public boolean isText() {
         return isText;
     }
 
+    public boolean isEmpty() {
+        return getTokens().isEmpty();
+    }
+
+    public int size() {
+        return getTokens().size();
+    }
+
+    public String get(int index) {
+        return getTokens().get(index);
+    }
+
+    private List<String> getTokens() {
+        if (tokens == null) {
+            tokens = getTokens(delimiter);
+        }
+        return tokens;
+    }
+
+    public List<String> getTokens(String delimiter) {
+        List<String> result = new ArrayList<String>();
+        StringTokenizer st = new StringTokenizer(expressionText, delimiter);
+        while (st.hasMoreTokens()) {
+            result.add(st.nextToken());
+        }
+        return result;
+    }
 }
