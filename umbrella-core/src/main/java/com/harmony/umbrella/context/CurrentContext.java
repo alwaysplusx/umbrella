@@ -4,6 +4,10 @@ import java.io.Serializable;
 import java.util.Enumeration;
 import java.util.Locale;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
 /**
  * 用户所能操作信息以及用户的信息将会在保存在{@linkplain CurrentContext}中
  *
@@ -36,6 +40,11 @@ public interface CurrentContext extends Serializable {
      */
     String USER_NICKNAME = CurrentContext.class.getName() + ".USER_NICKNAME";
 
+    /**
+     * 自定义用户
+     * 
+     * @return user
+     */
     <T> T getUser();
 
     /**
@@ -85,12 +94,7 @@ public interface CurrentContext extends Serializable {
      *            {@linkplain Locale}
      */
     void setLocale(Locale locale);
-
-    /**
-     * 当前是否是http发起的请求
-     */
-    boolean isHttpContext();
-
+    
     /**
      * 用户上下文中是否包含对应的值
      *
@@ -125,4 +129,45 @@ public interface CurrentContext extends Serializable {
      */
     Enumeration<String> getCurrentNames();
 
+    /**
+     * 当前的字符集
+     *
+     * @return 字符集
+     */
+    String getCharacterEncoding();
+
+    /**
+     * 当前的http请求
+     *
+     * @return http-request
+     */
+    HttpServletRequest getHttpRequest();
+
+    /**
+     * 当前的http应答
+     *
+     * @return http-response
+     */
+    HttpServletResponse getHttpResponse();
+
+    /**
+     * 当前环境中是否已经创建了http-session
+     *
+     * @return if {@code true} has been created
+     */
+    boolean sessionCreated();
+
+    /**
+     * 获取当前的http-session
+     *
+     * @return http-session
+     */
+    HttpSession getHttpSession();
+
+    /**
+     * 获取session的id
+     *
+     * @return session id
+     */
+    String getSessionId();
 }

@@ -158,8 +158,8 @@ public abstract class ApplicationContext implements BeanFactory {
      * @param currentCtx
      *            用户环境
      */
-    public void setCurrentContext(CurrentContext currentCtx) {
-        current.set(currentCtx);
+    public void setCurrentContext(CurrentContext cc) {
+        current.set(cc);
     }
 
     /**

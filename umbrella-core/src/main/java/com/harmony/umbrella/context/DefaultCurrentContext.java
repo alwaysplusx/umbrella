@@ -1,52 +1,48 @@
 package com.harmony.umbrella.context;
 
 import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Locale;
-import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 /**
  * @author wuxii@foxmail.com
  */
 public class DefaultCurrentContext implements CurrentContext {
 
-    private static final long serialVersionUID = 413466926822406980L;
+    private static final long serialVersionUID = 1379790597833043807L;
 
-    protected final Map<String, Object> context = new HashMap<String, Object>();
-
+    private final HttpServletRequest request;
+    private final HttpServletResponse response;
+    private HttpSession session;
     protected Locale locale;
+
+    public DefaultCurrentContext(HttpServletRequest request, HttpServletResponse response) {
+        this.request = request;
+        this.response = response;
+        this.session = request.getSession(false);
+    }
 
     @Override
     public <T> T getUser() {
-        return get(USER);
+        return getSessionAttribute(USER);
     }
 
     @Override
     public <T> T getUserId() {
-        return get(USER_ID);
-    }
-
-    public void setUserId(Object userId) {
-        put(USER_ID, userId);
+        return getSessionAttribute(USER_ID);
     }
 
     @Override
     public String getUsername() {
-        return get(USER_NAME);
-    }
-
-    public void setUsername(String username) {
-        put(USER_NAME, username);
+        return getSessionAttribute(USER_NAME);
     }
 
     @Override
     public String getNickname() {
-        return get(USER_NICKNAME);
-    }
-
-    public void setNickName(String nickname) {
-        put(USER_NICKNAME, nickname);
+        return getSessionAttribute(USER_NICKNAME);
     }
 
     @Override
@@ -56,15 +52,14 @@ public class DefaultCurrentContext implements CurrentContext {
 
     @Override
     public <T> T getClientId() {
-        return get(CLIENT_ID);
-    }
-
-    public void setClientId(Object clientId) {
-        put(CLIENT_ID, clientId);
+        return getSessionAttribute(CLIENT_ID);
     }
 
     @Override
     public Locale getLocale() {
+        if (locale == null) {
+            locale = request.getLocale();
+        }
         return locale;
     }
 
@@ -74,42 +69,62 @@ public class DefaultCurrentContext implements CurrentContext {
     }
 
     @Override
-    public boolean isHttpContext() {
-        return false;
+    public boolean containsKey(String name) {
+        return request.getAttribute(name) != null;
     }
 
     @Override
-    public boolean containsKey(String name) {
-        return context.containsKey(name);
+    public Enumeration<String> getCurrentNames() {
+        return request.getAttributeNames();
+    }
+
+    @Override
+    public String getCharacterEncoding() {
+        return request.getCharacterEncoding();
+    }
+
+    @Override
+    public HttpServletRequest getHttpRequest() {
+        return request;
+    }
+
+    @Override
+    public HttpServletResponse getHttpResponse() {
+        return response;
+    }
+
+    @Override
+    public boolean sessionCreated() {
+        return session != null;
+    }
+
+    @Override
+    public HttpSession getHttpSession() {
+        if (session == null) {
+            this.session = request.getSession();
+        }
+        return session;
+    }
+
+    @Override
+    public String getSessionId() {
+        return getHttpSession().getId();
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> T getSessionAttribute(String name) {
+        return (T) getHttpSession().getAttribute(name);
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public <T> T get(String name) {
-        return (T) context.get(name);
+        return (T) request.getAttribute(name);
     }
 
     @Override
     public void put(String name, Object o) {
-        context.put(name, o);
-    }
-
-    @Override
-    public Enumeration<String> getCurrentNames() {
-        return new Enumeration<String>() {
-
-            private final Iterator<String> iterator = context.keySet().iterator();
-
-            @Override
-            public boolean hasMoreElements() {
-                return iterator.hasNext();
-            }
-
-            @Override
-            public String nextElement() {
-                return iterator.next();
-            }
-        };
+        request.setAttribute(name, o);
     }
 
 }
