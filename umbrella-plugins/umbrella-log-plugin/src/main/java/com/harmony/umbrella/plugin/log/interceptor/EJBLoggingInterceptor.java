@@ -1,6 +1,6 @@
 package com.harmony.umbrella.plugin.log.interceptor;
 
-import com.harmony.umbrella.monitor.MethodGraphReporter;
+import com.harmony.umbrella.monitor.MethodGraphReport;
 import com.harmony.umbrella.monitor.support.AbstractEJBMonitorInterceptor;
 import com.harmony.umbrella.monitor.support.InvocationContext;
 import com.harmony.umbrella.plugin.log.LoggingReport;
@@ -10,7 +10,7 @@ import com.harmony.umbrella.plugin.log.LoggingReport;
  */
 public class EJBLoggingInterceptor extends AbstractEJBMonitorInterceptor {
 
-    private MethodGraphReporter reporter = new LoggingReport();
+    private MethodGraphReport reporter = new LoggingReport();
 
     @Override
     protected Object doInterceptor(InvocationContext invocationContext) throws Exception {

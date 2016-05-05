@@ -6,7 +6,7 @@ import javax.servlet.http.HttpServletResponse;
 /**
  * @author wuxii@foxmail.com
  */
-public interface MethodGraphReporter {
+public interface MethodGraphReport {
 
     void report(MethodGraph graph);
 

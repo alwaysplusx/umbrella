@@ -11,12 +11,12 @@ import com.harmony.umbrella.log.LogMessage;
 import com.harmony.umbrella.log.Logs;
 import com.harmony.umbrella.log.annotation.Logging;
 import com.harmony.umbrella.monitor.MethodGraph;
-import com.harmony.umbrella.monitor.MethodGraphReporter;
+import com.harmony.umbrella.monitor.MethodGraphReport;
 
 /**
  * @author wuxii@foxmail.com
  */
-public class LoggingReport implements MethodGraphReporter {
+public class LoggingReport implements MethodGraphReport {
 
     @Override
     public void report(MethodGraph graph) {
@@ -68,7 +68,11 @@ public class LoggingReport implements MethodGraphReporter {
     protected ValueContext wrap(MethodGraph graph, HttpServletRequest request, HttpServletResponse response) {
         ValueContext context = ValueContext.createDefault();
         context.set("target", graph.getTarget());
-        context.set("args", graph.getParameters());
+        Object[] args = graph.getParameters();
+        context.set("args", args);
+        for (int i = 0; i < args.length; i++) {
+            context.set(i + "", args[i]);
+        }
         context.set("result", graph.getResult());
         if (request != null) {
             context.set("request", request);

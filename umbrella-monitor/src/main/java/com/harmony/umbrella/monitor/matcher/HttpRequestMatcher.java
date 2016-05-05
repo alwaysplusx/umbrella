@@ -4,15 +4,18 @@ import javax.servlet.http.HttpServletRequest;
 
 import com.harmony.umbrella.monitor.ResourceMatcher;
 import com.harmony.umbrella.util.AntPathMatcher;
+import com.harmony.umbrella.util.PathMatcher;
 
 /**
  * @author wuxii@foxmail.com
  */
-public class HttpRequestMatcher extends AntPathMatcher implements ResourceMatcher<HttpServletRequest> {
+public class HttpRequestMatcher implements ResourceMatcher<HttpServletRequest> {
 
+    private PathMatcher pathMatcher = new AntPathMatcher();
+    
     @Override
     public boolean matches(String pattern, HttpServletRequest resource) {
-        return super.match(pattern, toUri(resource));
+        return pathMatcher.match(pattern, toUri(resource));
     }
 
     protected String toUri(HttpServletRequest request) {
@@ -20,3 +23,4 @@ public class HttpRequestMatcher extends AntPathMatcher implements ResourceMatche
     }
 
 }
+    
