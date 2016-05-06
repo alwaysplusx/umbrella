@@ -3,7 +3,7 @@ package com.harmony.umbrella.monitor.graph;
 import java.lang.reflect.Method;
 
 import com.harmony.umbrella.monitor.MethodGraph;
-import com.harmony.umbrella.monitor.Monitor.MonitorPolicy;
+import com.harmony.umbrella.monitor.MonitorPolicy;
 import com.harmony.umbrella.util.StringUtils;
 
 /**

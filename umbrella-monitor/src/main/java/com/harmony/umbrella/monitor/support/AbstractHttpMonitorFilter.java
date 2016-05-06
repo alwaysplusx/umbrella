@@ -10,14 +10,14 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.harmony.umbrella.monitor.AbstractMonitor;
+import com.harmony.umbrella.monitor.AbstractMonitorFilter;
 import com.harmony.umbrella.monitor.ResourceMatcher;
 import com.harmony.umbrella.monitor.matcher.HttpRequestMatcher;
 
 /**
  * @author wuxii@foxmail.com
  */
-public abstract class AbstractHttpMonitorFilter extends AbstractMonitor<HttpServletRequest> implements Filter {
+public abstract class AbstractHttpMonitorFilter extends AbstractMonitorFilter<HttpServletRequest> implements Filter {
 
     protected ResourceMatcher<HttpServletRequest> requestMatcher = new HttpRequestMatcher();
 

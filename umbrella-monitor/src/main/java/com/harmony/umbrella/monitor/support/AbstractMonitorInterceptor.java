@@ -2,7 +2,7 @@ package com.harmony.umbrella.monitor.support;
 
 import java.lang.reflect.Method;
 
-import com.harmony.umbrella.monitor.AbstractMonitor;
+import com.harmony.umbrella.monitor.AbstractMonitorFilter;
 import com.harmony.umbrella.monitor.ResourceMatcher;
 import com.harmony.umbrella.monitor.matcher.MethodExpressionMatcher;
 
@@ -11,7 +11,7 @@ import com.harmony.umbrella.monitor.matcher.MethodExpressionMatcher;
  *
  * @author wuxii@foxmail.com
  */
-public abstract class AbstractMonitorInterceptor<C> extends AbstractMonitor<Method> {
+public abstract class AbstractMonitorInterceptor<C> extends AbstractMonitorFilter<Method> {
 
     private ResourceMatcher<Method> resourceMatcher = new MethodExpressionMatcher();
 
