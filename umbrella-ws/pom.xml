@@ -14,10 +14,10 @@
       <groupId>com.harmony.umbrella</groupId>
       <artifactId>umbrella-core</artifactId>
     </dependency>
-    <dependency>
+    <!-- <dependency>
       <groupId>com.harmony.umbrella</groupId>
       <artifactId>umbrella-monitor</artifactId>
-    </dependency>
+    </dependency> -->
     <dependency>
       <groupId>com.harmony.umbrella</groupId>
       <artifactId>umbrella-validator</artifactId>

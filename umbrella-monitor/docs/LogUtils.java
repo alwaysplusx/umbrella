@@ -11,7 +11,7 @@ import com.harmony.umbrella.log.Logs;
 import com.harmony.modules.commons.log.Log4jUtils;
 import com.harmony.umbrella.json.Json;
 import com.harmony.umbrella.monitor.Graph;
-import com.harmony.umbrella.monitor.MethodGraph;
+import com.harmony.umbrella.core.MethodGraph;
 import com.harmony.umbrella.monitor.util.MonitorUtils;
 import com.harmony.umbrella.util.Exceptions;
 import com.harmony.umbrella.util.StringUtils;

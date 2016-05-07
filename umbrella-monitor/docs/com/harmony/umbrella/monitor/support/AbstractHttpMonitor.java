@@ -14,7 +14,7 @@ import com.harmony.umbrella.monitor.GraphListener;
 import com.harmony.umbrella.monitor.HttpAttacker;
 import com.harmony.umbrella.monitor.HttpGraph;
 import com.harmony.umbrella.monitor.HttpMonitor;
-import com.harmony.umbrella.monitor.MethodGraph;
+import com.harmony.umbrella.core.MethodGraph;
 import com.harmony.umbrella.monitor.ResourceMatcher;
 import com.harmony.umbrella.monitor.annotation.HttpProperty;
 import com.harmony.umbrella.monitor.annotation.HttpProperty.Scope;

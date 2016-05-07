@@ -5,7 +5,7 @@ import javax.interceptor.Interceptor;
 import javax.interceptor.InvocationContext;
 
 import com.harmony.umbrella.monitor.GraphListener;
-import com.harmony.umbrella.monitor.MethodGraph;
+import com.harmony.umbrella.core.MethodGraph;
 import com.harmony.umbrella.monitor.ext.LogUtils;
 import com.harmony.umbrella.monitor.support.EJBMethodInterceptor;
 

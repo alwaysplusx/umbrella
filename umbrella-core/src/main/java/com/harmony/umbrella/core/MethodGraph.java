@@ -1,33 +1,46 @@
-package com.harmony.umbrella.monitor;
+package com.harmony.umbrella.core;
 
+import java.lang.reflect.Method;
 
 /**
- * 监控记录
- *
- * @author wuxii@foxmail.com
+ * 方法监控结果视图
  */
-public interface Graph {
+public interface MethodGraph {
 
     /**
-     * 监控的资源标识
+     * 方法的执行目标
      *
-     * @return 资源id
+     * @return target
      */
-    String getGraphId();
+    Object getTarget();
 
     /**
-     * 监视的类型
+     * 获取目标类
      *
-     * @return
+     * @return target class
      */
-    String getGraphType();
+    Class<?> getTargetClass();
 
     /**
-     * 监控级别
+     * 拦截的方法
      *
-     * @return 监控级别
+     * @return method
      */
-    MonitorPolicy getPolicy();
+    Method getMethod();
+
+    /**
+     * 拦截方法的请求参数
+     *
+     * @return 方法的参数
+     */
+    Object[] getParameters();
+
+    /**
+     * 方法的返回值
+     *
+     * @return 返回值
+     */
+    Object getResult();
 
     /**
      * 请求时间, 默认为创建Graph对象时间

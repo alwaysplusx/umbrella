@@ -6,7 +6,7 @@ import com.harmony.umbrella.log.Log;
 import com.harmony.umbrella.log.Logs;
 
 import com.harmony.umbrella.json.Json;
-import com.harmony.umbrella.monitor.MethodGraph;
+import com.harmony.umbrella.core.MethodGraph;
 import com.harmony.umbrella.monitor.ext.LogUtils;
 import com.harmony.umbrella.monitor.ext.LogUtils.GraphFormat;
 import com.harmony.umbrella.util.Exceptions;

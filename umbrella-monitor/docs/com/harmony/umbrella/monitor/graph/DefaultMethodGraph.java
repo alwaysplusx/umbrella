@@ -4,7 +4,7 @@ import static com.harmony.umbrella.monitor.util.MonitorUtils.*;
 
 import java.lang.reflect.Method;
 
-import com.harmony.umbrella.monitor.MethodGraph;
+import com.harmony.umbrella.core.MethodGraph;
 
 /**
  * 基于方法监控的结果视图

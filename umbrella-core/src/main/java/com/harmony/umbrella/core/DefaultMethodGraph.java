@@ -1,9 +1,7 @@
-package com.harmony.umbrella.monitor.graph;
+package com.harmony.umbrella.core;
 
 import java.lang.reflect.Method;
 
-import com.harmony.umbrella.monitor.MethodGraph;
-import com.harmony.umbrella.monitor.MonitorPolicy;
 import com.harmony.umbrella.util.StringUtils;
 
 /**
@@ -12,25 +10,21 @@ import com.harmony.umbrella.util.StringUtils;
 public class DefaultMethodGraph implements MethodGraph {
 
     protected final Method method;
-    protected final String graphId;
 
     protected Object target;
     protected Object result;
     protected Object[] parameters;
 
-    protected MonitorPolicy policy;
     protected long requestTime = -1;
     protected long responseTime = -1;
     protected Throwable throwable;
 
     public DefaultMethodGraph(Method method) {
         this.method = method;
-        this.graphId = StringUtils.getMethodId(method);
     }
 
     public DefaultMethodGraph(Object target, Method method, Object[] parameters) {
         this.method = method;
-        this.graphId = StringUtils.getMethodId(method);
         this.parameters = parameters;
         this.target = target;
     }
@@ -58,21 +52,6 @@ public class DefaultMethodGraph implements MethodGraph {
     @Override
     public Object getResult() {
         return result;
-    }
-
-    @Override
-    public String getGraphType() {
-        return GRAPH_TYPE;
-    }
-
-    @Override
-    public String getGraphId() {
-        return graphId;
-    }
-
-    @Override
-    public MonitorPolicy getPolicy() {
-        return policy;
     }
 
     @Override
@@ -112,10 +91,6 @@ public class DefaultMethodGraph implements MethodGraph {
         this.parameters = parameters;
     }
 
-    public void setPolicy(MonitorPolicy policy) {
-        this.policy = policy;
-    }
-
     public void setRequestTime(long requestTime) {
         this.requestTime = requestTime;
     }
@@ -127,12 +102,12 @@ public class DefaultMethodGraph implements MethodGraph {
     public void setThrowable(Throwable throwable) {
         this.throwable = throwable;
     }
-    
+
     @Override
     public String getDescription() {
         StringBuilder buffer = new StringBuilder();
         buffer.append("{\n");
-        buffer.append("  graphId:").append(graphId).append("\n");//
+        buffer.append("  method:").append(StringUtils.getMethodId(method)).append("\n");
         buffer.append("  requestTime:").append(requestTime).append("\n");//
         buffer.append("  use:").append(use()).append("\n");//
         if (parameters != null) {
@@ -149,7 +124,7 @@ public class DefaultMethodGraph implements MethodGraph {
         }
         return buffer.append("}").toString();
     }
-    
+
     @Override
     public String toString() {
         return getDescription();

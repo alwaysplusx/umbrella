@@ -10,9 +10,10 @@ import java.util.Map;
 import javax.xml.ws.WebServiceException;
 
 import com.harmony.umbrella.core.Invoker;
+import com.harmony.umbrella.core.InvokerMethodInvocationContext;
+import com.harmony.umbrella.core.MethodInvocationContext;
 import com.harmony.umbrella.log.Log;
 import com.harmony.umbrella.log.Logs;
-import com.harmony.umbrella.monitor.support.InvocationContext;
 import com.harmony.umbrella.util.Assert;
 import com.harmony.umbrella.util.Exceptions;
 import com.harmony.umbrella.ws.Context;
@@ -47,25 +48,25 @@ public class JaxWsCXFExecutor extends ProxyExecutorSupport implements JaxWsExecu
         Assert.notNull(context.getServiceInterface(), "service interface not set");
         Assert.notBlank(context.getAddress(), "service address not set");
         Assert.notBlank(context.getMethodName(), "service method not set");
-        
+
         T result = null;
-        JaxWsInvocationContext invocationContext = null;
+        MethodInvocationContext mic = null;
         try {
             Method method = context.getMethod();
             Object proxy = getProxy(context);
             Object[] parameters = context.getParameters();
             log.info("使用代理[{}]执行交互{}, invoker is [{}]", proxy, context, invoker);
-            invocationContext = new JaxWsInvocationContext(proxy, method, parameters);
-            result = (T) invocationContext.process();
+            mic = new InvokerMethodInvocationContext(invoker, proxy, method, parameters);
+            result = (T) mic.process();
         } catch (NoSuchMethodException e) {
             throw new WebServiceException("未找到接口方法" + context, e);
-        } catch (Exception e) {
+        } catch (Throwable e) {
             // 执行失败时候移除缓存的代理服务
             this.removeProxy(context.getServiceInterface());
             throw new WebServiceException("执行交互失败", Exceptions.getRootCause(e));
         } finally {
-            if (invocationContext != null) {
-                context.put(WS_EXECUTION_GRAPH, invocationContext.toGraph());
+            if (mic != null) {
+                context.put(WS_EXECUTION_GRAPH, mic.getMethodGraph());
             }
         }
         return result;
@@ -189,19 +190,6 @@ public class JaxWsCXFExecutor extends ProxyExecutorSupport implements JaxWsExecu
      */
     public void setInvoker(Invoker invoker) {
         this.invoker = invoker;
-    }
-
-    final class JaxWsInvocationContext extends InvocationContext {
-
-        public JaxWsInvocationContext(Object target, Method method, Object[] parameters) {
-            super(target, method, parameters);
-        }
-
-        @Override
-        protected Object doProcess() throws Exception {
-            return invoker.invoke(getTarget(), getMethod(), getParameter());
-        }
-
     }
 
     /**

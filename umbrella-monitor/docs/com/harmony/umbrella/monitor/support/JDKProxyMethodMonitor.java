@@ -5,7 +5,7 @@ import java.lang.reflect.Method;
 import java.util.Calendar;
 
 import com.harmony.umbrella.monitor.annotation.Monitor;
-import com.harmony.umbrella.monitor.graph.DefaultMethodGraph;
+import com.harmony.umbrella.core.DefaultMethodGraph;
 import com.harmony.umbrella.util.ReflectionUtils;
 
 /**
