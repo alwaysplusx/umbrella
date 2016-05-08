@@ -19,22 +19,12 @@ public @interface Logging {
     String module() default "";
 
     /**
-     * 业务模块
-     */
-    String bizModule() default "";
-
-    /**
      * 操作名称
      */
     String action() default "";
 
     /**
-     * 日志级别
-     */
-    StandardLevel level() default StandardLevel.INFO;
-
-    /**
-     * id所在的位置或名称
+     * id
      */
     String id() default "";
 
@@ -46,13 +36,19 @@ public @interface Logging {
     String message() default "";
 
     /**
+     * 日志级别
+     */
+    StandardLevel level() default StandardLevel.INFO;
+
+    /**
      * 异常处理
      */
     Class<? extends ErrorHandler> errorHandler() default ErrorHandler.class;
 
     /**
-     * 自定义表达式支持
+     * 
+     * @return
      */
-    // Class<? extends CheckedResolver<?>>[] resolvers() default {};
+    boolean system() default false;
 
 }

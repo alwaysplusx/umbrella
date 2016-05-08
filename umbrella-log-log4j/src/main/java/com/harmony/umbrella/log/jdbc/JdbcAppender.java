@@ -30,6 +30,7 @@ import com.harmony.umbrella.log.Level;
 import com.harmony.umbrella.log.LogInfo;
 import com.harmony.umbrella.log.LoggingException;
 import com.harmony.umbrella.log.Message;
+import com.harmony.umbrella.util.ReflectionUtils;
 
 /**
  * @author wuxii@foxmail.com
@@ -62,7 +63,7 @@ public class JdbcAppender extends AppenderSkeleton implements UnrecognizedElemen
         // 生成LogInfo的信息
         Method[] methods = LogInfo.class.getMethods();
         for (Method method : methods) {
-            if (method.getDeclaringClass() != Object.class && method.getName().startsWith("get")) {
+            if (!ReflectionUtils.isObjectMethod(method) && ReflectionUtils.isReadMethod(method)) {
                 // in xml configuration name is method sample name. (getModule -> module)
                 logInfoMapper.put(getSampleName(method), method);
             }

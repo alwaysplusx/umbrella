@@ -62,6 +62,7 @@ under the License.
     <!-- <module>examples</module> -->
     <!-- <module>umbrella-bang</module> -->
     <module>umbrella-excel</module>
+    <module>umbrella-console</module>
   </modules>
 
   <properties>

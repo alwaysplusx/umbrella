@@ -33,14 +33,13 @@ public class LoggingReport implements MethodGraphReport {
 
         Logging ann = method.getAnnotation(Logging.class);
         if (ann != null) {
-            logMessage.bizModule(ann.bizModule())//
-                    .action(ann.action())//
+            logMessage.action(ann.action())//
                     .module(ann.module())//
                     .level(ann.level());
 
             LoggingTemplate loggingTemplate = new LoggingTemplate(ann);
 
-            logMessage.bizId(loggingTemplate.getId(valueContext))//
+            logMessage.id(loggingTemplate.getId(valueContext))//
                     .message(loggingTemplate.getMessage(valueContext));
         } else {
             logMessage.message(graph.toString());

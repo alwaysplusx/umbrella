@@ -31,6 +31,8 @@ public interface LogInfo {
      */
     Message getMessage();
 
+    Object getId();
+
     /**
      * 日志的异常信息
      * 
@@ -81,20 +83,6 @@ public interface LogInfo {
     Object getOperatorId();
 
     /**
-     * 业务日志模块
-     * 
-     * @return
-     */
-    String getBizModule();
-
-    /**
-     * 业务日志数据主键
-     * 
-     * @return
-     */
-    Object getBizId();
-
-    /**
      * 检查是否有异常
      * 
      * @return
@@ -122,6 +110,17 @@ public interface LogInfo {
      */
     String getThreadName();
 
+    /**
+     * 是否系统日志
+     * 
+     * @return
+     */
+    boolean isSystem();
+
+    /**
+     * 
+     * @return
+     */
     Map<String, Object> getContext();
 
 }

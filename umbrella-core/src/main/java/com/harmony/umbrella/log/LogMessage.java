@@ -20,8 +20,7 @@ public class LogMessage {
     private Log log;
     private MessageFactory messageFactory;
 
-    private String bizModule;
-    private Object bizId;
+    private Object id;
 
     private String module;
     private String action;
@@ -40,6 +39,7 @@ public class LogMessage {
 
     private String stack;
     private String threadName;
+    private boolean isSystem;
 
     private Map<String, Object> context;
 
@@ -55,24 +55,12 @@ public class LogMessage {
     /**
      * 设置业务数据的id
      *
-     * @param bizId
+     * @param id
      *            业务数据的id
      * @return current logMessage
      */
-    public LogMessage bizId(Object bizId) {
-        this.bizId = bizId;
-        return this;
-    }
-
-    /**
-     * 设置业务模块
-     *
-     * @param bizModule
-     *            业务模块
-     * @return current logMessage
-     */
-    public LogMessage bizModule(String bizModule) {
-        this.bizModule = bizModule;
+    public LogMessage id(Object id) {
+        this.id = id;
         return this;
     }
 
@@ -145,6 +133,11 @@ public class LogMessage {
 
     public LogMessage operatorId(Object operatorId) {
         this.operatorId = operatorId;
+        return this;
+    }
+
+    public LogMessage system(boolean isSystem) {
+        this.isSystem = isSystem;
         return this;
     }
 
@@ -263,6 +256,10 @@ public class LogMessage {
         return this;
     }
 
+    private long use() {
+        return (startTime == -1 || finishTime == -1) ? -1 : finishTime - startTime;
+    }
+    
     /**
      * 调用日志log记录本条日志
      */
@@ -360,16 +357,6 @@ public class LogMessage {
             }
 
             @Override
-            public String getBizModule() {
-                return bizModule;
-            }
-
-            @Override
-            public Object getBizId() {
-                return bizId;
-            }
-
-            @Override
             public String getAction() {
                 return action;
             }
@@ -386,7 +373,7 @@ public class LogMessage {
 
             @Override
             public long use() {
-                return (startTime == -1 || finishTime == -1) ? -1 : finishTime - startTime;
+                return LogMessage.this.use();
             }
 
             @Override
@@ -399,20 +386,30 @@ public class LogMessage {
                 return context;
             }
 
+            @Override
+            public Object getId() {
+                return id;
+            }
+
+            @Override
+            public boolean isSystem() {
+                return isSystem;
+            }
+
         };
     }
 
     @Override
     public String toString() {
         StringBuilder out = new StringBuilder();
-        out.append("{\"bizModule\":\"").append(bizModule)//
-                .append("\", \"bizId\":\"").append(bizId)//
-                .append("\", \"module\":\"").append(module)//
+        out.append("{\"module\":\"").append(module)//
                 .append("\", \"action\":\"").append(action)//
                 .append("\", \"message\":\"").append(((message != null) ? message.getFormattedMessage() : null))//
+                .append("\", \"id\":\"").append(id)//
+                .append("\", \"result\":\"").append(result)//
+                .append("\", \"use\":\"").append(use())//
                 .append("\", \"level\":\"").append(level == null ? null : level.getName())//
                 .append("\", \"operator\":\"").append(operator)//
-                .append("\", \"result\":\"").append(result)//
                 .append("\", \"stack\":\"").append(stack)//
                 .append("\", \"threadName\":\"").append(threadName)//
                 .append("\"}");

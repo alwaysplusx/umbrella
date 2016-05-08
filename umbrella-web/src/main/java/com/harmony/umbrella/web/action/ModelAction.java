@@ -14,8 +14,7 @@ import com.opensymphony.xwork2.ActionSupport;
 /**
  * @author wuxii@foxmail.com
  */
-public abstract class ModelActionSupport<T extends Model<ID>, ID extends Serializable> extends ActionSupport implements ServletRequestAware,
-        ServletResponseAware {
+public abstract class ModelAction<T extends Model<ID>, ID extends Serializable> extends ActionSupport implements ServletRequestAware, ServletResponseAware {
 
     private static final long serialVersionUID = 941939963000360885L;
 
