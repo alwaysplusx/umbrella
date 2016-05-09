@@ -1,5 +1,6 @@
 package com.harmony.umbrella.web.action;
 
+import java.io.IOException;
 import java.io.Serializable;
 
 import javax.servlet.http.HttpServletRequest;
@@ -9,6 +10,9 @@ import org.apache.struts2.interceptor.ServletRequestAware;
 import org.apache.struts2.interceptor.ServletResponseAware;
 
 import com.harmony.umbrella.data.domain.Model;
+import com.harmony.umbrella.json.Json;
+import com.harmony.umbrella.web.render.HttpRender;
+import com.harmony.umbrella.web.render.WebRender;
 import com.opensymphony.xwork2.ActionSupport;
 
 /**
@@ -24,6 +28,8 @@ public abstract class ModelAction<T extends Model<ID>, ID extends Serializable> 
     protected HttpServletRequest request;
     protected HttpServletResponse response;
 
+    protected HttpRender render = new WebRender();
+
     protected T model;
     protected ID id;
     protected ID[] ids;
@@ -37,5 +43,12 @@ public abstract class ModelAction<T extends Model<ID>, ID extends Serializable> 
     public void setServletRequest(HttpServletRequest request) {
         this.request = request;
     }
-    
+
+    protected void renderJson(Object obj, String... excludes) {
+        try {
+            render.renderJson(Json.toJson(obj, excludes), response);
+        } catch (IOException e) {
+        }
+    }
+
 }

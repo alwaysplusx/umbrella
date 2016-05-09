@@ -354,8 +354,8 @@ public class LogMessage {
             }
 
             @Override
-            public Level getLevel() {
-                return level;
+            public StandardLevel getLevel() {
+                return level == null ? null : level.getStandardLevel();
             }
 
             @Override

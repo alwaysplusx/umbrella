@@ -3,6 +3,7 @@ package com.harmony.umbrella.log;
 import java.util.Date;
 import java.util.Map;
 
+import com.harmony.umbrella.log.Level.StandardLevel;
 import com.harmony.umbrella.log.annotation.Logging.LogType;
 
 /**
@@ -80,7 +81,7 @@ public interface LogInfo {
      * 
      * @return
      */
-    Level getLevel();
+    StandardLevel getLevel();
 
     /**
      * 操作人
