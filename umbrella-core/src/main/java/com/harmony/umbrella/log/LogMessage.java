@@ -394,11 +394,6 @@ public class LogMessage {
             }
 
             @Override
-            public long use() {
-                return LogMessage.this.use();
-            }
-
-            @Override
             public Map<String, Object> getContext() {
                 return context;
             }

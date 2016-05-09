@@ -74,7 +74,7 @@ public class JdbcDatabaseManager extends AbstractDatabaseManager<LoggingEvent> {
             }
 
             for (Column column : columns) {
-                column.setValue(statement, column.getProperty(logInfo));
+                column.setStatementValue(statement, logInfo);
             }
 
             if (this.isBatchSupported()) {

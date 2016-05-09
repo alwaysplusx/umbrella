@@ -53,6 +53,13 @@ public @interface Logging {
     Class<? extends ErrorHandler> errorHandler() default ErrorHandler.class;
 
     public enum LogType {
-        SYSTEM, OPERATION
+        /**
+         * 表示系统日志
+         */
+        SYSTEM, //
+        /**
+         * 表示操作日志
+         */
+        OPERATION
     }
 }

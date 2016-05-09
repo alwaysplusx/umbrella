@@ -681,7 +681,7 @@ public class ReflectionUtils {
     public static boolean isReadMethod(Method method) {
         String methodName = method.getName();
         return methodName.length() > 3
-                && methodName.startsWith("get")
+                && (methodName.startsWith("get") || methodName.startsWith("is"))
                 && method.getParameterTypes().length == 0;
     }
 

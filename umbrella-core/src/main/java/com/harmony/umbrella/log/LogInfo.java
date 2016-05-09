@@ -111,13 +111,6 @@ public interface LogInfo {
     LogType getType();
 
     /**
-     * 记录耗时(时间单位为ms)
-     * 
-     * @return
-     */
-    long use();
-
-    /**
      * 操作栈，操作位于程序的位置
      * 
      * @return
