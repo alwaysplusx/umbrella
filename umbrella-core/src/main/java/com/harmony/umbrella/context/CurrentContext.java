@@ -69,18 +69,18 @@ public interface CurrentContext extends Serializable {
     String getNickname();
 
     /**
+     * 用户端的ip
+     * 
+     * @return
+     */
+    String getUserHost();
+
+    /**
      * 验证是否登录授权
      * 
      * @return true已经登录
      */
     boolean isAuthenticated();
-
-    /**
-     * 用户的客户端ID
-     *
-     * @return 用户的客户端ID
-     */
-    <T> T getClientId();
 
     /**
      * 客户端的本地化
@@ -94,7 +94,7 @@ public interface CurrentContext extends Serializable {
      *            {@linkplain Locale}
      */
     void setLocale(Locale locale);
-    
+
     /**
      * 用户上下文中是否包含对应的值
      *

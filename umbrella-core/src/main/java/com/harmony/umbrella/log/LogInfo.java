@@ -3,6 +3,8 @@ package com.harmony.umbrella.log;
 import java.util.Date;
 import java.util.Map;
 
+import com.harmony.umbrella.log.annotation.Logging.LogType;
+
 /**
  * 日志信息Bean
  * 
@@ -25,27 +27,18 @@ public interface LogInfo {
     String getAction();
 
     /**
+     * 业务日志数据主键
+     * 
+     * @return
+     */
+    Object getKey();
+
+    /**
      * 日志消息内容
      * 
      * @return
      */
     Message getMessage();
-
-    Object getId();
-
-    /**
-     * 日志的异常信息
-     * 
-     * @return
-     */
-    Throwable getException();
-
-    /**
-     * 日志级别
-     * 
-     * @return
-     */
-    Level getLevel();
 
     /**
      * 业务日志的结果
@@ -69,11 +62,32 @@ public interface LogInfo {
     Date getFinishTime();
 
     /**
+     * 检查是否有异常
+     * 
+     * @return
+     */
+    boolean isException();
+
+    /**
+     * 日志的异常信息
+     * 
+     * @return
+     */
+    Throwable getException();
+
+    /**
+     * 日志级别
+     * 
+     * @return
+     */
+    Level getLevel();
+
+    /**
      * 操作人
      * 
      * @return
      */
-    String getOperator();
+    String getOperatorName();
 
     /**
      * 操作人id
@@ -83,14 +97,21 @@ public interface LogInfo {
     Object getOperatorId();
 
     /**
-     * 检查是否有异常
+     * 所操作的客户端地址，如:IP
      * 
      * @return
      */
-    boolean isException();
+    String getOperatorHost();
 
     /**
-     * 记录耗时
+     * 日志info的类型，有系统日志与业务日志之分
+     * 
+     * @return
+     */
+    LogType getType();
+
+    /**
+     * 记录耗时(时间单位为ms)
      * 
      * @return
      */
@@ -111,13 +132,7 @@ public interface LogInfo {
     String getThreadName();
 
     /**
-     * 是否系统日志
-     * 
-     * @return
-     */
-    boolean isSystem();
-
-    /**
+     * 日志context
      * 
      * @return
      */

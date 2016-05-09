@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.Map;
 
 import com.harmony.umbrella.log.Level.StandardLevel;
+import com.harmony.umbrella.log.annotation.Logging.LogType;
 
 /**
  * 统一日志消息
@@ -20,17 +21,19 @@ public class LogMessage {
     private Log log;
     private MessageFactory messageFactory;
 
-    private Object id;
-
     private String module;
     private String action;
+
+    private Object key;
 
     private Message message;
     private Throwable exception;
     private Level level;
+    private LogType type;
 
-    private String operator;
+    private String operatorName;
     private Object operatorId;
+    private String operatorHost;
 
     private Object result;
 
@@ -39,7 +42,6 @@ public class LogMessage {
 
     private String stack;
     private String threadName;
-    private boolean isSystem;
 
     private Map<String, Object> context;
 
@@ -55,12 +57,12 @@ public class LogMessage {
     /**
      * 设置业务数据的id
      *
-     * @param id
+     * @param key
      *            业务数据的id
      * @return current logMessage
      */
-    public LogMessage id(Object id) {
-        this.id = id;
+    public LogMessage key(Object key) {
+        this.key = key;
         return this;
     }
 
@@ -126,8 +128,8 @@ public class LogMessage {
      *            操作人名称
      * @return current logMessage
      */
-    public LogMessage operator(String username) {
-        this.operator = username;
+    public LogMessage operatorName(String username) {
+        this.operatorName = username;
         return this;
     }
 
@@ -136,8 +138,13 @@ public class LogMessage {
         return this;
     }
 
-    public LogMessage system(boolean isSystem) {
-        this.isSystem = isSystem;
+    public LogMessage operatorHost(String address) {
+        this.operatorHost = address;
+        return this;
+    }
+
+    public LogMessage type(LogType type) {
+        this.type = type;
         return this;
     }
 
@@ -256,15 +263,15 @@ public class LogMessage {
         return this;
     }
 
-    private long use() {
-        return (startTime == -1 || finishTime == -1) ? -1 : finishTime - startTime;
-    }
-    
     /**
      * 调用日志log记录本条日志
      */
     public void log() {
         log(level == null ? DEFAULT_LEVEL : level);
+    }
+
+    private long use() {
+        return (startTime == -1 || finishTime == -1) ? -1 : finishTime - startTime;
     }
 
     /**
@@ -327,8 +334,13 @@ public class LogMessage {
             }
 
             @Override
-            public String getOperator() {
-                return operator;
+            public String getOperatorName() {
+                return operatorName;
+            }
+
+            @Override
+            public String getOperatorHost() {
+                return operatorHost;
             }
 
             @Override
@@ -347,6 +359,11 @@ public class LogMessage {
             }
 
             @Override
+            public LogType getType() {
+                return type;
+            }
+
+            @Override
             public Date getFinishTime() {
                 return new Date(finishTime);
             }
@@ -354,6 +371,11 @@ public class LogMessage {
             @Override
             public Throwable getException() {
                 return exception;
+            }
+
+            @Override
+            public Object getKey() {
+                return key;
             }
 
             @Override
@@ -377,23 +399,13 @@ public class LogMessage {
             }
 
             @Override
-            public String toString() {
-                return LogMessage.this.toString();
-            }
-
-            @Override
             public Map<String, Object> getContext() {
                 return context;
             }
 
             @Override
-            public Object getId() {
-                return id;
-            }
-
-            @Override
-            public boolean isSystem() {
-                return isSystem;
+            public String toString() {
+                return LogMessage.this.toString();
             }
 
         };
@@ -402,17 +414,18 @@ public class LogMessage {
     @Override
     public String toString() {
         StringBuilder out = new StringBuilder();
-        out.append("{\"module\":\"").append(module)//
-                .append("\", \"action\":\"").append(action)//
-                .append("\", \"message\":\"").append(((message != null) ? message.getFormattedMessage() : null))//
-                .append("\", \"id\":\"").append(id)//
-                .append("\", \"result\":\"").append(result)//
-                .append("\", \"use\":\"").append(use())//
-                .append("\", \"level\":\"").append(level == null ? null : level.getName())//
-                .append("\", \"operator\":\"").append(operator)//
-                .append("\", \"stack\":\"").append(stack)//
-                .append("\", \"threadName\":\"").append(threadName)//
-                .append("\"}");
+        out.append("{\n        module : ").append(module)//
+                .append(", \n        action : ").append(action)//
+                .append(", \n           key : ").append(key)//
+                .append(", \n       message : ").append(message == null ? null : message.getFormattedMessage())//
+                .append(", \n         level : ").append(level == null ? null : level.getName())//
+                .append(", \n          type : ").append(type)//
+                .append(", \n  operatorName : ").append(operatorName)//
+                .append(", \n  operatorHost : ").append(operatorHost)//
+                .append(", \n        result : ").append(result)//
+                .append(", \n         stack : ").append(stack)//
+                .append(", \n           use : ").append(use())//
+                .append("\n}");
         return out.toString();
     }
 

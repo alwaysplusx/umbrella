@@ -44,15 +44,15 @@ public class DefaultCurrentContext implements CurrentContext {
     public String getNickname() {
         return getSessionAttribute(USER_NICKNAME);
     }
+    
+    @Override
+    public String getUserHost() {
+        return request.getRemoteAddr();
+    }
 
     @Override
     public boolean isAuthenticated() {
         return getUserId() != null;
-    }
-
-    @Override
-    public <T> T getClientId() {
-        return getSessionAttribute(CLIENT_ID);
     }
 
     @Override

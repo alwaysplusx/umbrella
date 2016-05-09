@@ -1,5 +1,7 @@
 package com.harmony.umbrella.log;
 
+import com.harmony.umbrella.log.jdbc.JdbcAppender;
+
 /**
  * @author wuxii@foxmail.com
  */
@@ -9,20 +11,22 @@ public class LogPrinter {
 
     public static void main(String[] args) throws InterruptedException {
 
-        LogMessage msg = LogMessage.create(log)//
-                .id(1L)//
-                .start();
-
-        Thread.sleep(1000);
-
-        msg.finish().operator("wuxii")//
-                .module("Sample")//
-                .operatorId("1")//
-                .action("保存")//
+        JdbcAppender.level = 0;
+        LogMessage.create(log)//
                 .level(Level.INFO)//
+                .module("系统模块")//
+                .key("http://www.baidu.com")//
+                .action("修改系统资源链接")//
+                .start(System.currentTimeMillis())//
+                .message("修改系统资源链接{}, 输入条件为:{}", "http://localhost:8080", "9090")//
+                .result("success")//
+                .finish(System.currentTimeMillis() + 1000)//
+                .operatorName("wuxii")//
+                .operatorId(1l)//
                 .currentStack()//
-                .currentThread()//
-                .message("some text").log();
+                .threadName(Thread.currentThread().getName())//
+                .exception(null)//
+                .log();
     }
 
 }

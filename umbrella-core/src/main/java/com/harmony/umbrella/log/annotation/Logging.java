@@ -24,9 +24,16 @@ public @interface Logging {
     String action() default "";
 
     /**
-     * id
+     * key expression
      */
-    String id() default "";
+    String key() default "";
+
+    /**
+     * 日志类型，可分为业务日志与系统日志(默认为业务日志)
+     * 
+     * @return
+     */
+    LogType type() default LogType.OPERATION;
 
     /**
      * 日志消息
@@ -45,10 +52,7 @@ public @interface Logging {
      */
     Class<? extends ErrorHandler> errorHandler() default ErrorHandler.class;
 
-    /**
-     * 
-     * @return
-     */
-    boolean system() default false;
-
+    public enum LogType {
+        SYSTEM, OPERATION
+    }
 }

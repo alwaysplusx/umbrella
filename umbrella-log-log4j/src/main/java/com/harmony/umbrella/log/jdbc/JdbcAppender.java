@@ -20,11 +20,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.StringTokenizer;
 
 import org.apache.log4j.AppenderSkeleton;
 import org.apache.log4j.spi.LoggingEvent;
 import org.apache.log4j.xml.UnrecognizedElementHandler;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import com.harmony.umbrella.log.Level;
 import com.harmony.umbrella.log.LogInfo;
@@ -39,10 +42,19 @@ public class JdbcAppender extends AppenderSkeleton implements UnrecognizedElemen
 
     private static final Map<String, Method> logInfoMapper = new HashMap<String, Method>(20);
 
+    // trace info
+    // 0     1
+    public static int level = -1;
+
     private String tableName;
     private int bufferSize = 1;
-    private boolean upperCase = false;
-    private boolean autoMatchUnlistedField = false;
+    private boolean upperCase = true;
+
+    private String includeFields;
+    private String excludeFields;
+
+    private Set<String> includeSet;
+    private Set<String> excludeSet;
 
     private String url;
     private String user;
@@ -64,7 +76,7 @@ public class JdbcAppender extends AppenderSkeleton implements UnrecognizedElemen
         Method[] methods = LogInfo.class.getMethods();
         for (Method method : methods) {
             if (!ReflectionUtils.isObjectMethod(method) && ReflectionUtils.isReadMethod(method)) {
-                // in xml configuration name is method sample name. (getModule -> module)
+                // in xml configuration name is equal to method sample name. (getModule -> module)
                 logInfoMapper.put(getSampleName(method), method);
             }
         }
@@ -72,6 +84,7 @@ public class JdbcAppender extends AppenderSkeleton implements UnrecognizedElemen
 
     @Override
     protected void append(LoggingEvent event) {
+        // 只有自定义的日志消息才进入数据库，自定义类型为logInfo
         if (event.getMessage() instanceof LogInfo) {
             init();
             try {
@@ -88,9 +101,7 @@ public class JdbcAppender extends AppenderSkeleton implements UnrecognizedElemen
                 if (!initialize) {
 
                     // 配置LogInfo与表中字段的关系
-                    if (autoMatchUnlistedField) {
-                        autoMatchUnlistedField();
-                    }
+                    autoMatchField();
 
                     // 根据columnElement生成与数据库相对于的列以及sql语句
                     initColumn();
@@ -121,6 +132,9 @@ public class JdbcAppender extends AppenderSkeleton implements UnrecognizedElemen
         this.manager.startup();
     }
 
+    /**
+     * 配置部分的字段映射，并生成最终的sql语句
+     */
     private void initColumn() {
         List<ColumnElement> sortedColumnElements = sortColumnElement(columnElements);
 
@@ -134,12 +148,12 @@ public class JdbcAppender extends AppenderSkeleton implements UnrecognizedElemen
         while (it.hasNext()) {
             ColumnElement ce = it.next();
 
-            if (logInfoMapper.containsKey(ce.sourceField)) {
+            if (logInfoMapper.containsKey(ce.source)) {
 
-                columnPart.append(upperCase ? ce.targetField.toUpperCase() : ce.targetField);
+                columnPart.append(upperCase ? ce.target.toUpperCase() : ce.target);
                 valuePart.append("?");
 
-                this.columns.add(new Column(logInfoMapper.get(ce.sourceField), ce, index++));
+                this.columns.add(new Column(logInfoMapper.get(ce.source), ce, index++));
 
                 if (it.hasNext()) {
                     columnPart.append(", ");
@@ -150,32 +164,42 @@ public class JdbcAppender extends AppenderSkeleton implements UnrecognizedElemen
         }
 
         this.sqlStatement = "INSERT INTO " + tableName + "(" + columnPart + ") VALUES (" + valuePart + ")";
+
+        debug("sql statement " + this.sqlStatement);
     }
 
+    /**
+     * 排序
+     */
     private List<ColumnElement> sortColumnElement(Set<ColumnElement> ce) {
         ArrayList<ColumnElement> list = new ArrayList<ColumnElement>(ce);
         Collections.sort(list, new Comparator<ColumnElement>() {
             @Override
             public int compare(ColumnElement o1, ColumnElement o2) {
-                return o1.sourceField.compareTo(o2.sourceField);
+                return o1.source.compareTo(o2.source);
             }
         });
         return list;
     }
 
-    private void autoMatchUnlistedField() {
+    /**
+     * 自动映射数据库字段与logInfo的关系
+     */
+    private void autoMatchField() {
         Set<String> fields = logInfoMapper.keySet();
         for (String field : fields) {
-            Method method = logInfoMapper.get(field);
-            // 如果返回类型是事件类型默认将时间类型的记录方式定位timestamp
-            Class<?> returnType = method.getReturnType();
-            String dateType = "NONE";
-            if (returnType.isAssignableFrom(Date.class) || returnType.isAssignableFrom(Calendar.class)) {
-                dateType = ColumnElement.DATE_TYPE_TIMESTAMP;
-            }
-            ColumnElement ce = new ColumnElement(field, field, dateType, false);
-            if (!columnElements.contains(ce)) {
-                columnElements.add(ce);
+            if (isAutoMatchField(field)) {
+                Method method = logInfoMapper.get(field);
+                // 如果返回类型是事件类型默认将时间类型的记录方式定位timestamp
+                Class<?> returnType = method.getReturnType();
+                String dateType = "NONE";
+                if (returnType.isAssignableFrom(Date.class) || returnType.isAssignableFrom(Calendar.class)) {
+                    dateType = ColumnElement.DATE_TYPE_TIMESTAMP;
+                }
+                ColumnElement ce = new ColumnElement(field, field, dateType, false);
+                if (!columnElements.contains(ce)) {
+                    columnElements.add(ce);
+                }
             }
         }
     }
@@ -189,8 +213,34 @@ public class JdbcAppender extends AppenderSkeleton implements UnrecognizedElemen
     public void close() {
     }
 
-    public void setAutoMatchUnlistedField(boolean autoMatchUnlistedField) {
-        this.autoMatchUnlistedField = autoMatchUnlistedField;
+    protected boolean isAutoMatchField(String fieldName) {
+        return getIncludeFieldSet().contains(fieldName) || !getExcludeFieldSet().contains(fieldName);
+    }
+
+    private synchronized Set<String> getIncludeFieldSet() {
+        if (includeSet == null) {
+            includeSet = new HashSet<String>();
+            if (includeFields != null) {
+                StringTokenizer st = new StringTokenizer(includeFields, ",");
+                while (st.hasMoreTokens()) {
+                    includeSet.add(st.nextToken().trim());
+                }
+            }
+        }
+        return includeSet;
+    }
+
+    private synchronized Set<String> getExcludeFieldSet() {
+        if (excludeSet == null) {
+            excludeSet = new HashSet<String>();
+            if (excludeFields != null) {
+                StringTokenizer st = new StringTokenizer(excludeFields, ",");
+                while (st.hasMoreTokens()) {
+                    excludeSet.add(st.nextToken().trim());
+                }
+            }
+        }
+        return excludeSet;
     }
 
     public void setBufferSize(int bufferSize) {
@@ -221,45 +271,82 @@ public class JdbcAppender extends AppenderSkeleton implements UnrecognizedElemen
         this.password = password;
     }
 
+    public void setIncludeFields(String includeFields) {
+        this.includeFields = includeFields;
+    }
+
+    public void setExcludeFields(String excludeFields) {
+        this.excludeFields = excludeFields;
+    }
+
     /**
-     * 解析配置appender的自定义tag <code>column</code>
+     * 解析配置appender的自定义tag <code>columns</code>
+     * <p>
      * 
      * <pre>
      *  &lt;appender name="name" class=""&gt;
-     *      &lt;column sourceField="" targetField="" /&gt;
+     *      &lt;columns&gt;
+     *          &lt;column source="module" target="module" /&gt;
+     *      &lt;/columns&gt;
      *      &lt;layout class=""&gt;
-     *          &lt;param name="" value=""/&gt;        
+     *          &lt;param name="" value=""/&gt;
      *      &lt;/layout&gt;
      *  &lt;appender/&gt;
      * </pre>
-     * 
+     *
      * @see org.apache.log4j.xml.UnrecognizedElementHandler#parseUnrecognizedElement(org.w3c.dom.Element,
      *      java.util.Properties)
      */
     @Override
     public boolean parseUnrecognizedElement(Element element, Properties props) throws Exception {
         String tagName = element.getTagName();
-        if ("column".equals(tagName)) {
-
-            String sourceField = element.getAttribute("sourceField");
-            String targetField = element.getAttribute("targetField");
-            String dateType = element.getAttribute("dateType");
-
-            if (dateType == null || "".equals(dateType)) {
-                dateType = ColumnElement.DATE_TYPE_NONE;
+        if ("columns".equals(tagName) && element.hasChildNodes()) {
+            NodeList childNodes = element.getChildNodes();
+            for (int i = 0; i < childNodes.getLength(); i++) {
+                Node node = childNodes.item(i);
+                if (node instanceof Element) {
+                    String childTagName = ((Element) node).getTagName();
+                    if ("column".equals(childTagName)) {
+                        parseColumn((Element) node);
+                        continue;
+                    }
+                    info("unrecognized child element inner columns " + childTagName);
+                }
             }
-
-            boolean isClob = Boolean.valueOf(element.getAttribute("isClob"));
-
-            columnElements.add(new ColumnElement(sourceField, targetField, dateType, isClob));
-            return true;
         }
         return false;
+    }
+
+    private void parseColumn(Element element) {
+
+        String source = element.getAttribute("source");
+        String target = element.getAttribute("target");
+        String dateType = element.getAttribute("dateType");
+
+        if (dateType == null || "".equals(dateType)) {
+            dateType = ColumnElement.DATE_TYPE_NONE;
+        }
+
+        boolean isClob = Boolean.valueOf(element.getAttribute("isClob"));
+
+        columnElements.add(new ColumnElement(source, target, dateType, isClob));
     }
 
     private static String getSampleName(Method method) {
         String name = method.getName().substring(3);
         return Character.toLowerCase(name.charAt(0)) + name.substring(1);
+    }
+
+    private static void info(String text) {
+        if (level == 1) {
+            System.err.println("log4j:" + text);
+        }
+    }
+
+    private static void debug(String text) {
+        if (level == 0) {
+            System.out.println("log4j:" + text);
+        }
     }
 
     class Column {
@@ -347,14 +434,14 @@ public class JdbcAppender extends AppenderSkeleton implements UnrecognizedElemen
         static final String DATE_TYPE_TIME = "TIME";
         static final String DATE_TYPE_DATE = "DATE";
 
-        final String sourceField;
-        final String targetField;
+        final String source;
+        final String target;
         final boolean isClob;
         final String dateType;
 
-        public ColumnElement(String sourceField, String targetField, String dateType, boolean isClob) {
-            this.sourceField = sourceField;
-            this.targetField = targetField;
+        public ColumnElement(String source, String target, String dateType, boolean isClob) {
+            this.source = source;
+            this.target = target;
             this.isClob = isClob;
             this.dateType = dateType;
         }
@@ -363,7 +450,7 @@ public class JdbcAppender extends AppenderSkeleton implements UnrecognizedElemen
         public int hashCode() {
             final int prime = 31;
             int result = 1;
-            result = prime * result + ((sourceField == null) ? 0 : sourceField.hashCode());
+            result = prime * result + ((source == null) ? 0 : source.hashCode());
             return result;
         }
 
@@ -376,12 +463,17 @@ public class JdbcAppender extends AppenderSkeleton implements UnrecognizedElemen
             if (getClass() != obj.getClass())
                 return false;
             ColumnElement other = (ColumnElement) obj;
-            if (sourceField == null) {
-                if (other.sourceField != null)
+            if (source == null) {
+                if (other.source != null)
                     return false;
-            } else if (!sourceField.equals(other.sourceField))
+            } else if (!source.equals(other.source))
                 return false;
             return true;
+        }
+
+        @Override
+        public String toString() {
+            return "ColumnElement[" + source + "->" + target + "]";
         }
     }
 

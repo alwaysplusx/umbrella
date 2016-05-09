@@ -35,11 +35,12 @@ public class LoggingReport implements MethodGraphReport {
         if (ann != null) {
             logMessage.action(ann.action())//
                     .module(ann.module())//
+                    .type(ann.type())//
                     .level(ann.level());
 
             LoggingTemplate loggingTemplate = new LoggingTemplate(ann);
 
-            logMessage.id(loggingTemplate.getId(valueContext))//
+            logMessage.key(loggingTemplate.getKey(valueContext))//
                     .message(loggingTemplate.getMessage(valueContext));
         } else {
             logMessage.message(graph.toString());
@@ -50,7 +51,7 @@ public class LoggingReport implements MethodGraphReport {
         if (applicationContext != null && applicationContext.hasCurrentContext()) {
             CurrentContext cc = applicationContext.getCurrentContext();
             logMessage.operatorId(cc.getUserId())//
-                    .operator(cc.getUsername());
+                    .operatorName(cc.getUsername());
         }
 
         logMessage.start(graph.getRequestTime())//

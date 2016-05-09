@@ -21,12 +21,12 @@ public class LoggingTemplate {
     private char delimiterEnd = '}';
 
     private List<Expression> templateExpressions;
-    private Expression idExpression;
+    private Expression keyExpression;
 
     public LoggingTemplate(Logging ann) {
         this.ann = ann;
         this.templateText = ann.message();
-        this.idExpression = new Expression(ann.id());
+        this.keyExpression = new Expression(ann.key());
     }
 
     public List<Expression> getTemplateExpressions() {
@@ -36,12 +36,12 @@ public class LoggingTemplate {
         return templateExpressions;
     }
 
-    public Expression getIdExpression() {
-        return idExpression;
+    public Expression getKeyExpression() {
+        return keyExpression;
     }
 
-    public Object getId(ValueContext valueContext) {
-        return valueContext.find(idExpression);
+    public Object getKey(ValueContext valueContext) {
+        return valueContext.find(keyExpression);
     }
 
     public String getMessage(ValueContext valueContext) {

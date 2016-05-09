@@ -16,9 +16,14 @@
     <param name="url" value="jdbc:h2:file:~/.h2/harmony/log" />
     <param name="user" value="sa" />
     <param name="password" value="" />
+    <!-- columns字段配置信息 -->
+    <!-- <param name="excludeFields" value="context" />
     <columns>
-      <column source="" target="" />
-    </columns>
+      <column source="module" target="module" />
+      <column source="action" target="action" />
+      <column source="message" target="message" />
+      <column source="level" target="level" />
+    </columns> -->
   </appender>
 
   <appender name="errorDailyFile" class="org.apache.log4j.DailyRollingFileAppender">
