@@ -18,7 +18,7 @@ public class XmlMapper {
      *            映射的xml节点
      * @return
      */
-    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @SuppressWarnings({ "unchecked" })
     public static <T> T mapping(Element element) {
         String mapperName = element.getAttribute("mapper");
         if (StringUtils.isBlank(mapperName)) {
@@ -58,17 +58,17 @@ public class XmlMapper {
      *            映射mapper
      * @return
      */
-    public static <T> T mappingByMapper(Element element, Class<? extends XmlBeanMapper<T>> mapperType) {
-        XmlBeanMapper<T> mapper = ReflectionUtils.instantiateClass(mapperType);
+    public static <T> T mappingByMapper(Element element, Class<? extends XmlBeanMapper> mapperType) {
+        XmlBeanMapper mapper = ReflectionUtils.instantiateClass(mapperType);
         return mapping(element, mapper);
     }
 
-    static <T> T mapping(Element element, XmlBeanMapper<T> mapper) {
+    @SuppressWarnings("unchecked")
+    static <T> T mapping(Element element, XmlBeanMapper mapper) {
         iteratorMapping(XmlUtil.iterator(element), mapper);
-        return mapper.getResult();
+        return (T) mapper.getResult();
     }
 
-    @SuppressWarnings("rawtypes")
     private static void iteratorMapping(ElementIterator eit, XmlBeanMapper mapper) {
         if (!mapper.accept(eit.getPath(), eit.getCurrent())) {
             return;

@@ -1,8 +1,5 @@
 package com.harmony.umbrella.xml;
 
-import java.util.Arrays;
-import java.util.Iterator;
-
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.w3c.dom.Document;
@@ -48,12 +45,6 @@ public class XmlUtilTest {
     @Test
     public void testToXML() throws Exception {
         System.out.println(XmlUtil.toXML(XmlUtil.getElement(doc, "objects/users/user[1]")));
-    }
-
-    @Test
-    public void test() {
-        Iterator<Object> iterator = Arrays.asList().iterator();
-        iterator.next();
     }
 
 }

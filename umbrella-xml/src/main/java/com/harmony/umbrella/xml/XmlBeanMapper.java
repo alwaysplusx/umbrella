@@ -5,7 +5,9 @@ import java.util.List;
 
 import org.w3c.dom.Element;
 
+import com.harmony.umbrella.access.AccessorHolder;
 import com.harmony.umbrella.context.ApplicationContext;
+import com.harmony.umbrella.core.MemberAccess;
 import com.harmony.umbrella.io.ResourceManager;
 import com.harmony.umbrella.util.ClassUtils;
 import com.harmony.umbrella.util.ClassUtils.ClassFilter;
@@ -13,13 +15,14 @@ import com.harmony.umbrella.util.ClassUtils.ClassFilterFeature;
 import com.harmony.umbrella.util.Converter;
 import com.harmony.umbrella.util.GenericUtils;
 import com.harmony.umbrella.util.ReflectionUtils;
+import com.harmony.umbrella.util.StringUtils;
 
 /**
  * 
  * @author wuxii@foxmail.com
  */
 @SuppressWarnings("rawtypes")
-public abstract class XmlBeanMapper<T> extends ElementAcceptor {
+public abstract class XmlBeanMapper extends ElementAcceptor {
 
     /**
      * 所有支持string转化的converter
@@ -43,21 +46,18 @@ public abstract class XmlBeanMapper<T> extends ElementAcceptor {
         allStringConverters = cvs;
     }
 
-    public static final String ROOT = "$";
+    protected AccessorHolder accessorHolder = new AccessorHolder(AccessorHolder.getAllAccessor());
 
     // 标志位
     private boolean root = true;
     protected String rootPath;
 
-    private Class<T> mappedType;
-    protected T result;
+    protected Object result;
 
     public XmlBeanMapper() {
     }
 
-    public XmlBeanMapper(Class<T> mappedType) {
-        this.mappedType = mappedType;
-    }
+    protected abstract Class<?> getMappedType();
 
     @Override
     public boolean acceptElement(String path, Element element) {
@@ -67,17 +67,27 @@ public abstract class XmlBeanMapper<T> extends ElementAcceptor {
             result = instanceBean();
             return true;
         }
-        return setTargetFieldValue(result, toFieldPath(path), element);
+        setMemberValue(result, toFieldPath(path), element);
+        return true;
     }
 
-    protected abstract boolean setTargetFieldValue(T target, String fieldPath, Element element);
+    protected abstract void setMemberValue(Object target, String fieldPath, Element element) throws MappingException;
+
+    protected String getElemenetValue(Element element) {
+        String value = element.getNodeValue();
+        return StringUtils.isBlank(value) ? element.getAttribute("value") : value;
+    }
+
+    protected Class<?> getFieldType(String path) {
+        return MemberAccess.access(getMappedType(), path).getType();
+    }
 
     /**
      * 映射的结果
      * 
      * @return
      */
-    public T getResult() {
+    public Object getResult() {
         return result;
     }
 
@@ -112,16 +122,8 @@ public abstract class XmlBeanMapper<T> extends ElementAcceptor {
      * 
      * @param element
      */
-    protected T instanceBean() {
+    protected Object instanceBean() {
         return ReflectionUtils.instantiateClass(getMappedType());
-    }
-
-    @SuppressWarnings("unchecked")
-    protected Class<T> getMappedType() {
-        if (this.mappedType == null) {
-            this.mappedType = (Class<T>) GenericUtils.getTargetGeneric(getClass(), XmlBeanMapper.class, 0);
-        }
-        return this.mappedType;
     }
 
 }

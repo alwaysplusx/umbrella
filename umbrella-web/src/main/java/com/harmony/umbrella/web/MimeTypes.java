@@ -23,6 +23,11 @@ public class MimeTypes {
     private static final Map<String, String> MIME_TYPES = new HashMap<String, String>();
 
     static {
+        MIME_TYPES.put(".json", "application/json");
+        MIME_TYPES.put(".xml", "application/xml");
+        MIME_TYPES.put(".html", "text/html");
+        MIME_TYPES.put(".txt", "text/plain");
+
         Resource resource = ResourceManager.getInstance().getResource("mimeTypes.json");
         if (resource.exists()) {
             InputStream is = null;

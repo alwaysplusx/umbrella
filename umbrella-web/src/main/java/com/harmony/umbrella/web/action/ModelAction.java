@@ -12,7 +12,7 @@ import org.apache.struts2.interceptor.ServletResponseAware;
 import com.harmony.umbrella.data.domain.Model;
 import com.harmony.umbrella.json.Json;
 import com.harmony.umbrella.web.render.HttpRender;
-import com.harmony.umbrella.web.render.WebRender;
+import com.harmony.umbrella.web.render.WebHttpRender;
 import com.opensymphony.xwork2.ActionSupport;
 
 /**
@@ -28,7 +28,7 @@ public abstract class ModelAction<T extends Model<ID>, ID extends Serializable> 
     protected HttpServletRequest request;
     protected HttpServletResponse response;
 
-    protected HttpRender render = new WebRender();
+    protected HttpRender render = new WebHttpRender();
 
     protected T model;
     protected ID id;
