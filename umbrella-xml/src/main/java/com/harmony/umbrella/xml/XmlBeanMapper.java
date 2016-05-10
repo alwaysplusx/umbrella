@@ -46,7 +46,7 @@ public abstract class XmlBeanMapper extends ElementAcceptor {
         allStringConverters = cvs;
     }
 
-    protected AccessorHolder accessorHolder = new AccessorHolder(AccessorHolder.getAllAccessor());
+    protected AccessorHolder accessorHolder;
 
     // 标志位
     private boolean root = true;

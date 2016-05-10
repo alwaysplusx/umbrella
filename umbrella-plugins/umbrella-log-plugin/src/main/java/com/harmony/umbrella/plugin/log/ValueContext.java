@@ -71,7 +71,7 @@ public class ValueContext {
     }
 
     public static ValueContext createDefault() {
-        return create(AccessorHolder.getAllAccessor());
+        return create(AccessorHolder.getDefaultAccessors());
     }
 
     public static ValueContext create(AccessorHolder accessorHolder) {

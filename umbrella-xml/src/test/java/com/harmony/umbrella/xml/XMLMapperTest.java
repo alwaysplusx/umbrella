@@ -40,17 +40,6 @@ public class XMLMapperTest {
         System.out.println(mapper.getResult());
     }
 
-    public static void main(String[] args) throws Exception {
-        beforeClass();
-        XmlUtil.iterator(doc, new ElementAcceptor() {
-            @Override
-            public boolean acceptElement(String path, Element element) {
-                System.out.println(path);
-                return true;
-            }
-        });
-    }
-
     public static class Bean {
 
         private String name;

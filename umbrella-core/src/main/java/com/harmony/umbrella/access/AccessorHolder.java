@@ -20,9 +20,9 @@ public class AccessorHolder {
 
     static {
         defaultAccessors.add(new ArrayAccessor());
-        defaultAccessors.add(new HttpRequestAccessor());
+        /*defaultAccessors.add(new HttpRequestAccessor());
         defaultAccessors.add(new HttpServletContextAccessor());
-        defaultAccessors.add(new HttpSessionAccessor());
+        defaultAccessors.add(new HttpSessionAccessor());*/
         defaultAccessors.add(new ListAccessor());
         defaultAccessors.add(new MapAccessor());
         defaultAccessors.add(new NamedAccessor());
@@ -121,7 +121,7 @@ public class AccessorHolder {
         return result;
     }
 
-    public static List<TypedAccessor> getAllAccessor() {
+    public static List<TypedAccessor> getDefaultAccessors() {
         return new ArrayList<TypedAccessor>(defaultAccessors);
     }
 
