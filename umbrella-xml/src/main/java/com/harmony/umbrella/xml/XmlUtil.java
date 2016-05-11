@@ -171,6 +171,10 @@ public class XmlUtil {
      * @return 所有下级子节点
      */
     public static Iterator<Element> getChildElements(Node node) {
+        return getChildElementList(node).iterator();
+    }
+
+    static List<Element> getChildElementList(Node node) {
         NodeList nodes = node.getChildNodes();
         List<Element> elements = new ArrayList<Element>();
         for (int i = 0, max = nodes.getLength(); i < max; i++) {
@@ -179,9 +183,9 @@ public class XmlUtil {
                 elements.add((Element) item);
             }
         }
-        return elements.iterator();
+        return elements;
     }
-
+    
     /**
      * 统计item下对应xpath的element一共有多少个
      * 
@@ -235,7 +239,7 @@ public class XmlUtil {
      * @return
      * @throws XPathExpressionException
      */
-    public static Element getElement(Object item, String xpath) throws XPathExpressionException {
+    public static Element getElement(Node item, String xpath) throws XPathExpressionException {
         Object obj = getXPath().evaluate(xpath, item, XPathConstants.NODE);
         return isElement(obj) ? (Element) obj : null;
     }
@@ -250,7 +254,7 @@ public class XmlUtil {
      * @return
      * @throws XPathExpressionException
      */
-    public static Element[] getElements(Object item, String xpath) throws XPathExpressionException {
+    public static Element[] getElements(Node item, String xpath) throws XPathExpressionException {
         Object obj = getXPath().evaluate(xpath, item, XPathConstants.NODESET);
         List<Element> elements = new ArrayList<Element>();
         if (obj instanceof NodeList) {
@@ -277,7 +281,7 @@ public class XmlUtil {
      * @return
      * @throws XPathExpressionException
      */
-    public static String getAttribute(Object item, String xpath) throws XPathExpressionException {
+    public static String getAttribute(Node item, String xpath) throws XPathExpressionException {
         Object obj = getXPath().evaluate(xpath, item, XPathConstants.STRING);
         return obj instanceof String ? (String) obj : null;
     }
