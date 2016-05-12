@@ -7,7 +7,7 @@ import org.w3c.dom.Document;
 /**
  * @author wuxii@foxmail.com
  */
-public class ElementIteratorATest {
+public class ElementIteratorTest {
 
     private static Document doc;
 
@@ -18,11 +18,11 @@ public class ElementIteratorATest {
 
     @Test
     public void testIterator() {
-        ElementIteratorA eia = new ElementIteratorA(doc.getDocumentElement());
+        ElementIterator eia = new ElementIterator(doc.getDocumentElement());
         iterator(eia);
     }
 
-    public void iterator(ElementIteratorA eia) {
+    public void iterator(ElementIterator eia) {
         ElementContext ec = eia.getElementContext();
         System.out.print(ec.getPath());
         if (!ec.hasChirdElements()) {

@@ -1,17 +1,17 @@
 package com.harmony.umbrella.xml;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 /**
+ * 迭代element生成的element context
+ * 
  * @author wuxii@foxmail.com
  */
-public class ElementContext {
+public class ElementContext implements Iterable<Element> {
 
     private Element element;
     private ElementContext parent;
@@ -58,23 +58,18 @@ public class ElementContext {
 
     List<Element> getChirdElementList() {
         if (childElements == null) {
-            List<Element> list = new ArrayList<Element>();
-            if (element.hasChildNodes()) {
-                NodeList nodeList = element.getChildNodes();
-                for (int i = 0, max = nodeList.getLength(); i < max; i++) {
-                    Node item = nodeList.item(i);
-                    if (XmlUtil.isElement(item)) {
-                        list.add((Element) item);
-                    }
-                }
-            }
-            this.childElements = list;
+            this.childElements = Collections.unmodifiableList(XmlUtil.getChildElementList(element));
         }
         return childElements;
     }
 
     public String getPath() {
         return path;
+    }
+
+    @Override
+    public Iterator<Element> iterator() {
+        return getChirdElementList().iterator();
     }
 
 }

@@ -38,64 +38,16 @@ import org.xml.sax.SAXException;
  */
 public class XmlUtil {
 
-    public static final String PATH_SPLIT = "/";
-
-    /**
-     * 将document包装为element iterator迭代器
-     * 
-     * @param document
-     *            document
-     * @return elementIterator
-     */
-    public static ElementIterator iterator(Document document) {
-        return new ElementIteratorImpl(document.getDocumentElement());
+    public static void iterator(Element element, ElementAcceptor acceptor) {
+        iteraotr(new ElementIterator(element), acceptor);
     }
 
-    /**
-     * 将element包装为element iterator迭代器
-     * 
-     * @param element
-     *            element
-     * @return elementIterator
-     */
-    public static ElementIterator iterator(Element element) {
-        return new ElementIteratorImpl(element);
-    }
-
-    /**
-     * 迭代doument下的所有element
-     * 
-     * @param document
-     *            document
-     * @param acceptor
-     *            element接收
-     */
-    public static void iterator(Document document, NodeAcceptor acceptor) {
-        iterator(document.getDocumentElement(), acceptor);
-    }
-
-    /**
-     * 迭代element下的所有element
-     * 
-     * @param element
-     *            element
-     * @param acceptor
-     *            element接收
-     */
-    public static void iterator(Element element, NodeAcceptor acceptor) {
-        iterator(iterator(element), acceptor);
-    }
-
-    private static boolean iterator(ElementIterator eit, NodeAcceptor acceptor) {
-        if (!acceptor.accept(eit.getPath(), eit.getCurrentElement())) {
-            return false;
+    private static void iteraotr(ElementIterator ei, ElementAcceptor acceptor) {
+        ElementContext ec = ei.getElementContext();
+        acceptor.accept(ec.getPath(), ec.getElement());
+        while (ei.hasNext()) {
+            iteraotr(ei.next(), acceptor);
         }
-        while (eit.hasNext()) {
-            if (!iterator(eit.next(), acceptor)) {
-                return false;
-            }
-        }
-        return true;
     }
 
     /**
@@ -185,7 +137,7 @@ public class XmlUtil {
         }
         return elements;
     }
-    
+
     /**
      * 统计item下对应xpath的element一共有多少个
      * 
@@ -219,7 +171,7 @@ public class XmlUtil {
      * @param element
      * @return
      */
-    public static boolean isLeafElement(Element element) {
+    public static boolean hasChildElements(Element element) {
         NodeList nodeList = element.getChildNodes();
         for (int i = 0; i < nodeList.getLength(); i++) {
             if (isElement(nodeList.item(i))) {
@@ -304,10 +256,30 @@ public class XmlUtil {
         }
     }
 
+    /**
+     * 由字节数组构建xml document
+     * 
+     * @param buff
+     *            字节数组
+     * @param ignore
+     *            是否忽略dtd的校验
+     * @return
+     * @throws XmlException
+     */
     public static Document getDocument(byte[] buff, boolean ignore) throws XmlException {
         return getDocument(new ByteArrayInputStream(buff), ignore);
     }
 
+    /**
+     * 由输入流构建xml document
+     * 
+     * @param is
+     *            输入流
+     * @param ignore
+     *            属否忽略dtd文件头
+     * @return
+     * @throws XmlException
+     */
     public static Document getDocument(InputStream is, boolean ignore) throws XmlException {
         try {
             return newDocumentBuilder(ignore).parse(is);

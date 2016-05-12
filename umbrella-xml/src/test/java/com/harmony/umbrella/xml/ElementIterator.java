@@ -8,33 +8,31 @@ import java.util.NoSuchElementException;
 import org.w3c.dom.Element;
 
 /**
+ * element 迭代器
+ * 
  * @author wuxii@foxmail.com
  */
-public class ElementIteratorA implements Iterator<ElementIteratorA> {
+public class ElementIterator implements Iterator<ElementIterator> {
 
     private ElementContext elementContext;
-    private String separator;
+    // 迭代路径的分割符号
+    private String pathSeparator;
     // 迭代指针
     private int cursor;
-
+    // 相同名称的tagName已经出现的次数
     private final Map<String, Integer> tagNameShowTimes = new HashMap<String, Integer>();
 
-    public ElementIteratorA(Element element) {
+    public ElementIterator(Element element) {
         this(element, ".");
     }
 
-    public ElementIteratorA(Element element, String separator) {
-        this.elementContext = new ElementContext(element, "$", null);
-        this.separator = separator;
+    public ElementIterator(Element element, String pathSeparator) {
+        this(new ElementContext(element, "$", null), pathSeparator);
     }
 
-    public ElementIteratorA(ElementContext elementContext) {
-        this(elementContext, ".");
-    }
-
-    public ElementIteratorA(ElementContext elementContext, String separator) {
+    private ElementIterator(ElementContext elementContext, String pathSeparator) {
         this.elementContext = elementContext;
-        this.separator = separator;
+        this.pathSeparator = pathSeparator;
     }
 
     @Override
@@ -42,21 +40,30 @@ public class ElementIteratorA implements Iterator<ElementIteratorA> {
         return cursor < elementContext.size();
     }
 
+    public Element getElement() {
+        return elementContext.getElement();
+    }
+
     public ElementContext getElementContext() {
         return elementContext;
     }
 
+    public String getPathSeparator() {
+        return pathSeparator;
+    }
+
     @Override
-    public ElementIteratorA next() {
+    public ElementIterator next() {
         if (hasNext()) {
             Element element = elementContext.get(cursor++);
 
             StringBuilder path = new StringBuilder();
             path.append(elementContext.getPath())//
-                    .append(separator);
+                    .append(pathSeparator);
 
             String tagName = element.getTagName();
             path.append(tagName);
+            // 如果是复数节点需要添加'[x]'， x为当前出现次数
             if (isPluralTagName(tagName)) {
                 path.append("[")//
                         .append(getAndIncrement(tagName))//
@@ -64,7 +71,7 @@ public class ElementIteratorA implements Iterator<ElementIteratorA> {
             }
 
             ElementContext ec = new ElementContext(element, path.toString(), elementContext);
-            return new ElementIteratorA(ec, separator);
+            return new ElementIterator(ec, pathSeparator);
         }
         throw new NoSuchElementException();
     }
