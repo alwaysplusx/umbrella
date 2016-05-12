@@ -70,7 +70,7 @@ public class XmlMapper {
     }
 
     private static void iteratorMapping(ElementIterator eit, XmlBeanMapper mapper) {
-        if (!mapper.accept(eit.getPath(), eit.getCurrent())) {
+        if (!mapper.accept(eit.getPath(), eit.getCurrentElement())) {
             return;
         }
         while (eit.hasNext()) {

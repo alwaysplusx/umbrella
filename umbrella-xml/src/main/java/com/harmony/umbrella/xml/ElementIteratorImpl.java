@@ -34,7 +34,7 @@ public class ElementIteratorImpl implements ElementIterator {
     public ElementIteratorImpl(Element element) {
         this(element, null);
     }
-
+    
     public ElementIteratorImpl(Element element, ElementIterator parent) {
         this.element = element;
         this.nodeList = element.getChildNodes();
@@ -85,7 +85,7 @@ public class ElementIteratorImpl implements ElementIterator {
     }
 
     @Override
-    public Element getCurrent() {
+    public Element getCurrentElement() {
         return element;
     }
 
@@ -95,12 +95,12 @@ public class ElementIteratorImpl implements ElementIterator {
     }
 
     @Override
-    public Element getRoot() {
+    public Element getRootElement() {
         ElementIterator p = this;
         while (p.getParent() != null) {
             p = p.getParent();
         }
-        return p.getCurrent();
+        return p.getCurrentElement();
     }
 
     @Override
@@ -118,8 +118,8 @@ public class ElementIteratorImpl implements ElementIterator {
         if (path == null) {
             StringBuilder pathBuffer = new StringBuilder();
 
-            Node rootNode = getRoot();
-            Node currentNode = getCurrent();
+            Node rootNode = getRootElement();
+            Node currentNode = getCurrentElement();
             Node parrentNode = element.getParentNode();
 
             while (!currentNode.isSameNode(rootNode)) {
@@ -161,4 +161,5 @@ public class ElementIteratorImpl implements ElementIterator {
         }
         return null;*/
     }
+
 }

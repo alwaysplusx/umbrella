@@ -9,7 +9,7 @@ import org.w3c.dom.Element;
  * 
  * @author wuxii@foxmail.com
  */
-public interface ElementIterator extends Iterable<Element> {
+public interface ElementIterator extends Iterable<Element>, Iterator<ElementIterator> {
 
     /**
      * 判断当前element是否还有下一个子element
@@ -54,14 +54,14 @@ public interface ElementIterator extends Iterable<Element> {
      * 
      * @return
      */
-    Element getCurrent();
+    Element getCurrentElement();
 
     /**
      * 开始迭代的根节点
      * 
      * @return
      */
-    Element getRoot();
+    Element getRootElement();
 
     /**
      * 判断是否为叶子节点, 不再有子element
