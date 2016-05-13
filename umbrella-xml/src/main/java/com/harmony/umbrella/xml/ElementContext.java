@@ -24,6 +24,10 @@ public class ElementContext implements Iterable<Element> {
         this.path = path;
     }
 
+    public String getAttribute(String name) {
+        return element.getAttribute(name);
+    }
+
     public Element getElement() {
         return element;
     }

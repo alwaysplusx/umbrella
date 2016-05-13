@@ -3,8 +3,8 @@ package com.harmony.umbrella.util;
 /**
  * @author wuxii@foxmail.com、
  */
-public interface Converter<T, V> {
+public interface Converter<IN, OUT> {
 
-    V convert(T t);
+    OUT convert(IN t);
 
 }
