@@ -1,5 +1,5 @@
 
-package com.harmony.umbrella.log.jdbc;
+package com.harmony.umbrella.log4j.jdbc;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -31,8 +31,12 @@ import com.harmony.umbrella.log.Level;
 import com.harmony.umbrella.log.LogInfo;
 import com.harmony.umbrella.log.LoggingException;
 import com.harmony.umbrella.log.Message;
-import com.harmony.umbrella.log.parser.LogInfoParser;
-import com.harmony.umbrella.log.parser.NamedParser;
+import com.harmony.umbrella.log.jdbc.ConnectionSource;
+import com.harmony.umbrella.log.jdbc.DatabaseManager;
+import com.harmony.umbrella.log.jdbc.JdbcConnectionSource;
+import com.harmony.umbrella.log.jdbc.JndiConnectionSource;
+import com.harmony.umbrella.log4j.parser.LogInfoParser;
+import com.harmony.umbrella.log4j.parser.NamedParser;
 import com.harmony.umbrella.util.ReflectionUtils;
 import com.harmony.umbrella.util.StringUtils;
 

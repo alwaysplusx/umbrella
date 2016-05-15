@@ -4,12 +4,12 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.spi.ExtendedLogger;
 
+import com.harmony.umbrella.log.AbstractLog;
 import com.harmony.umbrella.log.Level;
 import com.harmony.umbrella.log.Log;
 import com.harmony.umbrella.log.LogInfo;
 import com.harmony.umbrella.log.LogProvider;
 import com.harmony.umbrella.log.Message;
-import com.harmony.umbrella.log.support.AbstractLog;
 
 /**
  * @author wuxii@foxmail.com

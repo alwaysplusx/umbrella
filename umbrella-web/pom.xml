@@ -10,7 +10,7 @@
   <name>Harmony Umbrella :: Module of Web</name>
   <artifactId>umbrella-web</artifactId>
   <properties>
-    <apache.struts.version>2.5-BETA3</apache.struts.version>
+    <apache.struts.version>2.5</apache.struts.version>
   </properties>
   <dependencies>
     <dependency>
@@ -41,44 +41,6 @@
       <artifactId>javaee-api</artifactId>
       <scope>provided</scope>
     </dependency>
-    <!-- spring -->
-    <!-- <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-webmvc</artifactId>
-      <scope>compile</scope>
-      <optional>true</optional>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-web</artifactId>
-      <scope>compile</scope>
-      <optional>true</optional>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-core</artifactId>
-      <scope>compile</scope>
-      <optional>true</optional>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-beans</artifactId>
-      <scope>compile</scope>
-      <optional>true</optional>
-    </dependency> -->
-    <!-- shiro -->
-    <!-- <dependency>
-      <groupId>org.apache.shiro</groupId>
-      <artifactId>shiro-core</artifactId>
-      <scope>compile</scope>
-      <optional>true</optional>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.shiro</groupId>
-      <artifactId>shiro-web</artifactId>
-      <scope>compile</scope>
-      <optional>true</optional>
-    </dependency> -->
     <!-- test dependency -->
     <dependency>
       <groupId>junit</groupId>

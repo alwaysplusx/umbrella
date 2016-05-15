@@ -172,7 +172,7 @@ public class XmlBeanMapper {
         List<Class<? extends ValueConverter>> list = getValueConverterList(valueType);
         for (Class clazz : list) {
             try {
-                result = ReflectionUtils.instantiateClass(clazz);
+                result = ReflectionUtils.<ValueConverter> instantiateClass(clazz);
                 if (result != null) {
                     break;
                 }

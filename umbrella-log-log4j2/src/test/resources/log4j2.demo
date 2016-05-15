@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<configuration packages="com.harmony.umbrella.log4j2">
+<configuration packages="com.harmony.umbrella.log.jdbc">
   <properties>
     <property name="pattern">
       [%p{length=4}] [%d{MM/dd HH:mm:ss,SSS}] %c{1}.%M(%F:%L) - %m%n
@@ -11,12 +11,19 @@
       <patternlayout pattern="${pattern}" />
     </console>
 
+    <!-- <jdbc name="jdbc" tableName="S_LOGINFO">
+      <connectionfactory class="com.harmony.umbrella.log.LogPrinter" method="getConnection" />
+      <column name="level" pattern="%level" />
+      <column name="message" pattern="%message" />
+      <column name="exception" pattern="%ex{full}" />
+    </jdbc> -->
+    
     <customer name="customer" />
     
   </appenders>
   <loggers>
     <root level="info">
-      <appenderRef ref="console" />
+      <!-- <appenderRef ref="jdbc" /> -->
       <appenderRef ref="customer" />
     </root>
   </loggers>

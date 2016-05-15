@@ -44,11 +44,17 @@ public abstract class ModelAction<T extends Model<ID>, ID extends Serializable> 
         this.request = request;
     }
 
-    protected void renderJson(Object obj, String... excludes) {
+    protected String renderJson(Object obj) {
+        return renderJson(obj, new String[0]);
+    }
+
+    protected String renderJson(Object obj, String... excludes) {
         try {
             render.renderJson(Json.toJson(obj, excludes), response);
         } catch (IOException e) {
+            return ERROR;
         }
+        return NONE;
     }
 
 }

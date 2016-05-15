@@ -41,6 +41,7 @@ under the License.
     <module>umbrella-ee</module>
     <module>umbrella-json</module>
     <module>umbrella-log-log4j</module>
+    <module>umbrella-log-log4j2</module>
     <module>umbrella-message</module>
     <module>umbrella-validator</module>
     <module>umbrella-monitor</module>
@@ -55,7 +56,6 @@ under the License.
     <!-- <module>umbrella-mail</module> -->
     <!-- <module>umbrella-spring</module> -->
     <!-- <module>umbrella-activiti</module> -->
-    <!-- <module>umbrella-log-log4j2</module> -->
     <!-- <module>umbrella-resources</module> -->
     <!-- <module>umbrella-security</module> -->
     <!-- <module>umbrella-cache</module> -->
@@ -88,7 +88,7 @@ under the License.
     <apache.openejb.version>4.7.1</apache.openejb.version>
     <apache.log4j2.version>2.5</apache.log4j2.version>
     <apache.shiro.version>1.2.3</apache.shiro.version>
-    <apache.struts.version>2.3.16</apache.struts.version>
+    <apache.struts.version>2.5</apache.struts.version>
     <apache.httpclient.version>4.5</apache.httpclient.version>
     <apache.jee.version>6.0-6</apache.jee.version>
     <apache.commons.io.version>1.3.2</apache.commons.io.version>

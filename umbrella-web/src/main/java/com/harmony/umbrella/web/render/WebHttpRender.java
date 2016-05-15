@@ -54,7 +54,7 @@ public class WebHttpRender implements HttpRender {
         contentType = contentType + "; charset=" + (StringUtils.isBlank(encoding) ? this.encoding : encoding);
         // 设置response报文头
         applyHeader(response, headerMap);
-        response.setContentType(contentType);
+        // response.setContentType(contentType);
         response.getWriter().write(text);
         response.getWriter().flush();
     }

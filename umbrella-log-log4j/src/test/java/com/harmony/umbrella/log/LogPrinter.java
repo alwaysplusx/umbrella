@@ -1,6 +1,6 @@
 package com.harmony.umbrella.log;
 
-import com.harmony.umbrella.log.jdbc.JdbcAppender;
+import com.harmony.umbrella.log4j.jdbc.JdbcAppender;
 
 /**
  * @author wuxii@foxmail.com

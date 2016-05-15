@@ -1,4 +1,4 @@
-package com.harmony.umbrella.log.jdbc;
+package com.harmony.umbrella.log4j.jdbc;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
@@ -10,7 +10,9 @@ import org.apache.log4j.spi.LoggingEvent;
 
 import com.harmony.umbrella.log.LogInfo;
 import com.harmony.umbrella.log.LoggingException;
-import com.harmony.umbrella.log.jdbc.JdbcAppender.Column;
+import com.harmony.umbrella.log.jdbc.AbstractDatabaseManager;
+import com.harmony.umbrella.log.jdbc.ConnectionSource;
+import com.harmony.umbrella.log4j.jdbc.JdbcAppender.Column;
 
 /**
  * @author wuxii@foxmail.com
