@@ -14,6 +14,8 @@ import com.harmony.umbrella.data.domain.Sort;
  */
 public interface Dao {
 
+    <E> EntityMetadata<E, ? extends Serializable> getEntityMetadata(Class<E> entityClass);
+
     /**
      * 保存entity
      * 

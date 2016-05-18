@@ -29,28 +29,18 @@ public class MetadataEntity extends Model<String> implements Metadata, Serializa
      * 服务的名称，类名
      */
     @Id
-    @Column(name = "serviceName")
     protected String serviceName;
 
     /**
      * 服务地址，不允许为空
      */
-    @Column(name = "address", nullable = false)
+    @Column(nullable = false)
     protected String address;
-
-    @Column(name = "username")
+    
     protected String username;
-
-    @Column(name = "password")
     protected String password;
-
-    @Column(name = "connectionTimeout")
     protected long connectionTimeout = -1;
-
-    @Column(name = "receiveTimeout")
     protected long receiveTimeout = -1;
-
-    @Column(name = "synchronousTimeout")
     protected int synchronousTimeout = -1;
 
     public MetadataEntity() {
@@ -64,7 +54,12 @@ public class MetadataEntity extends Model<String> implements Metadata, Serializa
         this.serviceName = serviceClass.getName();
         this.address = address;
     }
-    
+
+    @Override
+    public String getId() {
+        return serviceName;
+    }
+
     @Override
     public String getServiceName() {
         return serviceName;

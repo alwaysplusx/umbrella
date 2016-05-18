@@ -18,14 +18,13 @@ import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
-import com.harmony.umbrella.data.EntityInformation;
+import com.harmony.umbrella.data.EntityMetadata;
 import com.harmony.umbrella.data.JpaDao;
 import com.harmony.umbrella.data.Specification;
 import com.harmony.umbrella.data.domain.Page;
 import com.harmony.umbrella.data.domain.PageImpl;
 import com.harmony.umbrella.data.domain.Pageable;
 import com.harmony.umbrella.data.domain.Sort;
-import com.harmony.umbrella.data.query.JpaEntityInformation;
 import com.harmony.umbrella.data.query.QueryUtils;
 import com.harmony.umbrella.util.Assert;
 import com.harmony.umbrella.util.GenericUtils;
@@ -37,9 +36,16 @@ public abstract class JpaDaoSupport<E, ID extends Serializable> extends DaoSuppo
 
     public static final String DELETE_ALL_QUERY_STRING = "delete from %s x";
 
-    private EntityInformation<E, ID> ei;
+    private EntityMetadata<E, ID> entityMetadata;
 
     private Class<E> entityClass;
+
+    public JpaDaoSupport() {
+    }
+
+    public JpaDaoSupport(Class<E> entityClass) {
+        this.entityClass = entityClass;
+    }
 
     @SuppressWarnings("unchecked")
     protected Class<E> getEntityClass() {
@@ -49,11 +55,16 @@ public abstract class JpaDaoSupport<E, ID extends Serializable> extends DaoSuppo
         return entityClass;
     }
 
-    protected EntityInformation<E, ID> getEntityInformation() {
-        if (ei == null) {
-            ei = new JpaEntityInformation<E, ID>(getEntityClass(), getEntityManager().getMetamodel());
+    @SuppressWarnings("unchecked")
+    private EntityMetadata<E, ID> getEntityMetadata() {
+        if (entityMetadata == null) {
+            entityMetadata = (EntityMetadata<E, ID>) getEntityMetadata(getEntityClass());
         }
-        return ei;
+        return entityMetadata;
+    }
+
+    protected String getEntityName() {
+        return getEntityMetadata().getEntityName();
     }
 
     @Override
@@ -73,31 +84,24 @@ public abstract class JpaDaoSupport<E, ID extends Serializable> extends DaoSuppo
 
     @Override
     public long count() {
-        return countAll(getEntityInformation().getJavaType());
-    }
-
-    @Override
-    public <T> T findOne(String jpql) {
-        return super.findOne(jpql);
+        return countAll(getEntityClass());
     }
 
     @Override
     public E findById(ID id) {
-        return findOne(getEntityInformation().getJavaType(), id);
+        return findOne(getEntityClass(), id);
     }
 
     @Override
     public List<E> findAll() {
-        return findAll(getEntityInformation().getJavaType());
+        return findAll(getEntityClass());
     }
 
     @Override
     public List<E> findAll(Iterable<ID> ids) {
-        if (ids == null || !ids.iterator().hasNext()) {
-            return Collections.emptyList();
-        }
-
-        if (getEntityInformation().hasCompositeId()) {
+        Assert.notNull(ids, "ids is null");
+        EntityMetadata<E, ID> entityMetadata = getEntityMetadata();
+        if (entityMetadata.hasCompositeId()) {
             List<E> results = new ArrayList<E>();
             for (ID id : ids) {
                 results.add(findById(id));
@@ -105,7 +109,7 @@ public abstract class JpaDaoSupport<E, ID extends Serializable> extends DaoSuppo
             return results;
         }
 
-        ByIdsSpecification<E> specification = new ByIdsSpecification<E>(getEntityInformation());
+        ByIdsSpecification<E> specification = new ByIdsSpecification<E>(entityMetadata);
         TypedQuery<E> query = getQuery(specification, (Sort) null);
 
         return query.setParameter(specification.parameter, ids).getResultList();
@@ -118,10 +122,8 @@ public abstract class JpaDaoSupport<E, ID extends Serializable> extends DaoSuppo
 
     @Override
     public E saveAndFlush(E entity) {
-
         E result = save(entity);
         flush();
-
         return result;
     }
 
@@ -136,7 +138,7 @@ public abstract class JpaDaoSupport<E, ID extends Serializable> extends DaoSuppo
 
     @Override
     public void deleteAll() {
-        deleteAll(getEntityInformation().getJavaType());
+        deleteAll(getEntityClass());
     }
 
     @Override
@@ -148,9 +150,11 @@ public abstract class JpaDaoSupport<E, ID extends Serializable> extends DaoSuppo
             return;
         }
 
-        StringBuilder buffer = new StringBuilder(String.format(DELETE_ALL_QUERY_STRING, getEntityInformation().getEntityName()));
+        StringBuilder buffer = new StringBuilder();
 
-        buffer.append(" where");
+        String sqlBegin = String.format(DELETE_ALL_QUERY_STRING, getEntityName());
+
+        buffer.append(sqlBegin).append(" where");
 
         Iterator<E> iterator = entities.iterator();
 
@@ -194,14 +198,14 @@ public abstract class JpaDaoSupport<E, ID extends Serializable> extends DaoSuppo
 
     @Override
     public void deleteAllInBatch() {
-        deleteAll(getEntityInformation().getJavaType());
+        deleteAll(getEntityClass());
     }
 
     @Override
     public E getOne(ID id) {
         if (id == null)
             return null;
-        return getEntityManager().getReference(getEntityInformation().getJavaType(), id);
+        return getEntityManager().getReference(getEntityClass(), id);
     }
 
     @Override
@@ -247,32 +251,32 @@ public abstract class JpaDaoSupport<E, ID extends Serializable> extends DaoSuppo
 
     @Override
     public E findOneBySQL(String sql) {
-        return findOneBySQL(sql, getEntityInformation().getJavaType());
+        return findOneBySQL(sql, getEntityClass());
     }
 
     @Override
     public E findOneBySQL(String sql, Map<String, Object> parameters) {
-        return findOneBySQL(sql, getEntityInformation().getJavaType(), parameters);
+        return findOneBySQL(sql, getEntityClass(), parameters);
     }
 
     @Override
     public E findOneBySQL(String sql, Object... parameters) {
-        return findOneBySQL(sql, getEntityInformation().getJavaType(), parameters);
+        return findOneBySQL(sql, getEntityClass(), parameters);
     }
 
     @Override
     public List<E> findAllBySQL(String sql) {
-        return findAllBySQL(sql, getEntityInformation().getJavaType());
+        return findAllBySQL(sql, getEntityClass());
     }
 
     @Override
     public List<E> findAllBySQL(String sql, Map<String, Object> parameters) {
-        return findAllBySQL(sql, getEntityInformation().getJavaType(), parameters);
+        return findAllBySQL(sql, getEntityClass(), parameters);
     }
 
     @Override
     public List<E> findAllBySQL(String sql, Object... parameters) {
-        return findAllBySQL(sql, getEntityInformation().getJavaType(), parameters);
+        return findAllBySQL(sql, getEntityClass(), parameters);
     }
 
     @Override
@@ -283,7 +287,7 @@ public abstract class JpaDaoSupport<E, ID extends Serializable> extends DaoSuppo
     protected TypedQuery<E> getQuery(Specification<E> spec, Sort sort) {
 
         CriteriaBuilder builder = getEntityManager().getCriteriaBuilder();
-        CriteriaQuery<E> query = builder.createQuery(getEntityInformation().getJavaType());
+        CriteriaQuery<E> query = builder.createQuery(getEntityClass());
 
         Root<E> root = applySpecificationToCriteria(spec, query);
         query.select(root);
@@ -321,14 +325,10 @@ public abstract class JpaDaoSupport<E, ID extends Serializable> extends DaoSuppo
         return getEntityManager().createQuery(query);
     }
 
-    protected EntityInformation<E, ID> getEntityInformation(Class<E> entityClass) {
-        return new JpaEntityInformation<E, ID>(entityClass, getEntityManager().getMetamodel());
-    }
-
     private <S> Root<E> applySpecificationToCriteria(Specification<E> spec, CriteriaQuery<S> query) {
 
         Assert.notNull(query);
-        Root<E> root = query.from(getEntityInformation().getJavaType());
+        Root<E> root = query.from(getEntityClass());
 
         if (spec == null) {
             return root;
@@ -371,12 +371,12 @@ public abstract class JpaDaoSupport<E, ID extends Serializable> extends DaoSuppo
 
     private static final class ByIdsSpecification<T> implements Specification<T> {
 
-        private final EntityInformation<T, ?> entityInformation;
+        private final EntityMetadata<T, ?> entityInformation;
 
         @SuppressWarnings("rawtypes")
         ParameterExpression<Iterable> parameter;
 
-        public ByIdsSpecification(EntityInformation<T, ?> entityInformation) {
+        public ByIdsSpecification(EntityMetadata<T, ?> entityInformation) {
             this.entityInformation = entityInformation;
         }
 

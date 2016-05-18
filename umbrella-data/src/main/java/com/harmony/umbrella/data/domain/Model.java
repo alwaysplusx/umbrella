@@ -1,22 +1,14 @@
 package com.harmony.umbrella.data.domain;
 
 import java.io.Serializable;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.util.Calendar;
 
 import javax.persistence.Column;
-import javax.persistence.EmbeddedId;
-import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
-import javax.persistence.Transient;
 
 import com.harmony.umbrella.data.Persistable;
-import com.harmony.umbrella.util.ReflectionUtils;
-import com.harmony.umbrella.util.ReflectionUtils.FieldFilter;
-import com.harmony.umbrella.util.ReflectionUtils.MethodFilter;
 
 /**
  * @author wuxii@foxmail.com
@@ -47,6 +39,11 @@ public abstract class Model<ID extends Serializable> implements Persistable<ID> 
 
     @Temporal(TemporalType.TIMESTAMP)
     protected Calendar modifiedTime;
+
+    @Override
+    public boolean isNew() {
+        return getId() == null;
+    }
 
     public Long getCreatorId() {
         return creatorId;
@@ -110,80 +107,6 @@ public abstract class Model<ID extends Serializable> implements Persistable<ID> 
 
     public void setModifiedTime(Calendar modifiedTime) {
         this.modifiedTime = modifiedTime;
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public ID getId() {
-        Method method = getIdMethod();
-        if (method != null) {
-            try {
-                return (ID) method.invoke(this);
-            } catch (Exception e) {
-            }
-        }
-        Field idField = getIdField();
-        if (idField != null) {
-            try {
-                method = ReflectionUtils.findReadMethod(getClass(), idField);
-                return (ID) ReflectionUtils.invokeMethod(method, this);
-            } catch (Exception e) {
-                try {
-                    ReflectionUtils.makeAccessible(idField);
-                    return (ID) idField.get(this);
-                } catch (Exception e1) {
-                }
-            }
-        }
-        throw new IllegalStateException("entity " + getClass() + " not mapped @Id @EmbeddedId annotation on field and method");
-    }
-
-    @Override
-    public boolean isNew() {
-        return getId() == null;
-    }
-
-    @Transient
-    private static final Class<?>[] idClasses = new Class[] { Id.class, EmbeddedId.class };
-
-    /**
-     * 获取主键的方法, 所有声明了的public方法中查找. 标记有{@linkplain #idClasses}其中之一的方法
-     * 
-     * @return 主键的获取方法
-     */
-    private Method getIdMethod() {
-        return ReflectionUtils.findMethod(getClass(), new MethodFilter() {
-            @Override
-            @SuppressWarnings({ "rawtypes", "unchecked" })
-            public boolean matches(Method method) {
-                for (Class ann : idClasses) {
-                    if (method.getAnnotation(ann) != null) {
-                        return true;
-                    }
-                }
-                return false;
-            }
-        });
-    }
-
-    /**
-     * 获取主键字段, 所有声明的字段中查找. 标记有{@linkplain #idClasses}其中之一的方法
-     * 
-     * @return
-     */
-    private Field getIdField() {
-        return ReflectionUtils.findField(getClass(), new FieldFilter() {
-            @SuppressWarnings({ "unchecked", "rawtypes" })
-            @Override
-            public boolean matches(Field field) {
-                for (Class ann : idClasses) {
-                    if (field.getAnnotation(ann) != null) {
-                        return true;
-                    }
-                }
-                return false;
-            }
-        });
     }
 
     @Override

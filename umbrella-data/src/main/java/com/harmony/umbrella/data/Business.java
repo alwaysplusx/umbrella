@@ -1,9 +1,8 @@
-package com.harmony.umbrella.biz;
+package com.harmony.umbrella.data;
 
 import java.io.Serializable;
 import java.util.List;
 
-import com.harmony.umbrella.data.Bond;
 import com.harmony.umbrella.data.domain.Model;
 import com.harmony.umbrella.data.domain.Page;
 import com.harmony.umbrella.data.domain.PageRequest;

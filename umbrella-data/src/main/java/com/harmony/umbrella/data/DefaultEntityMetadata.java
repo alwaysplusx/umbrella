@@ -1,4 +1,4 @@
-package com.harmony.umbrella.data.query;
+package com.harmony.umbrella.data;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -6,49 +6,66 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
+import javax.persistence.Entity;
 import javax.persistence.IdClass;
+import javax.persistence.Table;
 import javax.persistence.metamodel.EntityType;
 import javax.persistence.metamodel.IdentifiableType;
 import javax.persistence.metamodel.ManagedType;
 import javax.persistence.metamodel.Metamodel;
 import javax.persistence.metamodel.SingularAttribute;
 
-import com.harmony.umbrella.data.EntityInformation;
 import com.harmony.umbrella.util.ReflectionUtils;
+import com.harmony.umbrella.util.StringUtils;
 
 /**
- * Jpa的Entity Information
- * 
- * @author wuxii@foxmail.com
+ * @author copy from spring
  */
-public class JpaEntityInformation<T, ID extends Serializable> extends DefaultEntityMetadata<T, ID> implements EntityInformation<T, ID> {
+public class DefaultEntityMetadata<T, ID extends Serializable> implements EntityMetadata<T, ID> {
 
+    protected final Class<T> entityClass;
     protected final Metamodel metamodel;
-    private final String entityName;
-    private final IdentifiableType<T> identifiableType;
+    protected final IdentifiableType<T> identifiableType;
+
+    private String tableName;
+    private String entityName;
     private Set<SingularAttribute<? super T, ?>> idAttributes;
 
-    public JpaEntityInformation(Class<T> domainClass, Metamodel metamodel) {
-        super(domainClass);
-        ManagedType<T> type = metamodel.managedType(domainClass);
+    public DefaultEntityMetadata(Class<T> entityClass, Metamodel metamodel) {
+        this.entityClass = entityClass;
+        this.metamodel = metamodel;
+        ManagedType<T> type = metamodel.managedType(entityClass);
         if (type == null) {
             throw new IllegalArgumentException("The given domain class can not be found in the given Metamodel!");
         }
-        if (!(type instanceof IdentifiableType))
+        if (!(type instanceof IdentifiableType)) {
             throw new IllegalArgumentException("The given domain class does not contain an id attribute!");
+        }
         this.identifiableType = (IdentifiableType<T>) type;
-        this.metamodel = metamodel;
         this.entityName = type instanceof EntityType ? ((EntityType<T>) type).getName() : null;
     }
 
     @Override
     public String getEntityName() {
-        return entityName == null ? super.getEntityName() : entityName;
+        if (entityName == null) {
+            Entity entity = entityClass.getAnnotation(Entity.class);
+            entityName = (null != entity && StringUtils.isNotEmpty(entity.name())) ? entity.name() : entityClass.getSimpleName();
+        }
+        return entityName;
     }
 
     @Override
-    public boolean isNew(T entity) {
-        return getId(entity) == null;
+    public String getTableName() {
+        if (tableName == null) {
+            Table table = entityClass.getAnnotation(Table.class);
+            return (null != table && StringUtils.isNotEmpty(table.name())) ? table.name() : getEntityName();
+        }
+        return tableName;
+    }
+
+    @Override
+    public Class<T> getJavaType() {
+        return entityClass;
     }
 
     @SuppressWarnings("unchecked")
@@ -116,9 +133,15 @@ public class JpaEntityInformation<T, ID extends Serializable> extends DefaultEnt
     }
 
     @Override
+    public boolean isNew(T entity) {
+        return getId(entity) == null;
+    }
+
+    @Override
     public Object getCompositeIdAttributeValue(Serializable id, String idAttribute) {
-        if (!hasCompositeId())
+        if (!hasCompositeId()) {
             throw new IllegalArgumentException("not composite id entity");
+        }
         return ReflectionUtils.getFieldValue(idAttribute, id);
     }
 

@@ -9,4 +9,9 @@ public class User extends Model<String> {
 
     private static final long serialVersionUID = -4683677790918841843L;
 
+    @Override
+    public String getId() {
+        return null;
+    }
+
 }

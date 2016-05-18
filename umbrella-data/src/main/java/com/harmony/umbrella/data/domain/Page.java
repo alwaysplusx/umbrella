@@ -2,6 +2,10 @@ package com.harmony.umbrella.data.domain;
 
 import java.util.List;
 
+import org.springframework.data.domain.Slice;
+
+import com.harmony.umbrella.util.Converter;
+
 public interface Page<T> extends Iterable<T> {
 
     /**
@@ -124,18 +128,16 @@ public interface Page<T> extends Iterable<T> {
      */
     Pageable previousPageable();
 
-    // /**
-    // * Returns a new {@link Page} with the content of the current one mapped
-    // by
-    // * the given {@link Converter}.
-    // *
-    // * @param converter
-    // * must not be {@literal null}.
-    // * @return a new {@link Page} with the content of the current one mapped
-    // by
-    // * the given {@link Converter}.
-    // * @since 1.10
-    // */
-    // <S> Page<S> map(Converter<? super T, ? extends S> converter);
+    /**
+     * Returns a new {@link Page} with the content of the current one mapped by
+     * the given {@link Converter}.
+     *
+     * @param converter
+     *            must not be {@literal null}.
+     * @return a new {@link Page} with the content of the current one mapped by
+     *         the given {@link Converter}.
+     * @since 1.10
+     */
+    <S> Page<S> map(Converter<? super T, ? extends S> converter);
 
 }

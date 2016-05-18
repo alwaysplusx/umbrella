@@ -1,6 +1,6 @@
 package com.harmony.umbrella.ws.biz;
 
-import com.harmony.umbrella.biz.Business;
+import com.harmony.umbrella.data.Business;
 import com.harmony.umbrella.ws.Context;
 import com.harmony.umbrella.ws.MetadataLoader;
 import com.harmony.umbrella.ws.persistence.MetadataEntity;

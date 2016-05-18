@@ -21,6 +21,8 @@ import com.harmony.umbrella.data.domain.Sort;
  */
 public interface JpaDao<T, ID extends Serializable> extends Dao {
 
+    <E> EntityMetadata<E, ?> getEntityMetadata(Class<E> entityClass);
+
     /**
      * 保存entity, 并刷新context
      * 

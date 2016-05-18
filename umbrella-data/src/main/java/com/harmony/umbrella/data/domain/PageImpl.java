@@ -5,6 +5,11 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+import org.h2.mvstore.Chunk;
+
+import com.harmony.umbrella.util.Assert;
+import com.harmony.umbrella.util.Converter;
+
 /**
  * Basic {@code Page} implementation.
  * 
@@ -109,27 +114,25 @@ public class PageImpl<T> implements Page<T> {
         return content.iterator();
     }
 
-    // /**
-    // * Applies the given {@link Converter} to the content of the {@link
-    // Chunk}.
-    // *
-    // * @param converter
-    // * must not be {@literal null}.
-    // * @return
-    // */
-    // protected <S> List<S> getConvertedContent(Converter<? super T, ? extends
-    // S> converter) {
-    // Assert.notNull(converter, "Converter must not be null!");
-    // List<S> result = new ArrayList<S>(content.size());
-    // for (T element : this) {
-    // result.add(converter.convert(element));
-    // }
-    // return result;
-    // }
-    //
-    // @Override
-    // public <S> Page<S> map(Converter<? super T, ? extends S> converter) {
-    // return new PageImpl<S>(getConvertedContent(converter), pageable, total);
-    // }
+    @Override
+    public <S> Page<S> map(Converter<? super T, ? extends S> converter) {
+        return new PageImpl<S>(getConvertedContent(converter), pageable, total);
+    }
+
+    /**
+     * Applies the given {@link Converter} to the content of the {@link Chunk}.
+     *
+     * @param converter
+     *            must not be {@literal null}.
+     * @return
+     */
+    protected <S> List<S> getConvertedContent(Converter<? super T, ? extends S> converter) {
+        Assert.notNull(converter, "Converter must not be null!");
+        List<S> result = new ArrayList<S>(content.size());
+        for (T element : this) {
+            result.add(converter.convert(element));
+        }
+        return result;
+    }
 
 }

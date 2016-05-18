@@ -1,4 +1,4 @@
-package com.harmony.umbrella.biz;
+package com.harmony.umbrella.data.biz;
 
 import java.io.Serializable;
 import java.lang.reflect.ParameterizedType;
@@ -6,6 +6,7 @@ import java.util.List;
 
 import com.harmony.umbrella.data.Bond;
 import com.harmony.umbrella.data.BondParser;
+import com.harmony.umbrella.data.Business;
 import com.harmony.umbrella.data.JpaDao;
 import com.harmony.umbrella.data.Specification;
 import com.harmony.umbrella.data.domain.Model;
@@ -16,7 +17,7 @@ import com.harmony.umbrella.data.query.SpecificationTransform;
 /**
  * @author wuxii@foxmail.com
  */
-public abstract class BusinessSupport<T extends Model<ID>, ID extends Serializable> implements Business<T, ID> {
+public abstract class BusinessSupport<T extends Model<ID>, ID extends Serializable> extends AbstractBusiness<T, ID> implements Business<T, ID> {
 
     private Class<T> entityClass;
 
@@ -32,7 +33,7 @@ public abstract class BusinessSupport<T extends Model<ID>, ID extends Serializab
     protected abstract JpaDao<T, ID> getJpaDao();
 
     @SuppressWarnings("unchecked")
-    private Class<T> getEntityClass() {
+    protected Class<T> getEntityClass() {
         if (entityClass == null) {
             ParameterizedType pt = getParameterizedType(getClass());
             if (pt != null) {
