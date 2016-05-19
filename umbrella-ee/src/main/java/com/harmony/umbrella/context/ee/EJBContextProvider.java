@@ -6,7 +6,7 @@ import java.net.URL;
 import com.harmony.umbrella.context.ApplicationContext;
 import com.harmony.umbrella.context.ApplicationContextException;
 import com.harmony.umbrella.context.ContextProvider;
-import com.harmony.umbrella.util.PropUtils;
+import com.harmony.umbrella.util.PropertiesUtils;
 
 /**
  * {@linkplain ContextProvider}EJB环境支持
@@ -26,7 +26,7 @@ public class EJBContextProvider extends ContextProvider {
             return EJBApplicationContext.create();
         }
         try {
-            return EJBApplicationContext.create(PropUtils.loadProperties(url));
+            return EJBApplicationContext.create(PropertiesUtils.loadProperties(url));
         } catch (IOException e) {
             throw new ApplicationContextException("cannot create application url not exists", e);
         }

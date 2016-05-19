@@ -5,8 +5,6 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-import org.h2.mvstore.Chunk;
-
 import com.harmony.umbrella.util.Assert;
 import com.harmony.umbrella.util.Converter;
 
@@ -120,7 +118,7 @@ public class PageImpl<T> implements Page<T> {
     }
 
     /**
-     * Applies the given {@link Converter} to the content of the {@link Chunk}.
+     * Applies the given {@link Converter} to the content of the Chunk.
      *
      * @param converter
      *            must not be {@literal null}.

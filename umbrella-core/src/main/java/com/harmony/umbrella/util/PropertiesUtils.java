@@ -21,7 +21,7 @@ import com.harmony.umbrella.io.resource.UrlResource;
  *
  * @author wuxii@foxmail.com
  */
-public class PropUtils {
+public class PropertiesUtils {
 
     private static ResourceLoader resourceLoader = new DefaultResourceLoader();
 

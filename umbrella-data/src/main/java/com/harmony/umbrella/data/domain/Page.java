@@ -2,8 +2,6 @@ package com.harmony.umbrella.data.domain;
 
 import java.util.List;
 
-import org.springframework.data.domain.Slice;
-
 import com.harmony.umbrella.util.Converter;
 
 public interface Page<T> extends Iterable<T> {
@@ -109,8 +107,8 @@ public interface Page<T> extends Iterable<T> {
     boolean hasPrevious();
 
     /**
-     * Returns the {@link Pageable} to request the next {@link Slice}. Can be
-     * {@literal null} in case the current {@link Slice} is already the last
+     * Returns the {@link Pageable} to request the next {@link org.springframework.data.domain.Slice}. Can be
+     * {@literal null} in case the current {@link org.springframework.data.domain.Slice} is already the last
      * one. Clients should check {@link #hasNext()} before calling this method
      * to make sure they receive a non-{@literal null} value.
      * 
@@ -119,8 +117,8 @@ public interface Page<T> extends Iterable<T> {
     Pageable nextPageable();
 
     /**
-     * Returns the {@link Pageable} to request the previous {@link Slice}. Can
-     * be {@literal null} in case the current {@link Slice} is already the first
+     * Returns the {@link Pageable} to request the previous {@link org.springframework.data.domain.Slice}. Can
+     * be {@literal null} in case the current {@link org.springframework.data.domain.Slice} is already the first
      * one. Clients should check {@link #hasPrevious()} before calling this
      * method make sure receive a non-{@literal null} value.
      * 

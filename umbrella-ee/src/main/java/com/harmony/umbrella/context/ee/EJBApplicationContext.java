@@ -7,7 +7,7 @@ import com.harmony.umbrella.context.ee.jmx.EJBContextMBean;
 import com.harmony.umbrella.core.BeansException;
 import com.harmony.umbrella.log.Log;
 import com.harmony.umbrella.log.Logs;
-import com.harmony.umbrella.util.PropUtils;
+import com.harmony.umbrella.util.PropertiesUtils;
 
 import java.io.IOException;
 import java.util.Properties;
@@ -108,7 +108,7 @@ public class EJBApplicationContext extends ApplicationContext implements EJBCont
     @Override
     public void resetProperties() {
         try {
-            beanFactory.setContextProperties(PropUtils.loadProperties(contextPropertiesFileLocation));
+            beanFactory.setContextProperties(PropertiesUtils.loadProperties(contextPropertiesFileLocation));
         } catch (IOException e) {
             log.error("cannot reset context properties", e);
         }
@@ -135,7 +135,7 @@ public class EJBApplicationContext extends ApplicationContext implements EJBCont
     @Override
     public String showProperties() {
         try {
-            return String.valueOf(PropUtils.loadProperties(contextPropertiesFileLocation));
+            return String.valueOf(PropertiesUtils.loadProperties(contextPropertiesFileLocation));
         } catch (IOException e) {
             return null;
         }

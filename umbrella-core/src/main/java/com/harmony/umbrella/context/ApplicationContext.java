@@ -20,7 +20,7 @@ import com.harmony.umbrella.core.BeanFactory;
 import com.harmony.umbrella.log.Log;
 import com.harmony.umbrella.log.Logs;
 import com.harmony.umbrella.util.Environments;
-import com.harmony.umbrella.util.PropUtils;
+import com.harmony.umbrella.util.PropertiesUtils;
 
 /**
  * 运行的应用的上下文
@@ -47,7 +47,7 @@ public abstract class ApplicationContext implements BeanFactory {
         APPLICATION_PACKAGE = Environments.getProperty("umbrella.application.package", "com.harmony");
         try {
             String fileLocation = Environments.getProperty("umbrella.application.properties.file", APPLICATION_PROPERTIES_LOCATION);
-            applicationProperties.putAll(PropUtils.loadProperties(fileLocation));
+            applicationProperties.putAll(PropertiesUtils.loadProperties(fileLocation));
         } catch (IOException e) {
             LOG.trace("META-INF/application.properties file not find, no default application properties");
         }
