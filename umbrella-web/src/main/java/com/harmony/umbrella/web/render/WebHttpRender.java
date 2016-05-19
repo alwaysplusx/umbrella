@@ -53,8 +53,9 @@ public class WebHttpRender implements HttpRender {
         String encoding = headerMap.get("encoding");
         contentType = contentType + "; charset=" + (StringUtils.isBlank(encoding) ? this.encoding : encoding);
         // 设置response报文头
+        headerMap.put("Content-Type", contentType);
         applyHeader(response, headerMap);
-        // response.setContentType(contentType);
+        response.setContentType(contentType);
         response.getWriter().write(text);
         response.getWriter().flush();
     }

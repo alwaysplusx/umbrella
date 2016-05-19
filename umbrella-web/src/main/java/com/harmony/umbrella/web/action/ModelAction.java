@@ -2,6 +2,8 @@ package com.harmony.umbrella.web.action;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -42,6 +44,24 @@ public abstract class ModelAction<T extends Model<ID>, ID extends Serializable> 
     @Override
     public void setServletRequest(HttpServletRequest request) {
         this.request = request;
+    }
+
+    protected String success() {
+        return success(null);
+    }
+
+    protected String success(String message) {
+        Map<String, Object> result = new LinkedHashMap<String, Object>();
+        result.put("success", true);
+        if (message != null) {
+            result.put("message", message);
+        }
+        try {
+            render.renderJson(Json.toJson(result), response);
+        } catch (IOException e) {
+            return ERROR;
+        }
+        return NONE;
     }
 
     protected String renderJson(Object obj) {
