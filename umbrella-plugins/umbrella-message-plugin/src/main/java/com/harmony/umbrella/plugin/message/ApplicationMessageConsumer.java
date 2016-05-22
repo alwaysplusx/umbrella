@@ -1,13 +1,12 @@
 package com.harmony.umbrella.plugin.message;
 
-import static com.harmony.umbrella.plugin.message.ApplicationMessageConstants.*;
-
-import javax.annotation.Resource;
+import javax.ejb.EJB;
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
 import javax.jms.ConnectionFactory;
 import javax.jms.Destination;
 
+import com.harmony.umbrella.config.Configurations;
 import com.harmony.umbrella.message.MessageConsumer;
 import com.harmony.umbrella.message.jms.AbstractJmsMessageConsumer;
 import com.harmony.umbrella.message.jms.JmsMessageConsumer;
@@ -19,19 +18,17 @@ import com.harmony.umbrella.message.jms.JmsMessageConsumer;
 @Remote({ MessageConsumer.class, JmsMessageConsumer.class })
 public class ApplicationMessageConsumer extends AbstractJmsMessageConsumer {
 
-    @Resource(name = CONNECTION_FACTORY_NAME)
-    private ConnectionFactory connectionFactory;
-    @Resource(name = QUEUE_NAME)
-    private Destination destination;
+    @EJB
+    private Configurations configurations;
 
     @Override
     protected ConnectionFactory getConnectionFactory() {
-        return connectionFactory;
+        return configurations.getBean(ApplicationMessageConstants.applicationConnectionFactory);
     }
 
     @Override
     protected Destination getDestination() {
-        return destination;
+        return configurations.getBean(ApplicationMessageConstants.applicationDestination);
     }
 
 }

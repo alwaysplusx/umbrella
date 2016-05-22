@@ -11,4 +11,10 @@ public class ApplicationMessageConstants {
 
     public static final String CONNECTION_FACTORY_NAME = "jms/connectionFactory";
 
+    public static final String applicationConnectionFactory = "applicationConnectionFactory";
+
+    public static final String applicationDestination = "ApplicationDestination";
+
+    public static final String applicationMessageResolvers = "applicationMessageResolvers";
+
 }

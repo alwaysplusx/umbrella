@@ -24,10 +24,8 @@ import com.harmony.umbrella.message.jms.AbstractJmsMessageListener;
 @Remote({ MessageListener.class, com.harmony.umbrella.message.MessageListener.class })
 public class ApplicationMessageListener extends AbstractJmsMessageListener implements MessageListener {
 
-    @EJB(mappedName = Configurations.APPLICATION_CONFIGURATIONS)
+    @EJB
     private Configurations configurations;
-
-    public static final String ApplicationMessageResolver = "applicationMessageResolver";
 
     @EJB
     private MessageResolver resolver;
@@ -38,7 +36,7 @@ public class ApplicationMessageListener extends AbstractJmsMessageListener imple
 
     @Override
     protected List<MessageResolver> getMessageResolvers() {
-        return configurations.getBeans(ApplicationMessageResolver);
+        return configurations.getBeans(ApplicationMessageConstants.applicationMessageResolvers);
     }
 
     @Override

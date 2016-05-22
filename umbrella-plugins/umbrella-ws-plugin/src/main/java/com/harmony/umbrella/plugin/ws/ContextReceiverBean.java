@@ -1,7 +1,5 @@
 package com.harmony.umbrella.plugin.ws;
 
-import static com.harmony.umbrella.config.Configurations.*;
-
 import java.util.List;
 
 import javax.ejb.EJB;
@@ -27,7 +25,7 @@ public class ContextReceiverBean extends AbstractContextReceiver /*implements Co
 
     public static final String ContextVisitor = ContextReceiver.class.getSimpleName() + "ContextVisitor";
 
-    @EJB(mappedName = APPLICATION_CONFIGURATIONS, beanName = APPLICATION_CONFIGURATIONS)
+    @EJB
     private Configurations config;
 
     private JaxWsExecutor executor = new JaxWsCXFExecutor();

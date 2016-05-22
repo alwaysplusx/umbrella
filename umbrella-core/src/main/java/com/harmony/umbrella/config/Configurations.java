@@ -3,14 +3,11 @@ package com.harmony.umbrella.config;
 import java.util.List;
 
 /**
+ * FIXME 在ejb环境下无法江transient修饰符字段传递出
+ * 
  * @author wuxii@foxmail.com
  */
 public interface Configurations {
-
-    /**
-     * 应用所依赖的系统配置
-     */
-    String APPLICATION_CONFIGURATIONS = "ApplicationConfigurations";
 
     <T> T getBean(String beanName);
 

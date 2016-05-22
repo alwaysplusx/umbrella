@@ -1,7 +1,5 @@
 package com.harmony.umbrella.plugin.message;
 
-import static com.harmony.umbrella.config.Configurations.*;
-
 import javax.ejb.EJB;
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
@@ -20,20 +18,17 @@ import com.harmony.umbrella.message.jms.JmsMessageSender;
 @Remote({ MessageSender.class, JmsMessageSender.class })
 public class ApplicationMessageSender extends AbstractJmsMessageSender {
 
-    public static final String ApplicationDestination = "applicationDestination";
-    public static final String ApplicationConnectionFactory = "applicationConnectionFactory";
-
-    @EJB(mappedName = APPLICATION_CONFIGURATIONS, beanName = APPLICATION_CONFIGURATIONS)
+    @EJB
     private Configurations config;
 
     @Override
     protected ConnectionFactory getConnectionFactory() {
-        return config.getBean(ApplicationConnectionFactory);
+        return config.getBean(ApplicationMessageConstants.applicationConnectionFactory);
     }
 
     @Override
     protected Destination getDestination() {
-        return config.getBean(ApplicationDestination);
+        return config.getBean(ApplicationMessageConstants.applicationDestination);
     }
 
 }
