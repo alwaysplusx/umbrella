@@ -12,6 +12,7 @@ import com.harmony.umbrella.core.MethodGraphReport;
 import com.harmony.umbrella.log.LogMessage;
 import com.harmony.umbrella.log.Logs;
 import com.harmony.umbrella.log.annotation.Logging;
+import com.harmony.umbrella.util.StringUtils;
 
 /**
  * @author wuxii@foxmail.com
@@ -31,7 +32,8 @@ public class LoggingReport implements MethodGraphReport {
         LogMessage logMessage = LogMessage.create(Logs.getLog(target.getClass()));
         ValueContext valueContext = wrap(graph, request, response);
 
-        Logging ann = method.getAnnotation(Logging.class);
+        Logging ann = getLogging(method, target);
+
         if (ann != null) {
             logMessage.action(ann.action())//
                     .module(ann.module())//
@@ -54,11 +56,25 @@ public class LoggingReport implements MethodGraphReport {
                     .operatorName(cc.getUsername());
         }
 
-        logMessage.start(graph.getRequestTime())//
+        logMessage.stack(StringUtils.getMethodId(method))//
+                .threadName(Thread.currentThread().getName())//
+                .start(graph.getRequestTime())//
                 .finish(graph.getResponseTime())//
                 .result(graph.getResult())//
                 .exception(graph.getThrowable())//
                 .log();
+    }
+
+    protected Logging getLogging(Method method, Object target) {
+        Logging ann = method.getAnnotation(Logging.class);
+        if (ann == null && target != null && method.getDeclaringClass() != target.getClass()) {
+            try {
+                Method targetMethod = target.getClass().getMethod(method.getName(), method.getParameterTypes());
+                ann = targetMethod.getAnnotation(Logging.class);
+            } catch (Exception e) {
+            }
+        }
+        return ann;
     }
 
     protected ApplicationContext getApplicationContext() {

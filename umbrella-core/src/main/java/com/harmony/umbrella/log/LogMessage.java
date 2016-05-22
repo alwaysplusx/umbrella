@@ -314,11 +314,6 @@ public class LogMessage {
         return new LogInfo() {
 
             @Override
-            public boolean isException() {
-                return exception != null;
-            }
-
-            @Override
             public Date getStartTime() {
                 return new Date(startTime);
             }

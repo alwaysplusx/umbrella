@@ -8,6 +8,34 @@ import java.util.concurrent.TimeUnit;
 public class TimeUtils {
 
     /**
+     * 按系统指定的格式化模版组合格式化日志
+     * 
+     * @param text
+     * @return
+     * @throws ParseException
+     */
+    public static Date toDate(String text) throws ParseException {
+        Date date = null;
+        for (String pattern : Formats.DATA_PATTERNS) {
+            try {
+                date = toDate(text, pattern);
+            } catch (ParseException e) {
+            }
+            if (date != null) {
+                break;
+            }
+        }
+        if (date == null) {
+            throw new ParseException(text, 0);
+        }
+        return date;
+    }
+
+    public static Calendar toCalendar(String text) throws ParseException {
+        return toCalendar(toDate(text));
+    }
+
+    /**
      * 将时间文本按格式转化为时间对象
      * 
      * @param text

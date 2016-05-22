@@ -8,6 +8,7 @@ import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
@@ -39,6 +40,10 @@ public class Formats {
         DATA_PATTERNS.add(DIAGONAL_DATE_PATTERN);
         DATA_PATTERNS.add(COMMON_DATE_PATTERN);
         DATA_PATTERNS.add(COMMON_DATE_PATTERN);
+        String patterns = Environments.getProperty("umbrella.date.pattern");
+        if (StringUtils.isNotBlank(patterns)) {
+            DATA_PATTERNS.addAll(Arrays.asList(patterns.split(",")));
+        }
     }
 
     public static final String DEFAULT_NUMBER_PATTERN = "#.##";

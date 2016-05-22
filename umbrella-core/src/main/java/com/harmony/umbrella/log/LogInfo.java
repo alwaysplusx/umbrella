@@ -63,13 +63,6 @@ public interface LogInfo {
     Date getFinishTime();
 
     /**
-     * 检查是否有异常
-     * 
-     * @return
-     */
-    boolean isException();
-
-    /**
      * 日志的异常信息
      * 
      * @return

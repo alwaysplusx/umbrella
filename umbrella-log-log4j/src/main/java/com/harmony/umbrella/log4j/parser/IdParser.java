@@ -15,7 +15,7 @@ public class IdParser implements LogInfoParser {
     @Override
     public Object parse(String name, LogInfo logInfo) {
         if (name.equalsIgnoreCase("#uuid")) {
-            return UUID.randomUUID().toString();
+            return UUID.randomUUID().toString().toUpperCase();
         } else if (name.equalsIgnoreCase("#id")) {
             return id.getAndIncrement();
         }

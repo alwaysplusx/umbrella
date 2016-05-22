@@ -5,6 +5,7 @@
     <groupId>com.harmony.umbrella</groupId>
     <artifactId>harmony-umbrella</artifactId>
     <version>0.0.5-SNAPSHOT</version>
+    <relativePath>../pom.xml</relativePath>
   </parent>
   <artifactId>umbrella-log-log4j</artifactId>
   <name>Harmony Umbrella :: Logger log4j Implement</name>

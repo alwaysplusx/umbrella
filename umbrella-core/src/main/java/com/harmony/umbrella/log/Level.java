@@ -61,6 +61,11 @@ public class Level {
         return this.standardLevel.isMoreSpecificThan(level.standardLevel);
     }
 
+    @Override
+    public String toString() {
+        return getName();
+    }
+
     public static Level toLevel(String level) {
         return toLevel(level, DEBUG);
     }

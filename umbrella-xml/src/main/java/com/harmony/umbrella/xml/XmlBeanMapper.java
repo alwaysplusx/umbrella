@@ -201,6 +201,7 @@ public class XmlBeanMapper {
         }
 
         Collections.sort(result, new Comparator<Class>() {
+
             @Override
             public int compare(Class o1, Class o2) {
                 return (!o1.isAssignableFrom(o2) && o1.equals(o2)) ? 0 : ((o1.isAssignableFrom(o2)) ? 1 : -1);
@@ -214,4 +215,12 @@ public class XmlBeanMapper {
         return ReflectionUtils.instantiateClass(clazz);
     }
 
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    protected List getValueConverterClasses() {
+        List result = new ArrayList();
+        for (List vcs : valueConveterMap.values()) {
+            result.add(vcs);
+        }
+        return result;
+    }
 }

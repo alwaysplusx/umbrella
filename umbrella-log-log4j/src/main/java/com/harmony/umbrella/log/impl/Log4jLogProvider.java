@@ -2,6 +2,7 @@ package com.harmony.umbrella.log.impl;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.apache.log4j.helpers.LogLog;
 
 import com.harmony.umbrella.log.AbstractLog;
 import com.harmony.umbrella.log.Log;
@@ -13,6 +14,10 @@ import com.harmony.umbrella.log.Message;
  * @author wuxii@foxmail.com
  */
 public class Log4jLogProvider implements LogProvider {
+
+    static {
+        LogLog.setQuietMode(true);
+    }
 
     @Override
     public Log getLogger(String className) {

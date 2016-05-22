@@ -1,6 +1,6 @@
 package com.harmony.umbrella.log;
 
-import com.harmony.umbrella.log4j.jdbc.JdbcAppender;
+import com.harmony.umbrella.log4j.StaticLogger;
 
 /**
  * @author wuxii@foxmail.com
@@ -11,7 +11,7 @@ public class LogPrinter {
 
     public static void main(String[] args) throws InterruptedException {
 
-        JdbcAppender.level = 0;
+        StaticLogger.level = 2;
         LogMessage.create(log)//
                 .level(Level.INFO)//
                 .module("系统模块")//

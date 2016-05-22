@@ -12,7 +12,6 @@ import com.harmony.umbrella.log.LogInfo;
 import com.harmony.umbrella.log.LoggingException;
 import com.harmony.umbrella.log.jdbc.AbstractDatabaseManager;
 import com.harmony.umbrella.log.jdbc.ConnectionSource;
-import com.harmony.umbrella.log4j.jdbc.JdbcAppender.Column;
 
 /**
  * @author wuxii@foxmail.com
@@ -87,7 +86,7 @@ public class JdbcDatabaseManager extends AbstractDatabaseManager<LoggingEvent> {
         } catch (SQLException e) {
             throw new LoggingException("Failed to insert record for log event in JDBC manager: " + e.getMessage(), e);
         } catch (Exception e) {
-            throw new LoggingException("Failed find field in loginfo");
+            throw new LoggingException("Failed find field in loginfo", e);
         }
     }
 

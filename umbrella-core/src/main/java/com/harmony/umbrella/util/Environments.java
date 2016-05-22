@@ -78,6 +78,10 @@ public final class Environments {
         return false;
     }
 
+    public static String getProperty(String key) {
+        return getProperty(key, null);
+    }
+
     public static String getProperty(String key, String defaultValue) {
         return System.getProperty(key, defaultValue);
     }
@@ -99,8 +103,7 @@ public final class Environments {
     }
 
     /**
-     * Return the full Java version string, as returned by
-     * {@code System.getProperty("java.version")}.
+     * Return the full Java version string, as returned by {@code System.getProperty("java.version")}.
      * 
      * @return the full Java version string
      * @see System#getProperty(String)
@@ -110,8 +113,7 @@ public final class Environments {
     }
 
     /**
-     * Get the major version code. This means we can do things like
-     * {@code if (getMajorJavaVersion() >= JAVA_17)}.
+     * Get the major version code. This means we can do things like {@code if (getMajorJavaVersion() >= JAVA_17)}.
      * 
      * @return a code comparable to the {@code JAVA_XX} codes in this class
      * @see #JAVA_16
