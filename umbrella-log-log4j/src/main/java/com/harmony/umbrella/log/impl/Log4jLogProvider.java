@@ -65,7 +65,7 @@ public class Log4jLogProvider implements LogProvider {
 
         @Override
         protected void logMessage(com.harmony.umbrella.log.Level level, LogInfo logInfo) {
-            logger.log(callerFQCN, exchange(level), logInfo, logInfo.getException());
+            logger.log(callerFQCN, exchange(level), logInfo, logInfo.getThrowable());
         }
 
         private Level exchange(com.harmony.umbrella.log.Level level) {

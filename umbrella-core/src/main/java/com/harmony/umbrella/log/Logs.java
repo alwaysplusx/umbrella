@@ -144,7 +144,7 @@ public final class Logs {
 
         @Override
         protected void logMessage(Level level, LogInfo logInfo) {
-            print(level, logInfo.toString(), logInfo.getException());
+            print(level, logInfo.toString(), logInfo.getThrowable());
         }
 
         private void print(Level level, String message, Throwable t) {

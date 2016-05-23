@@ -1,4 +1,4 @@
-package com.harmony.umbrella.log4j.parser;
+package com.harmony.umbrella.log4j;
 
 import com.harmony.umbrella.log.LogInfo;
 

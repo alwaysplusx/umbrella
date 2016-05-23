@@ -2,53 +2,64 @@ package com.harmony.umbrella.log4j.jdbc;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.w3c.dom.Element;
 
 import com.harmony.umbrella.log.LogInfo;
+import com.harmony.umbrella.log4j.LogInfoParser;
 import com.harmony.umbrella.log4j.StaticLogger;
-import com.harmony.umbrella.log4j.parser.LogInfoParser;
-import com.harmony.umbrella.log4j.parser.NamedParser;
 import com.harmony.umbrella.util.ReflectionUtils;
 import com.harmony.umbrella.util.StringUtils;
 
 /**
  * @author wuxii@foxmail.com
  */
-public class Column implements Comparable<Column> {
+public class Column {
 
     // 源字段(logInfo中的字段)
-    String source;
+    final String source;
 
     // 源字段类型
-    Class<?> sourceType;
+    final Class<?> sourceType;
 
     // 目标字段(目标表的字段)
-    String target;
+    final String target;
 
     // 表中的字段类型
-    Integer sqlType;
+    final Integer sqlType;
 
     // 字段值获取方式
-    LogInfoParser parser;
+    private final LogInfoParser parser;
 
-    int index;
-
-    private Column() {
+    public Column(String source, Class<?> sourceType, String target, Integer sqlType, LogInfoParser parser) {
+        this.source = source;
+        this.sourceType = sourceType;
+        this.target = target;
+        this.sqlType = sqlType;
+        this.parser = parser;
     }
 
-    public void setStatementValue(PreparedStatement statement, LogInfo logInfo) throws SQLException {
-        LogStatementUtils.setValue(statement, index, sqlType, parser.parse(source, logInfo));
-    }
-
-    @Override
-    public int compareTo(Column o) {
-        return source.compareTo(o.source);
+    public Object getColumnValue(LogInfo logInfo) {
+        if (parser != null) {
+            return parser.parse(source, logInfo);
+        }
+        Method method = logInfoMapper.get(source);
+        if (method != null) {
+            return ReflectionUtils.invokeMethod(method, logInfo);
+        } else if ("#uuid".equalsIgnoreCase(source)) {
+            return UUID.randomUUID().toString().toUpperCase();
+        } else if ("#id".equalsIgnoreCase(source)) {
+            return id.getAndIncrement();
+        } else if ("#time".equalsIgnoreCase(source)) {
+            return new Date();
+        }
+        return parser.parse(source, logInfo);
     }
 
     @Override
@@ -58,48 +69,45 @@ public class Column implements Comparable<Column> {
 
     static Column getColumn(String source) {
         Method method = logInfoMapper.get(source);
-        Column column = new Column();
-        column.source = source;
-        column.target = source;
-        column.sourceType = method.getReturnType();
-        column.parser = defaultParser;
-        column.sqlType = sqlTypeMap.get(column.sourceType);
-        return column;
+        return new Column(source, method.getReturnType(), source, sqlTypeMap.get(source), null);
     }
 
     static Column create(Element element) {
-        Column column = new Column();
-        column.source = element.getAttribute("source");
-        column.target = element.getAttribute("target");
+        String source = element.getAttribute("source");
+        Class<?> sourceType = null;
+        String target = element.getAttribute("target");
+        Integer sqlType = null;
+        LogInfoParser parser = null;
 
-        Method method = logInfoMapper.get(column.source);
+        Method method = logInfoMapper.get(source);
         if (method != null) {
-            column.sourceType = method.getReturnType();
+            sourceType = method.getReturnType();
         }
 
         String sqlTypeName = element.getAttribute("sqlType");
         if (StringUtils.isNotBlank(sqlTypeName)) {
-            column.sqlType = sqlTypeMap.get(sqlTypeName.toUpperCase());
-            StaticLogger.warn("log4j: unknow sql type " + sqlTypeName);
+            sqlType = sqlTypeMap.get(sqlTypeName.toUpperCase());
+            if (sqlType == null) {
+                StaticLogger.warn("unknow sql type " + sqlTypeName);
+            }
         }
 
         String parserName = element.getAttribute("parser");
         if (StringUtils.isNotBlank(parserName)) {
             try {
-                column.parser = (LogInfoParser) ReflectionUtils.instantiateClass(parserName);
+                parser = (LogInfoParser) ReflectionUtils.instantiateClass(parserName);
             } catch (Exception e) {
+                StaticLogger.warn("parser not found " + parserName);
             }
         }
-        if (column.parser == null) {
-            column.parser = defaultParser;
-        }
-        return column;
+
+        return new Column(source, sourceType, target, sqlType, parser);
     }
+
+    private static final AtomicLong id = new AtomicLong(System.currentTimeMillis());
 
     private static final Map<String, Method> logInfoMapper = new HashMap<String, Method>(20);
     private static final Map<String, Integer> sqlTypeMap = new HashMap<String, Integer>();
-
-    private static final LogInfoParser defaultParser = new NamedParser();
 
     static {
         // 生成LogInfo的信息
@@ -118,6 +126,7 @@ public class Column implements Comparable<Column> {
             } catch (Exception e) {
             }
         }
+
     }
 
     private static String getSampleName(Method method) {

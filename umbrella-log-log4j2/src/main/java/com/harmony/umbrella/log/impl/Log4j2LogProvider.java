@@ -62,7 +62,7 @@ public class Log4j2LogProvider implements LogProvider {
         @Override
         protected void logMessage(Level level, LogInfo logInfo) {
             if (logger instanceof ExtendedLogger) {
-                ((ExtendedLogger) logger).logIfEnabled(callerFQCN, exchange(level), null, logInfo, logInfo.getException());
+                ((ExtendedLogger) logger).logIfEnabled(callerFQCN, exchange(level), null, logInfo, logInfo.getThrowable());
             } else {
                 logger.info(logInfo);
             }

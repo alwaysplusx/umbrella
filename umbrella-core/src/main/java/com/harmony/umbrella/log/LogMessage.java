@@ -27,7 +27,7 @@ public class LogMessage {
     private Object key;
 
     private Message message;
-    private Throwable exception;
+    private Throwable throwable;
     private Level level;
     private LogType type;
 
@@ -117,7 +117,7 @@ public class LogMessage {
     }
 
     public LogMessage exception(Throwable exception) {
-        this.exception = exception;
+        this.throwable = exception;
         return this;
     }
 
@@ -314,7 +314,7 @@ public class LogMessage {
         return new LogInfo() {
 
             @Override
-            public Date getStartTime() {
+            public Date getRequestTime() {
                 return new Date(startTime);
             }
 
@@ -359,13 +359,13 @@ public class LogMessage {
             }
 
             @Override
-            public Date getFinishTime() {
+            public Date getResponseTime() {
                 return new Date(finishTime);
             }
 
             @Override
-            public Throwable getException() {
-                return exception;
+            public Throwable getThrowable() {
+                return throwable;
             }
 
             @Override
@@ -379,7 +379,7 @@ public class LogMessage {
             }
 
             @Override
-            public String getStack() {
+            public String getStackLocation() {
                 return stack;
             }
 

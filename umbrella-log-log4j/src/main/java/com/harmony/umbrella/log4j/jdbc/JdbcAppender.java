@@ -2,6 +2,7 @@ package com.harmony.umbrella.log4j.jdbc;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -100,14 +101,18 @@ public class JdbcAppender extends AppenderSkeleton implements UnrecognizedElemen
         }
 
         List<Column> columns = new ArrayList<Column>(columnMap.values());
-        Collections.sort(columns);
+        Collections.sort(columns, new Comparator<Column>() {
+            @Override
+            public int compare(Column o1, Column o2) {
+                return o1.source.compareToIgnoreCase(o2.source);
+            }
+        });
         // build sql, and column
         StringBuilder columnPart = new StringBuilder();
         StringBuilder valuePart = new StringBuilder();
 
         for (int i = 0, max = columns.size(); i < max; i++) {
             Column column = columns.get(i);
-            column.index = i + 1;
             // 存在于logInfo中的属性
             columnPart.append(upperCase ? column.target.toUpperCase() : column.target);
             valuePart.append("?");
@@ -194,7 +199,8 @@ public class JdbcAppender extends AppenderSkeleton implements UnrecognizedElemen
      *  &lt;appender/&gt;
      * </pre>
      *
-     * @see org.apache.log4j.xml.UnrecognizedElementHandler#parseUnrecognizedElement(org.w3c.dom.Element, java.util.Properties)
+     * @see org.apache.log4j.xml.UnrecognizedElementHandler#parseUnrecognizedElement(org.w3c.dom.Element,
+     *      java.util.Properties)
      */
     @Override
     public boolean parseUnrecognizedElement(Element element, Properties props) throws Exception {

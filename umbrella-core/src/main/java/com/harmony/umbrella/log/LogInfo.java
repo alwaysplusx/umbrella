@@ -53,21 +53,21 @@ public interface LogInfo {
      * 
      * @return
      */
-    Date getStartTime();
+    Date getRequestTime();
 
     /**
      * 记录结束事件
      * 
      * @return
      */
-    Date getFinishTime();
+    Date getResponseTime();
 
     /**
      * 日志的异常信息
      * 
      * @return
      */
-    Throwable getException();
+    Throwable getThrowable();
 
     /**
      * 日志级别
@@ -75,6 +75,13 @@ public interface LogInfo {
      * @return
      */
     StandardLevel getLevel();
+
+    /**
+     * 日志info的类型，有系统日志与业务日志之分
+     * 
+     * @return
+     */
+    LogType getType();
 
     /**
      * 操作人
@@ -98,18 +105,11 @@ public interface LogInfo {
     String getOperatorHost();
 
     /**
-     * 日志info的类型，有系统日志与业务日志之分
-     * 
-     * @return
-     */
-    LogType getType();
-
-    /**
      * 操作栈，操作位于程序的位置
      * 
      * @return
      */
-    String getStack();
+    String getStackLocation();
 
     /**
      * 操作的线程
