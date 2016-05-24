@@ -13,13 +13,16 @@ import org.apache.struts2.interceptor.ServletResponseAware;
 
 import com.harmony.umbrella.data.domain.Model;
 import com.harmony.umbrella.json.Json;
+import com.harmony.umbrella.web.controller.ModelController;
 import com.harmony.umbrella.web.render.HttpRender;
 import com.harmony.umbrella.web.render.WebHttpRender;
 import com.opensymphony.xwork2.ActionSupport;
 
 /**
+ * @deprecated {@link ModelController}
  * @author wuxii@foxmail.com
  */
+@Deprecated
 public abstract class ModelAction<T extends Model<ID>, ID extends Serializable> extends ActionSupport implements ServletRequestAware, ServletResponseAware {
 
     private static final long serialVersionUID = 941939963000360885L;
