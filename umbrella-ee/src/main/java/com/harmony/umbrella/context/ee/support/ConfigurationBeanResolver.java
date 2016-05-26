@@ -24,7 +24,6 @@ import com.harmony.umbrella.util.StringUtils;
 public class ConfigurationBeanResolver implements BeanResolver {
 
     private static final Log log = Logs.getLog(ConfigurationBeanResolver.class);
-
     private ContextFactory contextFactory;
 
     public ConfigurationBeanResolver(ContextFactory contextFactory) {
@@ -53,28 +52,28 @@ public class ConfigurationBeanResolver implements BeanResolver {
 
     @Override
     public Object guessBean(BeanDefinition beanDefinition, Map properties, BeanFilter filter) {
-        String jndi = getValue(properties, "jndi", "lookup", "jndiname");
+        new BeanJndiGuess(beanDefinition, properties);
+        final String jndi = getValue(properties, "jndi", "lookup", "jndiname");
         if (jndi != null) {
-            return tryLookup(jndi);
+            Object bean = tryLookup(jndi);
+            if (bean != null && isDeclareBean(beanDefinition, bean)) {
+                return bean;
+            }
         }
-        Object bean = null;
-        if (bean == null) {
-            Set<String> jndis = guessNames(beanDefinition, properties);
-
+        Set<String> jndis = guessNames(beanDefinition, properties);
+        for (String name : jndis) {
+            Object bean = tryLookup(name);
+            if (bean != null && isDeclareBean(beanDefinition, bean) && (filter == null || filter.accept(name, bean))) {
+                return bean;
+            }
         }
-        return bean;
+        return null;
     }
 
     public Set<String> guessNames(BeanDefinition beanDefinition, Map properties) {
         Set<String> jndis = new HashSet<String>();
-        // 配置属性中存在jndi直接返回
-        String jndi = getValue(properties, "jndi", "lookup", "jndiname");
-        if (StringUtils.isNotBlank(jndi)) {
-            jndis.add(jndi);
-            return jndis;
-        }
 
-        return null;
+        return jndis;
     }
 
     /**
@@ -95,14 +94,7 @@ public class ConfigurationBeanResolver implements BeanResolver {
     }
 
     @Override
-    public boolean isDeclareBean(BeanDefinition declare, Object bean) {
-        return isDeclare(declare, unwrap(bean));
-    }
-
-    /**
-     * 测试目标bean是否是声明的类型
-     */
-    private boolean isDeclare(BeanDefinition declare, Object bean) {
+    public boolean isDeclareBean(final BeanDefinition declare, final Object bean) {
         Class<?> remoteClass = declare.getRemoteClass();
         if (log.isDebugEnabled()) {
             log.debug("test, it is declare bean? "//
