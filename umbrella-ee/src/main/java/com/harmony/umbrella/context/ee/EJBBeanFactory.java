@@ -1,10 +1,9 @@
 package com.harmony.umbrella.context.ee;
 
+import javax.ejb.EJB;
+
 import com.harmony.umbrella.core.BeanFactory;
 import com.harmony.umbrella.core.BeansException;
-
-import javax.ejb.EJB;
-import java.util.Properties;
 
 /**
  * @author wuxii@foxmail.com
@@ -20,7 +19,5 @@ public interface EJBBeanFactory extends BeanFactory {
     <T> T lookup(BeanDefinition beanDefinition) throws BeansException;
 
     <T> T lookup(BeanDefinition beanDefinition, EJB ejbAnnotation) throws BeansException;
-
-    void setContextProperties(Properties properties);
 
 }

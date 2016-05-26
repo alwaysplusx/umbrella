@@ -1,8 +1,6 @@
 package com.harmony.umbrella.util;
 
-import com.harmony.umbrella.context.ApplicationMetadata;
-import com.harmony.umbrella.context.ApplicationMetadata.JVMInformation;
-import com.harmony.umbrella.context.ApplicationMetadata.OSInformation;
+import com.harmony.umbrella.context.metadata.ApplicationMetadata;
 
 /**
  * @author wuxii@foxmail.com
@@ -44,12 +42,19 @@ public final class Environments {
      */
     public static final int JAVA_19 = 6;
 
-    public static final JVMInformation JVM_INFORMATION = ApplicationMetadata.JVMINFO;
+    /**
+     * java版本
+     */
+    private static final String javaVersion = ApplicationMetadata.getJavaMetadata().javaVersion;
 
-    public static final OSInformation OS_INFORMATION = ApplicationMetadata.OSINFO;
+    /**
+     * 操作系统名称
+     */
+    private static final String operatingSystemName = ApplicationMetadata.getOperatingSystemMetadata().osName;
 
-    private static final String javaVersion = JVM_INFORMATION.javaVersion;
-
+    /**
+     * java大版本号
+     */
     private static final int majorJavaVersion;
 
     static {
@@ -67,15 +72,15 @@ public final class Environments {
     }
 
     public static boolean isWindows() {
-        return OS_INFORMATION.osName.toLowerCase().contains("windows");
+        return operatingSystemName.toLowerCase().contains("windows");
     }
 
     public static boolean isUnix() {
-        return false;
+        return operatingSystemName.toLowerCase().contains("unix");
     }
 
     public static boolean isLinux() {
-        return false;
+        return operatingSystemName.toLowerCase().contains("linux");
     }
 
     public static String getProperty(String key) {
@@ -103,7 +108,8 @@ public final class Environments {
     }
 
     /**
-     * Return the full Java version string, as returned by {@code System.getProperty("java.version")}.
+     * Return the full Java version string, as returned by
+     * {@code System.getProperty("java.version")}.
      * 
      * @return the full Java version string
      * @see System#getProperty(String)
@@ -113,7 +119,8 @@ public final class Environments {
     }
 
     /**
-     * Get the major version code. This means we can do things like {@code if (getMajorJavaVersion() >= JAVA_17)}.
+     * Get the major version code. This means we can do things like
+     * {@code if (getMajorJavaVersion() >= JAVA_17)}.
      * 
      * @return a code comparable to the {@code JAVA_XX} codes in this class
      * @see #JAVA_16

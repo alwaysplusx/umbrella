@@ -1,4 +1,4 @@
-package com.harmony.umbrella.context.ee;
+package com.harmony.umbrella.context.ee.support;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -9,7 +9,10 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
-import com.harmony.umbrella.context.ee.resolver.InternalContextResolver;
+import com.harmony.umbrella.context.ee.BeanDefinition;
+import com.harmony.umbrella.context.ee.ContextResolver;
+import com.harmony.umbrella.context.ee.EJBBeanFactory;
+import com.harmony.umbrella.context.ee.SessionBean;
 import com.harmony.umbrella.core.BeanFactory;
 import com.harmony.umbrella.core.BeansException;
 import com.harmony.umbrella.core.NoSuchBeanFoundException;
@@ -22,16 +25,10 @@ import com.harmony.umbrella.util.StringUtils;
  */
 public class EJBBeanFactoryImpl implements EJBBeanFactory {
 
-    private final Properties contextProperties = new Properties();
     private ContextResolver contextResolver;
 
-    public static EJBBeanFactory create(Properties properties) {
-        return new EJBBeanFactoryImpl(InternalContextResolver.create(properties), properties);
-    }
-
-    public EJBBeanFactoryImpl(ContextResolver contextResolver, Properties contextProperties) {
+    public EJBBeanFactoryImpl(ContextResolver contextResolver) {
         this.contextResolver = contextResolver;
-        this.contextProperties.putAll(contextProperties);
     }
 
     @SuppressWarnings("unchecked")
@@ -78,12 +75,6 @@ public class EJBBeanFactoryImpl implements EJBBeanFactory {
             throw new NoSuchBeanFoundException(beanDefinition.getBeanClass().getName());
         }
         return (T) bean;
-    }
-
-    @Override
-    public void setContextProperties(Properties properties) {
-        contextProperties.clear();
-        contextProperties.putAll(properties);
     }
 
     private Object deepLookup(BeanDefinition beanDefinition, EJB ejbAnnotation) {
@@ -149,14 +140,6 @@ public class EJBBeanFactoryImpl implements EJBBeanFactory {
             return bean;
         }
         return null;
-    }
-
-    private Context getContext() {
-        try {
-            return new InitialContext(contextProperties);
-        } catch (NamingException e) {
-            throw new IllegalStateException(e);
-        }
     }
 
 }

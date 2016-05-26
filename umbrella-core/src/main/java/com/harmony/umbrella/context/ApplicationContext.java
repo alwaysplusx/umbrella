@@ -1,26 +1,12 @@
 package com.harmony.umbrella.context;
 
-import static com.harmony.umbrella.context.ApplicationMetadata.*;
-
-import java.io.IOException;
-import java.net.URL;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.Locale;
-import java.util.Properties;
 import java.util.ServiceLoader;
 
-import javax.servlet.ServletContext;
-
-import com.harmony.umbrella.context.ApplicationMetadata.DBInformation;
-import com.harmony.umbrella.context.ApplicationMetadata.JVMInformation;
-import com.harmony.umbrella.context.ApplicationMetadata.OSInformation;
-import com.harmony.umbrella.context.ApplicationMetadata.ServerInformation;
 import com.harmony.umbrella.core.BeanFactory;
+import com.harmony.umbrella.core.NoSuchBeanFoundException;
+import com.harmony.umbrella.core.SimpleBeanFactory;
 import com.harmony.umbrella.log.Log;
 import com.harmony.umbrella.log.Logs;
-import com.harmony.umbrella.util.Environments;
-import com.harmony.umbrella.util.PropertiesUtils;
 
 /**
  * 运行的应用的上下文
@@ -30,47 +16,8 @@ import com.harmony.umbrella.util.PropertiesUtils;
 public abstract class ApplicationContext implements BeanFactory {
 
     protected static final Log LOG = Logs.getLog(ApplicationContext.class);
-    
-    public static final String APPLICATION_PACKAGE;
 
-    /**
-     * jndi默认配置文件地址
-     */
-    public static final String APPLICATION_PROPERTIES_LOCATION = "META-INF/application.properties";
-    
-    /**
-     * 应用的配置属性
-     */
-    protected static final Properties applicationProperties = new Properties();
-
-    static {
-        APPLICATION_PACKAGE = Environments.getProperty("umbrella.application.package", "com.harmony");
-        try {
-            String fileLocation = Environments.getProperty("umbrella.application.properties.file", APPLICATION_PROPERTIES_LOCATION);
-            applicationProperties.putAll(PropertiesUtils.loadProperties(fileLocation));
-        } catch (IOException e) {
-            LOG.trace("META-INF/application.properties file not find, no default application properties");
-        }
-    }
-    
     protected static final ThreadLocal<CurrentContext> current = new InheritableThreadLocal<CurrentContext>();
-
-
-    private static final ServiceLoader<ContextProvider> providers = ServiceLoader.load(ContextProvider.class);
-
-    protected Locale locale;
-
-    /**
-     * 运行的web服务信息，未初始化则为{@code null}
-     */
-    private static ServerInformation serverInfo;
-    /**
-     * 所连接的数据库信息, 未初始化则为{@code null}
-     */
-    private static DBInformation dbInfo;
-
-    protected ApplicationContext() {
-    }
 
     /**
      * 获取当前应用的应用上下文
@@ -82,7 +29,7 @@ public abstract class ApplicationContext implements BeanFactory {
      * @return 应用上下文
      */
     public static final ApplicationContext getApplicationContext() {
-        return getApplicationContext0(null);
+        return getApplicationContext0();
     }
 
     /**
@@ -92,44 +39,26 @@ public abstract class ApplicationContext implements BeanFactory {
      *            配置文件url
      * @return 应用上下文
      */
-    public static final ApplicationContext getApplicationContext(URL url) {
-        return getApplicationContext0(url);
-    }
-
-    /**
-     * 获取当前应用的上下文, 并使用初始化属性{@code props}对应用进行初始化
-     *
-     * @param url
-     *            配置文件url
-     * @return 应用上下文
-     */
-    private static final ApplicationContext getApplicationContext0(URL url) {
-
+    private static final ApplicationContext getApplicationContext0() {
         ApplicationContext context = null;
-        synchronized (providers) {
-            providers.reload();
-            LOG.debug("current providers -> {}", providers);
-            for (ContextProvider provider : providers) {
-                try {
-                    context = provider.createApplicationContext(url);
-                    if (context != null) {
-                        LOG.debug("create context [{}] by [{}]", context, provider);
-                        break;
-                    }
-                } catch (Exception e) {
-                    LOG.warn("", e);
+        ServiceLoader<ContextProvider> providers = ServiceLoader.load(ContextProvider.class);
+        for (ContextProvider provider : providers) {
+            try {
+                context = provider.createApplicationContext();
+                if (context != null) {
+                    LOG.debug("create context [{}] by [{}]", context, provider);
+                    break;
                 }
+            } catch (Exception e) {
+                LOG.warn("", e);
             }
         }
-
         if (context == null) {
-            LOG.warn("no context provider find, use default {}", ContextProvider.class.getName());
-            context = ContextProvider.INSTANCE.createApplicationContext(url);
+            context = SimpleApplicationContext.SIMPLE_APPLICATION_CONTEXT;
+            LOG.warn("no context provider find, use default {}", SimpleApplicationContext.class.getName());
         }
-
         // 初始化
         context.init();
-
         return context;
     }
 
@@ -163,6 +92,17 @@ public abstract class ApplicationContext implements BeanFactory {
     }
 
     /**
+     * 移除当前的CurrentContext
+     * 
+     * @return 当前的current context
+     */
+    public CurrentContext removeCurrentContext() {
+        CurrentContext cc = this.getCurrentContext();
+        current.set(null);
+        return cc;
+    }
+
+    /**
      * 获取当前线程的用户环境
      *
      * @return 用户环境
@@ -171,117 +111,39 @@ public abstract class ApplicationContext implements BeanFactory {
         return current.get();
     }
 
-    public Locale getLocale() {
-        return this.locale;
-    }
+    private static final class SimpleApplicationContext extends ApplicationContext {
 
-    public void setLocale(Locale locale) {
-        this.locale = locale;
-    }
+        private static final SimpleApplicationContext SIMPLE_APPLICATION_CONTEXT = new SimpleApplicationContext();
 
-    /**
-     * 获取应用的jvm信息
-     *
-     * @return jvm信息
-     */
-    public JVMInformation getInformationOfJVM() {
-        return JVMINFO;
-    }
+        private BeanFactory beanFactory = new SimpleBeanFactory();
 
-    /**
-     * 获取应用的服务信息
-     *
-     * @return web服务器信息， 如果未初始化泽返回{@code null}
-     */
-    public ServerInformation getInformationOfServer() {
-        return serverInfo;
-    }
-
-    /**
-     * 获取应用的操作系统信息
-     *
-     * @return 操作系统的信息
-     */
-    public OSInformation getInformationOfOS() {
-        return OSINFO;
-    }
-
-    /**
-     * 获取应用的数据库信息
-     *
-     * @return 数据库信息, 未初始化返回{@code null}
-     */
-    public DBInformation getInformationOfDB() {
-        return dbInfo;
-    }
-
-    /**
-     * 注册应用的web服务信息
-     * <p>
-     * 一经注册就不在更改
-     *
-     * @param servletContext
-     *            web上下文
-     */
-    public void initializeServerInformation(ServletContext servletContext) {
-        if (serverInfo == null) {
-            serverInfo = METADATA.new ServerInformation(servletContext);
-            LOG.info("init server information success\n{}", serverInfo);
+        @Override
+        public void init() {
         }
-    }
 
-    /**
-     * 初始化应用的数据源信息
-     * <p>
-     * 一经初始化就不在更改
-     *
-     * @param conn
-     *            数据源的一个连接
-     * @param close
-     *            标识是否自动关闭数据源
-     * @throws SQLException
-     *             获取数据源信息失败
-     */
-    public void initializeDBInformation(Connection conn, boolean close) throws SQLException {
-        if (dbInfo == null) {
-            try {
-                dbInfo = METADATA.new DBInformation(conn);
-                LOG.info("init database information success\n{}", dbInfo);
-            } finally {
-                if (close) {
-                    try {
-                        conn.close();
-                    } catch (SQLException e) {
-                    }
-                }
-            }
+        @Override
+        public void destroy() {
         }
-    }
 
-    /**
-     * 应用的概况
-     */
-    public String getDescription() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("{\n")//
-                .append("\"os\":").append(getInformationOfOS()).append(",\n")//
-                .append("\"jvm\":").append(getInformationOfJVM()).append(",\n")//
-                .append("\"db\":").append(getInformationOfDB() == null ? "{}" : getInformationOfDB()).append(",\n")//
-                .append("\"server\":").append(getInformationOfServer() == null ? "{}" : getInformationOfServer()).append("\n")//
-                .append("}");
-        return sb.toString();
-    }
+        @Override
+        public <T> T getBean(String beanName) throws NoSuchBeanFoundException {
+            return beanFactory.getBean(beanName);
+        }
 
-    public static String getProperty(String key) {
-        return applicationProperties.getProperty(key);
-    }
+        @Override
+        public <T> T getBean(String beanName, String scope) throws NoSuchBeanFoundException {
+            return beanFactory.getBean(beanName, scope);
+        }
 
-    public static String getProperty(String key, String defaultValue) {
-        return applicationProperties.getProperty(key, defaultValue);
-    }
+        @Override
+        public <T> T getBean(Class<T> beanClass) throws NoSuchBeanFoundException {
+            return beanFactory.getBean(beanClass);
+        }
 
-    public static void setProperty(String key, String value) {
-        applicationProperties.put(key, value);
-    }
+        @Override
+        public <T> T getBean(Class<T> beanClass, String scope) throws NoSuchBeanFoundException {
+            return beanFactory.getBean(beanClass, scope);
+        }
 
+    }
 }

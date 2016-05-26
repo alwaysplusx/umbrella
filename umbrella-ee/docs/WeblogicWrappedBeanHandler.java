@@ -3,7 +3,7 @@ package com.harmony.umbrella.context.ee.util;
 import java.util.Arrays;
 import java.util.List;
 
-import com.harmony.umbrella.context.ee.WrappedBeanHandler;
+import com.harmony.umbrella.context.ee.support.WrappedBeanHandler;
 import com.harmony.umbrella.log.Log;
 import com.harmony.umbrella.log.Logs;
 import com.harmony.umbrella.util.ClassUtils;

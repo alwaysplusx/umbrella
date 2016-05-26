@@ -1,6 +1,5 @@
 package com.harmony.umbrella.context.ee;
 
-import javax.naming.Context;
 
 /**
  * 在bean解析的基础上添加在context中查找对应bean的功能
@@ -18,7 +17,7 @@ public interface ContextResolver extends BeanResolver {
      *            context
      * @return 如果context中没有对应的jndi返回null
      */
-    Object tryLookup(String jndi, Context context);
+    Object tryLookup(String jndi);
 
     /**
      * 在context中查找beanDefinition对于的SessionBean
@@ -29,7 +28,7 @@ public interface ContextResolver extends BeanResolver {
      *            context
      * @return 与beanDefinition相对应的SessionBean， 没有找到返回null
      */
-    SessionBean search(BeanDefinition beanDefinition, Context context);
+    SessionBean search(BeanDefinition beanDefinition);
 
     /**
      * 清除查找到的结果缓存

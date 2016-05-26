@@ -1,7 +1,6 @@
 package com.harmony.umbrella.context.ee;
 
-import javax.ejb.EJB;
-import javax.naming.Context;
+import java.util.Map;
 
 /**
  * 根据bean的定义，在可以根据环境或者配置情况解析环境中对应的bean
@@ -11,47 +10,57 @@ import javax.naming.Context;
 public interface BeanResolver {
 
     /**
-     * 通过配置的信息获取可猜想出的jndi
+     * {@linkplain javax.naming.Context}创建工厂
      * 
-     * @param beanDefinition
-     *            bean定义
-     * @return jndis 猜想结果
+     * @return {@linkplain javax.naming.Context}
      */
-    String[] guessNames(BeanDefinition beanDefinition);
+    ContextFactory getContextFactory();
 
     /**
-     * 根据配置的上下文的信息猜想环境中对应的bean jndi名称, 猜想的结构为root中存在的jndi
+     * 通过bean定义,猜想可能的bean
      * 
      * @param beanDefinition
      *            bean定义
-     * @param context
-     *            {@linkplain Context}
-     * @return 所有猜想并在{@linkplain Context}中存在的jndi名称
+     * @return 可能的bean,如果没有找到返回null
      */
-    String[] guessNames(BeanDefinition beanDefinition, Context context);
+    Object guessBean(BeanDefinition beanDefinition);
 
-    String[] guessNames(BeanDefinition beanDefinition, EJB ejbAnnotation);
-
-    String[] guessNames(BeanDefinition beanDefinition, EJB ejbAnnotation, Context context);
-
-    Object guessBean(BeanDefinition beanDefinition, Context context);
-
-    Object guessBean(BeanDefinition beanDefinition, EJB ejbAnnotation, Context context);
+    /**
+     * 通过bean定义,猜想可能的bean
+     * 
+     * @param beanDefinition
+     *            bean定义
+     * @param properties
+     *            查找的属性信息
+     * @return 可能的bean,如果没有找到返回null
+     */
+    @SuppressWarnings("rawtypes")
+    Object guessBean(BeanDefinition beanDefinition, Map properties);
 
     /**
      * 根据beanDefinition猜想context中对于的jndi， 并提供beanFilter过滤对应的猜想结果，选取最优的bean
      * 
      * @param beanDefinition
      *            bean定义
-     * @param context
-     *            {@linkplain Context}
      * @param filter
      *            bean过滤
      * @return 猜想的最优解，如果未能找到返回null
      */
-    Object guessBean(BeanDefinition beanDefinition, Context context, BeanFilter filter);
+    Object guessBean(BeanDefinition beanDefinition, BeanFilter filter);
 
-    Object guessBean(BeanDefinition beanDefinition, EJB ejbAnnotation, Context context, BeanFilter filter);
+    /**
+     * 根据beanDefinition猜想context中对于的jndi， 并提供beanFilter过滤对应的猜想结果，选取最优的bean
+     * 
+     * @param beanDefinition
+     *            bean定义
+     * @param properties
+     *            查找的属性配置
+     * @param filter
+     *            bean校验过滤
+     * @return 可能的bean,如果没有找到返回null
+     */
+    @SuppressWarnings("rawtypes")
+    Object guessBean(BeanDefinition beanDefinition, Map properties, BeanFilter filter);
 
     /**
      * 查看bean是否与声明的类型匹配

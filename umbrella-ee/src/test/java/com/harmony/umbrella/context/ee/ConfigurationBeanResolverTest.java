@@ -3,7 +3,7 @@ package com.harmony.umbrella.context.ee;
 import java.io.IOException;
 import java.util.Properties;
 
-import com.harmony.umbrella.context.ee.resolver.ConfigurationBeanResolver;
+import com.harmony.umbrella.context.ee.support.ConfigurationBeanResolver;
 import com.harmony.umbrella.util.PropertiesUtils;
 
 /**

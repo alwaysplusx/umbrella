@@ -1,4 +1,4 @@
-package com.harmony.umbrella.context.ee;
+package com.harmony.umbrella.context.ee.support;
 
 /**
  * 各种不同的容器对session bean的封装不同， 在用handler方式将bean包装拆解

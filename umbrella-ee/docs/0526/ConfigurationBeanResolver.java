@@ -1,13 +1,11 @@
-package com.harmony.umbrella.context.ee.resolver;
+package com.harmony.umbrella.context.ee.support;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
-import java.util.Properties;
 import java.util.Set;
-import java.util.StringTokenizer;
 
 import javax.ejb.EJB;
 import javax.naming.Context;
@@ -16,7 +14,6 @@ import javax.naming.NamingException;
 import com.harmony.umbrella.context.ee.BeanDefinition;
 import com.harmony.umbrella.context.ee.BeanFilter;
 import com.harmony.umbrella.context.ee.BeanResolver;
-import com.harmony.umbrella.context.ee.WrappedBeanHandler;
 import com.harmony.umbrella.core.BeansException;
 import com.harmony.umbrella.core.ClassWrapper;
 import com.harmony.umbrella.log.Log;
@@ -24,8 +21,6 @@ import com.harmony.umbrella.log.Logs;
 import com.harmony.umbrella.util.AnnotationUtils;
 import com.harmony.umbrella.util.Assert;
 import com.harmony.umbrella.util.ClassUtils;
-import com.harmony.umbrella.util.Converter;
-import com.harmony.umbrella.util.ReflectionUtils;
 import com.harmony.umbrella.util.StringUtils;
 
 /**
@@ -46,86 +41,8 @@ public class ConfigurationBeanResolver implements BeanResolver {
     protected final Set<WrappedBeanHandler> wrappedBeanHandlers;
     protected final boolean transformLocal;
 
-    static final Converter<String, Set<String>> stringToSetStringConverter = new Converter<String, Set<String>>() {
-        @Override
-        public Set<String> convert(String s) {
-            Set<String> result = new HashSet<String>();
-            if (StringUtils.isBlank(s)) {
-                return result;
-            }
-            StringTokenizer st = new StringTokenizer(s, ",");
-            while (st.hasMoreTokens()) {
-                result.add(st.nextToken().trim());
-            }
-            return result;
-        }
-    };
-
-    static final Converter<String, Boolean> stringToBooleanConverter = new Converter<String, Boolean>() {
-        @Override
-        public Boolean convert(String s) {
-            if (StringUtils.isBlank(s)) {
-                return false;
-            }
-            return Boolean.valueOf(s);
-        }
-    };
-
-    static final Converter<String, Set<WrappedBeanHandler>> stringToSetWrappedBeanHandlerConverter = new Converter<String, Set<WrappedBeanHandler>>() {
-        @Override
-        public Set<WrappedBeanHandler> convert(String s) {
-            Set<WrappedBeanHandler> result = new HashSet<WrappedBeanHandler>();
-            if (StringUtils.isBlank(s)) {
-                return result;
-            }
-            for (String className : stringToSetStringConverter.convert(s)) {
-                try {
-                    Class<?> clazz = Class.forName(className);
-                    result.add((WrappedBeanHandler) ReflectionUtils.instantiateClass(clazz));
-                } catch (ClassNotFoundException e) {
-                    ReflectionUtils.rethrowRuntimeException(e);
-                }
-            }
-            return result;
-        }
-    };
-
-    // jndi.format.separator
-    // jndi.format.bean
-    // jndi.format.remote
-    // jndi.format.local
-    // jndi.format.transformLocal
-    // jndi.wrapped.handler
-    public static ConfigurationBeanResolver create(Properties properties) {
-        String globalPrefix = properties.getProperty("jndi.format.global.prefix", "");
-        if (!globalPrefix.endsWith("/")) {
-            globalPrefix += "/";
-        }
-        return new ConfigurationBeanResolver(
-                globalPrefix,
-                getProperty(properties, "jndi.format.separator", "#", stringToSetStringConverter),
-                getProperty(properties, "jndi.format.bean", "Bean, ", stringToSetStringConverter),
-                getProperty(properties, "jndi.format.remote", "Remote, ", stringToSetStringConverter),
-                getProperty(properties, "jndi.format.local", "Local, ", stringToSetStringConverter),
-                getProperty(properties, "jndi.wrapped.handler", stringToSetWrappedBeanHandlerConverter),
-                getProperty(properties, "jndi.format.transformLocal", "true", stringToBooleanConverter));
-    }
-
-    static <V> V getProperty(Properties properties, String key, Converter<String, V> converter) {
-        return getProperty(properties, key, null, converter);
-    }
-
-    static <V> V getProperty(Properties properties, String key, String defaultValue, Converter<String, V> converter) {
-        return converter.convert(properties.getProperty(key, defaultValue));
-    }
-
-    public ConfigurationBeanResolver(String globalPrefix,
-                                     Set<String> separators,
-                                     Set<String> beanSuffixes,
-                                     Set<String> remoteSuffixes,
-                                     Set<String> localSuffixes,
-                                     Set<WrappedBeanHandler> wrappedBeanHandlers,
-                                     boolean transformLocale) {
+    public ConfigurationBeanResolver(String globalPrefix, Set<String> separators, Set<String> beanSuffixes, Set<String> remoteSuffixes,
+            Set<String> localSuffixes, Set<WrappedBeanHandler> wrappedBeanHandlers, boolean transformLocale) {
         this.globalPrefix = globalPrefix;
         this.separators = separators;
         this.beanSuffixes = beanSuffixes;
@@ -135,29 +52,7 @@ public class ConfigurationBeanResolver implements BeanResolver {
         this.transformLocal = transformLocale;
     }
 
-    @Override
-    public String[] guessNames(BeanDefinition beanDefinition) {
-        return guessNames0(beanDefinition, null, null);
-    }
-
-    @Override
-    public String[] guessNames(BeanDefinition beanDefinition, Context context) {
-        Assert.notNull(context, "context not allow null");
-        return guessNames0(beanDefinition, null, context);
-    }
-
-    @Override
-    public String[] guessNames(BeanDefinition beanDefinition, EJB ejbAnnotation) {
-        return guessNames0(beanDefinition, ejbAnnotation, null);
-    }
-
-    @Override
     public String[] guessNames(BeanDefinition beanDefinition, EJB ejbAnnotation, Context context) {
-        Assert.notNull(context);
-        return guessNames0(beanDefinition, ejbAnnotation, context);
-    }
-
-    private String[] guessNames0(BeanDefinition beanDefinition, EJB ejbAnnotation, Context context) {
         if (beanDefinition.isRemoteClass()) {
             return new RemoteClassJndiGuesser(beanDefinition, ejbAnnotation, context).guess();
         } else if (beanDefinition.isLocalClass()) {
@@ -219,10 +114,7 @@ public class ConfigurationBeanResolver implements BeanResolver {
     protected boolean isDeclare(BeanDefinition declare, Object bean) {
         Class<?> remoteClass = declare.getRemoteClass();
         if (log.isDebugEnabled()) {
-            log.debug("test, it is declare bean? "
-                            + "\n\tdeclare remoteClass -> {}"
-                            + "\n\tdeclare beanClass   -> {}"
-                            + "\n\tactual  bean        -> {}",
+            log.debug("test, it is declare bean? " + "\n\tdeclare remoteClass -> {}" + "\n\tdeclare beanClass   -> {}" + "\n\tactual  bean        -> {}",
                     remoteClass, declare.getBeanClass(), bean);
         }
         return declare.getBeanClass().isInstance(bean) || (remoteClass != null && remoteClass.isInstance(bean));
@@ -242,9 +134,9 @@ public class ConfigurationBeanResolver implements BeanResolver {
      * 通过jndi查找对应的bean
      *
      * @param jndi
-     *         jndi
+     *            jndi
      * @param context
-     *         javax.naming.Context
+     *            javax.naming.Context
      * @return 如果未找到返回null
      */
     public Object tryLookup(String jndi, Context context) {
@@ -301,16 +193,17 @@ public class ConfigurationBeanResolver implements BeanResolver {
          * 格式划jndi, 再判断jndi是否存在于上下文中
          * <p/>
          * <p/>
+         * 
          * <pre>
          *   JNDI = prefix() + beanSuffix + separator + package + . + prefix() + remoteSuffix
          * </pre>
          *
          * @param mappedName
-         *         bean的映射名称
+         *            bean的映射名称
          * @param separator
-         *         分割符
+         *            分割符
          * @param remoteClass
-         *         remote的类型
+         *            remote的类型
          */
         protected void addIfAbsent(String mappedName, String separator, Class<?> remoteClass) {
             String jndi = new StringBuilder(globalPrefix).append(mappedName).append(separator).append(remoteClass.getName()).toString();
@@ -320,7 +213,8 @@ public class ConfigurationBeanResolver implements BeanResolver {
         }
 
         /**
-         * 当前beanDefinition所有子类的mappedName, 如果beanDefinition是session class则没有子mappedName
+         * 当前beanDefinition所有子类的mappedName, 如果beanDefinition是session
+         * class则没有子mappedName
          */
         protected Set<String> subMappedNames() {
             Set<String> mappedNames = new HashSet<String>();
@@ -350,9 +244,9 @@ public class ConfigurationBeanResolver implements BeanResolver {
          * 通过接口的类名+配置bean后缀信息, 猜想对应的mappedName
          *
          * @param classes
-         *         接口类
+         *            接口类
          * @param suffixes
-         *         bean的后缀
+         *            bean的后缀
          * @return
          */
         public Set<String> guessMappedNames(Collection<Class> classes, Collection<String> suffixes) {
@@ -400,7 +294,6 @@ public class ConfigurationBeanResolver implements BeanResolver {
 
     final class RemoteClassJndiGuesser extends JndiGuesser {
 
-
         public RemoteClassJndiGuesser(BeanDefinition beanDefinition, EJB ejbAnnotation, Context context) {
             super(beanDefinition, ejbAnnotation, context);
         }
@@ -408,8 +301,11 @@ public class ConfigurationBeanResolver implements BeanResolver {
         /**
          * 通过remote接口猜想mappedName
          * <p/>
-         * <ul> <li>首先匹配remoteClass的所有子类,通过对子类的判断来获取mappedName</li> <li>如果有@EJB注解, 通过注解上的名称mappedName来获取对于的名称</li>
-         * <li>通过配置的猜想,通过替换远程接口的后缀来猜想mappedName</li> </ul>
+         * <ul>
+         * <li>首先匹配remoteClass的所有子类,通过对子类的判断来获取mappedName</li>
+         * <li>如果有@EJB注解, 通过注解上的名称mappedName来获取对于的名称</li>
+         * <li>通过配置的猜想,通过替换远程接口的后缀来猜想mappedName</li>
+         * </ul>
          */
         protected Collection<String> mappedNames() {
             Set<String> mappedNames = subMappedNames();
@@ -436,8 +332,11 @@ public class ConfigurationBeanResolver implements BeanResolver {
         /**
          * 通过local class猜想mappedName
          * <p/>
-         * <ul> <li>首先匹配localClass的所有子类,通过对子类的判断来获取mappedName</li> <li>如果有@EJB注解, 通过注解上的名称mappedName来获取对于的名称</li>
-         * <li>通过配置的猜想,通过替换local接口的后缀来猜想mappedName</li> </ul>
+         * <ul>
+         * <li>首先匹配localClass的所有子类,通过对子类的判断来获取mappedName</li>
+         * <li>如果有@EJB注解, 通过注解上的名称mappedName来获取对于的名称</li>
+         * <li>通过配置的猜想,通过替换local接口的后缀来猜想mappedName</li>
+         * </ul>
          */
         @Override
         protected Collection<String> mappedNames() {

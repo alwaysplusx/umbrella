@@ -1,9 +1,8 @@
-package com.harmony.umbrella.context.ee.resolver;
+package com.harmony.umbrella.context.ee.support;
 
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 
 import javax.naming.Context;
@@ -15,12 +14,9 @@ import com.harmony.umbrella.context.ee.BeanDefinition;
 import com.harmony.umbrella.context.ee.BeanFilter;
 import com.harmony.umbrella.context.ee.ContextResolver;
 import com.harmony.umbrella.context.ee.SessionBean;
-import com.harmony.umbrella.context.ee.WrappedBeanHandler;
 import com.harmony.umbrella.log.Log;
 import com.harmony.umbrella.log.Logs;
 import com.harmony.umbrella.util.ClassUtils;
-import com.harmony.umbrella.util.Converter;
-import com.harmony.umbrella.util.StringUtils;
 
 /**
  * JavaEE环境内部解析工具，用于分析{@linkplain javax.naming.Context}
@@ -34,34 +30,6 @@ public class InternalContextResolver extends ConfigurationBeanResolver implement
 
     private final Set<String> roots;
     private final int maxDeeps;
-
-    static final Converter<String, ? extends Integer> stringToIntegerConverter = new Converter<String, Integer>() {
-        @Override
-        public Integer convert(String s) {
-            if (StringUtils.isBlank(s)) {
-                return 0;
-            }
-            return Integer.valueOf(s);
-        }
-    };
-
-    public static InternalContextResolver create(Properties properties) {
-        String globalPrefix = properties.getProperty("jndi.format.global.prefix", "");
-        if (!globalPrefix.endsWith("/")) {
-            globalPrefix += "/";
-        }
-        return new InternalContextResolver(
-                globalPrefix,
-                getProperty(properties, "jndi.format.separator", "#", stringToSetStringConverter),
-                getProperty(properties, "jndi.format.bean", "Bean, ", stringToSetStringConverter),
-                getProperty(properties, "jndi.format.remote", "Remote, ", stringToSetStringConverter),
-                getProperty(properties, "jndi.format.local", "Local, ", stringToSetStringConverter),
-                getProperty(properties, "jndi.wrapped.handler", stringToSetWrappedBeanHandlerConverter),
-                getProperty(properties, "jndi.format.transformLocal", "true", stringToBooleanConverter),
-                getProperty(properties, "jndi.format.roots", "java:, ", stringToSetStringConverter),
-                getProperty(properties, "jndi.format.maxDeeps", "10", stringToIntegerConverter)
-        );
-    }
 
     public InternalContextResolver(String globalPrefix,
                                    Set<String> separators,
