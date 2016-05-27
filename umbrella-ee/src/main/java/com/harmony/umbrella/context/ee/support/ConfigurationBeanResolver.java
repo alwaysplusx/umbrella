@@ -1,7 +1,7 @@
 package com.harmony.umbrella.context.ee.support;
 
 import java.util.Collections;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -52,14 +52,6 @@ public class ConfigurationBeanResolver implements BeanResolver {
 
     @Override
     public Object guessBean(BeanDefinition beanDefinition, Map properties, BeanFilter filter) {
-        new BeanJndiGuess(beanDefinition, properties);
-        final String jndi = getValue(properties, "jndi", "lookup", "jndiname");
-        if (jndi != null) {
-            Object bean = tryLookup(jndi);
-            if (bean != null && isDeclareBean(beanDefinition, bean)) {
-                return bean;
-            }
-        }
         Set<String> jndis = guessNames(beanDefinition, properties);
         for (String name : jndis) {
             Object bean = tryLookup(name);
@@ -71,8 +63,12 @@ public class ConfigurationBeanResolver implements BeanResolver {
     }
 
     public Set<String> guessNames(BeanDefinition beanDefinition, Map properties) {
-        Set<String> jndis = new HashSet<String>();
-
+        Set<String> jndis = new LinkedHashSet<String>();
+        final String jndi = getValue(properties, "jndi", "lookup", "jndiname");
+        if (jndi != null) {
+            jndis.add(jndi);
+        }
+        jndis.addAll(c);
         return jndis;
     }
 

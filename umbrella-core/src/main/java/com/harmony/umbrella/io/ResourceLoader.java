@@ -6,7 +6,7 @@ import com.harmony.umbrella.io.resource.DefaultResourceLoader;
  * Strategy interface for loading resources (e.. class path or file system
  * resources). An {@link org.springframework.context.ApplicationContext}
  * is required to provide this functionality, plus extended
- * {@link com.harmony.umbrella.io.support.springframework.core.io.support.ResourcePatternResolver} support.
+ * {@link org.springframework.core.io.support.ResourcePatternResolver} support.
  *
  * <p>{@link DefaultResourceLoader} is a standalone implementation that is
  * usable outside an ApplicationContext, also used by {@link ResourceEditor}.
@@ -18,7 +18,7 @@ import com.harmony.umbrella.io.resource.DefaultResourceLoader;
  * @author Juergen Hoeller
  * @since 10.03.2004
  * @see Resource
- * @see com.harmony.umbrella.io.support.springframework.core.io.support.ResourcePatternResolver
+ * @see org.springframework.core.io.support.ResourcePatternResolver
  * @see org.springframework.context.ApplicationContext
  * @see org.springframework.context.ResourceLoaderAware
  */
