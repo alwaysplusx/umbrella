@@ -13,17 +13,16 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import com.harmony.umbrella.io.ResourceManager;
 import com.harmony.umbrella.log.Log;
 import com.harmony.umbrella.log.Logs;
-import com.harmony.umbrella.context.ApplicationContext;
-import com.harmony.umbrella.io.ResourceManager;
 import com.harmony.umbrella.util.ClassUtils;
 import com.harmony.umbrella.util.ClassUtils.ClassFilter;
 import com.harmony.umbrella.util.ClassUtils.ClassFilterFeature;
-import com.harmony.umbrella.ws.annotation.Handler;
-import com.harmony.umbrella.ws.annotation.Handler.HandleMethod;
 import com.harmony.umbrella.ws.Phase;
 import com.harmony.umbrella.ws.WebServiceAbortException;
+import com.harmony.umbrella.ws.annotation.Handler;
+import com.harmony.umbrella.ws.annotation.Handler.HandleMethod;
 
 /**
  * @author wuxii@foxmail.com
@@ -32,8 +31,6 @@ public class HandlerMethodFinder {
 
     private static final Log log = Logs.getLog(HandlerMethodFinder.class);
 
-    private static final String DEFAULT_PACKAGE = ApplicationContext.APPLICATION_PACKAGE;
-    
     private final Class<?>[] handlerClasses;
 
     /**
@@ -50,13 +47,6 @@ public class HandlerMethodFinder {
     public HandlerMethodFinder(String basePackage) {
         this.basePackage = basePackage;
         this.handlerClasses = this.getAllHandlerClass(basePackage);
-    }
-
-    /**
-     * basePackage为当前classpath
-     */
-    public HandlerMethodFinder() {
-        this(DEFAULT_PACKAGE);
     }
 
     /**

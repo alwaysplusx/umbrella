@@ -33,8 +33,6 @@ import com.harmony.umbrella.ws.util.CallbackFinder;
  */
 public class SyncableContextVisitor extends AbstractContextVisitor {
     
-    private static final String DEFAULT_PACKAGE = ApplicationContext.APPLICATION_PACKAGE;
-    
     /**
      * 用户扫描类路径下的{@linkplain Syncable}
      */
@@ -44,10 +42,6 @@ public class SyncableContextVisitor extends AbstractContextVisitor {
      * 负责初始化回调的{@linkplain ProxyCallback}
      */
     private BeanFactory beanFactory;
-
-    public SyncableContextVisitor() {
-        this(DEFAULT_PACKAGE);
-    }
 
     public SyncableContextVisitor(String basePackage) {
         this.callbackFinder = new CallbackFinder(basePackage);

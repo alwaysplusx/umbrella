@@ -7,7 +7,6 @@ import javax.ws.rs.Path;
 
 import org.apache.cxf.transport.servlet.CXFNonSpringServlet;
 
-import com.harmony.umbrella.context.ApplicationContext;
 import com.harmony.umbrella.io.ResourceManager;
 import com.harmony.umbrella.log.Log;
 import com.harmony.umbrella.log.Logs;
@@ -148,7 +147,7 @@ public class WebServiceServlet extends CXFNonSpringServlet {
     }
 
     protected String getScanPackages() {
-        return getInitParameter(SCAN_PACKAGE, ApplicationContext.APPLICATION_PACKAGE);
+        return getInitParameter(SCAN_PACKAGE);
     }
 
     public String getInitParameter(String name, String defaultValue) {

@@ -4,7 +4,6 @@ import static com.harmony.umbrella.ws.Phase.*;
 
 import java.io.Serializable;
 
-import com.harmony.umbrella.context.ApplicationContext;
 import com.harmony.umbrella.core.BeanFactory;
 import com.harmony.umbrella.core.InvokeException;
 import com.harmony.umbrella.core.SimpleBeanFactory;
@@ -29,15 +28,9 @@ public class ValidationContextVisitor extends AbstractContextVisitor implements 
 
     private static final Log log = Logs.getLog(ValidationContextVisitor.class);
 
-    private static final String DEFAULT_PACKAGE = ApplicationContext.APPLICATION_PACKAGE;
-
     private final HandlerMethodFinder finder;
 
     private BeanFactory beanFactory;
-
-    public ValidationContextVisitor() {
-        this(DEFAULT_PACKAGE);
-    }
 
     public ValidationContextVisitor(String scanPackage) {
         this(scanPackage, new SimpleBeanFactory());

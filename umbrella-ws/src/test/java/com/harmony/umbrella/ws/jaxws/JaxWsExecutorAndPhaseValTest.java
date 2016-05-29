@@ -49,7 +49,7 @@ public class JaxWsExecutorAndPhaseValTest {
 
         // 调用执行者执行方法
         // ValidationContextVisitor用于帮助加载HelloServiceSayHiPhaseValidation实例进行接口的执行周期检验
-        Object result = executor.execute(context, new ValidationContextVisitor());
+        Object result = executor.execute(context, new ValidationContextVisitor("com.harmony"));
 
         // 对结果进行断言判断
         assertEquals("Hi wuxii", result);
@@ -134,7 +134,7 @@ public class JaxWsExecutorAndPhaseValTest {
     public static void main(String[] args) throws Exception {
         // JaxWsServerBuilder.create().publish(HelloWebService.class, address);
         Method method = HelloService.class.getMethod("sayHi", String.class);
-        HandlerMethodFinder finder = new HandlerMethodFinder();
+        HandlerMethodFinder finder = new HandlerMethodFinder("com.harmony");
         HandleMethodInvoker[] methods = finder.findHandleMethods(method, Phase.PRE_INVOKE);
         for (HandleMethodInvoker handleMethodInvoker : methods) {
             System.out.println(handleMethodInvoker);

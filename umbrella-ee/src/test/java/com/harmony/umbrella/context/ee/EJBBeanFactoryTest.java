@@ -21,7 +21,7 @@ public class EJBBeanFactoryTest {
     @BeforeClass
     public static void beforeClass() throws Exception {
         container = EJBContainer.createEJBContainer();
-        context = EJBApplicationContext.create();
+        // context = EJBApplicationContext.create(null);
     }
 
     @Test

@@ -2,39 +2,25 @@ package com.harmony.umbrella.context.ee.support;
 
 import java.util.Set;
 
-import com.harmony.umbrella.context.ee.BeanDefinition;
-
 /**
  * @author wuxii@foxmail.com
  */
-public class ConfigManager {
+public interface ConfigManager {
 
-    //    protected final String globalPrefix;
-    //    protected final Set<String> separators;
-    //    protected final Set<String> beanSuffixes;
-    //    protected final Set<String> remoteSuffixes;
-    //    protected final Set<String> localSuffixes;
-    //    protected final Set<WrappedBeanHandler> wrappedBeanHandlers;
-    //    protected final boolean transformLocal;
+    String getJndi(Class<?> clazz);
 
-    public Set<String> remoteNames(Class<?> remoteClass) {
-        return null;
-    }
+    void setJndi(Class<?> clazz, String jndi);
 
-    public Set<String> beanNames(BeanDefinition beanDefinition) {
-        return null;
-    }
+    String removeJndi(Class<?> clazz);
 
-    public Set<String> separators() {
-        return null;
-    }
+    Set<String> getPropertySet(String key);
 
-    public String globalPrefix() {
-        return null;
-    }
+    Set<String> getPropertySet(String key, Set<String> def);
 
-    public Set<String> rootContext() {
-        return null;
-    }
+    String getProperty(String key);
+
+    String getProperty(String key, String def);
+
+    void setProperty(String key, String value);
 
 }

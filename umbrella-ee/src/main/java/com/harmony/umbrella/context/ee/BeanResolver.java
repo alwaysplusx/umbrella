@@ -1,6 +1,9 @@
 package com.harmony.umbrella.context.ee;
 
-import java.util.Map;
+import java.lang.annotation.Annotation;
+
+import javax.naming.Context;
+import javax.naming.NamingException;
 
 /**
  * 根据bean的定义，在可以根据环境或者配置情况解析环境中对应的bean
@@ -10,11 +13,11 @@ import java.util.Map;
 public interface BeanResolver {
 
     /**
-     * {@linkplain javax.naming.Context}创建工厂
+     * {@linkplain javax.naming.Context}创建
      * 
      * @return {@linkplain javax.naming.Context}
      */
-    ContextFactory getContextFactory();
+    Context getContext() throws NamingException;
 
     /**
      * 通过bean定义,猜想可能的bean
@@ -34,8 +37,7 @@ public interface BeanResolver {
      *            查找的属性信息
      * @return 可能的bean,如果没有找到返回null
      */
-    @SuppressWarnings("rawtypes")
-    Object guessBean(BeanDefinition beanDefinition, Map properties);
+    Object guessBean(BeanDefinition beanDefinition, Annotation ann);
 
     /**
      * 根据beanDefinition猜想context中对于的jndi， 并提供beanFilter过滤对应的猜想结果，选取最优的bean
@@ -59,8 +61,7 @@ public interface BeanResolver {
      *            bean校验过滤
      * @return 可能的bean,如果没有找到返回null
      */
-    @SuppressWarnings("rawtypes")
-    Object guessBean(BeanDefinition beanDefinition, Map properties, BeanFilter filter);
+    Object guessBean(BeanDefinition beanDefinition, Annotation ann, BeanFilter filter);
 
     /**
      * 查看bean是否与声明的类型匹配

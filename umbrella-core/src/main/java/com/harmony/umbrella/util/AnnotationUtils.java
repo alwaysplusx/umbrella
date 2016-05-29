@@ -2,6 +2,8 @@ package com.harmony.umbrella.util;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author wuxii@foxmail.com
@@ -20,6 +22,18 @@ public class AnnotationUtils {
         } catch (NoSuchMethodException e) {
             return null;
         }
+    }
+
+    public static Map<String, Object> toMap(Annotation ann) {
+        Map<String, Object> result = new HashMap<String, Object>();
+        Class<? extends Annotation> annotationType = ann.annotationType();
+        Method[] methods = annotationType.getMethods();
+        for (Method method : methods) {
+            if (!ReflectionUtils.isObjectMethod(method)) {
+                result.put(method.getName(), getAnnotationValue(ann, method.getName()));
+            }
+        }
+        return result;
     }
 
 }
