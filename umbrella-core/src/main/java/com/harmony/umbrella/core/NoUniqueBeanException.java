@@ -11,6 +11,10 @@ public class NoUniqueBeanException extends NoSuchBeanFoundException {
         super();
     }
 
+    public NoUniqueBeanException(Class<?> beanType) {
+        super(String.valueOf(beanType));
+    }
+
     public NoUniqueBeanException(String message, Throwable cause) {
         super(message, cause);
     }

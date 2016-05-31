@@ -5,9 +5,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedHashSet;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -18,7 +16,6 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
 import com.harmony.umbrella.context.ee.BeanDefinition;
-import com.harmony.umbrella.context.ee.BeanFilter;
 import com.harmony.umbrella.context.ee.BeanResolver;
 import com.harmony.umbrella.core.ClassWrapper;
 import com.harmony.umbrella.log.Log;
@@ -33,8 +30,13 @@ import com.harmony.umbrella.util.StringUtils;
  *
  * @author wuxii@foxmail.com
  */
-@SuppressWarnings("rawtypes")
 public class ConfigurationBeanResolver implements BeanResolver {
+
+    public static final String JNDI_GLOBAL = "jndi.global.prefix";
+    public static final String JNDI_ROOT = "jndi.format.root";
+    public static final String JNDI_BEAN = "jndi.format.bean";
+    public static final String JNDI_SEPARATOR = "jndi.format.separator";
+    public static final String JNDI_REMOTE = "jndi.format.remote";
 
     private static final Log log = Logs.getLog(ConfigurationBeanResolver.class);
 
@@ -47,7 +49,6 @@ public class ConfigurationBeanResolver implements BeanResolver {
                 CONTEXT_PROPERTIES.add((String) ReflectionUtils.getFieldValue(field, Context.class));
             }
         }
-
     }
 
     protected ConfigManager configManager;
@@ -69,6 +70,11 @@ public class ConfigurationBeanResolver implements BeanResolver {
         return new InitialContext(getContextProperties());
     }
 
+    /**
+     * {@linkplain javax.naming.Context}所需要的属性集合
+     * 
+     * @return naming context所需要的属性集合
+     */
     protected Properties getContextProperties() {
         Properties result = new Properties();
         for (String name : CONTEXT_PROPERTIES) {
@@ -81,63 +87,183 @@ public class ConfigurationBeanResolver implements BeanResolver {
     }
 
     @Override
-    public Object guessBean(BeanDefinition beanDefinition) {
-        return guessBean(beanDefinition, null, null);
+    public Object[] guessBeans(BeanDefinition bd) {
+        return guessBeans(bd, null);
     }
 
     @Override
-    public Object guessBean(BeanDefinition beanDefinition, Annotation ann) {
-        return guessBean(beanDefinition, ann, null);
-    }
+    public Object[] guessBeans(BeanDefinition bd, Annotation ann) {
+        List<Object> beans = new ArrayList<Object>();
+        try {
+            Context context = getContext();
 
-    @Override
-    public Object guessBean(BeanDefinition beanDefinition, BeanFilter filter) {
-        return guessBean(beanDefinition, null, filter);
-    }
+            // add config bean first
+            Object bean = getConfigBean(bd, context);
+            if (bean != null) {
+                beans.add(bean);
+            }
 
-    @Override
-    public Object guessBean(BeanDefinition beanDefinition, Annotation ann, BeanFilter filter) {
-        String[] jndis = guessNames(beanDefinition, ann);
-        for (String jndi : jndis) {
-            Object bean = tryLookup(jndi);
-            if (isDeclareBean(beanDefinition, bean)) {
-                bind(jndi, beanDefinition);
-                if (filter == null || filter.accept(jndi, bean)) {
-                    return bean;
+            String[] jndis = guessNames(bd, ann);
+            for (String jndi : jndis) {
+                bean = tryLookup(jndi, context);
+                if (isDeclareBean(bd, bean)) {
+                    beans.add(bean);
+                    bind(bd, jndi);
                 }
             }
+        } catch (NamingException e) {
+            ReflectionUtils.rethrowRuntimeException(e);
+        }
+        return beans.toArray();
+    }
+
+    @Override
+    public String[] guessNames(BeanDefinition bd) {
+        return guessNames(bd, new HashMap<String, Object>());
+    }
+
+    @Override
+    public String[] guessNames(BeanDefinition bd, Annotation ann) {
+        Map<String, Object> properties = ann == null ? new HashMap<String, Object>() : AnnotationUtils.toMap(ann);
+        return guessNames(bd, properties);
+    }
+
+    private static final String[] JNDI_NAME_KEY = { "lookup", "jndi", "jndiname" };
+
+    private static final String[] BEAN_NAME_KEY = { "mappedName", "beanName" };
+
+    @SuppressWarnings("rawtypes")
+    protected String[] guessNames(BeanDefinition bd, Map<String, Object> properties) {
+        List<String> result = new ArrayList<String>();
+        Context context = null;
+        try {
+            context = getContext();
+        } catch (NamingException e) {
+        }
+
+        for (String key : JNDI_NAME_KEY) {
+            Object jndi = properties.get(key);
+            if (jndi instanceof String && StringUtils.isNotBlank((String) jndi)) {
+                if (!result.contains(jndi) && (context == null || tryLookup((String) jndi, context) != null)) {
+                    result.add((String) jndi);
+                }
+            }
+        }
+
+        if (result.isEmpty()) {
+
+            String globalPrefix = configManager.getProperty("jndi.global.prefix", "");
+
+            if (!StringUtils.isBlank(globalPrefix) && !globalPrefix.endsWith("/")) {
+                globalPrefix = globalPrefix + "/";
+            }
+
+            List<String> beanNames = new ArrayList<String>();
+            for (String key : BEAN_NAME_KEY) {
+                Object beanName = properties.get(key);
+                if (beanName instanceof String && StringUtils.isNotBlank((String) beanName)) {
+                    beanNames.add((String) beanName);
+                }
+            }
+
+            // 没有配置则通过猜想得出
+            if (beanNames.isEmpty()) {
+                beanNames.addAll(guessBeanNames(bd));
+            }
+
+            Set<String> separators = configManager.getPropertySet(JNDI_SEPARATOR);
+            // add default
+            separators.add("#");
+            separators.add("!");
+
+            List<Class> remoteClasses = new ArrayList<Class>();
+            if (bd.isRemoteClass()) {
+                remoteClasses.add(bd.getRemoteClass());
+            } else {
+                remoteClasses.addAll(guessRemoteClass(bd));
+            }
+
+            for (String beanName : beanNames) {
+                for (String separator : separators) {
+                    for (Class remoteClass : remoteClasses) {
+                        String jndi = new StringBuilder().append(globalPrefix).append(beanName).append(separator).append(remoteClass.getName()).toString();
+                        if (!result.contains(jndi) && (context == null || tryLookup(jndi, context) != null)) {
+                            result.add(jndi);
+                        }
+                    }
+                }
+            }
+        }
+
+        return result.toArray(new String[result.size()]);
+    }
+
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    protected List<String> guessBeanNames(BeanDefinition bd) {
+        if (bd.isSessionClass()) {
+            return Arrays.asList(bd.getMappedName());
+        }
+        List<String> result = new ArrayList<String>();
+        Class<?> remoteClass = bd.getRemoteClass();
+
+        ClassWrapper cw = new ClassWrapper(remoteClass);
+        for (Class clazz : cw.getAllSubClasses()) {
+            BeanDefinition subBd = new BeanDefinition(clazz);
+            if (subBd.isSessionClass()) {
+                result.add(subBd.getMappedName());
+            }
+        }
+
+        final String remoteName = remoteClass.getSimpleName();
+
+        Set<String> remoteSuffix = configManager.getPropertySet(JNDI_REMOTE);
+        remoteSuffix.add("Remote");
+        remoteSuffix.remove("");
+
+        String name = remoteName;
+        for (String remote : remoteSuffix) {
+            if (remoteName.endsWith(remote)) {
+                name = remoteName.substring(0, remoteName.length() - remote.length());
+                break;
+            }
+        }
+
+        Set<String> beanSuffix = configManager.getPropertySet(JNDI_BEAN);
+        beanSuffix.add("Bean");
+        beanSuffix.add("");
+
+        for (String bean : beanSuffix) {
+            String beanName = name + bean;
+            if (!result.contains(beanName)) {
+                result.add(beanName);
+            }
+        }
+
+        return result;
+    }
+
+    @SuppressWarnings("rawtypes")
+    protected List<Class> guessRemoteClass(BeanDefinition bd) {
+        if (bd.isRemoteClass()) {
+            return Arrays.<Class> asList(bd.getRemoteClass());
+        }
+        return new ArrayList<Class>(bd.getAllRemoteClasses());
+    }
+
+    protected Object getConfigBean(BeanDefinition bd, Context context) {
+        final Class<?> clazz = bd.isRemoteClass() ? bd.getRemoteClass() : bd.getBeanClass();
+        String jndi = configManager.getJndi(clazz);
+        if (jndi != null) {
+            Object bean = tryLookup(jndi, context);
+            if (isDeclareBean(bd, bean)) {
+                return bean;
+            }
+            unbind(clazz);
         }
         return null;
     }
 
-    public String[] guessNames(BeanDefinition beanDefinition, Annotation ann) {
-        Map<String, Object> properties = (ann == null) ? Collections.<String, Object> emptyMap() : AnnotationUtils.toMap(ann);
-        return new RemoteJndiGuesser(beanDefinition, properties).guess();
-    }
-
-    private void bind(String jndi, BeanDefinition beanDefinition) {
-        configManager.setJndi(beanDefinition.getBeanClass(), jndi);
-        configManager.setJndi(beanDefinition.getRemoteClass(), jndi);
-    }
-
-    /**
-     * 通过jndi查找对应的bean
-     *
-     * @param jndi
-     *            jndi
-     * @param context
-     *            javax.naming.Context
-     * @return 如果未找到返回null
-     */
-    public Object tryLookup(String jndi) {
-        try {
-            return getContext().lookup(jndi);
-        } catch (NamingException e) {
-            return null;
-        }
-    }
-
-    protected Object tryLookup(String jndi, Context context) {
+    protected final Object tryLookup(String jndi, Context context) {
         try {
             return context.lookup(jndi);
         } catch (NamingException e) {
@@ -145,199 +271,28 @@ public class ConfigurationBeanResolver implements BeanResolver {
         }
     }
 
-    @Override
-    public boolean isDeclareBean(final BeanDefinition declare, final Object bean) {
-        Class<?> remoteClass = declare.getRemoteClass();
+    protected boolean isDeclareBean(final BeanDefinition bd, final Object bean) {
+        if (bean == null) {
+            return false;
+        }
+        Class<?> remoteClass = bd.getRemoteClass();
         if (log.isDebugEnabled()) {
             log.debug("test, it is declare bean? "//
                     + "\n\tdeclare remoteClass -> {}" //
                     + "\n\tdeclare beanClass   -> {}" //
                     + "\n\tactual  bean        -> {}", //
-                    remoteClass, declare.getBeanClass(), bean);
+                    remoteClass, bd.getBeanClass(), bean);
         }
-        return declare.getBeanClass().isInstance(bean) || (remoteClass != null && remoteClass.isInstance(bean));
+        return bd.getBeanClass().isInstance(bean) || (remoteClass != null && remoteClass.isInstance(bean));
     }
 
-    protected boolean isWrappedBean(final Object bean) {
-        return bean == unwrap(bean);
+    protected void unbind(Class<?> clazz) {
+        configManager.removeJndi(clazz);
     }
 
-    // 通过配置的wrappedBeanHandlers来解压实际的bean
-    protected Object unwrap(Object bean) {
-        return bean;
-    }
-
-    private String getValue(Map map, String... keys) {
-        Object result = null;
-        for (String key : keys) {
-            result = map.get(key);
-            if (result instanceof String && StringUtils.isNotBlank((String) result)) {
-                return (String) result;
-            }
-        }
-        return null;
-    }
-
-    public ConfigManager getConfigManager() {
-        return configManager;
-    }
-
-    public void setConfigManager(ConfigManager configManager) {
-        this.configManager = configManager;
-    }
-
-    public static final String JNDI_GLOBAL = "jndi.global.prefix";
-    public static final String JNDI_ROOT = "jndi.format.root";
-    public static final String JNDI_BEAN = "jndi.format.bean";
-    public static final String JNDI_SEPARATOR = "jndi.format.separator";
-    public static final String JNDI_REMOTE = "jndi.format.remote";
-
-    @SuppressWarnings({ "unchecked", "unused" })
-    private static final Set<String> ROOTS = new LinkedHashSet(Arrays.asList("", "java:/"));
-    @SuppressWarnings("unchecked")
-    private static final Set<String> BEANS = new LinkedHashSet(Arrays.asList("Bean", ""));
-    @SuppressWarnings("unchecked")
-    private static final Set<String> REMOTES = new LinkedHashSet(Arrays.asList("Remote", ""));
-    @SuppressWarnings("unchecked")
-    private static final Set<String> SEPARATORS = new LinkedHashSet(Arrays.asList("#", "!"));
-
-    // ### jndi guesser
-    @SuppressWarnings("unchecked")
-    private abstract class JndiGuesser {
-
-        final String globalPrefix = null;
-
-        final BeanDefinition beanDefinition;
-        final ClassWrapper classWrapper;
-        final Map<String, Object> properties;
-
-        final LinkedHashSet<String> jndiSet = new LinkedHashSet<String>();
-
-        public JndiGuesser(BeanDefinition beanDefinition, Map<String, Object> properties) {
-            this.beanDefinition = beanDefinition;
-            this.classWrapper = new ClassWrapper(beanDefinition.getBeanClass());
-            this.properties = properties;
-        }
-
-        protected Collection<String> beanNames() {
-            String value = getValue(properties, "mappedName");
-            if (StringUtils.isNotBlank(value)) {
-                return Arrays.asList(value);
-            }
-            return guessBeanName();
-        }
-
-        protected Collection<Class> remoteClasses() {
-            if (beanDefinition.isRemoteClass()) {
-                return Arrays.<Class> asList(beanDefinition.getRemoteClass());
-            }
-            return guessRemoteClasses();
-        }
-
-        protected abstract Collection<String> guessBeanName();
-
-        protected abstract Collection<Class> guessRemoteClasses();
-
-        /**
-         * 通过配置信息猜想可能的jndi
-         */
-        public final String[] guess() {
-            String value = getValue(properties, "lookup", "jndi", "jndiname");
-            if (StringUtils.isNotBlank(value)) {
-                jndiSet.add(value);
-            }
-            Set<String> separators = configManager.getPropertySet("JNDI_BEAN", SEPARATORS);
-            for (String mappedName : beanNames()) {
-                for (String separator : separators) {
-                    for (Class remoteClass : remoteClasses()) {
-                        addIfAbsent(mappedName, separator, remoteClass);
-                    }
-                }
-            }
-            return jndiSet.toArray(new String[jndiSet.size()]);
-        }
-
-        /**
-         * 格式划jndi, 再判断jndi是否存在于上下文中
-         * <p/>
-         * <p/>
-         * 
-         * <pre>
-         *   JNDI = prefix() + beanSuffix + separator + package + . + prefix() + remoteSuffix
-         * </pre>
-         *
-         * @param mappedName
-         *            bean的映射名称
-         * @param separator
-         *            分割符
-         * @param remoteClass
-         *            remote的类型
-         */
-        protected void addIfAbsent(String mappedName, String separator, Class<?> remoteClass) {
-            StringBuilder jndi = new StringBuilder();
-            jndi.append(globalPrefix)//
-                    .append(mappedName)//
-                    .append(separator)//
-                    .append(remoteClass.getName())//
-                    .toString();
-            if (!jndiSet.contains(jndi)) {
-                jndiSet.add(jndi.toString());
-            }
-        }
-
-    }
-
-    final class RemoteJndiGuesser extends JndiGuesser {
-
-        public RemoteJndiGuesser(BeanDefinition beanDefinition, Map<String, Object> properties) {
-            super(beanDefinition, properties);
-        }
-
-        /**
-         * 通过remote接口猜想mappedName
-         * <p/>
-         * <ul>
-         * <li>首先匹配remoteClass的所有子类,通过对子类的判断来获取mappedName</li>
-         * <li>如果有@EJB注解, 通过注解上的名称mappedName来获取对于的名称</li>
-         * <li>通过配置的猜想,通过替换远程接口的后缀来猜想mappedName</li>
-         * </ul>
-         */
-        @Override
-        protected Collection<String> guessBeanName() {
-            Set<String> names = new LinkedHashSet<String>();
-            String value = getValue(properties, "mappedName");
-            if (value != null) {
-                names.add(value);
-            }
-
-            // 添加子类的名称
-            Class[] subClasses = classWrapper.getAllSubClasses();
-            for (Class clazz : subClasses) {
-                BeanDefinition subDefinition = new BeanDefinition(clazz);
-                if (subDefinition.isSessionClass()) {
-                    names.add(clazz.getSimpleName());
-                }
-            }
-
-            String simpleName = beanDefinition.getRemoteClass().getSimpleName();
-            Set<String> remoteSuffixes = configManager.getPropertySet(JNDI_REMOTE, REMOTES);
-            Set<String> beanSuffixes = configManager.getPropertySet(JNDI_BEAN, BEANS);
-            for (String remote : remoteSuffixes) {
-                if (simpleName.endsWith(remote)) {
-                    String name = simpleName.substring(0, simpleName.length() - remote.length());
-                    for (String bean : beanSuffixes) {
-                        names.add(name + bean);
-                    }
-                }
-            }
-            return names;
-        }
-
-        @Override
-        protected Collection<Class> guessRemoteClasses() {
-            return beanDefinition.getAllRemoteClasses();
-        }
-
+    protected void bind(BeanDefinition beanDefinition, String jndi) {
+        configManager.setJndi(beanDefinition.getBeanClass(), jndi);
+        configManager.setJndi(beanDefinition.getRemoteClass(), jndi);
     }
 
 }

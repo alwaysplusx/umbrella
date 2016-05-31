@@ -20,58 +20,43 @@ public interface BeanResolver {
     Context getContext() throws NamingException;
 
     /**
-     * 通过bean定义,猜想可能的bean
+     * 根据bean定义猜想对应的jndi名称
      * 
-     * @param beanDefinition
+     * @param bd
      *            bean定义
-     * @return 可能的bean,如果没有找到返回null
+     * @return jndis
      */
-    Object guessBean(BeanDefinition beanDefinition);
+    String[] guessNames(BeanDefinition bd);
+
+    /**
+     * 根据bean定义猜想对应的jndi名称
+     * 
+     * @param bd
+     *            bean定义
+     * @param ann
+     *            扩展注解, 一般用于字段上注解扩展
+     * @return jndis
+     */
+    String[] guessNames(BeanDefinition bd, Annotation ann);
 
     /**
      * 通过bean定义,猜想可能的bean
      * 
-     * @param beanDefinition
+     * @param bd
      *            bean定义
-     * @param properties
+     * @return 可能的bean,如果没有找到返回null
+     */
+    Object[] guessBeans(BeanDefinition bd);
+
+    /**
+     * 通过bean定义,猜想可能的bean
+     * 
+     * @param bd
+     *            bean定义
+     * @param ann
      *            查找的属性信息
      * @return 可能的bean,如果没有找到返回null
      */
-    Object guessBean(BeanDefinition beanDefinition, Annotation ann);
-
-    /**
-     * 根据beanDefinition猜想context中对于的jndi， 并提供beanFilter过滤对应的猜想结果，选取最优的bean
-     * 
-     * @param beanDefinition
-     *            bean定义
-     * @param filter
-     *            bean过滤
-     * @return 猜想的最优解，如果未能找到返回null
-     */
-    Object guessBean(BeanDefinition beanDefinition, BeanFilter filter);
-
-    /**
-     * 根据beanDefinition猜想context中对于的jndi， 并提供beanFilter过滤对应的猜想结果，选取最优的bean
-     * 
-     * @param beanDefinition
-     *            bean定义
-     * @param properties
-     *            查找的属性配置
-     * @param filter
-     *            bean校验过滤
-     * @return 可能的bean,如果没有找到返回null
-     */
-    Object guessBean(BeanDefinition beanDefinition, Annotation ann, BeanFilter filter);
-
-    /**
-     * 查看bean是否与声明的类型匹配
-     * 
-     * @param declare
-     *            声明的bean定义
-     * @param bean
-     *            待检验的bean
-     * @return 符合定义的bean返回true
-     */
-    boolean isDeclareBean(BeanDefinition declare, Object bean);
+    Object[] guessBeans(BeanDefinition bd, Annotation ann);
 
 }

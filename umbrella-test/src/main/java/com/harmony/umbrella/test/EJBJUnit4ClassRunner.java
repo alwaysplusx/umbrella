@@ -12,7 +12,6 @@ import org.junit.runners.model.InitializationError;
 import org.junit.runners.model.Statement;
 
 import com.harmony.umbrella.context.ee.EJBBeanFactory;
-import com.harmony.umbrella.context.ee.support.EJBBeanFactoryImpl;
 import com.harmony.umbrella.util.PropertiesUtils;
 import com.harmony.umbrella.util.StringUtils;
 
@@ -55,7 +54,7 @@ public class EJBJUnit4ClassRunner extends BlockJUnit4ClassRunner {
             }
         }
 
-        return EJBBeanFactoryImpl.create(properties);
+        return null;
 
     }
 

@@ -17,9 +17,6 @@ public class BeanDefinitionTest {
         for (Class clazz : bd.getAllRemoteClasses()) {
             System.out.println(clazz.getName());
         }
-        for (Class clazz : bd.getAllLocalClasses()) {
-            System.out.println(clazz.getName());
-        }
     }
 
     @Test
@@ -27,7 +24,6 @@ public class BeanDefinitionTest {
         BeanDefinition bd = new BeanDefinition(TestBean.class);
         assertEquals(TestBean.class, bd.getBeanClass());
         assertEquals(TestRemote.class, bd.getRemoteClass());
-        assertEquals(TestLocal.class, bd.getLocalClass());
     }
 
 }

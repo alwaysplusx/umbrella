@@ -11,6 +11,10 @@ public class NoSuchBeanFoundException extends BeansException {
         super();
     }
 
+    public NoSuchBeanFoundException(Class<?> beanType) {
+        super(String.valueOf(beanType));
+    }
+
     public NoSuchBeanFoundException(String message, Throwable cause) {
         super(message, cause);
     }
