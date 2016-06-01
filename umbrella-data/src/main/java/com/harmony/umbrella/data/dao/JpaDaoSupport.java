@@ -25,7 +25,7 @@ import com.harmony.umbrella.data.domain.Page;
 import com.harmony.umbrella.data.domain.PageImpl;
 import com.harmony.umbrella.data.domain.Pageable;
 import com.harmony.umbrella.data.domain.Sort;
-import com.harmony.umbrella.data.query.QueryUtils;
+import com.harmony.umbrella.data.util.QueryUtils;
 import com.harmony.umbrella.util.Assert;
 import com.harmony.umbrella.util.GenericUtils;
 

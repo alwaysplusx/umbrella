@@ -49,10 +49,6 @@ public class ModelController {
         return Json.toJson(result);
     }
 
-    protected String renderJson(Object obj, String... excludes) {
-        return null;
-    }
-
     public void setRender(HttpRender render) {
         this.render = render;
     }

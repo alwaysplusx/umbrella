@@ -1,7 +1,7 @@
-package com.harmony.umbrella.data.query;
+package com.harmony.umbrella.data.support;
 
-import static com.harmony.umbrella.data.query.QueryUtils.*;
-import static com.harmony.umbrella.data.query.SpecificationTransform.JpaUtils.*;
+import static com.harmony.umbrella.data.support.SpecificationTransform.JpaUtils.*;
+import static com.harmony.umbrella.data.util.QueryUtils.*;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -26,7 +26,6 @@ import javax.persistence.criteria.Root;
 
 import com.harmony.umbrella.log.Log;
 import com.harmony.umbrella.log.Logs;
-
 import com.harmony.umbrella.data.Bond;
 import com.harmony.umbrella.data.BondParser;
 import com.harmony.umbrella.data.QBond;
@@ -37,6 +36,7 @@ import com.harmony.umbrella.data.bond.JunctionBond;
 import com.harmony.umbrella.data.bond.JunctionBond.AliasGenerator;
 import com.harmony.umbrella.data.domain.Sort;
 import com.harmony.umbrella.data.sql.SQLFormat;
+import com.harmony.umbrella.data.util.QueryUtils;
 import com.harmony.umbrella.util.Assert;
 import com.harmony.umbrella.util.ReflectionUtils;
 

@@ -19,7 +19,7 @@ import com.harmony.umbrella.data.DefaultEntityMetadata;
 import com.harmony.umbrella.data.EntityMetadata;
 import com.harmony.umbrella.data.domain.Sort;
 import com.harmony.umbrella.data.jpa.provider.PersistenceProvider;
-import com.harmony.umbrella.data.query.QueryUtils;
+import com.harmony.umbrella.data.util.QueryUtils;
 import com.harmony.umbrella.util.Assert;
 
 /**

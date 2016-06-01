@@ -23,7 +23,7 @@ import com.harmony.umbrella.data.JpaDao;
 import com.harmony.umbrella.data.Specification;
 import com.harmony.umbrella.data.bond.BondBuilder;
 import com.harmony.umbrella.data.persistence.User;
-import com.harmony.umbrella.data.query.SpecificationTransform;
+import com.harmony.umbrella.data.support.SpecificationTransform;
 
 /**
  * @author wuxii@foxmail.com

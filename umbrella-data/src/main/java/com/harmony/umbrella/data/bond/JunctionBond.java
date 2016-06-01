@@ -6,7 +6,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import com.harmony.umbrella.data.Bond;
-import com.harmony.umbrella.data.query.QueryUtils;
+import com.harmony.umbrella.data.util.QueryUtils;
 import com.harmony.umbrella.util.Assert;
 import com.harmony.umbrella.util.StringUtils;
 

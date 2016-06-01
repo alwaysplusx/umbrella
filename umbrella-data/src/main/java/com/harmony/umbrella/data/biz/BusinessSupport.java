@@ -13,7 +13,7 @@ import com.harmony.umbrella.data.Specification;
 import com.harmony.umbrella.data.domain.Model;
 import com.harmony.umbrella.data.domain.Page;
 import com.harmony.umbrella.data.domain.PageRequest;
-import com.harmony.umbrella.data.query.SpecificationTransform;
+import com.harmony.umbrella.data.support.SpecificationTransform;
 
 /**
  * @author wuxii@foxmail.com

@@ -1,4 +1,4 @@
-package com.harmony.umbrella.data.query;
+package com.harmony.umbrella.data.util;
 
 import static com.harmony.umbrella.data.Bond.Link.*;
 import static java.util.regex.Pattern.*;

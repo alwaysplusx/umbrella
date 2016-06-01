@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.Set;
 
 import com.alibaba.fastjson.serializer.SerializerFeature;
-import com.harmony.umbrella.json.spring.JsonView;
+import com.harmony.umbrella.spring.JsonView;
 import com.harmony.umbrella.web.util.FrontUtils;
 
 /**

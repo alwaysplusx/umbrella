@@ -13,6 +13,7 @@ import com.harmony.umbrella.data.QBond;
 import com.harmony.umbrella.data.domain.Model;
 import com.harmony.umbrella.data.domain.Page;
 import com.harmony.umbrella.data.domain.PageRequest;
+import com.harmony.umbrella.data.support.SpecificationTransform;
 import com.harmony.umbrella.util.GenericUtils;
 
 /**
@@ -22,7 +23,11 @@ public abstract class AbstractBusiness<T extends Model<ID>, ID extends Serializa
 
     private Class<T> entityClass;
 
-    protected abstract BondParser getBondParser();
+    protected BondParser bondParser = SpecificationTransform.getInstance();
+
+    protected BondParser getBondParser() {
+        return bondParser;
+    }
 
     protected abstract Dao getDao();
 

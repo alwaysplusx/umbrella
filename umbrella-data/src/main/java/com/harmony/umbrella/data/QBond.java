@@ -6,7 +6,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import com.harmony.umbrella.data.query.SpecificationTransform.JpaUtils;
+import com.harmony.umbrella.data.support.SpecificationTransform.JpaUtils;
 import com.harmony.umbrella.util.Assert;
 import com.harmony.umbrella.util.StringUtils;
 

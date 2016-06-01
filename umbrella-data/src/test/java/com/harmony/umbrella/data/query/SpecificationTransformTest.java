@@ -17,6 +17,7 @@ import com.harmony.umbrella.data.QBond;
 import com.harmony.umbrella.data.bond.BondBuilder;
 import com.harmony.umbrella.data.bond.Bonds;
 import com.harmony.umbrella.data.persistence.User;
+import com.harmony.umbrella.data.support.SpecificationTransform;
 
 /**
  * @author wuxii@foxmail.com

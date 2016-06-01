@@ -8,6 +8,7 @@ import org.springframework.data.mapping.PropertyPath;
 
 import com.harmony.umbrella.data.domain.Sort;
 import com.harmony.umbrella.data.persistence.User;
+import com.harmony.umbrella.data.util.QueryUtils;
 
 /**
  * @author wuxii@foxmail.com

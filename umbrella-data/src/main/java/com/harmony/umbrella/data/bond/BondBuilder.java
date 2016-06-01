@@ -9,7 +9,7 @@ import com.harmony.umbrella.data.Bond;
 import com.harmony.umbrella.data.Bond.Link;
 import com.harmony.umbrella.data.domain.Sort;
 import com.harmony.umbrella.data.domain.Sort.Direction;
-import com.harmony.umbrella.data.query.QueryUtils;
+import com.harmony.umbrella.data.util.QueryUtils;
 
 /**
  * {@linkplain Bond}创建工具类
