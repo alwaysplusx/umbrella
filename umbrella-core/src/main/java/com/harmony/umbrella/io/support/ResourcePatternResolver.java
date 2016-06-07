@@ -45,16 +45,6 @@ import com.harmony.umbrella.io.ResourceLoader;
 public interface ResourcePatternResolver extends ResourceLoader {
 
     /**
-     * 路径下的所有资源, for ant path matcher
-     */
-    String ALL_RESOURCE_PATTERN_SUFFIX = "**/*";
-
-    /**
-     * 路径下的所有class， for ant path matcher
-     */
-    String ALL_CLASS_PATTERN_SUFFIX = "**/*.class";
-
-    /**
      * Pseudo URL prefix for all matching resources from the class path:
      * "classpath*:" This differs from ResourceLoader's classpath URL prefix in
      * that it retrieves all matching resources for a given name (e.g.

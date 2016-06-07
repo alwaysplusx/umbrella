@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.harmony.umbrella.context.metadata.ApplicationClasses;
 import com.harmony.umbrella.util.ClassUtils;
 
 /**
@@ -16,15 +17,6 @@ import com.harmony.umbrella.util.ClassUtils;
  */
 @SuppressWarnings("rawtypes")
 public class ClassWrapper<T> {
-
-    public static final String ALL_WRAPPER_CLASS_PACKAGE = ClassWrapper.class.getName() + ".package";
-    
-    private static final Class[] classes = new Class[0];
-    
-    static {
-        /*String defaultPackage = Environments.getProperty(ALL_WRAPPER_CLASS_PACKAGE, "com.harmony");
-        classes = ResourceManager.getInstance().getClasses(defaultPackage);*/
-    }
 
     private static final Map<Class, Set<Class>> subClassMap = new ConcurrentHashMap<Class, Set<Class>>();
 
@@ -98,7 +90,7 @@ public class ClassWrapper<T> {
         Set<Class> subClasses = subClassMap.get(thisClass);
         if (subClasses == null) {
             subClasses = new HashSet<Class>();
-            for (Class c : ClassWrapper.classes) {
+            for (Class c : ApplicationClasses.getAllClasses()) {
                 if (ClassUtils.isAssignable(thisClass, c) && thisClass != c) {
                     subClasses.add(c);
                 }

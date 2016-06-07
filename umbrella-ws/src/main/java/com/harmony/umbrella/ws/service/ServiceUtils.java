@@ -7,8 +7,8 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 
-import com.harmony.umbrella.core.Member;
-import com.harmony.umbrella.core.MemberAccess;
+import com.harmony.umbrella.access.Member;
+import com.harmony.umbrella.access.MemberAccess;
 import com.harmony.umbrella.util.ReflectionUtils;
 import com.harmony.umbrella.validator.Validators;
 import com.harmony.umbrella.ws.annotation.Key;

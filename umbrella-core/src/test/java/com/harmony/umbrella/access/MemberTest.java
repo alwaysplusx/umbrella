@@ -4,9 +4,6 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
-import com.harmony.umbrella.core.Member;
-import com.harmony.umbrella.core.MemberAccess;
-
 /**
  * @author wuxii@foxmail.com
  */

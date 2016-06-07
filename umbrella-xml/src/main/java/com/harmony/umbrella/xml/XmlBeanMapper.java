@@ -11,8 +11,8 @@ import java.util.Map;
 
 import org.w3c.dom.Element;
 
-import com.harmony.umbrella.core.Member;
-import com.harmony.umbrella.core.MemberAccess;
+import com.harmony.umbrella.access.Member;
+import com.harmony.umbrella.access.MemberAccess;
 import com.harmony.umbrella.util.ClassUtils.ClassFilterFeature;
 import com.harmony.umbrella.util.GenericUtils;
 import com.harmony.umbrella.util.ReflectionUtils;
