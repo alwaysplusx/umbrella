@@ -9,11 +9,11 @@ import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.jaxrs.JAXRSServerFactoryBean;
 import org.apache.cxf.jaxrs.lifecycle.ResourceProvider;
 import org.apache.cxf.message.Message;
+
 import com.harmony.umbrella.log.Log;
 import com.harmony.umbrella.log.Logs;
-
-import com.harmony.umbrella.core.BeanFactory;
-import com.harmony.umbrella.core.NoSuchBeanFoundException;
+import com.harmony.umbrella.beans.BeanFactory;
+import com.harmony.umbrella.beans.NoSuchBeanFoundException;
 import com.harmony.umbrella.util.Assert;
 import com.harmony.umbrella.ws.FactoryConfig;
 import com.harmony.umbrella.ws.cxf.SimpleBeanFactoryProvider;

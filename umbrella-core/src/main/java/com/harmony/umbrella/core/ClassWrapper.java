@@ -5,9 +5,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.harmony.umbrella.io.ResourceManager;
 import com.harmony.umbrella.util.ClassUtils;
-import com.harmony.umbrella.util.Environments;
 
 /**
  * Class包装类, 负责加载类路径下的类依赖关系
@@ -21,11 +19,11 @@ public class ClassWrapper<T> {
 
     public static final String ALL_WRAPPER_CLASS_PACKAGE = ClassWrapper.class.getName() + ".package";
     
-    private static final Class[] classes;
+    private static final Class[] classes = new Class[0];
     
     static {
-        String defaultPackage = Environments.getProperty(ALL_WRAPPER_CLASS_PACKAGE, "com.harmony");
-        classes = ResourceManager.getInstance().getClasses(defaultPackage);
+        /*String defaultPackage = Environments.getProperty(ALL_WRAPPER_CLASS_PACKAGE, "com.harmony");
+        classes = ResourceManager.getInstance().getClasses(defaultPackage);*/
     }
 
     private static final Map<Class, Set<Class>> subClassMap = new ConcurrentHashMap<Class, Set<Class>>();

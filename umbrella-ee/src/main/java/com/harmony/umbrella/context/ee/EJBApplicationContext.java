@@ -2,8 +2,8 @@ package com.harmony.umbrella.context.ee;
 
 import javax.ejb.EJB;
 
+import com.harmony.umbrella.beans.BeansException;
 import com.harmony.umbrella.context.ApplicationContext;
-import com.harmony.umbrella.core.BeansException;
 
 /**
  * JavaEE的应用上下文实现

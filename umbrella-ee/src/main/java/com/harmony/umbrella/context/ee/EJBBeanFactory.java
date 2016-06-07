@@ -2,8 +2,8 @@ package com.harmony.umbrella.context.ee;
 
 import javax.ejb.EJB;
 
-import com.harmony.umbrella.core.BeanFactory;
-import com.harmony.umbrella.core.BeansException;
+import com.harmony.umbrella.beans.BeanFactory;
+import com.harmony.umbrella.beans.BeansException;
 
 /**
  * @author wuxii@foxmail.com

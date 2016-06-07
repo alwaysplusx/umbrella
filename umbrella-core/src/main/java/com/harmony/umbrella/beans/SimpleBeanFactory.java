@@ -1,4 +1,4 @@
-package com.harmony.umbrella.core;
+package com.harmony.umbrella.beans;
 
 import java.io.Serializable;
 import java.util.Map;

@@ -10,8 +10,6 @@ import java.util.Map;
 import javax.xml.ws.WebServiceException;
 
 import com.harmony.umbrella.core.Invoker;
-import com.harmony.umbrella.core.InvokerMethodInvocationContext;
-import com.harmony.umbrella.core.MethodInvocationContext;
 import com.harmony.umbrella.log.Log;
 import com.harmony.umbrella.log.Logs;
 import com.harmony.umbrella.util.Assert;
@@ -48,26 +46,19 @@ public class JaxWsCXFExecutor extends ProxyExecutorSupport implements JaxWsExecu
         Assert.notNull(context.getServiceInterface(), "service interface not set");
         Assert.notBlank(context.getAddress(), "service address not set");
         Assert.notBlank(context.getMethodName(), "service method not set");
-
         T result = null;
-        MethodInvocationContext mic = null;
         try {
             Method method = context.getMethod();
             Object proxy = getProxy(context);
             Object[] parameters = context.getParameters();
             log.info("使用代理[{}]执行交互{}, invoker is [{}]", proxy, context, invoker);
-            mic = new InvokerMethodInvocationContext(invoker, proxy, method, parameters);
-            result = (T) mic.process();
+            result = (T) invoker.invoke(proxy, method, parameters);
         } catch (NoSuchMethodException e) {
             throw new WebServiceException("未找到接口方法" + context, e);
         } catch (Throwable e) {
             // 执行失败时候移除缓存的代理服务
             this.removeProxy(context.getServiceInterface());
             throw new WebServiceException("执行交互失败", Exceptions.getRootCause(e));
-        } finally {
-            if (mic != null) {
-                context.put(WS_EXECUTION_GRAPH, mic.getMethodGraph());
-            }
         }
         return result;
     }

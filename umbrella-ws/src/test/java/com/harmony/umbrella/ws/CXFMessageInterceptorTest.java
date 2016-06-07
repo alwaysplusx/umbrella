@@ -6,8 +6,6 @@ import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.jaxws.JaxWsServerFactoryBean;
 import org.apache.cxf.message.Message;
 
-import com.harmony.umbrella.io.Resource;
-import com.harmony.umbrella.io.ResourceManager;
 import com.harmony.umbrella.ws.cxf.interceptor.MessageInInterceptor;
 import com.harmony.umbrella.ws.cxf.interceptor.MessageOutInterceptor;
 import com.harmony.umbrella.ws.jaxws.JaxWsProxyBuilder;
@@ -159,11 +157,4 @@ public class CXFMessageInterceptorTest {
 
     }
 
-    // @Test
-    public void testGetResources() {
-        Resource[] resources = ResourceManager.getInstance().getResources("com.harmony");
-        for (Resource resource : resources) {
-            System.out.println(resource.toString());
-        }
-    }
 }

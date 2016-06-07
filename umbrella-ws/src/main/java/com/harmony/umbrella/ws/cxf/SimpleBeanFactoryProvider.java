@@ -2,9 +2,9 @@ package com.harmony.umbrella.ws.cxf;
 
 import org.apache.cxf.message.Message;
 
-import com.harmony.umbrella.core.BeanFactory;
-import com.harmony.umbrella.core.NoSuchBeanFoundException;
-import com.harmony.umbrella.core.SimpleBeanFactory;
+import com.harmony.umbrella.beans.BeanFactory;
+import com.harmony.umbrella.beans.NoSuchBeanFoundException;
+import com.harmony.umbrella.beans.SimpleBeanFactory;
 import com.harmony.umbrella.ws.jaxrs.JaxRsServerBuilder.BeanFactoryProvider;
 
 /**

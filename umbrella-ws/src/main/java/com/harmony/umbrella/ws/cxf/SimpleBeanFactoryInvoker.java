@@ -2,12 +2,12 @@ package com.harmony.umbrella.ws.cxf;
 
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.service.invoker.AbstractInvoker;
+
 import com.harmony.umbrella.log.Log;
 import com.harmony.umbrella.log.Logs;
-
-import com.harmony.umbrella.core.BeanFactory;
-import com.harmony.umbrella.core.NoSuchBeanFoundException;
-import com.harmony.umbrella.core.SimpleBeanFactory;
+import com.harmony.umbrella.beans.BeanFactory;
+import com.harmony.umbrella.beans.NoSuchBeanFoundException;
+import com.harmony.umbrella.beans.SimpleBeanFactory;
 import com.harmony.umbrella.ws.jaxws.JaxWsServerBuilder.BeanFactoryInvoker;
 
 /**

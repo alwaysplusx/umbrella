@@ -3,4 +3,4 @@
  * 
  * @author wuxii@foxmail.com
  */
-package com.harmony.umbrella.ws.client;
+package com.harmony.umbrella.ws.proxy;
