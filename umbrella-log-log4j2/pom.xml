@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>com.harmony.umbrella</groupId>
-    <artifactId>harmony-umbrella</artifactId>
+    <artifactId>umbrella</artifactId>
     <version>0.0.5-SNAPSHOT</version>
   </parent>
   <name>Harmony Umbrella :: Logger log4j2 Implement</name>

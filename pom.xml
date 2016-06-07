@@ -30,7 +30,7 @@ under the License.
   </parent>
 
   <groupId>com.harmony.umbrella</groupId>
-  <artifactId>harmony-umbrella</artifactId>
+  <artifactId>umbrella</artifactId>
   <version>0.0.5-SNAPSHOT</version>
   <packaging>pom</packaging>
 
@@ -59,8 +59,6 @@ under the License.
     <!-- <module>umbrella-resources</module> -->
     <!-- <module>umbrella-security</module> -->
     <!-- <module>umbrella-cache</module> -->
-    <!-- <module>examples</module> -->
-    <!-- <module>umbrella-bang</module> -->
     <module>umbrella-excel</module>
   </modules>
 
