@@ -17,12 +17,12 @@ import io.netty.handler.codec.serialization.ObjectEncoder;
 import com.harmony.umbrella.log.Log;
 import com.harmony.umbrella.log.Logs;
 import com.harmony.umbrella.message.Message;
-import com.harmony.umbrella.message.MessageSender;
+import com.harmony.umbrella.message.MessageProducer;
 
 /**
  * @author wuxii@foxmail.com
  */
-public class ChannelHandlerMessageSender implements MessageSender {
+public class ChannelHandlerMessageSender implements MessageProducer {
 
     private static final Log log = Logs.getLog(ChannelHandlerMessageSender.class);
 
@@ -35,7 +35,7 @@ public class ChannelHandlerMessageSender implements MessageSender {
     }
 
     @Override
-    public boolean send(final Message message) {
+    public void send(final Message message) {
         EventLoopGroup group = new NioEventLoopGroup();
         try {
             Bootstrap b = new Bootstrap();
@@ -60,7 +60,6 @@ public class ChannelHandlerMessageSender implements MessageSender {
         } finally {
             group.shutdownGracefully();
         }
-        return false;
     }
 
     private class ChannelMessageHandler extends ChannelHandlerAdapter {

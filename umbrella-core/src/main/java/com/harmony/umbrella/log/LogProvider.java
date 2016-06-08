@@ -1,6 +1,5 @@
 package com.harmony.umbrella.log;
 
-
 /**
  * @author wuxii@foxmail.com
  */

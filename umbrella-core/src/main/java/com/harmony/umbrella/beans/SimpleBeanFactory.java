@@ -16,7 +16,7 @@ public class SimpleBeanFactory implements BeanFactory, Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    private Map<Class<?>, Object> beans = new ConcurrentHashMap<Class<?>, Object>();
+    private final Map<Class<?>, Object> beans = new ConcurrentHashMap<Class<?>, Object>();
 
     @SuppressWarnings("unchecked")
     @Override

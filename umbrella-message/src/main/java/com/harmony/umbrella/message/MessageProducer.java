@@ -5,16 +5,15 @@ package com.harmony.umbrella.message;
  * 
  * @author wuxii@foxmail.com
  */
-public interface MessageSender {
+public interface MessageProducer {
 
     /**
      * 发送消息给消息中心(JMS, NIO)
      *
      * @param message
      *            需要发送的消息
-     * @return if return {@code true} 发送成功
      * @see javax.jms.MessageProducer#send(javax.jms.Message)
      */
-    boolean send(Message message) throws MessageException;
+    void send(Message message) throws MessageException;
 
 }
