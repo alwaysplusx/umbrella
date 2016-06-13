@@ -1,20 +1,19 @@
-package com.harmony.umbrella.plugin.access;
+package com.harmony.umbrella.log.access;
 
 import java.lang.reflect.Method;
 
-import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
 
-import com.harmony.umbrella.access.CheckedAccessor;
 import com.harmony.umbrella.util.ReflectionUtils;
 import com.harmony.umbrella.util.StringUtils;
 
 /**
  * @author wuxii@foxmail.com
  */
-public class HttpServletContextAccessor extends CheckedAccessor<ServletContext> {
+public class HttpRequestAccessor extends CheckedAccessor<HttpServletRequest> {
 
-    public HttpServletContextAccessor() {
-        super(ServletContext.class);
+    public HttpRequestAccessor() {
+        super(HttpServletRequest.class);
     }
 
     @Override
@@ -23,8 +22,15 @@ public class HttpServletContextAccessor extends CheckedAccessor<ServletContext> 
     }
 
     @Override
-    public Object get(String name, ServletContext obj) {
-        if (name.startsWith("#")) {
+    public Object get(String name, HttpServletRequest obj) {
+        // name - attribute
+        // $name - parameter
+        // #name - method
+        if (name.startsWith("$")) {
+            // parameter
+            return obj.getParameter(name.substring(1));
+        } else if (name.startsWith("#")) {
+            // method
             Method method = ReflectionUtils.findReadMethod(getType(), name.substring(1));
             if (method == null) {
                 throw new IllegalArgumentException(name + " method not found");
@@ -35,7 +41,7 @@ public class HttpServletContextAccessor extends CheckedAccessor<ServletContext> 
     }
 
     @Override
-    public void set(String name, ServletContext obj, Object val) {
+    public void set(String name, HttpServletRequest obj, Object val) {
         obj.setAttribute(name, val);
     }
 

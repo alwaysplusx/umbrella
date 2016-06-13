@@ -53,7 +53,7 @@ public abstract class ApplicationContext implements BeanFactory {
         }
         if (context == null) {
             context = SimpleApplicationContext.SIMPLE_APPLICATION_CONTEXT;
-            LOG.warn("no context provider find, use default {}", SimpleApplicationContext.class.getName());
+            LOG.debug("no context provider find, use default {}", SimpleApplicationContext.class.getName());
         }
         // 初始化
         context.init();

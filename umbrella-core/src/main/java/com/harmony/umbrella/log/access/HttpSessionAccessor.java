@@ -1,10 +1,9 @@
-package com.harmony.umbrella.plugin.access;
+package com.harmony.umbrella.log.access;
 
 import java.lang.reflect.Method;
 
 import javax.servlet.http.HttpSession;
 
-import com.harmony.umbrella.access.CheckedAccessor;
 import com.harmony.umbrella.util.ReflectionUtils;
 import com.harmony.umbrella.util.StringUtils;
 

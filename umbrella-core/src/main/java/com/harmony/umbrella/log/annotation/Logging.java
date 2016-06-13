@@ -29,6 +29,13 @@ public @interface Logging {
     String key() default "";
 
     /**
+     * key表达式对应的阶段表达式
+     * 
+     * @return scope
+     */
+    Scope keyScope() default Scope.IN;
+
+    /**
      * 日志类型，可分为业务日志与系统日志(默认为业务日志)
      * 
      * @return
@@ -52,6 +59,26 @@ public @interface Logging {
      */
     Class<? extends ErrorHandler> errorHandler() default ErrorHandler.class;
 
+    /**
+     * message中scope为in的expression表达式
+     * 
+     * @return in阶段的expression
+     */
+    String[] inProperties() default {};
+
+    /**
+     * 在response阶段的属性，message中设置有expression。expression才通常情况下问方法请求阶段绑定值，
+     * 对于http中的请求，有可能需要获取方法完成后request中的值。即设置在outProperties中的表达式表示为在方法完成阶段所对应的值
+     * 
+     * @return 返回阶段的expression
+     */
+    String[] outProperties() default {};
+
+    /**
+     * 日志类型
+     * 
+     * @author wuxii@foxmail.com
+     */
     public enum LogType {
         /**
          * 表示系统日志

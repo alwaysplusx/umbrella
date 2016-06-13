@@ -1,4 +1,4 @@
-package com.harmony.umbrella.access;
+package com.harmony.umbrella.log.access;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -20,9 +20,9 @@ public class AccessorHolder {
 
     static {
         defaultAccessors.add(new ArrayAccessor());
-        /*defaultAccessors.add(new HttpRequestAccessor());
+        defaultAccessors.add(new HttpRequestAccessor());
         defaultAccessors.add(new HttpServletContextAccessor());
-        defaultAccessors.add(new HttpSessionAccessor());*/
+        defaultAccessors.add(new HttpSessionAccessor());
         defaultAccessors.add(new ListAccessor());
         defaultAccessors.add(new MapAccessor());
         defaultAccessors.add(new NamedAccessor());
@@ -31,14 +31,11 @@ public class AccessorHolder {
 
     private Map<Class, List<TypedAccessor>> accessorMap = new HashMap<Class, List<TypedAccessor>>();
 
-    public AccessorHolder() {
-    }
-
-    public AccessorHolder(TypedAccessor... accessors) {
+    private AccessorHolder(TypedAccessor... accessors) {
         this(Arrays.asList(accessors));
     }
 
-    public AccessorHolder(List<TypedAccessor> accessors) {
+    private AccessorHolder(List<TypedAccessor> accessors) {
         for (TypedAccessor t : accessors) {
             this.addAccessor(t);
         }
@@ -119,6 +116,10 @@ public class AccessorHolder {
             accessorMap.put(type, result = new ArrayList<TypedAccessor>());
         }
         return result;
+    }
+
+    public static AccessorHolder createAccessorHolder() {
+        return new AccessorHolder(getDefaultAccessors());
     }
 
     public static List<TypedAccessor> getDefaultAccessors() {

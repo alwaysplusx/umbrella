@@ -1,5 +1,6 @@
-package com.harmony.umbrella.access;
+package com.harmony.umbrella.log.access;
 
+import com.harmony.umbrella.access.MemberAccess;
 import com.harmony.umbrella.util.ReflectionUtils;
 
 /**
