@@ -81,7 +81,7 @@
   </dependencies>
   <build>
     <plugins>
-      <plugin>
+      <!-- <plugin>
         <groupId>org.apache.cxf</groupId>
         <artifactId>cxf-codegen-plugin</artifactId>
         <version>${apache.cxf.version}</version>
@@ -94,12 +94,12 @@
               <wsdlOptions>
                 <wsdlOption>
                   <wsdl>${basedir}/src/test/resources/hello.wsdl</wsdl>
-                  <!-- <extraargs>
+                  <extraargs>
                     <extraarg>-impl</extraarg>
                     <extraarg>-verbose</extraarg>
                     <extraarg>-client</extraarg>
                     <extraarg>-server</extraarg>
-                  </extraargs> -->
+                  </extraargs>
                 </wsdlOption>
               </wsdlOptions>
             </configuration>
@@ -108,7 +108,7 @@
             </goals>
           </execution>
         </executions>
-      </plugin>
+      </plugin> -->
       <!-- <plugin>
         <groupId>org.apache.cxf</groupId>
         <artifactId>cxf-wadl2java-plugin</artifactId>
