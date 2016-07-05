@@ -16,6 +16,11 @@
 
   <name>Harmony Umbrella</name>
 
+  <scm>
+    <url>https://git.oschina.net/wuxii/umbrella.git</url>
+    <connection>scm:git:https://git.oschina.net/wuxii/umbrella.git</connection>
+  </scm>
+
   <modules>
     <module>umbrella-core</module>
     <module>umbrella-ee</module>
