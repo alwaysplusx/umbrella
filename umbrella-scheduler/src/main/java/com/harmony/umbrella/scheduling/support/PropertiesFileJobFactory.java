@@ -4,13 +4,13 @@ import java.lang.reflect.Modifier;
 import java.util.Properties;
 import java.util.Set;
 
-import com.harmony.umbrella.core.BeanFactory;
-import com.harmony.umbrella.core.SimpleBeanFactory;
+import com.harmony.umbrella.beans.BeanFactory;
+import com.harmony.umbrella.beans.SimpleBeanFactory;
 import com.harmony.umbrella.scheduling.Job;
 import com.harmony.umbrella.scheduling.JobFactory;
 import com.harmony.umbrella.scheduling.Trigger;
 import com.harmony.umbrella.util.Assert;
-import com.harmony.umbrella.util.PropUtils;
+import com.harmony.umbrella.util.PropertiesUtils;
 
 /**
  * @author wuxii@foxmail.com
@@ -38,7 +38,7 @@ public class PropertiesFileJobFactory implements JobFactory {
     @Override
     public Class<? extends Job> getJobClass(String jobName) {
         try {
-            Properties props = PropUtils.loadPropertiesSilently(jobFileLocation);
+            Properties props = PropertiesUtils.loadPropertiesSilently(jobFileLocation);
             String jobClassName = props.getProperty(jobName);
             if (jobClassName != null) {
                 Class<?> clazz = Class.forName(jobClassName);
@@ -56,7 +56,7 @@ public class PropertiesFileJobFactory implements JobFactory {
 
     @Override
     public Trigger getJobTrigger(String jobName) {
-        Properties props = PropUtils.loadPropertiesSilently(triggerFileLocation);
+        Properties props = PropertiesUtils.loadPropertiesSilently(triggerFileLocation);
         String expression = props.getProperty(jobName);
         if (expression != null) {
             return new ExpressionTrigger(expression);
@@ -80,7 +80,7 @@ public class PropertiesFileJobFactory implements JobFactory {
 
     @Override
     public Set<String> getAllJobNames() {
-        Properties props = PropUtils.loadPropertiesSilently(jobFileLocation);
+        Properties props = PropertiesUtils.loadPropertiesSilently(jobFileLocation);
         return props.stringPropertyNames();
     }
 }

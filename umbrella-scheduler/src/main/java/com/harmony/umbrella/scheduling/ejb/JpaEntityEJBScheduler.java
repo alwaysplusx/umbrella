@@ -4,7 +4,7 @@ import javax.ejb.Timer;
 import javax.ejb.TimerService;
 import javax.persistence.EntityManager;
 
-import com.harmony.umbrella.core.BeanFactory;
+import com.harmony.umbrella.beans.BeanFactory;
 import com.harmony.umbrella.scheduling.AbstractEJBScheduler;
 import com.harmony.umbrella.scheduling.JobFactory;
 import com.harmony.umbrella.scheduling.ext.JpaJobFactory;

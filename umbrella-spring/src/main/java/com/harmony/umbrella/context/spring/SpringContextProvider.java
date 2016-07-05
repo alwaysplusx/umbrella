@@ -1,10 +1,7 @@
 package com.harmony.umbrella.context.spring;
 
-import java.net.URL;
-
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContextAware;
-import org.springframework.util.Assert;
 
 import com.harmony.umbrella.context.ApplicationContext;
 import com.harmony.umbrella.context.ContextProvider;
@@ -12,17 +9,11 @@ import com.harmony.umbrella.context.ContextProvider;
 /**
  * @author wuxii@foxmail.com
  */
-public class SpringContextProvider extends ContextProvider {
+public class SpringContextProvider implements ContextProvider {
 
     @Override
     public ApplicationContext createApplicationContext() {
-        return createApplicationContext(null    );
-    }
-
-    @Override
-    public ApplicationContext createApplicationContext(URL url) {
-        Assert.notNull(SpringContextHolder.springApplication, "spring application context not set, configuration spring bean class" + SpringContextHolder.class);
-        return new SpringApplicationContext(SpringContextHolder.springApplication, url);
+        return new SpringApplicationContext(SpringContextHolder.springApplication, null);
     }
 
     public static class SpringContextHolder implements ApplicationContextAware {

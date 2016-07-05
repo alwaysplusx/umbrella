@@ -7,7 +7,6 @@ import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 
 import com.harmony.umbrella.context.ApplicationContext;
-import com.harmony.umbrella.core.NoSuchBeanFindException;
 
 /**
  * @author wuxii@foxmail.com
@@ -22,17 +21,17 @@ public class SpringApplicationContext extends ApplicationContext implements Bean
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T> T getBean(String beanName, String scope) throws NoSuchBeanFindException {
+    public <T> T getBean(String beanName, String scope) throws BeansException {
         return (T) springContext.getBean(beanName);
     }
 
     @Override
-    public <T> T getBean(Class<T> beanClass) throws NoSuchBeanFindException {
+    public <T> T getBean(Class<T> beanClass) throws BeansException {
         return springContext.getBean(beanClass);
     }
 
     @Override
-    public <T> T getBean(Class<T> beanClass, String scope) throws NoSuchBeanFindException {
+    public <T> T getBean(Class<T> beanClass, String scope) throws BeansException {
         return springContext.getBean(beanClass);
     }
 

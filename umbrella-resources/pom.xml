@@ -13,6 +13,5 @@
   <packaging>pom</packaging>
   <modules>
     <module>umbrella-all</module>
-    <!-- <module>cxf-all</module> -->
   </modules>
 </project>
