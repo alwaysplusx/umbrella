@@ -45,6 +45,7 @@
     <module>umbrella-security</module>
     <module>umbrella-cache</module>
     <module>umbrella-excel</module>
+    <module>umbrella-fs</module>
   </modules>
 
   <properties>
