@@ -9,9 +9,8 @@
   <artifactId>umbrella-fs</artifactId>
   <dependencies>
     <dependency>
-      <groupId>commons-net</groupId>
-      <artifactId>commons-net</artifactId>
-      <version>3.5</version>
+      <groupId>com.harmony.umbrella</groupId>
+      <artifactId>umbrella-core</artifactId>
     </dependency>
   </dependencies>
 </project>

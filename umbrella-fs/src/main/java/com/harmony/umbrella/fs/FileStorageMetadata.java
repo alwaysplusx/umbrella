@@ -1,4 +1,4 @@
-package com.huiju.module.fs;
+package com.harmony.umbrella.fs;
 
 import java.io.Serializable;
 import java.util.Map;

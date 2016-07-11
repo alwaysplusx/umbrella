@@ -1,4 +1,4 @@
-package com.huiju.module.fs.support;
+package com.harmony.umbrella.fs.support;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -8,93 +8,88 @@ import java.util.Date;
 import java.util.Map;
 import java.util.UUID;
 
-import com.alibaba.fastjson.JSONException;
-import com.huiju.module.fs.FileStorageMetadata;
-import com.huiju.module.fs.StorageType;
-import com.huiju.module.util.FileUtils;
-import com.huiju.module.util.IOUtils;
-import com.huiju.module.util.TimeUtils;
+import com.harmony.umbrella.fs.FileStorageMetadata;
+import com.harmony.umbrella.fs.StorageType;
+import com.harmony.umbrella.util.FileUtils;
+import com.harmony.umbrella.util.IOUtils;
+import com.harmony.umbrella.util.TimeUtils;
 
 /**
  * @author wuxii@foxmail.com
  */
 public class ServerFileStorage extends AbstractFileStorage {
 
-    private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1L;
 
-    public static final String DIR = "/root/upload/";
+	public static final String DIR = "/root/upload/";
 
-    private String uploadDir = DIR;
+	private String uploadDir = DIR;
 
-    public ServerFileStorage() {
-    }
+	public ServerFileStorage() {
+	}
 
-    public ServerFileStorage(String uploadDir) {
-        this.uploadDir = uploadDir;
-    }
+	public ServerFileStorage(String uploadDir) {
+		this.uploadDir = uploadDir;
+	}
 
-    @Override
-    public FileStorageMetadata putFile(InputStream in, Map<String, Object> properties) throws IOException {
-        DefaultFileStorageMetadata storageMetadata = new DefaultFileStorageMetadata();
-        
-        storageMetadata.setStorageType(StorageType.SERVER);
-        storageMetadata.setContentLength(Long.valueOf(in.available()));
-        storageMetadata.setOriginal((String) properties.get(METADATA_ORIGINAL));
-        storageMetadata.setFileName((String) properties.get(METADATA_FILE_NAMEL));
+	@Override
+	public FileStorageMetadata putFile(InputStream in, Map<String, Object> properties) throws IOException {
+		DefaultFileStorageMetadata storageMetadata = new DefaultFileStorageMetadata();
 
-        File destinationFile = createDestinationFile((String) properties.get(METADATA_EXTENSION));
-        storageMetadata.setDestination(destinationFile.getAbsolutePath());
+		storageMetadata.setStorageType(StorageType.SERVER);
+		storageMetadata.setContentLength(Long.valueOf(in.available()));
+		storageMetadata.setOriginal((String) properties.get(METADATA_ORIGINAL));
+		storageMetadata.setFileName((String) properties.get(METADATA_FILE_NAMEL));
 
-        FileOutputStream fos = new FileOutputStream(destinationFile);
-        IOUtils.copy(in, fos);
-        fos.close();
+		File destinationFile = createDestinationFile((String) properties.get(METADATA_EXTENSION));
+		storageMetadata.setDestination(destinationFile.getAbsolutePath());
 
-        return storageMetadata;
-    }
+		FileOutputStream fos = new FileOutputStream(destinationFile);
+		IOUtils.copy(in, fos);
+		fos.close();
 
-    @Override
-    public File getFile(FileStorageMetadata metadata) throws IOException {
-        File file = null;
-        try {
-            String path = metadata.getDestination();
-            if (path == null || !(file = new File(path)).isFile()) {
-                throw new IOException("file not fonud " + path);
-            }
-            return file;
-        } catch (JSONException e) {
-            throw new IllegalArgumentException(e);
-        }
-    }
+		return storageMetadata;
+	}
 
-    protected File createDestinationFile(String extension) throws IOException {
-        String path = uploadDir + TimeUtils.parseText(new Date(), "yyyyMMdd") + File.separator;
+	@Override
+	public File getFile(FileStorageMetadata metadata) throws IOException {
+		File file = null;
+		String path = metadata.getDestination();
+		if (path == null || !(file = new File(path)).isFile()) {
+			throw new IOException("file not fonud " + path);
+		}
+		return file;
+	}
 
-        if (!FileUtils.exists(path)) {
-            FileUtils.createDirectory(path);
-        } else if (FileUtils.isFile(path)) {
-            throw new IOException("server path " + path + " not directory");
-        }
+	protected File createDestinationFile(String extension) throws IOException {
+		String path = uploadDir + TimeUtils.parseText(new Date(), "yyyyMMdd") + File.separator;
 
-        String filePath = path + UUID.randomUUID().toString().toUpperCase().replace("-", "") + (extension == null ? "" : extension);
+		if (!FileUtils.exists(path)) {
+			FileUtils.createDirectory(path);
+		} else if (FileUtils.isFile(path)) {
+			throw new IOException("server path " + path + " not directory");
+		}
 
-        if (FileUtils.exists(filePath)) {
-            throw new IOException("file already exist in server side");
-        }
+		String filePath = path + UUID.randomUUID().toString().toUpperCase().replace("-", "") + (extension == null ? "" : extension);
 
-        return new File(filePath);
-    }
+		if (FileUtils.exists(filePath)) {
+			throw new IOException("file already exist in server side");
+		}
 
-    public String getUploadDir() {
-        return uploadDir;
-    }
+		return new File(filePath);
+	}
 
-    public void setUploadDir(String uploadDir) {
-        this.uploadDir = uploadDir;
-    }
+	public String getUploadDir() {
+		return uploadDir;
+	}
 
-    @Override
-    public StorageType getStorageType() {
-        return StorageType.SERVER;
-    }
+	public void setUploadDir(String uploadDir) {
+		this.uploadDir = uploadDir;
+	}
+
+	@Override
+	public StorageType getStorageType() {
+		return StorageType.SERVER;
+	}
 
 }

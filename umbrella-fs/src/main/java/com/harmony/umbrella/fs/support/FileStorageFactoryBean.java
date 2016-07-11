@@ -1,22 +1,17 @@
-package com.huiju.module.fs.support;
+package com.harmony.umbrella.fs.support;
 
-import javax.ejb.Remote;
-import javax.ejb.Stateless;
-
-import com.huiju.module.fs.FileStorage;
-import com.huiju.module.fs.FileStorageFactory;
-import com.huiju.module.fs.StorageType;
+import com.harmony.umbrella.fs.FileStorage;
+import com.harmony.umbrella.fs.FileStorageFactory;
+import com.harmony.umbrella.fs.StorageType;
 
 /**
  * @author wuxii@foxmail.com
  */
-@Remote(FileStorageFactory.class)
-@Stateless(mappedName = "FileStorageFactoryBean")
 public class FileStorageFactoryBean implements FileStorageFactory {
 
-    @Override
-    public FileStorage getFileStorage(StorageType storageType) {
-        return new ServerFileStorage();
-    }
+	@Override
+	public FileStorage getFileStorage(StorageType storageType) {
+		return new ServerFileStorage();
+	}
 
 }

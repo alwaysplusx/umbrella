@@ -1,10 +1,10 @@
-package com.huiju.module.fs.support;
+package com.harmony.umbrella.fs.support;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import com.huiju.module.fs.FileStorageMetadata;
-import com.huiju.module.fs.StorageType;
+import com.harmony.umbrella.fs.FileStorageMetadata;
+import com.harmony.umbrella.fs.StorageType;
 
 /**
  * @author wuxii@foxmail.com

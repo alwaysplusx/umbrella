@@ -101,4 +101,9 @@ public class ElementIterator implements Iterator<ElementIterator> {
     }
 
     private Map<String, Integer> tagNameCount;
+
+	@Override
+	public void remove() {
+		throw new UnsupportedOperationException();
+	}
 }
