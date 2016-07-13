@@ -1,9 +1,8 @@
-package com.harmony.umbrella.io.support;
+package com.harmony.umbrella.io;
 
 import java.io.IOException;
 
-import com.harmony.umbrella.io.Resource;
-import com.harmony.umbrella.io.ResourceLoader;
+import com.harmony.umbrella.io.support.PathMatchingResourcePatternResolver;
 
 /**
  * Strategy interface for resolving a location pattern (for example, an

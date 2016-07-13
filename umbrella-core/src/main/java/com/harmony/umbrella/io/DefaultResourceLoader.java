@@ -1,10 +1,10 @@
-package com.harmony.umbrella.io.resource;
+package com.harmony.umbrella.io;
 
 import java.net.MalformedURLException;
 import java.net.URL;
 
-import com.harmony.umbrella.io.Resource;
-import com.harmony.umbrella.io.ResourceLoader;
+import com.harmony.umbrella.io.resource.ClassPathResource;
+import com.harmony.umbrella.io.resource.UrlResource;
 import com.harmony.umbrella.util.ClassUtils;
 import com.harmony.umbrella.util.StringUtils;
 

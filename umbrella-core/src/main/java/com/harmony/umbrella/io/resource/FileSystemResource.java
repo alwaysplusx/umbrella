@@ -10,6 +10,7 @@ import java.net.URI;
 import java.net.URL;
 
 import com.harmony.umbrella.io.Resource;
+import com.harmony.umbrella.io.WritableResource;
 import com.harmony.umbrella.util.StringUtils;
 
 /**

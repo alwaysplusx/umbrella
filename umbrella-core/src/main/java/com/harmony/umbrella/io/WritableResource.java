@@ -1,9 +1,7 @@
-package com.harmony.umbrella.io.resource;
+package com.harmony.umbrella.io;
 
 import java.io.IOException;
 import java.io.OutputStream;
-
-import com.harmony.umbrella.io.Resource;
 
 /**
  * Extended interface for a resource that supports writing to it.

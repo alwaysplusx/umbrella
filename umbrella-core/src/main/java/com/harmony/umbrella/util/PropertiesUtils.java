@@ -11,9 +11,8 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
+import com.harmony.umbrella.io.DefaultResourceLoader;
 import com.harmony.umbrella.io.Resource;
-import com.harmony.umbrella.io.ResourceLoader;
-import com.harmony.umbrella.io.resource.DefaultResourceLoader;
 import com.harmony.umbrella.io.resource.UrlResource;
 
 /**
@@ -23,31 +22,62 @@ import com.harmony.umbrella.io.resource.UrlResource;
  */
 public class PropertiesUtils {
 
-    private static ResourceLoader resourceLoader = new DefaultResourceLoader();
-
     /**
      * 判断是否存在且是资源文件
      *
      * @param path
-     *         文件路径
+     *            文件路径
      */
     public static boolean exists(String path) {
-        Resource resource = resourceLoader.getResource(path);
-        return resource != null && resource.exists();
+        return new DefaultResourceLoader().getResource(path).exists();
     }
 
+    /**
+     * 按路径加载资源文件
+     * 
+     * @param url
+     *            资源文件所在位置
+     * @return 加载后的资源
+     * @throws IOException
+     */
     public static Properties loadProperties(URL url) throws IOException {
         return loadProperties(new UrlResource(url));
     }
 
+    /**
+     * 按路径加载资源文件
+     * 
+     * @param resource
+     *            资源所在位置
+     * @return 加载后的资源
+     * @throws IOException
+     */
     public static Properties loadProperties(Resource resource) throws IOException {
         return loadProperties(resource.getInputStream(), true);
     }
 
+    /**
+     * 从输入流中获取资源文件内容
+     * 
+     * @param is
+     *            输入流
+     * @return 资源内容
+     * @throws IOException
+     */
     public static Properties loadProperties(InputStream is) throws IOException {
         return loadProperties(is, false);
     }
 
+    /**
+     * 从输入流中获取资源文件内容
+     * 
+     * @param is
+     *            输入流
+     * @param close
+     *            是否自动关闭流
+     * @return
+     * @throws IOException
+     */
     public static Properties loadProperties(InputStream is, boolean close) throws IOException {
         Properties props = new Properties();
         props.load(is);
@@ -60,14 +90,40 @@ public class PropertiesUtils {
         return props;
     }
 
+    /**
+     * 加载文件资源
+     * 
+     * @param file
+     *            资源文件
+     * @return 资源内容
+     * @throws IOException
+     */
     public static Properties loadProperties(File file) throws IOException {
         return loadProperties(new FileInputStream(file), true);
     }
 
+    /**
+     * 加载文件资源
+     * 
+     * @param reader
+     *            资源文件
+     * @return 资源内容
+     * @throws IOException
+     */
     public static Properties loadProperties(Reader reader) throws IOException {
         return loadProperties(reader, false);
     }
 
+    /**
+     * 加载文件资源
+     * 
+     * @param reader
+     *            资源文件
+     * @param close
+     *            是否自动关闭reader
+     * @return 资源内容
+     * @throws IOException
+     */
     public static Properties loadProperties(Reader reader, boolean close) throws IOException {
         Properties props = new Properties();
         try {
@@ -84,28 +140,10 @@ public class PropertiesUtils {
     }
 
     /**
-     * 如果所对应的资源文件不存在忽略
-     */
-    public static Properties loadPropertiesSilently(String... paths) {
-        Properties props = new Properties();
-        if (paths == null || paths.length == 0) {
-            return props;
-        }
-        for (String path : paths) {
-            try {
-                loadProperties(path, props);
-            } catch (IOException e) {
-                // ignore
-            }
-        }
-        return props;
-    }
-
-    /**
      * 加载指定文件下的资源文件
      *
      * @param paths
-     *         资源文件的路径
+     *            资源文件的路径
      * @return 资源文件中的属性
      * @throws IOException
      */
@@ -114,34 +152,46 @@ public class PropertiesUtils {
         if (paths == null || paths.length == 0) {
             return props;
         }
+        DefaultResourceLoader loader = new DefaultResourceLoader();
         for (String path : paths) {
-            loadProperties(path, props);
+            Resource resource = loader.getResource(path);
+            InputStream is = resource.getInputStream();
+            props.load(is);
+            is.close();
         }
         return props;
     }
 
-    private static void loadProperties(String path, Properties props) throws IOException {
-        InputStream inStream = null;
-        try {
-            inStream = resourceLoader.getResource(path).getInputStream();
-            props.load(inStream);
-        } finally {
-            if (inStream != null) {
-                try {
-                    inStream.close();
-                } catch (IOException e) {
-                }
+    /**
+     * 如果所对应的资源文件不存在忽略
+     */
+    public static Properties loadPropertiesSilently(String... paths) {
+        Properties props = new Properties();
+        if (paths == null || paths.length == 0) {
+            return props;
+        }
+        DefaultResourceLoader loader = new DefaultResourceLoader();
+        for (String path : paths) {
+            Resource resource = loader.getResource(path);
+            InputStream is;
+            try {
+                is = resource.getInputStream();
+                props.load(is);
+                is.close();
+            } catch (IOException e) {
+                // ignore
             }
         }
+        return props;
     }
 
     /**
      * 从属性中过滤出前缀为指定值的属性集合
      *
      * @param prefix
-     *         前缀
+     *            前缀
      * @param props
-     *         待过滤的属性
+     *            待过滤的属性
      * @return 前缀符合要求的新属性集合
      */
     public static Properties filterStartWith(String prefix, Properties props) {
@@ -152,11 +202,11 @@ public class PropertiesUtils {
      * 在属性集合中过滤出前缀相同的属性集合
      *
      * @param prefix
-     *         key的前缀
+     *            key的前缀
      * @param props
-     *         属性集合
+     *            属性集合
      * @param ignoreCase
-     *         是否忽略大小写
+     *            是否忽略大小写
      * @return key前缀相同的属性集合
      */
     public static Properties filterStartWith(String prefix, Properties props, boolean ignoreCase) {
@@ -178,9 +228,9 @@ public class PropertiesUtils {
      * map中过滤出key前缀相同的属性集合
      *
      * @param prefix
-     *         key前缀
+     *            key前缀
      * @param map
-     *         属性集合
+     *            属性集合
      * @return key前缀相同的属性集合
      */
     public static Map<String, Object> filterStartWith(String prefix, Map<String, Object> map) {
@@ -191,11 +241,11 @@ public class PropertiesUtils {
      * map中过滤出key前缀相同的属性集合
      *
      * @param prefix
-     *         key前缀
+     *            key前缀
      * @param map
-     *         属性集合
+     *            属性集合
      * @param ignoreCase
-     *         是否忽略大小写
+     *            是否忽略大小写
      * @return key前缀相同的属性集合
      */
     public static Map<String, Object> filterStartWith(String prefix, Map<String, Object> map, boolean ignoreCase) {
