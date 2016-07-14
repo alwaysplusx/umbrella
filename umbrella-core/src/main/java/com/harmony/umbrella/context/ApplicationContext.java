@@ -1,10 +1,17 @@
 package com.harmony.umbrella.context;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.ServiceLoader;
+
+import javax.servlet.ServletContext;
 
 import com.harmony.umbrella.beans.BeanFactory;
 import com.harmony.umbrella.beans.NoSuchBeanFoundException;
 import com.harmony.umbrella.beans.SimpleBeanFactory;
+import com.harmony.umbrella.context.metadata.ApplicationMetadata;
+import com.harmony.umbrella.context.metadata.DatabaseMetadata;
+import com.harmony.umbrella.context.metadata.ServerMetadata;
 import com.harmony.umbrella.log.Log;
 import com.harmony.umbrella.log.Logs;
 
@@ -19,10 +26,16 @@ public abstract class ApplicationContext implements BeanFactory {
 
     protected static final ThreadLocal<CurrentContext> current = new InheritableThreadLocal<CurrentContext>();
 
+    private static ServerMetadata serverMetadata = ApplicationMetadata.EMPTY_SERVER_METADATA;
+
+    private static DatabaseMetadata databaseMetadata = ApplicationMetadata.EMPTY_DATABASE_METADATA;
+
     /**
      * 获取当前应用的应用上下文
      * <p>
-     * 加载 {@code META-INF/services/com.harmony.umbrella.context.spi.ApplicationContextProvider} 文件中的实际类型来创建
+     * 加载
+     * {@code META-INF/services/com.harmony.umbrella.context.spi.ApplicationContextProvider}
+     * 文件中的实际类型来创建
      *
      * @return 应用上下文
      */
@@ -107,6 +120,22 @@ public abstract class ApplicationContext implements BeanFactory {
      */
     public CurrentContext getCurrentContext() {
         return current.get();
+    }
+
+    public static ServerMetadata getServerMetadata() {
+        return serverMetadata;
+    }
+
+    public static DatabaseMetadata getDatabaseMetadata() {
+        return databaseMetadata;
+    }
+
+    static void initialServerMetadata(ServletContext servletContext) {
+        ApplicationContext.serverMetadata = ApplicationMetadata.getServerMetadata(servletContext);
+    }
+
+    static void initialDatabaseMetadata(Connection connection) throws SQLException {
+        ApplicationContext.databaseMetadata = ApplicationMetadata.getDatabaseMetadata(connection);
     }
 
     private static final class SimpleApplicationContext extends ApplicationContext {

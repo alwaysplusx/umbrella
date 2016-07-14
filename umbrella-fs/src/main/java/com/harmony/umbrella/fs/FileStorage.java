@@ -11,23 +11,17 @@ import java.util.Map;
  */
 public interface FileStorage extends Serializable {
 
-    final String METADATA_ORIGINAL = "original";
-
-    final String METADATA_FILE_NAMEL = "fileName";
-
-    final String METADATA_EXTENSION = "extension";
-
-    final String METADATA_CONTENT_LENGTH = "contentLength";
-
-    final String METADATA_DESTINATION = "destination";
+    StorageType getStorageType();
 
     FileStorageMetadata putFile(File file) throws IOException;
 
-    FileStorageMetadata putFile(File file, Map<String, Object> properties) throws IOException;
+    FileStorageMetadata putFile(String fileName, File file) throws IOException;
 
-    FileStorageMetadata putFile(String fileName, InputStream in) throws IOException;
+    FileStorageMetadata putFile(String fileName, InputStream is) throws IOException;
 
-    FileStorageMetadata putFile(InputStream in, Map<String, Object> properties) throws IOException;
+    FileStorageMetadata putFile(FileMetadata fileMetadata) throws IOException;
+
+    FileStorageMetadata putFile(FileMetadata fileMetadata, Map<String, Object> properties) throws IOException;
 
     File getFile(FileStorageMetadata metadata) throws IOException;
 
@@ -35,6 +29,4 @@ public interface FileStorage extends Serializable {
 
     void deleteFile(FileStorageMetadata metadata) throws IOException;
 
-    StorageType getStorageType();
-    
 }

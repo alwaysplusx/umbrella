@@ -11,6 +11,8 @@ import java.sql.SQLException;
  */
 public final class DatabaseMetadata {
 
+    static final DatabaseMetadata EMPTY_DATABASE_METADATA = new DatabaseMetadata();
+
     /**
      * 数据库的名称
      */
@@ -59,6 +61,16 @@ public final class DatabaseMetadata {
         this.driverName = dbmd.getDriverVersion();
         this.driverVersion = dbmd.getDriverVersion();
         this.databaseType = databaseType(productName);
+    }
+
+    private DatabaseMetadata() {
+        this.productName = "";
+        this.productVersion = "";
+        this.url = "";
+        this.userName = "";
+        this.driverName = "";
+        this.driverVersion = "";
+        this.databaseType = UNKNOW;
     }
 
     private final int databaseType(String databaseName) {

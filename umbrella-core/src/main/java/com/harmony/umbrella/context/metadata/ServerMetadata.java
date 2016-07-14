@@ -9,6 +9,8 @@ import javax.servlet.ServletContext;
  */
 public final class ServerMetadata {
 
+    static final ServerMetadata EMPTY_SERVER_METADATA = new ServerMetadata();
+
     public static final int UNKNOW = 0;
     public static final int WEBLOGIC = 1;
     public static final int WEBSPHERE = 2;
@@ -34,6 +36,12 @@ public final class ServerMetadata {
         this.serverName = context.getServerInfo();
         this.servletVersion = context.getMajorVersion() + "." + context.getMinorVersion();
         this.serverType = serverType(serverName);
+    }
+
+    private ServerMetadata() {
+        this.serverName = "";
+        this.servletVersion = "";
+        this.serverType = UNKNOW;
     }
 
     private int serverType(String serverName) {

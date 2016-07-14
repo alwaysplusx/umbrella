@@ -364,6 +364,10 @@ public class StringUtils {
         return (separatorIndex != -1 ? path.substring(separatorIndex + 1) : path);
     }
 
+    public static String[] split(String str, String delimiters, boolean trim) {
+        return tokenizeToStringArray(str, delimiters, trim, true);
+    }
+
     /**
      * Tokenize the given String into a String array via a StringTokenizer.
      * Trims tokens and omits empty tokens.

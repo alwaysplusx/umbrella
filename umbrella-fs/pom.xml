@@ -12,5 +12,16 @@
       <groupId>com.harmony.umbrella</groupId>
       <artifactId>umbrella-core</artifactId>
     </dependency>
+    <dependency>
+      <groupId>commons-net</groupId>
+      <artifactId>commons-net</artifactId>
+      <version>3.5</version>
+      <classifier>ftp</classifier>
+    </dependency>
+    <dependency>
+      <groupId>com.amazonaws</groupId>
+      <artifactId>aws-java-sdk-s3</artifactId>
+      <version>1.11.14</version>
+    </dependency>
   </dependencies>
 </project>
