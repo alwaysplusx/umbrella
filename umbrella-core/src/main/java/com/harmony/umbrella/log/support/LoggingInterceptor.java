@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import com.harmony.umbrella.context.ApplicationContext;
+import com.harmony.umbrella.context.ContextHelper;
 import com.harmony.umbrella.context.CurrentContext;
 import com.harmony.umbrella.log.Level;
 import com.harmony.umbrella.log.LogMessage;
@@ -214,7 +215,7 @@ public abstract class LoggingInterceptor {
     }
 
     protected boolean applyUserContext(LogMessage logMessage) {
-        CurrentContext cc = getCurrentContext();
+        CurrentContext cc = ApplicationContext.getCurrentContext();
         if (cc != null && cc.getUserId() != null) {
             logMessage.operatorId(cc.getUserId())//
                     .operatorName(cc.getUsername())//
@@ -226,18 +227,12 @@ public abstract class LoggingInterceptor {
 
     protected abstract ValueContext createValueContext();
 
-    protected CurrentContext getCurrentContext() {
-        return ApplicationContext.getApplicationContext().getCurrentContext();
-    }
-
     protected HttpServletRequest getRequest() {
-        CurrentContext cc = getCurrentContext();
-        return cc != null ? cc.getHttpRequest() : null;
+        return ContextHelper.getHttpRequest();
     }
 
     protected HttpServletResponse getResponse() {
-        CurrentContext cc = getCurrentContext();
-        return cc != null ? cc.getHttpResponse() : null;
+        return ContextHelper.getHttpResponse();
     }
 
 }

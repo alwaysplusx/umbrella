@@ -84,21 +84,12 @@ public abstract class ApplicationContext implements BeanFactory {
     public abstract void destroy();
 
     /**
-     * 判断是否存在用户上下文
-     *
-     * @return
-     */
-    public boolean hasCurrentContext() {
-        return current.get() != null;
-    }
-
-    /**
      * 设置当前线程的用户环境
      *
      * @param currentCtx
      *            用户环境
      */
-    public void setCurrentContext(CurrentContext cc) {
+    public static void setCurrentContext(CurrentContext cc) {
         current.set(cc);
     }
 
@@ -107,9 +98,9 @@ public abstract class ApplicationContext implements BeanFactory {
      * 
      * @return 当前的current context
      */
-    public CurrentContext removeCurrentContext() {
-        CurrentContext cc = this.getCurrentContext();
-        current.set(null);
+    public static CurrentContext removeCurrentContext() {
+        CurrentContext cc = getCurrentContext();
+        current.remove();
         return cc;
     }
 
@@ -118,23 +109,23 @@ public abstract class ApplicationContext implements BeanFactory {
      *
      * @return 用户环境
      */
-    public CurrentContext getCurrentContext() {
+    public static CurrentContext getCurrentContext() {
         return current.get();
     }
 
-    public static ServerMetadata getServerMetadata() {
+    public ServerMetadata getServerMetadata() {
         return serverMetadata;
     }
 
-    public static DatabaseMetadata getDatabaseMetadata() {
+    public DatabaseMetadata getDatabaseMetadata() {
         return databaseMetadata;
     }
 
-    static void initialServerMetadata(ServletContext servletContext) {
+    void initialServerMetadata(ServletContext servletContext) {
         ApplicationContext.serverMetadata = ApplicationMetadata.getServerMetadata(servletContext);
     }
 
-    static void initialDatabaseMetadata(Connection connection) throws SQLException {
+    void initialDatabaseMetadata(Connection connection) throws SQLException {
         ApplicationContext.databaseMetadata = ApplicationMetadata.getDatabaseMetadata(connection);
     }
 

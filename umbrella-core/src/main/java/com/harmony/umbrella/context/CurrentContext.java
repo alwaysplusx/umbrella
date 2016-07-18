@@ -155,7 +155,7 @@ public interface CurrentContext extends Serializable {
      *
      * @return if {@code true} has been created
      */
-    boolean sessionCreated();
+    boolean doesSessionCreated();
 
     /**
      * 获取当前的http-session

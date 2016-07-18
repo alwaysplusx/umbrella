@@ -19,6 +19,10 @@
     </dependency>
     <dependency>
       <groupId>com.harmony.umbrella</groupId>
+      <artifactId>umbrella-monitor</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.harmony.umbrella</groupId>
       <artifactId>umbrella-data</artifactId>
     </dependency>
     <dependency>

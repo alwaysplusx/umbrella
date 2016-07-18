@@ -94,7 +94,7 @@ public class DefaultCurrentContext implements CurrentContext {
     }
 
     @Override
-    public boolean sessionCreated() {
+    public boolean doesSessionCreated() {
         return session != null;
     }
 
