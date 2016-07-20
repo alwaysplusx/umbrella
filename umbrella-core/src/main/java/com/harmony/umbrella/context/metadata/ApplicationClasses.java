@@ -32,8 +32,6 @@ public class ApplicationClasses {
     @SuppressWarnings("rawtypes")
     private static final List<Class> classes = new ArrayList<Class>();
 
-    private static ResourcePatternResolver resourcePatternResolver = new PathMatchingResourcePatternResolver();
-
     private static boolean scanned = false;
 
     /**
@@ -46,6 +44,8 @@ public class ApplicationClasses {
             @Override
             public void doAction() {
                 log.info("scan package(s) {}", ROOT_PACKAGES);
+
+                ResourcePatternResolver resourcePatternResolver = new PathMatchingResourcePatternResolver();
                 classes.clear();
 
                 for (String pkg : ROOT_PACKAGES) {
@@ -64,6 +64,7 @@ public class ApplicationClasses {
                 }
 
                 Collections.sort(classes, new Comparator<Class>() {
+
                     @Override
                     public int compare(Class o1, Class o2) {
                         return o1.getName().compareTo(o2.getName());

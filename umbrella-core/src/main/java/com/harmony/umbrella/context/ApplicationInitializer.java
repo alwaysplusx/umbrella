@@ -6,8 +6,6 @@ import java.sql.SQLException;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.servlet.ServletContext;
-import javax.servlet.ServletContextEvent;
-import javax.servlet.ServletContextListener;
 import javax.sql.DataSource;
 
 import com.harmony.umbrella.context.metadata.ApplicationClasses;
@@ -16,39 +14,45 @@ import com.harmony.umbrella.log.Logs;
 import com.harmony.umbrella.util.StringUtils;
 
 /**
- * web启动监听, 启动完成后动作如下
- * <p>
- * <ul>
- * <li>初始化web服务器信息
- * <li>初始化应用数据库信息
- * <li>初始化应用的classes信息
- * </ul>
- * 
  * @author wuxii@foxmail.com
  */
-public class ApplicationContextListener implements ServletContextListener {
+public class ApplicationInitializer {
 
     public static final String INIT_PARAM_DATASOURCE = "datasource";
 
-    public static final String INIT_PARAM_SCAN_PACKAGE = "scan-package";
+    public static final String INIT_PARAM_PACKAGES = "packages";
 
-    private static final Log log = Logs.getLog(ApplicationContextListener.class);
+    protected static final Log log = Logs.getLog(ApplicationInitializer.class);
 
-    @Override
-    public void contextInitialized(ServletContextEvent sce) {
-        ServletContext servletContext = sce.getServletContext();
+    protected final ServletContext servletContext;
 
-        ApplicationContext applicationContext = ApplicationContext.getApplicationContext();
-        applicationContext.initialServerMetadata(servletContext);
+    public ApplicationInitializer(ServletContext servletContext) {
+        this.servletContext = servletContext;
+    }
 
-        String dataSourceJndiName = servletContext.getInitParameter(INIT_PARAM_DATASOURCE);
-        if (StringUtils.isNotBlank(dataSourceJndiName)) {
+    public final void init() {
+        initServer();
+
+        initDatabase();
+
+        initApplicationClasses();
+
+        initCustomer();
+    }
+
+    protected void initServer() {
+        ApplicationContext.initialServerMetadata(servletContext);
+    }
+
+    protected void initDatabase() {
+        String datasourceJndi = getInitParam(INIT_PARAM_DATASOURCE);
+        if (StringUtils.isNotBlank(datasourceJndi)) {
             Connection conn = null;
             try {
-                DataSource datasource = (DataSource) lookup(dataSourceJndiName);
+                DataSource datasource = (DataSource) lookup(datasourceJndi);
                 if (datasource != null) {
                     conn = datasource.getConnection();
-                    applicationContext.initialDatabaseMetadata(conn);
+                    ApplicationContext.initialDatabaseMetadata(conn);
                 }
             } catch (SQLException e) {
                 log.error("initial application database information failed", e);
@@ -61,22 +65,33 @@ public class ApplicationContextListener implements ServletContextListener {
                 }
             }
         }
+    }
 
+    protected void initApplicationClasses() {
         if (ApplicationClasses.isScaned()) {
             log.warn("application scan package before web application setup");
         } else {
-            String packages = servletContext.getInitParameter(INIT_PARAM_SCAN_PACKAGE);
-            if (StringUtils.isNotBlank(packages)) {
-                ApplicationClasses.addApplicationPackage(StringUtils.split(packages, ",", true));
-            }
+            String[] packages = getInitParams(INIT_PARAM_PACKAGES);
+            ApplicationClasses.addApplicationPackage(packages);
             ApplicationClasses.scan();
         }
 
     }
 
-    @Override
-    public void contextDestroyed(ServletContextEvent sce) {
-        ApplicationContext.getApplicationContext().destroy();
+    protected void initCustomer() {
+
+    }
+
+    protected String getInitParam(String name) {
+        return servletContext.getInitParameter(name);
+    }
+
+    protected String[] getInitParams(String name) {
+        String value = getInitParam(name);
+        if (value == null) {
+            return new String[0];
+        }
+        return StringUtils.split(value, ",", true);
     }
 
     protected Object lookup(String jndi) {

@@ -105,7 +105,7 @@ public class Json {
         return JSON.parseObject(json);
     }
 
-    public static List<Object> toArray(String json) {
+    public static List<?> toArray(String json) {
         return JSON.parseArray(json);
     }
     

@@ -31,6 +31,16 @@ public abstract class ApplicationContext implements BeanFactory {
     private static DatabaseMetadata databaseMetadata = ApplicationMetadata.EMPTY_DATABASE_METADATA;
 
     /**
+     * 初始化应用上下文
+     */
+    public abstract void init();
+
+    /**
+     * 销毁应用上下文
+     */
+    public abstract void destroy();
+
+    /**
      * 获取当前应用的应用上下文
      * <p>
      * 加载
@@ -74,34 +84,13 @@ public abstract class ApplicationContext implements BeanFactory {
     }
 
     /**
-     * 初始化应用上下文
-     */
-    public abstract void init();
-
-    /**
-     * 销毁应用上下文
-     */
-    public abstract void destroy();
-
-    /**
      * 设置当前线程的用户环境
      *
      * @param currentCtx
      *            用户环境
      */
-    public static void setCurrentContext(CurrentContext cc) {
+    static void setCurrentContext(CurrentContext cc) {
         current.set(cc);
-    }
-
-    /**
-     * 移除当前的CurrentContext
-     * 
-     * @return 当前的current context
-     */
-    public static CurrentContext removeCurrentContext() {
-        CurrentContext cc = getCurrentContext();
-        current.remove();
-        return cc;
     }
 
     /**
@@ -113,19 +102,19 @@ public abstract class ApplicationContext implements BeanFactory {
         return current.get();
     }
 
-    public ServerMetadata getServerMetadata() {
+    public static ServerMetadata getServerMetadata() {
         return serverMetadata;
     }
 
-    public DatabaseMetadata getDatabaseMetadata() {
+    public static DatabaseMetadata getDatabaseMetadata() {
         return databaseMetadata;
     }
 
-    void initialServerMetadata(ServletContext servletContext) {
+    static void initialServerMetadata(ServletContext servletContext) {
         ApplicationContext.serverMetadata = ApplicationMetadata.getServerMetadata(servletContext);
     }
 
-    void initialDatabaseMetadata(Connection connection) throws SQLException {
+    static void initialDatabaseMetadata(Connection connection) throws SQLException {
         ApplicationContext.databaseMetadata = ApplicationMetadata.getDatabaseMetadata(connection);
     }
 

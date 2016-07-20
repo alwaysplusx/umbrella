@@ -1,7 +1,7 @@
 package com.harmony.umbrella.web.filter;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
@@ -19,7 +19,15 @@ import javax.servlet.ServletResponse;
  */
 public class CompositeFilter implements Filter {
 
-    private final List<Filter> filters = new ArrayList<Filter>();
+    private final List<Filter> filters;
+
+    public CompositeFilter(Filter... filters) {
+        this(Arrays.asList(filters));
+    }
+
+    public CompositeFilter(List<Filter> filters) {
+        this.filters = filters;
+    }
 
     public void init(FilterConfig config) throws ServletException {
         // 1-2-3
@@ -49,7 +57,7 @@ public class CompositeFilter implements Filter {
 
         private final FilterChain originalChain;
         private Iterator<Filter> filterIterator;
-        
+
         private VirtualFilterChain(FilterChain chain, List<Filter> additionalFilters) {
             this.originalChain = chain;
             this.filterIterator = additionalFilters.iterator();
@@ -58,7 +66,7 @@ public class CompositeFilter implements Filter {
         public void doFilter(final ServletRequest request, final ServletResponse response) throws IOException, ServletException {
             if (filterIterator.hasNext()) {
                 filterIterator.next().doFilter(request, response, this);
-            }else{
+            } else {
                 originalChain.doFilter(request, response);
             }
         }

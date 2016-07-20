@@ -4,6 +4,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import com.harmony.umbrella.context.metadata.DatabaseMetadata;
+import com.harmony.umbrella.context.metadata.ServerMetadata;
 import com.harmony.umbrella.log.Log;
 import com.harmony.umbrella.log.Logs;
 
@@ -24,6 +26,14 @@ public class ContextHelper {
             log.warn("application not contain current context, please see {} for more detail", CurrentContextFilter.class.getName());
         }
         return cc;
+    }
+
+    public static ServerMetadata getServerMetadata() {
+        return ApplicationContext.getServerMetadata();
+    }
+
+    public static DatabaseMetadata getDatabaseMetadata() {
+        return ApplicationContext.getDatabaseMetadata();
     }
 
     public static HttpServletRequest getHttpRequest() {
