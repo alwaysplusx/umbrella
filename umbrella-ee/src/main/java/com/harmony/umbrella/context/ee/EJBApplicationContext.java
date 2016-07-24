@@ -45,7 +45,7 @@ public class EJBApplicationContext extends ApplicationContext implements EJBBean
     }
 
     @Override
-    public <T> Object lookup(String jndi) throws BeansException {
+    public <T> T lookup(String jndi) throws BeansException {
         return beanFactory.lookup(jndi);
     }
 

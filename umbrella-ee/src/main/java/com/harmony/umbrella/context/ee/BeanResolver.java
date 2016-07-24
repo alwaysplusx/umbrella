@@ -20,6 +20,15 @@ public interface BeanResolver {
     Context getContext() throws NamingException;
 
     /**
+     * 根据类猜想对应的名称
+     * 
+     * @param clazz
+     *            class
+     * @return jndis
+     */
+    String[] guessNames(Class<?> clazz);
+
+    /**
      * 根据bean定义猜想对应的jndi名称
      * 
      * @param bd

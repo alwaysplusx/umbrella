@@ -10,7 +10,7 @@ import com.harmony.umbrella.beans.BeansException;
  */
 public interface EJBBeanFactory extends BeanFactory {
 
-    <T> Object lookup(String jndi) throws BeansException;
+    <T> T lookup(String jndi) throws BeansException;
 
     <T> T lookup(Class<T> clazz) throws BeansException;
 

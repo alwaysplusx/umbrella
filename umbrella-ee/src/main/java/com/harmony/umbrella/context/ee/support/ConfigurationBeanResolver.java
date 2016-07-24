@@ -17,7 +17,6 @@ import javax.naming.NamingException;
 
 import com.harmony.umbrella.context.ee.BeanDefinition;
 import com.harmony.umbrella.context.ee.BeanResolver;
-import com.harmony.umbrella.core.ClassWrapper;
 import com.harmony.umbrella.log.Log;
 import com.harmony.umbrella.log.Logs;
 import com.harmony.umbrella.util.AnnotationUtils;
@@ -32,11 +31,9 @@ import com.harmony.umbrella.util.StringUtils;
  */
 public class ConfigurationBeanResolver implements BeanResolver {
 
-    public static final String JNDI_GLOBAL = "jndi.global.prefix";
-    public static final String JNDI_ROOT = "jndi.format.root";
-    public static final String JNDI_BEAN = "jndi.format.bean";
-    public static final String JNDI_SEPARATOR = "jndi.format.separator";
-    public static final String JNDI_REMOTE = "jndi.format.remote";
+    private static final String[] JNDI_NAME_KEY = { "lookup", "jndi", "jndiname" };
+
+    private static final String[] BEAN_NAME_KEY = { "mappedName", "beanName" };
 
     private static final Log log = Logs.getLog(ConfigurationBeanResolver.class);
 
@@ -51,18 +48,28 @@ public class ConfigurationBeanResolver implements BeanResolver {
         }
     }
 
+    private PartResolver<String> beanNamePartResolver;
+
+    @SuppressWarnings("rawtypes")
+    private PartResolver<Class> beanInterfacePartResolver;
+
+    private JndiFormatter jndiFormatter;
+
     protected ConfigManager configManager;
 
     public ConfigurationBeanResolver() {
         this(new Properties());
     }
 
-    public ConfigurationBeanResolver(Properties properties) {
-        this.configManager = new ConfigManagerImpl(properties);
-    }
-
     public ConfigurationBeanResolver(String propertiesFileLocation) throws IOException {
         this(PropertiesUtils.loadProperties(propertiesFileLocation));
+    }
+
+    public ConfigurationBeanResolver(Properties properties) {
+        this.configManager = new ConfigManagerImpl(properties);
+        this.beanNamePartResolver = new BeanNamePartResolver(this.configManager);
+        this.beanInterfacePartResolver = new BeanInterfacePartResolver(this.configManager);
+        this.jndiFormatter = new PatternJndiFormatter(this.configManager);
     }
 
     @Override
@@ -118,47 +125,42 @@ public class ConfigurationBeanResolver implements BeanResolver {
     }
 
     @Override
+    public String[] guessNames(Class<?> clazz) {
+        return guessNames(new BeanDefinition(clazz), new HashMap<String, Object>());
+    }
+
+    @Override
     public String[] guessNames(BeanDefinition bd) {
         return guessNames(bd, new HashMap<String, Object>());
     }
 
     @Override
     public String[] guessNames(BeanDefinition bd, Annotation ann) {
-        Map<String, Object> properties = ann == null ? new HashMap<String, Object>() : AnnotationUtils.toMap(ann);
+        Map<String, Object> properties = (ann == null) ? new HashMap<String, Object>() : AnnotationUtils.toMap(ann);
         return guessNames(bd, properties);
     }
 
-    private static final String[] JNDI_NAME_KEY = { "lookup", "jndi", "jndiname" };
-
-    private static final String[] BEAN_NAME_KEY = { "mappedName", "beanName" };
-
     @SuppressWarnings("rawtypes")
     protected String[] guessNames(BeanDefinition bd, Map<String, Object> properties) {
-        List<String> result = new ArrayList<String>();
         Context context = null;
         try {
             context = getContext();
         } catch (NamingException e) {
+            log.warn("", e);
         }
+        JndiHolder jndiHolder = new JndiHolder(context);
 
         for (String key : JNDI_NAME_KEY) {
             Object jndi = properties.get(key);
             if (jndi instanceof String && StringUtils.isNotBlank((String) jndi)) {
-                if (!result.contains(jndi) && (context == null || tryLookup((String) jndi, context) != null)) {
-                    result.add((String) jndi);
-                }
+                jndiHolder.addIfAbsent((String) jndi);
             }
         }
 
-        if (result.isEmpty()) {
+        if (jndiHolder.isEmpty()) {
 
-            String globalPrefix = configManager.getProperty("jndi.global.prefix", "");
-
-            if (!StringUtils.isBlank(globalPrefix) && !globalPrefix.endsWith("/")) {
-                globalPrefix = globalPrefix + "/";
-            }
-
-            List<String> beanNames = new ArrayList<String>();
+            Set<String> beanNames = beanNamePartResolver.resolve(bd);
+            // 如果配置属性中有配置mappedName也添加到其中
             for (String key : BEAN_NAME_KEY) {
                 Object beanName = properties.get(key);
                 if (beanName instanceof String && StringUtils.isNotBlank((String) beanName)) {
@@ -166,91 +168,19 @@ public class ConfigurationBeanResolver implements BeanResolver {
                 }
             }
 
-            // 没有配置则通过猜想得出
-            if (beanNames.isEmpty()) {
-                beanNames.addAll(guessBeanNames(bd));
-            }
+            Set<Class> beanInterfaces = beanInterfacePartResolver.resolve(bd);
 
-            Set<String> separators = configManager.getPropertySet(JNDI_SEPARATOR);
-            // add default
-            separators.add("#");
-            separators.add("!");
+            Set<String> jndis = jndiFormatter.format(beanNames, beanInterfaces);
 
-            List<Class> remoteClasses = new ArrayList<Class>();
-            if (bd.isRemoteClass()) {
-                remoteClasses.add(bd.getRemoteClass());
-            } else {
-                remoteClasses.addAll(guessRemoteClass(bd));
-            }
-
-            for (String beanName : beanNames) {
-                for (String separator : separators) {
-                    for (Class remoteClass : remoteClasses) {
-                        String jndi = new StringBuilder().append(globalPrefix).append(beanName).append(separator).append(remoteClass.getName()).toString();
-                        if (!result.contains(jndi) && (context == null || tryLookup(jndi, context) != null)) {
-                            result.add(jndi);
-                        }
-                    }
-                }
+            for (String jndi : jndis) {
+                jndiHolder.addIfAbsent(jndi);
             }
         }
 
-        return result.toArray(new String[result.size()]);
+        return jndiHolder.getJndis();
     }
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
-    protected List<String> guessBeanNames(BeanDefinition bd) {
-        if (bd.isSessionClass()) {
-            return Arrays.asList(bd.getMappedName());
-        }
-        List<String> result = new ArrayList<String>();
-        Class<?> remoteClass = bd.getRemoteClass();
-
-        ClassWrapper cw = new ClassWrapper(remoteClass);
-        for (Class clazz : cw.getAllSubClasses()) {
-            BeanDefinition subBd = new BeanDefinition(clazz);
-            if (subBd.isSessionClass()) {
-                result.add(subBd.getMappedName());
-            }
-        }
-
-        final String remoteName = remoteClass.getSimpleName();
-
-        Set<String> remoteSuffix = configManager.getPropertySet(JNDI_REMOTE);
-        remoteSuffix.add("Remote");
-        remoteSuffix.remove("");
-
-        String name = remoteName;
-        for (String remote : remoteSuffix) {
-            if (remoteName.endsWith(remote)) {
-                name = remoteName.substring(0, remoteName.length() - remote.length());
-                break;
-            }
-        }
-
-        Set<String> beanSuffix = configManager.getPropertySet(JNDI_BEAN);
-        beanSuffix.add("Bean");
-        beanSuffix.add("");
-
-        for (String bean : beanSuffix) {
-            String beanName = name + bean;
-            if (!result.contains(beanName)) {
-                result.add(beanName);
-            }
-        }
-
-        return result;
-    }
-
-    @SuppressWarnings("rawtypes")
-    protected List<Class> guessRemoteClass(BeanDefinition bd) {
-        if (bd.isRemoteClass()) {
-            return Arrays.<Class> asList(bd.getRemoteClass());
-        }
-        return new ArrayList<Class>(bd.getAllRemoteClasses());
-    }
-
-    protected Object getConfigBean(BeanDefinition bd, Context context) {
+    private Object getConfigBean(BeanDefinition bd, Context context) {
         final Class<?> clazz = bd.isRemoteClass() ? bd.getRemoteClass() : bd.getBeanClass();
         String jndi = configManager.getJndi(clazz);
         if (jndi != null) {
@@ -277,10 +207,11 @@ public class ConfigurationBeanResolver implements BeanResolver {
         }
         Class<?> remoteClass = bd.getRemoteClass();
         if (log.isDebugEnabled()) {
-            log.debug("test, it is declare bean? "//
-                    + "\n\tdeclare remoteClass -> {}" //
-                    + "\n\tdeclare beanClass   -> {}" //
-                    + "\n\tactual  bean        -> {}", //
+            log.debug(
+                    "test, it is declare bean? "//
+                            + "\n\tdeclare remoteClass -> {}" //
+                            + "\n\tdeclare beanClass   -> {}" //
+                            + "\n\tactual  bean        -> {}", //
                     remoteClass, bd.getBeanClass(), bean);
         }
         return bd.getBeanClass().isInstance(bean) || (remoteClass != null && remoteClass.isInstance(bean));
@@ -293,6 +224,39 @@ public class ConfigurationBeanResolver implements BeanResolver {
     protected void bind(BeanDefinition beanDefinition, String jndi) {
         configManager.setJndi(beanDefinition.getBeanClass(), jndi);
         configManager.setJndi(beanDefinition.getRemoteClass(), jndi);
+    }
+
+    protected class JndiHolder {
+
+        private boolean forced;
+        private Context context;
+
+        private List<String> jndis = new ArrayList<String>();
+
+        public JndiHolder(Context context) {
+            this.context = context;
+        }
+
+        public void addIfAbsent(String jndi) {
+            if (!jndis.contains(jndi) && (exists(jndi) || !forced)) {
+                jndis.add(jndi);
+            }
+        }
+
+        public boolean exists(String jndi) {
+            return tryLookup(jndi, context) != null;
+        }
+
+        public String[] getJndis() {
+            String[] result = jndis.toArray(new String[jndis.size()]);
+            Arrays.sort(result);
+            return result;
+        }
+
+        public boolean isEmpty() {
+            return jndis.isEmpty();
+        }
+
     }
 
 }
