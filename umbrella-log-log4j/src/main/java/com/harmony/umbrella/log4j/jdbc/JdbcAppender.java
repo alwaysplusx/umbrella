@@ -17,12 +17,12 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import com.harmony.umbrella.jdbc.ConnectionSource;
+import com.harmony.umbrella.jdbc.DatabaseManager;
+import com.harmony.umbrella.jdbc.JdbcConnectionSource;
+import com.harmony.umbrella.jdbc.JndiConnectionSource;
 import com.harmony.umbrella.log.LogInfo;
 import com.harmony.umbrella.log.LoggingException;
-import com.harmony.umbrella.log.jdbc.ConnectionSource;
-import com.harmony.umbrella.log.jdbc.DatabaseManager;
-import com.harmony.umbrella.log.jdbc.JdbcConnectionSource;
-import com.harmony.umbrella.log.jdbc.JndiConnectionSource;
 import com.harmony.umbrella.log4j.StaticLogger;
 
 /**

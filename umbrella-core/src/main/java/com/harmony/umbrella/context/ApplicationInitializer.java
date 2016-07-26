@@ -1,14 +1,16 @@
 package com.harmony.umbrella.context;
 
-import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.List;
 
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.servlet.ServletContext;
-import javax.sql.DataSource;
 
 import com.harmony.umbrella.context.metadata.ApplicationClasses;
+import com.harmony.umbrella.context.metadata.ApplicationMetadata;
+import com.harmony.umbrella.jdbc.ConnectionSource;
+import com.harmony.umbrella.jdbc.JndiConnectionSource;
 import com.harmony.umbrella.log.Log;
 import com.harmony.umbrella.log.Logs;
 import com.harmony.umbrella.util.StringUtils;
@@ -24,74 +26,56 @@ public class ApplicationInitializer {
 
     protected static final Log log = Logs.getLog(ApplicationInitializer.class);
 
-    protected final ServletContext servletContext;
-
-    public ApplicationInitializer(ServletContext servletContext) {
-        this.servletContext = servletContext;
+    public ApplicationInitializer() {
     }
 
-    public final void init() {
-        initServer();
+    public final void init(ApplicationConfiguration applicationConfiguration) {
+        initServer(applicationConfiguration);
 
-        initDatabase();
+        initDatabase(applicationConfiguration);
 
-        initApplicationClasses();
+        initApplicationClasses(applicationConfiguration);
 
-        initCustomer();
+        initCustomer(applicationConfiguration);
     }
 
-    protected void initServer() {
-        ApplicationContext.initialServerMetadata(servletContext);
+    protected void initServer(ApplicationConfiguration applicationConfiguration) {
+        ServletContext servletContext = applicationConfiguration.getServletContext();
+        if (servletContext != null) {
+            ApplicationContext.serverMetadata = ApplicationMetadata.getServerMetadata(servletContext);
+        }
     }
 
-    protected void initDatabase() {
-        String datasourceJndi = getInitParam(INIT_PARAM_DATASOURCE);
-        if (StringUtils.isNotBlank(datasourceJndi)) {
-            Connection conn = null;
-            try {
-                DataSource datasource = (DataSource) lookup(datasourceJndi);
-                if (datasource != null) {
-                    conn = datasource.getConnection();
-                    ApplicationContext.initialDatabaseMetadata(conn);
-                }
-            } catch (SQLException e) {
-                log.error("initial application database information failed", e);
-            } finally {
-                if (conn != null) {
+    protected void initDatabase(ApplicationConfiguration applicationConfiguration) {
+        List<ConnectionSource> connectionSources = applicationConfiguration.getConnectionSources();
+        if (connectionSources.isEmpty()) {
+            ServletContext servletContext = applicationConfiguration.getServletContext();
+            if (servletContext != null) {
+                String datasourceJndi = servletContext.getInitParameter(INIT_PARAM_DATASOURCE);
+                if (StringUtils.isNotBlank(datasourceJndi)) {
+                    ConnectionSource connectionSource = new JndiConnectionSource(datasourceJndi);
                     try {
-                        conn.close();
+                        ApplicationContext.databaseMetadata = ApplicationMetadata.getDatabaseMetadata(connectionSource);
                     } catch (SQLException e) {
+                        log.error("initial application database information failed", e);
                     }
                 }
             }
         }
     }
 
-    protected void initApplicationClasses() {
+    protected void initApplicationClasses(ApplicationConfiguration applicationConfiguration) {
         if (ApplicationClasses.isScaned()) {
             log.warn("application scan package before web application setup");
         } else {
-            String[] packages = getInitParams(INIT_PARAM_PACKAGES);
-            ApplicationClasses.addApplicationPackage(packages);
+            ApplicationClasses.addApplicationPackage(applicationConfiguration.getPackages());
             ApplicationClasses.scan();
         }
 
     }
 
-    protected void initCustomer() {
+    protected void initCustomer(ApplicationConfiguration applicationConfiguration) {
 
-    }
-
-    protected String getInitParam(String name) {
-        return servletContext.getInitParameter(name);
-    }
-
-    protected String[] getInitParams(String name) {
-        String value = getInitParam(name);
-        if (value == null) {
-            return new String[0];
-        }
-        return StringUtils.split(value, ",", true);
     }
 
     protected Object lookup(String jndi) {

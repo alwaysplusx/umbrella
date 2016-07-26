@@ -4,12 +4,12 @@ import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContextAware;
 
 import com.harmony.umbrella.context.ApplicationContext;
-import com.harmony.umbrella.context.ContextProvider;
+import com.harmony.umbrella.context.ApplicationContextProvider;
 
 /**
  * @author wuxii@foxmail.com
  */
-public class SpringContextProvider implements ContextProvider {
+public class SpringContextProvider implements ApplicationContextProvider {
 
     @Override
     public ApplicationContext createApplicationContext() {

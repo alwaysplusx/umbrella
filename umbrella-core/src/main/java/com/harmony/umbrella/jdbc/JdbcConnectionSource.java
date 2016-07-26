@@ -1,5 +1,5 @@
 
-package com.harmony.umbrella.log.jdbc;
+package com.harmony.umbrella.jdbc;
 
 import java.sql.Connection;
 import java.sql.DriverManager;

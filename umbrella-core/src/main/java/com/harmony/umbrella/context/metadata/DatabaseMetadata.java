@@ -4,6 +4,8 @@ import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 
+import com.harmony.umbrella.jdbc.ConnectionSource;
+
 /**
  * 应用所使用的数据库信息
  * 
@@ -42,6 +44,8 @@ public final class DatabaseMetadata {
      */
     public final int databaseType;
 
+    private final ConnectionSource connectionSource;
+
     public static final int UNKNOW = -1;
     public static final int OTHERS = 0;
     public static final int ORACLE = 1;
@@ -52,8 +56,10 @@ public final class DatabaseMetadata {
     public static final int SQLSERVER = 6;
     public static final int POSTGRESQL = 7;
 
-    public DatabaseMetadata(Connection connection) throws SQLException {
-        DatabaseMetaData dbmd = connection.getMetaData();
+    public DatabaseMetadata(ConnectionSource connectionSource) throws SQLException {
+        this.connectionSource = connectionSource;
+        Connection conn = connectionSource.getConnection();
+        DatabaseMetaData dbmd = conn.getMetaData();
         this.productName = dbmd.getDatabaseProductName();
         this.productVersion = dbmd.getDatabaseProductVersion();
         this.url = dbmd.getURL();
@@ -61,9 +67,11 @@ public final class DatabaseMetadata {
         this.driverName = dbmd.getDriverVersion();
         this.driverVersion = dbmd.getDriverVersion();
         this.databaseType = databaseType(productName);
+        conn.close();
     }
 
     private DatabaseMetadata() {
+        this.connectionSource = null;
         this.productName = "";
         this.productVersion = "";
         this.url = "";
@@ -71,6 +79,10 @@ public final class DatabaseMetadata {
         this.driverName = "";
         this.driverVersion = "";
         this.databaseType = UNKNOW;
+    }
+
+    public Connection getConnection() throws SQLException {
+        return connectionSource == null ? null : connectionSource.getConnection();
     }
 
     private final int databaseType(String databaseName) {

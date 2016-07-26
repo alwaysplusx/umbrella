@@ -1,9 +1,10 @@
 package com.harmony.umbrella.context.metadata;
 
-import java.sql.Connection;
 import java.sql.SQLException;
 
 import javax.servlet.ServletContext;
+
+import com.harmony.umbrella.jdbc.ConnectionSource;
 
 /**
  * @author wuxii@foxmail.com
@@ -24,8 +25,8 @@ public final class ApplicationMetadata {
         return OPERATING_SYSTEM_METADATA;
     }
 
-    public static DatabaseMetadata getDatabaseMetadata(Connection connection) throws SQLException {
-        return new DatabaseMetadata(connection);
+    public static DatabaseMetadata getDatabaseMetadata(ConnectionSource connectionSource) throws SQLException {
+        return new DatabaseMetadata(connectionSource);
     }
 
     public static ServerMetadata getServerMetadata(ServletContext servletContext) {

@@ -9,7 +9,7 @@ import org.apache.logging.log4j.core.config.plugins.PluginAttribute;
 import org.apache.logging.log4j.core.config.plugins.PluginElement;
 import org.apache.logging.log4j.core.config.plugins.PluginFactory;
 
-import com.harmony.umbrella.log.jdbc.ConnectionSource;
+import com.harmony.umbrella.jdbc.ConnectionSource;
 
 /**
  * log4j2.xml configuration attribute packages

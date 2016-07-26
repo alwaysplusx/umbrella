@@ -1,13 +1,9 @@
 package com.harmony.umbrella.context;
 
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.ServiceLoader;
 
-import javax.servlet.ServletContext;
-
 import com.harmony.umbrella.beans.BeanFactory;
-import com.harmony.umbrella.beans.NoSuchBeanFoundException;
+import com.harmony.umbrella.beans.BeansException;
 import com.harmony.umbrella.beans.SimpleBeanFactory;
 import com.harmony.umbrella.context.metadata.ApplicationMetadata;
 import com.harmony.umbrella.context.metadata.DatabaseMetadata;
@@ -26,44 +22,23 @@ public abstract class ApplicationContext implements BeanFactory {
 
     protected static final ThreadLocal<CurrentContext> current = new InheritableThreadLocal<CurrentContext>();
 
-    private static ServerMetadata serverMetadata = ApplicationMetadata.EMPTY_SERVER_METADATA;
+    static ServerMetadata serverMetadata = ApplicationMetadata.EMPTY_SERVER_METADATA;
 
-    private static DatabaseMetadata databaseMetadata = ApplicationMetadata.EMPTY_DATABASE_METADATA;
-
-    /**
-     * 初始化应用上下文
-     */
-    public abstract void init();
-
-    /**
-     * 销毁应用上下文
-     */
-    public abstract void destroy();
+    static DatabaseMetadata databaseMetadata = ApplicationMetadata.EMPTY_DATABASE_METADATA;
 
     /**
      * 获取当前应用的应用上下文
      * <p>
      * 加载
-     * {@code META-INF/services/com.harmony.umbrella.context.spi.ApplicationContextProvider}
+     * {@code META-INF/services/com.harmony.umbrella.context.ApplicationContextProvider}
      * 文件中的实际类型来创建
      *
      * @return 应用上下文
      */
     public static final ApplicationContext getApplicationContext() {
-        return getApplicationContext0();
-    }
-
-    /**
-     * 获取当前应用的上下文, 并使用初始化属性{@code props}对应用进行初始化
-     *
-     * @param url
-     *            配置文件url
-     * @return 应用上下文
-     */
-    private static final ApplicationContext getApplicationContext0() {
         ApplicationContext context = null;
-        ServiceLoader<ContextProvider> providers = ServiceLoader.load(ContextProvider.class);
-        for (ContextProvider provider : providers) {
+        ServiceLoader<ApplicationContextProvider> providers = ServiceLoader.load(ApplicationContextProvider.class);
+        for (ApplicationContextProvider provider : providers) {
             try {
                 context = provider.createApplicationContext();
                 if (context != null) {
@@ -75,12 +50,15 @@ public abstract class ApplicationContext implements BeanFactory {
             }
         }
         if (context == null) {
-            context = SimpleApplicationContext.SIMPLE_APPLICATION_CONTEXT;
+            context = SimpleApplicationContext.INSTANCE;
             LOG.debug("no context provider find, use default {}", SimpleApplicationContext.class.getName());
         }
         // 初始化
         context.init();
         return context;
+    }
+
+    public static void initStatic() {
     }
 
     /**
@@ -110,17 +88,41 @@ public abstract class ApplicationContext implements BeanFactory {
         return databaseMetadata;
     }
 
-    static void initialServerMetadata(ServletContext servletContext) {
-        ApplicationContext.serverMetadata = ApplicationMetadata.getServerMetadata(servletContext);
+    /**
+     * 初始化应用上下文
+     */
+    public abstract void init();
+
+    /**
+     * 销毁应用上下文
+     */
+    public abstract void destroy();
+
+    public abstract BeanFactory getBeanFactory();
+
+    @Override
+    public <T> T getBean(Class<T> beanClass) throws BeansException {
+        return null;
     }
 
-    static void initialDatabaseMetadata(Connection connection) throws SQLException {
-        ApplicationContext.databaseMetadata = ApplicationMetadata.getDatabaseMetadata(connection);
+    @Override
+    public <T> T getBean(Class<T> beanClass, String scope) throws BeansException {
+        return getBeanFactory().getBean(beanClass, scope);
+    }
+
+    @Override
+    public <T> T getBean(String beanName) throws BeansException {
+        return getBeanFactory().getBean(beanName);
+    }
+
+    @Override
+    public <T> T getBean(String beanName, String scope) throws BeansException {
+        return getBeanFactory().getBean(beanName, scope);
     }
 
     private static final class SimpleApplicationContext extends ApplicationContext {
 
-        private static final SimpleApplicationContext SIMPLE_APPLICATION_CONTEXT = new SimpleApplicationContext();
+        private static final SimpleApplicationContext INSTANCE = new SimpleApplicationContext();
 
         private BeanFactory beanFactory = new SimpleBeanFactory();
 
@@ -133,23 +135,8 @@ public abstract class ApplicationContext implements BeanFactory {
         }
 
         @Override
-        public <T> T getBean(String beanName) throws NoSuchBeanFoundException {
-            return beanFactory.getBean(beanName);
-        }
-
-        @Override
-        public <T> T getBean(String beanName, String scope) throws NoSuchBeanFoundException {
-            return beanFactory.getBean(beanName, scope);
-        }
-
-        @Override
-        public <T> T getBean(Class<T> beanClass) throws NoSuchBeanFoundException {
-            return beanFactory.getBean(beanClass);
-        }
-
-        @Override
-        public <T> T getBean(Class<T> beanClass, String scope) throws NoSuchBeanFoundException {
-            return beanFactory.getBean(beanClass, scope);
+        public BeanFactory getBeanFactory() {
+            return beanFactory;
         }
 
     }

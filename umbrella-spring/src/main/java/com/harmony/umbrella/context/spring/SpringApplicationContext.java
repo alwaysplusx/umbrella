@@ -19,22 +19,6 @@ public class SpringApplicationContext extends ApplicationContext implements Bean
         this.springContext = springContext;
     }
 
-    @SuppressWarnings("unchecked")
-    @Override
-    public <T> T getBean(String beanName, String scope) throws BeansException {
-        return (T) springContext.getBean(beanName);
-    }
-
-    @Override
-    public <T> T getBean(Class<T> beanClass) throws BeansException {
-        return springContext.getBean(beanClass);
-    }
-
-    @Override
-    public <T> T getBean(Class<T> beanClass, String scope) throws BeansException {
-        return springContext.getBean(beanClass);
-    }
-
     @Override
     public void init() {
     }
@@ -92,6 +76,11 @@ public class SpringApplicationContext extends ApplicationContext implements Bean
     @Override
     public String[] getAliases(String name) {
         return springContext.getAliases(name);
+    }
+
+    @Override
+    public com.harmony.umbrella.beans.BeanFactory getBeanFactory() {
+        return null;
     }
 
 }

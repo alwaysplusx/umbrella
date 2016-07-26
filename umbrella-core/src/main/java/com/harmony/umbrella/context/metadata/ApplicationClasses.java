@@ -87,6 +87,10 @@ public class ApplicationClasses {
         return scanned;
     }
 
+    public static void addApplicationPackage(List<String> pkgs) {
+        addApplicationPackage(pkgs.toArray(new String[pkgs.size()]));
+    }
+
     /**
      * 添加应用的包
      * 

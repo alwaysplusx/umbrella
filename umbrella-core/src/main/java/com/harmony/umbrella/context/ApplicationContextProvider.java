@@ -5,7 +5,7 @@ package com.harmony.umbrella.context;
  * 
  * @author wuxii@foxmail.com
  */
-public interface ContextProvider {
+public interface ApplicationContextProvider {
 
     ApplicationContext createApplicationContext();
 

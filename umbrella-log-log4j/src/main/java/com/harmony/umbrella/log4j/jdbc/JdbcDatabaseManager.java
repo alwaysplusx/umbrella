@@ -12,12 +12,12 @@ import java.util.List;
 
 import org.apache.log4j.spi.LoggingEvent;
 
+import com.harmony.umbrella.jdbc.AbstractDatabaseManager;
+import com.harmony.umbrella.jdbc.ConnectionSource;
 import com.harmony.umbrella.log.Level;
 import com.harmony.umbrella.log.LogInfo;
 import com.harmony.umbrella.log.LoggingException;
 import com.harmony.umbrella.log.Message;
-import com.harmony.umbrella.log.jdbc.AbstractDatabaseManager;
-import com.harmony.umbrella.log.jdbc.ConnectionSource;
 
 /**
  * @author wuxii@foxmail.com
