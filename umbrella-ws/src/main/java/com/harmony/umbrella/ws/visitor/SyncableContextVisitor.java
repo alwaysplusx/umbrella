@@ -9,7 +9,6 @@ import java.util.Map;
 
 import com.harmony.umbrella.beans.BeanFactory;
 import com.harmony.umbrella.context.ApplicationContext;
-import com.harmony.umbrella.context.metadata.ApplicationClasses;
 import com.harmony.umbrella.log.Log;
 import com.harmony.umbrella.log.Logs;
 import com.harmony.umbrella.util.ClassUtils.ClassFilter;
@@ -191,7 +190,7 @@ public class SyncableContextVisitor extends AbstractContextVisitor {
 
         @SuppressWarnings({ "unchecked", "rawtypes" })
         private Class<? extends ProxyCallback>[] getAllCallbackClass() {
-            return (Class<? extends ProxyCallback>[]) ApplicationClasses.getClasses(new ClassFilter() {
+            return (Class<? extends ProxyCallback>[]) ApplicationContext.getApplicationClasses(new ClassFilter() {
 
                 @Override
                 public boolean accept(Class<?> clazz) {

@@ -4,7 +4,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.harmony.umbrella.context.ee.support.ConfigurationBeanResolver;
-import com.harmony.umbrella.context.metadata.ApplicationClasses;
 
 /**
  * @author wuxii@foxmail.com
@@ -16,8 +15,6 @@ public class BeanResolverTest {
     @BeforeClass
     public static void beforeClass() {
         beanResolver = new ConfigurationBeanResolver();
-        ApplicationClasses.addApplicationPackage("com.harmony");
-        ApplicationClasses.scan();
     }
 
     @Test

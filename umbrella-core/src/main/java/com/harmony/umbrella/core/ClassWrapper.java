@@ -5,7 +5,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.harmony.umbrella.context.metadata.ApplicationClasses;
+import com.harmony.umbrella.context.ApplicationContext;
 import com.harmony.umbrella.util.ClassUtils;
 
 /**
@@ -90,7 +90,7 @@ public class ClassWrapper<T> {
         Set<Class> subClasses = subClassMap.get(thisClass);
         if (subClasses == null) {
             subClasses = new HashSet<Class>();
-            for (Class c : ApplicationClasses.getAllClasses()) {
+            for (Class c : ApplicationContext.getApplicationClasses()) {
                 if (ClassUtils.isAssignable(thisClass, c) && thisClass != c) {
                     subClasses.add(c);
                 }

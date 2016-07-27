@@ -7,7 +7,7 @@ import javax.ws.rs.Path;
 
 import org.apache.cxf.transport.servlet.CXFNonSpringServlet;
 
-import com.harmony.umbrella.context.metadata.ApplicationClasses;
+import com.harmony.umbrella.context.ApplicationContext;
 import com.harmony.umbrella.log.Log;
 import com.harmony.umbrella.log.Logs;
 import com.harmony.umbrella.util.ClassUtils.ClassFilter;
@@ -56,7 +56,7 @@ public class WebServiceServlet extends CXFNonSpringServlet {
         super.init(sc);
         this.servletConfig = sc;
         this.pathStyle = getInitParameter(PATH_STYLE, "class").toLowerCase();
-        ApplicationClasses.getClasses(new ClassFilter() {
+        ApplicationContext.getApplicationClasses(new ClassFilter() {
 
             @Override
             public boolean accept(Class<?> clazz) {

@@ -8,12 +8,15 @@ import java.util.Map;
 
 import javax.servlet.ServletContext;
 
+import com.harmony.umbrella.context.ApplicationContext.ApplicationInitializer;
 import com.harmony.umbrella.jdbc.ConnectionSource;
 
 /**
  * @author wuxii@foxmail.com
  */
 public class ApplicationConfiguration {
+
+    protected Class<? extends ApplicationInitializer> applicationInitializerClass;
 
     protected ServletContext servletContext;
 
@@ -40,6 +43,11 @@ public class ApplicationConfiguration {
 
     public ApplicationConfiguration withProperty(String key, Object value) {
         this.properties.put(key, value);
+        return this;
+    }
+
+    public ApplicationConfiguration withApplicationInitializerClass(Class<? extends ApplicationInitializer> applicationInitializerClass) {
+        this.applicationInitializerClass = applicationInitializerClass;
         return this;
     }
 
@@ -76,6 +84,14 @@ public class ApplicationConfiguration {
     public void setProperties(Map<String, Object> properties) {
         this.properties.clear();
         this.properties.putAll(properties);
+    }
+
+    public Class<? extends ApplicationInitializer> getApplicationInitializerClass() {
+        return applicationInitializerClass;
+    }
+
+    public void setApplicationInitializerClass(Class<? extends ApplicationInitializer> applicationInitializerClass) {
+        this.applicationInitializerClass = applicationInitializerClass;
     }
 
 }

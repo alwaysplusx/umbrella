@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <parent>
+    <artifactId>umbrella-resources</artifactId>
+    <groupId>com.harmony.umbrella.resources</groupId>
+    <version>0.0.5-SNAPSHOT</version>
+  </parent>
+  <modelVersion>4.0.0</modelVersion>
+  <artifactId>umbrella-all</artifactId>
+  <name>Harmony Resource :: Umbrella All JAR bundle</name>
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-shade-plugin</artifactId>
+        <version>2.3</version>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+            <configuration>
+              <artifactSet>
+                <includes>
+                  <include>com.harmony.umbrella:umbrella-core</include>
+                  <include>com.harmony.umbrella:umbrella-ee</include>
+                  <include>com.harmony.umbrella:umbrella-json</include>
+                  <include>com.harmony.umbrella:umbrella-message</include>
+                  <include>com.harmony.umbrella:umbrella-monitor</include>
+                  <include>com.harmony.umbrella:umbrella-validator</include>
+                </includes>
+              </artifactSet>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+</project>
+
