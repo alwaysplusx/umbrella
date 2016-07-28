@@ -11,7 +11,7 @@ import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.InitializationError;
 import org.junit.runners.model.Statement;
 
-import com.harmony.umbrella.context.ee.EJBBeanFactory;
+import com.harmony.umbrella.ee.EJBBeanFactory;
 import com.harmony.umbrella.util.PropertiesUtils;
 import com.harmony.umbrella.util.StringUtils;
 

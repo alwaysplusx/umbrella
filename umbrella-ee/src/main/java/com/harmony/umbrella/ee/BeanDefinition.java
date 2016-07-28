@@ -1,12 +1,8 @@
-package com.harmony.umbrella.context.ee;
+package com.harmony.umbrella.ee;
 
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
 
 import javax.ejb.Local;
 import javax.ejb.Remote;
@@ -14,7 +10,6 @@ import javax.ejb.Singleton;
 import javax.ejb.Stateful;
 import javax.ejb.Stateless;
 
-import com.harmony.umbrella.context.ee.util.TextMatchCalculator;
 import com.harmony.umbrella.util.AnnotationUtils;
 import com.harmony.umbrella.util.ClassUtils;
 import com.harmony.umbrella.util.StringUtils;
@@ -42,6 +37,8 @@ public class BeanDefinition {
      */
     public final Class<?> beanClass;
 
+    private final Class<?>[] remoteClasses;
+
     public final Annotation sessionAnnotation;
 
     public BeanDefinition(Class<?> beanClass) {
@@ -51,6 +48,7 @@ public class BeanDefinition {
     private BeanDefinition(Class<?> beanClass, Annotation ann) {
         this.beanClass = beanClass;
         this.sessionAnnotation = ann;
+        this.remoteClasses = findRemoteClass(beanClass);
     }
 
     /**
@@ -62,31 +60,33 @@ public class BeanDefinition {
         return beanClass;
     }
 
-    public Class<?> getRemoteClass() {
-        return isRemoteClass() ? beanClass : findMatchingClass(getAllRemoteClasses());
+    public Class<?>[] getRemoteClasses() {
+        return remoteClasses;
     }
 
-    /**
-     * 查找与beanClass最匹配的class, 如果输入的classes为空集合则返回null
-     */
     @SuppressWarnings("rawtypes")
-    private Class findMatchingClass(Collection<Class> classes) {
-        if (classes.isEmpty()) {
-            return null;
-        }
-        String beanClassName = beanClass.getSimpleName();
-        Iterator<Class> iterator = classes.iterator();
-        double ratio = 0, currentRatio = 0;
-        Class<?> result = null, temp = null;
-        while (iterator.hasNext()) {
-            temp = iterator.next();
-            currentRatio = TextMatchCalculator.matchingRate(beanClassName, temp.getSimpleName());
-            if (ratio <= currentRatio) {
-                result = temp;
-                ratio = currentRatio;
+    private Class[] findRemoteClass(Class<?> clazz) {
+        List<Class> remoteClasses = new ArrayList<Class>();
+        if (isRemoteClass(clazz) || (clazz.isInterface() && !isLocalClass(clazz))) {
+            remoteClasses.add(clazz);
+        } else {
+            Remote ann = clazz.getAnnotation(Remote.class);
+            if (ann != null) {
+                Class[] classes = ann.value();
+                for (Class c : classes) {
+                    if (isRemoteClass(c)) {
+                        remoteClasses.add(c);
+                    }
+                }
+            }
+            Class<?>[] interfaces = ClassUtils.getAllInterfaces(beanClass);
+            for (Class<?> c : interfaces) {
+                if (isRemoteClass(c)) {
+                    remoteClasses.add(c);
+                }
             }
         }
-        return result;
+        return remoteClasses.toArray(new Class[remoteClasses.size()]);
     }
 
     /**
@@ -169,35 +169,6 @@ public class BeanDefinition {
         return isRemoteClass(beanClass) || (beanClass.isInterface() && !isLocalClass(beanClass));
     }
 
-    /**
-     * 获取beanClass所有符合{@linkplain #isRemoteClass()}条件的数据
-     */
-    @SuppressWarnings("rawtypes")
-    public Collection<Class> getAllRemoteClasses() {
-        Set<Class> remoteClasses = new LinkedHashSet<Class>();
-        // 如果本身是remote接口
-        if (isRemoteClass()) {
-            remoteClasses.add(beanClass);
-        }
-        if (isSessionClass()) {
-            // 注解上配置的remote接口
-            Remote ann = beanClass.getAnnotation(Remote.class);
-            if (ann != null) {
-                for (Class clazz : ann.value()) {
-                    remoteClasses.add(clazz);
-                }
-            }
-        }
-        // class 的所有接口
-        for (Class clazz : ClassUtils.getAllInterfaces(beanClass)) {
-            // 当前类的所有接口, 如果接口上标注了remote注解则表示是一个remote class
-            if (isRemoteClass(clazz)) {
-                remoteClasses.add(clazz);
-            }
-        }
-        return remoteClasses;
-    }
-
     public boolean equals(Object o) {
         if (this == o)
             return true;
@@ -222,13 +193,11 @@ public class BeanDefinition {
     }
 
     // utils method
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    public static boolean isRemoteClass(Class clazz) {
+    private boolean isRemoteClass(Class<?> clazz) {
         return clazz.isInterface() && clazz.getAnnotation(Remote.class) != null;
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    public static boolean isLocalClass(Class clazz) {
+    private boolean isLocalClass(Class<?> clazz) {
         return clazz.isInterface() && clazz.getAnnotation(Local.class) != null;
     }
 

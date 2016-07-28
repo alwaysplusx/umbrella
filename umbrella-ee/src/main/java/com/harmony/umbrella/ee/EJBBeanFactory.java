@@ -1,6 +1,6 @@
-package com.harmony.umbrella.context.ee;
+package com.harmony.umbrella.ee;
 
-import javax.ejb.EJB;
+import java.lang.annotation.Annotation;
 
 import com.harmony.umbrella.beans.BeanFactory;
 import com.harmony.umbrella.beans.BeansException;
@@ -14,10 +14,6 @@ public interface EJBBeanFactory extends BeanFactory {
 
     <T> T lookup(Class<T> clazz) throws BeansException;
 
-    <T> T lookup(Class<T> clazz, EJB ejbAnnotation) throws BeansException;
-
-    <T> T lookup(BeanDefinition beanDefinition) throws BeansException;
-
-    <T> T lookup(BeanDefinition beanDefinition, EJB ejbAnnotation) throws BeansException;
+    <T> T lookup(Class<T> clazz, Annotation... ann) throws BeansException;
 
 }

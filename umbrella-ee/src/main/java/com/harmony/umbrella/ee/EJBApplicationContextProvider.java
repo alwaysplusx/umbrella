@@ -1,6 +1,4 @@
-package com.harmony.umbrella.context.ee;
-
-import java.net.URL;
+package com.harmony.umbrella.ee;
 
 import com.harmony.umbrella.context.ApplicationContext;
 import com.harmony.umbrella.context.ApplicationContextProvider;
@@ -10,14 +8,10 @@ import com.harmony.umbrella.context.ApplicationContextProvider;
  *
  * @author wuxii@foxmail.com
  */
-public class EJBContextProvider implements ApplicationContextProvider {
+public class EJBApplicationContextProvider implements ApplicationContextProvider {
 
     @Override
     public ApplicationContext createApplicationContext() {
-        return createApplicationContext(null);
-    }
-
-    public ApplicationContext createApplicationContext(URL url) {
         return null;
     }
 

@@ -1,4 +1,4 @@
-package com.harmony.umbrella.context.ee;
+package com.harmony.umbrella.ee;
 
 /**
  * @author wuxii@foxmail.com

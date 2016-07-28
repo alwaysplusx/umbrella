@@ -1,6 +1,6 @@
-package com.harmony.umbrella.context.ee;
+package com.harmony.umbrella.ee;
 
-import javax.ejb.EJB;
+import java.lang.annotation.Annotation;
 
 import com.harmony.umbrella.beans.BeanFactory;
 import com.harmony.umbrella.beans.BeansException;
@@ -36,23 +36,13 @@ public class EJBApplicationContext extends ApplicationContext implements EJBBean
     }
 
     @Override
-    public <T> T lookup(Class<T> clazz, EJB ejbAnnotation) throws BeansException {
-        return beanFactory.lookup(clazz, ejbAnnotation);
-    }
-
-    @Override
-    public <T> T lookup(BeanDefinition beanDefinition) throws BeansException {
-        return beanFactory.lookup(beanDefinition);
-    }
-
-    @Override
-    public <T> T lookup(BeanDefinition beanDefinition, EJB ejbAnnotation) throws BeansException {
-        return beanFactory.lookup(beanDefinition, ejbAnnotation);
+    public <T> T lookup(Class<T> clazz, Annotation... ann) throws BeansException {
+        return beanFactory.lookup(clazz, ann);
     }
 
     @Override
     public BeanFactory getBeanFactory() {
-        return null;
+        return beanFactory;
     }
 
 }

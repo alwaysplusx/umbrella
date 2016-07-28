@@ -1,4 +1,4 @@
-package com.harmony.umbrella.context.ee;
+package com.harmony.umbrella.ee;
 
 /**
  * EJB中的会话Bean信息
