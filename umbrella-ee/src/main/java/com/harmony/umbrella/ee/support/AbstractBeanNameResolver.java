@@ -23,11 +23,13 @@ import com.harmony.umbrella.util.AnnotationUtils;
 /**
  * @author wuxii@foxmail.com
  */
-public class AbstractBeanNameResolver implements BeanNameResolver {
+public abstract class AbstractBeanNameResolver implements BeanNameResolver {
+
+    protected Properties contextProperties = new Properties();
 
     private static final Log log = Logs.getLog(AbstractBeanNameResolver.class);
 
-    protected Properties contextProperties = new Properties();
+    protected abstract String[] guessNames(BeanDefinition bd, Map<String, Object> properties, Context context);
 
     @Override
     public Context getContext() throws NamingException {
@@ -49,18 +51,6 @@ public class AbstractBeanNameResolver implements BeanNameResolver {
         return guessNames(bd, properties, null);
     }
 
-    protected String[] guessNames(BeanDefinition bd, Map<String, Object> properties, Context context) {
-        if (context == null) {
-            try {
-                context = getContext();
-            } catch (NamingException e) {
-                log.warn("{}", e);
-            }
-        }
-        JndiHolder holder = createJndiHolder(context);
-        return holder.getJndis();
-    }
-
     @Override
     public SessionBean[] guessBeans(BeanDefinition bd) {
         return guessBeans(bd, (Map<String, Object>) null);
@@ -73,17 +63,44 @@ public class AbstractBeanNameResolver implements BeanNameResolver {
 
     @Override
     public SessionBean[] guessBeans(BeanDefinition bd, Map<String, Object> properties) {
+        List<SessionBean> result = new ArrayList<SessionBean>();
         try {
             Context context = getContext();
             String[] jndis = guessNames(bd, properties, context);
             for (String jndi : jndis) {
-                tryLookup(jndi, context);
-                // TODO check look up bean
+                Object bean = tryLookup(jndi, context);
+                if (bean != null && isDeclareBean(bd, bean)) {
+                    result.add(new SessionBeanImpl(bd, jndi, bean));
+                }
             }
         } catch (NamingException e) {
             throw new BeansException(e);
         }
-        return null;
+        return result.toArray(new SessionBean[result.size()]);
+    }
+
+    protected boolean isDeclareBean(final BeanDefinition bd, final Object bean) {
+        if (log.isDebugEnabled()) {
+            log.debug(
+                    "Test it is declare bean? "//
+                            + "\n\tdeclare remoteClass -> {}" //
+                            + "\n\tdeclare beanClass   -> {}" //
+                            + "\n\tactual  bean        -> {}", //
+                    Arrays.asList(bd.getRemoteClasses()), bd.getBeanClass(), bean);
+        }
+        if (bean == null) {
+            return false;
+        }
+        if (bd.getBeanClass().isInstance(bean)) {
+            return true;
+        }
+        Class<?>[] remoteClasses = bd.getRemoteClasses();
+        for (Class<?> c : remoteClasses) {
+            if (c.isInstance(bean)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     protected final Object tryLookup(String jndi, Context context) {
@@ -113,40 +130,51 @@ public class AbstractBeanNameResolver implements BeanNameResolver {
         this.contextProperties = contextProperties;
     }
 
-    protected JndiHolder createJndiHolder(Context context) {
-        return new JndiHolder(context);
-    }
+    static final class SessionBeanImpl implements SessionBean {
 
-    protected class JndiHolder {
+        BeanDefinition beanDefinition;
+        Object bean;
+        String jndi;
+        boolean cacheable;
+        boolean wrapped;
 
-        protected final Context context;
-
-        protected boolean forced;
-
-        protected List<String> jndis = new ArrayList<String>();
-
-        public JndiHolder(Context context) {
-            this.context = context;
+        public SessionBeanImpl(BeanDefinition bd, String jndi, Object bean) {
+            this.beanDefinition = bd;
+            this.jndi = jndi;
+            this.bean = bean;
         }
 
-        public void addIfAbsent(String jndi) {
-            if (!jndis.contains(jndi) && (exists(jndi) || !forced)) {
-                jndis.add(jndi);
-            }
+        public SessionBeanImpl(BeanDefinition bd, String jndi, Object bean, boolean cachedable, boolean wrapped) {
+            this.beanDefinition = bd;
+            this.jndi = jndi;
+            this.bean = bean;
+            this.cacheable = cachedable;
+            this.wrapped = wrapped;
         }
 
-        public boolean exists(String jndi) {
-            return tryLookup(jndi, context) != null;
+        @Override
+        public Object getBean() {
+            return bean;
         }
 
-        public final String[] getJndis() {
-            String[] result = jndis.toArray(new String[jndis.size()]);
-            Arrays.sort(result);
-            return result;
+        @Override
+        public String getJndi() {
+            return jndi;
         }
 
-        public boolean isEmpty() {
-            return jndis.isEmpty();
+        @Override
+        public boolean isCacheable() {
+            return cacheable;
+        }
+
+        @Override
+        public boolean isWrapped() {
+            return wrapped;
+        }
+
+        @Override
+        public BeanDefinition getBeanDefinition() {
+            return beanDefinition;
         }
 
     }

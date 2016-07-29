@@ -1,5 +1,9 @@
 package com.harmony.umbrella.config;
 
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * 
  * 配置管理的抽象实现
@@ -14,8 +18,7 @@ public abstract class AbstractParamManager implements ParamManager {
      */
     @Override
     public Boolean getBoolean(String key) {
-        Param param = get(key);
-        return param != null ? param.getBoolean() : null;
+        return getBoolean(key, null);
     }
 
     /**
@@ -23,8 +26,8 @@ public abstract class AbstractParamManager implements ParamManager {
      */
     @Override
     public Boolean getBoolean(String key, Boolean def) {
-        Boolean val = getBoolean(key);
-        return val == null ? def : val;
+        Param param = get(key);
+        return param != null ? param.getBoolean() : def;
     }
 
     /**
@@ -32,8 +35,7 @@ public abstract class AbstractParamManager implements ParamManager {
      */
     @Override
     public Byte getByte(String key) {
-        Param param = get(key);
-        return param != null ? param.getByte() : null;
+        return getByte(key, null);
     }
 
     /**
@@ -41,8 +43,8 @@ public abstract class AbstractParamManager implements ParamManager {
      */
     @Override
     public Byte getByte(String key, Byte def) {
-        Byte val = getByte(key);
-        return val == null ? def : val;
+        Param param = get(key);
+        return param != null ? param.getByte() : def;
     }
 
     /**
@@ -50,8 +52,7 @@ public abstract class AbstractParamManager implements ParamManager {
      */
     @Override
     public Character getCharacter(String key) {
-        Param param = get(key);
-        return param != null ? param.getCharacter() : null;
+        return getCharacter(key, null);
     }
 
     /**
@@ -59,8 +60,8 @@ public abstract class AbstractParamManager implements ParamManager {
      */
     @Override
     public Character getCharacter(String key, Character def) {
-        Character val = getCharacter(key);
-        return val == null ? def : val;
+        Param param = get(key);
+        return param != null ? param.getCharacter() : def;
     }
 
     /**
@@ -68,8 +69,7 @@ public abstract class AbstractParamManager implements ParamManager {
      */
     @Override
     public Double getDouble(String key) {
-        Param param = get(key);
-        return param != null ? param.getDouble() : null;
+        return getDouble(key, null);
     }
 
     /**
@@ -77,8 +77,8 @@ public abstract class AbstractParamManager implements ParamManager {
      */
     @Override
     public Double getDouble(String key, Double def) {
-        Double val = getDouble(key);
-        return val == null ? def : val;
+        Param param = get(key);
+        return param != null ? param.getDouble() : def;
     }
 
     /**
@@ -86,8 +86,7 @@ public abstract class AbstractParamManager implements ParamManager {
      */
     @Override
     public Float getFloat(String key) {
-        Param param = get(key);
-        return param != null ? param.getFloat() : null;
+        return getFloat(key, null);
     }
 
     /**
@@ -95,8 +94,8 @@ public abstract class AbstractParamManager implements ParamManager {
      */
     @Override
     public Float getFloat(String key, Float def) {
-        Float val = getFloat(key);
-        return val == null ? def : val;
+        Param param = get(key);
+        return param != null ? param.getFloat() : def;
     }
 
     /**
@@ -104,8 +103,7 @@ public abstract class AbstractParamManager implements ParamManager {
      */
     @Override
     public Integer getInteger(String key) {
-        Param param = get(key);
-        return param != null ? param.getInteger() : null;
+        return getInteger(key, null);
     }
 
     /**
@@ -113,8 +111,8 @@ public abstract class AbstractParamManager implements ParamManager {
      */
     @Override
     public Integer getInteger(String key, Integer def) {
-        Integer val = getInteger(key);
-        return val == null ? def : val;
+        Param param = get(key);
+        return param != null ? param.getInteger() : def;
     }
 
     /**
@@ -122,8 +120,7 @@ public abstract class AbstractParamManager implements ParamManager {
      */
     @Override
     public Long getLong(String key) {
-        Param param = get(key);
-        return param != null ? param.getLong() : null;
+        return getLong(key, null);
     }
 
     /**
@@ -131,8 +128,8 @@ public abstract class AbstractParamManager implements ParamManager {
      */
     @Override
     public Long getLong(String key, Long def) {
-        Long val = getLong(key);
-        return val == null ? def : val;
+        Param param = get(key);
+        return param != null ? param.getLong() : def;
     }
 
     /**
@@ -140,8 +137,7 @@ public abstract class AbstractParamManager implements ParamManager {
      */
     @Override
     public Short getShort(String key) {
-        Param param = get(key);
-        return param != null ? param.getShort() : null;
+        return getShort(key, null);
     }
 
     /**
@@ -149,8 +145,8 @@ public abstract class AbstractParamManager implements ParamManager {
      */
     @Override
     public Short getShort(String key, Short def) {
-        Short val = getShort(key);
-        return val == null ? def : val;
+        Param param = get(key);
+        return param != null ? param.getShort() : def;
     }
 
     /**
@@ -158,8 +154,18 @@ public abstract class AbstractParamManager implements ParamManager {
      */
     @Override
     public String getString(String key) {
-        Param param = get(key);
-        return param != null ? param.getString() : null;
+        return getString(key, null);
+    }
+
+    @Override
+    public Set<String> asSet(String key, String delimiter) {
+        Set<String> result = null;
+        String text = getString(key);
+        if (text != null) {
+            result = new HashSet<String>();
+            Collections.addAll(result, text.split(delimiter));
+        }
+        return result;
     }
 
     /**
@@ -167,7 +173,7 @@ public abstract class AbstractParamManager implements ParamManager {
      */
     @Override
     public String getString(String key, String def) {
-        String val = getString(key);
-        return val == null ? def : val;
+        Param param = get(key);
+        return param != null ? param.getString() : def;
     }
 }

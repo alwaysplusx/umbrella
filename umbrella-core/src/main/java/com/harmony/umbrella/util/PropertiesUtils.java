@@ -249,7 +249,10 @@ public class PropertiesUtils {
      * @return key前缀相同的属性集合
      */
     public static Map<String, Object> filterStartWith(String prefix, Map<String, Object> map, boolean ignoreCase) {
-        Assert.notBlank(prefix, "prefix not allow null or blank");
+        Assert.notNull(prefix, "prefix not allow null");
+        if (StringUtils.isBlank(prefix)) {
+            return new HashMap<String, Object>(map);
+        }
         Map<String, Object> result = new HashMap<String, Object>();
         Set<String> keys = map.keySet();
         for (String key : keys) {

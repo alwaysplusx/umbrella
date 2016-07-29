@@ -10,6 +10,8 @@ import com.harmony.umbrella.beans.BeansException;
  */
 public interface EJBBeanFactory extends BeanFactory {
 
+    void autowrie(Object bean) throws BeansException;
+
     <T> T lookup(String jndi) throws BeansException;
 
     <T> T lookup(Class<T> clazz) throws BeansException;

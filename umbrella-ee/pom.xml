@@ -11,6 +11,10 @@
   <artifactId>umbrella-ee</artifactId>
   <dependencies>
     <dependency>
+      <groupId>javax</groupId>
+      <artifactId>javaee-api</artifactId>
+    </dependency>
+    <dependency>
       <groupId>com.harmony.umbrella</groupId>
       <artifactId>umbrella-core</artifactId>
     </dependency>
@@ -18,6 +22,7 @@
       <groupId>com.harmony.umbrella</groupId>
       <artifactId>umbrella-json</artifactId>
     </dependency>
+    <!-- 
     <dependency>
       <groupId>org.apache.openejb</groupId>
       <artifactId>javaee-api</artifactId>
@@ -38,7 +43,8 @@
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-log4j12</artifactId>
       <scope>test</scope>
-    </dependency>
+    </dependency> 
+    -->
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>

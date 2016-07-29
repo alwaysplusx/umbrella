@@ -22,7 +22,8 @@ public class EJBApplicationContext extends ApplicationContext implements EJBBean
     }
 
     @Override
-    public void destroy() {
+    public void autowrie(Object bean) throws BeansException {
+        beanFactory.autowrie(bean);
     }
 
     @Override
@@ -43,6 +44,10 @@ public class EJBApplicationContext extends ApplicationContext implements EJBBean
     @Override
     public BeanFactory getBeanFactory() {
         return beanFactory;
+    }
+
+    @Override
+    public void destroy() {
     }
 
 }

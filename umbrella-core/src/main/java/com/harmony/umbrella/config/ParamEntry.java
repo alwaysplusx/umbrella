@@ -7,7 +7,7 @@ import java.math.BigDecimal;
  * 
  * @author wuxii@foxmail.com
  */
-public class DefaultParam implements Param {
+public class ParamEntry implements Param {
 
     /**
      * 配置key
@@ -18,26 +18,16 @@ public class DefaultParam implements Param {
      */
     protected Object value;
     /**
-     * 值类型
-     */
-    protected String type;
-    /**
      * 配置描述
      */
     protected String description;
 
-    public DefaultParam() {
+    public ParamEntry() {
     }
 
-    public DefaultParam(String key, String value) {
+    public ParamEntry(String key, Object value) {
         this.key = key;
         this.value = value;
-    }
-
-    public DefaultParam(String key, String value, String type) {
-        this.key = key;
-        this.value = value;
-        this.type = type;
     }
 
     /**
@@ -60,7 +50,7 @@ public class DefaultParam implements Param {
      * {@inheritDoc}
      */
     @Override
-    public Object getValue() {
+    public Object getObject() {
         return value;
     }
 
@@ -144,14 +134,6 @@ public class DefaultParam implements Param {
         return number == null ? null : number.doubleValue();
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getType() {
-        return type;
-    }
-
     private Number getNumber() {
         String value = getString();
         try {
@@ -161,45 +143,17 @@ public class DefaultParam implements Param {
         }
     }
 
-    public Class<?> getJavaType() {
-        if (type == null) {
-            return null;
-        }
-        Class<?> typeClass = null;
-        try {
-            typeClass = Class.forName(type);
-        } catch (Exception e) {
-        }
-        if (typeClass == null) {
-            if ("string".equalsIgnoreCase(type)) {
-                return String.class;
-            } else if ("int".equalsIgnoreCase(type)) {
-                return Integer.TYPE;
-            } else if ("Interger".equalsIgnoreCase(type)) {
-                return Integer.class;
-            } else if ("long".equals(type)) {
-                return Long.TYPE;
-            } else if ("Long".equalsIgnoreCase(type)) {
-                return Long.class;
-            } else if ("double".equals(type)) {
-                return Double.TYPE;
-            } else if ("Double".equalsIgnoreCase(type)) {
-                return Double.class;
-            } else if ("boolean".equals(type)) {
-                return Boolean.TYPE;
-            } else if ("Boolean".equalsIgnoreCase(type)) {
-                return Boolean.class;
-            }
-        }
-        return typeClass;
-    }
-
     /**
      * {@inheritDoc}
      */
     @Override
     public String getDescription() {
         return description;
+    }
+
+    @Override
+    public String toString() {
+        return "{" + key + ":" + value + "}";
     }
 
 }

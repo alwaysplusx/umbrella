@@ -20,14 +20,7 @@ public interface Param {
      * @see #getString()
      * @return param value
      */
-    Object getValue();
-
-    /**
-     * 值的类型
-     * 
-     * @return value type
-     */
-    String getType();
+    Object getObject();
 
     /**
      * 检查是否有值

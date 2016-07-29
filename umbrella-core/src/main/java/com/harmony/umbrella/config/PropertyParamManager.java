@@ -35,9 +35,9 @@ public class PropertyParamManager extends AbstractParamManager {
     }
 
     @Override
-    public DefaultParam get(String key) {
+    public ParamEntry get(String key) {
         Object value = properties.get(key);
-        return value == null ? null : new DefaultParam(key, value.toString());
+        return value == null ? null : new ParamEntry(key, value.toString());
     }
 
     @SuppressWarnings("unchecked")
@@ -46,7 +46,7 @@ public class PropertyParamManager extends AbstractParamManager {
         List<Param> params = new ArrayList<Param>();
         Map<String, ?> p = PropertiesUtils.filterStartWith(prefix, properties);
         for (String name : p.keySet()) {
-            DefaultParam param = get(name);
+            ParamEntry param = get(name);
             if (param != null) {
                 params.add(param);
             }
@@ -57,7 +57,7 @@ public class PropertyParamManager extends AbstractParamManager {
     @SuppressWarnings("unchecked")
     @Override
     public void set(Param param) {
-        properties.put(param.getKey(), param.getValue());
+        properties.put(param.getKey(), param.getObject());
     }
 
     @SuppressWarnings("rawtypes")
