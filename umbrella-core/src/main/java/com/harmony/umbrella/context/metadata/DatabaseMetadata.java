@@ -4,7 +4,7 @@ import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 
-import com.harmony.umbrella.jdbc.ConnectionSource;
+import com.harmony.umbrella.sql.ConnectionSource;
 
 /**
  * 应用所使用的数据库信息

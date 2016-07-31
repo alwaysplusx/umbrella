@@ -1,4 +1,4 @@
-package com.harmony.umbrella.jdbc;
+package com.harmony.umbrella.log.db;
 
 import java.util.ArrayList;
 
@@ -7,33 +7,33 @@ import com.harmony.umbrella.log.LogInfo;
 /**
  * @author wuxii@foxmail.com
  */
-public abstract class AbstractDatabaseManager<T> implements DatabaseManager<T> {
+public abstract class AbstractDatabaseManager implements DatabaseManager {
 
-    private final ArrayList<WrapEvent> buffer;
+    private final ArrayList<LogInfo> buffer;
     private final int bufferSize;
 
     public AbstractDatabaseManager(int bufferSize) {
         this.bufferSize = bufferSize;
-        this.buffer = new ArrayList<WrapEvent>(bufferSize + 1);
+        this.buffer = new ArrayList<LogInfo>(bufferSize + 1);
     }
 
     protected abstract void commitAndClose();
 
-    protected abstract void writeInternal(LogInfo logInfo, T event);
+    protected abstract void writeInternal(LogInfo logInfo);
 
     protected abstract void connectAndStart();
 
     @Override
-    public synchronized void write(LogInfo logInfo, T event) {
+    public synchronized void write(LogInfo logInfo) {
         if (this.bufferSize > 0) {
-            this.buffer.add(new WrapEvent(logInfo, event));
+            this.buffer.add(logInfo);
             if (this.buffer.size() >= this.bufferSize) {
                 this.flush();
             }
         } else {
             this.connectAndStart();
             try {
-                this.writeInternal(logInfo, event);
+                this.writeInternal(logInfo);
             } finally {
                 this.commitAndClose();
             }
@@ -45,24 +45,16 @@ public abstract class AbstractDatabaseManager<T> implements DatabaseManager<T> {
         if (this.buffer.size() > 0) {
             this.connectAndStart();
             try {
-                for (WrapEvent event : this.buffer) {
-                    this.writeInternal(event.logInfo, event.event);
+                for (LogInfo logInfo : this.buffer) {
+                    this.writeInternal(logInfo);
                 }
             } finally {
                 this.commitAndClose();
-                // not sure if this should be done when writing the events failed
+                // not sure if this should be done when writing the events
+                // failed
                 this.buffer.clear();
             }
         }
     }
 
-    protected class WrapEvent {
-        public final LogInfo logInfo;
-        public final T event;
-
-        public WrapEvent(LogInfo logInfo, T event) {
-            this.logInfo = logInfo;
-            this.event = event;
-        }
-    }
 }

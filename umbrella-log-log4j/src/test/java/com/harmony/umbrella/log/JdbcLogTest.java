@@ -3,7 +3,7 @@ package com.harmony.umbrella.log;
 import org.junit.Test;
 
 import com.harmony.umbrella.log.annotation.Logging.LogType;
-import com.harmony.umbrella.log4j.StaticLogger;
+import com.harmony.umbrella.log.support.StaticLogger;
 
 /**
  * @author wuxii@foxmail.com

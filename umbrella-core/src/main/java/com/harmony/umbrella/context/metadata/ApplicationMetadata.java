@@ -4,7 +4,7 @@ import java.sql.SQLException;
 
 import javax.servlet.ServletContext;
 
-import com.harmony.umbrella.jdbc.ConnectionSource;
+import com.harmony.umbrella.sql.ConnectionSource;
 
 /**
  * @author wuxii@foxmail.com

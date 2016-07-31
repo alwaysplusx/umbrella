@@ -1,5 +1,4 @@
-
-package com.harmony.umbrella.jdbc;
+package com.harmony.umbrella.sql;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -13,6 +12,8 @@ public class JdbcConnectionSource implements ConnectionSource {
 
     private final String url;
 
+    private int timeout;
+
     private final Properties props = new Properties();
 
     public JdbcConnectionSource(String url, String user, String password) {
@@ -24,6 +25,22 @@ public class JdbcConnectionSource implements ConnectionSource {
         this.props.putAll(props);
         this.props.put("user", user);
         this.props.put("password", password);
+    }
+
+    @Override
+    public boolean isValid() {
+        Connection conn = null;
+        try {
+            conn = getConnection();
+            return conn.isValid(timeout);
+        } catch (SQLException e) {
+        } finally {
+            try {
+                conn.close();
+            } catch (SQLException e) {
+            }
+        }
+        return false;
     }
 
     @Override

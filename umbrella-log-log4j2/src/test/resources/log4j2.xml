@@ -11,13 +11,17 @@
       <patternlayout pattern="${pattern}" />
     </console>
 
-    <customer name="customer" />
-    
+    <jdbc-umbrella name="operator">
+      <columns>
+        <column source="a" target="b" />
+      </columns>
+    </jdbc-umbrella>
+
   </appenders>
   <loggers>
     <root level="info">
       <appenderRef ref="console" />
-      <appenderRef ref="customer" />
+      <appenderRef ref="operator" />
     </root>
   </loggers>
 </configuration>

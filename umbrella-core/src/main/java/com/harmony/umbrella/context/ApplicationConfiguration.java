@@ -9,7 +9,7 @@ import java.util.Map;
 import javax.servlet.ServletContext;
 
 import com.harmony.umbrella.context.ApplicationContext.ApplicationInitializer;
-import com.harmony.umbrella.jdbc.ConnectionSource;
+import com.harmony.umbrella.sql.ConnectionSource;
 
 /**
  * @author wuxii@foxmail.com

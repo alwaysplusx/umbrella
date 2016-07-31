@@ -1,4 +1,4 @@
-package com.harmony.umbrella.jdbc;
+package com.harmony.umbrella.sql;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -13,10 +13,14 @@ import javax.sql.DataSource;
  */
 public class JndiConnectionSource implements ConnectionSource {
 
-    private final String jndiName;
+    private String jndiName;
     private final Properties props = new Properties();
 
     private DataSource dataSource;
+    private int timeout;
+
+    public JndiConnectionSource() {
+    }
 
     public JndiConnectionSource(String jndiName) {
         this(jndiName, new Properties());
@@ -25,6 +29,24 @@ public class JndiConnectionSource implements ConnectionSource {
     public JndiConnectionSource(String jndiName, Properties props) {
         this.jndiName = jndiName;
         this.props.putAll(props);
+    }
+
+    @Override
+    public boolean isValid() {
+        Connection conn = null;
+        try {
+            conn = getConnection();
+            return conn.isValid(timeout);
+        } catch (SQLException e) {
+        } finally {
+            if (conn != null) {
+                try {
+                    conn.close();
+                } catch (SQLException e) {
+                }
+            }
+        }
+        return false;
     }
 
     @Override
@@ -46,4 +68,21 @@ public class JndiConnectionSource implements ConnectionSource {
         }
         return dataSource;
     }
+
+    public String getJndiName() {
+        return jndiName;
+    }
+
+    public void setJndiName(String jndiName) {
+        this.jndiName = jndiName;
+    }
+
+    public int getTimeout() {
+        return timeout;
+    }
+
+    public void setTimeout(int timeout) {
+        this.timeout = timeout;
+    }
+
 }
