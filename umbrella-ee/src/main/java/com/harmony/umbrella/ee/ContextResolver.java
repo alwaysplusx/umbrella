@@ -5,7 +5,7 @@ package com.harmony.umbrella.ee;
  * 
  * @author wuxii@foxmail.com
  */
-public interface ContextResolver extends BeanNameResolver {
+public interface ContextResolver extends BeanResolver {
 
     Object tryLookup(String jndi);
 

@@ -14,7 +14,7 @@ import javax.naming.NamingException;
 
 import com.harmony.umbrella.beans.BeansException;
 import com.harmony.umbrella.ee.BeanDefinition;
-import com.harmony.umbrella.ee.BeanNameResolver;
+import com.harmony.umbrella.ee.BeanResolver;
 import com.harmony.umbrella.ee.SessionBean;
 import com.harmony.umbrella.log.Log;
 import com.harmony.umbrella.log.Logs;
@@ -23,11 +23,11 @@ import com.harmony.umbrella.util.AnnotationUtils;
 /**
  * @author wuxii@foxmail.com
  */
-public abstract class AbstractBeanNameResolver implements BeanNameResolver {
+public abstract class AbstractBeanResolver implements BeanResolver {
 
     protected Properties contextProperties = new Properties();
 
-    private static final Log log = Logs.getLog(AbstractBeanNameResolver.class);
+    private static final Log log = Logs.getLog(AbstractBeanResolver.class);
 
     protected abstract String[] guessNames(BeanDefinition bd, Map<String, Object> properties, Context context);
 

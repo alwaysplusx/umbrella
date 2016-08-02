@@ -6,9 +6,6 @@ import java.util.List;
 
 import javax.ejb.Local;
 import javax.ejb.Remote;
-import javax.ejb.Singleton;
-import javax.ejb.Stateful;
-import javax.ejb.Stateless;
 
 import com.harmony.umbrella.util.ClassUtils;
 
@@ -16,14 +13,6 @@ import com.harmony.umbrella.util.ClassUtils;
  * @author wuxii@foxmail.com
  */
 public class BeanDefinition {
-
-    static final List<Class<? extends Annotation>> SESSION_ANNOTATION = new ArrayList<Class<? extends Annotation>>();
-
-    static {
-        SESSION_ANNOTATION.add(Stateless.class);
-        SESSION_ANNOTATION.add(Stateful.class);
-        SESSION_ANNOTATION.add(Singleton.class);
-    }
 
     /**
      * beanClass 会话bean的类

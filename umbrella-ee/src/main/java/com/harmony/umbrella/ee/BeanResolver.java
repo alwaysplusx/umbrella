@@ -11,7 +11,7 @@ import javax.naming.NamingException;
  * 
  * @author wuxii@foxmail.com
  */
-public interface BeanNameResolver {
+public interface BeanResolver {
 
     Context getContext() throws NamingException;
 
