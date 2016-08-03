@@ -25,6 +25,8 @@ public class ConfigurableBeanResolver extends AbstractBeanResolver {
 
     private List<String> beanNameAttributes = new ArrayList<String>();
 
+    private List<String> beanInterfaceAttributes = new ArrayList<String>();
+
     private List<String> jndiAttributes = new ArrayList<String>();
 
     private PartResolver<String> beanNameResolver;
@@ -41,10 +43,13 @@ public class ConfigurableBeanResolver extends AbstractBeanResolver {
     protected String[] guessNames(BeanDefinition bd, Map<String, Object> properties, Context context) {
         JndiHolder holder = new JndiHolder(context, forced);
 
+        // 配置属性直接存在jndi名称无需猜测直接返回jndi
         for (String attr : jndiAttributes) {
             Object jndi = properties.get(attr);
             if (jndi != null && jndi instanceof String && StringUtils.isNotBlank((String) jndi)) {
-                holder.addIfAbsent((String) jndi);
+                if (!holder.addIfAbsent((String) jndi)) {
+                    log.warn("配置的jndi[{}]无效", jndi);
+                }
             }
         }
         if (!holder.isEmpty()) {
@@ -61,30 +66,48 @@ public class ConfigurableBeanResolver extends AbstractBeanResolver {
             }
         }
 
+        // 不存在beanName的配置属性则通过猜测获取beanName
         if (beanNames.isEmpty() && beanNameResolver != null) {
             beanNames.addAll(beanNameResolver.resolve(bd));
         }
 
+        // 未能猜测到beanName无法组成jndi
         if (beanNames.isEmpty()) {
             log.warn("{} not bean name find", bd);
             return new String[0];
         }
 
+        // 配置属性中的beanInterface
         Collection<Class> beanInterfaces = new HashSet<Class>();
-        if (beanInterfaceResolver != null) {
+        for (String attr : beanInterfaceAttributes) {
+            Object beanInterface = properties.get(attr);
+            if (beanInterface != null && beanInterface instanceof Class && ((Class) beanInterface).isInterface()) {
+                beanInterfaces.add((Class) beanInterface);
+            }
+        }
+
+        // 不存在配置的beanInterface属性则通过猜测获取beanInterface
+        if (beanInterfaces.isEmpty() && beanInterfaceResolver != null) {
             beanInterfaces.addAll(beanInterfaceResolver.resolve(bd));
-        } else {
+        }
+
+        // 默认猜测不到则添加默认beanDefinition中的beanInterface
+        if (beanInterfaces.isEmpty()) {
             Collections.addAll(beanInterfaces, bd.getRemoteClasses());
         }
 
+        // 无法获取以及猜测到beanInterface无法组成jndi
         if (beanInterfaces.isEmpty()) {
             log.warn("{} not bean interface find", bd);
             return new String[0];
         }
 
+        // 将得出的beanName与beanInterface格式化组成jndi
         Collection<String> jndis = jndiFormatter.format(beanNames, beanInterfaces);
         for (String jndi : jndis) {
-            holder.addIfAbsent(jndi);
+            if (!holder.addIfAbsent(jndi)) {
+                log.info("猜测到的jndi[{}]无效", jndi);
+            }
         }
 
         return holder.getJndis();
@@ -104,6 +127,14 @@ public class ConfigurableBeanResolver extends AbstractBeanResolver {
 
     public void setJndiAttributes(List<String> jndiAttributes) {
         this.jndiAttributes = jndiAttributes;
+    }
+
+    public List<String> getBeanInterfaceAttributes() {
+        return beanInterfaceAttributes;
+    }
+
+    public void setBeanInterfaceAttributes(List<String> beanInterfaceAttributes) {
+        this.beanInterfaceAttributes = beanInterfaceAttributes;
     }
 
     public PartResolver<String> getBeanNameResolver() {
@@ -152,10 +183,11 @@ public class ConfigurableBeanResolver extends AbstractBeanResolver {
             this.forced = forced;
         }
 
-        public void addIfAbsent(String jndi) {
+        public boolean addIfAbsent(String jndi) {
             if (!jndis.contains(jndi) && (exists(jndi) || !forced)) {
-                jndis.add(jndi);
+                return jndis.add(jndi);
             }
+            return false;
         }
 
         public boolean exists(String jndi) {
