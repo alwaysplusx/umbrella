@@ -1,5 +1,6 @@
 package com.harmony.umbrella.config;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -25,6 +26,9 @@ public class PrefixableParamManager extends AbstractParamManager {
     private boolean containerPrefix;
 
     private boolean fetchWithoutPrefix;
+
+    public PrefixableParamManager() {
+    }
 
     @SuppressWarnings("rawtypes")
     public PrefixableParamManager(Map properties) {
@@ -119,6 +123,10 @@ public class PrefixableParamManager extends AbstractParamManager {
 
     public void setFetchWithoutPrefix(boolean fetchWithoutPrefix) {
         this.fetchWithoutPrefix = fetchWithoutPrefix;
+    }
+
+    public void setPropertiesFile(String fileLocation) throws IOException {
+        this.setProperties(PropertiesUtils.loadProperties(fileLocation));
     }
 
 }

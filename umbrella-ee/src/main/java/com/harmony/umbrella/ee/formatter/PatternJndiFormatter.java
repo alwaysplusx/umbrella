@@ -11,7 +11,7 @@ public class PatternJndiFormatter extends AbstractJndiFormatter {
 
     private Collection<String> separators;
 
-    private String globalNamespace;
+    private String globalNamespace = "";
 
     private FormatterFactory formatterFactory;
 
@@ -61,6 +61,14 @@ public class PatternJndiFormatter extends AbstractJndiFormatter {
             globalNamespace.trim();
         }
         this.globalNamespace = globalNamespace + (!globalNamespace.endsWith("/") ? "/" : "");
+    }
+
+    public FormatterFactory getFormatterFactory() {
+        return formatterFactory;
+    }
+
+    public void setFormatterFactory(FormatterFactory formatterFactory) {
+        this.formatterFactory = formatterFactory;
     }
 
 }

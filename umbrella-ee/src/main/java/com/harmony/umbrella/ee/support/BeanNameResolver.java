@@ -76,7 +76,7 @@ public class BeanNameResolver implements PartResolver<String> {
         }
 
         // 查找子类
-        if (beanClass.isInterface() || EJBUtils.isRemoteClass(beanClass)) {
+        if (beanClass.isInterface()) {
             List<Class> subClasses = getSubClasses(beanClass);
             for (Class c : subClasses) {
                 if (EJBUtils.isSessionBean(c)) {
@@ -110,7 +110,7 @@ public class BeanNameResolver implements PartResolver<String> {
 
         String nameRemoveSuffix = null;
         for (String interfaceSuffix : interfaceSuffixes) {
-            if (StringUtils.isNotBlank(interfaceSuffix)) {
+            if (StringUtils.isNotBlank(interfaceSuffix) && name.endsWith(interfaceSuffix)) {
                 nameRemoveSuffix = name.substring(0, name.length() - interfaceSuffix.length());
                 break;
             }

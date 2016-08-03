@@ -42,7 +42,7 @@ public class BeanInterfaceResolver implements PartResolver<Class> {
         Set<Class> result = new HashSet<Class>();
 
         Class<?> beanClass = bd.getBeanClass();
-        if (EJBUtils.isRemoteClass(beanClass) || beanClass.isInterface()) {
+        if (EJBUtils.isRemoteClass(beanClass) && !EJBUtils.isLocalClass(beanClass)) {
             result.add(beanClass);
             return result;
         }

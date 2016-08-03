@@ -29,7 +29,7 @@ public abstract class AbstractJndiFormatter implements JndiFormatter {
             return result;
         }
 
-        final String globalNamespace = getGlobalNamespace();
+        final String globalNamespace = globalNamespace();
         final Collection<String> separators = getSeparators();
 
         String[] beanNameArray = null;
@@ -73,6 +73,11 @@ public abstract class AbstractJndiFormatter implements JndiFormatter {
         }
 
         return result;
+    }
+
+    private String globalNamespace() {
+        String globalNamespace = getGlobalNamespace();
+        return globalNamespace == null ? "" : globalNamespace;
     }
 
     protected abstract Formatter getFormatter(String pattern);

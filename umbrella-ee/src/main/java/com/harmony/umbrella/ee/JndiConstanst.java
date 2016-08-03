@@ -11,7 +11,7 @@ public abstract class JndiConstanst {
 
     public static final String JNDI_GLOBAL = "jndi.global.prefix";
 
-    public static final String JNDI_ROOT = "jndi.format.root";
+    public static final String JNDI_PATTERN = "jndi.format.pattern";
 
     public static final String JNDI_BEAN = "jndi.format.bean";
 
@@ -19,7 +19,11 @@ public abstract class JndiConstanst {
 
     public static final String JNDI_REMOTE = "jndi.format.remote";
 
-    public static final String JNDI_PATTERN = "jndi.format.pattern";
+    public static final String ATTRIBUTE_BEAN_NAME = "jndi.attribute.beanName";
+
+    public static final String ATTRIBUTE_BEAN_INTERFACE = "jndi.attribute.beanInterface";
+
+    public static final String ATTRIBUTE_JNDI = "jndi.attribute.jndi";
 
     public static final List<String> PATTERN_KEY_WORDS;
 

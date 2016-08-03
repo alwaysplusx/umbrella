@@ -19,17 +19,53 @@ import com.harmony.umbrella.ee.SessionBean;
 import com.harmony.umbrella.log.Log;
 import com.harmony.umbrella.log.Logs;
 import com.harmony.umbrella.util.AnnotationUtils;
+import com.harmony.umbrella.util.StringUtils;
 
 /**
  * @author wuxii@foxmail.com
  */
 public abstract class AbstractBeanResolver implements BeanResolver {
 
-    protected Properties contextProperties = new Properties();
-
     private static final Log log = Logs.getLog(AbstractBeanResolver.class);
 
+    protected Properties contextProperties = new Properties();
+
+    private boolean forced;
+
     protected abstract String[] guessNames(BeanDefinition bd, Map<String, Object> properties, Context context);
+
+    private String[] doGuess(BeanDefinition bd, Map<String, Object> properties, Context context) {
+        if (properties == null) {
+            properties = new HashMap<String, Object>();
+        }
+        if (context == null) {
+            try {
+                context = getContext();
+            } catch (NamingException e) {
+                log.error("failed initialize java naming context", e);
+            }
+        }
+        return guessNames(bd, properties, context);
+    }
+
+    protected boolean findInProperties(BeanDefinition bd, Map<String, Object> properties, JndiHolder holder) {
+        // 配置属性直接存在jndi名称无需猜测直接返回jndi
+        for (String attr : getJndiAttributes()) {
+            Object jndi = properties.get(attr);
+            if (jndi != null && jndi instanceof String && StringUtils.isNotBlank((String) jndi)) {
+                if (!holder.addIfAbsent((String) jndi)) {
+                    log.warn("配置中的jndi[{}]无效", jndi);
+                }
+            }
+        }
+        return !holder.isEmpty();
+    }
+
+    protected abstract List<String> getJndiAttributes();
+
+    protected abstract List<String> getBeanNameAttributes();
+
+    protected abstract List<String> getBeanInterfaceAttributes();
 
     @Override
     public Context getContext() throws NamingException {
@@ -48,7 +84,7 @@ public abstract class AbstractBeanResolver implements BeanResolver {
 
     @Override
     public String[] guessNames(BeanDefinition bd, Map<String, Object> properties) {
-        return guessNames(bd, properties, null);
+        return doGuess(bd, properties, null);
     }
 
     @Override
@@ -66,7 +102,7 @@ public abstract class AbstractBeanResolver implements BeanResolver {
         List<SessionBean> result = new ArrayList<SessionBean>();
         try {
             Context context = getContext();
-            String[] jndis = guessNames(bd, properties, context);
+            String[] jndis = doGuess(bd, properties, context);
             for (String jndi : jndis) {
                 Object bean = tryLookup(jndi, context);
                 if (bean != null && isDeclareBean(bd, bean)) {
@@ -81,11 +117,10 @@ public abstract class AbstractBeanResolver implements BeanResolver {
 
     protected boolean isDeclareBean(final BeanDefinition bd, final Object bean) {
         if (log.isDebugEnabled()) {
-            log.debug(
-                    "Test it is declare bean? "//
-                            + "\n\tdeclare remoteClass -> {}" //
-                            + "\n\tdeclare beanClass   -> {}" //
-                            + "\n\tactual  bean        -> {}", //
+            log.debug("Test it is declare bean? "//
+                    + "\n\tdeclare remoteClass -> {}" //
+                    + "\n\tdeclare beanClass   -> {}" //
+                    + "\n\tactual  bean        -> {}", //
                     Arrays.asList(bd.getRemoteClasses()), bd.getBeanClass(), bean);
         }
         if (bean == null) {
@@ -128,6 +163,49 @@ public abstract class AbstractBeanResolver implements BeanResolver {
 
     public void setContextProperties(Properties contextProperties) {
         this.contextProperties = contextProperties;
+    }
+
+    public boolean isForced() {
+        return forced;
+    }
+
+    public void setForced(boolean forced) {
+        this.forced = forced;
+    }
+
+    protected class JndiHolder {
+
+        private boolean forced;
+        private Context context;
+
+        private List<String> jndis = new ArrayList<String>();
+
+        public JndiHolder(Context context, boolean forced) {
+            this.context = context;
+            this.forced = forced;
+        }
+
+        public boolean addIfAbsent(String jndi) {
+            if (!jndis.contains(jndi) && (!forced || exists(jndi))) {
+                return jndis.add(jndi);
+            }
+            return false;
+        }
+
+        public boolean exists(String jndi) {
+            return tryLookup(jndi, context) != null;
+        }
+
+        public String[] getJndis() {
+            String[] result = jndis.toArray(new String[jndis.size()]);
+            Arrays.sort(result);
+            return result;
+        }
+
+        public boolean isEmpty() {
+            return jndis.isEmpty();
+        }
+
     }
 
     static final class SessionBeanImpl implements SessionBean {

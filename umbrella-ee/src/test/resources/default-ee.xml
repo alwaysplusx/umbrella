@@ -2,13 +2,13 @@
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-  <bean name="paramManager" class="com.huiju.module.config.PrefixableParamManager">
+  <bean name="paramManager" class="com.harmony.umbrella.config.PrefixableParamManager">
     <property name="propertiesFile" value="jndi.properties" />
   </bean>
 
-  <bean name="formatterFactory" class="com.huiju.module.context.ee.formatter.DefaultFormatterFactory" />
+  <bean name="formatterFactory" class="com.harmony.umbrella.ee.formatter.DefaultFormatterFactory" />
 
-  <bean name="beanInterfaceResolver" class="com.huiju.module.context.ee.support.BeanInterfaceResolver">
+  <bean name="beanInterfaceResolver" class="com.harmony.umbrella.ee.support.BeanInterfaceResolver">
     <property name="remoteClassSuffixes">
       <set>
         <value />
@@ -23,7 +23,7 @@
     </property>
   </bean>
 
-  <bean name="beanNameResolver" class="com.huiju.module.context.ee.support.BeanNameResolver">
+  <bean name="beanNameResolver" class="com.harmony.umbrella.ee.support.BeanNameResolver">
     <property name="beanNameSuffixes">
       <set>
         <value />
@@ -39,7 +39,7 @@
     </property>
   </bean>
 
-  <bean name="jndiFormatter" class=" com.huiju.module.context.ee.formatter.PatternJndiFormatter">
+  <bean name="jndiFormatter" class="com.harmony.umbrella.ee.formatter.PatternJndiFormatter">
     <property name="formatterFactory" ref="formatterFactory" />
     <property name="patterns">
       <list>
@@ -55,7 +55,7 @@
     </property>
   </bean>
 
-  <bean name="beanResolver " class="com.huiju.module.context.ee.support.ConfigurableBeanResolver">
+  <bean name="beanResolver " class="com.harmony.umbrella.ee.support.ConfigurableBeanResolver">
     <property name="jndiFormatter" ref="jndiFormatter" />
     <property name="beanInterfaceResolver" ref="beanInterfaceResolver" />
     <property name="beanNameResolver" ref="beanNameResolver" />
@@ -76,10 +76,6 @@
         <value>mappedName</value>
       </list>
     </property>
-  </bean>
-
-  <bean name="beanFactory" class="com.huiju.module.context.ee.support.EJBBeanFactoryImpl">
-    <property name="beanResolver" ref="beanResolver" />
   </bean>
 
 </beans>
