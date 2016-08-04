@@ -26,15 +26,15 @@ public class BeanNameResolver implements PartResolver<String> {
 
     private static final Log log = Logs.getLog(BeanNameResolver.class);
 
+    private Set<String> beanNameSuffixes;
+
+    private Set<String> interfaceSuffixes;
+
     private List<Class<? extends Annotation>> sequance;
 
     private boolean guessAlways = true;
 
     private Map<String, String> beanNameMapping = new HashMap<String, String>();
-
-    private Set<String> beanNameSuffixes;
-
-    private Set<String> interfaceSuffixes;
 
     /*
      * 以下判定返回结果
@@ -90,10 +90,11 @@ public class BeanNameResolver implements PartResolver<String> {
 
         if (guessAlways || result.isEmpty()) {
             Collection<String> guessResult = guessBeanName(beanClass);
-            result.addAll(guessResult);
-            log.debug("{} guess bean name {}", beanClass, guessResult);
+            if (guessResult != null) {
+                result.addAll(guessResult);
+            }
         }
-
+        log.debug("{} resolve bean name as {}", beanClass, result);
         return result;
     }
 
@@ -127,7 +128,7 @@ public class BeanNameResolver implements PartResolver<String> {
     }
 
     @SuppressWarnings("rawtypes")
-    public List<Class> getSubClasses(Class<?> clazz) {
+    protected List<Class> getSubClasses(Class<?> clazz) {
         List<Class> result = new ArrayList<Class>();
         for (Class c : ApplicationContext.getApplicationClasses()) {
             if (ClassUtils.isAssignable(clazz, c) && clazz != c && ClassFilterFeature.NEWABLE.accept(clazz)) {

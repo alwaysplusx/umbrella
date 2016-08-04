@@ -19,6 +19,8 @@ public abstract class JndiConstanst {
 
     public static final String JNDI_REMOTE = "jndi.format.remote";
 
+    public static final String JNDI_LOCAL = "jndi.format.remote";
+
     public static final String ATTRIBUTE_BEAN_NAME = "jndi.attribute.beanName";
 
     public static final String ATTRIBUTE_BEAN_INTERFACE = "jndi.attribute.beanInterface";

@@ -55,9 +55,12 @@ public class BeanInterfaceResolver implements PartResolver<Class> {
 
         Class<?>[] localClasses = bd.getLocalClasses();
         if (localClasses != null && localClasses.length > 0) {
-            result.addAll(guessRemoteClasses(localClasses));
+            Collection<Class> guessResult = guessRemoteClasses(localClasses);
+            if (guessResult != null) {
+                result.addAll(guessResult);
+            }
         }
-
+        log.debug("{} resolve bean interface as {}", beanClass, result);
         return result;
     }
 
