@@ -1,7 +1,6 @@
 package com.harmony.umbrella.config;
 
 import java.util.List;
-import java.util.Set;
 
 /**
  * 配置管理器
@@ -190,8 +189,6 @@ public interface ParamManager {
      * @return
      */
     String getString(String key);
-
-    Set<String> asSet(String key, String delimiter);
 
     /**
      * 根据key获取配置参数的String值， 如果key对应的param未找到返回默认值

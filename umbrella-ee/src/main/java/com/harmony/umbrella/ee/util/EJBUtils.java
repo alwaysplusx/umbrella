@@ -2,7 +2,10 @@ package com.harmony.umbrella.ee.util;
 
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.ejb.Local;
 import javax.ejb.Remote;
@@ -81,5 +84,13 @@ public class EJBUtils {
             }
         }
         return value;
+    }
+
+    public static Set<String> asSet(String text, String delimiter) {
+        Set<String> result = new HashSet<String>();
+        if (text != null) {
+            Collections.addAll(result, StringUtils.tokenizeToStringArray(text, delimiter));
+        }
+        return result;
     }
 }

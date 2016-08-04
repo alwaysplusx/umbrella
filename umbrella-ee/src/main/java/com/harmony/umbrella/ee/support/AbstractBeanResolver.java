@@ -3,7 +3,10 @@ package com.harmony.umbrella.ee.support;
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -16,6 +19,7 @@ import com.harmony.umbrella.beans.BeansException;
 import com.harmony.umbrella.ee.BeanDefinition;
 import com.harmony.umbrella.ee.BeanResolver;
 import com.harmony.umbrella.ee.SessionBean;
+import com.harmony.umbrella.ee.formatter.JndiFormatter;
 import com.harmony.umbrella.log.Log;
 import com.harmony.umbrella.log.Logs;
 import com.harmony.umbrella.util.AnnotationUtils;
@@ -30,10 +34,17 @@ public abstract class AbstractBeanResolver implements BeanResolver {
 
     protected Properties contextProperties = new Properties();
 
-    private boolean forced;
+    protected boolean forced;
 
-    protected abstract String[] guessNames(BeanDefinition bd, Map<String, Object> properties, Context context);
+    protected boolean testForced;
 
+    protected JndiFormatter jndiFormatter;
+
+    protected abstract boolean guessNames(BeanDefinition bd, Map<String, Object> properties, final JndiHolder holder);
+
+    /*
+     * 配置优先的原则
+     */
     private String[] doGuess(BeanDefinition bd, Map<String, Object> properties, Context context) {
         if (properties == null) {
             properties = new HashMap<String, Object>();
@@ -45,10 +56,22 @@ public abstract class AbstractBeanResolver implements BeanResolver {
                 log.error("failed initialize java naming context", e);
             }
         }
-        return guessNames(bd, properties, context);
+        JndiHolder holder = new JndiHolder(context, forced, testForced);
+        if (findInProperties(bd, properties, holder)) {
+            return holder.getJndis();
+        }
+        if (guessNames(bd, properties, holder) || holder.test()) {
+            return holder.getJndis();
+        }
+        log.warn("can't find any jndi for {}", bd);
+        return new String[0];
     }
 
+    @SuppressWarnings("rawtypes")
     protected boolean findInProperties(BeanDefinition bd, Map<String, Object> properties, JndiHolder holder) {
+        if (properties.isEmpty()) {
+            return false;
+        }
         // 配置属性直接存在jndi名称无需猜测直接返回jndi
         for (String attr : getJndiAttributes()) {
             Object jndi = properties.get(attr);
@@ -58,14 +81,48 @@ public abstract class AbstractBeanResolver implements BeanResolver {
                 }
             }
         }
-        return !holder.isEmpty();
+        // 找到了配置属性中的jndi全名
+        if (!holder.isJndiEmpty()) {
+            return true;
+        }
+        // 配置属性中的beanName
+        Collection<String> beanNames = new HashSet<String>();
+        for (String attr : getBeanNameAttributes()) {
+            Object beanName = properties.get(attr);
+            if (beanName != null && beanName instanceof String && StringUtils.isNotBlank((String) beanName)) {
+                beanNames.add((String) beanName);
+            }
+        }
+
+        // 配置属性中存在就不再允许添加新的beanName了
+        if (!beanNames.isEmpty()) {
+            holder.addBeanName(beanNames);
+            holder.acceptBeanName = false;
+        }
+
+        // 配置属性中的beanInterface
+        Collection<Class> beanInterfaces = new HashSet<Class>();
+        for (String attr : getBeanInterfaceAttributes()) {
+            Object beanInterface = properties.get(attr);
+            if (beanInterface != null && beanInterface instanceof Class && ((Class) beanInterface).isInterface()) {
+                beanInterfaces.add((Class) beanInterface);
+            }
+        }
+
+        // 配置属性中存在就不在允许添加新的beanInterface了
+        if (!beanInterfaces.isEmpty()) {
+            holder.addBeanInterface(beanInterfaces);
+            holder.acceptBeanInterface = false;
+        }
+
+        return holder.test();
     }
 
-    protected abstract List<String> getJndiAttributes();
+    protected abstract Collection<String> getJndiAttributes();
 
-    protected abstract List<String> getBeanNameAttributes();
+    protected abstract Collection<String> getBeanNameAttributes();
 
-    protected abstract List<String> getBeanInterfaceAttributes();
+    protected abstract Collection<String> getBeanInterfaceAttributes();
 
     @Override
     public Context getContext() throws NamingException {
@@ -117,10 +174,11 @@ public abstract class AbstractBeanResolver implements BeanResolver {
 
     protected boolean isDeclareBean(final BeanDefinition bd, final Object bean) {
         if (log.isDebugEnabled()) {
-            log.debug("Test it is declare bean? "//
-                    + "\n\tdeclare remoteClass -> {}" //
-                    + "\n\tdeclare beanClass   -> {}" //
-                    + "\n\tactual  bean        -> {}", //
+            log.debug(
+                    "Test it is declare bean? "//
+                            + "\n\tdeclare remoteClass -> {}" //
+                            + "\n\tdeclare beanClass   -> {}" //
+                            + "\n\tactual  bean        -> {}", //
                     Arrays.asList(bd.getRemoteClasses()), bd.getBeanClass(), bean);
         }
         if (bean == null) {
@@ -165,6 +223,14 @@ public abstract class AbstractBeanResolver implements BeanResolver {
         this.contextProperties = contextProperties;
     }
 
+    public JndiFormatter getJndiFormatter() {
+        return jndiFormatter;
+    }
+
+    public void setJndiFormatter(JndiFormatter jndiFormatter) {
+        this.jndiFormatter = jndiFormatter;
+    }
+
     public boolean isForced() {
         return forced;
     }
@@ -173,27 +239,99 @@ public abstract class AbstractBeanResolver implements BeanResolver {
         this.forced = forced;
     }
 
+    public boolean isTestForced() {
+        return testForced;
+    }
+
+    public void setTestForced(boolean testForced) {
+        this.testForced = testForced;
+    }
+
+    @SuppressWarnings("rawtypes")
     protected class JndiHolder {
 
         private boolean forced;
+
+        private boolean testForced;
+
         private Context context;
+
+        private boolean acceptBeanName = true;
+
+        private boolean acceptBeanInterface = true;
+
+        private Collection<String> beanNames = new HashSet<String>();
+
+        private Collection<Class> beanInterfaces = new HashSet<Class>();
 
         private List<String> jndis = new ArrayList<String>();
 
-        public JndiHolder(Context context, boolean forced) {
+        private JndiHolder(Context context, boolean forced, boolean testForced) {
             this.context = context;
             this.forced = forced;
+            this.testForced = testForced;
+        }
+
+        public boolean test() {
+            if (context == null && testForced) {
+                return false;
+            }
+            Collection<String> jndiNames = getJndiFormatter().format(beanNames, beanInterfaces);
+            for (String jndi : jndiNames) {
+                addIfAbsent(jndi, testForced);
+            }
+            return !jndis.isEmpty();
         }
 
         public boolean addIfAbsent(String jndi) {
+            return addIfAbsent(jndi, forced);
+        }
+
+        public boolean addIfAbsent(String jndi, boolean forced) {
             if (!jndis.contains(jndi) && (!forced || exists(jndi))) {
                 return jndis.add(jndi);
             }
             return false;
         }
 
-        public boolean exists(String jndi) {
-            return tryLookup(jndi, context) != null;
+        public boolean addBeanName(Collection<String> beanName) {
+            return addBeanName(beanName.toArray(new String[beanName.size()]));
+        }
+
+        public boolean addBeanInterface(Collection<Class> beanInterface) {
+            return addBeanInterface(beanInterface.toArray(new Class[beanInterface.size()]));
+        }
+
+        public boolean addBeanName(String... beanName) {
+            if (acceptBeanName) {
+                Collections.addAll(beanNames, beanName);
+                return true;
+            }
+            return false;
+        }
+
+        public boolean addBeanInterface(Class<?>... beanInterface) {
+            if (acceptBeanInterface) {
+                Collections.addAll(beanInterfaces, beanInterface);
+                return true;
+            }
+            return false;
+        }
+
+        public boolean isBeanNameEmpty() {
+            return beanNames.isEmpty();
+        }
+
+        public boolean isBeanInterfaceEmpty() {
+            return beanInterfaces.isEmpty();
+        }
+
+        public boolean isJndiEmpty() {
+            return jndis.isEmpty();
+        }
+
+        private boolean exists(String jndi) {
+            return context != null && tryLookup(jndi, context) != null;
         }
 
         public String[] getJndis() {
@@ -202,8 +340,16 @@ public abstract class AbstractBeanResolver implements BeanResolver {
             return result;
         }
 
-        public boolean isEmpty() {
-            return jndis.isEmpty();
+        public Context getContext() {
+            return context;
+        }
+
+        public boolean isAcceptBeanName() {
+            return acceptBeanName;
+        }
+
+        public boolean isAcceptBeanInterface() {
+            return acceptBeanInterface;
         }
 
     }

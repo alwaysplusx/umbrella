@@ -3,8 +3,10 @@ package com.harmony.umbrella.ee.formatter;
 import static com.harmony.umbrella.ee.JndiConstanst.*;
 
 import java.util.Collection;
+import java.util.Set;
 
 import com.harmony.umbrella.config.ParamManager;
+import com.harmony.umbrella.ee.util.EJBUtils;
 
 /**
  * @author wuxii@foxmail.com
@@ -32,12 +34,12 @@ public class ConfigurableJndiFormatter extends AbstractJndiFormatter {
 
     @Override
     protected Collection<String> getPatterns() {
-        return paramManager.asSet(JNDI_PATTERN, propertyDelimiter);
+        return asSet(paramManager.getString(JNDI_PATTERN));
     }
 
     @Override
     protected Collection<String> getSeparators() {
-        return paramManager.asSet(JNDI_SEPARATOR, propertyDelimiter);
+        return asSet(paramManager.getString(JNDI_SEPARATOR));
     }
 
     @Override
@@ -69,4 +71,7 @@ public class ConfigurableJndiFormatter extends AbstractJndiFormatter {
         this.formatterFactory = formatterFactory;
     }
 
+    private Set<String> asSet(String text) {
+        return EJBUtils.asSet(text, propertyDelimiter);
+    }
 }

@@ -56,26 +56,10 @@
   </bean>
 
   <bean name="beanResolver " class="com.harmony.umbrella.ee.support.ConfigurableBeanResolver">
+    <property name="paramManager" ref="paramManager" />
     <property name="jndiFormatter" ref="jndiFormatter" />
     <property name="beanInterfaceResolver" ref="beanInterfaceResolver" />
     <property name="beanNameResolver" ref="beanNameResolver" />
-    <property name="jndiAttributes">
-      <list>
-        <value>lookup</value>
-        <value>jndiname</value>
-      </list>
-    </property>
-    <property name="beanInterfaceAttributes">
-      <list>
-        <value>beanInterface</value>
-      </list>
-    </property>
-    <property name="beanNameAttributes">
-      <list>
-        <value>name</value>
-        <value>mappedName</value>
-      </list>
-    </property>
   </bean>
 
 </beans>

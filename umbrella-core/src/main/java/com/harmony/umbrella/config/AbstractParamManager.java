@@ -1,9 +1,5 @@
 package com.harmony.umbrella.config;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
-
 /**
  * 
  * 配置管理的抽象实现
@@ -155,17 +151,6 @@ public abstract class AbstractParamManager implements ParamManager {
     @Override
     public String getString(String key) {
         return getString(key, null);
-    }
-
-    @Override
-    public Set<String> asSet(String key, String delimiter) {
-        Set<String> result = null;
-        String text = getString(key);
-        if (text != null) {
-            result = new HashSet<String>();
-            Collections.addAll(result, text.split(delimiter));
-        }
-        return result;
     }
 
     /**
