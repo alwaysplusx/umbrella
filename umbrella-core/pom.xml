@@ -9,6 +9,11 @@
   </parent>
   <name>Harmony Umbrella :: Module of Core</name>
   <artifactId>umbrella-core</artifactId>
+  <properties>
+    <maven.compile.source>1.6</maven.compile.source>
+    <maven.compile.target>1.5</maven.compile.target>
+    <maven.compile.compilerVersion>1.8</maven.compile.compilerVersion>
+  </properties>
   <dependencies>
     <dependency>
       <groupId>javax</groupId>

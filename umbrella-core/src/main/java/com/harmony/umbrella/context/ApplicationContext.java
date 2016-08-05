@@ -237,7 +237,7 @@ public abstract class ApplicationContext implements BeanFactory {
         public ApplicationInitializer() {
         }
 
-        private final void init(ApplicationConfiguration applicationConfiguration) {
+        final void init(ApplicationConfiguration applicationConfiguration) {
 
             new InternalApplicationInitializer(applicationConfiguration).init();
 
