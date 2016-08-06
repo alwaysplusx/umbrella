@@ -199,16 +199,6 @@ public class UrlResource extends AbstractFileResolvingResource {
 		}
 	}
 
-	@Override
-	public boolean isFile() {
-		if (this.uri != null) {
-			return super.isFile(this.uri);
-		}
-		else {
-			return super.isFile();
-		}
-	}
-
 	/**
 	 * This implementation returns a File reference for the underlying URL/URI,
 	 * provided that it refers to a file in the file system.

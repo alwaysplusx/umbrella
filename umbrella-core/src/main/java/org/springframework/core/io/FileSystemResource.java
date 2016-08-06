@@ -153,14 +153,6 @@ public class FileSystemResource extends AbstractResource implements WritableReso
 	}
 
 	/**
-	 * This implementation always indicates a file.
-	 */
-	@Override
-	public boolean isFile() {
-		return true;
-	}
-
-	/**
 	 * This implementation returns the underlying File reference.
 	 */
 	@Override

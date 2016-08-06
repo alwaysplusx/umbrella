@@ -172,14 +172,6 @@ public class PathResource extends AbstractResource implements WritableResource {
 	}
 
 	/**
-	 * This implementation always indicates a file.
-	 */
-	@Override
-	public boolean isFile() {
-		return true;
-	}
-
-	/**
 	 * This implementation returns the underlying File reference.
 	 */
 	@Override

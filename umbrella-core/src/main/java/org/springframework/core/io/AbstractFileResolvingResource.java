@@ -38,20 +38,6 @@ import com.harmony.umbrella.util.ResourceUtils;
  */
 public abstract class AbstractFileResolvingResource extends AbstractResource {
 
-	@Override
-	public boolean isFile() {
-		try {
-			URL url = getURL();
-			if (url.getProtocol().startsWith(ResourceUtils.URL_PROTOCOL_VFS)) {
-				return VfsResourceDelegate.getResource(url).isFile();
-			}
-			return ResourceUtils.URL_PROTOCOL_FILE.equals(url.getProtocol());
-		}
-		catch (IOException ex) {
-			return false;
-		}
-	}
-
 	/**
 	 * This implementation returns a File reference for the underlying class path
 	 * resource, provided that it refers to a file in the file system.
@@ -82,24 +68,6 @@ public abstract class AbstractFileResolvingResource extends AbstractResource {
 		}
 		else {
 			return getFile();
-		}
-	}
-
-	/**
-	 * This implementation returns a File reference for the given URI-identified
-	 * resource, provided that it refers to a file in the file system.
-	 * @since 5.0
-	 * @see #getFile(URI)
-	 */
-	protected boolean isFile(URI uri) {
-		try {
-			if (uri.getScheme().startsWith(ResourceUtils.URL_PROTOCOL_VFS)) {
-				return VfsResourceDelegate.getResource(uri).isFile();
-			}
-			return ResourceUtils.URL_PROTOCOL_FILE.equals(uri.getScheme());
-		}
-		catch (IOException ex) {
-			return false;
 		}
 	}
 
