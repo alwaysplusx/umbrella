@@ -1,5 +1,4 @@
 /**
- * 资源读取与查找
- * @author wuxii@foxmail.com
+ * Generic abstraction for (file-based) resources, used throughout the framework.
  */
-package com.harmony.umbrella.io;
+package org.springframework.core.io;

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.core.io;
+package com.harmony.umbrella.io;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -96,7 +96,7 @@ public class PathResource extends AbstractResource implements WritableResource {
 
 	/**
 	 * This implementation returns whether the underlying file exists.
-	 * @see org.springframework.core.io.PathResource#exists()
+	 * @see com.harmony.umbrella.io.PathResource#exists()
 	 */
 	@Override
 	public boolean exists() {

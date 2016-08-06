@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.core.io;
+package com.harmony.umbrella.io;
 
 import com.harmony.umbrella.util.Assert;
 import com.harmony.umbrella.util.StringUtils;

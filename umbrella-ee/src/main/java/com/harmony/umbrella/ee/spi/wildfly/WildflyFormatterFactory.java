@@ -16,7 +16,7 @@ import org.w3c.dom.Document;
 import com.harmony.umbrella.ee.formatter.AbstractJndiFormatter.Formatter;
 import com.harmony.umbrella.ee.formatter.DefaultFormatterFactory;
 import com.harmony.umbrella.io.Resource;
-import com.harmony.umbrella.io.resource.UrlResource;
+import com.harmony.umbrella.io.UrlResource;
 import com.harmony.umbrella.util.AntPathMatcher;
 import com.harmony.umbrella.util.ClassUtils;
 import com.harmony.umbrella.util.PathMatcher;

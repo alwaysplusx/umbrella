@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-package org.springframework.core.io;
+package com.harmony.umbrella.io;
+
 
 /**
  * A resolution strategy for protocol-specific resource handles.

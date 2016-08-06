@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-package org.springframework.core.io.support;
+package com.harmony.umbrella.io.support;
 
-import org.springframework.core.io.ResourceLoader;
-
+import com.harmony.umbrella.io.ResourceLoader;
 import com.harmony.umbrella.util.ResourceUtils;
 
 /**

@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-package org.springframework.core.io;
+package com.harmony.umbrella.io;
+
 
 /**
  * Extended interface for a resource that is loaded from an enclosing

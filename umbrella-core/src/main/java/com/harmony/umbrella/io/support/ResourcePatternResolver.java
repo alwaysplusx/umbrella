@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-package org.springframework.core.io.support;
+package com.harmony.umbrella.io.support;
 
 import java.io.IOException;
 
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.ResourceLoader;
+import com.harmony.umbrella.io.Resource;
+import com.harmony.umbrella.io.ResourceLoader;
 
 /**
  * Strategy interface for resolving a location pattern (for example,
  * an Ant-style path pattern) into Resource objects.
  *
- * <p>This is an extension to the {@link org.springframework.core.io.ResourceLoader}
+ * <p>This is an extension to the {@link com.harmony.umbrella.io.ResourceLoader}
  * interface. A passed-in ResourceLoader (for example, an
  * {@link org.springframework.context.ApplicationContext} passed in via
  * {@link org.springframework.context.ResourceLoaderAware} when running in a context)
@@ -46,8 +46,8 @@ import org.springframework.core.io.ResourceLoader;
  *
  * @author Juergen Hoeller
  * @since 1.0.2
- * @see org.springframework.core.io.Resource
- * @see org.springframework.core.io.ResourceLoader
+ * @see com.harmony.umbrella.io.Resource
+ * @see com.harmony.umbrella.io.ResourceLoader
  * @see org.springframework.context.ApplicationContext
  * @see org.springframework.context.ResourceLoaderAware
  */
@@ -58,7 +58,7 @@ public interface ResourcePatternResolver extends ResourceLoader {
 	 * This differs from ResourceLoader's classpath URL prefix in that it
 	 * retrieves all matching resources for a given name (e.g. "/beans.xml"),
 	 * for example in the root of all deployed JAR files.
-	 * @see org.springframework.core.io.ResourceLoader#CLASSPATH_URL_PREFIX
+	 * @see com.harmony.umbrella.io.ResourceLoader#CLASSPATH_URL_PREFIX
 	 */
 	String CLASSPATH_ALL_URL_PREFIX = "classpath*:";
 

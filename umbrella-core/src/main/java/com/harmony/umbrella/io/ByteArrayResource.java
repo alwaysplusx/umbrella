@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.core.io;
+package com.harmony.umbrella.io;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;

@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package org.springframework.core.io.support;
+package com.harmony.umbrella.io.support;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
 import java.net.URL;
 
-import org.springframework.core.io.VfsUtils;
+import com.harmony.umbrella.io.VfsUtils;
 
 /**
  * Artificial class used for accessing the {@link VfsUtils} methods

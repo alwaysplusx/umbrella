@@ -5,6 +5,7 @@ import java.net.URL;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
+import org.springframework.core.ResolvableType;
 
 import com.harmony.umbrella.context.ApplicationContext;
 
@@ -81,6 +82,11 @@ public class SpringApplicationContext extends ApplicationContext implements Bean
     @Override
     public com.harmony.umbrella.beans.BeanFactory getBeanFactory() {
         return null;
+    }
+
+    @Override
+    public boolean isTypeMatch(String name, ResolvableType typeToMatch) throws NoSuchBeanDefinitionException {
+        return false;
     }
 
 }

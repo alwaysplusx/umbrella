@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 
-package org.springframework.core.io.support;
+package com.harmony.umbrella.io.support;
 
 import java.util.Locale;
 
-import org.springframework.core.io.DefaultResourceLoader;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.ResourceLoader;
-
+import com.harmony.umbrella.io.DefaultResourceLoader;
+import com.harmony.umbrella.io.Resource;
+import com.harmony.umbrella.io.ResourceLoader;
 import com.harmony.umbrella.util.Assert;
 
 /**
@@ -44,7 +43,7 @@ public class LocalizedResourceHelper {
 
 	/**
 	 * Create a new LocalizedResourceHelper with a DefaultResourceLoader.
-	 * @see org.springframework.core.io.DefaultResourceLoader
+	 * @see com.harmony.umbrella.io.DefaultResourceLoader
 	 */
 	public LocalizedResourceHelper() {
 		this.resourceLoader = new DefaultResourceLoader();

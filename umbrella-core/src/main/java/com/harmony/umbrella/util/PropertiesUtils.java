@@ -13,7 +13,7 @@ import java.util.Set;
 
 import com.harmony.umbrella.io.DefaultResourceLoader;
 import com.harmony.umbrella.io.Resource;
-import com.harmony.umbrella.io.resource.UrlResource;
+import com.harmony.umbrella.io.UrlResource;
 
 /**
  * 属性加载工具

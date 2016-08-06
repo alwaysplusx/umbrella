@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.core.io.support;
+package com.harmony.umbrella.io.support;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -22,9 +22,8 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.charset.Charset;
 
-import org.springframework.core.io.InputStreamSource;
-import org.springframework.core.io.Resource;
-
+import com.harmony.umbrella.io.InputStreamSource;
+import com.harmony.umbrella.io.Resource;
 import com.harmony.umbrella.util.Assert;
 import com.harmony.umbrella.util.ObjectUtils;
 
