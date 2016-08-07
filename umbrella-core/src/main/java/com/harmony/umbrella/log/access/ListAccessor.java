@@ -2,7 +2,7 @@ package com.harmony.umbrella.log.access;
 
 import java.util.List;
 
-import com.harmony.umbrella.util.DigitUtils;
+import com.harmony.umbrella.util.NumberUtils;
 
 /**
  * @author wuxii@foxmail.com
@@ -16,7 +16,7 @@ public class ListAccessor extends CheckedAccessor<List> {
 
     @Override
     public boolean support(String name) {
-        return DigitUtils.isDigit(name);
+        return NumberUtils.isNumber(name);
     }
 
     @Override

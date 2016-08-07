@@ -6,6 +6,8 @@ import java.util.List;
 
 import org.w3c.dom.Element;
 
+import com.harmony.umbrella.util.XmlUtils;
+
 /**
  * 迭代element生成的element context
  * 
@@ -62,7 +64,7 @@ public class ElementContext implements Iterable<Element> {
 
     List<Element> getChirdElementList() {
         if (childElements == null) {
-            this.childElements = Collections.unmodifiableList(XmlUtil.getChildElementList(element));
+            this.childElements = Collections.unmodifiableList(XmlUtils.getChildElementList(element));
         }
         return childElements;
     }

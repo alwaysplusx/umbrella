@@ -1,6 +1,8 @@
-package com.harmony.umbrella.util;
+package com.harmony.umbrella.math;
 
 import java.math.BigDecimal;
+
+import com.harmony.umbrella.util.NumberConfig;
 
 /**
  * @author wuxii@foxmail.com

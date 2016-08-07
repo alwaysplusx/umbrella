@@ -4,7 +4,7 @@ import java.lang.reflect.Array;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.harmony.umbrella.util.DigitUtils;
+import com.harmony.umbrella.util.NumberUtils;
 
 public class PrimitiveArrayAccessor extends CheckedAccessor<Object> {
 
@@ -37,11 +37,11 @@ public class PrimitiveArrayAccessor extends CheckedAccessor<Object> {
 
     @Override
     public boolean support(String name) {
-        return DigitUtils.isDigit(name);
+        return NumberUtils.isNumber(name);
     }
 
     public boolean support(String name, Object val) {
-        return DigitUtils.isDigit(name) && primitiveArray.containsKey(val.getClass());
+        return NumberUtils.isNumber(name) && primitiveArray.containsKey(val.getClass());
     }
 
 }

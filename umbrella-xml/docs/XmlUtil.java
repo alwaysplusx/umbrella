@@ -1,4 +1,4 @@
-package com.harmony.umbrella.util;
+package com.harmony.umbrella.xml;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -14,12 +14,12 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathException;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
@@ -36,7 +36,37 @@ import org.xml.sax.SAXException;
  * 
  * @author wuxii@foxmail.com
  */
-public class XmlUtils {
+public class XmlUtil {
+
+    public static void iterator(Element element, ElementAcceptor acceptor) {
+        iteraotr(new ElementIterator(element), acceptor);
+    }
+
+    private static void iteraotr(ElementIterator ei, ElementAcceptor acceptor) {
+        ElementContext ec = ei.getElementContext();
+        acceptor.accept(ec.getPath(), ec.getElement());
+        while (ei.hasNext()) {
+            iteraotr(ei.next(), acceptor);
+        }
+    }
+
+    /**
+     * 循环遍历node下一级的所有node, 通过下层的节点acceptor的返回值{@code false}可以中断遍历
+     * 
+     * @param node
+     *            待遍历的node
+     * @param acceptor
+     *            下个节点的受理
+     */
+    public static void forEach(Node node, NodeAcceptor acceptor) {
+        NodeList nodes = node.getChildNodes();
+        for (int i = 0, max = nodes.getLength(); i < max; i++) {
+            Node item = nodes.item(i);
+            if (!acceptor.accept(item.getNodeName(), item)) {
+                break;
+            }
+        }
+    }
 
     /**
      * 检查xpath下是否存在element
@@ -48,7 +78,7 @@ public class XmlUtils {
      * @return
      * @throws XPathExpressionException
      */
-    public static boolean hasElement(Node node, String xpath) {
+    public static boolean hasElement(Node node, String xpath) throws XPathExpressionException {
         return countElement(node, xpath) > 0;
     }
 
@@ -96,7 +126,7 @@ public class XmlUtils {
         return getChildElementList(node).iterator();
     }
 
-    public static List<Element> getChildElementList(Node node) {
+    static List<Element> getChildElementList(Node node) {
         NodeList nodes = node.getChildNodes();
         List<Element> elements = new ArrayList<Element>();
         for (int i = 0, max = nodes.getLength(); i < max; i++) {
@@ -161,7 +191,7 @@ public class XmlUtils {
      * @return
      * @throws XPathExpressionException
      */
-    public static Element getElement(Node item, String xpath) throws XPathException {
+    public static Element getElement(Node item, String xpath) throws XPathExpressionException {
         Object obj = getXPath().evaluate(xpath, item, XPathConstants.NODE);
         return isElement(obj) ? (Element) obj : null;
     }
@@ -174,9 +204,9 @@ public class XmlUtils {
      * @param xpath
      *            xpath expression
      * @return
-     * @throws XPathException
+     * @throws XPathExpressionException
      */
-    public static Element[] getElements(Node item, String xpath) throws XPathException {
+    public static Element[] getElements(Node item, String xpath) throws XPathExpressionException {
         Object obj = getXPath().evaluate(xpath, item, XPathConstants.NODESET);
         List<Element> elements = new ArrayList<Element>();
         if (obj instanceof NodeList) {
@@ -203,7 +233,7 @@ public class XmlUtils {
      * @return
      * @throws XPathExpressionException
      */
-    public static String getAttribute(Node item, String xpath) throws XPathException {
+    public static String getAttribute(Node item, String xpath) throws XPathExpressionException {
         Object obj = getXPath().evaluate(xpath, item, XPathConstants.STRING);
         return obj instanceof String ? (String) obj : null;
     }
@@ -216,10 +246,14 @@ public class XmlUtils {
      * @param ignore
      *            是否忽略xml的校验
      * @return
-     * @throws Exception
+     * @throws XmlException
      */
-    public static Document getDocument(String pathname, boolean ignore) throws Exception {
-        return newDocumentBuilder(ignore).parse(pathname);
+    public static Document getDocument(String pathname, boolean ignore) throws XmlException {
+        try {
+            return newDocumentBuilder(ignore).parse(pathname);
+        } catch (Exception e) {
+            throw new XmlException(e);
+        }
     }
 
     /**
@@ -230,9 +264,9 @@ public class XmlUtils {
      * @param ignore
      *            是否忽略dtd的校验
      * @return
-     * @throws Exception
+     * @throws XmlException
      */
-    public static Document getDocument(byte[] buff, boolean ignore) throws Exception {
+    public static Document getDocument(byte[] buff, boolean ignore) throws XmlException {
         return getDocument(new ByteArrayInputStream(buff), ignore);
     }
 
@@ -244,9 +278,14 @@ public class XmlUtils {
      * @param ignore
      *            属否忽略dtd文件头
      * @return
+     * @throws XmlException
      */
-    public static Document getDocument(InputStream is, boolean ignore) throws Exception {
-        return newDocumentBuilder(ignore).parse(is);
+    public static Document getDocument(InputStream is, boolean ignore) throws XmlException {
+        try {
+            return newDocumentBuilder(ignore).parse(is);
+        } catch (Exception e) {
+            throw new XmlException(e);
+        }
     }
 
     /**
@@ -255,14 +294,18 @@ public class XmlUtils {
      * @param ignore
      *            忽略xml校验
      * @return
-     * @throws Exception
+     * @throws XmlException
      */
-    public static DocumentBuilder newDocumentBuilder(boolean ignore) throws Exception {
-        DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-        if (ignore) {
-            documentBuilder.setEntityResolver(new IgnoreDTDEntityResolver());
+    public static DocumentBuilder newDocumentBuilder(boolean ignore) throws XmlException {
+        try {
+            DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+            if (ignore) {
+                documentBuilder.setEntityResolver(new IgnoreDTDEntityResolver());
+            }
+            return documentBuilder;
+        } catch (ParserConfigurationException e) {
+            throw new XmlException(e);
         }
-        return documentBuilder;
     }
 
     /**
@@ -278,20 +321,26 @@ public class XmlUtils {
      * 创建saxParse工具
      * 
      * @return
-     * @throws SAXException
-     * @throws ParserConfigurationException
      * @throws XmlException
      */
-    public static SAXParser getSAXParser() throws Exception {
-        return SAXParserFactory.newInstance().newSAXParser();
+    public static SAXParser getSAXParser() throws XmlException {
+        try {
+            return SAXParserFactory.newInstance().newSAXParser();
+        } catch (Exception e) {
+            throw new XmlException(e);
+        }
     }
 
-    public static String toXML(Node node) throws Exception {
-        TransformerFactory transformerFactory = TransformerFactory.newInstance();
-        Transformer transformer = transformerFactory.newTransformer();
-        StringWriter writer = new StringWriter();
-        transformer.transform(new DOMSource(node), new StreamResult(writer));
-        return writer.toString();
+    public static String toXML(Node node) throws XmlException {
+        try {
+            TransformerFactory transformerFactory = TransformerFactory.newInstance();
+            Transformer transformer = transformerFactory.newTransformer();
+            StringWriter writer = new StringWriter();
+            transformer.transform(new DOMSource(node), new StreamResult(writer));
+            return writer.toString();
+        } catch (TransformerException e) {
+            throw new XmlException(e);
+        }
     }
 
     private static final class IgnoreDTDEntityResolver implements EntityResolver {

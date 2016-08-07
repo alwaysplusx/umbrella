@@ -1,6 +1,6 @@
 package com.harmony.umbrella.log.access;
 
-import com.harmony.umbrella.util.DigitUtils;
+import com.harmony.umbrella.util.NumberUtils;
 
 /**
  * @author wuxii@foxmail.com
@@ -13,7 +13,7 @@ public class ArrayAccessor extends CheckedAccessor<Object[]> {
 
     @Override
     public boolean support(String name) {
-        return DigitUtils.isDigit(name);
+        return NumberUtils.isNumber(name);
     }
 
     @Override

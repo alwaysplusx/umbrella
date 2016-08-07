@@ -13,7 +13,7 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
-import com.harmony.umbrella.util.DigitUtils;
+import com.harmony.umbrella.util.NumberUtils;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class ExcelHandler extends DefaultHandler {
@@ -66,7 +66,7 @@ public class ExcelHandler extends DefaultHandler {
             String currentQName = cellStack.peek();
             String content = new String(ch, start, length);
             if ("v".equals(currentQName)) {
-                if (cell.isRefCell() && DigitUtils.isDigit(content)) {
+                if (cell.isRefCell() && NumberUtils.isNumber(content)) {
                     cell.value = getSharedText(Integer.parseInt(content));
                 } else {
                     cell.value = content;

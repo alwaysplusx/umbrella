@@ -1,4 +1,4 @@
-package com.harmony.umbrella.util;
+package com.harmony.umbrella.math;
 
 import java.math.BigDecimal;
 

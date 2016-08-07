@@ -9,21 +9,35 @@
   </parent>
   <name>Harmony Umbrella :: Module of Core</name>
   <artifactId>umbrella-core</artifactId>
-  <properties>
-    <maven.compile.source>1.6</maven.compile.source>
-    <maven.compile.target>1.5</maven.compile.target>
-    <maven.compile.compilerVersion>1.8</maven.compile.compilerVersion>
-  </properties>
   <dependencies>
     <dependency>
       <groupId>javax</groupId>
       <artifactId>javaee-api</artifactId>
       <scope>provided</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>com.sun.mail</groupId>
+          <artifactId>javax.mail</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>org.hamcrest</groupId>
+          <artifactId>hamcrest-core</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
+    <!-- 
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+      <version>19.0</version>
+    </dependency> 
+    -->
   </dependencies>
 </project>

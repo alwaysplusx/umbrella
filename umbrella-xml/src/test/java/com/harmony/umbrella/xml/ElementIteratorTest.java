@@ -4,6 +4,8 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.w3c.dom.Document;
 
+import com.harmony.umbrella.util.XmlUtils;
+
 /**
  * @author wuxii@foxmail.com
  */
@@ -13,7 +15,7 @@ public class ElementIteratorTest {
 
     @BeforeClass
     public static void beforeClass() throws Exception {
-        doc = XmlUtil.getDocument("src/test/resources/objects.xml", true);
+        doc = XmlUtils.getDocument("src/test/resources/objects.xml", true);
     }
 
     @Test

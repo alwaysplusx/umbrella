@@ -1,10 +1,14 @@
-package com.harmony.umbrella.util;
+package com.harmony.umbrella.math;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+
+import com.harmony.umbrella.util.Assert;
+import com.harmony.umbrella.util.Formats;
+import com.harmony.umbrella.util.NumberConfig;
 
 /**
  * @author wuxii@foxmail.com

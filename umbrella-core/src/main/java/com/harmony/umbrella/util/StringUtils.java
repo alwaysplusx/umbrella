@@ -258,7 +258,50 @@ public class StringUtils {
         }
         return sb.toString();
     }
-
+    
+    /**
+     * Trim leading and trailing whitespace from the given {@code String}.
+     * @param str the {@code String} to check
+     * @return the trimmed {@code String}
+     * @see java.lang.Character#isWhitespace
+     */
+    public static String trimWhitespace(String str) {
+        if (!hasLength(str)) {
+            return str;
+        }
+        StringBuilder sb = new StringBuilder(str);
+        while (sb.length() > 0 && Character.isWhitespace(sb.charAt(0))) {
+            sb.deleteCharAt(0);
+        }
+        while (sb.length() > 0 && Character.isWhitespace(sb.charAt(sb.length() - 1))) {
+            sb.deleteCharAt(sb.length() - 1);
+        }
+        return sb.toString();
+    }
+    
+    /**
+     * Trim <i>all</i> whitespace from the given {@code String}:
+     * leading, trailing, and in between characters.
+     * @param str the {@code String} to check
+     * @return the trimmed {@code String}
+     * @see java.lang.Character#isWhitespace
+     */
+    public static String trimAllWhitespace(String str) {
+        if (!hasLength(str)) {
+            return str;
+        }
+        int len = str.length();
+        StringBuilder sb = new StringBuilder(str.length());
+        for (int i = 0; i < len; i++) {
+            char c = str.charAt(i);
+            if (!Character.isWhitespace(c)) {
+                sb.append(c);
+            }
+        }
+        return sb.toString();
+    }
+    
+    
     /**
      * Replace all occurrences of a substring within a string with another
      * string.
@@ -363,11 +406,7 @@ public class StringUtils {
         int separatorIndex = path.lastIndexOf(FOLDER_SEPARATOR);
         return (separatorIndex != -1 ? path.substring(separatorIndex + 1) : path);
     }
-
-    public static String[] split(String str, String delimiters, boolean trim) {
-        return tokenizeToStringArray(str, delimiters, trim, true);
-    }
-
+    
     /**
      * Tokenize the given String into a String array via a StringTokenizer.
      * Trims tokens and omits empty tokens.

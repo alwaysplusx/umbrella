@@ -7,6 +7,7 @@ import javax.xml.bind.annotation.XmlList;
 import org.junit.Test;
 import org.w3c.dom.Document;
 
+import com.harmony.umbrella.util.XmlUtils;
 import com.harmony.umbrella.xml.convert.BigDecimalConverter;
 
 /**
@@ -15,7 +16,7 @@ import com.harmony.umbrella.xml.convert.BigDecimalConverter;
 public class XmlBeanMapperTest {
 
     public static void main(String[] args) throws Exception {
-        Document doc = XmlUtil.getDocument("src/test/resources/bean.xml", true);
+        Document doc = XmlUtils.getDocument("src/test/resources/bean.xml", true);
         Bean bean = new XmlBeanMapper().mapping(doc.getDocumentElement(), Bean.class);
         System.out.println(bean);
     }

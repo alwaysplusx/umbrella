@@ -1,6 +1,8 @@
-package com.harmony.umbrella.util;
+package com.harmony.umbrella.math;
 
 import java.math.BigDecimal;
+
+import com.harmony.umbrella.util.Converter;
 
 /**
  * 数字计算的时候的帮助工具

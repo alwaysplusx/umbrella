@@ -116,7 +116,7 @@ public class JdbcAppender extends AbstractAppender implements UnrecognizedElemen
         if ("all".equalsIgnoreCase(include)) {
             this.includeSet.addAll(Column.getSources());
         } else {
-            Collections.addAll(this.includeSet, StringUtils.split(include, ",", true));
+            Collections.addAll(this.includeSet, StringUtils.tokenizeToStringArray(include, ","));
         }
     }
 
