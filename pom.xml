@@ -48,23 +48,9 @@
   </modules>
 
   <properties>
-    <!-- basic property -->
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <maven.compiler.source>1.6</maven.compiler.source>
-    <maven.compiler.target>1.6</maven.compiler.target>
     <!-- javax api -->
     <javax.ee.version>7.0</javax.ee.version>
-    <javax.ejb.version>3.2</javax.ejb.version>
-    <javax.persistence.version>2.1.0</javax.persistence.version>
-    <javax.jms.version>2.0.1</javax.jms.version>
-    <javax.servlet.version>3.1.0</javax.servlet.version>
-    <javax.interceptor.version>1.2</javax.interceptor.version>
-    <javax.el.version>2.2.5</javax.el.version>
-    <javax.validation.version>1.1.0.Final</javax.validation.version>
-    <javax.ws.rs.version>2.0</javax.ws.rs.version>
-    <javax.annotation.version>1.2</javax.annotation.version>
-    <javax.mail.version>1.5.4</javax.mail.version>
+    <junit.version>4.12</junit.version>
     <!-- apache -->
     <apache.cxf.version>3.0.2</apache.cxf.version>
     <apache.openejb.version>4.7.1</apache.openejb.version>
@@ -85,7 +71,7 @@
     <hibernate.validator.version>5.1.3.Final</hibernate.validator.version>
     <activiti.version>5.19.0</activiti.version>
     <!-- others -->
-    <sun.mail.version>1.5.0</sun.mail.version>
+    <guava.version>19.0</guava.version>
     <woodstox.version>4.4.1</woodstox.version>
     <h2.version>1.4.187</h2.version>
     <mysql.version>5.1.35</mysql.version>
@@ -93,17 +79,16 @@
     <log4j.version>1.2.17</log4j.version>
     <slf4j.version>1.7.7</slf4j.version>
     <aspect.version>1.8.1</aspect.version>
-    <eclipselink.version>2.6.1-RC1</eclipselink.version>
+    <eclipselink.version>2.6.3</eclipselink.version>
     <glassfish.el.version>3.0.0</glassfish.el.version>
     <glassfish.el.web.version>2.2.6</glassfish.el.web.version>
     <ehcache.version>2.8.6</ehcache.version>
     <asm.version>5.0.3</asm.version>
     <joda.time.version>2.7</joda.time.version>
     <fastjson.version>1.2.5</fastjson.version>
-    <dozer.version>5.5.2</dozer.version>
+    <dozer.version>5.5.1</dozer.version>
     <netty.version>5.0.0.Alpha2</netty.version>
     <jackson.version>2.6.2</jackson.version>
-    <junit.version>4.11</junit.version>
     <jetty.version>8.1.15.v20140411</jetty.version>
   </properties>
 
@@ -402,76 +387,11 @@
         <artifactId>javaee-api</artifactId>
         <version>${javax.ee.version}</version>
       </dependency>
-      <dependency>
-        <groupId>javax.ejb</groupId>
-        <artifactId>javax.ejb-api</artifactId>
-        <version>${javax.ejb.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.eclipse.persistence</groupId>
-        <artifactId>javax.persistence</artifactId>
-        <version>${javax.persistence.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>javax.jms</groupId>
-        <artifactId>javax.jms-api</artifactId>
-        <version>${javax.jms.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>javax.servlet</groupId>
-        <artifactId>javax.servlet-api</artifactId>
-        <version>${javax.servlet.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>javax.interceptor</groupId>
-        <artifactId>javax.interceptor-api</artifactId>
-        <version>${javax.interceptor.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>javax.validation</groupId>
-        <artifactId>validation-api</artifactId>
-        <version>${javax.validation.version}</version>
-      </dependency>
-      <dependency>
-        <artifactId>javax.ws.rs-api</artifactId>
-        <groupId>javax.ws.rs</groupId>
-        <version>${javax.ws.rs.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>javax.annotation</groupId>
-        <artifactId>javax.annotation-api</artifactId>
-        <version>${javax.annotation.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>javax.el</groupId>
-        <artifactId>javax.el-api</artifactId>
-        <version>${javax.el.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>javax.mail</groupId>
-        <artifactId>javax.mail-api</artifactId>
-        <version>${javax.mail.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.sun.mail</groupId>
-        <artifactId>mailapi</artifactId>
-        <version>${sun.mail.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.sun.mail</groupId>
-        <artifactId>javax.mail</artifactId>
-        <version>${sun.mail.version}</version>
-      </dependency>
       <!-- others -->
       <dependency>
-        <groupId>org.glassfish</groupId>
-        <artifactId>javax.el</artifactId>
-        <version>${glassfish.el.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.glassfish.web</groupId>
-        <artifactId>javax.el</artifactId>
-        <version>${glassfish.el.web.version}</version>
+        <groupId>com.google.guava</groupId>
+        <artifactId>guava</artifactId>
+        <version>${guava.version}</version>
       </dependency>
       <dependency>
         <groupId>org.slf4j</groupId>
