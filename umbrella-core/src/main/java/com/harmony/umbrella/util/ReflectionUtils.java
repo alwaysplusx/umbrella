@@ -35,250 +35,23 @@ public class ReflectionUtils {
     private static final Map<Class<?>, Method[]> declaredMethodsCache = new ConcurrentHashMap<Class<?>, Method[]>(256);
 
     /**
-     * <p>
-     * 查找Class中符合指定名称的字段(在所有字段以及其所有父类的字段中查询:
-     * {@linkplain Class#getDeclaredFields()})
-     * 
-     * @param clazz
-     *            the class to introspect
-     * @param name
-     *            the name of the field
-     * @return the corresponding Field object, or {@code null} if not found
-     */
-    public static Field findField(Class<?> clazz, String name) {
-        return findField(clazz, name, null);
-    }
-
-    /**
-     * 查找符合名称或者类型的字段, name type不能同时为空
-     * 
-     * @param clazz
-     *            the class to introspect
-     * @param name
-     *            the name of the field (may be {@code null} if type is
-     *            specified)
-     * @param type
-     *            the type of the field (may be {@code null} if name is
-     *            specified)
-     * @return the corresponding Field object, or {@code null} if not found
-     */
-    public static Field findField(Class<?> clazz, String name, Class<?> type) {
-        Assert.notNull(clazz, "Class must not be null");
-        Assert.isTrue(name != null || type != null, "Either name or type of the field must be specified");
-        Class<?> searchType = clazz;
-        while (!Object.class.equals(searchType) && searchType != null) {
-            Field[] fields = searchType.getDeclaredFields();
-            for (Field field : fields) {
-                if ((name == null || name.equals(field.getName())) && (type == null || type.equals(field.getType()))) {
-                    return field;
-                }
-            }
-            searchType = searchType.getSuperclass();
-        }
-        return null;
-    }
-
-    public static Field findField(Class<?> clazz, FieldFilter ff) {
-        Assert.notNull(clazz, "Class must not be null");
-        Assert.notNull(ff, "FieldFilter must not be null");
-        Class<?> searchType = clazz;
-        while (!Object.class.equals(searchType) && searchType != null) {
-            Field[] fields = searchType.getDeclaredFields();
-            for (Field field : fields) {
-                if (ff.matches(field)) {
-                    return field;
-                }
-            }
-            searchType = searchType.getSuperclass();
-        }
-        return null;
-    }
-
-    public static void setFieldValue(String fieldName, Object target, Object value) {
-        String setMethodName = readMethodName(fieldName);
-        try {
-            ReflectionUtils.invokeMethod(setMethodName, target, value);
-        } catch (Exception e) {
-            Field field = findField(target.getClass(), fieldName);
-            if (field == null) {
-                throw new IllegalArgumentException("field not find");
-            }
-            try {
-                if (!field.isAccessible()) {
-                    field.setAccessible(true);
-                }
-                field.set(target, value);
-            } catch (IllegalAccessException ex) {
-                ReflectionUtils.handleReflectionException(ex);
-                throw new IllegalStateException("Unexpected reflection exception - " + ex.getClass().getName() + ": "
-                        + ex.getMessage());
-            }
-        }
-
-    }
-
-    /**
-     * 设置字段值
-     * <p>
-     * Set the field represented by the supplied {@link Field field object} on
-     * the specified {@link Object target object} to the specified {@code value}
-     * . In accordance with {@link Field#set(Object, Object)} semantics, the new
-     * value is automatically unwrapped if the underlying field has a primitive
-     * type.
-     * <p>
-     * Thrown exceptions are handled via a call to
-     * {@link #handleReflectionException(Exception)}.
-     * 
-     * @param field
-     *            the field to set
-     * @param target
-     *            the target object on which to set the field
-     * @param value
-     *            the value to set; may be {@code null}
-     */
-    public static void setFieldValue(Field field, Object target, Object value) {
-        String setMethodName = readMethodName(field.getName());
-        try {
-            ReflectionUtils.invokeMethod(setMethodName, target, value);
-        } catch (Exception e) {
-            try {
-                if (!field.isAccessible()) {
-                    field.setAccessible(true);
-                }
-                field.set(target, value);
-            } catch (IllegalAccessException ex) {
-                ReflectionUtils.handleReflectionException(ex);
-                throw new IllegalStateException("Unexpected reflection exception - " + ex.getClass().getName() + ": "
-                        + ex.getMessage());
-            }
-        }
-    }
-
-    public static Object getFieldValue(String fieldName, Object target) {
-        String readMethodName = readMethodName(fieldName);
-        try {
-            return ReflectionUtils.invokeMethod(readMethodName, target);
-        } catch (NoSuchMethodException e) {
-            Field field = findField(target.getClass(), fieldName);
-            if (field == null) {
-                throw new IllegalArgumentException(target.getClass().getName() + "#" + fieldName + " not find");
-            }
-            try {
-                if (!field.isAccessible()) {
-                    field.setAccessible(true);
-                }
-                return field.get(target);
-            } catch (IllegalAccessException ex) {
-                ReflectionUtils.handleReflectionException(ex);
-                throw new IllegalStateException("Unexpected reflection exception - " + ex.getClass().getName() + ": "
-                        + ex.getMessage());
-
-            }
-        }
-    }
-
-    /**
-     * 获取字段值
-     * <p>
-     * Get the field represented by the supplied {@link Field field object} on
-     * the specified {@link Object target object}. In accordance with
-     * {@link Field#get(Object)} semantics, the returned value is automatically
-     * wrapped if the underlying field has a primitive type.
-     * <p>
-     * Thrown exceptions are handled via a call to
-     * {@link #handleReflectionException(Exception)}.
-     * 
-     * @param field
-     *            the field to get
-     * @param target
-     *            the target object from which to get the field
-     * @return the field's current value
-     */
-    public static Object getFieldValue(Field field, Object target) {
-        String getMethodName = readMethodName(field.getName());
-        try {
-            return ReflectionUtils.invokeMethod(getMethodName, target);
-        } catch (Exception e) {
-            try {
-                if (!field.isAccessible()) {
-                    field.setAccessible(true);
-                }
-                return field.get(target);
-            } catch (IllegalAccessException ex) {
-                ReflectionUtils.handleReflectionException(ex);
-                throw new IllegalStateException("Unexpected reflection exception - " + ex.getClass().getName() + ": "
-                        + ex.getMessage());
-            }
-        }
-    }
-
-    /**
-     * 将字段名转为getter的方法名
-     * 
-     * @param fieldName
-     * @return
-     */
-    public static String readMethodName(String fieldName) {
-        Assert.notBlank(fieldName, "field name is blank");
-        return "get" + Character.toUpperCase(fieldName.charAt(0)) + fieldName.substring(1);
-    }
-
-    /**
-     * 将字段名转为setter的方法名
-     * 
-     * @param fieldName
-     * @return
-     */
-    public static String writerMethodName(String fieldName) {
-        Assert.notBlank(fieldName, "field name is blank");
-        return "set" + Character.toUpperCase(fieldName.charAt(0)) + fieldName.substring(1);
-    }
-
-    /**
-     * 通过field查找对应的getter方法
-     * 
-     * @param source
-     *            目标类
-     * @param field
-     *            字段
-     * @return 字段对应的getter方法
-     * @throws NoSuchMethodException
-     *             如果未找到getter方法
-     */
-    public static Method findReadMethod(Class<?> source, Field field) {
-        Assert.notNull(field, "field must not be null");
-        return findReadMethod(source, field.getName());
-    }
-
-    /**
      * 通过field名称查找对应的getter方法
      * 
      * @param source
      *            目标类
-     * @param fieldName
+     * @param field
      *            字段名称
      * @return 字段对应的getter方法
-     * @throws NoSuchMethodException
-     *             如果未找到getter方法
      */
     public static Method findReadMethod(Class<?> source, String fieldName) {
-        return findMethod(source, readMethodName(fieldName));
-    }
-
-    /**
-     * 通过field查找对应的setter方法
-     * 
-     * @param source
-     *            目标类
-     * @param field
-     *            字段
-     * @return 字段对应的setter方法
-     * @throws NoSuchMethodException
-     *             如果未找到getter方法
-     */
-    public static Method findWriterMethod(Class<?> source, Field field) {
-        Assert.notNull(field, "field must not be null");
-        return findWriterMethod(source, field.getName());
+        String[] readMethodName = readMethodName(fieldName);
+        for (String name : readMethodName) {
+            Method method = findMethod(source, name);
+            if (method != null) {
+                return method;
+            }
+        }
+        return null;
     }
 
     /**
@@ -286,14 +59,14 @@ public class ReflectionUtils {
      * 
      * @param source
      *            目标类
-     * @param fieldName
+     * @param field
      *            字段名称
      * @return 字段对应的setter方法
      * @throws NoSuchMethodException
      *             如果未找到getter方法
      */
     public static Method findWriterMethod(Class<?> source, String fieldName) {
-        return findMethod(source, writerMethodName(fieldName), Object.class);
+        return findMethod(source, writerMethodName(fieldName), new Class[] { Object.class });
     }
 
     /**
@@ -503,6 +276,240 @@ public class ReflectionUtils {
     }
 
     /**
+     * <p>
+     * 查找Class中符合指定名称的字段(在所有字段以及其所有父类的字段中查询:
+     * {@linkplain Class#getDeclaredFields()})
+     * 
+     * @param clazz
+     *            the class to introspect
+     * @param name
+     *            the name of the field
+     * @return the corresponding Field object, or {@code null} if not found
+     */
+    public static Field findField(Class<?> clazz, String name) {
+        return findField(clazz, name, null);
+    }
+
+    /**
+     * 查找符合名称或者类型的字段, name type不能同时为空
+     * 
+     * @param clazz
+     *            the class to introspect
+     * @param name
+     *            the name of the field (may be {@code null} if type is
+     *            specified)
+     * @param type
+     *            the type of the field (may be {@code null} if name is
+     *            specified)
+     * @return the corresponding Field object, or {@code null} if not found
+     */
+    public static Field findField(Class<?> clazz, String name, Class<?> type) {
+        Assert.notNull(clazz, "Class must not be null");
+        Assert.isTrue(name != null || type != null, "Either name or type of the field must be specified");
+        Class<?> searchType = clazz;
+        while (!Object.class.equals(searchType) && searchType != null) {
+            Field[] fields = searchType.getDeclaredFields();
+            for (Field field : fields) {
+                if ((name == null || name.equals(field.getName())) && (type == null || type.equals(field.getType()))) {
+                    return field;
+                }
+            }
+            searchType = searchType.getSuperclass();
+        }
+        return null;
+    }
+
+    public static Field findField(Class<?> clazz, FieldFilter ff) {
+        Assert.notNull(clazz, "Class must not be null");
+        Assert.notNull(ff, "FieldFilter must not be null");
+        Class<?> searchType = clazz;
+        while (!Object.class.equals(searchType) && searchType != null) {
+            Field[] fields = searchType.getDeclaredFields();
+            for (Field field : fields) {
+                if (ff.matches(field)) {
+                    return field;
+                }
+            }
+            searchType = searchType.getSuperclass();
+        }
+        return null;
+    }
+
+    public static void setFieldValue(String fieldName, Object target, Object value) {
+        Assert.notNull(fieldName, "fieldName not allow null");
+        Assert.notNull(target, "target not allow null");
+        // set in method way
+        Method writeMethod = findWriterMethod(target.getClass(), fieldName);
+        if (writeMethod != null) {
+            invokeMethod(writeMethod, target, value);
+            return;
+        }
+        // set in field way
+        Field field = findField(target.getClass(), fieldName);
+        if (field == null) {
+            throw new IllegalArgumentException(target + ", " + fieldName + " field not find");
+        }
+        try {
+            if (!field.isAccessible()) {
+                field.setAccessible(true);
+            }
+            field.set(target, value);
+        } catch (IllegalAccessException ex) {
+            ReflectionUtils.handleReflectionException(ex);
+            throw new IllegalStateException("Unexpected reflection exception - " + ex.getClass().getName() + ": " + ex.getMessage());
+        }
+
+    }
+
+    /**
+     * 设置字段值
+     * <p>
+     * Set the field represented by the supplied {@link Field field object} on
+     * the specified {@link Object target object} to the specified {@code value}
+     * . In accordance with {@link Field#set(Object, Object)} semantics, the new
+     * value is automatically unwrapped if the underlying field has a primitive
+     * type.
+     * <p>
+     * Thrown exceptions are handled via a call to
+     * {@link #handleReflectionException(Exception)}.
+     * 
+     * @param field
+     *            the field to set
+     * @param target
+     *            the target object on which to set the field
+     * @param value
+     *            the value to set; may be {@code null}
+     */
+    public static void setFieldValue(Field field, Object target, Object value) {
+        Method writerMethod = findWriterMethod(target.getClass(), field.getName());
+        if (writerMethod != null) {
+            invokeMethod(writerMethod, target, value);
+            return;
+        }
+        try {
+            if (!field.isAccessible()) {
+                field.setAccessible(true);
+            }
+            field.set(target, value);
+        } catch (IllegalAccessException ex) {
+            ReflectionUtils.handleReflectionException(ex);
+            throw new IllegalStateException("Unexpected reflection exception - " + ex.getClass().getName() + ": " + ex.getMessage());
+        }
+    }
+
+    /**
+     * Get the field represented by the supplied {@link Field field object} on
+     * the specified {@link Object target object}. In accordance with
+     * {@link Field#get(Object)} semantics, the returned value is automatically
+     * wrapped if the underlying field has a primitive type.
+     * <p>
+     * Thrown exceptions are handled via a call to
+     * {@link #handleReflectionException(Exception)}.
+     * 
+     * @param field
+     *            the field to get
+     * @param target
+     *            the target object from which to get the field
+     * @return the field's current value
+     */
+    public static Object getField(Field field, Object target) {
+        try {
+            return field.get(target);
+        } catch (IllegalAccessException ex) {
+            handleReflectionException(ex);
+            throw new IllegalStateException("Unexpected reflection exception - " + ex.getClass().getName() + ": " + ex.getMessage());
+        }
+    }
+
+    public static Object getFieldValue(String fieldName, Object target) {
+        Assert.notNull(target, "target not allow null");
+        Assert.notNull(fieldName, "fieldName not allow null");
+
+        Class<?> targetClass = target.getClass();
+        Method readMethod = findReadMethod(targetClass, fieldName);
+
+        if (readMethod != null) {
+            return invokeMethod(readMethod, target);
+        }
+
+        Field field = findField(targetClass, fieldName);
+        if (field == null) {
+            throw new IllegalArgumentException(fieldName + " field not find");
+        }
+        try {
+            if (!field.isAccessible()) {
+                field.setAccessible(true);
+            }
+            return field.get(target);
+        } catch (IllegalAccessException ex) {
+            ReflectionUtils.handleReflectionException(ex);
+            throw new IllegalStateException("Unexpected reflection exception - " + ex.getClass().getName() + ": " + ex.getMessage());
+        }
+    }
+
+    /**
+     * 获取字段值
+     * <p>
+     * Get the field represented by the supplied {@link Field field object} on
+     * the specified {@link Object target object}. In accordance with
+     * {@link Field#get(Object)} semantics, the returned value is automatically
+     * wrapped if the underlying field has a primitive type.
+     * <p>
+     * Thrown exceptions are handled via a call to
+     * {@link #handleReflectionException(Exception)}.
+     * 
+     * @param field
+     *            the field to get
+     * @param target
+     *            the target object from which to get the field
+     * @return the field's current value
+     */
+    public static Object getFieldValue(Field field, Object target) {
+        Assert.notNull(field, "field not allow null");
+        Class<?> targetClass = (target == null) ? field.getType() : target.getClass();
+        Method readMethod = findReadMethod(targetClass, field.getName());
+        if (readMethod != null) {
+            return invokeMethod(readMethod, target);
+        }
+        try {
+            if (!field.isAccessible()) {
+                field.setAccessible(true);
+            }
+            return field.get(target);
+        } catch (IllegalAccessException ex) {
+            ReflectionUtils.handleReflectionException(ex);
+            throw new IllegalStateException("Unexpected reflection exception - " + ex.getClass().getName() + ": " + ex.getMessage());
+        }
+    }
+
+    /**
+     * 将字段名转为getter的方法名
+     * 
+     * @param fieldName
+     * @return
+     */
+    static String[] readMethodName(String fieldName) {
+        if (StringUtils.isBlank(fieldName)) {
+            throw new IllegalArgumentException("field name is blank");
+        }
+        String name = Character.toUpperCase(fieldName.charAt(0)) + fieldName.substring(1);
+        return new String[] { "get" + name, "is" + name };
+    }
+
+    /**
+     * 将字段名转为setter的方法名
+     * 
+     * @param fieldName
+     * @return
+     */
+    static String writerMethodName(String fieldName) {
+        if (StringUtils.isBlank(fieldName)) {
+            throw new IllegalArgumentException("field name is blank");
+        }
+        return "set" + Character.toUpperCase(fieldName.charAt(0)) + fieldName.substring(1);
+    }
+
+    /**
      * 通过类名实例化对象
      * 
      * @param className
@@ -606,10 +613,9 @@ public class ReflectionUtils {
 
     /**
      * Rethrow the given {@link Throwable exception}, which is presumably the
-     * <em>target
-     * exception</em> of an {@link InvocationTargetException}. Should only be
-     * called if no checked exception is expected to be thrown by the target
-     * method.
+     * <em>target exception</em> of an {@link InvocationTargetException}. Should
+     * only be called if no checked exception is expected to be thrown by the
+     * target method.
      * <p>
      * Rethrows the underlying exception cast to an {@link RuntimeException} or
      * {@link Error} if appropriate; otherwise, throws an
@@ -632,10 +638,9 @@ public class ReflectionUtils {
 
     /**
      * Rethrow the given {@link Throwable exception}, which is presumably the
-     * <em>target
-     * exception</em> of an {@link InvocationTargetException}. Should only be
-     * called if no checked exception is expected to be thrown by the target
-     * method.
+     * <em>target exception</em> of an {@link InvocationTargetException}. Should
+     * only be called if no checked exception is expected to be thrown by the
+     * target method.
      * <p>
      * Rethrows the underlying exception cast to an {@link Exception} or
      * {@link Error} if appropriate; otherwise, throws an
@@ -680,19 +685,18 @@ public class ReflectionUtils {
 
     public static boolean isReadMethod(Method method) {
         String methodName = method.getName();
-        return methodName.length() > 3
-                && (methodName.startsWith("get") || methodName.startsWith("is"))
-                && method.getParameterTypes().length == 0;
+        return method.getParameterTypes().length == 0
+                && ((methodName.length() > 3 && methodName.startsWith("get")) || (methodName.length() > 2 && methodName.startsWith("is")));
     }
 
     public static boolean isWriteMethod(Method method) {
         String methodName = method.getName();
-        return methodName.length() > 3
-                && methodName.startsWith("set")
-                && method.getReturnType() != void.class
+        return methodName.length() > 3//
+                && methodName.startsWith("set") //
+                && method.getReturnType() != void.class //
                 && method.getParameterTypes().length == 1;
     }
-    
+
     /**
      * Determine whether the given field is a "public static final" constant.
      * 
@@ -762,8 +766,8 @@ public class ReflectionUtils {
      * @see java.lang.reflect.Field#setAccessible
      */
     public static void makeAccessible(Field field) {
-        if ((!Modifier.isPublic(field.getModifiers()) || !Modifier.isPublic(field.getDeclaringClass().getModifiers()) || Modifier
-                .isFinal(field.getModifiers())) && !field.isAccessible()) {
+        if ((!Modifier.isPublic(field.getModifiers()) || !Modifier.isPublic(field.getDeclaringClass().getModifiers()) || Modifier.isFinal(field.getModifiers()))
+                && !field.isAccessible()) {
             field.setAccessible(true);
         }
     }
@@ -779,8 +783,7 @@ public class ReflectionUtils {
      * @see java.lang.reflect.Method#setAccessible
      */
     public static void makeAccessible(Method method) {
-        if ((!Modifier.isPublic(method.getModifiers()) || !Modifier.isPublic(method.getDeclaringClass().getModifiers()))
-                && !method.isAccessible()) {
+        if ((!Modifier.isPublic(method.getModifiers()) || !Modifier.isPublic(method.getDeclaringClass().getModifiers())) && !method.isAccessible()) {
             method.setAccessible(true);
         }
     }
@@ -796,8 +799,7 @@ public class ReflectionUtils {
      * @see java.lang.reflect.Constructor#setAccessible
      */
     public static void makeAccessible(Constructor<?> ctor) {
-        if ((!Modifier.isPublic(ctor.getModifiers()) || !Modifier.isPublic(ctor.getDeclaringClass().getModifiers()))
-                && !ctor.isAccessible()) {
+        if ((!Modifier.isPublic(ctor.getModifiers()) || !Modifier.isPublic(ctor.getDeclaringClass().getModifiers())) && !ctor.isAccessible()) {
             ctor.setAccessible(true);
 
         }

@@ -6,87 +6,152 @@ import static java.lang.annotation.RetentionPolicy.*;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
-import com.harmony.umbrella.log.ErrorHandler;
 import com.harmony.umbrella.log.Level.StandardLevel;
 
+/**
+ * 注解化的日志api
+ * 
+ * @author wuxii@foxmail.com
+ */
 @Target({ METHOD })
 @Retention(RUNTIME)
 public @interface Logging {
 
     /**
      * 模块
+     * 
+     * @return 模块
      */
     String module() default "";
 
     /**
      * 操作名称
+     * 
+     * @return 操作名称
      */
     String action() default "";
 
     /**
-     * key expression
+     * 业务关键key的表达式
+     * 
+     * @return key
      */
     String key() default "";
 
     /**
-     * key表达式对应的阶段表达式
+     * 提供负责的key表达式配置, 虽然keyExpression的表达式为数组,但是只解析数组中的第一个表达式
      * 
-     * @return scope
+     * @return key表达式
      */
-    Scope keyScope() default Scope.IN;
-
-    /**
-     * 日志类型，可分为业务日志与系统日志(默认为业务日志)
-     * 
-     * @return
-     */
-    LogType type() default LogType.OPERATION;
+    Expression[] keyExpression() default {};
 
     /**
      * 日志消息
      * <p>
      * 可以通过模版的方式对消息日志进行装配
+     * 
+     * @return 消息内容
      */
     String message() default "";
 
     /**
+     * 匹配message中的表达式,增加message中的表达式的可配置项
+     * 
+     * @return expression annotation
+     */
+    Expression[] expressions() default {};
+
+    /**
+     * 是否为系统日志，默认为false
+     * 
+     * @return logType
+     */
+    LogType type() default LogType.OPERATION;
+
+    /**
      * 日志级别
+     * 
+     * @return 日志级别
      */
     StandardLevel level() default StandardLevel.INFO;
 
+    // FIXME properties属性添加
+    // Expression[] properties() default {};
+
     /**
      * 异常处理
-     */
-    Class<? extends ErrorHandler> errorHandler() default ErrorHandler.class;
-
-    /**
-     * message中scope为in的expression表达式
      * 
-     * @return in阶段的expression
+     * @return 异常处理
      */
-    String[] inProperties() default {};
+    // FIXME 添加errorHandler功能
+    // Class<? extends ErrorHandler> errorHandler() default ErrorHandler.class;
+
+    @Retention(RUNTIME)
+    @Target(ANNOTATION_TYPE)
+    public @interface Expression {
+
+        /**
+         * 表达式值, 优先级name > value
+         * 
+         * @return 表达式
+         */
+        String value() default "";
+
+        /**
+         * 表达式值, 优先级比较value要大
+         * 
+         * @return 表达式值
+         */
+        String name() default "";
+
+        /**
+         * 表达式所代表的值所属的scope, default is Scope.OUT
+         * 
+         * @return scope
+         */
+        Scope scope() default Scope.OUT;
+
+        /**
+         * 表达式的切割符号
+         * 
+         * @return delimiter
+         */
+        String delimiter() default "";
+
+        /**
+         * 通过index与message中的表达式匹配
+         * 
+         * @return index
+         */
+        int index() default Integer.MIN_VALUE;
+
+    }
 
     /**
-     * 在response阶段的属性，message中设置有expression。expression才通常情况下问方法请求阶段绑定值，
-     * 对于http中的请求，有可能需要获取方法完成后request中的值。即设置在outProperties中的表达式表示为在方法完成阶段所对应的值
-     * 
-     * @return 返回阶段的expression
-     */
-    String[] outProperties() default {};
-
-    /**
-     * 日志类型
+     * 日志类型: 分为系统日志,业务日志
      * 
      * @author wuxii@foxmail.com
      */
     public enum LogType {
         /**
-         * 表示系统日志
+         * 系统日志
          */
-        SYSTEM, //
+        SYSTEM,
         /**
-         * 表示操作日志
+         * 业务日志
          */
         OPERATION
     }
+
+    public enum Scope {
+        /**
+         * 请求阶段
+         */
+        IN,
+        /**
+         * 应答阶段
+         */
+        OUT;
+    }
+
 }

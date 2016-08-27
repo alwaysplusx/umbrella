@@ -24,8 +24,6 @@ import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
-import com.harmony.umbrella.log.Log;
-import com.harmony.umbrella.log.Logs;
 import com.harmony.umbrella.data.Bond;
 import com.harmony.umbrella.data.BondParser;
 import com.harmony.umbrella.data.QBond;
@@ -37,6 +35,8 @@ import com.harmony.umbrella.data.bond.JunctionBond.AliasGenerator;
 import com.harmony.umbrella.data.domain.Sort;
 import com.harmony.umbrella.data.sql.SQLFormat;
 import com.harmony.umbrella.data.util.QueryUtils;
+import com.harmony.umbrella.log.Log;
+import com.harmony.umbrella.log.Logs;
 import com.harmony.umbrella.util.Assert;
 import com.harmony.umbrella.util.ReflectionUtils;
 
@@ -478,7 +478,7 @@ public class SpecificationTransform implements BondParser {
             Field field = idField(entityClass);
             if (field != null) {
                 try {
-                    method = ReflectionUtils.findReadMethod(entityClass, field);
+                    method = ReflectionUtils.findReadMethod(entityClass, field.getName());
                     idMethods.put(entityClass, method);
                     return method;
                 } catch (Exception e) {

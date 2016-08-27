@@ -4,12 +4,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 import java.util.ServiceLoader;
+import java.util.Vector;
 
 import javax.servlet.ServletContext;
 
@@ -19,18 +18,16 @@ import com.harmony.umbrella.beans.BeansException;
 import com.harmony.umbrella.beans.SimpleBeanFactory;
 import com.harmony.umbrella.context.metadata.ApplicationMetadata;
 import com.harmony.umbrella.context.metadata.DatabaseMetadata;
+import com.harmony.umbrella.context.metadata.DatabaseMetadata.ConnectionSource;
 import com.harmony.umbrella.context.metadata.ServerMetadata;
 import com.harmony.umbrella.io.Resource;
 import com.harmony.umbrella.io.support.PathMatchingResourcePatternResolver;
 import com.harmony.umbrella.io.support.ResourcePatternResolver;
 import com.harmony.umbrella.log.Log;
 import com.harmony.umbrella.log.Logs;
-import com.harmony.umbrella.sql.ConnectionSource;
-import com.harmony.umbrella.sql.JndiConnectionSource;
 import com.harmony.umbrella.util.ClassUtils;
 import com.harmony.umbrella.util.ClassUtils.ClassFilter;
 import com.harmony.umbrella.util.ReflectionUtils;
-import com.harmony.umbrella.util.StringUtils;
 
 /**
  * 运行的应用的上下文
@@ -39,13 +36,12 @@ import com.harmony.umbrella.util.StringUtils;
  */
 public abstract class ApplicationContext implements BeanFactory {
 
-    public static final String INIT_PARAM_DATASOURCE = "datasource";
-
-    public static final String INIT_PARAM_PACKAGES = "packages";
-
     protected static final Log LOG = Logs.getLog(ApplicationContext.class);
 
     protected static final ThreadLocal<CurrentContext> current = new InheritableThreadLocal<CurrentContext>();
+
+    @SuppressWarnings("rawtypes")
+    private static final List<Class> classes = new Vector<Class>();
 
     private static ServerMetadata serverMetadata = ApplicationMetadata.EMPTY_SERVER_METADATA;
 
@@ -53,17 +49,35 @@ public abstract class ApplicationContext implements BeanFactory {
 
     private static ApplicationConfiguration applicationConfiguration;
 
-    /**
-     * 只初始化一次
-     */
-    @SuppressWarnings("rawtypes")
-    private static final List<Class> classes = new ArrayList<Class>();
+    // FIXME add application destroy hook
+    public static synchronized void initStatic(ApplicationConfiguration appConfig) {
+        if (applicationConfiguration != null) {
+            LOG.warn("application metadata already initial");
+            return;
+        }
+        ApplicationInitializer applicationInitializer = null;
+        Class<? extends ApplicationInitializer> applicationInitializerClass = appConfig.getApplicationInitializerClass();
+
+        if (applicationInitializerClass == null) {
+            applicationInitializerClass = ApplicationInitializer.class;
+        }
+
+        applicationInitializer = ReflectionUtils.instantiateClass(applicationInitializerClass);
+        // 初始化应用程序
+        applicationInitializer.init(appConfig);
+
+        applicationConfiguration = ApplicationConfiguration.unmodifiableApplicationConfig(appConfig);
+
+    }
+
+    public static ApplicationConfiguration getApplicationConfiguration() {
+        return applicationConfiguration;
+    }
 
     /**
      * 获取当前应用的应用上下文
      * <p>
-     * 加载
-     * {@code META-INF/services/com.harmony.umbrella.context.ApplicationContextProvider}
+     * 加载 {@code META-INF/services/com.huiju.module.context.ContextProvider}
      * 文件中的实际类型来创建
      *
      * @return 应用上下文
@@ -91,20 +105,31 @@ public abstract class ApplicationContext implements BeanFactory {
         return context;
     }
 
-    public static synchronized void initStatic(ApplicationConfiguration applicationConfiguration) {
-        if (ApplicationContext.applicationConfiguration == null) {
-            LOG.warn("application context already initial");
-            return;
-        }
+    /**
+     * 获取当前线程的用户环境
+     *
+     * @return 用户环境
+     */
+    public static CurrentContext getCurrentContext() {
+        return current.get();
+    }
 
-        Class<? extends ApplicationInitializer> applicationInitializerClass = applicationConfiguration.getApplicationInitializerClass();
-        if (applicationInitializerClass == null) {
-            applicationInitializerClass = ApplicationInitializer.class;
-        }
+    public static ServerMetadata getServerMetadata() {
+        return serverMetadata;
+    }
 
-        ReflectionUtils.instantiateClass(applicationInitializerClass).init(applicationConfiguration);
+    public static DatabaseMetadata getDatabaseMetadata() {
+        return databaseMetadata;
+    }
 
-        ApplicationContext.applicationConfiguration = new UnmodifiableApplicationConfiguration(applicationConfiguration);
+    /**
+     * 设置当前线程的用户环境
+     *
+     * @param currentCtx
+     *            用户环境
+     */
+    static void setCurrentContext(CurrentContext cc) {
+        current.set(cc);
     }
 
     @SuppressWarnings("rawtypes")
@@ -123,59 +148,26 @@ public abstract class ApplicationContext implements BeanFactory {
         return result.toArray(new Class[result.size()]);
     }
 
-    /**
-     * 设置当前线程的用户环境
-     *
-     * @param currentCtx
-     *            用户环境
-     */
-    static void setCurrentContext(CurrentContext cc) {
-        current.set(cc);
+    // application bean scope
+
+    public ApplicationContext() {
     }
+
+    public abstract BeanFactory getBeanFactory();
 
     /**
-     * 获取当前线程的用户环境
-     *
-     * @return 用户环境
-     */
-    public static CurrentContext getCurrentContext() {
-        return current.get();
-    }
-
-    public static ServerMetadata getServerMetadata() {
-        return serverMetadata;
-    }
-
-    public static DatabaseMetadata getDatabaseMetadata() {
-        return databaseMetadata;
-    }
-
-    public static ApplicationConfiguration getApplicationConfiguration() {
-        return applicationConfiguration;
-    }
-
-    // application scope
-
-    /**
-     * 初始化应用上下文
+     * 初始化bean工厂
      */
     public abstract void init();
 
     /**
-     * 销毁应用上下文
+     * 销毁bean工厂
      */
     public abstract void destroy();
 
-    /**
-     * bean 工厂
-     * 
-     * @return bean 工厂
-     */
-    protected abstract BeanFactory getBeanFactory();
-
     @Override
     public <T> T getBean(Class<T> beanClass) throws BeansException {
-        return getBean(beanClass);
+        return getBeanFactory().getBean(beanClass);
     }
 
     @Override
@@ -204,12 +196,13 @@ public abstract class ApplicationContext implements BeanFactory {
         return ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX + pkg.replace(".", "/") + "/**/*.class";
     }
 
-    private static Class<?> forClass(Resource resource) {
+    private static Class<?> forClass(Resource resource, boolean initialize) {
         InputStream is = null;
         try {
             is = resource.getInputStream();
-            return forName(new ClassReader(is).getClassName());
+            return forName(new ClassReader(is).getClassName(), initialize);
         } catch (IOException e) {
+            LOG.error(e);
         } finally {
             if (is != null) {
                 try {
@@ -221,9 +214,9 @@ public abstract class ApplicationContext implements BeanFactory {
         return null;
     }
 
-    private static Class<?> forName(String className) {
+    private static Class<?> forName(String className, boolean initialize) {
         try {
-            return Class.forName(className.replace("/", "."), true, ClassUtils.getDefaultClassLoader());
+            return Class.forName(className.replace("/", "."), initialize, ClassUtils.getDefaultClassLoader());
         } catch (Error e) {
             LOG.warn("{} in classpath jar no fully configured, {}", className, e.toString());
         } catch (Throwable e) {
@@ -234,6 +227,8 @@ public abstract class ApplicationContext implements BeanFactory {
 
     public static class ApplicationInitializer {
 
+        protected static final Log log = Logs.getLog(ApplicationInitializer.class);
+
         public ApplicationInitializer() {
         }
 
@@ -242,7 +237,6 @@ public abstract class ApplicationContext implements BeanFactory {
             new InternalApplicationInitializer(applicationConfiguration).init();
 
             initCustomer(applicationConfiguration);
-
         }
 
         protected void initCustomer(ApplicationConfiguration applicationConfiguration) {
@@ -279,17 +273,7 @@ public abstract class ApplicationContext implements BeanFactory {
         }
 
         private void init_database() {
-            ConnectionSource connectionSource = null;
-            List<ConnectionSource> connectionSources = cfg.getConnectionSources();
-            if (connectionSources != null && !connectionSources.isEmpty()) {
-                connectionSource = connectionSources.get(0);
-            }
-            if (connectionSource == null) {
-                String datasourceJndi = getInitParam(INIT_PARAM_DATASOURCE);
-                if (StringUtils.isNotBlank(datasourceJndi)) {
-                    connectionSource = new JndiConnectionSource(datasourceJndi);
-                }
-            }
+            ConnectionSource connectionSource = cfg.getConnectionSource();
             if (connectionSource == null) {
                 LOG.warn("connection source not set, database metadata could not be initialized");
                 return;
@@ -303,54 +287,33 @@ public abstract class ApplicationContext implements BeanFactory {
 
         @SuppressWarnings("rawtypes")
         private void init_application_classes() {
-            classes.clear();
             List<String> packages = cfg.getPackages();
-            if (packages == null || packages.isEmpty()) {
-                String[] v = getInitParams(INIT_PARAM_PACKAGES, ",");
-                if (v != null) {
-                    packages = Arrays.asList(v);
-                }
-            }
-
-            if (packages == null || packages.isEmpty()) {
-                LOG.warn("packages not set, application classes could not be initialized");
-                return;
-            }
-
-            ResourcePatternResolver resourcePatternResolver = new PathMatchingResourcePatternResolver();
-            for (String pkg : packages) {
-                String resourcePath = toResourcePath(pkg);
-                try {
-                    Resource[] resources = resourcePatternResolver.getResources(resourcePath);
-                    for (Resource resource : resources) {
-                        Class<?> clazz = forClass(resource);
-                        if (clazz != null && !classes.contains(clazz)) {
-                            classes.add(clazz);
+            if (packages != null && !packages.isEmpty()) {
+                classes.clear();
+                ResourcePatternResolver resourcePatternResolver = new PathMatchingResourcePatternResolver();
+                for (String pkg : packages) {
+                    String resourcePath = toResourcePath(pkg);
+                    try {
+                        Resource[] resources = resourcePatternResolver.getResources(resourcePath);
+                        for (Resource resource : resources) {
+                            Class<?> clazz = forClass(resource, cfg.isInitializeClass());
+                            if (clazz != null && !classes.contains(clazz)) {
+                                classes.add(clazz);
+                            }
                         }
+                    } catch (IOException e) {
+                        LOG.error("{} package not found", pkg, e);
                     }
-                } catch (IOException e) {
-                    LOG.error("{} package not found", pkg, e);
                 }
+
+                Collections.sort(classes, new Comparator<Class>() {
+
+                    @Override
+                    public int compare(Class o1, Class o2) {
+                        return o1.getName().compareTo(o2.getName());
+                    }
+                });
             }
-
-            Collections.sort(classes, new Comparator<Class>() {
-
-                @Override
-                public int compare(Class o1, Class o2) {
-                    return o1.getName().compareTo(o2.getName());
-                }
-            });
-
-        }
-
-        public String getInitParam(String key) {
-            ServletContext servletContext = cfg.getServletContext();
-            return servletContext != null ? servletContext.getInitParameter(key) : null;
-        }
-
-        public String[] getInitParams(String key, String delimiter) {
-            String value = getInitParam(key);
-            return value != null ? StringUtils.tokenizeToStringArray(value, delimiter) : null;
         }
 
     }
@@ -358,15 +321,19 @@ public abstract class ApplicationContext implements BeanFactory {
     private static final class SimpleApplicationContext extends ApplicationContext {
 
         private static final SimpleApplicationContext INSTANCE = new SimpleApplicationContext();
+        private static BeanFactory beanFactory = new SimpleBeanFactory();
 
-        private BeanFactory beanFactory = new SimpleBeanFactory();
+        public SimpleApplicationContext() {
+        }
 
         @Override
         public void init() {
+
         }
 
         @Override
         public void destroy() {
+
         }
 
         @Override
@@ -375,89 +342,4 @@ public abstract class ApplicationContext implements BeanFactory {
         }
 
     }
-
-    private static final class UnmodifiableApplicationConfiguration extends ApplicationConfiguration {
-
-        private ApplicationConfiguration applicationConfiguration;
-
-        public UnmodifiableApplicationConfiguration(ApplicationConfiguration applicationConfiguration) {
-            this.applicationConfiguration = applicationConfiguration;
-        }
-
-        @Override
-        public ApplicationConfiguration withServletContext(ServletContext servletContext) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public ApplicationConfiguration withPackage(String... pkg) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public ApplicationConfiguration withConnectionSource(ConnectionSource... connectionSource) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public ApplicationConfiguration withProperty(String key, Object value) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public ApplicationConfiguration withApplicationInitializerClass(Class<? extends ApplicationInitializer> applicationInitializerClass) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public void setServletContext(ServletContext servletContext) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public void setPackages(List<String> packages) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public void setConnectionSources(List<ConnectionSource> connectionSources) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public void setProperties(Map<String, Object> properties) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public void setApplicationInitializerClass(Class<? extends ApplicationInitializer> applicationInitializerClass) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public ServletContext getServletContext() {
-            return applicationConfiguration.getServletContext();
-        }
-
-        @Override
-        public List<String> getPackages() {
-            return Collections.unmodifiableList(applicationConfiguration.getPackages());
-        }
-
-        @Override
-        public List<ConnectionSource> getConnectionSources() {
-            return applicationConfiguration.getConnectionSources();
-        }
-
-        @Override
-        public Map<String, Object> getProperties() {
-            return Collections.unmodifiableMap(applicationConfiguration.getProperties());
-        }
-
-        @Override
-        public Class<? extends ApplicationInitializer> getApplicationInitializerClass() {
-            return applicationConfiguration.getApplicationInitializerClass();
-        }
-    }
-
 }

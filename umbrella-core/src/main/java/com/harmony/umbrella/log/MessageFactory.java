@@ -1,11 +1,12 @@
 package com.harmony.umbrella.log;
 
-import com.harmony.umbrella.log.message.ParameterizedMessageFactory;
-
 /**
+ * 日志消息创建工厂
+ * 
  * @author wuxii@foxmail.com
  */
 public interface MessageFactory {
+    
     /**
      * Creates a new message based on an Object.
      *
@@ -33,8 +34,7 @@ public interface MessageFactory {
      * @param params
      *            the message parameters
      * @return a new message
-     * @see ParameterizedMessageFactory
-     * @see StringFormatterMessageFactory
+     * @see com.harmony.umbrella.log.message.ParameterizedMessageFactory
      */
     Message newMessage(String message, Object... params);
 

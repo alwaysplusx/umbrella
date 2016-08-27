@@ -2,7 +2,6 @@ package com.harmony.umbrella.scheduling.jmx;
 
 import com.harmony.umbrella.log.Log;
 import com.harmony.umbrella.log.Logs;
-
 import com.harmony.umbrella.scheduling.Scheduler;
 import com.harmony.umbrella.scheduling.SchedulerException;
 

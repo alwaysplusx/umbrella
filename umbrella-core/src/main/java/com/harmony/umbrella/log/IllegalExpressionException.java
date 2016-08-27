@@ -1,6 +1,8 @@
 package com.harmony.umbrella.log;
 
 /**
+ * 表达式自定义异常
+ * 
  * @author wuxii@foxmail.com
  */
 public class IllegalExpressionException extends RuntimeException {

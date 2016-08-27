@@ -1,6 +1,8 @@
 package com.harmony.umbrella.log;
 
 /**
+ * 自定义日志异常
+ * 
  * @author wuxii@foxmail.com
  */
 public class LoggingException extends RuntimeException {

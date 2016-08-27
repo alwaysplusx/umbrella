@@ -2,6 +2,7 @@ package com.harmony.umbrella.log;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 
 import com.harmony.umbrella.log.Level.StandardLevel;
@@ -27,7 +28,7 @@ public class LogMessage {
     private Object key;
 
     private Message message;
-    private Throwable throwable;
+    private Throwable exception;
     private Level level;
     private LogType type;
 
@@ -50,6 +51,13 @@ public class LogMessage {
         this.messageFactory = log.getMessageFactory();
     }
 
+    /**
+     * 创建日志消息
+     * 
+     * @param log
+     *            写日志的log
+     * @return logMessage
+     */
     public static LogMessage create(Log log) {
         return new LogMessage(log);
     }
@@ -66,16 +74,41 @@ public class LogMessage {
         return this;
     }
 
+    /**
+     * 设置日志消息
+     * 
+     * @param message
+     *            日志消息
+     * @return current logMessage
+     */
     public LogMessage message(String message) {
         this.message = messageFactory.newMessage(message);
         return this;
     }
 
+    /**
+     * 设置日志消息
+     * 
+     * @param message
+     *            日志消息
+     * @param args
+     *            消息参数
+     * @return current logMessage
+     * @see #message(String)
+     */
     public LogMessage message(String message, Object... args) {
         this.message = messageFactory.newMessage(message, args);
         return this;
     }
 
+    /**
+     * 设置日志消息
+     * 
+     * @param message
+     *            日志消息
+     * @return current logMessage
+     * @see #message(String)
+     */
     public LogMessage message(Message message) {
         this.message = message;
         return this;
@@ -85,7 +118,8 @@ public class LogMessage {
      * 设置日志所属于的模块
      *
      * @param module
-     * @return
+     *            模块
+     * @return current logMessage
      */
     public LogMessage module(String module) {
         this.module = module;
@@ -116,8 +150,15 @@ public class LogMessage {
         return this;
     }
 
+    /**
+     * 设置日志异常内容
+     * 
+     * @param exception
+     *            异常信息
+     * @return current logMessage
+     */
     public LogMessage exception(Throwable exception) {
-        this.throwable = exception;
+        this.exception = exception;
         return this;
     }
 
@@ -133,16 +174,37 @@ public class LogMessage {
         return this;
     }
 
+    /**
+     * 设置操作人员id
+     * 
+     * @param operatorId
+     *            操作人员id
+     * @return current logMessage
+     */
     public LogMessage operatorId(Object operatorId) {
         this.operatorId = operatorId;
         return this;
     }
 
+    /**
+     * 设置操作人员host
+     * 
+     * @param address
+     *            操作人员host
+     * @return current logMessage
+     */
     public LogMessage operatorHost(String address) {
         this.operatorHost = address;
         return this;
     }
 
+    /**
+     * 设置日志类型
+     * 
+     * @param type
+     *            日志类型
+     * @return current logMessage
+     */
     public LogMessage type(LogType type) {
         this.type = type;
         return this;
@@ -158,6 +220,14 @@ public class LogMessage {
         return this;
     }
 
+    /**
+     * 设置开始时间
+     * 
+     * @param startTime
+     *            开始时间
+     * @return current logMessage
+     * @see #start()
+     */
     public LogMessage start(long startTime) {
         this.startTime = startTime;
         return this;
@@ -175,6 +245,13 @@ public class LogMessage {
         return this;
     }
 
+    /**
+     * 设置开始时间
+     *
+     * @param startTime
+     *            开始时间
+     * @return current logMessage
+     */
     public LogMessage start(Date startTime) {
         this.startTime = startTime.getTime();
         return this;
@@ -190,6 +267,13 @@ public class LogMessage {
         return this;
     }
 
+    /**
+     * 设置结束时间
+     *
+     * @param finishTime
+     *            结束时间
+     * @return current logMessage
+     */
     public LogMessage finish(long finishTime) {
         this.finishTime = finishTime;
         return this;
@@ -207,6 +291,13 @@ public class LogMessage {
         return this;
     }
 
+    /**
+     * 设置结束时间
+     *
+     * @param finishTime
+     *            结束时间
+     * @return current logMessage
+     */
     public LogMessage finish(Date finishTime) {
         this.finishTime = finishTime.getTime();
         return this;
@@ -218,10 +309,15 @@ public class LogMessage {
      * 当要记录http相关信息时使用
      *
      * @param key
+     *            key
      * @param value
-     * @return
+     *            value
+     * @return current logMessage
      */
     public LogMessage put(String key, Object value) {
+        if (this.context == null) {
+            this.context = new HashMap<String, Object>();
+        }
         this.context.put(key, value);
         return this;
     }
@@ -238,26 +334,57 @@ public class LogMessage {
         return this;
     }
 
+    /**
+     * 设置日志级别
+     * 
+     * @param level
+     *            level
+     * @return current logMessage
+     */
     public LogMessage level(StandardLevel level) {
         this.level = Level.toLevel(level.name());
         return this;
     }
 
+    /**
+     * 设置日志的方法栈
+     * 
+     * @return current logMessage
+     */
     public LogMessage currentStack() {
         this.stack = Logs.fullyQualifiedClassName(LogMessage.LOGMESSAGE_FQNC, 1);
         return this;
     }
 
+    /**
+     * 设置日志的线程
+     * 
+     * @return current logMessage
+     */
     public LogMessage currentThread() {
         this.threadName = Thread.currentThread().getName();
         return this;
     }
 
+    /**
+     * 设置日志的方法栈
+     * 
+     * @param stack
+     *            记录日志的方法栈
+     * @return current logMessage
+     */
     public LogMessage stack(String stack) {
         this.stack = stack;
         return this;
     }
 
+    /**
+     * 设置日志的线程名
+     * 
+     * @param threadName
+     *            记录日志的线程
+     * @return current logMessage
+     */
     public LogMessage threadName(String threadName) {
         this.threadName = threadName;
         return this;
@@ -310,6 +437,11 @@ public class LogMessage {
         }
     }
 
+    /**
+     * 将日志logMessage转为LogInfo
+     * 
+     * @return logInfo
+     */
     public LogInfo asInfo() {
         return new LogInfo() {
 
@@ -350,7 +482,7 @@ public class LogMessage {
 
             @Override
             public StandardLevel getLevel() {
-                return level == null ? null : level.getStandardLevel();
+                return level == null ? null : level.standardLevel;
             }
 
             @Override
@@ -365,7 +497,7 @@ public class LogMessage {
 
             @Override
             public Throwable getThrowable() {
-                return throwable;
+                return exception;
             }
 
             @Override
@@ -405,16 +537,16 @@ public class LogMessage {
     public String toString() {
         StringBuilder out = new StringBuilder();
         out.append("{\n        module : ").append(module)//
-                .append(", \n        action : ").append(action)//
-                .append(", \n           key : ").append(key)//
-                .append(", \n       message : ").append(message == null ? null : message.getFormattedMessage())//
-                .append(", \n         level : ").append(level == null ? null : level.getName())//
-                .append(", \n          type : ").append(type)//
-                .append(", \n  operatorName : ").append(operatorName)//
-                .append(", \n  operatorHost : ").append(operatorHost)//
-                .append(", \n        result : ").append(result)//
-                .append(", \n         stack : ").append(stack)//
-                .append(", \n           use : ").append(use())//
+                .append("\n        action : ").append(action)//
+                .append("\n           key : ").append(key)//
+                .append("\n       message : ").append(message == null ? null : message.getFormattedMessage())//
+                .append("\n         level : ").append(level == null ? null : level.getName())//
+                .append("\n          type : ").append(type)//
+                .append("\n  operatorName : ").append(operatorName)//
+                .append("\n  operatorHost : ").append(operatorHost)//
+                .append("\n        result : ").append(result)//
+                .append("\n         stack : ").append(stack)//
+                .append("\n           use : ").append(use())//
                 .append("\n}");
         return out.toString();
     }

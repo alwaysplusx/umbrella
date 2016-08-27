@@ -9,8 +9,6 @@ import java.lang.annotation.Target;
 import com.harmony.umbrella.log.ErrorHandler;
 
 /**
- * 日志模块预声明
- * 
  * @author wuxii@foxmail.com
  */
 @Target({ TYPE })

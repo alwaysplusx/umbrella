@@ -16,112 +16,112 @@ public interface LogInfo {
     /**
      * 日志模块
      * 
-     * @return
+     * @return 日志模块
      */
     String getModule();
 
     /**
      * 操作名称
      * 
-     * @return
+     * @return 操作名称
      */
     String getAction();
 
     /**
-     * 业务日志数据主键
-     * 
-     * @return
-     */
-    Object getKey();
-
-    /**
      * 日志消息内容
      * 
-     * @return
+     * @return 日志消息内容
      */
     Message getMessage();
 
     /**
-     * 业务日志的结果
-     * 
-     * @return
-     */
-    Object getResult();
-
-    /**
-     * 记录开始事件
-     * 
-     * @return
-     */
-    Date getRequestTime();
-
-    /**
-     * 记录结束事件
-     * 
-     * @return
-     */
-    Date getResponseTime();
-
-    /**
      * 日志的异常信息
      * 
-     * @return
+     * @return 日志的异常信息
      */
     Throwable getThrowable();
 
     /**
      * 日志级别
      * 
-     * @return
+     * @return 日志级别
      */
     StandardLevel getLevel();
 
     /**
-     * 日志info的类型，有系统日志与业务日志之分
+     * 业务日志的结果
      * 
-     * @return
+     * @return 业务日志的结果
      */
-    LogType getType();
+    Object getResult();
+
+    /**
+     * 记录开始事件
+     * 
+     * @return 记录开始事件
+     */
+    Date getRequestTime();
+
+    /**
+     * 记录结束事件
+     * 
+     * @return 记录结束事件
+     */
+    Date getResponseTime();
 
     /**
      * 操作人
      * 
-     * @return
+     * @return 操作人
      */
     String getOperatorName();
 
     /**
      * 操作人id
      * 
-     * @return
+     * @return 操作人id
      */
     Object getOperatorId();
 
     /**
      * 所操作的客户端地址，如:IP
      * 
-     * @return
+     * @return ip
      */
     String getOperatorHost();
 
     /**
+     * 业务日志数据主键
+     * 
+     * @return key
+     */
+    Object getKey();
+
+    /**
+     * 日志info的类型，有系统日志与业务日志之分
+     * 
+     * @return logType
+     */
+    LogType getType();
+
+    /**
      * 操作栈，操作位于程序的位置
      * 
-     * @return
+     * @return stack
      */
     String getStackLocation();
 
     /**
      * 操作的线程
      * 
-     * @return
+     * @return thread name
      */
     String getThreadName();
 
     /**
      * 日志context
      * 
-     * @return
+     * @return context
      */
     Map<String, Object> getContext();
 

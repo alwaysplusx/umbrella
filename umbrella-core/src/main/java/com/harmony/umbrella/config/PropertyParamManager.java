@@ -57,7 +57,7 @@ public class PropertyParamManager extends AbstractParamManager {
     @SuppressWarnings("unchecked")
     @Override
     public void set(Param param) {
-        properties.put(param.getKey(), param.getObject());
+        properties.put(param.getKey(), param.getValue());
     }
 
     @SuppressWarnings("rawtypes")

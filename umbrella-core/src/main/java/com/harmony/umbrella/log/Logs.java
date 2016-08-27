@@ -4,39 +4,34 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ServiceLoader;
 
-import com.harmony.umbrella.log.Level.StandardLevel;
-import com.harmony.umbrella.util.Environments;
-
 /**
+ * 日志创建工具
  * 
  * @author wuxii@foxmail.com
  */
-public final class Logs {
+public class Logs {
 
     private static LogProvider logProvider;
-    static final boolean LOG_FULL_NAME;
-    static final StandardLevel LOG_LEVEL;
 
     static {
-        
-        LOG_FULL_NAME = Boolean.valueOf(Environments.getProperty("umbrella.log.fullname", "false"));
-        LOG_LEVEL = StandardLevel.valueOf(Environments.getProperty("umbrella.log.level", "DEBUG"));
-        
-        flushProvider();
-        
+        reloadProvider();
     }
 
-    public static void flushProvider() {
+    public static void reloadProvider() {
         ServiceLoader<LogProvider> providers = ServiceLoader.load(LogProvider.class);
-        for (LogProvider provider : providers) {
-            logProvider = provider;
-            break;
+        try {
+            for (LogProvider provider : providers) {
+                logProvider = provider;
+                break;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         if (logProvider == null) {
             logProvider = new SystemLogProvider();
         }
     }
-    
+
     /**
      * 从调用栈中找到上层类名的log
      * 
@@ -108,6 +103,11 @@ public final class Logs {
 
     }
 
+    /**
+     * 系统默认log
+     * 
+     * @author wuxii@foxmail.com
+     */
     static final class SystemLog extends AbstractLog {
 
         private static final OutputStream out = System.out;
@@ -117,14 +117,9 @@ public final class Logs {
         private boolean fullName;
 
         public SystemLog(String className) {
-            this(className, LOG_LEVEL, LOG_FULL_NAME);
-        }
-
-        SystemLog(String className, StandardLevel level, boolean fullName) {
             super(className);
             this.callerFQCN = AbstractLog.class.getName();
-            this.fullName = fullName;
-            this.setLevel(level);
+            this.fullName = Boolean.valueOf(System.getProperty("huiju.log.fullname", "false"));
         }
 
         public SystemLog(String className, Object obj) {
@@ -178,7 +173,8 @@ public final class Logs {
                 return ste.toString();
             }
             StringBuilder sb = new StringBuilder();
-            sb.append(".").append(ste.getMethodName()).append("(").append(ste.getFileName()).append(":").append(ste.getLineNumber()).append(")");
+            sb.append(".").append(ste.getMethodName()).append("(").append(ste.getFileName()).append(":")
+                    .append(ste.getLineNumber()).append(")");
             return sb.toString();
         }
     }

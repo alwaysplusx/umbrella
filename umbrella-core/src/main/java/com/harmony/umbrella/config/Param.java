@@ -20,7 +20,7 @@ public interface Param {
      * @see #getString()
      * @return param value
      */
-    Object getObject();
+    Object getValue();
 
     /**
      * 检查是否有值

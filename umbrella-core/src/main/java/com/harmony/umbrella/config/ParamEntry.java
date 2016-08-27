@@ -50,7 +50,7 @@ public class ParamEntry implements Param {
      * {@inheritDoc}
      */
     @Override
-    public Object getObject() {
+    public Object getValue() {
         return value;
     }
 

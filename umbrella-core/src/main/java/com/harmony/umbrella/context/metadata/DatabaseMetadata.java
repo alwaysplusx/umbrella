@@ -4,10 +4,62 @@ import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 
-import com.harmony.umbrella.sql.ConnectionSource;
-
 /**
  * 应用所使用的数据库信息
+ * <table border="2" rules="all" cellpadding="4">
+ * <thead>
+ * <tr>
+ * <th align="center" colspan="5">数据库类型对照表</th>
+ * </tr>
+ * </thead> <tbody>
+ * <tr>
+ * <th>Database</th>
+ * <th>Database Type</th>
+ * <th>Database Name</th>
+ * </tr>
+ * <tr>
+ * <td>Oracle</td>
+ * <td>1</td>
+ * <td>oracle</td>
+ * </tr>
+ * <tr>
+ * <td>MySQL</td>
+ * <td>2</td>
+ * <td>mysql</td>
+ * </tr>
+ * <tr>
+ * <td>DB2</td>
+ * <td>3</td>
+ * <td>db2</td>
+ * </tr>
+ * <tr>
+ * <td>H2</td>
+ * <td>4</td>
+ * <td>h2</td>
+ * </tr>
+ * <tr>
+ * <td>HSQL</td>
+ * <td>5</td>
+ * <td>hsql</td>
+ * </tr>
+ * <tr>
+ * <td>SQLServer</td>
+ * <td>6</td>
+ * <td>sqlserver</td>
+ * </tr>
+ * <tr>
+ * <tr>
+ * <td>POSTGRESQL</td>
+ * <td>7</td>
+ * <td>postgresql</td>
+ * </tr>
+ * <tr>
+ * <td>其他</td>
+ * <td>0</td>
+ * <td>unknow</td>
+ * </tr>
+ * </tbody>
+ * </table>
  * 
  * @author wuxii@foxmail.com
  */
@@ -44,10 +96,9 @@ public final class DatabaseMetadata {
      */
     public final int databaseType;
 
-    private final ConnectionSource connectionSource;
+    private ConnectionSource connectionSource;
 
-    public static final int UNKNOW = -1;
-    public static final int OTHERS = 0;
+    public static final int UNKNOW = 0;
     public static final int ORACLE = 1;
     public static final int MYSQL = 2;
     public static final int DB2 = 3;
@@ -58,20 +109,25 @@ public final class DatabaseMetadata {
 
     public DatabaseMetadata(ConnectionSource connectionSource) throws SQLException {
         this.connectionSource = connectionSource;
-        Connection conn = connectionSource.getConnection();
-        DatabaseMetaData dbmd = conn.getMetaData();
-        this.productName = dbmd.getDatabaseProductName();
-        this.productVersion = dbmd.getDatabaseProductVersion();
-        this.url = dbmd.getURL();
-        this.userName = dbmd.getUserName();
-        this.driverName = dbmd.getDriverVersion();
-        this.driverVersion = dbmd.getDriverVersion();
-        this.databaseType = databaseType(productName);
-        conn.close();
+        Connection conn = null;
+        try {
+            conn = connectionSource.getConnection();
+            DatabaseMetaData dbmd = conn.getMetaData();
+            this.productName = dbmd.getDatabaseProductName();
+            this.productVersion = dbmd.getDatabaseProductVersion();
+            this.url = dbmd.getURL();
+            this.userName = dbmd.getUserName();
+            this.driverName = dbmd.getDriverVersion();
+            this.driverVersion = dbmd.getDriverVersion();
+            this.databaseType = databaseType(productName);
+        } finally {
+            if (conn != null) {
+                conn.close();
+            }
+        }
     }
 
     private DatabaseMetadata() {
-        this.connectionSource = null;
         this.productName = "";
         this.productVersion = "";
         this.url = "";
@@ -81,15 +137,12 @@ public final class DatabaseMetadata {
         this.databaseType = UNKNOW;
     }
 
-    public Connection getConnection() throws SQLException {
-        return connectionSource == null ? null : connectionSource.getConnection();
-    }
-
     private final int databaseType(String databaseName) {
-        databaseName = databaseName.toLowerCase();
         if (databaseName == null) {
             return UNKNOW;
-        } else if (databaseName.indexOf("oracle") != -1) {
+        }
+        databaseName = databaseName.toLowerCase();
+        if (databaseName.indexOf("oracle") != -1) {
             return ORACLE;
         } else if (databaseName.indexOf("postgresql") != -1) {
             return POSTGRESQL;
@@ -104,7 +157,23 @@ public final class DatabaseMetadata {
         } else if (databaseName.indexOf("h2") != -1) {
             return H2;
         }
-        return OTHERS;
+        return UNKNOW;
+    }
+
+    public Connection getConnection() throws SQLException {
+        return connectionSource == null ? null : connectionSource.getConnection();
+    }
+
+    public boolean isUnknow() {
+        return UNKNOW == databaseType;
+    }
+
+    public interface ConnectionSource {
+
+        boolean isValid();
+
+        Connection getConnection() throws SQLException;
+
     }
 
 }
