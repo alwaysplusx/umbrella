@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 http://maven.apache.org/xsd/settings-1.0.0.xsd">
+
+  <localRepository>${user_home}/.m2/repository</localRepository>
+
+  <activeProfiles>
+    <activeProfile>wuxii-profile</activeProfile>
+  </activeProfiles>
+  
+  <servers>
+    <server>
+      <id>wuxii-nexus</id>
+      <username>xxx</username>
+      <password>xxx</password>
+    </server>
+  </servers>
+
+  <mirrors>
+    <mirror>
+      <id>all-mirror</id>
+      <mirrorOf>*</mirrorOf>
+      <name>all mirror</name>
+      <url>http://localhost:8081/repository/maven-public/</url>
+    </mirror>
+  </mirrors>
+
+  <profiles>
+    <profile>
+      <id>wuxii-profile</id>
+      <repositories>
+        <repository>
+          <id>wuxii-nexus</id>
+          <name>wuxii nexus repository</name>
+          <url>http://localhost:8081/repository/maven-public/</url>
+          <snapshots>
+            <enabled>true</enabled>
+          </snapshots>
+        </repository>
+      </repositories>
+      <pluginRepositories>
+        <pluginRepository>
+          <id>wuxii-nexus</id>
+          <name>wuxii nexus repository</name>
+          <url>http://localhost:8081/repository/maven-public/</url>
+          <snapshots>
+            <enabled>true</enabled>
+          </snapshots>
+        </pluginRepository>
+      </pluginRepositories>
+    </profile>
+  </profiles>
+
+</settings>

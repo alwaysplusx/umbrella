@@ -58,7 +58,6 @@ public class EJBJUnit4ClassRunner extends BlockJUnit4ClassRunner {
 
     }
 
-    @SuppressWarnings("deprecation")
     @Override
     protected Statement withBefores(FrameworkMethod method, Object target, Statement statement) {
         Statement junitBefores = super.withBefores(method, target, statement);
