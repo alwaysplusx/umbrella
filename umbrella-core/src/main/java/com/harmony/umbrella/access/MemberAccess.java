@@ -29,7 +29,11 @@ public class MemberAccess {
         if (lastDotIndex < 0) {
             Field field = findField(clazz, name);
             if (field == null) {
-                throw new IllegalArgumentException(clazz + " member " + name + " not found");
+                Method readMethod = findReadMethod(clazz, name);
+                if (readMethod != null) {
+                    return new PathMember(clazz, name, readMethod);
+                }
+                throw new IllegalArgumentException(clazz + " " + name + " not found");
             }
             return new PathMember(clazz, name, field);
         }

@@ -75,8 +75,12 @@ public @interface Logging {
      */
     StandardLevel level() default StandardLevel.INFO;
 
-    // FIXME properties属性添加
-    // Expression[] properties() default {};
+    /**
+     * 属性的表达式
+     * 
+     * @return
+     */
+    Property[] properties() default {};
 
     /**
      * 异常处理
@@ -85,6 +89,16 @@ public @interface Logging {
      */
     // FIXME 添加errorHandler功能
     // Class<? extends ErrorHandler> errorHandler() default ErrorHandler.class;
+
+    @Retention(RUNTIME)
+    @Target(ANNOTATION_TYPE)
+    public @interface Property {
+
+        String name();
+
+        Expression value();
+
+    }
 
     @Retention(RUNTIME)
     @Target(ANNOTATION_TYPE)

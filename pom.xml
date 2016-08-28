@@ -36,10 +36,6 @@
     <module>umbrella-scheduler</module>
     <module>umbrella-mail</module>
     <module>umbrella-spring</module>
-    <module>umbrella-activiti</module>
-    <module>umbrella-resources</module>
-    <module>umbrella-security</module>
-    <module>umbrella-cache</module>
     <module>umbrella-excel</module>
     <module>umbrella-fs</module>
   </modules>

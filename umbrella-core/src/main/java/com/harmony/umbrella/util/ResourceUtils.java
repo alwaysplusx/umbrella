@@ -18,11 +18,15 @@ package com.harmony.umbrella.util;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
+
+import com.harmony.umbrella.io.DefaultResourceLoader;
+import com.harmony.umbrella.io.Resource;
 
 /**
  * Utility methods for resolving resource locations to files in the
@@ -87,6 +91,21 @@ public abstract class ResourceUtils {
 	/** Special separator between WAR URL and jar part on Tomcat */
 	public static final String WAR_URL_SEPARATOR = "*/";
 
+    /**
+     * 加载类路径下的资源
+     * 
+     * @param path
+     *            类路径下的资源路径
+     * @return resources
+     * @throws IOException resource not found
+     */
+    public static Resource findResource(String path) throws IOException {
+        Resource resources = new DefaultResourceLoader().getResource(path);
+        if (resources.exists()) {
+            return resources;
+        }
+        throw new IOException(path + " not found");
+    }
 
 	/**
 	 * Return whether the given resource location is a URL:

@@ -9,6 +9,7 @@
   <name>Harmony Umbrella :: Plugins</name>
   <packaging>pom</packaging>
   <modules>
-    <module>umbrella-ws-plugin</module>
+    <module>umbrella-log-plugin</module>
+    <module>umbrella-log-log4j2</module>
   </modules>
 </project>

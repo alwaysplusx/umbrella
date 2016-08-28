@@ -25,7 +25,7 @@ import com.alibaba.fastjson.serializer.SerialContext;
  * }
  * </pre>
  * 
- * 上述过滤A中的B的C中的name propertyName为 b.c.name
+ * 上述过滤A中的B的C中的propertyName为 b.c.name
  * <p>
  * 如果存在数组如 B 则如 a.cs[x].name
  * 
@@ -33,14 +33,26 @@ import com.alibaba.fastjson.serializer.SerialContext;
  */
 public abstract class PropertyNameFilter implements PropertyPreFilter {
 
-    public abstract boolean filter(Object source, String propertyName);
+    /**
+     * 在数据source中格局propertyName决定是否对对应的属性进行序列化
+     * 
+     * @param source
+     *            拥有属性propertyName的source
+     * @param propertyName
+     *            属性名称
+     * @return true进行序列化， false不序列化
+     */
+    public abstract boolean accept(Object source, String propertyName);
 
+    /**
+     * 是否接受字段序列化
+     */
     @Override
     public boolean apply(JSONSerializer serializer, Object source, String name) {
         if (source == null) {
             return true;
         }
-        return filter(source, getPropertyName(serializer.getContext(), name));
+        return accept(source, getPropertyName(serializer.getContext(), name));
     }
 
     /**

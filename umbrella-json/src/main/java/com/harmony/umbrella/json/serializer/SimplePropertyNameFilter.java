@@ -1,18 +1,17 @@
 package com.harmony.umbrella.json.serializer;
 
-import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
 import com.harmony.umbrella.log.Log;
 import com.harmony.umbrella.log.Logs;
 import com.harmony.umbrella.util.AntPathMatcher;
-import com.harmony.umbrella.util.Assert;
 import com.harmony.umbrella.util.PathMatcher;
-import com.harmony.umbrella.util.StringUtils;
 
 /**
- * 对需要json格式化的对象进行字段的过滤，默认模式为exclude(excludeMode = true)
+ * 对需要json格式化的对象进行字段的过滤，默认filterMode = EXCLUDE
  * 
  * @author wuxii@foxmail.com
  */
@@ -20,65 +19,95 @@ public class SimplePropertyNameFilter extends PropertyNameFilter {
 
     private static final Log log = Logs.getLog(SimplePropertyNameFilter.class);
 
-    private PathMatcher matcher;
+    private PathMatcher pathMatcher = new AntPathMatcher(".");
 
     /**
      * 过滤的模式
      */
-    private boolean excludeMode;
-
+    protected FilterMode filterMode = FilterMode.EXCLUDE;
     /**
      * 过滤的模版
      */
-    private final Set<String> patterns = new HashSet<String>();
+    protected final Set<String> patterns = new HashSet<String>();
 
-    public SimplePropertyNameFilter(Set<String> patterns, boolean excludeMode) {
-        this(new AntPathMatcher(), patterns, excludeMode);
+    public SimplePropertyNameFilter() {
     }
 
     public SimplePropertyNameFilter(String... patterns) {
-        this(new HashSet<String>(Arrays.asList(patterns)), true);
+        this.addPattern(patterns);
     }
 
-    public SimplePropertyNameFilter(PathMatcher matcher, Set<String> patterns, boolean excludeMode) {
-        Assert.notNull(matcher, "matcher must not be null");
-        this.matcher = matcher;
-        this.excludeMode = excludeMode;
-        for (String property : patterns) {
-            if (StringUtils.isNotBlank(property)) {
-                this.patterns.add(property);
-            }
-        }
+    public SimplePropertyNameFilter(String[] patterns, FilterMode mode) {
+        this.filterMode = mode;
+        this.addPattern(patterns);
     }
 
+    public SimplePropertyNameFilter(Collection<String> patterns, FilterMode mode) {
+        this.filterMode = mode;
+        this.addPatterns(patterns);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public boolean filter(Object source, String propertyName) {
-
+    public boolean accept(Object source, String propertyName) {
         log.debug("filter property name -> {}", propertyName);
-
-        if (patterns.isEmpty()) {
-            return isExcludeMode() ? true : false;
+        if (patterns.isEmpty() || patterns.contains(propertyName)) {
+            // 如果模版是空则根据类型
+            return FilterMode.INCLUDE.equals(filterMode);
         }
 
-        if (patterns.contains(propertyName)) {
-            return isExcludeMode() ? false : true;
-        }
-
-        for (String pattern : patterns) {
-            if (matcher.match(pattern, propertyName)) {
-                return isExcludeMode() ? false : true;
+        if (FilterMode.INCLUDE.equals(filterMode)) {
+            // 只有符合条件 = true
+            for (String pattern : patterns) {
+                if (pattern.startsWith(propertyName) || pathMatcher.match(pattern, propertyName)) {
+                    return true;
+                }
+            }
+        } else {
+            // 只有不符合条件 = true
+            for (String pattern : patterns) {
+                if (pathMatcher.match(pattern, propertyName)) {
+                    return false;
+                }
             }
         }
 
-        return isExcludeMode() ? true : false;
-    }
-
-    public boolean isExcludeMode() {
-        return excludeMode;
+        return !FilterMode.INCLUDE.equals(filterMode);
     }
 
     public Set<String> getPatterns() {
         return patterns;
+    }
+
+    public void addPattern(String... pattern) {
+        Collections.addAll(this.patterns, pattern);
+    }
+
+    private void addPatterns(Collection<String> patterns) {
+        this.patterns.addAll(patterns);
+    }
+
+    public PathMatcher getPathMatcher() {
+        return pathMatcher;
+    }
+
+    public void setPathMatcher(PathMatcher pathMatcher) {
+        this.pathMatcher = pathMatcher;
+    }
+
+    public FilterMode getFilterMode() {
+        return filterMode;
+    }
+
+    public void setFilterMode(FilterMode filterMode) {
+        this.filterMode = filterMode;
+    }
+
+    public void setPatterns(Set<String> patterns) {
+        this.patterns.clear();
+        this.patterns.addAll(patterns);
     }
 
 }

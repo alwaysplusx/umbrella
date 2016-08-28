@@ -6,7 +6,7 @@ import static java.lang.annotation.RetentionPolicy.*;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
-import com.harmony.umbrella.log.ErrorHandler;
+import com.harmony.umbrella.log.ProblemHandler;
 
 /**
  * @author wuxii@foxmail.com
@@ -27,6 +27,6 @@ public @interface Module {
      * 
      * @return 异常处理
      */
-    Class<? extends ErrorHandler> errorHandler() default ErrorHandler.class;
+    Class<? extends ProblemHandler> errorHandler() default ProblemHandler.class;
 
 }
