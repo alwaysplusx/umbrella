@@ -75,11 +75,6 @@ public @interface Logging {
      */
     StandardLevel level() default StandardLevel.INFO;
 
-    /**
-     * 属性的表达式
-     * 
-     * @return
-     */
     Property[] properties() default {};
 
     /**
@@ -96,7 +91,9 @@ public @interface Logging {
 
         String name();
 
-        Expression value();
+        String value() default "";
+
+        Expression[] expression() default {};
 
     }
 

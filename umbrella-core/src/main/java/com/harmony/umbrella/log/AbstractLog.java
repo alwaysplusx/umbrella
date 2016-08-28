@@ -10,7 +10,7 @@ import com.harmony.umbrella.log.message.ParameterizedMessageFactory;
 public abstract class AbstractLog implements Log {
 
     protected static final String FQCN = AbstractLog.class.getName();
-    
+
     protected final String className;
     protected final MessageFactory messageFactory;
 

@@ -1,7 +1,7 @@
 package com.harmony.umbrella.log4j2;
 
 import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.spi.ExtendedLogger;
 
 import com.harmony.umbrella.log.AbstractLog;
 import com.harmony.umbrella.log.Level;
@@ -25,7 +25,7 @@ public class Log4j2LogProvider implements LogProvider {
 
     private final static class Log4j2Log extends AbstractLog {
 
-        private Logger logger;
+        private ExtendedLogger logger;
         private final String caller;
 
         public Log4j2Log(String name) {
@@ -34,7 +34,7 @@ public class Log4j2LogProvider implements LogProvider {
 
         private Log4j2Log(String name, String caller) {
             super(name);
-            this.logger = LogManager.getLogger(name);
+            this.logger = LogManager.getContext().getLogger(name);
             this.caller = caller;
             this.isTraceEnabled = logger.isTraceEnabled();
             this.isDebugEnabled = logger.isDebugEnabled();
@@ -51,10 +51,34 @@ public class Log4j2LogProvider implements LogProvider {
 
         @Override
         protected void logMessage(Level level, Message message, Throwable t) {
+            logger.logIfEnabled(FQCN, convert(level), null, message.getFormattedMessage(), t);
         }
 
         @Override
         protected void logMessage(Level level, LogInfo logInfo) {
+            logger.logIfEnabled(FQCN, convert(level), null, logInfo, logInfo.getThrowable());
+        }
+
+        private org.apache.logging.log4j.Level convert(Level level) {
+            if (level != null) {
+                switch (level.getStandardLevel()) {
+                case ALL:
+                    return org.apache.logging.log4j.Level.ALL;
+                case DEBUG:
+                    return org.apache.logging.log4j.Level.DEBUG;
+                case ERROR:
+                    return org.apache.logging.log4j.Level.ERROR;
+                case INFO:
+                    return org.apache.logging.log4j.Level.INFO;
+                case OFF:
+                    return org.apache.logging.log4j.Level.OFF;
+                case TRACE:
+                    return org.apache.logging.log4j.Level.TRACE;
+                case WARN:
+                    return org.apache.logging.log4j.Level.WARN;
+                }
+            }
+            return org.apache.logging.log4j.Level.INFO;
         }
 
     }
