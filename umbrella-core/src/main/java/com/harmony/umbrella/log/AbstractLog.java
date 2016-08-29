@@ -111,7 +111,7 @@ public abstract class AbstractLog implements Log {
     protected void logIfEnable(Level level, Object message) {
         if (isEnable(level)) {
             Message msg = messageFactory.newMessage(message);
-            logMessage(level, msg, msg.getThrowable());
+            logMessage(level, msg, null);
         }
     }
 

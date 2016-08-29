@@ -121,7 +121,6 @@ public abstract class LoggingInterceptor {
             if (hasLoggingAnnotation) {
                 LoggingTemplate template = loggingTemplateFactory.getLoggingTemplate(loggingAnn);
                 logMessage.action(loggingAnn.action())//
-                        .type(loggingAnn.type())//
                         .level(loggingAnn.level())//
                         .key(template.getId(valueContext))//
                         .message(template.getMessage(valueContext));

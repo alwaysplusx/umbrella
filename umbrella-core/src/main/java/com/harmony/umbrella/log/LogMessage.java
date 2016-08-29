@@ -1,35 +1,37 @@
 package com.harmony.umbrella.log;
 
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 
 import com.harmony.umbrella.log.Level.StandardLevel;
-import com.harmony.umbrella.log.annotation.Logging.LogType;
 
 /**
  * 统一日志消息
  *
  * @author wuxii@foxmail.com
  */
-public class LogMessage {
+public class LogMessage implements LogInfo {
+
+    private static final long serialVersionUID = 1L;
 
     public static final Level DEFAULT_LEVEL = Level.INFO;
 
     public static final String LOGMESSAGE_FQNC = LogMessage.class.getName();
 
-    private Log log;
-    private MessageFactory messageFactory;
+    private transient Log log;
+    private transient MessageFactory messageFactory;
 
     private String module;
     private String action;
 
     private Object key;
 
-    private Message message;
+    private transient Message message;
     private Throwable throwable;
     private Level level;
-    private LogType type;
 
     private String operatorName;
     private Object operatorId;
@@ -143,11 +145,6 @@ public class LogMessage {
         return this;
     }
 
-    public LogMessage type(LogType type) {
-        this.type = type;
-        return this;
-    }
-
     /**
      * 设置开始时间 startTime = Calendar.getInstance();
      *
@@ -222,6 +219,9 @@ public class LogMessage {
      * @return
      */
     public LogMessage put(String key, Object value) {
+        if (this.context == null) {
+            this.context = new HashMap<String, Object>();
+        }
         this.context.put(key, value);
         return this;
     }
@@ -311,112 +311,101 @@ public class LogMessage {
     }
 
     public LogInfo asInfo() {
-        return new LogInfo() {
-
-            @Override
-            public Date getRequestTime() {
-                return new Date(startTime);
-            }
-
-            @Override
-            public Object getResult() {
-                return result;
-            }
-
-            @Override
-            public Object getOperatorId() {
-                return operatorId;
-            }
-
-            @Override
-            public String getOperatorName() {
-                return operatorName;
-            }
-
-            @Override
-            public String getOperatorHost() {
-                return operatorHost;
-            }
-
-            @Override
-            public String getModule() {
-                return module;
-            }
-
-            @Override
-            public Message getMessage() {
-                return message;
-            }
-
-            @Override
-            public StandardLevel getLevel() {
-                return level == null ? null : level.getStandardLevel();
-            }
-
-            @Override
-            public LogType getType() {
-                return type;
-            }
-
-            @Override
-            public Date getResponseTime() {
-                return new Date(finishTime);
-            }
-
-            @Override
-            public Throwable getThrowable() {
-                return throwable;
-            }
-
-            @Override
-            public Object getKey() {
-                return key;
-            }
-
-            @Override
-            public String getAction() {
-                return action;
-            }
-
-            @Override
-            public String getStackLocation() {
-                return stack;
-            }
-
-            @Override
-            public String getThreadName() {
-                return threadName;
-            }
-
-            @Override
-            public Map<String, Object> getContext() {
-                return context;
-            }
-
-            @Override
-            public String toString() {
-                return LogMessage.this.toString();
-            }
-
-        };
+        return this;
     }
 
     @Override
     public String toString() {
         StringBuilder out = new StringBuilder();
         out.append("{\n        module : ").append(module)//
-                .append(", \n        action : ").append(action)//
-                .append(", \n           key : ").append(key)//
-                .append(", \n       message : ").append(message == null ? null : message.getFormattedMessage())//
-                .append(", \n         level : ").append(level == null ? null : level.getName())//
-                .append(", \n          type : ").append(type)//
-                .append(", \n  operatorName : ").append(operatorName)//
-                .append(", \n  operatorHost : ").append(operatorHost)//
-                .append(", \n        result : ").append(result)//
-                .append(", \n         stack : ").append(stack)//
-                .append(", \n           use : ").append(use())//
+                .append("\n        action : ").append(action)//
+                .append("\n           key : ").append(key)//
+                .append("\n       message : ").append(message == null ? null : message.getFormattedMessage())//
+                .append("\n         level : ").append(level == null ? null : level.getName())//
+                .append("\n  operatorName : ").append(operatorName)//
+                .append("\n  operatorHost : ").append(operatorHost)//
+                .append("\n        result : ").append(result)//
+                .append("\n         stack : ").append(stack)//
+                .append("\n           use : ").append(use())//
                 .append("\n}");
         return out.toString();
+    }
+
+    // logInfo methods
+
+    @Override
+    public String getModule() {
+        return module;
+    }
+
+    @Override
+    public String getAction() {
+        return action;
+    }
+
+    @Override
+    public Object getKey() {
+        return key;
+    }
+
+    @Override
+    public String getMessage() {
+        return message == null ? null : message.getFormattedMessage();
+    }
+
+    @Override
+    public Object getResult() {
+        return result;
+    }
+
+    @Override
+    public Date getRequestTime() {
+        return startTime <= 0 ? null : new Date(startTime);
+    }
+
+    @Override
+    public Date getResponseTime() {
+        return finishTime <= 0 ? null : new Date(finishTime);
+    }
+
+    @Override
+    public Throwable getThrowable() {
+        return throwable;
+    }
+
+    @Override
+    public StandardLevel getLevel() {
+        return level == null ? null : level.standardLevel;
+    }
+
+    @Override
+    public String getOperatorName() {
+        return operatorName;
+    }
+
+    @Override
+    public Object getOperatorId() {
+        return operatorId;
+    }
+
+    @Override
+    public String getOperatorHost() {
+        return operatorHost;
+    }
+
+    @Override
+    public String getStackLocation() {
+        return stack;
+    }
+
+    @Override
+    public String getThreadName() {
+        return threadName;
+    }
+
+    @Override
+    public Map<String, Object> getContext() {
+        return Collections.unmodifiableMap(context);
     }
 
 }

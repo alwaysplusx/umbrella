@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="info" packages="com.harmony.umbrella.log4j2">
+  <Properties>
+    <Property name="DEV_PATTERN">[%p] %c{1}.%M(%F:%L) - %m%n</Property>
+    <Property name="PATTERN">[%t] [%p] %c{1}.%M(%F:%L) - %m%n</Property>
+  </Properties>
+  <Appenders>
+    <Console name="Console" target="SYSTEM_OUT">
+      <PatternLayout pattern="${DEV_PATTERN}" />
+    </Console>
+    <huiju-jdbc name="huiju-console">
+      <filters>
+        <typeFilter />
+      </filters>
+    </huiju-jdbc>
+  </Appenders>
+  <Loggers>
+    <Root level="info">
+      <AppenderRef ref="Console" />
+      <AppenderRef ref="huiju-console" />
+    </Root>
+  </Loggers>
+</Configuration>

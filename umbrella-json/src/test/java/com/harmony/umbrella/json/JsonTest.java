@@ -41,7 +41,7 @@ public class JsonTest {
     @Test
     public void testFromJson() {
         String json = "{a: 'b'}";
-        Map<String, Object> map = Json.toMap(json);
+        Map<String, Object> map = Json.parseMap(json);
         assertEquals(map.get("a"), "b");
     }
 

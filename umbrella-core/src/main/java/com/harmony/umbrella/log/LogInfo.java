@@ -1,17 +1,17 @@
 package com.harmony.umbrella.log;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.Map;
 
 import com.harmony.umbrella.log.Level.StandardLevel;
-import com.harmony.umbrella.log.annotation.Logging.LogType;
 
 /**
  * 日志信息Bean
  * 
  * @author wuxii@foxmail.com
  */
-public interface LogInfo {
+public interface LogInfo extends Serializable {
 
     /**
      * 日志模块
@@ -39,7 +39,7 @@ public interface LogInfo {
      * 
      * @return
      */
-    Message getMessage();
+    String getMessage();
 
     /**
      * 业务日志的结果
@@ -75,13 +75,6 @@ public interface LogInfo {
      * @return
      */
     StandardLevel getLevel();
-
-    /**
-     * 日志info的类型，有系统日志与业务日志之分
-     * 
-     * @return
-     */
-    LogType getType();
 
     /**
      * 操作人

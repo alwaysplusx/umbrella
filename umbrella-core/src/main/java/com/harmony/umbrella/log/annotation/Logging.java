@@ -7,6 +7,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
 import com.harmony.umbrella.log.Level.StandardLevel;
+import com.harmony.umbrella.log.ProblemHandler;
 
 /**
  * 注解化的日志api
@@ -62,19 +63,17 @@ public @interface Logging {
     Expression[] expressions() default {};
 
     /**
-     * 是否为系统日志，默认为false
-     * 
-     * @return logType
-     */
-    LogType type() default LogType.OPERATION;
-
-    /**
      * 日志级别
      * 
      * @return 日志级别
      */
     StandardLevel level() default StandardLevel.INFO;
 
+    /**
+     * log其他属性
+     * 
+     * @return 其他配置属性
+     */
     Property[] properties() default {};
 
     /**
@@ -82,8 +81,7 @@ public @interface Logging {
      * 
      * @return 异常处理
      */
-    // FIXME 添加errorHandler功能
-    // Class<? extends ErrorHandler> errorHandler() default ErrorHandler.class;
+    Class<? extends ProblemHandler> handler() default ProblemHandler.class;
 
     @Retention(RUNTIME)
     @Target(ANNOTATION_TYPE)
@@ -136,22 +134,6 @@ public @interface Logging {
          */
         int index() default Integer.MIN_VALUE;
 
-    }
-
-    /**
-     * 日志类型: 分为系统日志,业务日志
-     * 
-     * @author wuxii@foxmail.com
-     */
-    public enum LogType {
-        /**
-         * 系统日志
-         */
-        SYSTEM,
-        /**
-         * 业务日志
-         */
-        OPERATION
     }
 
     public enum Scope {
