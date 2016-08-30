@@ -1,12 +1,15 @@
 package com.harmony.umbrella.log;
 
+import java.io.Serializable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 /**
  * @author wuxii@foxmail.com
  */
-public class Level {
+public class Level implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     private static final ConcurrentMap<String, Level> LEVELS = new ConcurrentHashMap<String, Level>();
 
