@@ -1,5 +1,8 @@
 package com.harmony.umbrella.log;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
@@ -308,7 +311,7 @@ public class LogMessage {
         return new LogInfoImpl(this);
     }
 
-    static final class LogInfoImpl implements LogInfo {
+    private static final class LogInfoImpl implements LogInfo {
 
         private static final long serialVersionUID = 1L;
 
@@ -422,6 +425,43 @@ public class LogMessage {
         @Override
         public Map<String, Object> getContext() {
             return Collections.unmodifiableMap(contextMap);
+        }
+
+        @SuppressWarnings("unchecked")
+        private void readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException {
+            this.action = ois.readUTF();
+            this.contextMap = (Map<String, Object>) ois.readObject();
+            this.key = ois.readObject();
+            this.level = (StandardLevel) ois.readObject();
+            this.message = ois.readUTF();
+            this.module = ois.readUTF();
+            this.operatorHost = ois.readUTF();
+            this.operatorId = ois.readObject();
+            this.operatorName = ois.readUTF();
+            this.requestTime = ois.readLong();
+            this.responseTime = ois.readLong();
+            this.result = ois.readObject();
+            this.stackLocation = ois.readUTF();
+            this.threadName = ois.readUTF();
+            this.throwable = (Throwable) ois.readObject();
+        }
+
+        private void writeObject(ObjectOutputStream oos) throws IOException {
+            oos.writeUTF(this.action);
+            oos.writeObject(this.contextMap);
+            oos.writeObject(this.key);
+            oos.writeObject(this.level);
+            oos.writeUTF(this.message);
+            oos.writeUTF(this.module);
+            oos.writeUTF(this.operatorHost);
+            oos.writeObject(this.operatorId);
+            oos.writeUTF(this.operatorName);
+            oos.writeLong(this.requestTime);
+            oos.writeLong(this.responseTime);
+            oos.writeObject(this.result);
+            oos.writeUTF(this.stackLocation);
+            oos.writeUTF(this.threadName);
+            oos.writeObject(this.throwable);
         }
 
         @Override

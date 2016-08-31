@@ -47,10 +47,13 @@ public class LoggingTemplateFactory {
     }
 
     public LoggingTemplate getLoggingTemplate(Logging ann) {
-        List<Expression> expressions = new ArrayList<Expression>();
+        final List<Expression> expressions = new ArrayList<Expression>();
+
+        final com.harmony.umbrella.log.annotation.Logging.Expression[] bindExpression = ann.expressions();
         final String messageTemplate = ann.message();
 
         boolean isText = !messageTemplate.startsWith(start);
+
         String currentDelimiter = isText ? start : end;
         StringTokenizer st = new StringTokenizer(messageTemplate);
 
@@ -69,10 +72,8 @@ public class LoggingTemplateFactory {
             if (isText) {
                 exp = new Expression(expressionText, true);
             } else {
-                com.harmony.umbrella.log.annotation.Logging.Expression expAnn = findExpressionAnnotation(ann, expressionText);
-                if (expAnn != null) {
-                    exp = createExpression(expAnn);
-                } else {
+                exp = findBindExpression(expressionText, bindExpression);
+                if (exp == null) {
                     // 未在@Logging#expressions中找到index想对应的注解则默认创建参数index的表达式
                     exp = new Expression(expressionText, expressionDelimiter, getScope(expressionText));
                 }
@@ -84,44 +85,67 @@ public class LoggingTemplateFactory {
 
         } // end while
 
+        // parse key expression
         Expression keyExpression = null;
-
         com.harmony.umbrella.log.annotation.Logging.Expression[] keyExpressionAnn = ann.keyExpression();
         if (keyExpressionAnn.length > 0) {
-            keyExpression = createExpression(keyExpressionAnn[0]);
+            keyExpression = buildExpression(keyExpressionAnn[0]);
         } else if (StringUtils.isNotBlank(ann.key())) {
-            // FIXME @Logging#key() 需要适配存在'{' '}'的情况
-            keyExpression = new Expression(ann.key(), this.expressionDelimiter, Scope.IN);
+            String expText = trimExpression(ann.key());
+            keyExpression = new Expression(expText, this.expressionDelimiter, getScope(expText));
         }
 
-        return new LoggingTemplate(messageTemplate, expressions, keyExpression);
+        // parse property
+        List<Property> properties = new ArrayList<Property>();
+        com.harmony.umbrella.log.annotation.Logging.Property[] propertiesAnn = ann.properties();
+        for (com.harmony.umbrella.log.annotation.Logging.Property a : propertiesAnn) {
+            Expression exp = null;
+            com.harmony.umbrella.log.annotation.Logging.Expression[] propertyExpression = a.propertyExpression();
+            if (propertyExpression.length > 0) {
+                exp = buildExpression(propertyExpression[0]);
+            }
+            if (exp == null) {
+                String expText = trimExpression(a.propertyValue());
+                exp = new Expression(expText, expressionDelimiter, getScope(expText));
+            }
+            properties.add(new Property(a.propertyName(), exp));
+        }
+
+        return new LoggingTemplate(messageTemplate, expressions, properties, keyExpression);
     }
 
-    protected com.harmony.umbrella.log.annotation.Logging.Expression findExpressionAnnotation(Logging ann, String expressionText) {
-        com.harmony.umbrella.log.annotation.Logging.Expression result = null;
-        Integer index = parse(expressionText);
-        if (index != null) {
-            com.harmony.umbrella.log.annotation.Logging.Expression[] expressions = ann.expressions();
-            for (com.harmony.umbrella.log.annotation.Logging.Expression exp : expressions) {
-                if (exp.index() == index) {
-                    result = exp;
-                    break;
-                }
-            }
-            if (result == null && expressions.length > index) {
-                result = expressions[index];
+    protected Expression findBindExpression(String bind, com.harmony.umbrella.log.annotation.Logging.Expression[] expressions) {
+        if (expressions.length == 0) {
+            return null;
+        }
+        for (com.harmony.umbrella.log.annotation.Logging.Expression exp : expressions) {
+            if (StringUtils.isNotBlank(exp.bind()) && exp.bind().equals(bind)) {
+                return buildExpression(exp);
             }
         }
-        return result;
+        return null;
     }
 
-    protected Expression createExpression(com.harmony.umbrella.log.annotation.Logging.Expression expressionAnnotation) {
-        // FIXME @Expression需要适配存在'{' '}'的情况
-        String delimiter = expressionAnnotation.delimiter();
+    protected Expression buildExpression(com.harmony.umbrella.log.annotation.Logging.Expression expAnn) {
+        String delimiter = expAnn.delimiter();
         if (StringUtils.isBlank(delimiter)) {
             delimiter = this.expressionDelimiter;
         }
-        return new Expression(expressionAnnotation.value(), delimiter, expressionAnnotation.scope());
+        String expText = expAnn.text();
+        if (StringUtils.isBlank(expText)) {
+            expText = expAnn.value();
+        }
+        return new Expression(trimExpression(expText), delimiter, expAnn.scope());
+    }
+
+    private String trimExpression(String text) {
+        if (text.startsWith(start)) {
+            text = text.substring(1, text.length());
+        }
+        if (text.endsWith(end)) {
+            text = text.substring(0, text.length() - 1);
+        }
+        return text;
     }
 
     protected Scope getScope(String expression) {
@@ -136,14 +160,6 @@ public class LoggingTemplateFactory {
             }
         }
         return defaultScope;
-    }
-
-    private Integer parse(String text) {
-        try {
-            return Integer.valueOf(text);
-        } catch (NumberFormatException e) {
-            return null;
-        }
     }
 
     public void setStart(char start) {
@@ -179,16 +195,18 @@ public class LoggingTemplateFactory {
         this.outKeyWords = outKeyWords;
     }
 
-    public class LoggingTemplate {
+    public static final class LoggingTemplate {
 
         private String template;
         private List<Expression> expressions;
+        private List<Property> properties;
         private Expression keyExpression;
 
-        private LoggingTemplate(String template, List<Expression> expressions, Expression keyExpression) {
+        private LoggingTemplate(String template, List<Expression> expressions, List<Property> properties, Expression keyExpression) {
             this.template = template;
             this.keyExpression = keyExpression;
             this.expressions = expressions;
+            this.properties = properties;
         }
 
         public String getTemplate() {
@@ -196,7 +214,11 @@ public class LoggingTemplateFactory {
         }
 
         public Expression[] getExpressions() {
-            return expressions.toArray(new Expression[expressions.size()]);
+            return expressions.toArray(new Expression[0]);
+        }
+
+        public Property[] getProperties() {
+            return properties.toArray(new Property[0]);
         }
 
         public Expression getKeyExpression() {

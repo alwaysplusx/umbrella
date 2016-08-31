@@ -16,13 +16,11 @@ public class DefaultCurrentContext implements CurrentContext {
 
     private final HttpServletRequest request;
     private final HttpServletResponse response;
-    private HttpSession session;
     protected Locale locale;
 
     public DefaultCurrentContext(HttpServletRequest request, HttpServletResponse response) {
         this.request = request;
         this.response = response;
-        this.session = request.getSession(false);
     }
 
     @Override
@@ -44,7 +42,7 @@ public class DefaultCurrentContext implements CurrentContext {
     public String getNickname() {
         return getSessionAttribute(USER_NICKNAME);
     }
-    
+
     @Override
     public String getUserHost() {
         return request.getRemoteAddr();
@@ -95,15 +93,17 @@ public class DefaultCurrentContext implements CurrentContext {
 
     @Override
     public boolean doesSessionCreated() {
-        return session != null;
+        return request.getSession(false) != null;
     }
 
     @Override
     public HttpSession getHttpSession() {
-        if (session == null) {
-            this.session = request.getSession();
-        }
-        return session;
+        return getHttpSession(true);
+    }
+
+    @Override
+    public HttpSession getHttpSession(boolean create) {
+        return request.getSession(create);
     }
 
     @Override
@@ -113,7 +113,8 @@ public class DefaultCurrentContext implements CurrentContext {
 
     @SuppressWarnings("unchecked")
     public <T> T getSessionAttribute(String name) {
-        return (T) getHttpSession().getAttribute(name);
+        HttpSession session = getHttpSession(false);
+        return session == null ? null : (T) session.getAttribute(name);
     }
 
     @SuppressWarnings("unchecked")

@@ -16,7 +16,7 @@ public class LogValueContext implements ValueContext {
 
     private TypedAccessorChain accessorChain = TypedAccessorChainImpl.createDefault();
 
-    boolean failFast = false;
+    boolean failFast;
 
     private final Map<String, Object> inContext = new HashMap<String, Object>();
     private final Map<String, Object> outContext = new HashMap<String, Object>();

@@ -165,6 +165,16 @@ public interface CurrentContext extends Serializable {
     HttpSession getHttpSession();
 
     /**
+     * Returns the current HttpSession associated with this request or, if there
+     * is no current session and create is true, returns a new session.
+     * 
+     * @param create
+     * @return
+     * @see HttpServletRequest#getSession(boolean)
+     */
+    HttpSession getHttpSession(boolean create);
+
+    /**
      * 获取session的id
      *
      * @return session id

@@ -24,6 +24,7 @@ import com.harmony.umbrella.log.annotation.Logging;
 import com.harmony.umbrella.log.annotation.Module;
 import com.harmony.umbrella.plugin.log.expression.LoggingTemplateFactory;
 import com.harmony.umbrella.plugin.log.expression.LoggingTemplateFactory.LoggingTemplate;
+import com.harmony.umbrella.plugin.log.expression.Property;
 import com.harmony.umbrella.plugin.log.expression.ValueContext;
 import com.harmony.umbrella.plugin.log.expression.ValueStack;
 import com.harmony.umbrella.util.ReflectionUtils;
@@ -124,6 +125,12 @@ public abstract class LoggingInterceptor {
                         .level(loggingAnn.level())//
                         .key(template.getId(valueContext))//
                         .message(template.getMessage(valueContext));
+                // set log context property
+                Property[] properties = template.getProperties();
+                for (Property p : properties) {
+                    logMessage.put(p.getName(), valueContext.find(p.getExpression()));
+                }
+
             } else {
                 logMessage.level(Level.DEBUG)//
                         .message("execute method {}, result is {}", StringUtils.getMethodId(method), result);//

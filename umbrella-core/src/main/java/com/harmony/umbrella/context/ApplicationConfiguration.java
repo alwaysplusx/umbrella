@@ -320,13 +320,13 @@ public class ApplicationConfiguration {
         }
 
         @Override
-        public boolean isInitializeClass() {
-            return cfg.isInitializeClass();
+        public void setInitializeClass(boolean initializeClass) {
+            throw new UnsupportedOperationException();
         }
 
         @Override
-        public void setInitializeClass(boolean initializeClass) {
-            throw new UnsupportedOperationException();
+        public boolean isInitializeClass() {
+            return cfg.isInitializeClass();
         }
 
         @Override
