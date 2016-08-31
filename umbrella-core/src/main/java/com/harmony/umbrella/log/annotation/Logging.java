@@ -87,11 +87,11 @@ public @interface Logging {
     @Target(ANNOTATION_TYPE)
     public @interface Property {
 
-        String name();
+        String propertyName();
 
-        String value() default "";
+        String propertyValue() default "";
 
-        Expression[] expression() default {};
+        Expression[] propertyExpression() default {};
 
     }
 

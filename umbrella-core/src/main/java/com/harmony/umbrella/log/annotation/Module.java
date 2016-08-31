@@ -27,6 +27,6 @@ public @interface Module {
      * 
      * @return 异常处理
      */
-    Class<? extends ProblemHandler> errorHandler() default ProblemHandler.class;
+    Class<? extends ProblemHandler> handler() default ProblemHandler.class;
 
 }
