@@ -83,6 +83,12 @@ public @interface Logging {
      */
     Class<? extends ProblemHandler> handler() default ProblemHandler.class;
 
+    /**
+     * 日志信息的扩展属性
+     * 
+     * @author wuxii@foxmail.com
+     * @see com.harmony.umbrella.log.LogInfo#getContext()
+     */
     @Retention(RUNTIME)
     @Target(ANNOTATION_TYPE)
     public @interface Property {
@@ -95,12 +101,24 @@ public @interface Logging {
 
     }
 
+    /**
+     * 日志表达式中的表达式详细配置注解
+     * 
+     * @author wuxii@foxmail.com
+     */
     @Retention(RUNTIME)
     @Target(ANNOTATION_TYPE)
     public @interface Expression {
 
         /**
-         * 表达式值, 优先级name > value
+         * 与表达式中绑定的值
+         * 
+         * @return 绑定的文本值
+         */
+        String bind() default "";
+
+        /**
+         * 表达式值, 优先级text > value
          * 
          * @return 表达式
          */
@@ -111,7 +129,7 @@ public @interface Logging {
          * 
          * @return 表达式值
          */
-        String name() default "";
+        String text() default "";
 
         /**
          * 表达式所代表的值所属的scope, default is Scope.OUT
@@ -126,13 +144,6 @@ public @interface Logging {
          * @return delimiter
          */
         String delimiter() default "";
-
-        /**
-         * 通过index与message中的表达式匹配
-         * 
-         * @return index
-         */
-        int index() default Integer.MIN_VALUE;
 
     }
 
