@@ -1,50 +1,120 @@
 package com.harmony.umbrella.data;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
+import java.util.Stack;
 
 /**
  * @author wuxii@foxmail.com
  */
-public interface QueryBuilder<T extends QueryBuilder<T>> {
+public class QueryBuilder<T extends QueryBuilder<T>> {
 
-    T equal(String name, Object value);
+    private Stack<Bind> queryStack = new Stack<Bind>();
 
-    T notEqual(String name, Object value);
+    private List<Bind> queryBind = new ArrayList<Bind>();
 
-    T like(String name, Object value);
+    public T equal(String name, Object value) {
+        return (T) this;
+    }
 
-    T notLike(String name, Object value);
+    public T notEqual(String name, Object value) {
+        return (T) this;
+    }
 
-    T in(String name, Object value);
+    public T like(String name, Object value) {
+        return (T) this;
+    }
 
-    T in(String name, Collection<?> value);
+    public T notLike(String name, Object value) {
+        return (T) this;
+    }
 
-    T in(String name, Object... value);
+    public T in(String name, Object value) {
+        return (T) this;
+    }
 
-    T notIn(String name, Object value);
+    public T in(String name, Collection<?> value) {
+        return (T) this;
+    }
 
-    T notIn(String name, Collection<?> value);
+    public T in(String name, Object... value) {
+        return (T) this;
+    }
 
-    T notIn(String name, Object... value);
+    public T notIn(String name, Object value) {
+        return (T) this;
+    }
 
-    T between(String name, Object left, Object right);
+    public T notIn(String name, Collection<?> value) {
+        return (T) this;
+    }
 
-    T notBetween(String name, Object left, Object right);
+    public T notIn(String name, Object... value) {
+        return (T) this;
+    }
 
-    T greatThen(String name, Object value);
+    public T between(String name, Object left, Object right) {
+        return (T) this;
+    }
 
-    T greatEqual(String name, Object value);
+    public T notBetween(String name, Object left, Object right) {
+        return (T) this;
+    }
 
-    T lessThen(String name, Object value);
+    public T greatThen(String name, Object value) {
+        return (T) this;
+    }
 
-    T lessEqual(String name, Object value);
+    public T greatEqual(String name, Object value) {
+        return (T) this;
+    }
 
-    T isNull(String name);
+    public T lessThen(String name, Object value) {
+        return (T) this;
+    }
 
-    T notNull(String name);
+    public T lessEqual(String name, Object value) {
+        return (T) this;
+    }
 
-    T and();
+    public T isNull(String name) {
+        return (T) this;
+    }
 
-    T or();
+    public T notNull(String name) {
+        return (T) this;
+    }
+
+    public T buildCondition(String name, Object value, Operator operator) {
+        Bind bind = queryStack.peek();
+        bind.add(new BindItem(name, value, operator));
+        return (T) this;
+    }
+
+    private Bind peek() {
+        if (queryStack.isEmpty()) {
+            start();
+        }
+        return queryStack.peek();
+    }
+
+    public T start() {
+        queryStack.push(new Bind());
+        return (T) this;
+    }
+
+    public T end() {
+        queryBind.add(queryStack.pop());
+        return (T) this;
+    }
+
+    public T and() {
+        return (T) this;
+    }
+
+    public T or() {
+        return (T) this;
+    }
 
 }
