@@ -1,4 +1,4 @@
-package com.harmony.umbrella.data.support;
+package com.harmony.umbrella.data.util;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -16,28 +16,33 @@ import javax.persistence.criteria.Root;
 import com.harmony.umbrella.data.Logical;
 import com.harmony.umbrella.data.Operator;
 import com.harmony.umbrella.data.Specification;
-import com.harmony.umbrella.data.domain.Page;
 import com.harmony.umbrella.data.domain.Sort.Direction;
 import com.harmony.umbrella.data.domain.Sort.Order;
 import com.harmony.umbrella.data.domain.Specifications;
-import com.harmony.umbrella.data.util.QueryUtils;
+import com.harmony.umbrella.data.support.Bind;
+import com.harmony.umbrella.data.support.LogicalSpecification;
 
 /**
  * @author wuxii@foxmail.com
  */
-public class QueryBuilder<T extends QueryBuilder<T>> {
+public class QueryBuilder<T extends QueryBuilder<T, M>, M> {
 
     protected transient EntityManager entityManager;
     protected transient CriteriaBuilder builder;
     protected transient Stack<Bind> queryStack = new Stack<Bind>();
+
+    private transient List<LogicalSpecification> temp = new ArrayList<LogicalSpecification>();
 
     protected boolean autoStart = true;
     protected boolean autoFinish = true;
 
     protected boolean allowEmptyCondition;
 
-    protected Class entityClass;
+    protected Class<M> entityClass;
     private Specification specification;
+
+    protected int pageOffSet;
+    protected int pageSize;
 
     protected List<Order> orders = new ArrayList<Order>();
 
@@ -48,45 +53,48 @@ public class QueryBuilder<T extends QueryBuilder<T>> {
         return (T) this;
     }
 
-    public T withEntityClass(Class<?> entityClass) {
+    public T withEntityClass(Class<M> entityClass) {
         return form(entityClass);
     }
 
-    public T form(Class<?> entityClass) {
+    public T form(Class<M> entityClass) {
         this.entityClass = entityClass;
         return (T) this;
     }
 
     // result
 
-    public <E> E getSingleResult() {
-        prepareQuery();
+    public QueryResult<M> execute() {
         return null;
     }
 
-    public <E> E getFirstResult() {
+    public M getSingleResult() {
         return null;
     }
 
-    public <E> List<E> getResultList() {
+    public M getFirstResult() {
         return null;
     }
 
-    public <E> Page<E> getResultPage() {
+    public List<M> getResultList() {
+        return null;
+    }
+
+    public List<M> getResultPage() {
         return null;
     }
 
     // sort
 
     public T asc(String... name) {
-        return order(Direction.ASC, name);
+        return orderBy(Direction.ASC, name);
     }
 
     public T desc(String... name) {
-        return order(Direction.DESC, name);
+        return orderBy(Direction.DESC, name);
     }
 
-    public T order(Direction dir, String... name) {
+    public T orderBy(Direction dir, String... name) {
         for (String p : name) {
             this.orders.add(new Order(dir, p));
         }
@@ -94,6 +102,12 @@ public class QueryBuilder<T extends QueryBuilder<T>> {
     }
 
     // paging
+
+    public T paging(int start, int size) {
+        this.pageOffSet = start;
+        this.pageSize = start;
+        return (T) this;
+    }
 
     // query condition method
 
@@ -293,20 +307,18 @@ public class QueryBuilder<T extends QueryBuilder<T>> {
         return queryStack.peek();
     }
 
-    protected void prepareQuery() {
+    // bundle
+
+    public QueryBundle<M> bundle() {
         finishQuery();
-        if (specification == null && !allowEmptyCondition) {
-            throw new IllegalStateException("query condition is null");
-        }
+        final QueryBundle<M> o = new QueryBundle<M>();
+        return o;
     }
 
-    protected CriteriaQuery createCriteriaQuery() {
-        CriteriaQuery query = builder.createQuery();
-        applySpecilicationToCriteriaQuery(query, specification);
-        return query;
-    }
-
-    protected void applySpecilicationToCriteriaQuery(CriteriaQuery query, Specification specification2) {
+    public T unbundle(QueryBundle<M> bundle) {
+        queryStack.clear();
+        temp.clear();
+        return (T) this;
     }
 
     private void finishQuery() {
@@ -334,10 +346,18 @@ public class QueryBuilder<T extends QueryBuilder<T>> {
     public T end() {
         Bind bind = queryStack.pop();
         if (!bind.isEmpty()) {
-            if (bind.isAnd()) {
-                this.specification = Specifications.where(specification).and(bind);
-            } else {
-                this.specification = Specifications.where(specification).or(bind);
+            temp.add(bind);
+        }
+        if (queryStack.isEmpty()) {
+            LogicalSpecification[] ss = temp.toArray(new LogicalSpecification[0]);
+            temp.clear();
+            for (int i = ss.length; i > 0; i--) {
+                LogicalSpecification s = ss[i - 1];
+                if (s.isOr()) {
+                    specification = Specifications.where(specification).or(s);
+                } else {
+                    specification = Specifications.where(specification).and(s);
+                }
             }
         }
         return (T) this;
@@ -367,6 +387,11 @@ public class QueryBuilder<T extends QueryBuilder<T>> {
         @Override
         public boolean isOr() {
             return Logical.isOr(logical);
+        }
+
+        @Override
+        public String toString() {
+            return "(" + spec + ")";
         }
 
     }
@@ -405,7 +430,7 @@ public class QueryBuilder<T extends QueryBuilder<T>> {
 
         @Override
         public String toString() {
-            return logical + " " + name + " " + operator.symbol() + " " + "?";
+            return "(" + name + " " + operator.symbol() + " " + "?)";
         }
 
     }
