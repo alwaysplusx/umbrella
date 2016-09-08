@@ -10,12 +10,16 @@ import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Expression;
+import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import com.harmony.umbrella.data.Logical;
 import com.harmony.umbrella.data.Operator;
 import com.harmony.umbrella.data.Specification;
+import com.harmony.umbrella.data.domain.PageRequest;
+import com.harmony.umbrella.data.domain.Pageable;
+import com.harmony.umbrella.data.domain.Sort;
 import com.harmony.umbrella.data.domain.Sort.Direction;
 import com.harmony.umbrella.data.domain.Sort.Order;
 import com.harmony.umbrella.data.domain.Specifications;
@@ -41,10 +45,13 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> {
     protected Class<M> entityClass;
     private Specification specification;
 
-    protected int pageOffSet;
-    protected int pageSize;
+    protected Sort sort;
 
-    protected List<Order> orders = new ArrayList<Order>();
+    protected int pageNumber;
+    protected int pageSize;
+    protected boolean distinct;
+
+    protected List<String> fetchAttributes;
 
     // query property
 
@@ -57,8 +64,44 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> {
         return form(entityClass);
     }
 
+    public T withPageable(Pageable pageable) {
+        this.pageNumber = pageable.getPageNumber();
+        this.pageSize = pageable.getPageSize();
+        this.withSort(pageable.getSort());
+        return (T) this;
+    }
+
+    public T withSort(Sort sort) {
+        this.sort = sort;
+        return (T) this;
+    }
+
     public T form(Class<M> entityClass) {
         this.entityClass = entityClass;
+        return (T) this;
+    }
+
+    // bundle
+
+    public QueryBundle<M> bundle() {
+        finishQuery();
+        final QueryBundle<M> o = new QueryBundle<M>();
+        o.entityClass = entityClass;
+        o.pageable = new PageRequest(pageNumber < 0 ? 0 : pageNumber, pageSize < 1 ? 1 : pageSize, sort);
+        o.specification = specification;
+        o.fetchAttributes = fetchAttributes == null ? null : new ArrayList<String>(fetchAttributes);
+        return o;
+    }
+
+    public T unbundle(QueryBundle<M> bundle) {
+        queryStack.clear();
+        temp.clear();
+        this.entityClass = bundle.entityClass;
+        this.specification = bundle.specification;
+        this.pageNumber = bundle.pageable == null ? 0 : bundle.pageable.getPageNumber();
+        this.pageSize = bundle.pageable == null ? 0 : bundle.pageable.getPageSize();
+        this.sort = bundle.pageable == null ? null : bundle.pageable.getSort();
+        this.fetchAttributes = bundle.fetchAttributes == null ? null : new ArrayList<String>(fetchAttributes);
         return (T) this;
     }
 
@@ -95,17 +138,17 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> {
     }
 
     public T orderBy(Direction dir, String... name) {
-        for (String p : name) {
-            this.orders.add(new Order(dir, p));
+        Order[] orders = new Order[name.length];
+        for (int i = 0, max = orders.length; i < max; i++) {
+            orders[i] = new Order(dir, name[i]);
         }
-        return (T) this;
+        return (T) orderBy(orders);
     }
 
-    // paging
-
-    public T paging(int start, int size) {
-        this.pageOffSet = start;
-        this.pageSize = start;
+    public T orderBy(Order... order) {
+        if (order.length > 0) {
+            this.sort = (this.sort == null) ? new Sort(order) : this.sort.and(new Sort(order));
+        }
         return (T) this;
     }
 
@@ -307,20 +350,6 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> {
         return queryStack.peek();
     }
 
-    // bundle
-
-    public QueryBundle<M> bundle() {
-        finishQuery();
-        final QueryBundle<M> o = new QueryBundle<M>();
-        return o;
-    }
-
-    public T unbundle(QueryBundle<M> bundle) {
-        queryStack.clear();
-        temp.clear();
-        return (T) this;
-    }
-
     private void finishQuery() {
         if (!queryStack.isEmpty()) {
             if (!autoFinish) {
@@ -330,6 +359,37 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> {
                 end();
             }
         }
+    }
+
+    // function
+
+    public T distinct() {
+        return distinct(true);
+    }
+
+    public T notDistinct() {
+        return distinct(false);
+    }
+
+    public T distinct(boolean distinct) {
+        this.distinct = distinct;
+        return (T) this;
+    }
+
+    public T fetch(String... names) {
+        return (T) fetch(JoinType.INNER, names);
+    }
+
+    public T fetch(JoinType joinType, String... names) {
+        return (T) this;
+    }
+
+    public T join(String... names) {
+        return (T) join(JoinType.INNER, names);
+    }
+
+    public T join(JoinType joinType, String... names) {
+        return (T) this;
     }
 
     // enclose method
