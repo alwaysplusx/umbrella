@@ -49,8 +49,8 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> {
     protected int pageNumber;
     protected int pageSize;
     protected boolean distinct;
-    protected FetchAttribute fetchAttribute;
-    protected JoinAttribute joinAttribute;
+    protected FetchAttributes fetchAttributes;
+    protected JoinAttributes joinAttributes;
 
     private Specification specification;
 
@@ -102,8 +102,8 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> {
         o.entityClass = entityClass;
         o.pageable = new PageRequest(pageNumber < 0 ? 0 : pageNumber, pageSize < 1 ? 1 : pageSize, sort);
         o.specification = specification;
-        o.fetchAttribute = fetchAttribute;
-        o.joinAttribute = joinAttribute;
+        o.fetchAttributes = fetchAttributes;
+        o.joinAttributes = joinAttributes;
         return o;
     }
 
@@ -115,8 +115,8 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> {
         this.pageNumber = bundle.getPageNumber();
         this.pageSize = bundle.getPageSize();
         this.sort = bundle.getSort();
-        this.fetchAttribute = bundle.fetchAttribute;
-        this.joinAttribute = bundle.joinAttribute;
+        this.fetchAttributes = bundle.fetchAttributes;
+        this.joinAttributes = bundle.joinAttributes;
         return (T) this;
     }
 
@@ -404,11 +404,11 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> {
     }
 
     public T fetch(JoinType joinType, String... names) {
-        if (this.fetchAttribute == null) {
-            this.fetchAttribute = new FetchAttribute();
+        if (this.fetchAttributes == null) {
+            this.fetchAttributes = new FetchAttributes();
         }
         for (String name : names) {
-            this.fetchAttribute.attrs.add(new Attribute(name, joinType));
+            this.fetchAttributes.attrs.add(new Attribute(name, joinType));
         }
         return (T) this;
     }
@@ -418,11 +418,11 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> {
     }
 
     public T join(JoinType joinType, String... names) {
-        if (this.joinAttribute == null) {
-            this.joinAttribute = new JoinAttribute();
+        if (this.joinAttributes == null) {
+            this.joinAttributes = new JoinAttributes();
         }
         for (String name : names) {
-            this.joinAttribute.attrs.add(new Attribute(name, joinType));
+            this.joinAttributes.attrs.add(new Attribute(name, joinType));
         }
         return (T) this;
     }
@@ -530,7 +530,7 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> {
 
     }
 
-    static final class FetchAttribute {
+    static final class FetchAttributes {
 
         List<Attribute> attrs = new ArrayList<Attribute>();
 
@@ -539,7 +539,7 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> {
         }
     }
 
-    static final class JoinAttribute {
+    static final class JoinAttributes {
 
         List<Attribute> attrs = new ArrayList<Attribute>();
 

@@ -20,6 +20,8 @@ import com.harmony.umbrella.data.domain.PageRequest;
 import com.harmony.umbrella.data.domain.Pageable;
 import com.harmony.umbrella.data.domain.Sort;
 import com.harmony.umbrella.data.util.QueryBuilder.Attribute;
+import com.harmony.umbrella.data.util.QueryBuilder.FetchAttributes;
+import com.harmony.umbrella.data.util.QueryBuilder.JoinAttributes;
 import com.harmony.umbrella.util.Assert;
 
 /**
@@ -140,28 +142,21 @@ public class QueryResultImpl<T> implements QueryResult<T> {
         if (pageable == null) {
             throw new IllegalStateException("page request not set");
         }
-
-        Class<T> entityClass = bundle.getEntityClass();
-        CriteriaQuery<T> query = buildCriteriaQuery(entityClass, false, true);
-        Root<T> root = query.from(entityClass);
-        applySpecification(root, query, bundle.getSpecification());
-        applySort(root, query, pageable.getSort());
-
-        // page result
+        CriteriaQuery<T> query = buildCriteriaQuery(bundle.getEntityClass(), pageable.getSort(), bundle.fetchAttributes, bundle.joinAttributes);
+        // page count result
         long total = getCountResult();
+
         List<T> content = entityManager.createQuery(query)//
                 .setFirstResult(pageable.getOffset())//
                 .setMaxResults(pageable.getPageSize())//
                 .getResultList();
-
         return new PageImpl<T>(content, pageable, total);
     }
 
     @Override
     public long getCountResult() {
-        CriteriaQuery<Long> query = buildCriteriaQuery(Long.class, false, false);
+        CriteriaQuery<Long> query = buildCriteriaQuery(Long.class, null, null, null);
         Root root = query.from(bundle.getEntityClass());
-        applySpecification(root, query, bundle.getSpecification());
         if (bundle.isDistinct()) {
             query.select(builder.countDistinct(root));
         } else {
@@ -173,19 +168,18 @@ public class QueryResultImpl<T> implements QueryResult<T> {
     // query result
 
     private CriteriaQuery<T> buildCriteriaQuery() {
-        return buildCriteriaQuery(bundle.getEntityClass(), true, true);
+        return buildCriteriaQuery(bundle.getEntityClass(), bundle.getSort(), bundle.fetchAttributes, bundle.joinAttributes);
     }
 
-    protected <E> CriteriaQuery<E> buildCriteriaQuery(Class<E> resultType, boolean applySort, boolean applyAttribute) {
+    protected <E> CriteriaQuery<E> buildCriteriaQuery(Class<E> resultType, Sort sort, FetchAttributes fetchAttr, JoinAttributes joinAttr) {
         final CriteriaQuery<E> query = createQuery(resultType);
         Root root = query.from(bundle.getEntityClass());
+
         applySpecification(root, query, bundle.getSpecification());
-        if (applySort) {
-            applySort(root, query, bundle.getSort());
-        }
-        if (applyAttribute) {
-            applyAttribute(root, true, true);
-        }
+        applySort(root, query, sort);
+        applyFetchAttributes(root, fetchAttr);
+        applyJoinAttribute(root, joinAttr);
+
         return query;
     }
 
@@ -207,10 +201,18 @@ public class QueryResultImpl<T> implements QueryResult<T> {
     protected <E> CriteriaQuery<E> buildFunctionCriteriaQuery(Class<E> resultType, String function, String column) {
         final CriteriaQuery<E> query = createQuery(resultType);
         Root root = query.from(bundle.getEntityClass());
+
         applySpecification(root, query, bundle.getSpecification());
+
         Expression expression = QueryUtils.toExpressionRecursively(root, column);
         return query.select(builder.function(function, resultType, expression));
     }
+
+    protected final <E> CriteriaQuery<E> createQuery(Class<E> resultType) {
+        return (resultType == null || resultType == Object.class) ? (CriteriaQuery<E>) builder.createQuery() : builder.createQuery(resultType);
+    }
+
+    // apply query feature
 
     protected void applySpecification(Root root, CriteriaQuery query, Specification spec) {
         if (spec != null) {
@@ -225,21 +227,20 @@ public class QueryResultImpl<T> implements QueryResult<T> {
         }
     }
 
-    protected void applyAttribute(Root root, boolean fetch, boolean join) {
-        if (fetch && bundle.fetchAttribute != null) {
-            for (Attribute attr : bundle.fetchAttribute.attrs) {
-                root.fetch(attr.name, attr.joniType == null ? JoinType.INNER : attr.joniType);
-            }
-        }
-        if (join && bundle.joinAttribute != null) {
-            for (Attribute attr : bundle.joinAttribute.attrs) {
+    protected void applyFetchAttributes(Root root, FetchAttributes attributes) {
+        if (attributes != null && !attributes.attrs.isEmpty()) {
+            for (Attribute attr : attributes.attrs) {
                 root.fetch(attr.name, attr.joniType == null ? JoinType.INNER : attr.joniType);
             }
         }
     }
 
-    protected final <E> CriteriaQuery<E> createQuery(Class<E> resultType) {
-        return (resultType == null || resultType == Object.class) ? (CriteriaQuery<E>) builder.createQuery() : builder.createQuery(resultType);
+    protected void applyJoinAttribute(Root root, JoinAttributes attributes) {
+        if (attributes != null && !attributes.attrs.isEmpty()) {
+            for (Attribute attr : attributes.attrs) {
+                root.join(attr.name, attr.joniType == null ? JoinType.INNER : attr.joniType);
+            }
+        }
     }
 
 }

@@ -3,8 +3,8 @@ package com.harmony.umbrella.data.util;
 import com.harmony.umbrella.data.Specification;
 import com.harmony.umbrella.data.domain.Pageable;
 import com.harmony.umbrella.data.domain.Sort;
-import com.harmony.umbrella.data.util.QueryBuilder.FetchAttribute;
-import com.harmony.umbrella.data.util.QueryBuilder.JoinAttribute;
+import com.harmony.umbrella.data.util.QueryBuilder.FetchAttributes;
+import com.harmony.umbrella.data.util.QueryBuilder.JoinAttributes;
 
 /**
  * @author wuxii@foxmail.com
@@ -17,9 +17,9 @@ public class QueryBundle<M> {
 
     Specification specification;
 
-    FetchAttribute fetchAttribute;
+    FetchAttributes fetchAttributes;
 
-    JoinAttribute joinAttribute;
+    JoinAttributes joinAttributes;
 
     boolean distinct;
 
@@ -51,12 +51,12 @@ public class QueryBundle<M> {
         return pageable == null ? null : pageable.getSort();
     }
 
-    public FetchAttribute getFetchAttribute() {
-        return fetchAttribute;
+    public FetchAttributes getFetchAttributes() {
+        return fetchAttributes;
     }
 
-    public JoinAttribute getJoinAttribute() {
-        return joinAttribute;
+    public JoinAttributes getJoinAttributes() {
+        return joinAttributes;
     }
 
 }
