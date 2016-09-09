@@ -56,7 +56,7 @@
     <!-- spring -->
     <spring.version>4.3.2.RELEASE</spring.version>
     <spring.data.version>1.10.0.RELEASE</spring.data.version>
-    <spring.data.jpa.version>1.8.0.RELEASE</spring.data.jpa.version>
+    <spring.data.jpa.version>1.10.2.RELEASE</spring.data.jpa.version>
     <spring.security.version>4.0.0.RELEASE</spring.security.version>
     <!-- hibernate -->
     <hibernate.version>4.3.8.Final</hibernate.version>

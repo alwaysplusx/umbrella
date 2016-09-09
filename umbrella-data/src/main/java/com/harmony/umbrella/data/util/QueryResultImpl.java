@@ -8,6 +8,7 @@ import javax.persistence.NoResultException;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Expression;
+import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Selection;
@@ -18,6 +19,7 @@ import com.harmony.umbrella.data.domain.PageImpl;
 import com.harmony.umbrella.data.domain.PageRequest;
 import com.harmony.umbrella.data.domain.Pageable;
 import com.harmony.umbrella.data.domain.Sort;
+import com.harmony.umbrella.data.util.QueryBuilder.Attribute;
 import com.harmony.umbrella.util.Assert;
 
 /**
@@ -125,7 +127,7 @@ public class QueryResultImpl<T> implements QueryResult<T> {
         long total = getCountResult();
         List<T> content = entityManager.createQuery(query).setFirstResult(offset).setMaxResults(size).getResultList();
 
-        return new PageImpl<>(content, bundle.getPageable(), total);
+        return new PageImpl<T>(content, bundle.getPageable(), total);
     }
 
     @Override
@@ -140,7 +142,7 @@ public class QueryResultImpl<T> implements QueryResult<T> {
         }
 
         Class<T> entityClass = bundle.getEntityClass();
-        CriteriaQuery<T> query = buildCriteriaQuery(entityClass, false);
+        CriteriaQuery<T> query = buildCriteriaQuery(entityClass, false, true);
         Root<T> root = query.from(entityClass);
         applySpecification(root, query, bundle.getSpecification());
         applySort(root, query, pageable.getSort());
@@ -157,7 +159,7 @@ public class QueryResultImpl<T> implements QueryResult<T> {
 
     @Override
     public long getCountResult() {
-        CriteriaQuery<Long> query = buildCriteriaQuery(Long.class, false);
+        CriteriaQuery<Long> query = buildCriteriaQuery(Long.class, false, false);
         Root root = query.from(bundle.getEntityClass());
         applySpecification(root, query, bundle.getSpecification());
         if (bundle.isDistinct()) {
@@ -171,15 +173,18 @@ public class QueryResultImpl<T> implements QueryResult<T> {
     // query result
 
     private CriteriaQuery<T> buildCriteriaQuery() {
-        return buildCriteriaQuery(bundle.getEntityClass(), true);
+        return buildCriteriaQuery(bundle.getEntityClass(), true, true);
     }
 
-    protected <E> CriteriaQuery<E> buildCriteriaQuery(Class<E> resultType, boolean applySort) {
+    protected <E> CriteriaQuery<E> buildCriteriaQuery(Class<E> resultType, boolean applySort, boolean applyAttribute) {
         final CriteriaQuery<E> query = createQuery(resultType);
         Root root = query.from(bundle.getEntityClass());
         applySpecification(root, query, bundle.getSpecification());
         if (applySort) {
             applySort(root, query, bundle.getSort());
+        }
+        if (applyAttribute) {
+            applyAttribute(root, true, true);
         }
         return query;
     }
@@ -188,8 +193,10 @@ public class QueryResultImpl<T> implements QueryResult<T> {
         Assert.notEmpty(column, "query columns not allow empty");
         final CriteriaQuery<E> query = createQuery(resultType);
         Root root = query.from(bundle.getEntityClass());
+
         applySpecification(root, query, bundle.getSpecification());
         applySort(root, query, bundle.getSort());
+
         List<Selection> columns = new ArrayList<Selection>();
         for (String c : column) {
             columns.add(QueryUtils.toExpressionRecursively(root, c));
@@ -215,6 +222,19 @@ public class QueryResultImpl<T> implements QueryResult<T> {
     protected void applySort(Root root, CriteriaQuery query, Sort sort) {
         if (sort != null) {
             query.orderBy(QueryUtils.toJpaOrders(sort, root, builder));
+        }
+    }
+
+    protected void applyAttribute(Root root, boolean fetch, boolean join) {
+        if (fetch && bundle.fetchAttribute != null) {
+            for (Attribute attr : bundle.fetchAttribute.attrs) {
+                root.fetch(attr.name, attr.joniType == null ? JoinType.INNER : attr.joniType);
+            }
+        }
+        if (join && bundle.joinAttribute != null) {
+            for (Attribute attr : bundle.joinAttribute.attrs) {
+                root.fetch(attr.name, attr.joniType == null ? JoinType.INNER : attr.joniType);
+            }
         }
     }
 

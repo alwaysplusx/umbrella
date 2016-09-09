@@ -47,13 +47,16 @@ public class Bind<T> implements Serializable, LogicalSpecification<T> {
 
     @Override
     public Predicate toPredicate(Root<T> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
-        Predicate predicate = cb.conjunction();
+        Predicate predicate = null;
         if (items.isEmpty()) {
             return predicate;
         }
-        for (LogicalSpecification item : items) {
-            Predicate right = item.toPredicate(root, query, cb);
-            if (item.isOr()) {
+        Iterator<LogicalSpecification> it = items.iterator();
+        predicate = it.next().toPredicate(root, query, cb);
+        for (; it.hasNext();) {
+            LogicalSpecification spec = it.next();
+            Predicate right = spec.toPredicate(root, query, cb);
+            if (spec.isOr()) {
                 predicate = cb.or(predicate, right);
             } else {
                 predicate = cb.and(predicate, right);

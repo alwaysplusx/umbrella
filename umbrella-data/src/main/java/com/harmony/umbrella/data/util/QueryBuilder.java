@@ -3,6 +3,7 @@ package com.harmony.umbrella.data.util;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Stack;
 
@@ -17,6 +18,7 @@ import javax.persistence.criteria.Root;
 import com.harmony.umbrella.data.Logical;
 import com.harmony.umbrella.data.Operator;
 import com.harmony.umbrella.data.Specification;
+import com.harmony.umbrella.data.domain.Page;
 import com.harmony.umbrella.data.domain.PageRequest;
 import com.harmony.umbrella.data.domain.Pageable;
 import com.harmony.umbrella.data.domain.Sort;
@@ -43,17 +45,28 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> {
     protected boolean allowEmptyCondition;
 
     protected Class<M> entityClass;
-    private Specification specification;
-
     protected Sort sort;
-
     protected int pageNumber;
     protected int pageSize;
     protected boolean distinct;
+    protected FetchAttribute fetchAttribute;
+    protected JoinAttribute joinAttribute;
 
-    protected List<String> fetchAttributes;
+    private Specification specification;
 
     // query property
+
+    public QueryBuilder() {
+    }
+
+    public QueryBuilder(EntityManager entityManager) {
+        this(null, entityManager);
+    }
+
+    public QueryBuilder(Class<M> entityClass, EntityManager entityManager) {
+        this.entityClass = entityClass;
+        this.entityManager = entityManager;
+    }
 
     public T withEntityManager(EntityManager entityManager) {
         this.entityManager = entityManager;
@@ -89,7 +102,8 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> {
         o.entityClass = entityClass;
         o.pageable = new PageRequest(pageNumber < 0 ? 0 : pageNumber, pageSize < 1 ? 1 : pageSize, sort);
         o.specification = specification;
-        o.fetchAttributes = fetchAttributes == null ? null : new ArrayList<String>(fetchAttributes);
+        o.fetchAttribute = fetchAttribute;
+        o.joinAttribute = joinAttribute;
         return o;
     }
 
@@ -98,33 +112,42 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> {
         temp.clear();
         this.entityClass = bundle.entityClass;
         this.specification = bundle.specification;
-        this.pageNumber = bundle.pageable == null ? 0 : bundle.pageable.getPageNumber();
-        this.pageSize = bundle.pageable == null ? 0 : bundle.pageable.getPageSize();
-        this.sort = bundle.pageable == null ? null : bundle.pageable.getSort();
-        this.fetchAttributes = bundle.fetchAttributes == null ? null : new ArrayList<String>(fetchAttributes);
+        this.pageNumber = bundle.getPageNumber();
+        this.pageSize = bundle.getPageSize();
+        this.sort = bundle.getSort();
+        this.fetchAttribute = bundle.fetchAttribute;
+        this.joinAttribute = bundle.joinAttribute;
         return (T) this;
     }
 
     // result
 
     public QueryResult<M> execute() {
-        return null;
+        return new QueryResultImpl<>(entityManager, bundle());
     }
 
     public M getSingleResult() {
-        return null;
+        return execute().getSingleResult();
     }
 
     public M getFirstResult() {
-        return null;
+        return execute().getFirstResult();
     }
 
     public List<M> getResultList() {
-        return null;
+        return execute().getResultList();
     }
 
-    public List<M> getResultPage() {
-        return null;
+    public Page<M> getResultPage() {
+        return execute().getResultPage();
+    }
+
+    // paging
+
+    public T paging(int pageNumber, int pageSize) {
+        this.pageNumber = pageNumber;
+        this.pageSize = pageSize;
+        return (T) this;
     }
 
     // sort
@@ -381,6 +404,12 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> {
     }
 
     public T fetch(JoinType joinType, String... names) {
+        if (this.fetchAttribute == null) {
+            this.fetchAttribute = new FetchAttribute();
+        }
+        for (String name : names) {
+            this.fetchAttribute.attrs.add(new Attribute(name, joinType));
+        }
         return (T) this;
     }
 
@@ -389,6 +418,12 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> {
     }
 
     public T join(JoinType joinType, String... names) {
+        if (this.joinAttribute == null) {
+            this.joinAttribute = new JoinAttribute();
+        }
+        for (String name : names) {
+            this.joinAttribute.attrs.add(new Attribute(name, joinType));
+        }
         return (T) this;
     }
 
@@ -494,4 +529,43 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> {
         }
 
     }
+
+    static final class FetchAttribute {
+
+        List<Attribute> attrs = new ArrayList<Attribute>();
+
+        public List<Attribute> getAttributes() {
+            return Collections.unmodifiableList(attrs);
+        }
+    }
+
+    static final class JoinAttribute {
+
+        List<Attribute> attrs = new ArrayList<Attribute>();
+
+        public List<Attribute> getAttributes() {
+            return Collections.unmodifiableList(attrs);
+        }
+
+    }
+
+    static final class Attribute {
+
+        String name;
+        JoinType joniType;
+
+        public Attribute(String name, JoinType joniType) {
+            this.name = name;
+            this.joniType = joniType;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public JoinType getJoniType() {
+            return joniType;
+        }
+    }
+
 }
