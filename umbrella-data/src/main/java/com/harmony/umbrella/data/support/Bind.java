@@ -10,70 +10,102 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
-import com.harmony.umbrella.data.Logical;
+import com.harmony.umbrella.data.CompositionType;
+import com.harmony.umbrella.data.Specification;
+import com.harmony.umbrella.util.Assert;
 
 /**
  * 
  * @author wuxii@foxmail.com
  */
-public class Bind<T> implements Serializable, LogicalSpecification<T> {
+public class Bind<T> implements Serializable, CompositionSpecification<T> {
 
     private static final long serialVersionUID = 1L;
-    private Logical logical;
-    private List<LogicalSpecification> items = new ArrayList<LogicalSpecification>();
+    private CompositionType compositionType;
+    private List<CompositionSpecification> items = new ArrayList<CompositionSpecification>();
 
-    public Bind() {
+    public Bind(CompositionType compositionType) {
+        Assert.notNull(compositionType);
+        this.compositionType = compositionType;
     }
 
-    public Bind(Logical logical) {
-        this.logical = logical;
+    @Override
+    public CompositionType getCompositionType() {
+        return compositionType;
     }
 
-    public void add(LogicalSpecification<T> spec) {
+    public void add(CompositionSpecification<T> spec) {
         items.add(spec);
+    }
+
+    public void add(Specification<T> spec, CompositionType logical) {
+        items.add(new SpecificationWrapper<T>(spec, logical));
     }
 
     public boolean isEmpty() {
         return items.isEmpty();
     }
 
-    public boolean isAnd() {
-        return Logical.isAnd(logical);
-    }
-
-    public boolean isOr() {
-        return Logical.isOr(logical);
-    }
-
     @Override
     public Predicate toPredicate(Root<T> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
-        Predicate predicate = null;
         if (items.isEmpty()) {
-            return predicate;
+            return null;
         }
-        Iterator<LogicalSpecification> it = items.iterator();
-        predicate = it.next().toPredicate(root, query, cb);
+        Iterator<CompositionSpecification> it = items.iterator();
+        // 忽略第一个item的组合类型
+        Specification spec = it.next();
         for (; it.hasNext();) {
-            LogicalSpecification spec = it.next();
-            Predicate right = spec.toPredicate(root, query, cb);
-            if (spec.isOr()) {
-                predicate = cb.or(predicate, right);
-            } else {
-                predicate = cb.and(predicate, right);
-            }
+            CompositionSpecification i = it.next();
+            spec = i.getCompositionType().combine(spec, i);
         }
-        return predicate;
+        return spec.toPredicate(root, query, cb);
     }
 
     @Override
     public String toString() {
-        StringBuilder out = new StringBuilder();
-        Iterator it = items.iterator();
-        out.append("[").append(logical).append("] ");
-        for (; it.hasNext();) {
-            out.append(it.next()).append(" ");
+        if (items.isEmpty()) {
+            return "";
         }
-        return out.toString();
+        StringBuilder out = new StringBuilder();
+        Iterator<CompositionSpecification> it = items.iterator();
+        out.append(it.next());
+        for (; it.hasNext();) {
+            CompositionSpecification next = it.next();
+            out.append(" ").append(next.getCompositionType()).append(" ").append(next);
+            if (it.hasNext()) {
+                out.append(" ");
+            }
+        }
+        return "(" + out.toString() + ")";
+    }
+
+    static final class SpecificationWrapper<T> implements CompositionSpecification<T>, Serializable {
+
+        private static final long serialVersionUID = 1L;
+        private Specification spec;
+        private CompositionType compositionType;
+
+        public SpecificationWrapper(Specification spec, CompositionType compositionType) {
+            Assert.notNull(compositionType, "compositionType is null");
+            this.spec = spec;
+            this.compositionType = compositionType;
+        }
+
+        @Override
+        public Predicate toPredicate(Root<T> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+            return spec.toPredicate(root, query, cb);
+        }
+
+        @Override
+        public String toString() {
+            return spec.toString();
+        }
+
+        @Override
+        public CompositionType getCompositionType() {
+            return compositionType;
+        }
+
     }
 
 }

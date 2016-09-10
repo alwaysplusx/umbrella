@@ -1,6 +1,6 @@
 package com.harmony.umbrella.data.domain;
 
-import static com.harmony.umbrella.data.domain.Specifications.CompositionType.*;
+import static com.harmony.umbrella.data.CompositionType.*;
 
 import java.io.Serializable;
 
@@ -9,6 +9,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
+import com.harmony.umbrella.data.CompositionType;
 import com.harmony.umbrella.data.Specification;
 import com.harmony.umbrella.util.Assert;
 
@@ -97,33 +98,7 @@ public class Specifications<T> implements Specification<T>, Serializable {
 
     @Override
     public String toString() {
-        return "(" + spec + ")";
-    }
-
-    /**
-     * Enum for the composition types for {@link Predicate}s.
-     * 
-     * @author Thomas Darimont
-     */
-    enum CompositionType {
-
-        AND {
-
-            @Override
-            public Predicate combine(CriteriaBuilder builder, Predicate lhs, Predicate rhs) {
-                return builder.and(lhs, rhs);
-            }
-        },
-
-        OR {
-
-            @Override
-            public Predicate combine(CriteriaBuilder builder, Predicate lhs, Predicate rhs) {
-                return builder.or(lhs, rhs);
-            }
-        };
-
-        abstract Predicate combine(CriteriaBuilder builder, Predicate lhs, Predicate rhs);
+        return spec == null ? "" : spec.toString();
     }
 
     /**
@@ -155,7 +130,7 @@ public class Specifications<T> implements Specification<T>, Serializable {
 
         @Override
         public String toString() {
-            return "!(" + spec + ")";
+            return spec != null ? ("!" + spec) : "";
         }
 
     }
@@ -212,12 +187,12 @@ public class Specifications<T> implements Specification<T>, Serializable {
         @Override
         public String toString() {
             if (lhs == null) {
-                return "(" + rhs + ")";
+                return rhs.toString();
             }
             if (rhs == null) {
-                return "(" + lhs + ")";
+                return lhs.toString();
             }
-            return "(" + lhs + " " + compositionType.toString() + " " + rhs + ")";
+            return lhs + " " + compositionType.toString() + " " + rhs;
         }
 
     }

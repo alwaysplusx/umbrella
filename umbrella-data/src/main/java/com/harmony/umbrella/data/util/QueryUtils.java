@@ -22,9 +22,11 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Expression;
+import javax.persistence.criteria.Fetch;
 import javax.persistence.criteria.From;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.JoinType;
+import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Root;
 import javax.persistence.metamodel.Attribute;
 import javax.persistence.metamodel.Attribute.PersistentAttributeType;
@@ -129,7 +131,8 @@ public abstract class QueryUtils {
      */
     private static String getOrderClause(Set<String> joinAliases, String alias, Order order) {
         String property = order.getProperty();
-        boolean qualifyReference = !property.contains("("); // ( indicates a function
+        boolean qualifyReference = !property.contains("("); // ( indicates a
+                                                            // function
         for (String joinAlias : joinAliases) {
             if (property.startsWith(joinAlias)) {
                 qualifyReference = false;
@@ -164,27 +167,30 @@ public abstract class QueryUtils {
     }
 
     @SuppressWarnings("unchecked")
-    public static <T> Expression<T> toExpressionRecursively(From<?, ?> from, String name) {
+    public static <T> Expression<T> toExpressionRecursively(final From<?, ?> from, String name) {
+        return toExpressionRecursively(from, new StringTokenizer(name, "."));
+    }
 
-        StringTokenizer token = new StringTokenizer(name, ".");
+    @SuppressWarnings("unchecked")
+    static <T> Expression<T> toExpressionRecursively(From<?, ?> from, StringTokenizer st) {
         Bindable<?> propertyPathModel = null;
-        Expression<T> result = (Expression<T>) from;
-
-        while (token.hasMoreTokens()) {
-            Bindable<?> model = ((From<?, ?>) result).getModel();
-            String currentName = token.nextToken();
-            if (model instanceof ManagedType) {
-                propertyPathModel = (Bindable<?>) ((ManagedType<?>) model).getAttribute(currentName);
-            } else {
-                propertyPathModel = (((From<?, ?>) result).get(currentName)).getModel();
-            }
-            if (requiresJoin(propertyPathModel, model instanceof PluralAttribute)) {
-                result = (Expression<T>) getOrCreateJoin(from, currentName);
-            } else {
-                result = ((From<?, ?>) result).get(currentName);
-            }
+        Bindable<?> model = from.getModel();
+        String segment = st.nextToken();
+        if (model instanceof ManagedType) {
+            propertyPathModel = (Bindable<?>) ((ManagedType<?>) model).getAttribute(segment);
+        } else {
+            propertyPathModel = from.get(segment).getModel();
         }
-        return result;
+        if (requiresJoin(propertyPathModel, model instanceof PluralAttribute) && !isAlreadyFetched(from, segment)) {
+            Join<?, ?> join = getOrCreateJoin(from, segment);
+            return (Expression<T>) (st.hasMoreTokens() ? toExpressionRecursively(join, st) : join);
+        } else {
+            Path result = from.get(segment);
+            while (st.hasMoreTokens()) {
+                result = result.get(st.nextToken());
+            }
+            return result;
+        }
     }
 
     /**
@@ -259,6 +265,26 @@ public abstract class QueryUtils {
             result.add(order.isAscending() ? cb.asc(expression) : cb.desc(expression));
         }
         return result;
+    }
+
+    /**
+     * Return whether the given {@link From} contains a fetch declaration for
+     * the attribute with the given name.
+     * 
+     * @param from
+     *            the {@link From} to check for fetches.
+     * @param attribute
+     *            the attribute name to check.
+     * @return
+     */
+    private static boolean isAlreadyFetched(From<?, ?> from, String attribute) {
+        for (Fetch<?, ?> f : from.getFetches()) {
+            boolean sameName = f.getAttribute().getName().equals(attribute);
+            if (sameName && f.getJoinType().equals(JoinType.LEFT)) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }

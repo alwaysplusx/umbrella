@@ -15,16 +15,19 @@ import com.harmony.umbrella.data.util.QueryBuilder;
  */
 public class QueryTest {
 
-    static EntityManager entityManager = Persistence.createEntityManagerFactory("hibernate-umbrella").createEntityManager();
-    static EntityManager eclipseEntityManager = Persistence.createEntityManagerFactory("eclipse-umbrella").createEntityManager();
-    static EntityManager hibernateEntityManager = Persistence.createEntityManagerFactory("hibernate-umbrella").createEntityManager();
+    static EntityManager entityManager = Persistence.createEntityManagerFactory("umbrella").createEntityManager();
 
     @Test
     public void testQuery() {
-        QueryBuilder builder = new QueryBuilder(eclipseEntityManager)//
-                .withEntityClass(Model.class)//
-                .fetch("subModels");//
-        //.equal("id", 12);//
+        QueryBuilder builder = new QueryBuilder(entityManager)//
+                .from(Model.class)//
+                .equal("name", "1")//
+                .orEqual("code", "abc123")//
+                .start()//
+                .equal("name", "2")//
+                .orEqual("code", "def456")//
+                .end();
+        // .equal("id", 12);//
         List result = builder.getResultList();
         for (Object o : result) {
             System.out.println(o);

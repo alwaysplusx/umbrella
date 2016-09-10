@@ -1,5 +1,6 @@
 package com.harmony.umbrella.data.domain;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -15,8 +16,10 @@ import com.harmony.umbrella.util.Converter;
  *            the type of which the page consists.
  * @author Oliver Gierke
  */
-public class PageImpl<T> implements Page<T> {
+public class PageImpl<T> implements Page<T>, Serializable {
 
+    private static final long serialVersionUID = 1L;
+    
     private final long total;
     private final List<T> content = new ArrayList<T>();
     private final Pageable pageable;

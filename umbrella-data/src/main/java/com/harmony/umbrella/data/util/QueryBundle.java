@@ -59,4 +59,14 @@ public class QueryBundle<M> {
         return joinAttributes;
     }
 
+    @Override
+    public String toString() {
+        StringBuilder out = new StringBuilder();
+        out.append("select * from ").append(entityClass != null ? entityClass.getSimpleName() : "UnknowType");
+        if (specification != null) {
+            out.append(" where ").append(specification);
+        }
+        return out.toString();
+    }
+
 }

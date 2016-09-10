@@ -11,7 +11,7 @@
       <property name="javax.persistence.jdbc.url" value="jdbc:h2:file:~/.h2/harmony/data" />
       <property name="javax.persistence.jdbc.user" value="sa" />
       <property name="javax.persistence.jdbc.password" value="" />
-      <!--  -->
+      <!-- -->
       <property name="eclipselink.logging.level" value="FINE" />
       <property name="eclipselink.weaving" value="false" />
       <property name="eclipselink.logging.level.sql" value="FINE" />

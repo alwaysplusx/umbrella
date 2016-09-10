@@ -15,7 +15,7 @@ import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
-import com.harmony.umbrella.data.Logical;
+import com.harmony.umbrella.data.CompositionType;
 import com.harmony.umbrella.data.Operator;
 import com.harmony.umbrella.data.Specification;
 import com.harmony.umbrella.data.domain.Page;
@@ -24,9 +24,8 @@ import com.harmony.umbrella.data.domain.Pageable;
 import com.harmony.umbrella.data.domain.Sort;
 import com.harmony.umbrella.data.domain.Sort.Direction;
 import com.harmony.umbrella.data.domain.Sort.Order;
-import com.harmony.umbrella.data.domain.Specifications;
 import com.harmony.umbrella.data.support.Bind;
-import com.harmony.umbrella.data.support.LogicalSpecification;
+import com.harmony.umbrella.data.support.CompositionSpecification;
 
 /**
  * @author wuxii@foxmail.com
@@ -37,7 +36,7 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> {
     protected transient CriteriaBuilder builder;
     protected transient Stack<Bind> queryStack = new Stack<Bind>();
 
-    private transient List<LogicalSpecification> temp = new ArrayList<LogicalSpecification>();
+    private transient List<CompositionSpecification> temp = new ArrayList<CompositionSpecification>();
 
     protected boolean autoStart = true;
     protected boolean autoFinish = true;
@@ -74,7 +73,12 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> {
     }
 
     public T withEntityClass(Class<M> entityClass) {
-        return form(entityClass);
+        return from(entityClass);
+    }
+
+    public T withSpecification(Specification<M> specification) {
+        this.specification = specification;
+        return (T) this;
     }
 
     public T withPageable(Pageable pageable) {
@@ -89,7 +93,7 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> {
         return (T) this;
     }
 
-    public T form(Class<M> entityClass) {
+    public T from(Class<M> entityClass) {
         this.entityClass = entityClass;
         return (T) this;
     }
@@ -123,7 +127,7 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> {
     // result
 
     public QueryResult<M> execute() {
-        return new QueryResultImpl<>(entityManager, bundle());
+        return new QueryResultImpl<M>(entityManager, bundle());
     }
 
     public M getSingleResult() {
@@ -140,6 +144,10 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> {
 
     public Page<M> getResultPage() {
         return execute().getResultPage();
+    }
+
+    public long count() {
+        return execute().getCountResult();
     }
 
     // paging
@@ -298,14 +306,14 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> {
     }
 
     public T orBetween(String name, Object left, Object right) {
-        return start(Logical.OR)//
+        return start(CompositionType.OR)//
                 .and(name, left, Operator.GREATER_THAN_OR_EQUAL)//
                 .and(name, right, Operator.LESS_THAN_OR_EQUAL)//
                 .end();
     }
 
     public T orNotBetween(String name, Object left, Object right) {
-        return start(Logical.OR)//
+        return start(CompositionType.OR)//
                 .or(name, left, Operator.LESS_THAN)//
                 .or(name, right, Operator.GREATER_THAN)//
                 .end();
@@ -338,27 +346,27 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> {
     // add condition method
 
     public T and(String name, Object value, Operator operator) {
-        return addCondition(name, value, operator, Logical.AND);
+        return addCondition(name, value, operator, CompositionType.AND);
     }
 
     public T or(String name, Object value, Operator operator) {
-        return addCondition(name, value, operator, Logical.OR);
+        return addCondition(name, value, operator, CompositionType.OR);
     }
 
     public T and(Specification spec) {
-        return addSpecification(new SpecificationWrapper(spec, Logical.AND));
+        return addSpecification(spec, CompositionType.AND);
     }
 
     public T or(Specification spec) {
-        return addSpecification(new SpecificationWrapper(spec, Logical.OR));
+        return addSpecification(spec, CompositionType.OR);
     }
 
-    protected T addCondition(String name, Object value, Operator operator, Logical logical) {
-        return (T) addSpecification(new SpecificationUnit(name, operator, value, logical));
+    protected T addCondition(String name, Object value, Operator operator, CompositionType logical) {
+        return (T) addSpecification(new SpecificationUnit(name, operator, value), logical);
     }
 
-    private T addSpecification(LogicalSpecification spec) {
-        currentBind().add(spec);
+    private T addSpecification(Specification spec, CompositionType logical) {
+        currentBind().add(spec, logical);
         return (T) this;
     }
 
@@ -367,7 +375,7 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> {
             if (autoStart) {
                 start();
             } else {
-                throw new IllegalStateException("query not start, please invoke start method befor equery or set autoStart=true");
+                throw new IllegalStateException("query not start, please invoke start method befor query or set autoStart=true");
             }
         }
         return queryStack.peek();
@@ -430,10 +438,10 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> {
     // enclose method
 
     public T start() {
-        return start(Logical.AND);
+        return start(CompositionType.AND);
     }
 
-    public T start(Logical logical) {
+    public T start(CompositionType logical) {
         queryStack.push(new Bind(logical));
         return (T) this;
     }
@@ -444,67 +452,28 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> {
             temp.add(bind);
         }
         if (queryStack.isEmpty()) {
-            LogicalSpecification[] ss = temp.toArray(new LogicalSpecification[0]);
+            CompositionSpecification[] css = temp.toArray(new CompositionSpecification[0]);
             temp.clear();
-            for (int i = ss.length; i > 0; i--) {
-                LogicalSpecification s = ss[i - 1];
-                if (s.isOr()) {
-                    specification = Specifications.where(specification).or(s);
-                } else {
-                    specification = Specifications.where(specification).and(s);
-                }
+            for (int i = css.length; i > 0; i--) {
+                CompositionSpecification cs = css[i - 1];
+                specification = cs.getCompositionType().combine(specification, cs);
             }
         }
         return (T) this;
     }
 
-    static final class SpecificationWrapper<T> implements LogicalSpecification<T>, Serializable {
-
-        private static final long serialVersionUID = 1L;
-        private Specification spec;
-        private Logical logical;
-
-        public SpecificationWrapper(Specification spec, Logical logical) {
-            this.spec = spec;
-            this.logical = logical;
-        }
-
-        @Override
-        public Predicate toPredicate(Root<T> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
-            return spec.toPredicate(root, query, cb);
-        }
-
-        @Override
-        public boolean isAnd() {
-            return Logical.isAnd(logical);
-        }
-
-        @Override
-        public boolean isOr() {
-            return Logical.isOr(logical);
-        }
-
-        @Override
-        public String toString() {
-            return "(" + spec + ")";
-        }
-
-    }
-
-    static final class SpecificationUnit<T> implements Serializable, LogicalSpecification<T> {
+    static final class SpecificationUnit<T> implements Serializable, Specification<T> {
 
         private static final long serialVersionUID = 1L;
 
         String name;
         Operator operator;
         Object value;
-        Logical logical;
 
-        public SpecificationUnit(String name, Operator operator, Object value, Logical logical) {
+        public SpecificationUnit(String name, Operator operator, Object value) {
             this.name = name;
             this.operator = operator;
             this.value = value;
-            this.logical = logical;
         }
 
         @Override
@@ -514,18 +483,8 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> {
         }
 
         @Override
-        public boolean isAnd() {
-            return Logical.isAnd(logical);
-        }
-
-        @Override
-        public boolean isOr() {
-            return Logical.isOr(logical);
-        }
-
-        @Override
         public String toString() {
-            return "(" + name + " " + operator.symbol() + " " + "?)";
+            return name + " " + operator.symbol() + " " + "?";
         }
 
     }
