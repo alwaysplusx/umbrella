@@ -9,7 +9,7 @@ import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 
-import com.harmony.umbrella.data.domain.Model;
+import com.harmony.umbrella.data.domain.BaseEntity;
 import com.harmony.umbrella.ws.Metadata;
 
 /**
@@ -22,7 +22,7 @@ import com.harmony.umbrella.ws.Metadata;
     @NamedQuery(name = "MetadataEntity.findAllServiceName", query = "select o.serviceName from MetadataEntity o"),
     @NamedQuery(name = "MetadataEntity.findByServiceName", query = "select o from MetadataEntity o where o.serviceName=:serviceName") 
 })
-public class MetadataEntity extends Model<String> implements Metadata, Serializable {
+public class MetadataEntity extends BaseEntity<String> implements Metadata, Serializable {
 
     private static final long serialVersionUID = 5573685617120186172L;
     /**

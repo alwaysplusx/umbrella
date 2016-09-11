@@ -30,19 +30,18 @@ import com.harmony.umbrella.data.support.CompositionSpecification;
 /**
  * @author wuxii@foxmail.com
  */
-public class QueryBuilder<T extends QueryBuilder<T, M>, M> {
+public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializable {
 
-    protected transient EntityManager entityManager;
-    protected transient CriteriaBuilder builder;
-    protected transient Stack<Bind> queryStack = new Stack<Bind>();
+    private static final long serialVersionUID = 1L;
 
+    private transient Stack<Bind> queryStack = new Stack<Bind>();
     private transient List<CompositionSpecification> temp = new ArrayList<CompositionSpecification>();
 
+    protected EntityManager entityManager;
+    protected CriteriaBuilder builder;
     protected boolean autoStart = true;
     protected boolean autoFinish = true;
-
     protected boolean allowEmptyCondition;
-
     protected Class<M> entityClass;
     protected Sort sort;
     protected int pageNumber;
@@ -50,8 +49,7 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> {
     protected boolean distinct;
     protected FetchAttributes fetchAttributes;
     protected JoinAttributes joinAttributes;
-
-    private Specification specification;
+    protected Specification specification;
 
     // query property
 
@@ -489,7 +487,9 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> {
 
     }
 
-    static final class FetchAttributes {
+    static final class FetchAttributes implements Serializable {
+
+        private static final long serialVersionUID = 1L;
 
         List<Attribute> attrs = new ArrayList<Attribute>();
 
@@ -498,7 +498,9 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> {
         }
     }
 
-    static final class JoinAttributes {
+    static final class JoinAttributes implements Serializable {
+
+        private static final long serialVersionUID = 1L;
 
         List<Attribute> attrs = new ArrayList<Attribute>();
 
@@ -508,7 +510,9 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> {
 
     }
 
-    static final class Attribute {
+    static final class Attribute implements Serializable {
+
+        private static final long serialVersionUID = 1L;
 
         String name;
         JoinType joniType;

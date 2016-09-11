@@ -13,6 +13,7 @@ import com.harmony.umbrella.data.domain.Page;
 import com.harmony.umbrella.data.domain.Pageable;
 import com.harmony.umbrella.data.domain.Sort;
 import com.harmony.umbrella.data.util.JpaQueryBuilder;
+import com.harmony.umbrella.data.util.QueryBundle;
 
 /**
  * @author wuxii@foxmail.com
@@ -65,4 +66,10 @@ public abstract class JpaDAOSupport extends DAOSupport implements JpaDAO {
     protected <M> JpaQueryBuilder<M> query(Class<M> entityClass) {
         return new JpaQueryBuilder<M>(getEntityManager()).withEntityClass(entityClass);
     }
+
+    @Override
+    public <M> JpaQueryBuilder<M> query(QueryBundle<M> bundle) {
+        return new JpaQueryBuilder<M>(getEntityManager()).unbundle(bundle);
+    }
+
 }

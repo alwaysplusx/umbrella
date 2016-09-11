@@ -14,7 +14,7 @@ import com.harmony.umbrella.data.Persistable;
  * @author wuxii@foxmail.com
  */
 @MappedSuperclass
-public abstract class Model<ID extends Serializable> implements Persistable<ID> {
+public abstract class BaseEntity<ID extends Serializable> implements Persistable<ID> {
 
     private static final long serialVersionUID = -9098668260590791573L;
 

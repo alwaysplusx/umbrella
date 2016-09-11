@@ -7,6 +7,8 @@ import javax.persistence.EntityManager;
  */
 public class JpaQueryBuilder<M> extends QueryBuilder<JpaQueryBuilder<M>, M> {
 
+    private static final long serialVersionUID = 1L;
+
     public JpaQueryBuilder() {
     }
 

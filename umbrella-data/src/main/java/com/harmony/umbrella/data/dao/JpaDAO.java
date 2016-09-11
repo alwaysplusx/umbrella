@@ -4,6 +4,7 @@ import java.util.List;
 
 import javax.persistence.EntityManager;
 
+import com.harmony.umbrella.data.Queryable;
 import com.harmony.umbrella.data.Specification;
 import com.harmony.umbrella.data.domain.Page;
 import com.harmony.umbrella.data.domain.Pageable;
@@ -12,7 +13,7 @@ import com.harmony.umbrella.data.domain.Sort;
 /**
  * @author wuxii@foxmail.com
  */
-public interface JpaDAO extends DAO {
+public interface JpaDAO extends DAO, Queryable {
 
     <T> int remove(Class<T> entityClass, Specification<T> spec);
 

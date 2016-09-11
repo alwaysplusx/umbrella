@@ -9,15 +9,13 @@ import javax.persistence.EntityManager;
 import com.harmony.umbrella.data.Persistable;
 import com.harmony.umbrella.data.dao.JpaDAO;
 import com.harmony.umbrella.data.domain.Page;
-import com.harmony.umbrella.data.domain.Pageable;
 import com.harmony.umbrella.data.domain.Sort;
-import com.harmony.umbrella.data.util.JpaQueryBuilder;
 import com.harmony.umbrella.data.util.QueryBundle;
 
 /**
  * @author wuxii@foxmail.com
  */
-public class ServiceSupport<T extends Persistable<ID>, ID extends Serializable> implements Service<T, ID> {
+public abstract class ServiceSupport<T extends Persistable<ID>, ID extends Serializable> implements Service<T, ID> {
 
     protected final Class<T> entityClass;
 
@@ -25,9 +23,7 @@ public class ServiceSupport<T extends Persistable<ID>, ID extends Serializable> 
         this.entityClass = entityClass;
     }
 
-    protected JpaDAO getJpaDAO() {
-        return null;
-    }
+    protected abstract JpaDAO getJpaDAO();
 
     protected Class<T> getEntityClass() {
         return entityClass;
@@ -74,7 +70,7 @@ public class ServiceSupport<T extends Persistable<ID>, ID extends Serializable> 
 
     @Override
     public T findOne(QueryBundle<T> bundle) {
-        return query().unbundle(bundle).getSingleResult();
+        return getJpaDAO().query(bundle).from(entityClass).getSingleResult();
     }
 
     @Override
@@ -99,12 +95,12 @@ public class ServiceSupport<T extends Persistable<ID>, ID extends Serializable> 
 
     @Override
     public List<T> findAll(QueryBundle<T> bundle) {
-        return query(bundle).getResultList();
+        return getJpaDAO().query(bundle).from(entityClass).getResultList();
     }
 
     @Override
     public Page<T> findPage(QueryBundle<T> bundle) {
-        return query(bundle).getResultPage();
+        return getJpaDAO().query(bundle).from(entityClass).getResultPage();
     }
 
     @Override
@@ -119,26 +115,7 @@ public class ServiceSupport<T extends Persistable<ID>, ID extends Serializable> 
 
     @Override
     public long count(QueryBundle<T> bundle) {
-        return query(bundle).count();
+        return getJpaDAO().query(bundle).from(entityClass).count();
     }
 
-    protected JpaQueryBuilder<T> query() {
-        return query(getEntityClass());
-    }
-
-    protected JpaQueryBuilder<T> query(QueryBundle<T> bundle) {
-        final Class<T> entityClass = bundle.getEntityClass();
-        if (entityClass != null && this.entityClass.isAssignableFrom(entityClass)) {
-            throw new IllegalArgumentException("entity type not match, logic entity type " + entityClass + ", bundle entity type " + bundle.getEntityClass());
-        }
-        return new JpaQueryBuilder<T>(getEntityManager()).unbundle(bundle).from(entityClass == null ? this.entityClass : entityClass);
-    }
-
-    protected JpaQueryBuilder<T> query(Pageable pageable) {
-        return query().withPageable(pageable);
-    }
-
-    protected final <M> JpaQueryBuilder<M> query(Class<M> entityClass) {
-        return new JpaQueryBuilder<M>(getEntityManager()).withEntityClass(entityClass);
-    }
 }
