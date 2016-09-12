@@ -1,6 +1,5 @@
 package com.harmony.umbrella.data.util;
 
-import static java.util.regex.Pattern.*;
 import static javax.persistence.metamodel.Attribute.PersistentAttributeType.*;
 
 import java.lang.annotation.Annotation;
@@ -9,14 +8,9 @@ import java.lang.reflect.Member;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
 import java.util.StringTokenizer;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
@@ -35,10 +29,7 @@ import javax.persistence.metamodel.ManagedType;
 import javax.persistence.metamodel.PluralAttribute;
 
 import com.harmony.umbrella.data.domain.Sort;
-import com.harmony.umbrella.data.domain.Sort.Order;
 import com.harmony.umbrella.util.AnnotationUtils;
-import com.harmony.umbrella.util.Assert;
-import com.harmony.umbrella.util.StringUtils;
 
 /**
  * 查询工具类
@@ -46,18 +37,6 @@ import com.harmony.umbrella.util.StringUtils;
  * @author wuxii@foxmail.com
  */
 public abstract class QueryUtils {
-
-    private static final String DEFAULT_ALIAS = "x";
-
-    private static final String IDENTIFIER = "[\\p{Alnum}._$]+";
-    private static final String IDENTIFIER_GROUP = String.format("(%s)", IDENTIFIER);
-
-    private static final String LEFT_JOIN = "left (outer )?join " + IDENTIFIER + " (as )?" + IDENTIFIER_GROUP;
-    private static final Pattern LEFT_JOIN_PATTERN = Pattern.compile(LEFT_JOIN, Pattern.CASE_INSENSITIVE);
-
-    private static final Pattern ORDER_BY = Pattern.compile(".*order\\s+by\\s+.*", CASE_INSENSITIVE);
-
-    private static final int QUERY_JOIN_ALIAS_GROUP_INDEX = 3;
 
     private static final Map<PersistentAttributeType, Class<? extends Annotation>> ASSOCIATION_TYPES;
 
@@ -75,95 +54,6 @@ public abstract class QueryUtils {
      * Private constructor to prevent instantiation.
      */
     private QueryUtils() {
-    }
-
-    /**
-     * Adds {@literal order by} clause to the JPQL query. Uses the
-     * {@link #DEFAULT_ALIAS} to bind the sorting property to.
-     * 
-     * @param query
-     * @param sort
-     * @return
-     */
-    public static String applySorting(String query, Sort sort) {
-        return applySorting(query, sort, DEFAULT_ALIAS);
-    }
-
-    /**
-     * Adds {@literal order by} clause to the JPQL query.
-     * 
-     * @param query
-     * @param sort
-     * @param alias
-     * @return
-     */
-    public static String applySorting(String query, Sort sort, String alias) {
-        Assert.hasText(query);
-        if (null == sort || !sort.iterator().hasNext()) {
-            return query;
-        }
-        StringBuilder builder = new StringBuilder(query);
-        if (!ORDER_BY.matcher(query).matches()) {
-            builder.append(" order by ");
-        } else {
-            builder.append(", ");
-        }
-        Set<String> aliases = getOuterJoinAliases(query);
-        for (Order order : sort) {
-            builder.append(getOrderClause(aliases, alias, order)).append(", ");
-        }
-        builder.delete(builder.length() - 2, builder.length());
-        return builder.toString();
-    }
-
-    /**
-     * Returns the order clause for the given {@link Order}. Will prefix the
-     * clause with the given alias if the referenced property refers to a join
-     * alias.
-     * 
-     * @param joinAliases
-     *            the join aliases of the original query.
-     * @param alias
-     *            the alias for the root entity.
-     * @param order
-     *            the order object to build the clause for.
-     * @return
-     */
-    private static String getOrderClause(Set<String> joinAliases, String alias, Order order) {
-        String property = order.getProperty();
-        boolean qualifyReference = !property.contains("("); // ( indicates a
-                                                            // function
-        for (String joinAlias : joinAliases) {
-            if (property.startsWith(joinAlias)) {
-                qualifyReference = false;
-                break;
-            }
-        }
-        String reference = qualifyReference ? String.format("%s.%s", alias, property) : property;
-        String wrapped = order.isIgnoreCase() ? String.format("lower(%s)", reference) : reference;
-        return String.format("%s %s", wrapped, toJpaDirection(order));
-    }
-
-    /**
-     * Returns the aliases used for {@code left (outer) join}s.
-     * 
-     * @param query
-     * @return
-     */
-    static Set<String> getOuterJoinAliases(String query) {
-        Set<String> result = new HashSet<String>();
-        Matcher matcher = LEFT_JOIN_PATTERN.matcher(query);
-        while (matcher.find()) {
-            String alias = matcher.group(QUERY_JOIN_ALIAS_GROUP_INDEX);
-            if (StringUtils.hasText(alias)) {
-                result.add(alias);
-            }
-        }
-        return result;
-    }
-
-    private static String toJpaDirection(Order order) {
-        return order.getDirection().name().toLowerCase(Locale.US);
     }
 
     @SuppressWarnings("unchecked")

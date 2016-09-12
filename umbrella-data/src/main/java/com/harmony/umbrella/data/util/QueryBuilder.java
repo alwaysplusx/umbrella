@@ -81,7 +81,7 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
     public T withPageable(Pageable pageable) {
         this.pageNumber = pageable.getPageNumber();
         this.pageSize = pageable.getPageSize();
-        this.withSort(pageable.getSort());
+        this.sort = pageable.getSort();
         return (T) this;
     }
 
@@ -101,10 +101,11 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
         finishQuery();
         final QueryBundleImpl<M> o = new QueryBundleImpl<M>();
         o.entityClass = entityClass;
-        o.pageable = new PageRequest(pageNumber < 0 ? 0 : pageNumber, pageSize < 1 ? 1 : pageSize, sort);
+        o.pageable = new PageRequest(pageNumber < 0 ? 0 : pageNumber, pageSize < 1 ? 20 : pageSize, sort);
         o.specification = specification;
         o.fetchAttributes = fetchAttributes;
         o.joinAttributes = joinAttributes;
+        o.distinct = distinct;
         return o;
     }
 
@@ -144,7 +145,7 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
         return execute().getResultPage();
     }
 
-    public long count() {
+    public long getCountResult() {
         return execute().getCountResult();
     }
 

@@ -117,19 +117,7 @@ public class QueryResultImpl<T> implements QueryResult<T> {
 
     @Override
     public Page<T> getResultPage() {
-        if (bundle.getPageable() == null) {
-            throw new IllegalStateException("page request not set");
-        }
-        final int offset = bundle.getPageable().getOffset();
-        final int size = bundle.getPageable().getPageSize();
-
-        CriteriaQuery<T> query = buildCriteriaQuery();
-
-        // page result
-        long total = getCountResult();
-        List<T> content = entityManager.createQuery(query).setFirstResult(offset).setMaxResults(size).getResultList();
-
-        return new PageImpl<T>(content, bundle.getPageable(), total);
+        return getResultPage(bundle.getPageable());
     }
 
     @Override

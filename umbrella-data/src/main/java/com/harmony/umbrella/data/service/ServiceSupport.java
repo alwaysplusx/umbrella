@@ -11,7 +11,6 @@ import com.harmony.umbrella.data.dao.JpaDAO;
 import com.harmony.umbrella.data.domain.Page;
 import com.harmony.umbrella.data.domain.Sort;
 import com.harmony.umbrella.data.util.QueryBundle;
-import com.harmony.umbrella.data.util.QueryBundleImpl;
 
 /**
  * @author wuxii@foxmail.com
@@ -71,9 +70,7 @@ public abstract class ServiceSupport<T extends Persistable<ID>, ID extends Seria
 
     @Override
     public T findOne(final QueryBundle<T> bundle) {
-        verifyBundle(bundle);
-
-        return getJpaDAO().query(bundle).getSingleResult();
+        return getJpaDAO().query(bundle, entityClass).getSingleResult();
     }
 
     @Override
@@ -98,12 +95,12 @@ public abstract class ServiceSupport<T extends Persistable<ID>, ID extends Seria
 
     @Override
     public List<T> findAll(QueryBundle<T> bundle) {
-        return getJpaDAO().query(applyIf(bundle)).getResultList();
+        return getJpaDAO().query(bundle, entityClass).getResultList();
     }
 
     @Override
     public Page<T> findPage(QueryBundle<T> bundle) {
-        return getJpaDAO().query(applyIf(bundle)).getResultPage();
+        return getJpaDAO().query(bundle, entityClass).getResultPage();
     }
 
     @Override
@@ -119,7 +116,7 @@ public abstract class ServiceSupport<T extends Persistable<ID>, ID extends Seria
     @Override
     public long count(QueryBundle<T> bundle) {
         verifyBundle(bundle);
-        return getJpaDAO().query(applyIf(bundle)).getCountResult();
+        return getJpaDAO().query(bundle, entityClass).getCountResult();
     }
 
     private void verifyBundle(QueryBundle bundle) {
@@ -127,15 +124,6 @@ public abstract class ServiceSupport<T extends Persistable<ID>, ID extends Seria
         if (bundle.getEntityClass() != null && !bundle.getEntityClass().equals(entityClass)) {
             throw new IllegalArgumentException("entity type not match, logic entity type " + entityClass + ", bundle entity type " + bundle.getEntityClass());
         }
-    }
-
-    protected QueryBundle applyIf(QueryBundle bundle) {
-        if (bundle.getEntityClass() != null) {
-            return bundle;
-        }
-        QueryBundleImpl result = new QueryBundleImpl(bundle);
-        result.setEntityClass(entityClass);
-        return result;
     }
 
 }

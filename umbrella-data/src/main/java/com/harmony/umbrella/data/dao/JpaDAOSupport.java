@@ -34,35 +34,35 @@ public abstract class JpaDAOSupport extends DAOSupport implements JpaDAO {
 
     @Override
     public <T> T findOne(Class<T> entityClass, Specification<T> spec) {
-        return query(entityClass).withSpecification(spec).getSingleResult();
+        return queryWith(entityClass).withSpecification(spec).getSingleResult();
     }
 
     @Override
     public <T> List<T> findAll(Class<T> entityClass, Specification<T> spec) {
-        return query(entityClass).withSpecification(spec).getResultList();
+        return queryWith(entityClass).withSpecification(spec).getResultList();
     }
 
     @Override
     public <T> List<T> findAll(Class<T> entityClass, Specification<T> spec, Sort sort) {
-        return query(entityClass).withSort(sort).withSpecification(spec).getResultList();
+        return queryWith(entityClass).withSort(sort).withSpecification(spec).getResultList();
     }
 
     @Override
     public <T> Page<T> findAll(Class<T> entityClass, Pageable pageable) {
-        return query(entityClass).withPageable(pageable).getResultPage();
+        return queryWith(entityClass).withPageable(pageable).getResultPage();
     }
 
     @Override
     public <T> Page<T> findAll(Class<T> entityClass, Pageable pageable, Specification<T> spec) {
-        return query(entityClass).withPageable(pageable).withSpecification(spec).getResultPage();
+        return queryWith(entityClass).withPageable(pageable).withSpecification(spec).getResultPage();
     }
 
     @Override
     public <T> long count(Class<T> entityClass, Specification<T> spec) {
-        return query(entityClass).withSpecification(spec).count();
+        return queryWith(entityClass).withSpecification(spec).getCountResult();
     }
 
-    protected <M> JpaQueryBuilder<M> query(Class<M> entityClass) {
+    protected <M> JpaQueryBuilder<M> queryWith(Class<M> entityClass) {
         return new JpaQueryBuilder<M>(getEntityManager()).withEntityClass(entityClass);
     }
 

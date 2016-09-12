@@ -15,9 +15,16 @@ public interface Queryable {
 
     default <M> QueryResult<M> query(QueryBundle<M> bundle) {
         if (bundle.getEntityClass() == null) {
-            throw new IllegalArgumentException("entity class not set");
+            throw new IllegalStateException("entity class not set");
         }
         return new JpaQueryBuilder<M>(getEntityManager()).unbundle(bundle).execute();
+    }
+
+    default <M> QueryResult<M> query(QueryBundle<M> bundle, Class<M> entityClass) {
+        if (entityClass == null) {
+            throw new IllegalStateException("entity class not set");
+        }
+        return new JpaQueryBuilder(getEntityManager()).unbundle(bundle).from(entityClass).execute();
     }
 
 }

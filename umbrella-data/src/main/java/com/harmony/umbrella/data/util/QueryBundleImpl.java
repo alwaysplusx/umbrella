@@ -81,30 +81,6 @@ public class QueryBundleImpl<M> implements QueryBundle<M>, Serializable {
         return joinAttributes;
     }
 
-    public void setEntityClass(Class<M> entityClass) {
-        this.entityClass = entityClass;
-    }
-
-    public void setPageable(Pageable pageable) {
-        this.pageable = pageable;
-    }
-
-    public void setSpecification(Specification specification) {
-        this.specification = specification;
-    }
-
-    public void setFetchAttributes(FetchAttributes fetchAttributes) {
-        this.fetchAttributes = fetchAttributes;
-    }
-
-    public void setJoinAttributes(JoinAttributes joinAttributes) {
-        this.joinAttributes = joinAttributes;
-    }
-
-    public void setDistinct(boolean distinct) {
-        this.distinct = distinct;
-    }
-
     @Override
     public String toString() {
         StringBuilder out = new StringBuilder();
