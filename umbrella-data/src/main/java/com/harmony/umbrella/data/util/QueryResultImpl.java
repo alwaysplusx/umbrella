@@ -142,7 +142,7 @@ public class QueryResultImpl<T> implements QueryResult<T> {
         if (pageable == null) {
             throw new IllegalStateException("page request not set");
         }
-        CriteriaQuery<T> query = buildCriteriaQuery(bundle.getEntityClass(), pageable.getSort(), bundle.fetchAttributes, bundle.joinAttributes);
+        CriteriaQuery<T> query = buildCriteriaQuery(bundle.getEntityClass(), pageable.getSort(), bundle.getFetchAttributes(), bundle.getJoinAttributes());
         // page count result
         long total = getCountResult();
 
@@ -168,7 +168,7 @@ public class QueryResultImpl<T> implements QueryResult<T> {
     // query result
 
     private CriteriaQuery<T> buildCriteriaQuery() {
-        return buildCriteriaQuery(bundle.getEntityClass(), bundle.getSort(), bundle.fetchAttributes, bundle.joinAttributes);
+        return buildCriteriaQuery(bundle.getEntityClass(), bundle.getSort(), bundle.getFetchAttributes(), bundle.getJoinAttributes());
     }
 
     protected <E> CriteriaQuery<E> buildCriteriaQuery(Class<E> resultType, Sort sort, FetchAttributes fetchAttr, JoinAttributes joinAttr) {

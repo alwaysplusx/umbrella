@@ -9,64 +9,32 @@ import com.harmony.umbrella.data.util.QueryBuilder.JoinAttributes;
 /**
  * @author wuxii@foxmail.com
  */
-public class QueryBundle<M> {
+public interface QueryBundle<M> {
 
-    Class<M> entityClass;
+    Class<M> getEntityClass();
 
-    Pageable pageable;
+    Pageable getPageable();
 
-    Specification specification;
-
-    FetchAttributes fetchAttributes;
-
-    JoinAttributes joinAttributes;
-
-    boolean distinct;
-
-    public Class<M> getEntityClass() {
-        return entityClass;
+    default int getPageNumber() {
+        Pageable pageable = getPageable();
+        return pageable != null ? pageable.getPageNumber() : 0;
     }
 
-    public int getPageNumber() {
-        return pageable == null ? 0 : this.pageable.getPageNumber();
+    default int getPageSize() {
+        Pageable pageable = getPageable();
+        return pageable != null ? pageable.getPageSize() : 20;
     }
 
-    public int getPageSize() {
-        return pageable == null ? 20 : this.pageable.getPageSize();
+    default Sort getSort() {
+        Pageable pageable = getPageable();
+        return pageable != null ? pageable.getSort() : null;
     }
 
-    public Pageable getPageable() {
-        return pageable;
-    }
+    Specification getSpecification();
 
-    public Specification getSpecification() {
-        return specification;
-    }
+    boolean isDistinct();
 
-    public boolean isDistinct() {
-        return distinct;
-    }
+    FetchAttributes getFetchAttributes();
 
-    public Sort getSort() {
-        return pageable == null ? null : pageable.getSort();
-    }
-
-    public FetchAttributes getFetchAttributes() {
-        return fetchAttributes;
-    }
-
-    public JoinAttributes getJoinAttributes() {
-        return joinAttributes;
-    }
-
-    @Override
-    public String toString() {
-        StringBuilder out = new StringBuilder();
-        out.append("select * from ").append(entityClass != null ? entityClass.getSimpleName() : "UnknowType");
-        if (specification != null) {
-            out.append(" where ").append(specification);
-        }
-        return out.toString();
-    }
-
+    JoinAttributes getJoinAttributes();
 }

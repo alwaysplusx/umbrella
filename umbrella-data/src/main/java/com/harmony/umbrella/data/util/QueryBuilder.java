@@ -41,7 +41,6 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
     protected CriteriaBuilder builder;
     protected boolean autoStart = true;
     protected boolean autoFinish = true;
-    protected boolean allowEmptyCondition;
     protected Class<M> entityClass;
     protected Sort sort;
     protected int pageNumber;
@@ -100,7 +99,7 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
 
     public QueryBundle<M> bundle() {
         finishQuery();
-        final QueryBundle<M> o = new QueryBundle<M>();
+        final QueryBundleImpl<M> o = new QueryBundleImpl<M>();
         o.entityClass = entityClass;
         o.pageable = new PageRequest(pageNumber < 0 ? 0 : pageNumber, pageSize < 1 ? 1 : pageSize, sort);
         o.specification = specification;
@@ -112,13 +111,14 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
     public T unbundle(QueryBundle<M> bundle) {
         queryStack.clear();
         temp.clear();
-        this.entityClass = bundle.entityClass;
-        this.specification = bundle.specification;
+        this.entityClass = bundle.getEntityClass();
+        this.specification = bundle.getSpecification();
         this.pageNumber = bundle.getPageNumber();
         this.pageSize = bundle.getPageSize();
         this.sort = bundle.getSort();
-        this.fetchAttributes = bundle.fetchAttributes;
-        this.joinAttributes = bundle.joinAttributes;
+        this.fetchAttributes = bundle.getFetchAttributes();
+        this.joinAttributes = bundle.getJoinAttributes();
+        this.distinct = bundle.isDistinct();
         return (T) this;
     }
 
