@@ -8,7 +8,6 @@
   <groupId>com.harmony.console</groupId>
   <name>Harmony Umbrella :: Umbrella Console</name>
   <artifactId>umbrella-console</artifactId>
-  <packaging>war</packaging>
   <dependencies>
     <dependency>
       <groupId>javax</groupId>
@@ -44,9 +43,30 @@
       <artifactId>resteasy-spring</artifactId>
     </dependency>
     <dependency>
+      <groupId>org.jboss.resteasy</groupId>
+      <artifactId>resteasy-wadl</artifactId>
+      <version>${resteasy.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.resteasy</groupId>
+      <artifactId>resteasy-jackson2-provider</artifactId>
+      <version>${resteasy.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.resteasy</groupId>
+      <artifactId>resteasy-client</artifactId>
+      <version>${resteasy.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.h2database</groupId>
+      <artifactId>h2</artifactId>
+    </dependency>
+    <!--
+      <dependency>
       <groupId>mysql</groupId>
       <artifactId>mysql-connector-java</artifactId>
-    </dependency>
+      </dependency>
+    -->
     <dependency>
       <groupId>org.hibernate</groupId>
       <artifactId>hibernate-core</artifactId>
@@ -65,6 +85,14 @@
       <artifactId>slf4j-log4j12</artifactId>
     </dependency>
     <dependency>
+      <groupId>org.eclipse.jetty</groupId>
+      <artifactId>jetty-server</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.jetty</groupId>
+      <artifactId>jetty-webapp</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-test</artifactId>
       <scope>test</scope>
@@ -75,4 +103,23 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <version>2.6</version>
+        <configuration>
+          <archive>
+            <manifest>
+              <mainClass>com.harmony.console.ConsoleApp</mainClass>
+            </manifest>
+          </archive>
+          <descriptorRefs>
+            <descriptorRef>jar-with-dependencies</descriptorRef>
+          </descriptorRefs>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
 </project>

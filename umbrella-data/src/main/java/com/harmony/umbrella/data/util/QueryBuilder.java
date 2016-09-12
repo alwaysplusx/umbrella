@@ -359,12 +359,12 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
         return addSpecification(spec, CompositionType.OR);
     }
 
-    protected T addCondition(String name, Object value, Operator operator, CompositionType logical) {
-        return (T) addSpecification(new SpecificationUnit(name, operator, value), logical);
+    protected T addCondition(String name, Object value, Operator operator, CompositionType compositionType) {
+        return (T) addSpecification(new SpecificationUnit(name, operator, value), compositionType);
     }
 
-    private T addSpecification(Specification spec, CompositionType logical) {
-        currentBind().add(spec, logical);
+    private T addSpecification(Specification spec, CompositionType compositionType) {
+        currentBind().add(spec, compositionType);
         return (T) this;
     }
 
@@ -439,8 +439,8 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
         return start(CompositionType.AND);
     }
 
-    public T start(CompositionType logical) {
-        queryStack.push(new Bind(logical));
+    public T start(CompositionType compositionType) {
+        queryStack.push(new Bind(compositionType));
         return (T) this;
     }
 

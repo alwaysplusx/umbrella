@@ -12,6 +12,8 @@ public interface Queryable {
 
     EntityManager getEntityManager();
 
-    <M> JpaQueryBuilder<M> query(QueryBundle<M> bundle);
+    default <M> JpaQueryBuilder<M> query(QueryBundle<M> bundle) {
+        return new JpaQueryBuilder<M>(getEntityManager()).unbundle(bundle);
+    }
 
 }

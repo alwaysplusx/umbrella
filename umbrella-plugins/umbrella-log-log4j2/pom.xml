@@ -5,6 +5,7 @@
     <artifactId>umbrella-plugins</artifactId>
     <version>0.0.5-SNAPSHOT</version>
   </parent>
+  <name>Harmony Umbrella :: Log4j2 logger</name>
   <artifactId>umbrella-log-log4j2</artifactId>
   <dependencies>
     <dependency>
@@ -24,12 +25,12 @@
       <artifactId>junit</artifactId>
       <scope>test</scope>
     </dependency>
-    <!-- 
-    <dependency>
+    <!--
+      <dependency>
       <groupId>org.apache.logging.log4j</groupId>
       <artifactId>log4j-slf4j-impl</artifactId>
       <scope>test</scope>
-    </dependency>
-     -->
+      </dependency>
+    -->
   </dependencies>
 </project>

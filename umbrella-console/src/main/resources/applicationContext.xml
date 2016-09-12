@@ -10,9 +10,9 @@
   <tx:annotation-driven transaction-manager="transactionManager" />
 
   <bean name="jdbc/console" class="org.springframework.jdbc.datasource.SimpleDriverDataSource">
-    <property name="driverClass" value="com.mysql.jdbc.Driver" />
-    <property name="url" value="jdbc:mysql://localhost:3306/console" />
-    <property name="username" value="root" />
+    <property name="driverClass" value="org.h2.Driver" />
+    <property name="url" value="jdbc:h2:file:./src/main/resources/.h2/console" />
+    <property name="username" value="sa" />
     <property name="password" value="" />
   </bean>
 
@@ -26,20 +26,22 @@
     <property name="entityManagerFactory" ref="entityManagerFactory" />
   </bean>
 
-  <tx:advice id="daoAdvice">
+  <tx:advice id="daoAdvice" transaction-manager="transactionManager">
     <tx:attributes>
       <tx:method name="persist*" propagation="REQUIRED" rollback-for="Exception" />
-      <tx:method name="remove*" propagation="REQUIRED" rollback-for="Exception" />
       <tx:method name="merge*" propagation="REQUIRED" rollback-for="Exception" />
+      <tx:method name="remove*" propagation="REQUIRED" rollback-for="Exception" />
       <tx:method name="save*" propagation="REQUIRED" rollback-for="Exception" />
-      <tx:method name="delete*" propagation="REQUIRED" rollback-for="Exception" />
       <tx:method name="update*" propagation="REQUIRED" rollback-for="Exception" />
+      <tx:method name="delete*" propagation="REQUIRED" rollback-for="Exception" />
       <tx:method name="execute*" propagation="REQUIRED" rollback-for="Exception" />
     </tx:attributes>
   </tx:advice>
 
   <aop:config>
-    <aop:pointcut id="daoPointcut" expression="execution(* com.harmony.umbrella..*.*.*(..))" />
+    <!-- persist declare in com.harmony.umbrella.data package use point cut expression with umbrella or parent package -->
+    <!-- <aop:pointcut id="daoPointcut" expression="execution(* com.harmony.umbrella..*.*(..))" /> -->
+    <aop:pointcut id="daoPointcut" expression="execution(* com.harmony..*.*(..))" />
     <aop:advisor advice-ref="daoAdvice" pointcut-ref="daoPointcut" />
   </aop:config>
 

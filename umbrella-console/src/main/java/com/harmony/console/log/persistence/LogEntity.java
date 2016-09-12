@@ -9,6 +9,7 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.harmony.umbrella.data.domain.BaseEntity;
 import com.harmony.umbrella.log.Level.StandardLevel;
 
@@ -47,6 +48,12 @@ public class LogEntity extends BaseEntity<Long> {
     @Override
     public Long getId() {
         return id;
+    }
+
+    @Override
+    @JsonIgnore
+    public boolean isNew() {
+        return super.isNew();
     }
 
     public String getModule() {

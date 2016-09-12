@@ -13,13 +13,14 @@ import javax.persistence.criteria.Root;
  */
 public interface Specification<T> {
 
-	/**
-	 * Creates a WHERE clause for a query of the referenced entity in form of a
-	 * {@link Predicate} for the given {@link Root} and {@link CriteriaQuery}.
-	 * 
-	 * @param root
-	 * @param query
-	 * @return a {@link Predicate}, must not be {@literal null}.
-	 */
-	Predicate toPredicate(Root<T> root, CriteriaQuery<?> query, CriteriaBuilder cb);
+    /**
+     * Creates a WHERE clause for a query of the referenced entity in form of a
+     * {@link Predicate} for the given {@link Root} and {@link CriteriaQuery}.
+     * 
+     * @param root
+     * @param query
+     * @return a {@link Predicate}
+     */
+    Predicate toPredicate(Root<T> root, CriteriaQuery<?> query, CriteriaBuilder cb);
+
 }
