@@ -6,7 +6,6 @@ import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
@@ -14,7 +13,6 @@ import org.springframework.stereotype.Controller;
 
 import com.harmony.console.log.persistence.LogEntity;
 import com.harmony.console.log.service.LogService;
-import com.harmony.umbrella.data.util.JpaQueryBuilder;
 
 /**
  * @author wuxii@foxmail.com
@@ -35,10 +33,10 @@ public class LogController {
     }
 
     @GET
-    @Path("/{module}")
+    @Path("/all")
     @Produces(MediaType.APPLICATION_JSON)
-    public List<LogEntity> find(@PathParam("module") String module) {
-        return logService.findAll(new JpaQueryBuilder().from(LogEntity.class).equal("module", module).bundle());
+    public List<LogEntity> all() {
+        return logService.findAll();
     }
 
     @GET
