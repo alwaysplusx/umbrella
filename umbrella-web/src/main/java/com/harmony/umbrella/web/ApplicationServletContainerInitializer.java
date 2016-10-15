@@ -42,6 +42,8 @@ public class ApplicationServletContainerInitializer implements ServletContainerI
 
     @Override
     public void onStartup(Set<Class<?>> c, ServletContext servletContext) throws ServletException {
+        new WebApplicationContextInitializer(servletContext).startup();
+        ApplicationConfiguration applicationCfg = ApplicationContext.getApplicationConfiguration();
 
         List<WebApplicationInitializer> initializers = new ArrayList<WebApplicationInitializer>();
         if (c != null && c.size() > 0) {
@@ -75,7 +77,7 @@ public class ApplicationServletContainerInitializer implements ServletContainerI
         });
 
         for (WebApplicationInitializer initializer : initializers) {
-            initializer.onStartup(servletContext);
+            initializer.onStartup(servletContext, applicationCfg);
         }
     }
 
@@ -98,10 +100,10 @@ public class ApplicationServletContainerInitializer implements ServletContainerI
                 if (connectionSource.isValid()) {
                     appConfig.withConnectionSource(connectionSource);
                 } else {
-                    //log.warn("{} connection is not avlid", jndiName);
+                    servletContext.log(jndiName + " connection is not avlid");
                 }
             } else {
-                //log.info("unspecified database connection source");
+                servletContext.log("unspecified database connection source");
             }
 
             // application packages
@@ -109,7 +111,7 @@ public class ApplicationServletContainerInitializer implements ServletContainerI
             if (packages != null && packages.length > 0) {
                 appConfig.withPackages(packages);
             } else {
-                //log.info("unspecified application package(s)");
+                servletContext.log("unspecified application package(s)");
             }
 
             String devMode = getInitParam(INIT_PARAM_DEVMODE, servletContext);
@@ -118,9 +120,9 @@ public class ApplicationServletContainerInitializer implements ServletContainerI
             // init application static metadata information
             ApplicationContext.initStatic(appConfig);
 
-            /*if (log.isDebugEnabled()) {
+            if (appConfig.isDevMode()) {
                 showApplicationInfo();
-            }*/
+            }
         }
 
         private String getInitParam(String key, ServletContext servletContext) {

@@ -1,7 +1,10 @@
 package com.harmony.umbrella.data;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Expression;
@@ -98,7 +101,13 @@ public enum Operator {
 
         @Override
         public Predicate explain(Expression x, CriteriaBuilder cb, Object y) {
-            return x.in(inValue(y));
+            List<Collection> v = cuttingBySize(inValue(y), 999);
+            Iterator<Collection> it = v.iterator();
+            Predicate predicate = x.in(it.next());
+            for (; it.hasNext();) {
+                predicate = cb.or(predicate, x.in(it.next()));
+            }
+            return predicate;
         }
 
     },
@@ -111,7 +120,14 @@ public enum Operator {
 
         @Override
         public Predicate explain(Expression x, CriteriaBuilder cb, Object y) {
-            return cb.not(x).in(inValue(y));
+            x = cb.not(x);
+            List<Collection> v = cuttingBySize(inValue(y), 999);
+            Iterator<Collection> it = v.iterator();
+            Predicate predicate = x.in(it.next());
+            for (; it.hasNext();) {
+                predicate = cb.and(predicate, x.in(it.next()));
+            }
+            return predicate;
         }
 
     },
@@ -219,6 +235,27 @@ public enum Operator {
         }
 
     };
+
+    static List<Collection> cuttingBySize(Collection v, int size) {
+        final int length = v.size();
+        if (length <= size) {
+            return Arrays.asList(v);
+        }
+        Object[] array = v.toArray();
+        List<Collection> result = new ArrayList<Collection>((length / size) + 1);
+        for (int start = 0, end = size; start < length;) {
+            final int copyLength = end - start;
+            Object[] tmp = new Object[copyLength];
+            System.arraycopy(array, start, tmp, 0, copyLength);
+            result.add(Arrays.asList(tmp));
+            if (end == length) {
+                break;
+            }
+            start = end;
+            end = (start + size) > length ? length : (start + size);
+        }
+        return result;
+    }
 
     private static Collection<?> inValue(Object y) {
         if (y instanceof String) {

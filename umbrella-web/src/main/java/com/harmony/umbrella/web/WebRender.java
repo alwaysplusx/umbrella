@@ -39,12 +39,12 @@ public class WebRender {
     }
 
     public WebRender withInline(String fileName) {
-        withHeader("Content-Description", "inline;filename" + encodeFileName(fileName));
+        withHeader("Content-Disposition", "inline;filename" + encodeFileName(fileName));
         return this;
     }
 
     public WebRender withAttarchment(String fileName) {
-        withHeader("Content-Description", "attarchment;filename" + encodeFileName(fileName));
+        withHeader("Content-Disposition", "attarchment;filename" + encodeFileName(fileName));
         return this;
     }
 
@@ -63,6 +63,7 @@ public class WebRender {
     }
 
     public void render(String text) throws IOException {
+        response.setContentLength(text.getBytes().length);
         response.getWriter().write(text);
     }
 

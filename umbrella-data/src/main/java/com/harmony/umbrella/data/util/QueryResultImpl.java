@@ -62,6 +62,7 @@ public class QueryResultImpl<T> implements QueryResult<T> {
 
     @Override
     public <E> List<E> getColumnResultList(String column, Class<E> columnType) {
+        checkListQuery();
         CriteriaQuery<E> query = buildColumnCriteriaQuery(columnType, column);
         return entityManager.createQuery(query).getResultList();
     }
@@ -89,6 +90,7 @@ public class QueryResultImpl<T> implements QueryResult<T> {
 
     @Override
     public <VO> List<VO> getVoResultList(String[] columns, Class<VO> voType) {
+        checkListQuery();
         CriteriaQuery<VO> query = buildColumnCriteriaQuery(voType, columns);
         return entityManager.createQuery(query).getResultList();
     }
@@ -111,6 +113,7 @@ public class QueryResultImpl<T> implements QueryResult<T> {
 
     @Override
     public List<T> getResultList() {
+        checkListQuery();
         CriteriaQuery<T> query = buildCriteriaQuery();
         return entityManager.createQuery(query).getResultList();
     }
@@ -154,6 +157,13 @@ public class QueryResultImpl<T> implements QueryResult<T> {
     }
 
     // query result
+
+    private void checkListQuery() {
+        Specification spec = bundle.getSpecification();
+        if (spec == null && !bundle.isAllowEmptyConditon()) {
+            throw new IllegalStateException("not allow empty condition query list");
+        }
+    }
 
     private CriteriaQuery<T> buildCriteriaQuery() {
         return buildCriteriaQuery(bundle.getEntityClass(), bundle.getSort(), bundle.getFetchAttributes(), bundle.getJoinAttributes());

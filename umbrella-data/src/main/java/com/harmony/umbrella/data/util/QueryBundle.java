@@ -15,26 +15,20 @@ public interface QueryBundle<M> {
 
     Pageable getPageable();
 
-    default int getPageNumber() {
-        Pageable pageable = getPageable();
-        return pageable != null ? pageable.getPageNumber() : 0;
-    }
+    int getPageNumber();
 
-    default int getPageSize() {
-        Pageable pageable = getPageable();
-        return pageable != null ? pageable.getPageSize() : 20;
-    }
+    int getPageSize();
 
-    default Sort getSort() {
-        Pageable pageable = getPageable();
-        return pageable != null ? pageable.getSort() : null;
-    }
+    Sort getSort();
 
     Specification getSpecification();
 
     boolean isDistinct();
 
+    boolean isAllowEmptyConditon();
+    
     FetchAttributes getFetchAttributes();
 
     JoinAttributes getJoinAttributes();
+    
 }

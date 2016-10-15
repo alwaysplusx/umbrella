@@ -8,6 +8,6 @@ import javax.servlet.ServletException;
  */
 public interface WebApplicationInitializer {
 
-    void onStartup(ServletContext servletContext) throws ServletException;
+    void onStartup(ServletContext servletContext, ApplicationConfiguration applicationCfg) throws ServletException;
 
 }

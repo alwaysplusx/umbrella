@@ -37,10 +37,10 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
     private transient Stack<Bind> queryStack = new Stack<Bind>();
     private transient List<CompositionSpecification> temp = new ArrayList<CompositionSpecification>();
 
+    protected boolean allowEmptyCondition;
     protected EntityManager entityManager;
     protected CriteriaBuilder builder;
-    protected boolean autoStart = true;
-    protected boolean autoFinish = true;
+    protected boolean autoEnclosed = true;
     protected Class<M> entityClass;
     protected Sort sort;
     protected int pageNumber;
@@ -92,6 +92,26 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
 
     public T from(Class<M> entityClass) {
         this.entityClass = entityClass;
+        return (T) this;
+    }
+
+    public T allowEmptyCondition() {
+        this.allowEmptyCondition = true;
+        return (T) this;
+    }
+
+    public T forbidEmptyConditon() {
+        this.allowEmptyCondition = false;
+        return (T) this;
+    }
+
+    public T disableAutoEnclosed() {
+        this.autoEnclosed = false;
+        return (T) this;
+    }
+
+    public T enableAutoEnclosed() {
+        this.autoEnclosed = true;
         return (T) this;
     }
 
@@ -371,19 +391,15 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
 
     protected Bind currentBind() {
         if (queryStack.isEmpty()) {
-            if (autoStart) {
-                start();
-            } else {
-                throw new IllegalStateException("query not start, please invoke start method befor query or set autoStart=true");
-            }
+            start();
         }
         return queryStack.peek();
     }
 
     private void finishQuery() {
         if (!queryStack.isEmpty()) {
-            if (!autoFinish) {
-                throw new IllegalStateException("query not finish, please invoke end method or set autoFinish=true");
+            if (!autoEnclosed) {
+                throw new IllegalStateException("query not finish, please turn enclosed on");
             }
             for (int i = 0, max = queryStack.size(); i < max; i++) {
                 end();
