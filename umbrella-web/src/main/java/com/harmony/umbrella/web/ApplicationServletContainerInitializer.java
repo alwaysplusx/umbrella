@@ -18,7 +18,7 @@ import javax.sql.DataSource;
 
 import com.harmony.umbrella.context.ApplicationConfiguration;
 import com.harmony.umbrella.context.ApplicationContext;
-import com.harmony.umbrella.context.WebApplicationInitializer;
+import com.harmony.umbrella.context.ApplicationInitializer;
 import com.harmony.umbrella.context.metadata.ApplicationMetadata;
 import com.harmony.umbrella.context.metadata.DatabaseMetadata;
 import com.harmony.umbrella.context.metadata.DatabaseMetadata.ConnectionSource;
@@ -31,7 +31,7 @@ import com.harmony.umbrella.util.StringUtils;
 /**
  * @author wuxii@foxmail.com
  */
-@HandlesTypes(WebApplicationInitializer.class)
+@HandlesTypes(ApplicationInitializer.class)
 public class ApplicationServletContainerInitializer implements ServletContainerInitializer {
 
     public static final String INIT_PARAM_DATASOURCE = "datasource";
@@ -42,33 +42,33 @@ public class ApplicationServletContainerInitializer implements ServletContainerI
 
     @Override
     public void onStartup(Set<Class<?>> c, ServletContext servletContext) throws ServletException {
-        new WebApplicationContextInitializer(servletContext).startup();
+        new WebApplicationInitializer(servletContext).startup();
         ApplicationConfiguration applicationCfg = ApplicationContext.getApplicationConfiguration();
 
-        List<WebApplicationInitializer> initializers = new ArrayList<WebApplicationInitializer>();
+        List<ApplicationInitializer> initializers = new ArrayList<ApplicationInitializer>();
         if (c != null && c.size() > 0) {
             for (Class<?> cls : c) {
                 if (!cls.isInterface() //
                         && !Modifier.isAbstract(cls.getModifiers()) //
-                        && WebApplicationInitializer.class.isAssignableFrom(cls)) {
+                        && ApplicationInitializer.class.isAssignableFrom(cls)) {
                     try {
-                        initializers.add((WebApplicationInitializer) cls.newInstance());
+                        initializers.add((ApplicationInitializer) cls.newInstance());
                     } catch (Throwable e) {
-                        throw new ServletException("Failed to instantiate WebApplicationInitializer class", e);
+                        throw new ServletException("Failed to instantiate ApplicationInitializer class", e);
                     }
                 }
             }
         }
 
         if (initializers.isEmpty()) {
-            servletContext.log("No application WebApplicationInitializer types detected on classpath");
+            servletContext.log("No application ApplicationInitializer types detected on classpath");
             return;
         }
 
-        Collections.sort(initializers, new Comparator<WebApplicationInitializer>() {
+        Collections.sort(initializers, new Comparator<ApplicationInitializer>() {
 
             @Override
-            public int compare(WebApplicationInitializer o1, WebApplicationInitializer o2) {
+            public int compare(ApplicationInitializer o1, ApplicationInitializer o2) {
                 Order ann1 = o1.getClass().getAnnotation(Order.class);
                 Order ann2 = o2.getClass().getAnnotation(Order.class);
                 return (ann1 == null || ann2 == null) ? 0 : ann1.value() > ann2.value() ? 1 : ann1.value() == ann2.value() ? 0 : -1;
@@ -76,16 +76,16 @@ public class ApplicationServletContainerInitializer implements ServletContainerI
 
         });
 
-        for (WebApplicationInitializer initializer : initializers) {
-            initializer.onStartup(servletContext, applicationCfg);
+        for (ApplicationInitializer initializer : initializers) {
+            initializer.onStartup(applicationCfg);
         }
     }
 
-    static class WebApplicationContextInitializer {
+    static class WebApplicationInitializer {
 
         private ServletContext servletContext;
 
-        public WebApplicationContextInitializer(ServletContext servletContext) {
+        public WebApplicationInitializer(ServletContext servletContext) {
             this.servletContext = servletContext;
         }
 

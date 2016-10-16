@@ -55,11 +55,11 @@ public abstract class ApplicationContext implements BeanFactory {
             LOG.warn("application metadata already initial");
             return;
         }
-        ApplicationInitializer applicationInitializer = null;
-        Class<? extends ApplicationInitializer> applicationInitializerClass = appConfig.getApplicationInitializerClass();
+        ApplicationContextInitializer applicationInitializer = null;
+        Class<? extends ApplicationContextInitializer> applicationInitializerClass = appConfig.getApplicationContextInitializerClass();
 
         if (applicationInitializerClass == null) {
-            applicationInitializerClass = ApplicationInitializer.class;
+            applicationInitializerClass = ApplicationContextInitializer.class;
         }
 
         applicationInitializer = ReflectionUtils.instantiateClass(applicationInitializerClass);
@@ -225,11 +225,11 @@ public abstract class ApplicationContext implements BeanFactory {
         return null;
     }
 
-    public static class ApplicationInitializer {
+    public static class ApplicationContextInitializer {
 
-        protected static final Log log = Logs.getLog(ApplicationInitializer.class);
+        protected static final Log log = Logs.getLog(ApplicationContextInitializer.class);
 
-        public ApplicationInitializer() {
+        protected ApplicationContextInitializer() {
         }
 
         final void init(ApplicationConfiguration applicationConfiguration) {

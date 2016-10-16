@@ -33,29 +33,6 @@ public abstract class AbstractJmsMessageProducer implements JmsMessageProducer {
         }
     }
 
-    @Override
-    public void send(MessageCreater messageCreater) throws MessageException {
-        try {
-            send(messageCreater, createJmsConfig());
-        } catch (JMSException e) {
-            throw new MessageException(e);
-        }
-    }
-
-    public void send(MessageCreater messageCreater, JmsConfig config) throws JMSException {
-        try {
-            config.start();
-            Session session = config.getSession();
-            config.getMessageProducer().send(messageCreater.createMessage(session));
-        } finally {
-            try {
-                config.stop();
-            } catch (Exception e) {
-                log.error("close jms config exception", e);
-            }
-        }
-    }
-
     /**
      * 将message发送给JMS中间件
      * 

@@ -25,7 +25,7 @@ public interface QueryBundle<M> {
 
     boolean isDistinct();
 
-    boolean isAllowEmptyConditon();
+    boolean isAllowEmptyCondition();
     
     FetchAttributes getFetchAttributes();
 

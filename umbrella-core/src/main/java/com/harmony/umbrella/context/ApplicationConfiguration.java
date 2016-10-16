@@ -13,7 +13,7 @@ import java.util.regex.Pattern;
 
 import javax.servlet.ServletContext;
 
-import com.harmony.umbrella.context.ApplicationContext.ApplicationInitializer;
+import com.harmony.umbrella.context.ApplicationContext.ApplicationContextInitializer;
 import com.harmony.umbrella.context.metadata.DatabaseMetadata.ConnectionSource;
 
 /**
@@ -21,20 +21,20 @@ import com.harmony.umbrella.context.metadata.DatabaseMetadata.ConnectionSource;
  */
 public class ApplicationConfiguration {
 
-    private static final Pattern PACKAGE_PATTERN = Pattern.compile("^[a-zA-Z]+[0-9a-zA-Z]*");
+    protected static final Pattern PACKAGE_PATTERN = Pattern.compile("^[a-zA-Z]+[0-9a-zA-Z]*");
 
-    private ServletContext servletContext;
-    private List<String> packages = new ArrayList<String>();
-    private ConnectionSource connectionSource;
+    protected ServletContext servletContext;
+    protected List<String> packages = new ArrayList<String>();
+    protected ConnectionSource connectionSource;
 
-    private boolean devMode;
+    protected boolean devMode;
 
     @SuppressWarnings("rawtypes")
-    private Map properties = new HashMap();
+    protected Map properties = new HashMap();
 
-    private Class<? extends ApplicationInitializer> applicationInitializerClass;
+    protected Class<? extends ApplicationContextInitializer> applicationContextInitializerClass;
 
-    private boolean initializeClass;
+    protected boolean initializeClass;
 
     @SuppressWarnings("unchecked")
     public ApplicationConfiguration withProperty(String key, Object value) {
@@ -92,8 +92,8 @@ public class ApplicationConfiguration {
         return this;
     }
 
-    public ApplicationConfiguration withApplicationInitializerClass(Class<? extends ApplicationInitializer> applicationInitializerClass) {
-        this.applicationInitializerClass = applicationInitializerClass;
+    public ApplicationConfiguration withApplicationInitializerClass(Class<? extends ApplicationContextInitializer> applicationContextInitializerClass) {
+        this.applicationContextInitializerClass = applicationContextInitializerClass;
         return this;
     }
 
@@ -150,12 +150,12 @@ public class ApplicationConfiguration {
         packages.add(p);
     }
 
-    public Class<? extends ApplicationInitializer> getApplicationInitializerClass() {
-        return applicationInitializerClass;
+    public Class<? extends ApplicationContextInitializer> getApplicationContextInitializerClass() {
+        return applicationContextInitializerClass;
     }
 
-    public void setApplicationInitializerClass(Class<? extends ApplicationInitializer> applicationInitializerClass) {
-        this.applicationInitializerClass = applicationInitializerClass;
+    public void setApplicationContextInitializerClass(Class<? extends ApplicationContextInitializer> applicationContextInitializerClass) {
+        this.applicationContextInitializerClass = applicationContextInitializerClass;
     }
 
     @SuppressWarnings("rawtypes")
@@ -275,7 +275,7 @@ public class ApplicationConfiguration {
         }
 
         @Override
-        public ApplicationConfiguration withApplicationInitializerClass(Class<? extends ApplicationInitializer> applicationInitializerClass) {
+        public ApplicationConfiguration withApplicationInitializerClass(Class<? extends ApplicationContextInitializer> applicationContextInitializerClass) {
             throw new UnsupportedOperationException();
         }
 
@@ -295,7 +295,7 @@ public class ApplicationConfiguration {
         }
 
         @Override
-        public void setApplicationInitializerClass(Class<? extends ApplicationInitializer> applicationInitializerClass) {
+        public void setApplicationContextInitializerClass(Class<? extends ApplicationContextInitializer> applicationContextInitializerClass) {
             throw new UnsupportedOperationException();
         }
 
@@ -350,8 +350,8 @@ public class ApplicationConfiguration {
         }
 
         @Override
-        public Class<? extends ApplicationInitializer> getApplicationInitializerClass() {
-            return cfg.getApplicationInitializerClass();
+        public Class<? extends ApplicationContextInitializer> getApplicationContextInitializerClass() {
+            return cfg.getApplicationContextInitializerClass();
         }
 
         @SuppressWarnings("unchecked")

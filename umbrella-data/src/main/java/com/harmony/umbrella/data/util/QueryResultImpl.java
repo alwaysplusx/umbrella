@@ -160,7 +160,7 @@ public class QueryResultImpl<T> implements QueryResult<T> {
 
     private void checkListQuery() {
         Specification spec = bundle.getSpecification();
-        if (spec == null && !bundle.isAllowEmptyConditon()) {
+        if (spec == null && !bundle.isAllowEmptyCondition()) {
             throw new IllegalStateException("not allow empty condition query list");
         }
     }

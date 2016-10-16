@@ -1,6 +1,5 @@
 package com.harmony.umbrella.message.jms;
 
-import com.harmony.umbrella.message.MessageException;
 import com.harmony.umbrella.message.MessageProducer;
 
 /**
@@ -9,7 +8,5 @@ import com.harmony.umbrella.message.MessageProducer;
  * @author wuxii@foxmail.com
  */
 public interface JmsMessageProducer extends MessageProducer {
-
-    void send(MessageCreater messageCreater) throws MessageException;
 
 }

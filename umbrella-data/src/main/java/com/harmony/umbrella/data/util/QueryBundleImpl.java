@@ -26,7 +26,7 @@ public class QueryBundleImpl<M> implements QueryBundle<M>, Serializable {
     JoinAttributes joinAttributes;
 
     boolean distinct;
-    
+
     boolean allowEmptyCondition;
 
     public QueryBundleImpl() {
@@ -68,9 +68,9 @@ public class QueryBundleImpl<M> implements QueryBundle<M>, Serializable {
     public boolean isDistinct() {
         return distinct;
     }
-    
+
     @Override
-    public boolean isAllowEmptyConditon() {
+    public boolean isAllowEmptyCondition() {
         return allowEmptyCondition;
     }
 
