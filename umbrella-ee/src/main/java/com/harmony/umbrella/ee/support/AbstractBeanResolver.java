@@ -15,7 +15,7 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
-import com.harmony.umbrella.beans.BeansException;
+import com.harmony.umbrella.core.BeansException;
 import com.harmony.umbrella.ee.BeanDefinition;
 import com.harmony.umbrella.ee.BeanResolver;
 import com.harmony.umbrella.ee.SessionBean;

@@ -1,7 +1,7 @@
 package com.harmony.umbrella.test;
 
-import com.harmony.umbrella.beans.BeansException;
-import com.harmony.umbrella.beans.NoSuchBeanFoundException;
+import com.harmony.umbrella.core.BeansException;
+import com.harmony.umbrella.core.NoSuchBeanFoundException;
 import com.harmony.umbrella.ee.EJBBeanFactory;
 import com.harmony.umbrella.util.ReflectionUtils;
 import com.harmony.umbrella.util.StringUtils;

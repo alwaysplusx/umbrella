@@ -2,10 +2,10 @@ package com.harmony.umbrella.ee;
 
 import java.lang.annotation.Annotation;
 
-import com.harmony.umbrella.beans.BeanFactory;
-import com.harmony.umbrella.beans.BeansException;
-import com.harmony.umbrella.beans.NoSuchBeanFoundException;
 import com.harmony.umbrella.context.ApplicationContext;
+import com.harmony.umbrella.core.BeanFactory;
+import com.harmony.umbrella.core.BeansException;
+import com.harmony.umbrella.core.NoSuchBeanFoundException;
 import com.harmony.umbrella.log.Log;
 import com.harmony.umbrella.log.Logs;
 

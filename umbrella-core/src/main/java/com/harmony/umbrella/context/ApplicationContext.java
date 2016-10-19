@@ -13,12 +13,12 @@ import java.util.Vector;
 import javax.servlet.ServletContext;
 
 import com.harmony.umbrella.asm.ClassReader;
-import com.harmony.umbrella.beans.BeanFactory;
-import com.harmony.umbrella.beans.BeansException;
-import com.harmony.umbrella.beans.SimpleBeanFactory;
 import com.harmony.umbrella.context.metadata.ApplicationMetadata;
 import com.harmony.umbrella.context.metadata.DatabaseMetadata;
 import com.harmony.umbrella.context.metadata.DatabaseMetadata.ConnectionSource;
+import com.harmony.umbrella.core.BeanFactory;
+import com.harmony.umbrella.core.BeansException;
+import com.harmony.umbrella.core.SimpleBeanFactory;
 import com.harmony.umbrella.context.metadata.ServerMetadata;
 import com.harmony.umbrella.io.Resource;
 import com.harmony.umbrella.io.support.PathMatchingResourcePatternResolver;

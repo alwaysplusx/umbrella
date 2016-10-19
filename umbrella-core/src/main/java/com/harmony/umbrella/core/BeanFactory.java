@@ -1,4 +1,4 @@
-package com.harmony.umbrella.beans;
+package com.harmony.umbrella.core;
 
 /**
  * bean加载

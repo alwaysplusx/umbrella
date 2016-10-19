@@ -2,8 +2,8 @@ package com.harmony.umbrella.ee;
 
 import java.lang.annotation.Annotation;
 
-import com.harmony.umbrella.beans.BeanFactory;
-import com.harmony.umbrella.beans.BeansException;
+import com.harmony.umbrella.core.BeanFactory;
+import com.harmony.umbrella.core.BeansException;
 
 /**
  * @author wuxii@foxmail.com

@@ -80,7 +80,7 @@ public class SpringApplicationContext extends ApplicationContext implements Bean
     }
 
     @Override
-    public com.harmony.umbrella.beans.BeanFactory getBeanFactory() {
+    public com.harmony.umbrella.core.BeanFactory getBeanFactory() {
         return null;
     }
 

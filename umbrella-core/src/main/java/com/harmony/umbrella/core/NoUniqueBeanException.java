@@ -1,4 +1,4 @@
-package com.harmony.umbrella.beans;
+package com.harmony.umbrella.core;
 
 /**
  * @author wuxii@foxmail.com

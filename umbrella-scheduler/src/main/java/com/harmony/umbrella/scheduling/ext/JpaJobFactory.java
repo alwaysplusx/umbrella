@@ -7,8 +7,8 @@ import java.util.Set;
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 
-import com.harmony.umbrella.beans.BeanFactory;
-import com.harmony.umbrella.beans.SimpleBeanFactory;
+import com.harmony.umbrella.core.BeanFactory;
+import com.harmony.umbrella.core.SimpleBeanFactory;
 import com.harmony.umbrella.scheduling.Job;
 import com.harmony.umbrella.scheduling.JobFactory;
 import com.harmony.umbrella.scheduling.Trigger;

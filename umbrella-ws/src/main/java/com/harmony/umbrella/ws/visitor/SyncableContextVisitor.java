@@ -7,8 +7,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.harmony.umbrella.beans.BeanFactory;
 import com.harmony.umbrella.context.ApplicationContext;
+import com.harmony.umbrella.core.BeanFactory;
 import com.harmony.umbrella.log.Log;
 import com.harmony.umbrella.log.Logs;
 import com.harmony.umbrella.util.ClassUtils.ClassFilter;
