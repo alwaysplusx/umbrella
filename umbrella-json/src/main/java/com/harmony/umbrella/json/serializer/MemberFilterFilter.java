@@ -2,8 +2,8 @@ package com.harmony.umbrella.json.serializer;
 
 import com.alibaba.fastjson.serializer.JSONSerializer;
 import com.alibaba.fastjson.serializer.PropertyPreFilter;
-import com.harmony.umbrella.access.Member;
-import com.harmony.umbrella.access.MemberAccess;
+import com.harmony.umbrella.core.Member;
+import com.harmony.umbrella.util.MemberUtils;
 
 /**
  * @author wuxii@foxmail.com
@@ -40,7 +40,7 @@ public abstract class MemberFilterFilter implements PropertyPreFilter {
 
     protected Member getObjectMember(Class<?> targetClass, String name) {
         try {
-            return MemberAccess.access(targetClass, name);
+            return MemberUtils.access(targetClass, name);
         } catch (Exception e) {
             return null;
         }

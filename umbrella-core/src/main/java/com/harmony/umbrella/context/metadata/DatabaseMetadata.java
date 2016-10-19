@@ -4,6 +4,8 @@ import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 
+import com.harmony.umbrella.core.ConnectionSource;
+
 /**
  * 应用所使用的数据库信息
  * <table border="2" rules="all" cellpadding="4">
@@ -166,14 +168,6 @@ public final class DatabaseMetadata {
 
     public boolean isUnknow() {
         return UNKNOW == databaseType;
-    }
-
-    public interface ConnectionSource {
-
-        boolean isValid();
-
-        Connection getConnection() throws SQLException;
-
     }
 
 }

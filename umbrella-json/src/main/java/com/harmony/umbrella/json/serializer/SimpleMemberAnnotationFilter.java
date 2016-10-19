@@ -8,7 +8,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.harmony.umbrella.access.Member;
+import com.harmony.umbrella.core.Member;
 
 /**
  * @author wuxii@foxmail.com

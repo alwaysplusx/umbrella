@@ -11,12 +11,12 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 
-import com.harmony.umbrella.access.Member;
-import com.harmony.umbrella.access.MemberAccess;
+import com.harmony.umbrella.core.Member;
 import com.harmony.umbrella.excel.annotation.ExcelColumn;
 import com.harmony.umbrella.excel.cell.CellResolverFactory;
 import com.harmony.umbrella.util.ClassUtils.ClassFilterFeature;
 import com.harmony.umbrella.util.CollectionUtils;
+import com.harmony.umbrella.util.MemberUtils;
 import com.harmony.umbrella.util.ReflectionUtils;
 import com.harmony.umbrella.util.StringUtils;
 
@@ -77,7 +77,7 @@ public class RowEntityMapper<T> implements RowVisitor {
         for (int i = startColumn, max = getMaxColumnNumber(row); i < max; i++) {
             Cell cell = row.getCell(i);
             if (cell != null) {
-                Member member = MemberAccess.access(entityClass, headerIndexToFieldNameMap.get(i));
+                Member member = MemberUtils.access(entityClass, headerIndexToFieldNameMap.get(i));
                 CellResolver<?> cellResolver = getCellResolver(member);
                 member.set(entity, cellResolver.resolve(cell.getRowIndex(), cell.getColumnIndex(), cell));
             }

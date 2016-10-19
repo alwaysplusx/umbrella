@@ -21,7 +21,7 @@ import com.harmony.umbrella.util.Assert;
 public class JpaJobFactory implements JobFactory {
 
     private final EntityManager em;
-    private BeanFactory beanFactory = new SimpleBeanFactory();
+    private BeanFactory beanFactory = SimpleBeanFactory.INSTANCE;
 
     public JpaJobFactory(EntityManager em) {
         Assert.notNull(em, "entity manager must not be null");

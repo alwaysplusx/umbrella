@@ -7,8 +7,8 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 
-import com.harmony.umbrella.access.Member;
-import com.harmony.umbrella.access.MemberAccess;
+import com.harmony.umbrella.core.Member;
+import com.harmony.umbrella.util.MemberUtils;
 import com.harmony.umbrella.util.ReflectionUtils;
 import com.harmony.umbrella.validator.Validators;
 import com.harmony.umbrella.ws.annotation.Key;
@@ -27,14 +27,14 @@ public class ServiceUtils {
         for (Method method : targetClass.getMethods()) {
             Key ann = method.getAnnotation(Key.class);
             if (ann != null && ReflectionUtils.isReadMethod(method)) {
-                result.add(MemberAccess.access(targetClass, method));
+                result.add(MemberUtils.access(targetClass, method));
             }
         }
         // 配置有@Key的字段
         for (Field field : targetClass.getDeclaredFields()) {
             Key ann = field.getAnnotation(Key.class);
             if (ann != null) {
-                result.add(MemberAccess.access(targetClass, field));
+                result.add(MemberUtils.access(targetClass, field));
             }
         }
         return result.toArray(new Member[result.size()]);

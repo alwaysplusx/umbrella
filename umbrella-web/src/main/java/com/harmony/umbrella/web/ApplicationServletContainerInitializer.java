@@ -21,10 +21,10 @@ import com.harmony.umbrella.context.ApplicationContext;
 import com.harmony.umbrella.context.ApplicationInitializer;
 import com.harmony.umbrella.context.metadata.ApplicationMetadata;
 import com.harmony.umbrella.context.metadata.DatabaseMetadata;
-import com.harmony.umbrella.context.metadata.DatabaseMetadata.ConnectionSource;
 import com.harmony.umbrella.context.metadata.JavaMetadata;
 import com.harmony.umbrella.context.metadata.OperatingSystemMetadata;
 import com.harmony.umbrella.context.metadata.ServerMetadata;
+import com.harmony.umbrella.core.ConnectionSource;
 import com.harmony.umbrella.core.annotation.Order;
 import com.harmony.umbrella.util.StringUtils;
 
@@ -97,11 +97,7 @@ public class ApplicationServletContainerInitializer implements ServletContainerI
             String jndiName = getInitParam(INIT_PARAM_DATASOURCE, servletContext);
             if (StringUtils.isNotBlank(jndiName)) {
                 JndiConnectionSource connectionSource = new JndiConnectionSource(jndiName);
-                if (connectionSource.isValid()) {
-                    appConfig.withConnectionSource(connectionSource);
-                } else {
-                    servletContext.log(jndiName + " connection is not avlid");
-                }
+                appConfig.withConnectionSource(connectionSource);
             } else {
                 servletContext.log("unspecified database connection source");
             }
@@ -139,11 +135,10 @@ public class ApplicationServletContainerInitializer implements ServletContainerI
             StringBuilder out = new StringBuilder();
 
             ApplicationConfiguration cfg = ApplicationContext.getApplicationConfiguration();
-            DatabaseMetadata databaseMetadata = ApplicationContext.getDatabaseMetadata();
             ServerMetadata serverMetadata = ApplicationContext.getServerMetadata();
             JavaMetadata javaMetadata = ApplicationMetadata.getJavaMetadata();
             OperatingSystemMetadata osMetadata = ApplicationMetadata.getOperatingSystemMetadata();
-
+            DatabaseMetadata[] dms = ApplicationContext.getDatabaseMetadatas();
             out//
                     .append("\n################################################################")//
                     .append("\n#                     Application Information                  #")//
@@ -158,13 +153,17 @@ public class ApplicationServletContainerInitializer implements ServletContainerI
                     .append("\n#              jvm name : ").append(javaMetadata.vmName)//
                     .append("\n#            jvm vendor : ").append(javaMetadata.vmVendor)//
                     .append("\n#           jvm version : ").append(javaMetadata.vmVersion)//
-                    .append("\n#")//
-                    .append("\n#              database : ").append(databaseMetadata.productName)//
-                    .append("\n#          database url : ").append(databaseMetadata.url)//
-                    .append("\n#         database user : ").append(databaseMetadata.userName)//
-                    .append("\n#           driver name : ").append(databaseMetadata.driverName)//
-                    .append("\n#        driver version : ").append(databaseMetadata.driverVersion)//
-                    .append("\n#")//
+                    .append("\n#");//
+            for (DatabaseMetadata dm : dms) {
+                out//
+                        .append("\n#              database : ").append(dm.productName)//
+                        .append("\n#          database url : ").append(dm.url)//
+                        .append("\n#         database user : ").append(dm.userName)//
+                        .append("\n#           driver name : ").append(dm.driverName)//
+                        .append("\n#        driver version : ").append(dm.driverVersion)//
+                        .append("\n#");//
+            }
+            out//
                     .append("\n#            app server : ").append(serverMetadata.serverName)//
                     .append("\n#       servlet version : ").append(serverMetadata.servletVersion)//
                     .append("\n#")//
@@ -187,24 +186,6 @@ public class ApplicationServletContainerInitializer implements ServletContainerI
 
             public JndiConnectionSource(String jndi) {
                 this.jndi = jndi;
-            }
-
-            @Override
-            public boolean isValid() {
-                Connection conn = null;
-                try {
-                    conn = getConnection();
-                    return conn.isValid(5);
-                } catch (SQLException e) {
-                    return false;
-                } finally {
-                    if (conn != null) {
-                        try {
-                            conn.close();
-                        } catch (SQLException e) {
-                        }
-                    }
-                }
             }
 
             @Override

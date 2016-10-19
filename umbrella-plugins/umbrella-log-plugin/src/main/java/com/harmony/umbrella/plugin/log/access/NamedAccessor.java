@@ -1,6 +1,6 @@
 package com.harmony.umbrella.plugin.log.access;
 
-import com.harmony.umbrella.access.MemberAccess;
+import com.harmony.umbrella.util.MemberUtils;
 import com.harmony.umbrella.util.ReflectionUtils;
 
 /**
@@ -19,7 +19,7 @@ public class NamedAccessor extends CheckedAccessor<Object> {
      */
     @Override
     public boolean support(String name) {
-        return name != null && MemberAccess.isReadable(getType(), name);
+        return name != null && MemberUtils.isReadable(getType(), name);
     }
 
     /**

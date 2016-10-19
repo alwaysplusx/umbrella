@@ -23,7 +23,7 @@ public class PropertiesFileJobFactory implements JobFactory {
 
     private final String jobFileLocation;
     private final String triggerFileLocation;
-    private BeanFactory beanFactory = new SimpleBeanFactory();
+    private BeanFactory beanFactory = SimpleBeanFactory.INSTANCE;
 
     public PropertiesFileJobFactory() {
         this(jobPropertiesFileLocation, triggerPropertiesFileLocation);

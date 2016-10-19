@@ -1,7 +1,5 @@
 package com.harmony.umbrella.context;
 
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -14,9 +12,11 @@ import java.util.regex.Pattern;
 import javax.servlet.ServletContext;
 
 import com.harmony.umbrella.context.ApplicationContext.ApplicationContextInitializer;
-import com.harmony.umbrella.context.metadata.DatabaseMetadata.ConnectionSource;
+import com.harmony.umbrella.core.ConnectionSource;
 
 /**
+ * 应用配置信息
+ * 
  * @author wuxii@foxmail.com
  */
 public class ApplicationConfiguration {
@@ -24,36 +24,64 @@ public class ApplicationConfiguration {
     protected static final Pattern PACKAGE_PATTERN = Pattern.compile("^[a-zA-Z]+[0-9a-zA-Z]*");
 
     protected ServletContext servletContext;
-    protected List<String> packages = new ArrayList<String>();
-    protected ConnectionSource connectionSource;
+
+    protected final List<String> packages = new ArrayList<String>();
+
+    protected final List<ConnectionSource> connectionSources = new ArrayList<ConnectionSource>();
+
+    protected final Map properties = new HashMap();
 
     protected boolean devMode;
 
-    @SuppressWarnings("rawtypes")
-    protected Map properties = new HashMap();
-
     protected Class<? extends ApplicationContextInitializer> applicationContextInitializerClass;
 
-    protected boolean initializeClass;
+    protected boolean initializedClassWhenScan;
 
-    @SuppressWarnings("unchecked")
+    /**
+     * 设置配置属性
+     * 
+     * @param key
+     *            配置属性key
+     * @param value
+     *            配置属性value
+     * @return this
+     */
     public ApplicationConfiguration withProperty(String key, Object value) {
         properties.put(key, value);
         return this;
     }
 
-    @SuppressWarnings("unchecked")
+    /**
+     * 设置配置属性
+     * 
+     * @param properties
+     *            配置属性
+     * @return this
+     */
     public ApplicationConfiguration withProperty(Properties properties) {
         this.properties.putAll(properties);
         return this;
     }
 
-    @SuppressWarnings("unchecked")
+    /**
+     * 设置配置属性
+     * 
+     * @param properties
+     *            配置属性
+     * @return this
+     */
     public ApplicationConfiguration withProperty(Map<String, Object> properties) {
         this.properties.putAll(properties);
         return this;
     }
 
+    /**
+     * 设置应用所需要扫描的包
+     * 
+     * @param packages
+     *            待扫描的包
+     * @return this
+     */
     public ApplicationConfiguration withPackages(String... packages) {
         for (String p : packages) {
             if (isPackage(p)) {
@@ -63,11 +91,13 @@ public class ApplicationConfiguration {
         return this;
     }
 
-    public ApplicationConfiguration withInitializeClass(boolean initialize) {
-        this.initializeClass = initialize;
-        return this;
-    }
-
+    /**
+     * 设置应用所需要扫描的包
+     * 
+     * @param packages
+     *            待扫描的包
+     * @return this
+     */
     public ApplicationConfiguration withPackages(List<String> packages) {
         for (String p : packages) {
             if (isPackage(p)) {
@@ -77,63 +107,110 @@ public class ApplicationConfiguration {
         return this;
     }
 
-    public ApplicationConfiguration withConnectionSource(ConnectionSource connectionSource) {
-        this.connectionSource = connectionSource;
+    /**
+     * 在加载包下的class时候是否积极的初始化类
+     * 
+     * @param initializedClassWhenForName
+     *            是否积极初始化类信息
+     * @return this
+     * @see Class#forName(String, boolean, ClassLoader)
+     */
+    public ApplicationConfiguration withInitializedClassWhenScan(boolean initializedClassWhenScan) {
+        this.initializedClassWhenScan = initializedClassWhenScan;
         return this;
     }
 
-    public ApplicationConfiguration withConnection(Connection connection) {
-        this.connectionSource = new SingletonConnectionSource(connection);
+    /**
+     * 添加应用所拥有的数据源
+     * 
+     * @param connectionSource
+     *            数据源
+     * @return this
+     */
+    public ApplicationConfiguration withConnectionSource(ConnectionSource... connectionSource) {
+        Collections.addAll(this.connectionSources, connectionSource);
         return this;
     }
 
+    /**
+     * 添加应用的数据源
+     * 
+     * @param connectionSource
+     *            数据源
+     * @return this
+     */
+    public ApplicationConfiguration withConnectionSource(List<ConnectionSource> connectionSource) {
+        this.connectionSources.addAll(connectionSource);
+        return this;
+    }
+
+    /**
+     * 设置启动配置的servletContext
+     * 
+     * @param servletContext
+     *            web application context
+     * @return this
+     */
     public ApplicationConfiguration withServletContext(ServletContext servletContext) {
         this.servletContext = servletContext;
         return this;
     }
 
+    /**
+     * 设置应用上下文的初始化类
+     * 
+     * @param applicationContextInitializerClass
+     *            应用上下文的初始化类
+     * @return this
+     */
     public ApplicationConfiguration withApplicationInitializerClass(Class<? extends ApplicationContextInitializer> applicationContextInitializerClass) {
         this.applicationContextInitializerClass = applicationContextInitializerClass;
         return this;
     }
 
+    /**
+     * 设置是否为开发模式
+     * 
+     * @param mode
+     *            开发模式标识
+     * @return this
+     */
     public ApplicationConfiguration withDevMode(boolean mode) {
         this.devMode = mode;
         return this;
     }
 
+    // getter
+
     public ServletContext getServletContext() {
         return servletContext;
     }
 
-    public void setServletContext(ServletContext servletContext) {
-        this.servletContext = servletContext;
-    }
-
     public List<String> getPackages() {
-        return packages;
+        return Collections.unmodifiableList(packages);
     }
 
-    public void setPackages(List<String> packages) {
-        this.packages.clear();
-        this.withPackages(packages);
-    }
-
-    public ConnectionSource getConnectionSource() {
-        return connectionSource;
-    }
-
-    public void setConnectionSource(ConnectionSource connectionSource) {
-        this.connectionSource = connectionSource;
+    public List<ConnectionSource> getConnectionSources() {
+        return Collections.unmodifiableList(connectionSources);
     }
 
     public boolean isDevMode() {
         return devMode;
     }
 
-    public void setDevMode(boolean devMode) {
-        this.devMode = devMode;
+    public Map getProperties() {
+        return Collections.unmodifiableMap(properties);
     }
+
+    public Class<? extends ApplicationContextInitializer> getApplicationContextInitializerClass() {
+        return applicationContextInitializerClass;
+    }
+
+    public boolean isInitializedClassWhenScan() {
+        return initializedClassWhenScan;
+    }
+
+    // internal method
 
     private void addPackage(String p) {
         Iterator<String> it = packages.iterator();
@@ -148,37 +225,6 @@ public class ApplicationConfiguration {
             }
         }
         packages.add(p);
-    }
-
-    public Class<? extends ApplicationContextInitializer> getApplicationContextInitializerClass() {
-        return applicationContextInitializerClass;
-    }
-
-    public void setApplicationContextInitializerClass(Class<? extends ApplicationContextInitializer> applicationContextInitializerClass) {
-        this.applicationContextInitializerClass = applicationContextInitializerClass;
-    }
-
-    @SuppressWarnings("rawtypes")
-    public Map getProperties() {
-        return properties;
-    }
-
-    @SuppressWarnings({ "rawtypes", "unchecked" })
-    public void setProperties(Map properties) {
-        this.properties.clear();
-        this.properties.putAll(properties);
-    }
-
-    public Object getProperty(String key) {
-        return properties.get(key);
-    }
-
-    public boolean isInitializeClass() {
-        return initializeClass;
-    }
-
-    public void setInitializeClass(boolean initializeClass) {
-        this.initializeClass = initializeClass;
     }
 
     private boolean isPackage(String pkg) {
@@ -197,30 +243,6 @@ public class ApplicationConfiguration {
         return true;
     }
 
-    public static final class SingletonConnectionSource implements ConnectionSource {
-
-        private Connection connection;
-
-        public SingletonConnectionSource(Connection connection) {
-            this.connection = connection;
-        }
-
-        @Override
-        public boolean isValid() {
-            try {
-                return !connection.isClosed();
-            } catch (SQLException e) {
-                return false;
-            }
-        }
-
-        @Override
-        public Connection getConnection() throws SQLException {
-            return connection;
-        }
-
-    }
-
     public static final ApplicationConfiguration unmodifiableApplicationConfig(ApplicationConfiguration cfg) {
         return new UnmodifiableApplicationConfiguration(cfg);
     }
@@ -230,7 +252,7 @@ public class ApplicationConfiguration {
 
         private ApplicationConfiguration cfg;
 
-        public UnmodifiableApplicationConfiguration(ApplicationConfiguration applicationConfiguration) {
+        UnmodifiableApplicationConfiguration(ApplicationConfiguration applicationConfiguration) {
             this.cfg = applicationConfiguration;
         }
 
@@ -260,12 +282,17 @@ public class ApplicationConfiguration {
         }
 
         @Override
-        public ApplicationConfiguration withConnectionSource(ConnectionSource connectionSource) {
+        public ApplicationConfiguration withInitializedClassWhenScan(boolean initializedClassWhenScan) {
             throw new UnsupportedOperationException();
         }
 
         @Override
-        public ApplicationConfiguration withConnection(Connection connection) {
+        public ApplicationConfiguration withConnectionSource(ConnectionSource... connectionSource) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public ApplicationConfiguration withConnectionSource(List<ConnectionSource> connectionSource) {
             throw new UnsupportedOperationException();
         }
 
@@ -280,58 +307,8 @@ public class ApplicationConfiguration {
         }
 
         @Override
-        public void setServletContext(ServletContext servletContext) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public void setPackages(List<String> packages) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public void setConnectionSource(ConnectionSource connectionSource) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public void setApplicationContextInitializerClass(Class<? extends ApplicationContextInitializer> applicationContextInitializerClass) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public void setProperties(Map properties) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
         public ApplicationConfiguration withDevMode(boolean mode) {
             throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public void setDevMode(boolean devMode) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public ApplicationConfiguration withInitializeClass(boolean initialize) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public void setInitializeClass(boolean initializeClass) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public boolean isInitializeClass() {
-            return cfg.isInitializeClass();
-        }
-
-        @Override
-        public boolean isDevMode() {
-            return cfg.isDevMode();
         }
 
         @Override
@@ -341,12 +318,22 @@ public class ApplicationConfiguration {
 
         @Override
         public List<String> getPackages() {
-            return Collections.unmodifiableList(cfg.getPackages());
+            return cfg.getPackages();
         }
 
         @Override
-        public ConnectionSource getConnectionSource() {
-            return cfg.getConnectionSource();
+        public List<ConnectionSource> getConnectionSources() {
+            return cfg.getConnectionSources();
+        }
+
+        @Override
+        public boolean isDevMode() {
+            return cfg.isDevMode();
+        }
+
+        @Override
+        public Map getProperties() {
+            return cfg.getProperties();
         }
 
         @Override
@@ -354,15 +341,9 @@ public class ApplicationConfiguration {
             return cfg.getApplicationContextInitializerClass();
         }
 
-        @SuppressWarnings("unchecked")
         @Override
-        public Map getProperties() {
-            return Collections.unmodifiableMap(cfg.getProperties());
-        }
-
-        @Override
-        public Object getProperty(String key) {
-            return cfg.getProperty(key);
+        public boolean isInitializedClassWhenScan() {
+            return cfg.isInitializedClassWhenScan();
         }
 
     }

@@ -4,6 +4,9 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
+import com.harmony.umbrella.core.Member;
+import com.harmony.umbrella.util.MemberUtils;
+
 /**
  * @author wuxii@foxmail.com
  */
@@ -39,7 +42,7 @@ public class MemberTest {
 
     @Test
     public void testAccess() {
-        Member member = MemberAccess.access(Person.class, "brother.name");
+        Member member = MemberUtils.access(Person.class, "brother.name");
         
         assertEquals("D", member.get(self));
     }

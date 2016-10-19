@@ -15,11 +15,11 @@ import javax.servlet.ServletContext;
 import com.harmony.umbrella.asm.ClassReader;
 import com.harmony.umbrella.context.metadata.ApplicationMetadata;
 import com.harmony.umbrella.context.metadata.DatabaseMetadata;
-import com.harmony.umbrella.context.metadata.DatabaseMetadata.ConnectionSource;
+import com.harmony.umbrella.context.metadata.ServerMetadata;
 import com.harmony.umbrella.core.BeanFactory;
 import com.harmony.umbrella.core.BeansException;
+import com.harmony.umbrella.core.ConnectionSource;
 import com.harmony.umbrella.core.SimpleBeanFactory;
-import com.harmony.umbrella.context.metadata.ServerMetadata;
 import com.harmony.umbrella.io.Resource;
 import com.harmony.umbrella.io.support.PathMatchingResourcePatternResolver;
 import com.harmony.umbrella.io.support.ResourcePatternResolver;
@@ -45,7 +45,7 @@ public abstract class ApplicationContext implements BeanFactory {
 
     private static ServerMetadata serverMetadata = ApplicationMetadata.EMPTY_SERVER_METADATA;
 
-    private static DatabaseMetadata databaseMetadata = ApplicationMetadata.EMPTY_DATABASE_METADATA;
+    private static List<DatabaseMetadata> databaseMetadatas = new ArrayList<DatabaseMetadata>();
 
     private static ApplicationConfiguration applicationConfiguration;
 
@@ -118,8 +118,8 @@ public abstract class ApplicationContext implements BeanFactory {
         return serverMetadata;
     }
 
-    public static DatabaseMetadata getDatabaseMetadata() {
-        return databaseMetadata;
+    public static DatabaseMetadata[] getDatabaseMetadatas() {
+        return databaseMetadatas.toArray(new DatabaseMetadata[0]);
     }
 
     /**
@@ -273,15 +273,17 @@ public abstract class ApplicationContext implements BeanFactory {
         }
 
         private void init_database() {
-            ConnectionSource connectionSource = cfg.getConnectionSource();
-            if (connectionSource == null) {
+            List<ConnectionSource> css = cfg.getConnectionSources();
+            if (css == null || css.isEmpty()) {
                 LOG.warn("connection source not set, database metadata could not be initialized");
                 return;
             }
-            try {
-                databaseMetadata = ApplicationMetadata.getDatabaseMetadata(connectionSource);
-            } catch (SQLException e) {
-                LOG.error("initial database metadata failed", e);
+            for (ConnectionSource cs : css) {
+                try {
+                    databaseMetadatas.add(ApplicationMetadata.getDatabaseMetadata(cs));
+                } catch (SQLException e) {
+                    LOG.error("initial database metadata failed", e);
+                }
             }
         }
 
@@ -296,7 +298,7 @@ public abstract class ApplicationContext implements BeanFactory {
                     try {
                         Resource[] resources = resourcePatternResolver.getResources(resourcePath);
                         for (Resource resource : resources) {
-                            Class<?> clazz = forClass(resource, cfg.isInitializeClass());
+                            Class<?> clazz = forClass(resource, cfg.isInitializedClassWhenScan());
                             if (clazz != null && !classes.contains(clazz)) {
                                 classes.add(clazz);
                             }
@@ -321,7 +323,7 @@ public abstract class ApplicationContext implements BeanFactory {
     private static final class SimpleApplicationContext extends ApplicationContext {
 
         private static final SimpleApplicationContext INSTANCE = new SimpleApplicationContext();
-        private static BeanFactory beanFactory = new SimpleBeanFactory();
+        private static BeanFactory beanFactory = SimpleBeanFactory.INSTANCE;
 
         public SimpleApplicationContext() {
         }

@@ -20,7 +20,7 @@ public class SimpleBeanFactoryInvoker extends AbstractInvoker implements BeanFac
     private BeanFactory beanFactory;
 
     public SimpleBeanFactoryInvoker(Class<?> serviceClass) {
-        this(serviceClass, new SimpleBeanFactory());
+        this(serviceClass, SimpleBeanFactory.INSTANCE);
     }
 
     public SimpleBeanFactoryInvoker(Class<?> serviceClass, BeanFactory beanFactory) {

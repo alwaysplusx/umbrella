@@ -539,8 +539,8 @@ public class ReflectionUtils {
             return instantiateClass(clazz.getDeclaredConstructor());
         } catch (NoSuchMethodException ex) {
             handleReflectionException(ex);
+            throw new IllegalStateException("");
         }
-        throw new IllegalStateException("");
     }
 
     /**

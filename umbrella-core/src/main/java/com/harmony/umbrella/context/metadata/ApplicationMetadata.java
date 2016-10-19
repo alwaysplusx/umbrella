@@ -5,7 +5,7 @@ import java.sql.SQLException;
 
 import javax.servlet.ServletContext;
 
-import com.harmony.umbrella.context.metadata.DatabaseMetadata.ConnectionSource;
+import com.harmony.umbrella.core.ConnectionSource;
 import com.harmony.umbrella.io.Resource;
 
 /**

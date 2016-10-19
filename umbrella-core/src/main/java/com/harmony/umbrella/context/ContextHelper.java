@@ -32,8 +32,8 @@ public class ContextHelper {
         return ApplicationContext.getServerMetadata();
     }
 
-    public static DatabaseMetadata getDatabaseMetadata() {
-        return ApplicationContext.getDatabaseMetadata();
+    public static DatabaseMetadata[] getDatabaseMetadata() {
+        return ApplicationContext.getDatabaseMetadatas();
     }
 
     public static HttpServletRequest getHttpRequest() {

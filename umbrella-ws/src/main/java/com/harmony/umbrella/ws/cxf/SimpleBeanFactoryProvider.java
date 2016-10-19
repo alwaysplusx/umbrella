@@ -18,7 +18,7 @@ public class SimpleBeanFactoryProvider implements BeanFactoryProvider {
     private BeanFactory beanFactory;
 
     public SimpleBeanFactoryProvider(Class<?> resourceClass) {
-        this(resourceClass, new SimpleBeanFactory(), false);
+        this(resourceClass, SimpleBeanFactory.INSTANCE, false);
     }
 
     public SimpleBeanFactoryProvider(Class<?> resourceClass, BeanFactory beanFactory) {

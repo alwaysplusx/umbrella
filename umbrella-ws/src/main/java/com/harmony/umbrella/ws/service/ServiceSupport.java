@@ -17,7 +17,7 @@ import javax.validation.groups.Default;
 import javax.xml.ws.WebServiceContext;
 import javax.xml.ws.handler.MessageContext;
 
-import com.harmony.umbrella.access.Member;
+import com.harmony.umbrella.core.Member;
 import com.harmony.umbrella.i18n.MessageBundle;
 import com.harmony.umbrella.i18n.ResourceMessageBundle;
 import com.harmony.umbrella.log.Log;
