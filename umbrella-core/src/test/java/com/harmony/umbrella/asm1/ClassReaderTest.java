@@ -1,4 +1,4 @@
-package com.harmony.umbrella.asm;
+package com.harmony.umbrella.asm1;
 
 import static org.junit.Assert.*;
 
@@ -7,6 +7,7 @@ import java.io.InputStream;
 
 import org.junit.Test;
 
+import com.harmony.umbrella.asm.ClassReader;
 import com.harmony.umbrella.io.Resource;
 import com.harmony.umbrella.util.ResourceUtils;
 
@@ -25,4 +26,5 @@ public class ClassReaderTest {
         is.close();
         assertEquals(className, cr.getClassName());
     }
+
 }

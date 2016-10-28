@@ -37,14 +37,18 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
     private transient Stack<Bind> queryStack = new Stack<Bind>();
     private transient List<CompositionSpecification> temp = new ArrayList<CompositionSpecification>();
 
-    protected boolean allowEmptyCondition;
     protected EntityManager entityManager;
     protected CriteriaBuilder builder;
-    protected boolean autoEnclosed = true;
+
+    protected boolean allowEmptyCondition;
+    protected boolean autoEnclose = true;
+
     protected Class<M> entityClass;
+
     protected Sort sort;
     protected int pageNumber;
     protected int pageSize;
+
     protected boolean distinct;
     protected FetchAttributes fetchAttributes;
     protected JoinAttributes joinAttributes;
@@ -90,6 +94,16 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
         return (T) this;
     }
 
+    public T withAllowEmptyCondition(boolean allowEmptyCondition) {
+        this.allowEmptyCondition = allowEmptyCondition;
+        return (T) this;
+    }
+
+    public T withAutoEnclose(boolean autoEnclose) {
+        this.autoEnclose = autoEnclose;
+        return (T) this;
+    }
+
     public T from(Class<M> entityClass) {
         this.entityClass = entityClass;
         return (T) this;
@@ -105,13 +119,13 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
         return (T) this;
     }
 
-    public T disableAutoEnclosed() {
-        this.autoEnclosed = false;
+    public T disableAutoEnclose() {
+        this.autoEnclose = false;
         return (T) this;
     }
 
-    public T enableAutoEnclosed() {
-        this.autoEnclosed = true;
+    public T enableAutoEnclose() {
+        this.autoEnclose = true;
         return (T) this;
     }
 
@@ -120,18 +134,21 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
     public QueryBundle<M> bundle() {
         finishQuery();
         final QueryBundleImpl<M> o = new QueryBundleImpl<M>();
-        o.entityClass = entityClass;
-        o.pageable = new PageRequest(pageNumber < 0 ? 0 : pageNumber, pageSize < 1 ? 20 : pageSize, sort);
-        o.specification = specification;
-        o.fetchAttributes = fetchAttributes;
-        o.joinAttributes = joinAttributes;
-        o.distinct = distinct;
+        final QueryBuilder b = this;
+        o.allowEmptyCondition = b.allowEmptyCondition;
+        o.entityClass = b.entityClass;
+        o.pageable = new PageRequest(b.pageNumber < 0 ? 0 : b.pageNumber, b.pageSize < 1 ? 20 : b.pageSize, b.sort);
+        o.specification = b.specification;
+        o.fetchAttributes = b.fetchAttributes;
+        o.joinAttributes = b.joinAttributes;
+        o.distinct = b.distinct;
         return o;
     }
 
     public T unbundle(QueryBundle<M> bundle) {
         queryStack.clear();
         temp.clear();
+        this.allowEmptyCondition = bundle.isAllowEmptyCondition();
         this.entityClass = bundle.getEntityClass();
         this.specification = bundle.getSpecification();
         this.pageNumber = bundle.getPageNumber();
@@ -398,7 +415,7 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
 
     private void finishQuery() {
         if (!queryStack.isEmpty()) {
-            if (!autoEnclosed) {
+            if (!autoEnclose) {
                 throw new IllegalStateException("query not finish, please turn enclosed on");
             }
             for (int i = 0, max = queryStack.size(); i < max; i++) {
