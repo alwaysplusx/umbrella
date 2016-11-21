@@ -6,7 +6,7 @@
     <artifactId>umbrella</artifactId>
     <version>0.0.5-SNAPSHOT</version>
   </parent>
-  <name>Harmony Umbrella :: Module of Spring</name>
+  <name>Harmony Umbrella :: Spring</name>
   <artifactId>umbrella-spring</artifactId>
   <dependencies>
     <dependency>

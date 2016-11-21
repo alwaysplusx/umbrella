@@ -7,7 +7,7 @@
     <version>0.0.5-SNAPSHOT</version>
   </parent>
   <groupId>com.harmony.console</groupId>
-  <name>Harmony Umbrella :: Umbrella Console</name>
+  <name>Harmony Umbrella :: Console</name>
   <artifactId>umbrella-console</artifactId>
   <packaging>war</packaging>
   <dependencies>

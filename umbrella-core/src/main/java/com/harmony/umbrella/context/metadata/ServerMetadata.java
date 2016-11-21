@@ -123,10 +123,6 @@ public final class ServerMetadata {
         return "unknow";
     }
 
-    public boolean isUnknow() {
-        return UNKNOW == serverType;
-    }
-
     private int serverType(String serverName) {
         serverName = serverName.toLowerCase();
         if (serverName.indexOf("weblogic") != -1) {

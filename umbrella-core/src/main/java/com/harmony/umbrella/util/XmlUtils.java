@@ -280,7 +280,6 @@ public class XmlUtils {
      * @return
      * @throws SAXException
      * @throws ParserConfigurationException
-     * @throws XmlException
      */
     public static SAXParser getSAXParser() throws Exception {
         return SAXParserFactory.newInstance().newSAXParser();

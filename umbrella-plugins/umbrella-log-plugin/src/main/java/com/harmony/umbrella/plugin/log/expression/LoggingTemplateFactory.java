@@ -18,7 +18,7 @@ import com.harmony.umbrella.util.StringUtils;
  */
 public class LoggingTemplateFactory {
 
-    private static final String[] DEFAULT_OUT_KEY_WORDS = { "result", "exception", "response" };
+    private static final String[] DEFAULT_OUT_KEY_WORDS = {"result", "exception", "response"};
 
     private Set<String> inKeyWords = new HashSet<String>();
     private Set<String> outKeyWords = new HashSet<String>();
@@ -139,13 +139,7 @@ public class LoggingTemplateFactory {
     }
 
     private String trimExpression(String text) {
-        if (text.startsWith(start)) {
-            text = text.substring(1, text.length());
-        }
-        if (text.endsWith(end)) {
-            text = text.substring(0, text.length() - 1);
-        }
-        return text;
+        return text.substring(text.startsWith(start) ? 1 : 0, text.endsWith(end) ? text.length() - 1 : text.length());
     }
 
     protected Scope getScope(String expression) {
@@ -227,9 +221,8 @@ public class LoggingTemplateFactory {
 
         /**
          * 通过key expression 获取值
-         * 
-         * @param valueContext
-         *            日志消息的内容
+         *
+         * @param valueContext 日志消息的内容
          * @return
          */
         public Object getId(ValueContext valueContext) {
@@ -238,9 +231,8 @@ public class LoggingTemplateFactory {
 
         /**
          * 通过template expression 获取消息内容
-         * 
-         * @param valueContext
-         *            日志消息的内容
+         *
+         * @param valueContext 日志消息的内容
          * @return
          */
         public String getMessage(ValueContext valueContext) {
@@ -249,11 +241,9 @@ public class LoggingTemplateFactory {
 
         /**
          * 通过template expression 获取消息内容
-         * 
-         * @param valueContext
-         *            日志消息内容
-         * @param format
-         *            内容格式化工具
+         *
+         * @param valueContext 日志消息内容
+         * @param format       内容格式化工具
          * @return
          */
         public String getMessage(ValueContext valueContext, ObjectFormat format) {

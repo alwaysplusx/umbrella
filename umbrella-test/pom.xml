@@ -5,7 +5,7 @@
     <artifactId>umbrella</artifactId>
     <version>0.0.5-SNAPSHOT</version>
   </parent>
-  <name>Harmony Umbrella :: Module of Test</name>
+  <name>Harmony Umbrella :: Test</name>
   <artifactId>umbrella-test</artifactId>
   <properties>
   </properties>

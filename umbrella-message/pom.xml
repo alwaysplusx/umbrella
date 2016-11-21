@@ -7,7 +7,7 @@
     <version>0.0.5-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
-  <name>Harmony Umbrella :: Module of Message</name>
+  <name>Harmony Umbrella :: Message</name>
   <artifactId>umbrella-message</artifactId>
   <dependencies>
     <dependency>

@@ -125,7 +125,7 @@ public abstract class ApplicationContext implements BeanFactory {
     /**
      * 设置当前线程的用户环境
      *
-     * @param currentCtx
+     * @param cc
      *            用户环境
      */
     static void setCurrentContext(CurrentContext cc) {

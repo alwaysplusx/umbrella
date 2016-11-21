@@ -8,7 +8,7 @@
     <relativePath>../pom.xml</relativePath>
   </parent>
   <artifactId>umbrella-excel</artifactId>
-  <name>Harmony Umbrella :: Module of Excel</name>
+  <name>Harmony Umbrella :: Excel</name>
   <dependencies>
     <dependency>
       <groupId>com.harmony.umbrella</groupId>

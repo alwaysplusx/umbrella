@@ -7,7 +7,7 @@
     <version>0.0.5-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
-  <name>Harmony Umbrella :: Module of Mail</name>
+  <name>Harmony Umbrella :: Mail</name>
   <artifactId>umbrella-mail</artifactId>
   <dependencies>
     <dependency>

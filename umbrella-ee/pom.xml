@@ -6,7 +6,7 @@
     <version>0.0.5-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
-  <name>Harmony Umbrella :: Module of JavaEE</name>
+  <name>Harmony Umbrella :: JavaEE</name>
   <artifactId>umbrella-ee</artifactId>
   <dependencies>
     <dependency>

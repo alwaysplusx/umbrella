@@ -6,7 +6,7 @@
     <version>0.0.5-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
-  <name>Harmony Umbrella :: Module of Data</name>
+  <name>Harmony Umbrella :: Data</name>
   <artifactId>umbrella-data</artifactId>
   <dependencies>
     <dependency>

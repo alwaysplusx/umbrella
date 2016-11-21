@@ -36,4 +36,14 @@ public abstract class CheckedAccessor<T> implements TypedAccessor<T> {
         return type;
     }
 
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return getClass().equals(obj.getClass());
+    }
+
 }

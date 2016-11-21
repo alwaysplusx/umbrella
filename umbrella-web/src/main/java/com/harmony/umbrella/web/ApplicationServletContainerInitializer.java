@@ -1,31 +1,29 @@
 package com.harmony.umbrella.web;
 
 import java.lang.reflect.Modifier;
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import javax.naming.InitialContext;
 import javax.servlet.ServletContainerInitializer;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.HandlesTypes;
-import javax.sql.DataSource;
 
 import com.harmony.umbrella.context.ApplicationConfiguration;
 import com.harmony.umbrella.context.ApplicationContext;
 import com.harmony.umbrella.context.ApplicationInitializer;
+import com.harmony.umbrella.context.ContextHelper;
 import com.harmony.umbrella.context.metadata.ApplicationMetadata;
 import com.harmony.umbrella.context.metadata.DatabaseMetadata;
 import com.harmony.umbrella.context.metadata.JavaMetadata;
 import com.harmony.umbrella.context.metadata.OperatingSystemMetadata;
 import com.harmony.umbrella.context.metadata.ServerMetadata;
-import com.harmony.umbrella.core.ConnectionSource;
 import com.harmony.umbrella.core.annotation.Order;
+import com.harmony.umbrella.util.ReflectionUtils;
 import com.harmony.umbrella.util.StringUtils;
 
 /**
@@ -34,25 +32,55 @@ import com.harmony.umbrella.util.StringUtils;
 @HandlesTypes(ApplicationInitializer.class)
 public class ApplicationServletContainerInitializer implements ServletContainerInitializer {
 
-    public static final String INIT_PARAM_DATASOURCE = "datasource";
+    private static final String INIT_PARAM_APPLICATION_CONFIGURATION_BUILDER = "applicationConfigurationBuilder";
 
-    public static final String INIT_PARAM_PACKAGES = "packages";
+    private static final List<Class> HANDLES_TYPES;
 
-    public static final String INIT_PARAM_DEVMODE = "devMode";
+    static {
+        Class[] handlesTypes = ApplicationServletContainerInitializer.class.getAnnotation(HandlesTypes.class).value();
+        HANDLES_TYPES = new ArrayList<>();
+        for (Class c : handlesTypes) {
+            if (!HANDLES_TYPES.contains(c)) {
+                HANDLES_TYPES.add(c);
+            }
+        }
+    }
 
     @Override
     public void onStartup(Set<Class<?>> c, ServletContext servletContext) throws ServletException {
-        new WebApplicationInitializer(servletContext).startup();
-        ApplicationConfiguration applicationCfg = ApplicationContext.getApplicationConfiguration();
+        String builderClassName = servletContext.getInitParameter(INIT_PARAM_APPLICATION_CONFIGURATION_BUILDER);
+        if (StringUtils.isBlank(builderClassName)) {
+            builderClassName = ApplicationConfigurationBuilder.class.getName();
+        }
+        ApplicationConfigurationBuilder builder;
+        try {
+            builder = (ApplicationConfigurationBuilder) ReflectionUtils.instantiateClass(builderClassName);
+        } catch (ClassNotFoundException e) {
+            throw new ServletException("can't create application configuration builder", e);
+        }
 
-        List<ApplicationInitializer> initializers = new ArrayList<ApplicationInitializer>();
-        if (c != null && c.size() > 0) {
+        final ApplicationConfiguration cfg = builder.build(servletContext);
+        // init application static metadata information
+        ApplicationContext.initStatic(cfg);
+
+        if (cfg.isDevMode()) {
+            showApplicationInfo();
+        }
+
+        final ApplicationConfiguration unmodifiableApplicationConfig = ApplicationConfiguration.unmodifiableApplicationConfig(cfg);
+
+        if (c == null) {
+            c = new HashSet<>();
+        }
+        c.addAll(findMoreHandlesTypes());
+        List<ApplicationInitializer> initializes = new ArrayList<ApplicationInitializer>();
+        if (!c.isEmpty()) {
             for (Class<?> cls : c) {
                 if (!cls.isInterface() //
                         && !Modifier.isAbstract(cls.getModifiers()) //
                         && ApplicationInitializer.class.isAssignableFrom(cls)) {
                     try {
-                        initializers.add((ApplicationInitializer) cls.newInstance());
+                        initializes.add((ApplicationInitializer) cls.newInstance());
                     } catch (Throwable e) {
                         throw new ServletException("Failed to instantiate ApplicationInitializer class", e);
                     }
@@ -60,12 +88,12 @@ public class ApplicationServletContainerInitializer implements ServletContainerI
             }
         }
 
-        if (initializers.isEmpty()) {
+        if (initializes.isEmpty()) {
             servletContext.log("No application ApplicationInitializer types detected on classpath");
             return;
         }
 
-        Collections.sort(initializers, new Comparator<ApplicationInitializer>() {
+        Collections.sort(initializes, new Comparator<ApplicationInitializer>() {
 
             @Override
             public int compare(ApplicationInitializer o1, ApplicationInitializer o2) {
@@ -76,132 +104,75 @@ public class ApplicationServletContainerInitializer implements ServletContainerI
 
         });
 
-        for (ApplicationInitializer initializer : initializers) {
-            initializer.onStartup(applicationCfg);
+        for (ApplicationInitializer initializer : initializes) {
+            initializer.onStartup(unmodifiableApplicationConfig);
         }
     }
 
-    static class WebApplicationInitializer {
-
-        private ServletContext servletContext;
-
-        public WebApplicationInitializer(ServletContext servletContext) {
-            this.servletContext = servletContext;
-        }
-
-        public void startup() throws ServletException {
-            ApplicationConfiguration appConfig = new ApplicationConfiguration();
-            appConfig.withServletContext(servletContext);
-
-            // database connection source
-            String jndiName = getInitParam(INIT_PARAM_DATASOURCE, servletContext);
-            if (StringUtils.isNotBlank(jndiName)) {
-                JndiConnectionSource connectionSource = new JndiConnectionSource(jndiName);
-                appConfig.withConnectionSource(connectionSource);
-            } else {
-                servletContext.log("unspecified database connection source");
-            }
-
-            // application packages
-            String[] packages = getInitParams(INIT_PARAM_PACKAGES, ",", servletContext);
-            if (packages != null && packages.length > 0) {
-                appConfig.withPackages(packages);
-            } else {
-                servletContext.log("unspecified application package(s)");
-            }
-
-            String devMode = getInitParam(INIT_PARAM_DEVMODE, servletContext);
-            appConfig.withDevMode(Boolean.valueOf(devMode));
-
-            // init application static metadata information
-            ApplicationContext.initStatic(appConfig);
-
-            if (appConfig.isDevMode()) {
-                showApplicationInfo();
-            }
-        }
-
-        private String getInitParam(String key, ServletContext servletContext) {
-            return servletContext != null ? servletContext.getInitParameter(key) : null;
-        }
-
-        private String[] getInitParams(String key, String delimiter, ServletContext servletContext) {
-            String value = getInitParam(key, servletContext);
-            return value != null ? StringUtils.tokenizeToStringArray(value, delimiter) : null;
-        }
-
-        protected void showApplicationInfo() {
-
-            StringBuilder out = new StringBuilder();
-
-            ApplicationConfiguration cfg = ApplicationContext.getApplicationConfiguration();
-            ServerMetadata serverMetadata = ApplicationContext.getServerMetadata();
-            JavaMetadata javaMetadata = ApplicationMetadata.getJavaMetadata();
-            OperatingSystemMetadata osMetadata = ApplicationMetadata.getOperatingSystemMetadata();
-            DatabaseMetadata[] dms = ApplicationContext.getDatabaseMetadatas();
-            out//
-                    .append("\n################################################################")//
-                    .append("\n#                     Application Information                  #")//
-                    .append("\n################################################################")//
-                    .append("\n#                   cpu : ").append(osMetadata.cpu)//
-                    .append("\n#               os name : ").append(osMetadata.osName)//
-                    .append("\n#             time zone : ").append(osMetadata.timeZone)//
-                    .append("\n#            os version : ").append(osMetadata.osVersion)//
-                    .append("\n#             user home : ").append(osMetadata.userHome)//
-                    .append("\n#         file encoding : ").append(osMetadata.fileEncoding)//
-                    .append("\n#")//
-                    .append("\n#              jvm name : ").append(javaMetadata.vmName)//
-                    .append("\n#            jvm vendor : ").append(javaMetadata.vmVendor)//
-                    .append("\n#           jvm version : ").append(javaMetadata.vmVersion)//
-                    .append("\n#");//
-            for (DatabaseMetadata dm : dms) {
-                out//
-                        .append("\n#              database : ").append(dm.productName)//
-                        .append("\n#          database url : ").append(dm.url)//
-                        .append("\n#         database user : ").append(dm.userName)//
-                        .append("\n#           driver name : ").append(dm.driverName)//
-                        .append("\n#        driver version : ").append(dm.driverVersion)//
-                        .append("\n#");//
-            }
-            out//
-                    .append("\n#            app server : ").append(serverMetadata.serverName)//
-                    .append("\n#       servlet version : ").append(serverMetadata.servletVersion)//
-                    .append("\n#")//
-                    .append("\n#             spec name : ").append(javaMetadata.specificationName)//
-                    .append("\n#          spec version : ").append(javaMetadata.specificationVersion)//
-                    .append("\n#             java home : ").append(javaMetadata.javaHome)//
-                    .append("\n#           java vendor : ").append(javaMetadata.javaVendor)//
-                    .append("\n#          java version : ").append(javaMetadata.javaVersion)//
-                    .append("\n#       runtime version : ").append(javaMetadata.runtimeVersion)//
-                    .append("\n#")//
-                    .append("\n#          app packages : ").append(cfg != null ? cfg.getPackages() : null)//
-                    .append("\n################################################################")//
-                    .append("\n\n");
-            System.out.println(out.toString());
-        }
-
-        private static class JndiConnectionSource implements ConnectionSource {
-
-            private String jndi;
-
-            public JndiConnectionSource(String jndi) {
-                this.jndi = jndi;
-            }
-
-            @Override
-            public Connection getConnection() throws SQLException {
-                return getDataSource().getConnection();
-            }
-
-            private DataSource getDataSource() {
-                try {
-                    InitialContext ctx = new InitialContext();
-                    return (DataSource) ctx.lookup(jndi);
-                } catch (Exception e) {
-                    return null;
+    protected Set<Class<?>> findMoreHandlesTypes() throws ServletException {
+        Set<Class<?>> result = new HashSet<>();
+        // under weblogic just load @HandlesTypes in WEB-INF/lib/*.jar, so load @HandlesTypes manually
+        if (ContextHelper.isWeblogic()) {
+            Class[] classes = ApplicationContext.getApplicationClasses();
+            for (Class clazz : classes) {
+                for (Class ht : HANDLES_TYPES) {
+                    if (ht.isAssignableFrom(clazz)) {
+                        result.add(ht);
+                    }
                 }
             }
-
         }
+        return result;
     }
+
+    protected void showApplicationInfo() {
+
+        StringBuilder out = new StringBuilder();
+
+        ApplicationConfiguration cfg = ApplicationContext.getApplicationConfiguration();
+        ServerMetadata serverMetadata = ApplicationContext.getServerMetadata();
+        JavaMetadata javaMetadata = ApplicationMetadata.getJavaMetadata();
+        OperatingSystemMetadata osMetadata = ApplicationMetadata.getOperatingSystemMetadata();
+        DatabaseMetadata[] dms = ApplicationContext.getDatabaseMetadatas();
+        out//
+                .append("\n################################################################")//
+                .append("\n#                     Application Information                  #")//
+                .append("\n################################################################")//
+                .append("\n#                   cpu : ").append(osMetadata.cpu)//
+                .append("\n#               os name : ").append(osMetadata.osName)//
+                .append("\n#             time zone : ").append(osMetadata.timeZone)//
+                .append("\n#            os version : ").append(osMetadata.osVersion)//
+                .append("\n#             user home : ").append(osMetadata.userHome)//
+                .append("\n#         file encoding : ").append(osMetadata.fileEncoding)//
+                .append("\n#")//
+                .append("\n#              jvm name : ").append(javaMetadata.vmName)//
+                .append("\n#            jvm vendor : ").append(javaMetadata.vmVendor)//
+                .append("\n#           jvm version : ").append(javaMetadata.vmVersion)//
+                .append("\n#");//
+        for (DatabaseMetadata dm : dms) {
+            out//
+                    .append("\n#              database : ").append(dm.productName)//
+                    .append("\n#          database url : ").append(dm.url)//
+                    .append("\n#         database user : ").append(dm.userName)//
+                    .append("\n#           driver name : ").append(dm.driverName)//
+                    .append("\n#        driver version : ").append(dm.driverVersion)//
+                    .append("\n#");//
+        }
+        out//
+                .append("\n#            app server : ").append(serverMetadata.serverName)//
+                .append("\n#       servlet version : ").append(serverMetadata.servletVersion)//
+                .append("\n#")//
+                .append("\n#             spec name : ").append(javaMetadata.specificationName)//
+                .append("\n#          spec version : ").append(javaMetadata.specificationVersion)//
+                .append("\n#             java home : ").append(javaMetadata.javaHome)//
+                .append("\n#           java vendor : ").append(javaMetadata.javaVendor)//
+                .append("\n#          java version : ").append(javaMetadata.javaVersion)//
+                .append("\n#       runtime version : ").append(javaMetadata.runtimeVersion)//
+                .append("\n#")//
+                .append("\n#          app packages : ").append(cfg != null ? cfg.getPackages() : null)//
+                .append("\n################################################################")//
+                .append("\n\n");
+        System.out.println(out.toString());
+    }
+
 }

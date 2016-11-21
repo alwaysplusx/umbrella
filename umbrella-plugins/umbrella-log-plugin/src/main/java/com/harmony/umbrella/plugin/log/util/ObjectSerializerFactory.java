@@ -1,4 +1,4 @@
-package com.harmony.umbrella.plugin.log.interceptor;
+package com.harmony.umbrella.plugin.log.util;
 
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
@@ -15,7 +15,7 @@ import javax.persistence.PersistenceUnit;
 
 import com.harmony.umbrella.json.SerializerConfig;
 import com.harmony.umbrella.log.annotation.LogIgnore;
-import com.harmony.umbrella.plugin.log.interceptor.LoggingInterceptor.ObjectSerializer;
+import com.harmony.umbrella.plugin.log.interceptor.AbstractLoggingInterceptor.ObjectSerializer;
 
 /**
  * @author wuxii@foxmail.com

@@ -7,7 +7,7 @@
     <version>0.0.5-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
-  <name>Harmony Umbrella :: Module of Validator</name>
+  <name>Harmony Umbrella :: Validator</name>
   <artifactId>umbrella-validator</artifactId>
   <dependencies>
     <dependency>

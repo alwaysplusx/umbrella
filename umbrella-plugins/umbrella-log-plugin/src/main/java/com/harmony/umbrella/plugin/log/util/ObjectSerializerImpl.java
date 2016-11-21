@@ -1,4 +1,4 @@
-package com.harmony.umbrella.plugin.log.interceptor;
+package com.harmony.umbrella.plugin.log.util;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
@@ -16,7 +16,7 @@ import java.util.Set;
 import com.alibaba.fastjson.serializer.SerializeFilter;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.harmony.umbrella.json.Json;
-import com.harmony.umbrella.plugin.log.interceptor.LoggingInterceptor.ObjectSerializer;
+import com.harmony.umbrella.plugin.log.interceptor.AbstractLoggingInterceptor.ObjectSerializer;
 import com.harmony.umbrella.plugin.log.util.ClassSortUtils;
 import com.harmony.umbrella.util.AntPathMatcher;
 import com.harmony.umbrella.util.PathMatcher;

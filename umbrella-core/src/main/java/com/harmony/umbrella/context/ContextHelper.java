@@ -32,7 +32,7 @@ public class ContextHelper {
         return ApplicationContext.getServerMetadata();
     }
 
-    public static DatabaseMetadata[] getDatabaseMetadata() {
+    public static DatabaseMetadata[] getDatabaseMetadatas() {
         return ApplicationContext.getDatabaseMetadatas();
     }
 
@@ -70,4 +70,33 @@ public class ContextHelper {
         CurrentContext cc = getCurrentContext();
         return cc != null ? cc.getUserHost() : null;
     }
+
+    public static boolean isUnknowServer() {
+        return getServerMetadata().serverType == ServerMetadata.UNKNOW;
+    }
+
+    public static boolean isWeblogic() {
+        return getServerMetadata().serverType == ServerMetadata.WEBLOGIC;
+    }
+
+    public static boolean isWebsphere() {
+        return getServerMetadata().serverType == ServerMetadata.WEBSPHERE;
+    }
+
+    public static boolean isGlassfish() {
+        return getServerMetadata().serverType == ServerMetadata.GLASSFISH;
+    }
+
+    public static boolean isJboss() {
+        return getServerMetadata().serverType == ServerMetadata.JBOSS;
+    }
+
+    public static boolean isWildfly() {
+        return getServerMetadata().serverType == ServerMetadata.WILDFLY;
+    }
+
+    public static boolean isTomcate() {
+        return getServerMetadata().serverType == ServerMetadata.TOMCAT;
+    }
+
 }

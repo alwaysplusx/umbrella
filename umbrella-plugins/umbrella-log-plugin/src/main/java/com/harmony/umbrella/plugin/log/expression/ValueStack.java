@@ -14,10 +14,18 @@ public final class ValueStack {
     }
 
     public static synchronized ValueContext pop() {
-        return getStack().pop();
+        Stack<ValueContext> stack = getStack();
+        if (stack.isEmpty()) {
+            throw new IllegalStateException("stack not under interceptor, please push value content in value stack first");
+        }
+        return stack.pop();
     }
 
     public static synchronized ValueContext peek() {
+        Stack<ValueContext> stack = getStack();
+        if (stack.isEmpty()) {
+            throw new IllegalStateException("stack not under interceptor, please push value content in value stack first");
+        }
         return getStack().peek();
     }
 

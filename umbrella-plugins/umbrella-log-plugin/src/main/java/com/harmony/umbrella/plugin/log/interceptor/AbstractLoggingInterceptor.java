@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.interceptor.InvocationContext;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -27,13 +28,14 @@ import com.harmony.umbrella.plugin.log.expression.LoggingTemplateFactory.Logging
 import com.harmony.umbrella.plugin.log.expression.Property;
 import com.harmony.umbrella.plugin.log.expression.ValueContext;
 import com.harmony.umbrella.plugin.log.expression.ValueStack;
+import com.harmony.umbrella.plugin.log.util.ObjectSerializerFactory;
 import com.harmony.umbrella.util.ReflectionUtils;
 import com.harmony.umbrella.util.StringUtils;
 
 /**
  * @author wuxii@foxmail.com
  */
-public abstract class LoggingInterceptor {
+public abstract class AbstractLoggingInterceptor {
 
     protected LoggingTemplateFactory loggingTemplateFactory = new LoggingTemplateFactory();
 
@@ -55,7 +57,7 @@ public abstract class LoggingInterceptor {
 
         Object result = null;
         Throwable exception = null;
-        Class<?> targetClass = invocation.getTargetClass();
+        Class<?> targetClass = invocation.getTarget().getClass();
 
         LogMessage logMessage = LogMessage.create(Logs.getLog(targetClass)).stack(StringUtils.getMethodId(method)).currentThread();
 

@@ -6,7 +6,7 @@
     <artifactId>umbrella</artifactId>
     <version>0.0.5-SNAPSHOT</version>
   </parent>
-  <name>Harmony Umbrella :: Module of FileManager</name>
+  <name>Harmony Umbrella :: FileManager</name>
   <artifactId>umbrella-fs</artifactId>
   <dependencies>
     <dependency>

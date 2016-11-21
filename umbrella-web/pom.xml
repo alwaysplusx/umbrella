@@ -7,7 +7,7 @@
     <version>0.0.5-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
-  <name>Harmony Umbrella :: Module of Web</name>
+  <name>Harmony Umbrella :: Web</name>
   <artifactId>umbrella-web</artifactId>
   <properties>
     <apache.struts.version>2.5</apache.struts.version>

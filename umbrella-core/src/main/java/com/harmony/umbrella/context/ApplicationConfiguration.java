@@ -1,22 +1,16 @@
 package com.harmony.umbrella.context;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.regex.Pattern;
-
-import javax.servlet.ServletContext;
-
 import com.harmony.umbrella.context.ApplicationContext.ApplicationContextInitializer;
 import com.harmony.umbrella.core.ConnectionSource;
+import com.harmony.umbrella.util.StringUtils;
+
+import javax.servlet.ServletContext;
+import java.util.*;
+import java.util.regex.Pattern;
 
 /**
  * 应用配置信息
- * 
+ *
  * @author wuxii@foxmail.com
  */
 public class ApplicationConfiguration {
@@ -31,7 +25,7 @@ public class ApplicationConfiguration {
 
     protected final Map properties = new HashMap();
 
-    protected boolean devMode;
+    protected String runMode;
 
     protected Class<? extends ApplicationContextInitializer> applicationContextInitializerClass;
 
@@ -39,11 +33,9 @@ public class ApplicationConfiguration {
 
     /**
      * 设置配置属性
-     * 
-     * @param key
-     *            配置属性key
-     * @param value
-     *            配置属性value
+     *
+     * @param key   配置属性key
+     * @param value 配置属性value
      * @return this
      */
     public ApplicationConfiguration withProperty(String key, Object value) {
@@ -53,9 +45,8 @@ public class ApplicationConfiguration {
 
     /**
      * 设置配置属性
-     * 
-     * @param properties
-     *            配置属性
+     *
+     * @param properties 配置属性
      * @return this
      */
     public ApplicationConfiguration withProperty(Properties properties) {
@@ -65,9 +56,8 @@ public class ApplicationConfiguration {
 
     /**
      * 设置配置属性
-     * 
-     * @param properties
-     *            配置属性
+     *
+     * @param properties 配置属性
      * @return this
      */
     public ApplicationConfiguration withProperty(Map<String, Object> properties) {
@@ -77,9 +67,8 @@ public class ApplicationConfiguration {
 
     /**
      * 设置应用所需要扫描的包
-     * 
-     * @param packages
-     *            待扫描的包
+     *
+     * @param packages 待扫描的包
      * @return this
      */
     public ApplicationConfiguration withPackages(String... packages) {
@@ -93,9 +82,8 @@ public class ApplicationConfiguration {
 
     /**
      * 设置应用所需要扫描的包
-     * 
-     * @param packages
-     *            待扫描的包
+     *
+     * @param packages 待扫描的包
      * @return this
      */
     public ApplicationConfiguration withPackages(List<String> packages) {
@@ -109,9 +97,8 @@ public class ApplicationConfiguration {
 
     /**
      * 在加载包下的class时候是否积极的初始化类
-     * 
-     * @param initializedClassWhenForName
-     *            是否积极初始化类信息
+     *
+     * @param initializedClassWhenScan 是否积极初始化类信息
      * @return this
      * @see Class#forName(String, boolean, ClassLoader)
      */
@@ -122,9 +109,8 @@ public class ApplicationConfiguration {
 
     /**
      * 添加应用所拥有的数据源
-     * 
-     * @param connectionSource
-     *            数据源
+     *
+     * @param connectionSource 数据源
      * @return this
      */
     public ApplicationConfiguration withConnectionSource(ConnectionSource... connectionSource) {
@@ -134,9 +120,8 @@ public class ApplicationConfiguration {
 
     /**
      * 添加应用的数据源
-     * 
-     * @param connectionSource
-     *            数据源
+     *
+     * @param connectionSource 数据源
      * @return this
      */
     public ApplicationConfiguration withConnectionSource(List<ConnectionSource> connectionSource) {
@@ -146,9 +131,8 @@ public class ApplicationConfiguration {
 
     /**
      * 设置启动配置的servletContext
-     * 
-     * @param servletContext
-     *            web application context
+     *
+     * @param servletContext web application context
      * @return this
      */
     public ApplicationConfiguration withServletContext(ServletContext servletContext) {
@@ -158,9 +142,8 @@ public class ApplicationConfiguration {
 
     /**
      * 设置应用上下文的初始化类
-     * 
-     * @param applicationContextInitializerClass
-     *            应用上下文的初始化类
+     *
+     * @param applicationContextInitializerClass 应用上下文的初始化类
      * @return this
      */
     public ApplicationConfiguration withApplicationInitializerClass(Class<? extends ApplicationContextInitializer> applicationContextInitializerClass) {
@@ -168,15 +151,8 @@ public class ApplicationConfiguration {
         return this;
     }
 
-    /**
-     * 设置是否为开发模式
-     * 
-     * @param mode
-     *            开发模式标识
-     * @return this
-     */
-    public ApplicationConfiguration withDevMode(boolean mode) {
-        this.devMode = mode;
+    public ApplicationConfiguration withRunMode(String mode) {
+        this.runMode = mode;
         return this;
     }
 
@@ -195,7 +171,7 @@ public class ApplicationConfiguration {
     }
 
     public boolean isDevMode() {
-        return devMode;
+        return StringUtils.isBlank(runMode) || "dev".equalsIgnoreCase(runMode);
     }
 
     public Map getProperties() {
@@ -307,7 +283,7 @@ public class ApplicationConfiguration {
         }
 
         @Override
-        public ApplicationConfiguration withDevMode(boolean mode) {
+        public ApplicationConfiguration withRunMode(String mode) {
             throw new UnsupportedOperationException();
         }
 

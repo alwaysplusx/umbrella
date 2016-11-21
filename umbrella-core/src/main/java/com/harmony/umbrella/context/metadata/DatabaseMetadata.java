@@ -166,8 +166,4 @@ public final class DatabaseMetadata {
         return connectionSource == null ? null : connectionSource.getConnection();
     }
 
-    public boolean isUnknow() {
-        return UNKNOW == databaseType;
-    }
-
 }

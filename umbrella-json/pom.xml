@@ -6,7 +6,7 @@
     <version>0.0.5-SNAPSHOT</version>
   </parent>
   <artifactId>umbrella-json</artifactId>
-  <name>Harmony Umbrella :: Module of JSON</name>
+  <name>Harmony Umbrella :: JSON</name>
   <dependencies>
     <dependency>
       <groupId>javax</groupId>
