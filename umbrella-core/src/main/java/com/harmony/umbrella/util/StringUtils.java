@@ -637,35 +637,4 @@ public class StringUtils {
         return sb.toString();
     }
 
-    /**
-     * 为传入的对象，通过toString排序，生成一个较通用的唯一键
-     * 
-     * @param objects
-     *            待排序的对象
-     * @return 生成的唯一键
-     */
-    /*public static String specificationKey(Object... objects) {
-        if (objects == null || objects.length == 0) {
-            return "";
-        }
-        
-        List<Object> list = new ArrayList<Object>(objects.length);
-        Collections.addAll(list, objects);
-        
-        Collections.sort(list, new Comparator<Object>() {
-            @Override
-            public int compare(Object o1, Object o2) {
-                return o1.toString().compareTo(o2.toString());
-            }
-        });
-        
-        StringBuilder sb = new StringBuilder();
-        
-        for (Object obj : list) {
-            sb.append(obj.toString());
-        }
-        
-        return sb.toString();
-    }*/
-
 }

@@ -23,13 +23,55 @@ import com.harmony.umbrella.io.UrlResource;
 public class PropertiesUtils {
 
     /**
-     * 判断是否存在且是资源文件
+     * 加载指定文件下的资源文件
      *
-     * @param path
-     *            文件路径
+     * @param paths
+     *            资源文件的路径
+     * @return 资源文件中的属性
+     * @throws IOException
+     * @see {@link DefaultResourceLoader}
      */
-    public static boolean exists(String path) {
-        return new DefaultResourceLoader().getResource(path).exists();
+    public static Properties loadProperties(String... paths) throws IOException {
+        Properties props = new Properties();
+        if (paths == null || paths.length == 0) {
+            return props;
+        }
+        DefaultResourceLoader loader = new DefaultResourceLoader();
+        for (String path : paths) {
+            Resource resource = loader.getResource(path);
+            InputStream is = resource.getInputStream();
+            props.load(is);
+            is.close();
+        }
+        return props;
+    }
+
+    /**
+     * 从类路径下加载资源文件, 如果资源文件未找到则忽略异常
+     * 
+     * @param paths
+     *            类路径下的资源文件
+     * @return properties
+     * @see DefaultResourceLoader
+     */
+    public static Properties loadPropertiesSilently(String... paths) {
+        Properties props = new Properties();
+        if (paths == null || paths.length == 0) {
+            return props;
+        }
+        DefaultResourceLoader loader = new DefaultResourceLoader();
+        for (String path : paths) {
+            Resource resource = loader.getResource(path);
+            InputStream is;
+            try {
+                is = resource.getInputStream();
+                props.load(is);
+                is.close();
+            } catch (IOException e) {
+                // ignore
+            }
+        }
+        return props;
     }
 
     /**
@@ -134,52 +176,6 @@ public class PropertiesUtils {
                     reader.close();
                 } catch (Exception e1) {
                 }
-            }
-        }
-        return props;
-    }
-
-    /**
-     * 加载指定文件下的资源文件
-     *
-     * @param paths
-     *            资源文件的路径
-     * @return 资源文件中的属性
-     * @throws IOException
-     */
-    public static Properties loadProperties(String... paths) throws IOException {
-        Properties props = new Properties();
-        if (paths == null || paths.length == 0) {
-            return props;
-        }
-        DefaultResourceLoader loader = new DefaultResourceLoader();
-        for (String path : paths) {
-            Resource resource = loader.getResource(path);
-            InputStream is = resource.getInputStream();
-            props.load(is);
-            is.close();
-        }
-        return props;
-    }
-
-    /**
-     * 如果所对应的资源文件不存在忽略
-     */
-    public static Properties loadPropertiesSilently(String... paths) {
-        Properties props = new Properties();
-        if (paths == null || paths.length == 0) {
-            return props;
-        }
-        DefaultResourceLoader loader = new DefaultResourceLoader();
-        for (String path : paths) {
-            Resource resource = loader.getResource(path);
-            InputStream is;
-            try {
-                is = resource.getInputStream();
-                props.load(is);
-                is.close();
-            } catch (IOException e) {
-                // ignore
             }
         }
         return props;

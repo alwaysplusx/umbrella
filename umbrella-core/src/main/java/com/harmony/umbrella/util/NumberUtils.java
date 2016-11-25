@@ -279,7 +279,7 @@ public abstract class NumberUtils {
             return false;
         }
         for (int i = 0; i < text.length(); i++) {
-            if (!Character.isDigit(text.charAt(i))) {
+            if (!Character.isDigit(text.charAt(i)) || '.' != text.charAt(i)) {
                 return false;
             }
         }

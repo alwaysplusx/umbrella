@@ -2,6 +2,8 @@ package com.harmony.umbrella.util;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
 import java.text.FieldPosition;
 import java.text.Format;
 import java.text.NumberFormat;
@@ -62,12 +64,12 @@ public class Formats {
     /**
      * 根据配置信息穿件数字格式化工具
      * 
-     * @param numberConfig
+     * @param NumberFormatConfig
      *            数字格式化配置
      * @return 输入可为空的数字格式化工具
      */
-    public static NullableNumberFormat createNumberFormat(NumberConfig numberConfig) {
-        return new NullableNumberFormat(numberConfig);
+    public static NullableNumberFormat createNumberFormat(NumberFormatConfig NumberFormatConfig) {
+        return new NullableNumberFormat(NumberFormatConfig);
     }
 
     private abstract static class NullableFormat extends Format {
@@ -94,16 +96,104 @@ public class Formats {
 
     }
 
+    public static class NumberFormatConfig {
+
+        private static final String PATTERN = "#.##";
+
+        public static final NumberFormatConfig HALF_UP_2;
+
+        public static final NumberFormatConfig HALF_UP_4;
+
+        public static final NumberFormatConfig HALF_UP_6;
+
+        static {
+            HALF_UP_2 = new NumberFormatConfig(PATTERN, 2, RoundingMode.HALF_UP);
+            HALF_UP_4 = new NumberFormatConfig(PATTERN, 4, RoundingMode.HALF_UP);
+            HALF_UP_6 = new NumberFormatConfig(PATTERN, 6, RoundingMode.HALF_UP);
+        }
+
+        public final String pattern;
+        public final int scale;
+        public final RoundingMode roundingMode;
+
+        public final int minimumIntegerDigits;
+        public final int maximumIntegerDigits;
+        public final int maximumFractionDigits;
+        public final int minimumFractionDigits;
+
+        public NumberFormatConfig(int scale, RoundingMode roundingMode) {
+            this(PATTERN, scale, roundingMode, -1, -1, -1, -1);
+        }
+
+        public NumberFormatConfig(String pattern, int scale, RoundingMode roundingMode) {
+            this(pattern, scale, roundingMode, -1, -1, -1, -1);
+        }
+
+        public NumberFormatConfig(String pattern, RoundingMode roundingMode, int maximumIntegerDigits, int maximumFractionDigits) {
+            this.pattern = pattern;
+            this.roundingMode = roundingMode;
+            this.scale = maximumFractionDigits;
+            this.maximumIntegerDigits = maximumIntegerDigits;
+            this.maximumFractionDigits = maximumFractionDigits;
+            this.minimumIntegerDigits = -1;
+            this.minimumFractionDigits = -1;
+        }
+
+        public NumberFormatConfig(String pattern,
+                            int scale,
+                            RoundingMode roundingMode,
+                            int minimumIntegerDigits,
+                            int maximumIntegerDigits,
+                            int maximumFractionDigits,
+                            int minimumFractionDigits) {
+            this.pattern = pattern;
+            this.scale = scale;
+            this.roundingMode = roundingMode;
+            this.minimumIntegerDigits = minimumIntegerDigits;
+            this.maximumIntegerDigits = maximumIntegerDigits;
+            this.maximumFractionDigits = maximumFractionDigits;
+            this.minimumFractionDigits = minimumFractionDigits;
+        }
+
+
+        public NumberFormat create() {
+            DecimalFormat df = new DecimalFormat(pattern);
+            config(df);
+            return df;
+        }
+
+        public void config(NumberFormat numberFactory) {
+            numberFactory.setRoundingMode(roundingMode);
+            if (maximumFractionDigits > 0) {
+                numberFactory.setMaximumFractionDigits(maximumFractionDigits);
+            }
+            if (minimumFractionDigits > 0) {
+                numberFactory.setMinimumFractionDigits(minimumFractionDigits);
+            }
+            if (maximumFractionDigits < 0 && minimumFractionDigits < 0) {
+                numberFactory.setMinimumFractionDigits(scale);
+                numberFactory.setMaximumFractionDigits(scale);
+            }
+            if (maximumIntegerDigits > 0) {
+                numberFactory.setMaximumIntegerDigits(maximumIntegerDigits);
+            }
+            if (minimumIntegerDigits > 0) {
+                numberFactory.setMinimumIntegerDigits(minimumIntegerDigits);
+            }
+        }
+
+    }
+    
     public static class NullableNumberFormat extends NullableFormat implements Serializable {
 
         private static final long serialVersionUID = 8770260343737030870L;
 
-        private final NumberConfig nc;
+        private final NumberFormatConfig nc;
         private final NumberFormat nf;
 
-        public NullableNumberFormat(NumberConfig numberConfig) {
-            this.nc = numberConfig;
-            this.nf = numberConfig.create();
+        public NullableNumberFormat(NumberFormatConfig NumberFormatConfig) {
+            this.nc = NumberFormatConfig;
+            this.nf = NumberFormatConfig.create();
         }
 
         @Override
@@ -124,7 +214,7 @@ public class Formats {
         /**
          * 通过初始化的配置信息精确小数
          * 
-         * @see NumberConfig
+         * @see NumberFormatConfig
          */
         public Number scale(Number number) {
             if (number == null) {
@@ -152,7 +242,7 @@ public class Formats {
             return nf.parse(source);
         }
 
-        public NumberConfig getNumberConfig() {
+        public NumberFormatConfig getNumberFormatConfig() {
             return nc;
         }
 

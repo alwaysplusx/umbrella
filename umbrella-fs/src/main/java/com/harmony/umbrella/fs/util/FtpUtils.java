@@ -67,7 +67,7 @@ public class FtpUtils {
 
     public static File getFile(FTPClient ftp, String pathname) throws IOException {
         String dir = "ftp/" + UUID.randomUUID().toString().replace("-", "");
-        File tempFile = FileUtils.createTempFile(dir, true);
+        File tempFile = FileUtils.createTempFile(dir);
         getFile(ftp, pathname, tempFile);
         return tempFile;
     }
