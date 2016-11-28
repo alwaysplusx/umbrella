@@ -49,7 +49,7 @@ public class Zip {
         zipDirectory(dir, includeRootDir, null, os);
     }
 
-    public static void zipDirectory(final File dir, boolean includeRootDir, FileFilter ff, OutputStream os) throws IOException {
+    public static void zipDirectory(final File dir, final boolean includeRootDir, FileFilter ff, OutputStream os) throws IOException {
         if (!dir.isDirectory()) {
             throw new IOException(dir.getAbsolutePath() + " not directory!");
         }

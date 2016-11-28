@@ -49,7 +49,6 @@ public abstract class ApplicationContext implements BeanFactory {
 
     private static ApplicationConfiguration applicationConfiguration;
 
-    // FIXME add application destroy hook
     public static synchronized void initStatic(ApplicationConfiguration appConfig) {
         if (applicationConfiguration != null) {
             LOG.warn("application metadata already initial");
@@ -68,6 +67,18 @@ public abstract class ApplicationContext implements BeanFactory {
 
         applicationConfiguration = ApplicationConfiguration.unmodifiableApplicationConfig(appConfig);
 
+    }
+
+    public static synchronized void start(ApplicationConfiguration appConfig) {
+        initStatic(appConfig);
+    }
+
+    private static List<Runnable> shutdownHooks = new ArrayList<>();
+    
+    public static synchronized void shutdown() {
+        for (Runnable runnable : shutdownHooks) {
+            runnable.run();
+        }
     }
 
     public static ApplicationConfiguration getApplicationConfiguration() {

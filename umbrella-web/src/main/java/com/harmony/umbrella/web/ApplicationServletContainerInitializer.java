@@ -1,35 +1,34 @@
 package com.harmony.umbrella.web;
 
-import java.lang.reflect.Modifier;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import javax.servlet.ServletContainerInitializer;
 import javax.servlet.ServletContext;
+import javax.servlet.ServletContextEvent;
+import javax.servlet.ServletContextListener;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.HandlesTypes;
 
 import com.harmony.umbrella.context.ApplicationConfiguration;
 import com.harmony.umbrella.context.ApplicationContext;
-import com.harmony.umbrella.context.ApplicationInitializer;
 import com.harmony.umbrella.context.ContextHelper;
 import com.harmony.umbrella.context.metadata.ApplicationMetadata;
 import com.harmony.umbrella.context.metadata.DatabaseMetadata;
 import com.harmony.umbrella.context.metadata.JavaMetadata;
 import com.harmony.umbrella.context.metadata.OperatingSystemMetadata;
 import com.harmony.umbrella.context.metadata.ServerMetadata;
-import com.harmony.umbrella.core.annotation.Order;
+import com.harmony.umbrella.core.OrderComparator;
+import com.harmony.umbrella.util.ClassUtils.ClassFilterFeature;
 import com.harmony.umbrella.util.ReflectionUtils;
 import com.harmony.umbrella.util.StringUtils;
 
 /**
  * @author wuxii@foxmail.com
  */
-@HandlesTypes(ApplicationInitializer.class)
+@HandlesTypes({ ApplicationInitializer.class, ApplicationDestroyer.class })
 public class ApplicationServletContainerInitializer implements ServletContainerInitializer {
 
     private static final String INIT_PARAM_APPLICATION_CONFIGURATION_BUILDER = "applicationConfigurationBuilder";
@@ -73,14 +72,17 @@ public class ApplicationServletContainerInitializer implements ServletContainerI
             c = new HashSet<>();
         }
         c.addAll(findMoreHandlesTypes());
-        List<ApplicationInitializer> initializes = new ArrayList<ApplicationInitializer>();
+        final List<ApplicationInitializer> initializes = new ArrayList<ApplicationInitializer>();
+        final List<ApplicationDestroyer> destroyies = new ArrayList<ApplicationDestroyer>();
         if (!c.isEmpty()) {
             for (Class<?> cls : c) {
-                if (!cls.isInterface() //
-                        && !Modifier.isAbstract(cls.getModifiers()) //
-                        && ApplicationInitializer.class.isAssignableFrom(cls)) {
+                if (ClassFilterFeature.NEWABLE.accept(cls)) {
                     try {
-                        initializes.add((ApplicationInitializer) cls.newInstance());
+                        if (ApplicationInitializer.class.isAssignableFrom(cls)) {
+                            initializes.add((ApplicationInitializer) cls.newInstance());
+                        } else if (ApplicationDestroyer.class.isAssignableFrom(cls)) {
+                            destroyies.add((ApplicationDestroyer) cls.newInstance());
+                        }
                     } catch (Throwable e) {
                         throw new ServletException("Failed to instantiate ApplicationInitializer class", e);
                     }
@@ -93,20 +95,27 @@ public class ApplicationServletContainerInitializer implements ServletContainerI
             return;
         }
 
-        Collections.sort(initializes, new Comparator<ApplicationInitializer>() {
+        OrderComparator.sort(initializes);
+        OrderComparator.sort(destroyies);
+
+        servletContext.addListener(new ServletContextListener() {
 
             @Override
-            public int compare(ApplicationInitializer o1, ApplicationInitializer o2) {
-                Order ann1 = o1.getClass().getAnnotation(Order.class);
-                Order ann2 = o2.getClass().getAnnotation(Order.class);
-                return (ann1 == null || ann2 == null) ? 0 : ann1.value() > ann2.value() ? 1 : ann1.value() == ann2.value() ? 0 : -1;
+            public void contextInitialized(ServletContextEvent sce) {
+                for (ApplicationInitializer initializer : initializes) {
+                    initializer.onStartup(unmodifiableApplicationConfig);
+                }
+            }
+
+            @Override
+            public void contextDestroyed(ServletContextEvent sce) {
+                for (ApplicationDestroyer destroyer : destroyies) {
+                    destroyer.onDestroy(unmodifiableApplicationConfig);
+                }
             }
 
         });
 
-        for (ApplicationInitializer initializer : initializes) {
-            initializer.onStartup(unmodifiableApplicationConfig);
-        }
     }
 
     protected Set<Class<?>> findMoreHandlesTypes() throws ServletException {
