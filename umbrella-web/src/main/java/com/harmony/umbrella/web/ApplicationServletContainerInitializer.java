@@ -28,7 +28,7 @@ import com.harmony.umbrella.util.StringUtils;
 /**
  * @author wuxii@foxmail.com
  */
-@HandlesTypes({ ApplicationInitializer.class, ApplicationDestroyer.class })
+@HandlesTypes({ ApplicationListener.class })
 public class ApplicationServletContainerInitializer implements ServletContainerInitializer {
 
     private static final String INIT_PARAM_APPLICATION_CONFIGURATION_BUILDER = "applicationConfigurationBuilder";
@@ -72,16 +72,13 @@ public class ApplicationServletContainerInitializer implements ServletContainerI
             c = new HashSet<>();
         }
         c.addAll(findMoreHandlesTypes());
-        final List<ApplicationInitializer> initializes = new ArrayList<ApplicationInitializer>();
-        final List<ApplicationDestroyer> destroyies = new ArrayList<ApplicationDestroyer>();
+        final List<ApplicationListener> listeners = new ArrayList<ApplicationListener>();
         if (!c.isEmpty()) {
             for (Class<?> cls : c) {
                 if (ClassFilterFeature.NEWABLE.accept(cls)) {
                     try {
-                        if (ApplicationInitializer.class.isAssignableFrom(cls)) {
-                            initializes.add((ApplicationInitializer) cls.newInstance());
-                        } else if (ApplicationDestroyer.class.isAssignableFrom(cls)) {
-                            destroyies.add((ApplicationDestroyer) cls.newInstance());
+                        if (ApplicationListener.class.isAssignableFrom(cls)) {
+                            listeners.add((ApplicationListener) cls.newInstance());
                         }
                     } catch (Throwable e) {
                         throw new ServletException("Failed to instantiate ApplicationInitializer class", e);
@@ -90,27 +87,26 @@ public class ApplicationServletContainerInitializer implements ServletContainerI
             }
         }
 
-        if (initializes.isEmpty()) {
+        if (listeners.isEmpty()) {
             servletContext.log("No application ApplicationInitializer types detected on classpath");
             return;
         }
 
-        OrderComparator.sort(initializes);
-        OrderComparator.sort(destroyies);
+        OrderComparator.sort(listeners);
 
         servletContext.addListener(new ServletContextListener() {
 
             @Override
             public void contextInitialized(ServletContextEvent sce) {
-                for (ApplicationInitializer initializer : initializes) {
-                    initializer.onStartup(unmodifiableApplicationConfig);
+                for (int i = 0, max = listeners.size(); i < max; i++) {
+                    listeners.get(i).onStartup(unmodifiableApplicationConfig);
                 }
             }
 
             @Override
             public void contextDestroyed(ServletContextEvent sce) {
-                for (ApplicationDestroyer destroyer : destroyies) {
-                    destroyer.onDestroy(unmodifiableApplicationConfig);
+                for (int i = listeners.size() - 1; i >= 0; i--) {
+                    listeners.get(i).onDestroy(unmodifiableApplicationConfig);
                 }
             }
 
