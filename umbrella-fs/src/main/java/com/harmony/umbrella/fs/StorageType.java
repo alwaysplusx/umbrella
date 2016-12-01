@@ -16,10 +16,6 @@ public enum StorageType {
      */
     SERVER("server file system"), //
     /**
-     * database storage
-     */
-    DB("database"), //
-    /**
      * ftp file system storage
      */
     FTP("ftp");
