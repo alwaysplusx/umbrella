@@ -2,8 +2,11 @@ package com.harmony.umbrella.fs;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.Serializable;
+import java.util.Properties;
+
+import com.harmony.umbrella.io.FileSystemResource;
+import com.harmony.umbrella.io.Resource;
 
 /**
  * @author wuxii@foxmail.com
@@ -14,10 +17,22 @@ public interface StorageManager extends Serializable {
 
     StorageType getStorageType();
 
-    StorageMetadata putFile(File file) throws IOException;
+    default StorageMetadata putFile(File file) throws IOException {
+        return putFile(file.getName(), file);
+    }
 
-    StorageMetadata putFile(String name, File file) throws IOException;
+    default StorageMetadata putFile(String name, File file) throws IOException {
+        return put(name, new FileSystemResource(file));
+    }
 
-    StorageMetadata put(String name, InputStream is) throws IOException;
+    default StorageMetadata put(Resource resource) throws IOException {
+        return put(resource.getFilename(), resource);
+    }
+
+    default StorageMetadata put(String name, Resource resource) throws IOException {
+        return put(name, resource, new Properties());
+    }
+
+    StorageMetadata put(String name, Resource resource, Properties properties) throws IOException;
 
 }

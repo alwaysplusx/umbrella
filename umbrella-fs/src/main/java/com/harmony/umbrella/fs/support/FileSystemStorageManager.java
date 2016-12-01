@@ -1,19 +1,22 @@
 package com.harmony.umbrella.fs.support;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Inet4Address;
+import java.util.Date;
+import java.util.Properties;
+import java.util.UUID;
 
 import com.harmony.umbrella.fs.StorageMetadata;
 import com.harmony.umbrella.fs.StorageType;
 import com.harmony.umbrella.io.FileSystemResource;
 import com.harmony.umbrella.io.Resource;
+import com.harmony.umbrella.io.WritableResource;
 import com.harmony.umbrella.util.FileUtils;
 import com.harmony.umbrella.util.IOUtils;
+import com.harmony.umbrella.util.TimeUtils;
 
 /**
  * @author wuxii@foxmail.com
@@ -47,28 +50,25 @@ public class FileSystemStorageManager extends AbstractStorageManager {
     }
 
     @Override
-    public StorageMetadata putFile(File file) throws IOException {
-        return putFile(file.getName(), file);
+    public StorageMetadata put(String name, Resource resource, Properties properties) throws IOException {
+        return put(name, resource, createWritableResource(), properties);
     }
 
-    @Override
-    public StorageMetadata putFile(String name, File file) throws IOException {
-        return put(name, file.getAbsolutePath(), new FileInputStream(file), true);
+    public WritableResource createWritableResource() throws IOException {
+        // XXX 可扩展点, 服务器上的目录分割. 目标存储的文件名称
+        File dir = new File(storageDirectory, TimeUtils.parseText(new Date(), "yyyyMMdd"));
+        FileUtils.createDirectory(dir);
+        return new FileSystemResource(new File(dir.getPath(), UUID.randomUUID().toString()));
     }
 
-    @Override
-    public StorageMetadata put(String name, InputStream is) throws IOException {
-        return put(name, null, is, false);
-    }
-
-    private StorageMetadata put(Resource source, FileSystemResource dest) throws IOException {
+    public StorageMetadata put(String name, Resource source, WritableResource dest, Properties properties) throws IOException {
         if (!source.getFile().isFile()) {
             throw new IOException(source + " is not file");
         }
         if (!dest.exists()) {
             FileUtils.createFile(dest.getFile());
         }
-        FileStorageMetadata fsm = new FileStorageMetadata(source.getFilename(), source.getFile().getAbsolutePath(), storageType);
+        FileStorageMetadata fsm = new FileStorageMetadata(name, source.getFile().getAbsolutePath(), storageType);
 
         InputStream is = source.getInputStream();
         OutputStream os = dest.getOutputStream();
@@ -76,6 +76,7 @@ public class FileSystemStorageManager extends AbstractStorageManager {
         fsm.contentLength = is.available();
         fsm.name = dest.getFilename();
         fsm.path = dest.getFile().getAbsolutePath();
+        fsm.properties.putAll(properties);
         fsm.properties.put("server.storageDirectory", storageDirectory);
         fsm.properties.put("server.host", HOST);
 
@@ -85,35 +86,6 @@ public class FileSystemStorageManager extends AbstractStorageManager {
         os.close();
 
         return fsm;
-    }
-
-    private StorageMetadata put(String name, String path, InputStream is, File storageFile, boolean close) throws IOException {
-        FileStorageMetadata fsm = new FileStorageMetadata(name, path, storageType);
-
-        FileOutputStream os = new FileOutputStream(storageFile);
-        IOUtils.copy(is, os);
-        try {
-            os.close();
-        } catch (IOException e) {
-        }
-        if (close) {
-            try {
-                is.close();
-            } catch (IOException e) {
-            }
-        }
-
-        fsm.contentLength = is.available();
-        fsm.name = storageFile.getName();
-        fsm.path = storageFile.getAbsolutePath();
-        fsm.properties.put("server.storageDirectory", storageDirectory);
-        fsm.properties.put("server.host", HOST);
-
-        return fsm;
-    }
-
-    private StorageMetadata put(String name, String path, InputStream is, boolean close) throws IOException {
-        return null;
     }
 
 }

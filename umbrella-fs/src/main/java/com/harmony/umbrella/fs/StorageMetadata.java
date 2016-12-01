@@ -1,7 +1,7 @@
 package com.harmony.umbrella.fs;
 
 import java.io.Serializable;
-import java.util.Map;
+import java.util.Properties;
 
 /**
  * 文件存储的凭证
@@ -58,6 +58,6 @@ public interface StorageMetadata extends Serializable {
      * 
      * @return 扩展属性
      */
-    Map<String, Object> getProperties();
+    Properties getProperties();
 
 }

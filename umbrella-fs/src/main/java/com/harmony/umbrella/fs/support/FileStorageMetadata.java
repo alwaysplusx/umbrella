@@ -1,8 +1,6 @@
 package com.harmony.umbrella.fs.support;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Properties;
 
 import com.harmony.umbrella.fs.StorageMetadata;
 import com.harmony.umbrella.fs.StorageType;
@@ -23,7 +21,7 @@ public final class FileStorageMetadata implements StorageMetadata {
     long contentLength;
     StorageType storageType;
 
-    Map<String, Object> properties = new HashMap<String, Object>();
+    Properties properties = new Properties();
 
     FileStorageMetadata(String originalName, String originalPath, StorageType storageType) {
         this.originalName = originalName;
@@ -62,8 +60,8 @@ public final class FileStorageMetadata implements StorageMetadata {
     }
 
     @Override
-    public Map<String, Object> getProperties() {
-        return Collections.unmodifiableMap(properties);
+    public Properties getProperties() {
+        return new Properties(properties);
     }
 
 }
