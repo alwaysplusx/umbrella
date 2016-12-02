@@ -1,11 +1,10 @@
 package com.harmony.umbrella.fs.support;
 
-import java.io.File;
 import java.io.IOException;
 
 import com.harmony.umbrella.fs.StorageManager;
-import com.harmony.umbrella.fs.StorageMetadata;
 import com.harmony.umbrella.fs.StorageType;
+import com.harmony.umbrella.io.Resource;
 
 /**
  * @author wuxii@foxmail.com
@@ -25,8 +24,12 @@ public abstract class AbstractStorageManager implements StorageManager {
         return storageType;
     }
 
-    @Override
-    public StorageMetadata putFile(File file) throws IOException {
-        return putFile(file.getName(), file);
+    protected String getResourcePath(Resource resource) {
+        try {
+            return resource.getFile().getAbsolutePath();
+        } catch (IOException e) {
+            return null;
+        }
     }
+
 }

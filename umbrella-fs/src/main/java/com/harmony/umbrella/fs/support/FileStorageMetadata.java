@@ -61,7 +61,9 @@ public final class FileStorageMetadata implements StorageMetadata {
 
     @Override
     public Properties getProperties() {
-        return new Properties(properties);
+        Properties copy = new Properties();
+        copy.putAll(properties);
+        return copy;
     }
 
 }

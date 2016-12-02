@@ -16,6 +16,7 @@ import com.harmony.umbrella.io.Resource;
 import com.harmony.umbrella.io.WritableResource;
 import com.harmony.umbrella.util.FileUtils;
 import com.harmony.umbrella.util.IOUtils;
+import com.harmony.umbrella.util.StringUtils;
 import com.harmony.umbrella.util.TimeUtils;
 
 /**
@@ -51,14 +52,15 @@ public class FileSystemStorageManager extends AbstractStorageManager {
 
     @Override
     public StorageMetadata put(String name, Resource resource, Properties properties) throws IOException {
-        return put(name, resource, createWritableResource(), properties);
+        return put(name, resource, createWritableResource(FileUtils.getExtension(name)), properties);
     }
 
-    public WritableResource createWritableResource() throws IOException {
+    public WritableResource createWritableResource(String extension) throws IOException {
         // XXX 可扩展点, 服务器上的目录分割. 目标存储的文件名称
         File dir = new File(storageDirectory, TimeUtils.parseText(new Date(), "yyyyMMdd"));
         FileUtils.createDirectory(dir);
-        return new FileSystemResource(new File(dir.getPath(), UUID.randomUUID().toString()));
+        String fileName = UUID.randomUUID().toString() + (StringUtils.isBlank(extension) ? "" : extension);
+        return new FileSystemResource(new File(dir.getPath(), fileName));
     }
 
     public StorageMetadata put(String name, Resource source, WritableResource dest, Properties properties) throws IOException {
@@ -68,7 +70,8 @@ public class FileSystemStorageManager extends AbstractStorageManager {
         if (!dest.exists()) {
             FileUtils.createFile(dest.getFile());
         }
-        FileStorageMetadata fsm = new FileStorageMetadata(name, source.getFile().getAbsolutePath(), storageType);
+
+        FileStorageMetadata fsm = new FileStorageMetadata(name, getResourcePath(source), storageType);
 
         InputStream is = source.getInputStream();
         OutputStream os = dest.getOutputStream();
