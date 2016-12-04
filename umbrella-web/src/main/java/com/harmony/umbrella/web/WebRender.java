@@ -17,7 +17,12 @@ import com.harmony.umbrella.util.IOUtils;
  */
 public class WebRender {
 
+    public static final String DEFAULT_CONTENT_TYPE = "plain/text";
+    public static final String DEFAULT_STREAM_CONTENT_TYPE = "application/octet- stream";
+    public static final String DEFAULT_ENCODING = "UTF-8";
     private HttpServletResponse response;
+    private String encoding;
+    private String contentType;
 
     public WebRender(HttpServletResponse response) {
         this.response = response;
@@ -28,13 +33,19 @@ public class WebRender {
         return this;
     }
 
+    public WebRender withEncoding(String encoding) {
+        this.encoding = encoding;
+        return this;
+    }
+
     public WebRender withContentType(String contentType) {
-        withContentType(contentType, "UTF-8");
+        this.contentType = contentType;
         return this;
     }
 
     public WebRender withContentType(String contentType, String encoding) {
-        response.setContentType(contentType + "; " + encoding);
+        this.contentType = contentType;
+        this.encoding = encoding;
         return this;
     }
 
@@ -63,8 +74,12 @@ public class WebRender {
     }
 
     public void render(String text) throws IOException {
-        response.setContentLength(text.getBytes().length);
+        final String contentType = this.contentType == null ? DEFAULT_CONTENT_TYPE : this.contentType;
+        final String encoding = this.encoding == null ? DEFAULT_ENCODING : this.encoding;
+        response.setContentType(contentType + "; " + encoding);
+        response.setContentLength(text.getBytes(encoding).length);
         response.getWriter().write(text);
+        response.getWriter().flush();
     }
 
     public void render(String fileName, File file) throws IOException {
@@ -85,6 +100,9 @@ public class WebRender {
 
     public void render(InputStream is) throws IOException {
         ServletOutputStream os = response.getOutputStream();
+        final String contentType = this.contentType == null ? DEFAULT_STREAM_CONTENT_TYPE : this.contentType;
+        final String encoding = this.encoding == null ? DEFAULT_ENCODING : this.encoding;
+        response.setContentType(contentType + "; " + encoding);
         response.setContentLength(is.available());
         IOUtils.copy(is, os);
         os.flush();
