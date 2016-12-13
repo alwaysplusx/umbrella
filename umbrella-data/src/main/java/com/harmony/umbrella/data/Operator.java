@@ -23,7 +23,7 @@ public enum Operator {
 
         @Override
         public Predicate explain(Expression x, CriteriaBuilder cb, Object y) {
-            return cb.equal(x, y);
+            return y instanceof Expression ? cb.equal(x, (Expression) y) : cb.equal(x, y);
         }
 
     },
@@ -36,7 +36,7 @@ public enum Operator {
 
         @Override
         public Predicate explain(Expression x, CriteriaBuilder cb, Object y) {
-            return cb.notEqual(x, y);
+            return y instanceof Expression ? cb.notEqual(x, (Expression) y) : cb.notEqual(x, y);
         }
 
     },
@@ -49,7 +49,7 @@ public enum Operator {
 
         @Override
         public Predicate explain(Expression x, CriteriaBuilder cb, Object y) {
-            return cb.lessThan(x, (Comparable) y);
+            return y instanceof Expression ? cb.lessThan(x, (Expression) y) : cb.lessThan(x, (Comparable) y);
         }
 
     },
@@ -62,7 +62,7 @@ public enum Operator {
 
         @Override
         public Predicate explain(Expression x, CriteriaBuilder cb, Object y) {
-            return cb.lessThanOrEqualTo(x, (Comparable) y);
+            return y instanceof Expression ? cb.lessThanOrEqualTo(x, (Expression) y) : cb.lessThanOrEqualTo(x, (Comparable) y);
         }
 
     },
@@ -75,7 +75,7 @@ public enum Operator {
 
         @Override
         public Predicate explain(Expression x, CriteriaBuilder cb, Object y) {
-            return cb.greaterThan(x, (Comparable) y);
+            return y instanceof Expression ? cb.greaterThan(x, (Expression) y) : cb.greaterThan(x, (Comparable) y);
         }
 
     },
@@ -88,7 +88,7 @@ public enum Operator {
 
         @Override
         public Predicate explain(Expression x, CriteriaBuilder cb, Object y) {
-            return cb.greaterThanOrEqualTo(x, (Comparable) y);
+            return y instanceof Expression ? cb.greaterThanOrEqualTo(x, (Expression) y) : cb.greaterThanOrEqualTo(x, (Comparable) y);
         }
 
     },
@@ -101,6 +101,9 @@ public enum Operator {
 
         @Override
         public Predicate explain(Expression x, CriteriaBuilder cb, Object y) {
+            if (y instanceof Expression) {
+                return x.in((Expression) y);
+            }
             List<Collection> v = cuttingBySize(inValue(y), 999);
             Iterator<Collection> it = v.iterator();
             Predicate predicate = x.in(it.next());
@@ -121,6 +124,9 @@ public enum Operator {
         @Override
         public Predicate explain(Expression x, CriteriaBuilder cb, Object y) {
             x = cb.not(x);
+            if (y instanceof Expression) {
+                return x.in((Expression) y);
+            }
             List<Collection> v = cuttingBySize(inValue(y), 999);
             Iterator<Collection> it = v.iterator();
             Predicate predicate = x.in(it.next());
@@ -140,6 +146,9 @@ public enum Operator {
 
         @Override
         public Predicate explain(Expression x, CriteriaBuilder cb, Object y) {
+            if (y instanceof Expression) {
+                return cb.like(x, (Expression) y);
+            }
             return cb.like(x, likeValue(y));
         }
 
@@ -153,6 +162,9 @@ public enum Operator {
 
         @Override
         public Predicate explain(Expression x, CriteriaBuilder cb, Object y) {
+            if (y instanceof Expression) {
+                return cb.notLike(x, (Expression) y);
+            }
             return cb.notLike(x, likeValue(y));
         }
 
@@ -218,7 +230,7 @@ public enum Operator {
 
         @Override
         public Predicate explain(Expression x, CriteriaBuilder cb, Object y) {
-            return cb.equal(cb.size(x), y);
+            return y instanceof Expression ? cb.equal(cb.size(x), (Expression) y) : cb.equal(cb.size(x), y);
         }
 
     },
@@ -231,7 +243,7 @@ public enum Operator {
 
         @Override
         public Predicate explain(Expression x, CriteriaBuilder cb, Object y) {
-            return cb.notEqual(cb.size(x), y);
+            return y instanceof Expression ? cb.notEqual(cb.size(x), (Expression) y) : cb.notEqual(cb.size(x), y);
         }
 
     };

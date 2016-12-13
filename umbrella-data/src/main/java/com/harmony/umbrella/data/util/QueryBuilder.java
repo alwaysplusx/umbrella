@@ -389,6 +389,14 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
         return addCondition(name, value, operator, CompositionType.OR);
     }
 
+    public T andExpression(String left, String right, Operator operator) {
+        return (T) addExpressionCondition(left, right, operator, CompositionType.AND);
+    }
+
+    public T orExpression(String left, String right, Operator operator) {
+        return (T) addExpressionCondition(left, right, operator, CompositionType.OR);
+    }
+
     public T and(Specification spec) {
         return addSpecification(spec, CompositionType.AND);
     }
@@ -399,6 +407,10 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
 
     protected T addCondition(String name, Object value, Operator operator, CompositionType compositionType) {
         return (T) addSpecification(new SpecificationUnit(name, operator, value), compositionType);
+    }
+
+    protected T addExpressionCondition(String left, String right, Operator operator, CompositionType compositionType) {
+        return (T) addSpecification(new ExpressionSpecification(left, right, operator), compositionType);
     }
 
     private T addSpecification(Specification spec, CompositionType compositionType) {
@@ -517,6 +529,27 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
         @Override
         public String toString() {
             return name + " " + operator.symbol() + " " + "?";
+        }
+
+    }
+
+    static final class ExpressionSpecification<T> implements Specification<T> {
+
+        String left;
+        String right;
+        Operator operator;
+
+        public ExpressionSpecification(String left, String right, Operator operator) {
+            this.left = left;
+            this.right = right;
+            this.operator = operator;
+        }
+
+        @Override
+        public Predicate toPredicate(Root<T> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+            Expression leftExpression = QueryUtils.toExpressionRecursively(root, left);
+            Expression rightExpression = QueryUtils.toExpressionRecursively(root, right);
+            return operator.explain(leftExpression, cb, rightExpression);
         }
 
     }

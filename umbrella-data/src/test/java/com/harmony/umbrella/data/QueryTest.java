@@ -34,4 +34,12 @@ public class QueryTest {
         }
     }
 
+    @Test
+    public void testExpresion() {
+        QueryBuilder builder = new QueryBuilder(entityManager)//
+                .from(Model.class)//
+                .andExpression("name", "code", Operator.EQUAL);
+        builder.getResultList();
+    }
+
 }
