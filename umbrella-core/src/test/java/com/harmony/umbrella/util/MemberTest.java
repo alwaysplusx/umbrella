@@ -1,4 +1,4 @@
-package com.harmony.umbrella.access;
+package com.harmony.umbrella.util;
 
 import static org.junit.Assert.*;
 

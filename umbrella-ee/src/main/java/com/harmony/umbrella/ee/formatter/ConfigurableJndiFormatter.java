@@ -5,7 +5,7 @@ import static com.harmony.umbrella.ee.JndiConstanst.*;
 import java.util.Collection;
 import java.util.Set;
 
-import com.harmony.umbrella.config.ParamManager;
+import com.harmony.umbrella.core.PropertyManager;
 import com.harmony.umbrella.ee.util.EJBUtils;
 
 /**
@@ -13,7 +13,7 @@ import com.harmony.umbrella.ee.util.EJBUtils;
  */
 public class ConfigurableJndiFormatter extends AbstractJndiFormatter {
 
-    private ParamManager paramManager;
+    private PropertyManager propertyManager;
 
     private String propertyDelimiter = ",";
 
@@ -22,8 +22,8 @@ public class ConfigurableJndiFormatter extends AbstractJndiFormatter {
     public ConfigurableJndiFormatter() {
     }
 
-    public ConfigurableJndiFormatter(ParamManager paramManager, FormatterFactory formatterFactory) {
-        this.paramManager = paramManager;
+    public ConfigurableJndiFormatter(PropertyManager propertyManager, FormatterFactory formatterFactory) {
+        this.propertyManager = propertyManager;
         this.formatterFactory = formatterFactory;
     }
 
@@ -34,25 +34,25 @@ public class ConfigurableJndiFormatter extends AbstractJndiFormatter {
 
     @Override
     protected Collection<String> getPatterns() {
-        return asSet(paramManager.getString(JNDI_PATTERN));
+        return asSet(propertyManager.getString(JNDI_PATTERN));
     }
 
     @Override
     protected Collection<String> getSeparators() {
-        return asSet(paramManager.getString(JNDI_SEPARATOR));
+        return asSet(propertyManager.getString(JNDI_SEPARATOR));
     }
 
     @Override
     protected String getGlobalNamespace() {
-        return paramManager.getString(JNDI_GLOBAL);
+        return propertyManager.getString(JNDI_GLOBAL);
     }
 
-    public ParamManager getParamManager() {
-        return paramManager;
+    public PropertyManager getPropertyManager() {
+        return propertyManager;
     }
 
-    public void setParamManager(ParamManager paramManager) {
-        this.paramManager = paramManager;
+    public void setPropertyManager(PropertyManager propertyManager) {
+        this.propertyManager = propertyManager;
     }
 
     public String getPropertyDelimiter() {

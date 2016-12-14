@@ -2,6 +2,7 @@ package com.harmony.umbrella.util;
 
 import static com.harmony.umbrella.util.ReflectionUtils.*;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.StringTokenizer;
@@ -10,6 +11,8 @@ import com.harmony.umbrella.core.Member;
 
 /**
  * 字段或getter/setter的获取工具类
+ * <p>
+ * 注:getter/setter优先
  * 
  * @author wuxii@foxmail.com
  */
@@ -273,6 +276,17 @@ public class MemberUtils {
                 writeMethod = ReflectionUtils.findWriterMethod(getPathClass(), memberName);
             }
             return writeMethod;
+        }
+
+        @Override
+        public <T extends Annotation> T getAnnotation(Class<T> annCls) {
+            Method method = getReadMethod();
+            T ann = method != null ? method.getAnnotation(annCls) : null;
+            if (ann == null) {
+                Field field = getField();
+                ann = field != null ? field.getAnnotation(annCls) : null;
+            }
+            return ann;
         }
 
         public boolean isReadable() {

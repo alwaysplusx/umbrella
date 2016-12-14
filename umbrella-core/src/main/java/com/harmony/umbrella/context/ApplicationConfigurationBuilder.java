@@ -1,4 +1,4 @@
-package com.harmony.umbrella.web;
+package com.harmony.umbrella.context;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -7,7 +7,6 @@ import javax.naming.InitialContext;
 import javax.servlet.ServletContext;
 import javax.sql.DataSource;
 
-import com.harmony.umbrella.context.ApplicationConfiguration;
 import com.harmony.umbrella.core.ConnectionSource;
 import com.harmony.umbrella.util.StringUtils;
 

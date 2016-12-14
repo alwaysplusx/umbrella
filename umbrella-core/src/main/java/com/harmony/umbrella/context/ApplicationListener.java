@@ -1,6 +1,4 @@
-package com.harmony.umbrella.web;
-
-import com.harmony.umbrella.context.ApplicationConfiguration;
+package com.harmony.umbrella.context;
 
 /**
  * @author wuxii@foxmail.com

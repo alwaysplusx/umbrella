@@ -1,4 +1,4 @@
-package com.harmony.umbrella.config;
+package com.harmony.umbrella.core;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -14,39 +14,39 @@ import com.harmony.umbrella.util.PropertiesUtils;
  * 
  * @author wuxii@foxmail.com
  */
-public class PropertyParamManager extends AbstractParamManager {
+public class SimplePropertyManager extends AbstractPropertyManager {
 
     @SuppressWarnings("rawtypes")
     private Map properties = new HashMap();
 
-    public PropertyParamManager() {
+    public SimplePropertyManager() {
     }
 
-    public PropertyParamManager(String fileLocation) throws IOException {
+    public SimplePropertyManager(String fileLocation) throws IOException {
         this.setPropertiesFile(fileLocation);
     }
 
-    public PropertyParamManager(Properties properties) {
+    public SimplePropertyManager(Properties properties) {
         this.properties = properties;
     }
 
-    public PropertyParamManager(Map<String, String> properties) {
+    public SimplePropertyManager(Map<String, String> properties) {
         this.properties = properties;
     }
 
     @Override
-    public ParamEntry get(String key) {
+    public PropertyEntry get(String key) {
         Object value = properties.get(key);
-        return value == null ? null : new ParamEntry(key, value.toString());
+        return value == null ? null : new PropertyEntry(key, value.toString());
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public List<Param> getStartWith(String prefix) {
-        List<Param> params = new ArrayList<Param>();
+    public List<Property> getStartWith(String prefix) {
+        List<Property> params = new ArrayList<Property>();
         Map<String, ?> p = PropertiesUtils.filterStartWith(prefix, properties);
         for (String name : p.keySet()) {
-            ParamEntry param = get(name);
+            PropertyEntry param = get(name);
             if (param != null) {
                 params.add(param);
             }
@@ -56,7 +56,7 @@ public class PropertyParamManager extends AbstractParamManager {
 
     @SuppressWarnings("unchecked")
     @Override
-    public void set(Param param) {
+    public void set(Property param) {
         properties.put(param.getKey(), param.getValue());
     }
 

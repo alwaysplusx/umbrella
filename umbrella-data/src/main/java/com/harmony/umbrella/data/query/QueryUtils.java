@@ -1,4 +1,4 @@
-package com.harmony.umbrella.data.util;
+package com.harmony.umbrella.data.query;
 
 import static javax.persistence.metamodel.Attribute.PersistentAttributeType.*;
 

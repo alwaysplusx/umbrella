@@ -1,4 +1,4 @@
-package com.harmony.umbrella.web;
+package com.harmony.umbrella.context;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -12,9 +12,6 @@ import javax.servlet.ServletContextListener;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.HandlesTypes;
 
-import com.harmony.umbrella.context.ApplicationConfiguration;
-import com.harmony.umbrella.context.ApplicationContext;
-import com.harmony.umbrella.context.ContextHelper;
 import com.harmony.umbrella.context.metadata.ApplicationMetadata;
 import com.harmony.umbrella.context.metadata.DatabaseMetadata;
 import com.harmony.umbrella.context.metadata.JavaMetadata;

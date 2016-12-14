@@ -11,6 +11,8 @@ import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.harmony.umbrella.json.serializer.SimplePropertyNameFilter;
 
 /**
+ * json序列化工具
+ * 
  * @author wuxii@foxmail.com
  */
 public class Json {

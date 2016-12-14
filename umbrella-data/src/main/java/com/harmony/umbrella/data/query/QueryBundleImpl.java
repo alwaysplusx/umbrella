@@ -1,12 +1,12 @@
-package com.harmony.umbrella.data.util;
+package com.harmony.umbrella.data.query;
 
 import java.io.Serializable;
 
 import com.harmony.umbrella.data.Specification;
 import com.harmony.umbrella.data.domain.Pageable;
 import com.harmony.umbrella.data.domain.Sort;
-import com.harmony.umbrella.data.util.QueryBuilder.FetchAttributes;
-import com.harmony.umbrella.data.util.QueryBuilder.JoinAttributes;
+import com.harmony.umbrella.data.query.QueryBuilder.FetchAttributes;
+import com.harmony.umbrella.data.query.QueryBuilder.JoinAttributes;
 
 /**
  * @author wuxii@foxmail.com
@@ -25,6 +25,8 @@ public class QueryBundleImpl<M> implements QueryBundle<M>, Serializable {
 
     JoinAttributes joinAttributes;
 
+    int queryFeature;
+
     boolean distinct;
 
     boolean allowEmptyCondition;
@@ -38,7 +40,7 @@ public class QueryBundleImpl<M> implements QueryBundle<M>, Serializable {
         this.specification = bundle.getSpecification();
         this.fetchAttributes = bundle.getFetchAttributes();
         this.joinAttributes = bundle.getJoinAttributes();
-        this.distinct = bundle.isDistinct();
+        this.queryFeature = bundle.getQueryFeature();
     }
 
     @Override
@@ -65,13 +67,8 @@ public class QueryBundleImpl<M> implements QueryBundle<M>, Serializable {
     }
 
     @Override
-    public boolean isDistinct() {
-        return distinct;
-    }
-
-    @Override
-    public boolean isAllowEmptyCondition() {
-        return allowEmptyCondition;
+    public int getQueryFeature() {
+        return queryFeature;
     }
 
     public Sort getSort() {

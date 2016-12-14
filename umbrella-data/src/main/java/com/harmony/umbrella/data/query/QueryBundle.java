@@ -1,10 +1,10 @@
-package com.harmony.umbrella.data.util;
+package com.harmony.umbrella.data.query;
 
 import com.harmony.umbrella.data.Specification;
 import com.harmony.umbrella.data.domain.Pageable;
 import com.harmony.umbrella.data.domain.Sort;
-import com.harmony.umbrella.data.util.QueryBuilder.FetchAttributes;
-import com.harmony.umbrella.data.util.QueryBuilder.JoinAttributes;
+import com.harmony.umbrella.data.query.QueryBuilder.FetchAttributes;
+import com.harmony.umbrella.data.query.QueryBuilder.JoinAttributes;
 
 /**
  * @author wuxii@foxmail.com
@@ -23,12 +23,10 @@ public interface QueryBundle<M> {
 
     Specification getSpecification();
 
-    boolean isDistinct();
+    int getQueryFeature();
 
-    boolean isAllowEmptyCondition();
-    
     FetchAttributes getFetchAttributes();
 
     JoinAttributes getJoinAttributes();
-    
+
 }

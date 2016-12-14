@@ -1,4 +1,4 @@
-package com.harmony.umbrella.data.support;
+package com.harmony.umbrella.data.query;
 
 import com.harmony.umbrella.data.CompositionType;
 import com.harmony.umbrella.data.Specification;

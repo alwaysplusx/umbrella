@@ -1,4 +1,4 @@
-package com.harmony.umbrella.data.support;
+package com.harmony.umbrella.data.query;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -18,7 +18,7 @@ import com.harmony.umbrella.util.Assert;
  * 
  * @author wuxii@foxmail.com
  */
-public class Bind<T> implements Serializable, CompositionSpecification<T> {
+class Bind<T> implements Serializable, CompositionSpecification<T> {
 
     private static final long serialVersionUID = 1L;
     private CompositionType compositionType;
@@ -79,7 +79,7 @@ public class Bind<T> implements Serializable, CompositionSpecification<T> {
         return "(" + out.toString() + ")";
     }
 
-    static final class SpecificationWrapper<T> implements CompositionSpecification<T>, Serializable {
+    private static final class SpecificationWrapper<T> implements CompositionSpecification<T>, Serializable {
 
         private static final long serialVersionUID = 1L;
         private Specification spec;

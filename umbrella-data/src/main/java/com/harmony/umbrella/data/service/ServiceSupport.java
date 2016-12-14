@@ -10,7 +10,7 @@ import com.harmony.umbrella.data.Persistable;
 import com.harmony.umbrella.data.dao.JpaDAO;
 import com.harmony.umbrella.data.domain.Page;
 import com.harmony.umbrella.data.domain.Sort;
-import com.harmony.umbrella.data.util.QueryBundle;
+import com.harmony.umbrella.data.query.QueryBundle;
 
 /**
  * @author wuxii@foxmail.com

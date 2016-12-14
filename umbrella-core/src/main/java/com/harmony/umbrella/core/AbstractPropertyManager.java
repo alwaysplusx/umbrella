@@ -1,13 +1,13 @@
-package com.harmony.umbrella.config;
+package com.harmony.umbrella.core;
 
 /**
  * 
  * 配置管理的抽象实现
  * 
  * @author wuxii@foxmail.com
- * @see ParamManager
+ * @see PropertyManager
  */
-public abstract class AbstractParamManager implements ParamManager {
+public abstract class AbstractPropertyManager implements PropertyManager {
 
     /**
      * {@inheritDoc}
@@ -22,7 +22,7 @@ public abstract class AbstractParamManager implements ParamManager {
      */
     @Override
     public Boolean getBoolean(String key, Boolean def) {
-        Param param = get(key);
+        Property param = get(key);
         return param != null ? param.getBoolean() : def;
     }
 
@@ -39,7 +39,7 @@ public abstract class AbstractParamManager implements ParamManager {
      */
     @Override
     public Byte getByte(String key, Byte def) {
-        Param param = get(key);
+        Property param = get(key);
         return param != null ? param.getByte() : def;
     }
 
@@ -56,7 +56,7 @@ public abstract class AbstractParamManager implements ParamManager {
      */
     @Override
     public Character getCharacter(String key, Character def) {
-        Param param = get(key);
+        Property param = get(key);
         return param != null ? param.getCharacter() : def;
     }
 
@@ -73,7 +73,7 @@ public abstract class AbstractParamManager implements ParamManager {
      */
     @Override
     public Double getDouble(String key, Double def) {
-        Param param = get(key);
+        Property param = get(key);
         return param != null ? param.getDouble() : def;
     }
 
@@ -90,7 +90,7 @@ public abstract class AbstractParamManager implements ParamManager {
      */
     @Override
     public Float getFloat(String key, Float def) {
-        Param param = get(key);
+        Property param = get(key);
         return param != null ? param.getFloat() : def;
     }
 
@@ -107,7 +107,7 @@ public abstract class AbstractParamManager implements ParamManager {
      */
     @Override
     public Integer getInteger(String key, Integer def) {
-        Param param = get(key);
+        Property param = get(key);
         return param != null ? param.getInteger() : def;
     }
 
@@ -124,7 +124,7 @@ public abstract class AbstractParamManager implements ParamManager {
      */
     @Override
     public Long getLong(String key, Long def) {
-        Param param = get(key);
+        Property param = get(key);
         return param != null ? param.getLong() : def;
     }
 
@@ -141,7 +141,7 @@ public abstract class AbstractParamManager implements ParamManager {
      */
     @Override
     public Short getShort(String key, Short def) {
-        Param param = get(key);
+        Property param = get(key);
         return param != null ? param.getShort() : def;
     }
 
@@ -158,7 +158,7 @@ public abstract class AbstractParamManager implements ParamManager {
      */
     @Override
     public String getString(String key, String def) {
-        Param param = get(key);
+        Property param = get(key);
         return param != null ? param.getString() : def;
     }
 }

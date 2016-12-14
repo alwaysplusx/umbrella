@@ -1,14 +1,12 @@
 package com.harmony.umbrella.data;
 
-import java.util.List;
-
 import javax.persistence.EntityManager;
 import javax.persistence.Persistence;
 
 import org.junit.Test;
 
 import com.harmony.umbrella.data.entity.Model;
-import com.harmony.umbrella.data.util.QueryBuilder;
+import com.harmony.umbrella.data.query.QueryBuilder;
 
 /**
  * @author wuxii@foxmail.com
@@ -22,23 +20,23 @@ public class QueryTest {
         QueryBuilder builder = new QueryBuilder(entityManager)//
                 .from(Model.class)//
                 .equal("name", "1")//
-                .orEqual("code", "abc123")//
-                .start()//
-                .equal("name", "2")//
-                .orEqual("code", "def456")//
-                .end();
-        // .equal("id", 12);//
-        List result = builder.getResultList();
-        for (Object o : result) {
-            System.out.println(o);
-        }
+                .or()//
+                .equal("code", "2")//
+        ;
+        builder.getResultList();
     }
 
     @Test
-    public void testExpresion() {
+    public void testMergeCondition() {
         QueryBuilder builder = new QueryBuilder(entityManager)//
                 .from(Model.class)//
-                .andExpression("name", "code", Operator.EQUAL);
+                .equal("id", 5l)//
+                .start()//匹配括号开始
+                .equal("name", "1")//
+                .or()//
+                .equal("code", "2")//
+                .end()//匹配括号结束
+        ;
         builder.getResultList();
     }
 

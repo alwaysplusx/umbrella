@@ -14,7 +14,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 
 import com.harmony.umbrella.data.domain.Sort;
-import com.harmony.umbrella.data.util.QueryUtils;
+import com.harmony.umbrella.data.query.QueryUtils;
 
 /**
  * @author wuxii@foxmail.com

@@ -13,26 +13,26 @@ import com.harmony.umbrella.core.Member;
 /**
  * @author wuxii@foxmail.com
  */
-public class SimpleMemberAnnotationFilter extends MemberFilterFilter {
+public class SimpleAnnotationFilter extends MemberFilterFilter {
 
     private final Set<Class<? extends Annotation>> annotationClasses = new HashSet<Class<? extends Annotation>>();
 
     private FilterMode filterMode;
 
-    public SimpleMemberAnnotationFilter() {
+    public SimpleAnnotationFilter() {
     }
 
     @SuppressWarnings("unchecked")
-    public SimpleMemberAnnotationFilter(Class<? extends Annotation>... annCls) {
+    public SimpleAnnotationFilter(Class<? extends Annotation>... annCls) {
         this.addAnnotationClass(annCls);
     }
 
-    public SimpleMemberAnnotationFilter(Class<? extends Annotation>[] annCls, FilterMode mode) {
+    public SimpleAnnotationFilter(Class<? extends Annotation>[] annCls, FilterMode mode) {
         this.addAnnotationClass(annCls);
         this.filterMode = mode;
     }
 
-    public SimpleMemberAnnotationFilter(Collection<Class<? extends Annotation>> annCls, FilterMode mode) {
+    public SimpleAnnotationFilter(Collection<Class<? extends Annotation>> annCls, FilterMode mode) {
         this.addAnnotationClasses(annCls);
         this.filterMode = mode;
     }

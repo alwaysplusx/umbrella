@@ -1,11 +1,11 @@
-package com.harmony.umbrella.config;
+package com.harmony.umbrella.core;
 
 /**
  * 配置信息， 配置信息只支持元数据类型
  * 
  * @author wuxii@foxmail.com
  */
-public interface Param {
+public interface Property {
 
     /**
      * 配置信息所对应的key

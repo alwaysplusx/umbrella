@@ -12,9 +12,9 @@ import com.harmony.umbrella.data.Specification;
 import com.harmony.umbrella.data.domain.Page;
 import com.harmony.umbrella.data.domain.Pageable;
 import com.harmony.umbrella.data.domain.Sort;
-import com.harmony.umbrella.data.util.JpaQueryBuilder;
-import com.harmony.umbrella.data.util.QueryBundle;
-import com.harmony.umbrella.data.util.QueryResult;
+import com.harmony.umbrella.data.query.JpaQueryBuilder;
+import com.harmony.umbrella.data.query.QueryBundle;
+import com.harmony.umbrella.data.query.QueryResult;
 
 /**
  * @author wuxii@foxmail.com

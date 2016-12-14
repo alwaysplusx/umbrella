@@ -1,4 +1,4 @@
-package com.harmony.umbrella.config;
+package com.harmony.umbrella.core;
 
 import java.util.List;
 
@@ -10,7 +10,7 @@ import java.util.List;
  * 
  * @author wuxii@foxmail.com
  */
-public interface ParamManager {
+public interface PropertyManager {
 
     /**
      * 根据key获取对应的配置参数
@@ -19,14 +19,14 @@ public interface ParamManager {
      *            配置参数key
      * @return
      */
-    Param get(String key);
+    Property get(String key);
 
     /**
      * 设置配置参数
      * 
      * @param param
      */
-    void set(Param param);
+    void set(Property param);
 
     /**
      * 根据相同的key开头获取配置参数
@@ -35,7 +35,7 @@ public interface ParamManager {
      *            配置参数前缀
      * @return
      */
-    List<Param> getStartWith(String prefix);
+    List<Property> getStartWith(String prefix);
 
     /**
      * 根据key获取配置参数的boolean值， 如果key对应的param未找到返回null

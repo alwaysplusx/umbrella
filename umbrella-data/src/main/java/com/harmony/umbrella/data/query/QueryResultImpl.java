@@ -1,4 +1,4 @@
-package com.harmony.umbrella.data.util;
+package com.harmony.umbrella.data.query;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,15 +13,16 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Selection;
 
+import com.harmony.umbrella.data.QueryFeature;
 import com.harmony.umbrella.data.Specification;
 import com.harmony.umbrella.data.domain.Page;
 import com.harmony.umbrella.data.domain.PageImpl;
 import com.harmony.umbrella.data.domain.PageRequest;
 import com.harmony.umbrella.data.domain.Pageable;
 import com.harmony.umbrella.data.domain.Sort;
-import com.harmony.umbrella.data.util.QueryBuilder.Attribute;
-import com.harmony.umbrella.data.util.QueryBuilder.FetchAttributes;
-import com.harmony.umbrella.data.util.QueryBuilder.JoinAttributes;
+import com.harmony.umbrella.data.query.QueryBuilder.Attribute;
+import com.harmony.umbrella.data.query.QueryBuilder.FetchAttributes;
+import com.harmony.umbrella.data.query.QueryBuilder.JoinAttributes;
 import com.harmony.umbrella.util.Assert;
 
 /**
@@ -148,7 +149,7 @@ public class QueryResultImpl<T> implements QueryResult<T> {
     public long getCountResult() {
         CriteriaQuery<Long> query = buildCriteriaQuery(Long.class, null, null, null);
         Root root = query.from(bundle.getEntityClass());
-        if (bundle.isDistinct()) {
+        if (QueryFeature.isEnabled(bundle.getQueryFeature(), QueryFeature.DISTINCT)) {
             query.select(builder.countDistinct(root));
         } else {
             query.select(builder.count(root));
@@ -160,7 +161,7 @@ public class QueryResultImpl<T> implements QueryResult<T> {
 
     private void checkListQuery() {
         Specification spec = bundle.getSpecification();
-        if (spec == null && !bundle.isAllowEmptyCondition()) {
+        if (spec == null && !QueryFeature.isEnabled(bundle.getQueryFeature(), QueryFeature.ALLOW_EMPTY_CONDITION)) {
             throw new IllegalStateException("not allow empty condition query list");
         }
     }
@@ -171,6 +172,9 @@ public class QueryResultImpl<T> implements QueryResult<T> {
 
     protected <E> CriteriaQuery<E> buildCriteriaQuery(Class<E> resultType, Sort sort, FetchAttributes fetchAttr, JoinAttributes joinAttr) {
         final CriteriaQuery<E> query = createQuery(resultType);
+        if (QueryFeature.isEnabled(bundle.getQueryFeature(), QueryFeature.DISTINCT)) {
+            query.distinct(true);
+        }
         Root root = query.from(bundle.getEntityClass());
 
         applySpecification(root, query, bundle.getSpecification());

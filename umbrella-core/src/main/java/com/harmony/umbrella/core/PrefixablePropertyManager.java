@@ -1,4 +1,4 @@
-package com.harmony.umbrella.config;
+package com.harmony.umbrella.core;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,7 +11,7 @@ import com.harmony.umbrella.util.StringUtils;
 /**
  * @author wuxii@foxmail.com
  */
-public class PrefixableParamManager extends AbstractParamManager {
+public class PrefixablePropertyManager extends AbstractPropertyManager {
 
     @SuppressWarnings("rawtypes")
     private Map properties;
@@ -24,41 +24,41 @@ public class PrefixableParamManager extends AbstractParamManager {
 
     private boolean setWithoutPrefix;
 
-    public PrefixableParamManager() {
+    public PrefixablePropertyManager() {
     }
 
     @SuppressWarnings("rawtypes")
-    public PrefixableParamManager(Map properties) {
+    public PrefixablePropertyManager(Map properties) {
         this.properties = properties;
     }
 
     @Override
-    public ParamEntry get(String key) {
+    public PropertyEntry get(String key) {
         String fullKey = getFullKey(key);
         Object value = properties.get(fullKey);
-        return value == null ? null : new ParamEntry(fetchWithoutPrefix ? key : fullKey, value);
+        return value == null ? null : new PropertyEntry(fetchWithoutPrefix ? key : fullKey, value);
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public List<Param> getStartWith(final String prefix) {
+    public List<Property> getStartWith(final String prefix) {
         String fullPrefix = getFullKey(prefix);
         String selfPrefix = fullPrefix.substring(0, fullPrefix.length() - prefix.length());
-        List<Param> result = new ArrayList<Param>();
+        List<Property> result = new ArrayList<Property>();
         Map<String, ?> p = PropertiesUtils.filterStartWith(fullPrefix, properties);
         for (Entry<String, ?> e : p.entrySet()) {
             String key = e.getKey();
             if (fetchWithoutPrefix) {
                 key = key.substring(selfPrefix.length());
             }
-            result.add(new ParamEntry(key, e.getValue()));
+            result.add(new PropertyEntry(key, e.getValue()));
         }
         return result;
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public void set(Param param) {
+    public void set(Property param) {
         String key = param.getKey();
         if (!setWithoutPrefix) {
             key = getFullKey(key);

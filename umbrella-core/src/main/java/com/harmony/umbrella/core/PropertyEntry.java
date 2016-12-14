@@ -1,4 +1,4 @@
-package com.harmony.umbrella.config;
+package com.harmony.umbrella.core;
 
 import java.math.BigDecimal;
 
@@ -7,7 +7,7 @@ import java.math.BigDecimal;
  * 
  * @author wuxii@foxmail.com
  */
-public class ParamEntry implements Param {
+public class PropertyEntry implements Property {
 
     /**
      * 配置key
@@ -22,10 +22,10 @@ public class ParamEntry implements Param {
      */
     protected String description;
 
-    public ParamEntry() {
+    public PropertyEntry() {
     }
 
-    public ParamEntry(String key, Object value) {
+    public PropertyEntry(String key, Object value) {
         this.key = key;
         this.value = value;
     }

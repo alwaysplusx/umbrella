@@ -6,7 +6,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
-import com.harmony.umbrella.config.ParamManager;
+import com.harmony.umbrella.core.PropertyManager;
 import com.harmony.umbrella.ee.BeanDefinition;
 import com.harmony.umbrella.ee.util.EJBUtils;
 import com.harmony.umbrella.log.Log;
@@ -20,7 +20,7 @@ public class ConfigurableBeanResolver extends AbstractBeanResolver {
 
     private static final Log log = Logs.getLog(ConfigurableBeanResolver.class);
 
-    private ParamManager paramManager;
+    private PropertyManager propertyManager;
 
     private String propertyDelimiter = ",";
 
@@ -63,25 +63,25 @@ public class ConfigurableBeanResolver extends AbstractBeanResolver {
 
     @Override
     protected Collection<String> getJndiAttributes() {
-        return asSet(paramManager.getString(ATTRIBUTE_JNDI));
+        return asSet(propertyManager.getString(ATTRIBUTE_JNDI));
     }
 
     @Override
     protected Collection<String> getBeanNameAttributes() {
-        return asSet(paramManager.getString(ATTRIBUTE_BEAN_NAME));
+        return asSet(propertyManager.getString(ATTRIBUTE_BEAN_NAME));
     }
 
     @Override
     protected Collection<String> getBeanInterfaceAttributes() {
-        return asSet(paramManager.getString(ATTRIBUTE_BEAN_INTERFACE));
+        return asSet(propertyManager.getString(ATTRIBUTE_BEAN_INTERFACE));
     }
 
-    public ParamManager getParamManager() {
-        return paramManager;
+    public PropertyManager getPropertyManager() {
+        return propertyManager;
     }
 
-    public void setParamManager(ParamManager paramManager) {
-        this.paramManager = paramManager;
+    public void setPropertyManager(PropertyManager propertyManager) {
+        this.propertyManager = propertyManager;
     }
 
     public String getPropertyDelimiter() {

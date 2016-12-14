@@ -1,5 +1,6 @@
 package com.harmony.umbrella.core;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
@@ -25,6 +26,8 @@ public interface Member {
     boolean isReadable();
 
     boolean isWriteable();
+
+    <T extends Annotation> T getAnnotation(Class<T> annCls);
 
     Object get(Object obj);
 

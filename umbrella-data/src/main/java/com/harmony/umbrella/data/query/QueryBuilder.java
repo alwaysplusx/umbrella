@@ -1,0 +1,1002 @@
+package com.harmony.umbrella.data.query;
+
+import static com.harmony.umbrella.data.CompositionType.*;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Stack;
+
+import javax.persistence.EntityManager;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Expression;
+import javax.persistence.criteria.JoinType;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+
+import com.harmony.umbrella.data.CompositionType;
+import com.harmony.umbrella.data.Operator;
+import com.harmony.umbrella.data.QueryFeature;
+import com.harmony.umbrella.data.Specification;
+import com.harmony.umbrella.data.domain.Page;
+import com.harmony.umbrella.data.domain.PageRequest;
+import com.harmony.umbrella.data.domain.Pageable;
+import com.harmony.umbrella.data.domain.Sort;
+import com.harmony.umbrella.data.domain.Sort.Direction;
+import com.harmony.umbrella.data.domain.Sort.Order;
+
+/**
+ * 查询构建builder
+ * <p>
+ * exampel:需要构建如下的sql/jpql
+ * <p>
+ * select * from User where name='foo' or nickname like '%foo';
+ * 
+ * <pre>
+ * 
+ * User user = new QueryBuilder()//
+ *         .equal("name", "foo")//
+ *         .or()//
+ *         .like("nickname", "%foo")//
+ *         .getSingleResult();//
+ * </pre>
+ * <p>
+ * <b>注意: 在构建查询时builder有严格的顺序性</b>
+ * 
+ * @author wuxii@foxmail.com
+ */
+public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+
+    private final transient Stack<Bind> queryStack = new Stack<Bind>();
+    private final transient List<CompositionSpecification> temp = new ArrayList<CompositionSpecification>();
+
+    protected transient EntityManager entityManager;
+
+    protected boolean autoEnclose = true;
+    protected boolean strictMode;
+
+    /**
+     * 当前查询条件与上个查询条件的连接条件, 当前查询条件被添加完成后将被清空
+     * <p>
+     * 清空的情况包括: 1. {@linkplain #addSpecication(Specification)} 2.
+     * {@linkplain #start(CompositionType)}
+     * 
+     */
+    protected CompositionType assembleType;
+
+    protected Class<M> entityClass;
+
+    protected Sort sort;
+    protected int pageNumber;
+    protected int pageSize;
+
+    protected FetchAttributes fetchAttributes;
+    protected JoinAttributes joinAttributes;
+    protected Specification specification;
+
+    protected int queryFeature = 0;
+
+    // query property
+
+    public QueryBuilder() {
+    }
+
+    public QueryBuilder(EntityManager entityManager) {
+        this(null, entityManager);
+    }
+
+    public QueryBuilder(Class<M> entityClass, EntityManager entityManager) {
+        this.entityClass = entityClass;
+        this.entityManager = entityManager;
+    }
+
+    /**
+     * 设置jpa entityManager
+     * 
+     * @param entityManager
+     *            entity manager
+     * @return this
+     */
+    public T withEntityManager(EntityManager entityManager) {
+        this.entityManager = entityManager;
+        return (T) this;
+    }
+
+    /**
+     * 设置被查询的entity(表)
+     * 
+     * @param entityClass
+     *            实体
+     * @return this
+     * @see #from(Class)
+     */
+    public T withEntityClass(Class<M> entityClass) {
+        return from(entityClass);
+    }
+
+    /**
+     * 设置查询条件, 通过此方法设置条件后前所有条件将会被清除
+     * 
+     * @param specification
+     *            查询条件
+     * @return this
+     */
+    public T withSpecification(Specification<M> specification) {
+        clear();
+        this.specification = specification;
+        return (T) this;
+    }
+
+    /**
+     * 设置分页条件, 设置后将清除原排序条件
+     * 
+     * @param pageable
+     *            分页条件
+     * @return this
+     */
+    public T withPageable(Pageable pageable) {
+        this.pageNumber = pageable.getPageNumber();
+        this.pageSize = pageable.getPageSize();
+        this.sort = pageable.getSort();
+        return (T) this;
+    }
+
+    /**
+     * 设置排序条件
+     * 
+     * @param sort
+     *            排序条件
+     * @return this
+     */
+    public T withSort(Sort sort) {
+        this.sort = sort;
+        return (T) this;
+    }
+
+    /**
+     * 启用/禁用自动匹配括号, default is enabled
+     * 
+     * @return this
+     */
+    public T autoEnclose(boolean flag) {
+        this.autoEnclose = flag;
+        return (T) this;
+    }
+
+    /**
+     * 设置查询entity(表)
+     * 
+     * @param entityClass
+     *            实体
+     * @return this
+     */
+    public T from(Class<M> entityClass) {
+        this.entityClass = entityClass;
+        return (T) this;
+    }
+
+    // bundle
+
+    /**
+     * 将查询条件打包
+     * 
+     * @return 查询条件包
+     */
+    public QueryBundle<M> bundle() {
+        finishQuery();
+        final QueryBundleImpl<M> o = new QueryBundleImpl<M>();
+        final QueryBuilder b = this;
+        o.entityClass = b.entityClass;
+        o.pageable = new PageRequest(b.pageNumber < 0 ? 0 : b.pageNumber, b.pageSize < 1 ? 20 : b.pageSize, b.sort);
+        o.specification = b.specification;
+        o.fetchAttributes = b.fetchAttributes;
+        o.joinAttributes = b.joinAttributes;
+        o.queryFeature = b.queryFeature;
+        return o;
+    }
+
+    /**
+     * 恢复查询条件
+     * 
+     * @param bundle
+     *            查询条件包
+     * @return this
+     */
+    public T unbundle(QueryBundle<M> bundle) {
+        clear();
+        this.entityClass = bundle.getEntityClass();
+        this.specification = bundle.getSpecification();
+        this.pageNumber = bundle.getPageNumber();
+        this.pageSize = bundle.getPageSize();
+        this.sort = bundle.getSort();
+        this.fetchAttributes = bundle.getFetchAttributes();
+        this.joinAttributes = bundle.getJoinAttributes();
+        this.queryFeature = bundle.getQueryFeature();
+        return (T) this;
+    }
+
+    // query condition method
+
+    /**
+     * 设置equal查询条件
+     * 
+     * @param name
+     *            字段
+     * @param value
+     *            值
+     * @return this
+     */
+    public T equal(String name, Object value) {
+        return addCondition(name, value, Operator.EQUAL);
+    }
+
+    /**
+     * 设置not equal查询条件
+     * 
+     * @param name
+     *            字段
+     * @param value
+     *            值
+     * @return this
+     */
+    public T notEqual(String name, Object value) {
+        return addCondition(name, value, Operator.NOT_EQUAL);
+    }
+
+    /**
+     * 设置like查询条件
+     * 
+     * @param name
+     *            字段
+     * @param value
+     *            值
+     * @return this
+     */
+    public T like(String name, Object value) {
+        return addCondition(name, value, Operator.LIKE);
+    }
+
+    /**
+     * 设置not like查询条件
+     * 
+     * @param name
+     *            字段
+     * @param value
+     *            值
+     * @return this
+     */
+    public T notLike(String name, Object value) {
+        return addCondition(name, value, Operator.NOT_LIKE);
+    }
+
+    /**
+     * 设置in查询条件
+     * 
+     * @param name
+     *            字段
+     * @param value
+     *            值
+     * @return this
+     */
+    public T in(String name, Object value) {
+        return addCondition(name, value, Operator.IN);
+    }
+
+    /**
+     * 设置in查询条件
+     * 
+     * @param name
+     *            字段
+     * @param value
+     *            值
+     * @return this
+     */
+    public T in(String name, Collection<?> value) {
+        return addCondition(name, value, Operator.IN);
+    }
+
+    /**
+     * 设置in查询条件
+     * 
+     * @param name
+     *            字段
+     * @param value
+     *            值
+     * @return this
+     */
+    public T in(String name, Object... value) {
+        return addCondition(name, value, Operator.IN);
+    }
+
+    /**
+     * 设置not in查询条件
+     * 
+     * @param name
+     *            字段
+     * @param value
+     *            值
+     * @return this
+     */
+    public T notIn(String name, Object value) {
+        return addCondition(name, value, Operator.NOT_IN);
+    }
+
+    /**
+     * 设置not in查询条件
+     * 
+     * @param name
+     *            字段
+     * @param value
+     *            值
+     * @return this
+     */
+    public T notIn(String name, Collection<?> value) {
+        return addCondition(name, value, Operator.NOT_IN);
+    }
+
+    /**
+     * 设置not in查询条件
+     * 
+     * @param name
+     *            字段
+     * @param value
+     *            值
+     * @return this
+     */
+    public T notIn(String name, Object... value) {
+        return addCondition(name, value, Operator.NOT_IN);
+    }
+
+    /**
+     * 设置between查询条件
+     * 
+     * @param name
+     *            字段
+     * @param left
+     *            最小值
+     * @param right
+     *            最大值
+     * @return this
+     */
+    public T between(String name, Object left, Object right) {
+        return start(assembleType == null ? AND : assembleType)//
+                .addCondition(name, left, Operator.GREATER_THAN_OR_EQUAL)//
+                .addCondition(name, right, Operator.LESS_THAN_OR_EQUAL)//
+                .end();
+    }
+
+    /**
+     * 设置not between查询条件
+     * 
+     * @param name
+     *            字段
+     * @param left
+     *            最小值
+     * @param right
+     *            最大值
+     * @return this
+     */
+    public T notBetween(String name, Object left, Object right) {
+        return start(assembleType == null ? AND : assembleType)//
+                .addCondition(name, left, Operator.LESS_THAN)//
+                .addCondition(name, right, Operator.GREATER_THAN)//
+                .end();
+    }
+
+    /**
+     * 设置大于条件
+     * 
+     * @param name
+     *            字段
+     * @param value
+     *            值
+     * @return this
+     */
+    public T greatThen(String name, Object value) {
+        return addCondition(name, value, Operator.GREATER_THAN);
+    }
+
+    /**
+     * 设置大于等于条件
+     * 
+     * @param name
+     *            字段
+     * @param value
+     *            值
+     * @return this
+     */
+    public T greatEqual(String name, Object value) {
+        return addCondition(name, value, Operator.GREATER_THAN_OR_EQUAL);
+    }
+
+    /**
+     * 设置小于条件
+     * 
+     * @param name
+     *            字段
+     * @param value
+     *            值
+     * @return this
+     */
+    public T lessThen(String name, Object value) {
+        return addCondition(name, value, Operator.LESS_THAN);
+    }
+
+    /**
+     * 设置小于等于条件
+     * 
+     * @param name
+     *            字段
+     * @param value
+     *            值
+     * @return this
+     */
+    public T lessEqual(String name, Object value) {
+        return addCondition(name, value, Operator.LESS_THAN_OR_EQUAL);
+    }
+
+    /**
+     * 设置is null条件
+     * 
+     * @param name
+     *            字段
+     * @return this
+     */
+    public T isNull(String name) {
+        return addCondition(name, null, Operator.NULL);
+    }
+
+    /**
+     * 设置is not null条件
+     * 
+     * @param name
+     *            字段
+     * @return this
+     */
+    public T isNotNull(String name) {
+        return addCondition(name, null, Operator.NOT_NULL);
+    }
+
+    /**
+     * 两个字段的条件查询
+     * 
+     * @param left
+     *            字段1
+     * @param right
+     *            字段2
+     * @param operator
+     *            条件
+     * @return this
+     */
+    public T expression(String left, String right, Operator operator) {
+        return addExpressionCodition(left, right, operator);
+    }
+
+    /**
+     * 设置条件的连接条件and
+     * 
+     * @return this
+     */
+    public T and() {
+        this.assembleType = AND;
+        return (T) this;
+    }
+
+    /**
+     * 设置条件的连接条件or
+     * 
+     * @return this
+     */
+    public T or() {
+        this.assembleType = OR;
+        return (T) this;
+    }
+
+    /**
+     * 增加查询条件
+     * 
+     * @param name
+     *            字段
+     * @param value
+     *            值
+     * @param operator
+     *            条件类型
+     * @return this
+     */
+    protected T addCondition(String name, Object value, Operator operator) {
+        return (T) addSpecication(new Condition<>(name, operator, value));
+    }
+
+    /**
+     * 增加表达式的查询条件
+     * 
+     * @param left
+     *            字段1
+     * @param right
+     *            字段2
+     * @param operator
+     *            条件类型
+     * @return this
+     */
+    protected T addExpressionCodition(String left, String right, Operator operator) {
+        return (T) addSpecication(new ExpressionCondition<>(left, right, operator));
+    }
+
+    /**
+     * 在全局条件中增加一条查询条件, 当前的条件与前查询条件的连接类型为{@linkplain #assembleType}.
+     * 在添加完成后将清空暂存的连接类型
+     * 
+     * @param spec
+     *            条件
+     * @return this
+     */
+    protected final T addSpecication(Specification spec) {
+        final CompositionType type = assembleType;
+        this.assembleType = null;
+        if (type == null && strictMode) {
+            throw new IllegalStateException("assemble type not set, or disabled statict mode");
+        }
+        currentBind().add(spec, type == null ? AND : type);
+        return (T) this;
+    }
+
+    protected final Bind currentBind() {
+        if (queryStack.isEmpty()) {
+            start();
+        }
+        return queryStack.peek();
+    }
+
+    private void finishQuery() {
+        if (!queryStack.isEmpty()) {
+            if (!autoEnclose) {
+                throw new IllegalStateException("query not finish, please turn enclosed on");
+            }
+            for (int i = 0, max = queryStack.size(); i < max; i++) {
+                end();
+            }
+        }
+    }
+
+    // paging
+
+    /**
+     * 设置分页条件
+     * 
+     * @param pageNumber
+     *            页码
+     * @param pageSize
+     *            页面条数
+     * @return this
+     */
+    public T paging(int pageNumber, int pageSize) {
+        this.pageNumber = pageNumber;
+        this.pageSize = pageSize;
+        return (T) this;
+    }
+
+    // sort
+
+    /**
+     * 设置升序排序条件
+     * 
+     * @param name
+     *            排序的字段
+     * @return this
+     */
+    public T asc(String... name) {
+        return orderBy(Direction.ASC, name);
+    }
+
+    /**
+     * 设置降序排序条件
+     * 
+     * @param name
+     *            排序字段
+     * @return this
+     */
+    public T desc(String... name) {
+        return orderBy(Direction.DESC, name);
+    }
+
+    /**
+     * 设置排序条件
+     * 
+     * @param dir
+     *            排序方向
+     * @param name
+     *            排序字段
+     * @return this
+     */
+    public T orderBy(Direction dir, String... name) {
+        Order[] orders = new Order[name.length];
+        for (int i = 0, max = orders.length; i < max; i++) {
+            orders[i] = new Order(dir, name[i]);
+        }
+        return (T) orderBy(orders);
+    }
+
+    /**
+     * 设置排序条件
+     * 
+     * @param order
+     *            排序条件
+     * @return this
+     * @see Order
+     */
+    public T orderBy(Order... order) {
+        if (order.length > 0) {
+            this.sort = (this.sort == null) ? new Sort(order) : this.sort.and(new Sort(order));
+        }
+        return (T) this;
+    }
+
+    // query feature
+
+    /**
+     * 设置查询的distinct属性为启用
+     * 
+     * @return this
+     */
+    public T distinct() {
+        return distinct(true);
+    }
+
+    /**
+     * 设置查询的distinct属性为禁用
+     * 
+     * @return this
+     */
+    public T notDistinct() {
+        return distinct(false);
+    }
+
+    /**
+     * 设置查询的distinct属性
+     * 
+     * @param distinct
+     *            设置状态位
+     * @return this
+     */
+    public T distinct(boolean distinct) {
+        return config(QueryFeature.DISTINCT, distinct);
+    }
+
+    /**
+     * 设置允许空条件的list查询
+     * 
+     * @return this
+     */
+    public T allowEmptyCondition() {
+        return enable(QueryFeature.ALLOW_EMPTY_CONDITION);
+    }
+
+    /**
+     * 设置禁止空条件的list查询
+     * 
+     * @return this
+     */
+    public T forbidEmptyConditon() {
+        return disable(QueryFeature.ALLOW_EMPTY_CONDITION);
+    }
+
+    /**
+     * 配置查询属性
+     * 
+     * @param feature
+     *            查询属性
+     * @param flag
+     *            属性状态
+     * @return this
+     */
+    public T config(QueryFeature feature, boolean flag) {
+        this.queryFeature = QueryFeature.config(queryFeature, feature, flag);
+        return (T) this;
+    }
+
+    /**
+     * 启用查询属性
+     * 
+     * @param feature
+     *            查询属性
+     * @return this
+     */
+    public T enable(QueryFeature feature) {
+        this.queryFeature = QueryFeature.config(queryFeature, feature, true);
+        return (T) this;
+    }
+
+    /**
+     * 禁用查询属性
+     * 
+     * @param feature
+     *            查询属性
+     * @return this
+     */
+    public T disable(QueryFeature feature) {
+        this.queryFeature = QueryFeature.config(queryFeature, feature, false);
+        return (T) this;
+    }
+
+    /**
+     * 设置fetch的字段
+     * 
+     * @param names
+     *            fetch attr
+     * @return this
+     */
+    public T fetch(String... names) {
+        return (T) fetch(JoinType.INNER, names);
+    }
+
+    /**
+     * 设置fetch的字段
+     * 
+     * @param joinType
+     *            fetch type
+     * @param names
+     *            fetch attr
+     * @return this
+     */
+    public T fetch(JoinType joinType, String... names) {
+        if (this.fetchAttributes == null) {
+            this.fetchAttributes = new FetchAttributes();
+        }
+        for (String name : names) {
+            this.fetchAttributes.attrs.add(new Attribute(name, joinType));
+        }
+        return (T) this;
+    }
+
+    /**
+     * 设置查询时候需要join的表
+     * 
+     * @param names
+     *            join tables
+     * @return this
+     */
+    public T join(String... names) {
+        return (T) join(JoinType.INNER, names);
+    }
+
+    /**
+     * 设置查询所需要join的表
+     * 
+     * @param joinType
+     *            join type
+     * @param names
+     *            join tables
+     * @return this
+     */
+    public T join(JoinType joinType, String... names) {
+        if (this.joinAttributes == null) {
+            this.joinAttributes = new JoinAttributes();
+        }
+        for (String name : names) {
+            this.joinAttributes.attrs.add(new Attribute(name, joinType));
+        }
+        return (T) this;
+    }
+
+    // enclose method
+
+    /**
+     * 匹配括号的开始
+     * 
+     * @return this
+     */
+    public T start() {
+        return start(assembleType == null ? AND : assembleType);
+    }
+
+    /**
+     * 匹配括号的开始
+     * 
+     * @param compositionType
+     *            与上个查询条件的连接条件
+     * @return this
+     */
+    public T start(CompositionType compositionType) {
+        queryStack.push(new Bind(compositionType));
+        assembleType = null;
+        return (T) this;
+    }
+
+    /**
+     * 匹配括号的结束
+     * 
+     * @return this
+     */
+    public T end() {
+        Bind bind = queryStack.pop();
+        if (!bind.isEmpty()) {
+            temp.add(bind);
+        }
+        if (queryStack.isEmpty()) {
+            CompositionSpecification[] css = temp.toArray(new CompositionSpecification[0]);
+            temp.clear();
+            for (int i = css.length; i > 0; i--) {
+                CompositionSpecification cs = css[i - 1];
+                specification = cs.getCompositionType().combine(specification, cs);
+            }
+        }
+        return (T) this;
+    }
+
+    /**
+     * 清空所有查询构建条件
+     */
+    public void clear() {
+        queryStack.clear();
+        temp.clear();
+        assembleType = null;
+        fetchAttributes = null;
+        joinAttributes = null;
+        specification = null;
+        sort = null;
+        entityClass = null;
+        pageNumber = 0;
+        pageSize = 0;
+        queryFeature = 0;
+    }
+
+    // result
+
+    /**
+     * 执行查询获取查询结果
+     * 
+     * @return 查询结果
+     */
+    public QueryResult<M> execute() {
+        return new QueryResultImpl<M>(entityManager, bundle());
+    }
+
+    /**
+     * 执行查询获取符合条件的单个结果
+     * 
+     * @return 查询结果
+     */
+    public M getSingleResult() {
+        return execute().getSingleResult();
+    }
+
+    /**
+     * 执行查询获取第一个符合条件的结果
+     * 
+     * @return 符合条件的第一个结果
+     */
+    public M getFirstResult() {
+        return execute().getFirstResult();
+    }
+
+    /**
+     * 执行查询获取符合条件的所有结果集
+     * 
+     * @return 符合条件的结果集
+     */
+    public List<M> getResultList() {
+        return execute().getResultList();
+    }
+
+    /**
+     * 执行查询获取分页查询结果
+     * 
+     * @return 分页结果集
+     */
+    public Page<M> getResultPage() {
+        return execute().getResultPage();
+    }
+
+    /**
+     * 执行查询获取符合条件的结果数
+     * 
+     * @return 符合条件的结果数
+     */
+    public long getCountResult() {
+        return execute().getCountResult();
+    }
+
+    /**
+     * 查询条件
+     */
+    private static final class Condition<T> implements Serializable, Specification<T> {
+
+        private static final long serialVersionUID = 1L;
+
+        String name;
+        Operator operator;
+        Object value;
+
+        public Condition(String name, Operator operator, Object value) {
+            this.name = name;
+            this.operator = operator;
+            this.value = value;
+        }
+
+        @Override
+        public Predicate toPredicate(Root<T> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+            Expression<Object> x = QueryUtils.toExpressionRecursively(root, name);
+            return operator.explain(x, cb, value);
+        }
+
+        @Override
+        public String toString() {
+            return name + " " + operator.symbol() + " " + "?";
+        }
+
+    }
+
+    /**
+     * 表达式查询条件
+     */
+    private static final class ExpressionCondition<T> implements Specification<T> {
+
+        String left;
+        String right;
+        Operator operator;
+
+        public ExpressionCondition(String left, String right, Operator operator) {
+            this.left = left;
+            this.right = right;
+            this.operator = operator;
+        }
+
+        @Override
+        public Predicate toPredicate(Root<T> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+            Expression leftExpression = QueryUtils.toExpressionRecursively(root, left);
+            Expression rightExpression = QueryUtils.toExpressionRecursively(root, right);
+            return operator.explain(leftExpression, cb, rightExpression);
+        }
+
+    }
+
+    static final class FetchAttributes implements Serializable {
+
+        private static final long serialVersionUID = 1L;
+
+        List<Attribute> attrs = new ArrayList<Attribute>();
+
+        public List<Attribute> getAttributes() {
+            return Collections.unmodifiableList(attrs);
+        }
+    }
+
+    static final class JoinAttributes implements Serializable {
+
+        private static final long serialVersionUID = 1L;
+
+        List<Attribute> attrs = new ArrayList<Attribute>();
+
+        public List<Attribute> getAttributes() {
+            return Collections.unmodifiableList(attrs);
+        }
+
+    }
+
+    static final class Attribute implements Serializable {
+
+        private static final long serialVersionUID = 1L;
+
+        String name;
+        JoinType joniType;
+
+        public Attribute(String name, JoinType joniType) {
+            this.name = name;
+            this.joniType = joniType;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public JoinType getJoniType() {
+            return joniType;
+        }
+    }
+
+}
