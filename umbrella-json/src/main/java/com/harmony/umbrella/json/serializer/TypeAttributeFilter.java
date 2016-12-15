@@ -8,6 +8,12 @@ import com.alibaba.fastjson.serializer.JSONSerializer;
 import com.alibaba.fastjson.serializer.PropertyPreFilter;
 
 /**
+ * TODO 以当前的TYPE为根节点来指定当前根下所需要过滤的patterns. 从而达到指定根下的指定pattern过滤
+ * <p>
+ * 但是在一般的序列化过程中, filter往往是针对一个特定的根下展开的是否有此必要?
+ * 
+ * 根据常用的需求来说, filter都是使用时候创建使用后销毁的策略.
+ * 
  * @author wuxii@foxmail.com
  */
 public class TypeAttributeFilter implements PropertyPreFilter {

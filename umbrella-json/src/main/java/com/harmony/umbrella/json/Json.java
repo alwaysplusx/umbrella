@@ -126,10 +126,7 @@ public class Json {
         SerializeFilter[] filters = cfg.getFilters();
         SerializerFeature[] features = cfg.getFeatures();
         SerializeConfig scfg = cfg.getSerializeConfig();
-        if (scfg == null) {
-            return JSON.toJSONString(object, filters, features);
-        }
-        return JSON.toJSONString(object, scfg, filters, features);
+        return scfg == null ? JSON.toJSONString(object, filters, features) : JSON.toJSONString(object, scfg, filters, features);
     }
 
     // deserialize

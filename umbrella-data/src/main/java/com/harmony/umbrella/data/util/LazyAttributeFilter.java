@@ -3,15 +3,22 @@ package com.harmony.umbrella.data.util;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.persistence.FetchType;
+import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 
 import com.harmony.umbrella.core.Member;
 import com.harmony.umbrella.data.Persistable;
-import com.harmony.umbrella.json.serializer.MemberFilterFilter;
+import com.harmony.umbrella.json.serializer.MemberPropertyFilter;
 import com.harmony.umbrella.log.Log;
 import com.harmony.umbrella.log.Logs;
 import com.harmony.umbrella.util.AnnotationUtils;
@@ -20,7 +27,20 @@ import com.harmony.umbrella.util.ReflectionUtils;
 /**
  * @author wuxii@foxmail.com
  */
-public class LazyAttributeFilter extends MemberFilterFilter {
+public class LazyAttributeFilter extends MemberPropertyFilter {
+    /**
+     * 需要被懒加载处理的注解
+     */
+    public static final List<Class<? extends Annotation>> LAZY_ANNOTATION_CLASSES;
+
+    static {
+        List<Class<? extends Annotation>> temp = new ArrayList<>();
+        temp.add(ManyToOne.class);
+        temp.add(ManyToMany.class);
+        temp.add(OneToMany.class);
+        temp.add(OneToOne.class);
+        LAZY_ANNOTATION_CLASSES = Collections.unmodifiableList(temp);
+    }
 
     private static final Log log = Logs.getLog(LazyAttributeFilter.class);
 
@@ -38,12 +58,9 @@ public class LazyAttributeFilter extends MemberFilterFilter {
     }
 
     public LazyAttributeFilter(boolean tryFetch, Class<? extends Annotation>... anns) {
+        super(true);
         this.tryFetch = tryFetch;
         this.addFilterAnnotationClass(anns);
-    }
-
-    public LazyAttributeFilter() {
-        this.allowNull = false;
     }
 
     @Override
@@ -52,7 +69,6 @@ public class LazyAttributeFilter extends MemberFilterFilter {
         return fetchType == null || FetchType.EAGER.equals(fetchType) || (tryFetch && tryFetch(member, target));
     }
 
-    @SuppressWarnings("rawtypes")
     public boolean tryFetch(Member member, Object object) {
         try {
             Object v = member.get(object);
@@ -63,7 +79,7 @@ public class LazyAttributeFilter extends MemberFilterFilter {
             } else if (v instanceof Persistable) {
                 ((Persistable) v).getId();
             } else {
-                tryFirstReadMethod(member.getType(), v);
+                return tryFirstReadMethod(member.getType(), v);
             }
         } catch (Exception e) {
             return false;
@@ -71,7 +87,7 @@ public class LazyAttributeFilter extends MemberFilterFilter {
         return true;
     }
 
-    private void tryFirstReadMethod(Class<?> clazz, Object object) throws Exception {
+    private boolean tryFirstReadMethod(Class<?> clazz, Object object) throws Exception {
         Method[] methods = clazz.getMethods();
         for (Method method : methods) {
             if (!ReflectionUtils.isObjectMethod(method) //
@@ -79,9 +95,10 @@ public class LazyAttributeFilter extends MemberFilterFilter {
                     && !Modifier.isStatic(method.getModifiers())//
                     && ReflectionUtils.isReadMethod(method)) {
                 ReflectionUtils.invokeMethod(method, object);
-                return;
+                return true;
             }
         }
+        return false;
     }
 
     public FetchType getFetchType(Member member) {
