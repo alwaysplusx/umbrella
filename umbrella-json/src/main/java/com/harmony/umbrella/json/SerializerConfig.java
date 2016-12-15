@@ -2,6 +2,7 @@ package com.harmony.umbrella.json;
 
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -13,7 +14,7 @@ import com.alibaba.fastjson.serializer.SerializeFilter;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.harmony.umbrella.json.serializer.FilterMode;
 import com.harmony.umbrella.json.serializer.SimpleAnnotationFilter;
-import com.harmony.umbrella.json.serializer.SimplePropertyNameFilter;
+import com.harmony.umbrella.json.serializer.SimplePatternFilter;
 
 /**
  * 序列化配置项
@@ -23,9 +24,14 @@ import com.harmony.umbrella.json.serializer.SimplePropertyNameFilter;
 public class SerializerConfig<T extends SerializerConfig> {
 
     /**
-     * 与{@linkplain #propertyFilterMode}结合生成对于属性的过滤
+     * 与{@linkplain #patternFilterMode}结合生成对于属性的过滤
      */
-    protected final Set<String> filterProperties = new LinkedHashSet<String>();
+    protected final Set<String> patterns = new LinkedHashSet<String>();
+
+    /**
+     * 属性过滤mode, default {@linkplain FilterMode#EXCLUDE}
+     */
+    protected FilterMode patternFilterMode;
 
     /**
      * 序列化特性
@@ -43,29 +49,24 @@ public class SerializerConfig<T extends SerializerConfig> {
     protected final Set<Class<? extends Annotation>> annotationClasses = new HashSet<Class<? extends Annotation>>();
 
     /**
-     * fastjson的序列化配置
-     */
-    protected SerializeConfig config;
-
-    /**
-     * 属性过滤mode, default {@linkplain FilterMode#EXCLUDE}
-     */
-    protected FilterMode propertyFilterMode;
-
-    /**
      * 注解过滤mode, default {@linkplain FilterMode#EXCLUDE}
      */
     protected FilterMode annationFilterMode;
 
     /**
+     * fastjson的序列化配置
+     */
+    protected SerializeConfig config;
+
+    /**
      * 设置属性过滤的模式
      * 
-     * @param mode
+     * @param patternFilterMode
      *            过滤模式
      * @return this
      */
-    public T withPropertyFilterMode(FilterMode mode) {
-        this.propertyFilterMode = mode;
+    public T withPatternFilterMode(FilterMode patternFilterMode) {
+        this.patternFilterMode = patternFilterMode;
         return (T) this;
     }
 
@@ -74,14 +75,13 @@ public class SerializerConfig<T extends SerializerConfig> {
      * 
      * @param mode
      *            过滤模式
-     * @param property
+     * @param patterns
      *            过滤的属性
      * @return this
      */
-    public T withFilterProperty(FilterMode mode, String... property) {
-        this.propertyFilterMode = mode;
-        Collections.addAll(this.filterProperties, property);
-        return (T) this;
+    public T withPattern(FilterMode mode, String... patterns) {
+        this.patternFilterMode = mode;
+        return (T) withPattern(patterns);
     }
 
     /**
@@ -91,8 +91,8 @@ public class SerializerConfig<T extends SerializerConfig> {
      *            过滤的属性
      * @return this
      */
-    public T withFilterProperty(String... property) {
-        Collections.addAll(this.filterProperties, property);
+    public T withPattern(String... patterns) {
+        this.patterns.addAll(Arrays.asList(patterns));
         return (T) this;
     }
 
@@ -109,18 +109,6 @@ public class SerializerConfig<T extends SerializerConfig> {
     }
 
     /**
-     * 设置过滤的属性
-     * 
-     * @param annCls
-     *            过滤的属性
-     * @return this
-     */
-    public T withFilterAnnotation(Class<? extends Annotation>... annCls) {
-        Collections.addAll(this.annotationClasses, annCls);
-        return (T) this;
-    }
-
-    /**
      * 设置过滤的注解以及模式
      * 
      * @param mode
@@ -129,9 +117,21 @@ public class SerializerConfig<T extends SerializerConfig> {
      *            注解
      * @return
      */
-    public T withFilterAnnotation(FilterMode mode, Class<? extends Annotation>... annCls) {
+    public T withAnnotation(FilterMode mode, Class<? extends Annotation>... annCls) {
         this.annationFilterMode = mode;
-        Collections.addAll(this.annotationClasses, annCls);
+        this.annotationClasses.addAll(Arrays.asList(annCls));
+        return (T) this;
+    }
+
+    /**
+     * 设置过滤的属性
+     * 
+     * @param annCls
+     *            过滤的属性
+     * @return this
+     */
+    public T withAnnotation(Class<? extends Annotation>... annCls) {
+        this.annotationClasses.addAll(Arrays.asList(annCls));
         return (T) this;
     }
 
@@ -143,7 +143,7 @@ public class SerializerConfig<T extends SerializerConfig> {
      * @return this
      */
     public T withSerializerFeature(SerializerFeature... feature) {
-        Collections.addAll(this.features, feature);
+        this.features.addAll(Arrays.asList(feature));
         return (T) this;
     }
 
@@ -178,8 +178,8 @@ public class SerializerConfig<T extends SerializerConfig> {
      */
     public final SerializeFilter[] getFilters() {
         List<SerializeFilter> result = new ArrayList<SerializeFilter>();
-        SerializeFilter propertyFilter = getPropertyFilter();
 
+        SerializeFilter propertyFilter = getPatternFilter();
         if (propertyFilter != null) {
             result.add(propertyFilter);
         }
@@ -194,8 +194,12 @@ public class SerializerConfig<T extends SerializerConfig> {
             Collections.addAll(result, subFilters);
         }
 
-        result.addAll(filters);
-        return result.toArray(new SerializeFilter[0]);
+        for (SerializeFilter sf : filters) {
+            if (!result.contains(sf)) {
+                result.add(sf);
+            }
+        }
+        return result.toArray(new SerializeFilter[result.size()]);
     }
 
     /**
@@ -230,11 +234,11 @@ public class SerializerConfig<T extends SerializerConfig> {
      * 
      * @return property filter
      */
-    public final SerializeFilter getPropertyFilter() {
-        if (filterProperties.isEmpty()) {
+    public final SerializeFilter getPatternFilter() {
+        if (patterns.isEmpty()) {
             return null;
         }
-        return new SimplePropertyNameFilter(filterProperties, propertyFilterMode == null ? FilterMode.EXCLUDE : propertyFilterMode);
+        return new SimplePatternFilter(patterns, patternFilterMode == null ? FilterMode.EXCLUDE : patternFilterMode);
     }
 
     /**

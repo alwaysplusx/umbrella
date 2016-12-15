@@ -8,15 +8,12 @@ import com.harmony.umbrella.util.MemberUtils;
 /**
  * @author wuxii@foxmail.com
  */
-public abstract class MemberFilterFilter implements PropertyPreFilter {
+public abstract class MemberPropertyFilter implements PropertyPreFilter {
 
-    protected boolean allowNull;
+    protected final boolean accepptNullMember;
 
-    public MemberFilterFilter() {
-    }
-
-    public MemberFilterFilter(boolean allowNull) {
-        this.allowNull = allowNull;
+    public MemberPropertyFilter(boolean accepptNullMember) {
+        this.accepptNullMember = accepptNullMember;
     }
 
     protected abstract boolean accept(Member member, Object target);
@@ -33,7 +30,7 @@ public abstract class MemberFilterFilter implements PropertyPreFilter {
         Class<?> objectClass = object.getClass();
         Member member = getObjectMember(objectClass, name);
         if (member == null) {
-            return allowNull;
+            return accepptNullMember;
         }
         return accept(member, member);
     }
@@ -44,14 +41,6 @@ public abstract class MemberFilterFilter implements PropertyPreFilter {
         } catch (Exception e) {
             return null;
         }
-    }
-
-    public boolean isAllowNull() {
-        return allowNull;
-    }
-
-    public void setAllowNull(boolean allowNull) {
-        this.allowNull = allowNull;
     }
 
 }

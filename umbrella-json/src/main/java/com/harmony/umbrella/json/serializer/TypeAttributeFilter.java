@@ -1,47 +1,55 @@
 package com.harmony.umbrella.json.serializer;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.harmony.umbrella.core.Member;
-import com.harmony.umbrella.json.annotation.JsonGroup;
+import com.alibaba.fastjson.serializer.JSONSerializer;
+import com.alibaba.fastjson.serializer.PropertyPreFilter;
 
 /**
  * @author wuxii@foxmail.com
  */
-public class TypeAttributeFilter extends MemberFilterFilter {
+public class TypeAttributeFilter implements PropertyPreFilter {
 
-    private Class<?> type;
+    private final Class<?> type;
 
-    private FilterMode mode;
+    private final Set<String> propertyNames = new HashSet<>();
 
-    private Set<Class> groups = new HashSet<Class>();
+    private final boolean include;
 
-    public TypeAttributeFilter(Class<?> type, Class<?>... groups) {
-        this(type, FilterMode.EXCLUDE, groups);
+    public TypeAttributeFilter(Class<?> type, FilterMode mode) {
+        this(type, mode, new String[0]);
     }
 
-    public TypeAttributeFilter(Class<?> type, FilterMode mode, Class<?>... groups) {
-        this.type = type;
-        this.mode = mode;
+    public TypeAttributeFilter(Class<?> type, String... names) {
+        this(type, FilterMode.EXCLUDE, names);
+    }
 
+    public TypeAttributeFilter(Class<?> type, FilterMode mode, String... names) {
+        this.type = type;
+        this.include = FilterMode.INCLUDE == mode;
+        this.propertyNames.addAll(Arrays.asList(names));
     }
 
     @Override
-    protected boolean accept(Member member, Object target) {
-        if (!type.isInstance(target)) {
+    public boolean apply(JSONSerializer serializer, Object object, String name) {
+        if (!type.isInstance(object)) {
             return true;
         }
-        JsonGroup ann = member.getAnnotation(JsonGroup.class);
-        if (ann == null) {
-            return true;
-        }
-        // TODO 按组过滤
-        return false;
+        return include ? propertyNames.contains(name) : !propertyNames.contains(name);
     }
 
-    public Set<Class> getGroups() {
-        return groups;
+    public Set<String> getPropertyNames() {
+        return propertyNames;
     }
 
+    public void setPropertyNames(Set<String> propertyNames) {
+        this.propertyNames.clear();
+        this.propertyNames.addAll(propertyNames);
+    }
+
+    public FilterMode getFilterMode() {
+        return include ? FilterMode.INCLUDE : FilterMode.EXCLUDE;
+    }
 }
