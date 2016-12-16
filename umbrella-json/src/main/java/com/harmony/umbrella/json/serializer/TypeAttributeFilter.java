@@ -1,6 +1,7 @@
 package com.harmony.umbrella.json.serializer;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -33,9 +34,13 @@ public class TypeAttributeFilter implements PropertyPreFilter {
     }
 
     public TypeAttributeFilter(Class<?> type, FilterMode mode, String... names) {
+        this(type, mode, Arrays.asList(names));
+    }
+
+    public TypeAttributeFilter(Class<?> type, FilterMode mode, Collection<String> names) {
         this.type = type;
         this.include = FilterMode.INCLUDE == mode;
-        this.propertyNames.addAll(Arrays.asList(names));
+        this.propertyNames.addAll(names);
     }
 
     @Override

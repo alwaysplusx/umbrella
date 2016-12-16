@@ -9,41 +9,7 @@ import com.alibaba.fastjson.serializer.SerializerFeature;
  * 
  * @author wuxii@foxmail.com
  */
-public interface SerializerConfig<T extends SerializerConfig> {
-
-    /**
-     * 设置序列化的特性
-     * 
-     * @param feature
-     *            特性
-     * @return this
-     */
-    T withFeature(SerializerFeature... feature);
-
-    /**
-     * 自定义的序列化filter
-     * 
-     * @param filter
-     *            自定义filter
-     * @return this
-     */
-    T withFilter(SerializeFilter... filter);
-
-    /**
-     * 设置fastjson的过滤特性
-     * 
-     * @param config
-     *            fastjson序列化特性
-     * @return this
-     */
-    T withSerializeConfig(SerializeConfig config);
-
-    /**
-     * 当前序列化属性所配置的类
-     * 
-     * @return 配置目标类
-     */
-    Class<?> getType();
+public interface SerializerConfig {
 
     /**
      * 集合所有配置生成过滤器

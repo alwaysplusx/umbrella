@@ -1,9 +1,10 @@
-package com.harmony.umbrella.data.util;
+package com.harmony.umbrella.json.serializer;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -17,8 +18,6 @@ import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 
 import com.harmony.umbrella.core.Member;
-import com.harmony.umbrella.data.Persistable;
-import com.harmony.umbrella.json.serializer.MemberPropertyFilter;
 import com.harmony.umbrella.log.Log;
 import com.harmony.umbrella.log.Logs;
 import com.harmony.umbrella.util.AnnotationUtils;
@@ -58,6 +57,10 @@ public class LazyAttributeFilter extends MemberPropertyFilter {
     }
 
     public LazyAttributeFilter(boolean tryFetch, Class<? extends Annotation>... anns) {
+        this(tryFetch, Arrays.asList(anns));
+    }
+
+    public LazyAttributeFilter(boolean tryFetch, Collection<Class<? extends Annotation>> anns) {
         super(true);
         this.tryFetch = tryFetch;
         this.addFilterAnnotationClass(anns);
@@ -76,8 +79,6 @@ public class LazyAttributeFilter extends MemberPropertyFilter {
                 return true;
             } else if (v instanceof Collection) {
                 ((Collection) v).size();
-            } else if (v instanceof Persistable) {
-                ((Persistable) v).getId();
             } else {
                 return tryFirstReadMethod(member.getType(), v);
             }
@@ -112,7 +113,7 @@ public class LazyAttributeFilter extends MemberPropertyFilter {
         return ann == null ? null : (FetchType) AnnotationUtils.getAnnotationValue(ann, "fetch");
     }
 
-    public void addFilterAnnotationClass(Class<? extends Annotation>... annCls) {
+    public void addFilterAnnotationClass(Iterable<Class<? extends Annotation>> annCls) {
         for (Class<? extends Annotation> cls : annCls) {
             try {
                 if (cls.getMethod("fetch") != null) {
@@ -123,4 +124,5 @@ public class LazyAttributeFilter extends MemberPropertyFilter {
             }
         }
     }
+
 }

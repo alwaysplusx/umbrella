@@ -122,7 +122,7 @@ public class Json {
         return toJson(object, new SerializeFilter[] { new SimplePatternFilter(excludeProperties) }, features);
     }
 
-    public static String toJson(Object object, SerializerConfig<?> cfg) {
+    public static String toJson(Object object, SerializerConfig cfg) {
         SerializeFilter[] filters = cfg.getFilters();
         SerializerFeature[] features = cfg.getFeatures();
         SerializeConfig scfg = cfg.getSerializeConfig();
