@@ -7,6 +7,8 @@ import java.util.Map;
 
 import org.junit.Test;
 
+import com.alibaba.fastjson.serializer.SerializeFilter;
+import com.harmony.umbrella.json.serializer.MyNameFilter;
 import com.harmony.umbrella.json.vo.Person;
 
 /**
@@ -25,6 +27,11 @@ public class JsonTest {
         String json = "{a: 'b'}";
         Map<String, Object> map = Json.parseMap(json);
         assertEquals(map.get("a"), "b");
+    }
+
+    @Test
+    public void testNameFilter() {
+        System.out.println(Json.toJson(Person.me, new SerializeFilter[] { new MyNameFilter() }, PrettyFormat));
     }
 
 }
