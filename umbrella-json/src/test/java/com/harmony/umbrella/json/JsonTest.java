@@ -7,8 +7,10 @@ import java.util.Map;
 
 import org.junit.Test;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializeFilter;
-import com.harmony.umbrella.json.serializer.MyNameFilter;
+import com.harmony.umbrella.json.deserializer.CamelCaseNameProcessor;
+import com.harmony.umbrella.json.serializer.CamelCaseNameFilter;
 import com.harmony.umbrella.json.vo.Person;
 
 /**
@@ -30,8 +32,12 @@ public class JsonTest {
     }
 
     @Test
-    public void testNameFilter() {
-        System.out.println(Json.toJson(Person.me, new SerializeFilter[] { new MyNameFilter() }, PrettyFormat));
+    public void testNameFilterAndProcesser() {
+        String json = Json.toJson(Person.me, new SerializeFilter[] { new CamelCaseNameFilter() }, PrettyFormat);
+        System.out.println(json);
+
+        JSON.parseObject(json, Person.class, new CamelCaseNameProcessor());
+
     }
 
 }

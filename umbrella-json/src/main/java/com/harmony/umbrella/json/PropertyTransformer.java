@@ -4,13 +4,6 @@ import java.util.Collection;
 
 /**
  * 类型属性转化器
- * <p>
- * 如:
- * <ul>
- * <li>page下需要过滤的为: content[*].propertyName
- * <li>list/array下需要过滤的为: [*].propertyName
- * <li>单个实体需过滤的为: propertyName
- * </ul>
  * 
  * @author wuxii@foxmail.com
  */

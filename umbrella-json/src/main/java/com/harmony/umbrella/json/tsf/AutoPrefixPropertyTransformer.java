@@ -12,6 +12,14 @@ import com.harmony.umbrella.log.Log;
 import com.harmony.umbrella.log.Logs;
 
 /**
+ * 自动添加前缀的属性转化器, 转化器中通过类与属性的关系来确定转化关系, 如:
+ * <ul>
+ * <li>page下需要过滤的为: content[*].propertyName
+ * <li>list/array下需要过滤的为: [*].propertyName
+ * <li>单个实体需过滤的为: propertyName
+ * </ul>
+ * 在以上类型中调用端只关系具体内容的字段过滤. 如果想要过滤根下的字段可以通过配置{@code $.propertyName}来指定属性
+ * 
  * @author wuxii@foxmail.com
  */
 public class AutoPrefixPropertyTransformer implements PropertyTransformer {

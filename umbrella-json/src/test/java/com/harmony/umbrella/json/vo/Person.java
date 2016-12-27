@@ -37,8 +37,8 @@ public class Person {
         Person child1 = new Person(4l, "child1");
         Person child2 = new Person(5l, "child2");
 
-        child1.setBrothers(Arrays.asList(child2));
-        child2.setBrothers(Arrays.asList(child1));
+        child1.setMyBrothers(Arrays.asList(child2));
+        child2.setMyBrothers(Arrays.asList(child1));
         child1.setFather(me);
         child2.setFather(me);
 
@@ -53,7 +53,7 @@ public class Person {
     @OneToMany
     private List<Person> childs;
     @OneToMany
-    private List<Person> brothers;
+    private List<Person> myBrothers;
 
     public Person() {
     }
@@ -111,12 +111,12 @@ public class Person {
         this.childs = childs;
     }
 
-    public List<Person> getBrothers() {
-        return brothers;
+    public List<Person> getMyBrothers() {
+        return myBrothers;
     }
 
-    public void setBrothers(List<Person> brothers) {
-        this.brothers = brothers;
+    public void setMyBrothers(List<Person> myBrothers) {
+        this.myBrothers = myBrothers;
     }
 
     @Override
