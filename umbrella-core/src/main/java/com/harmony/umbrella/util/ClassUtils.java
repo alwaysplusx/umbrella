@@ -1,7 +1,6 @@
 package com.harmony.umbrella.util;
 
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -9,7 +8,8 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Miscellaneous class utility methods. Mainly for internal use within the framework.
+ * Miscellaneous class utility methods. Mainly for internal use within the
+ * framework.
  *
  * @author Juergen Hoeller
  * @author Keith Donald
@@ -45,12 +45,13 @@ public class ClassUtils {
      */
     public static final String CLASS_FILE_SUFFIX = ".class";
     /**
-     * Map with primitive wrapper type as key and corresponding primitive type as value, for example: Integer.class ->
-     * int.class.
+     * Map with primitive wrapper type as key and corresponding primitive type
+     * as value, for example: Integer.class -> int.class.
      */
     static final Map<Class<?>, Class<?>> primitiveWrapperTypeMap = new HashMap<Class<?>, Class<?>>(8);
     /**
-     * Map with primitive type as key and corresponding wrapper type as value, for example: int.class -> Integer.class.
+     * Map with primitive type as key and corresponding wrapper type as value,
+     * for example: int.class -> Integer.class.
      */
     static final Map<Class<?>, Class<?>> primitiveTypeToWrapperMap = new HashMap<Class<?>, Class<?>>(8);
 
@@ -78,7 +79,7 @@ public class ClassUtils {
     public static Class<?> getPrimitiveWrapperType(Class<?> primitiveType) {
         return primitiveTypeToWrapperMap.get(primitiveType);
     }
-    
+
     public static ClassLoader getDefaultClassLoader() {
         ClassLoader cl = null;
         try {
@@ -104,15 +105,17 @@ public class ClassUtils {
     }
 
     /**
-     * Given an input class object, return a string which consists of the class's package name as a pathname, i.e., all
-     * dots ('.') are replaced by slashes ('/'). Neither a leading nor trailing slash is added. The result could be
-     * concatenated with a slash and the name of a resource and fed directly to {@code ClassLoader.getResource()}. For
-     * it to be fed to {@code Class.getResource} instead, a leading slash would also have to be prepended to the
-     * returned value.
+     * Given an input class object, return a string which consists of the
+     * class's package name as a pathname, i.e., all dots ('.') are replaced by
+     * slashes ('/'). Neither a leading nor trailing slash is added. The result
+     * could be concatenated with a slash and the name of a resource and fed
+     * directly to {@code ClassLoader.getResource()}. For it to be fed to
+     * {@code Class.getResource} instead, a leading slash would also have to be
+     * prepended to the returned value.
      *
      * @param clazz
-     *         the input class. A {@code null} value or the default (empty) package will result in an empty string ("")
-     *         being returned.
+     *            the input class. A {@code null} value or the default (empty)
+     *            package will result in an empty string ("") being returned.
      * @return a path which represents the package name
      * @see ClassLoader#getResource
      * @see Class#getResource
@@ -151,9 +154,9 @@ public class ClassUtils {
      * subClass是否是superClass的子类
      *
      * @param superClass
-     *         待比较父类
+     *            待比较父类
      * @param subClass
-     *         待比较子类
+     *            待比较子类
      */
     public static boolean isAssignable(Class<?> superClass, Class<?> subClass) {
         if (superClass == subClass) {
@@ -180,13 +183,14 @@ public class ClassUtils {
     }
 
     /**
-     * Determine if the given type is assignable from the given value, assuming setting by reflection. Considers
-     * primitive wrapper classes as assignable to the corresponding primitive types.
+     * Determine if the given type is assignable from the given value, assuming
+     * setting by reflection. Considers primitive wrapper classes as assignable
+     * to the corresponding primitive types.
      *
      * @param type
-     *         the target type
+     *            the target type
      * @param value
-     *         the value that should be assigned to the type
+     *            the value that should be assigned to the type
      * @return if the type is assignable from the value
      */
     public static boolean isAssignableValue(Class<?> type, Object value) {
@@ -194,12 +198,13 @@ public class ClassUtils {
     }
 
     /**
-     * 检查输入类型是否符合模版的参数. 首先类型数据的长度匹配, 再对各个类型进行 {@linkplain #isAssignable(Class, Class)}匹配
+     * 检查输入类型是否符合模版的参数. 首先类型数据的长度匹配, 再对各个类型进行
+     * {@linkplain #isAssignable(Class, Class)}匹配
      *
      * @param pattern
-     *         参数的模版
+     *            参数的模版
      * @param inputTypes
-     *         输入类型
+     *            输入类型
      * @return true 所有类型都匹配
      * @see ClassUtils#isAssignable(Class, Class)
      */
@@ -219,7 +224,7 @@ public class ClassUtils {
      * 如果args中存在{@code null}的元素, 则将对象的类映射为{@linkplain Object}
      *
      * @param args
-     *         参数数组
+     *            参数数组
      * @return 类型数组
      * @see Method#getParameterTypes()
      */
@@ -241,19 +246,22 @@ public class ClassUtils {
     }
 
     /**
-     * Replacement for {@code Class.forName()} that also returns Class instances for primitives (e.g. "int") and array
-     * class names (e.g. "String[]"). Furthermore, it is also capable of resolving inner class names in Java source
-     * style (e.g. "java.lang.Thread.State" instead of "java.lang.Thread$State").
+     * Replacement for {@code Class.forName()} that also returns Class instances
+     * for primitives (e.g. "int") and array class names (e.g. "String[]").
+     * Furthermore, it is also capable of resolving inner class names in Java
+     * source style (e.g. "java.lang.Thread.State" instead of
+     * "java.lang.Thread$State").
      *
      * @param name
-     *         the name of the Class
+     *            the name of the Class
      * @param classLoader
-     *         the class loader to use (may be {@code null}, which indicates the default class loader)
+     *            the class loader to use (may be {@code null}, which indicates
+     *            the default class loader)
      * @return Class instance for the supplied name
      * @throws ClassNotFoundException
-     *         if the class was not found
+     *             if the class was not found
      * @throws LinkageError
-     *         if the class file could not be loaded
+     *             if the class file could not be loaded
      * @see Class#forName(String, boolean, ClassLoader)
      */
     public static Class<?> forName(String name, ClassLoader classLoader) throws ClassNotFoundException {
@@ -264,7 +272,7 @@ public class ClassUtils {
      * for name，use default {@linkplain #getDefaultClassLoader() classLoader}
      *
      * @param name
-     *         类名
+     *            类名
      * @return 类
      * @throws ClassNotFoundException
      * @see {@link #forName(String, ClassLoader)}
@@ -283,7 +291,7 @@ public class ClassUtils {
      * Check whether the specified class is a CGLIB-generated class.
      *
      * @param clazz
-     *         the class to check
+     *            the class to check
      */
     public static boolean isCglibProxyClass(Class<?> clazz) {
         return (clazz != null && isCglibProxyClassName(clazz.getName()));
@@ -293,7 +301,7 @@ public class ClassUtils {
      * Check whether the specified class name is a CGLIB-generated class.
      *
      * @param className
-     *         the class name to check
+     *            the class name to check
      */
     public static boolean isCglibProxyClassName(String className) {
         return (className != null && className.contains(CGLIB_CLASS_SEPARATOR));
@@ -317,96 +325,6 @@ public class ClassUtils {
             Collections.addAll(result, getAllInterfaces(clazz.getSuperclass()));
         }
         return result.toArray(new Class<?>[result.size()]);
-    }
-
-    public enum ClassFilterFeature {
-        NOTNULL {
-            @Override
-            public boolean accept(Class<?> clazz) {
-                return clazz != null;
-            }
-
-        },
-        NEWABLE {
-            @Override
-            public boolean accept(Class<?> clazz) {
-                if (!NOTNULL.accept(clazz) || INTERFACE.accept(clazz)
-                        || ABSTRACT.accept(clazz) || PRIVATE.accept(clazz)
-                        || PROTECTED.accept(clazz)) {
-                    return false;
-                }
-                try {
-                    return clazz.getDeclaredConstructor() != null;
-                } catch (Exception e) {
-                    return false;
-                }
-            }
-        },
-        ABSTRACT {
-            @Override
-            public boolean accept(Class<?> clazz) {
-                if (clazz == null) {
-                    return false;
-                }
-                return Modifier.isAbstract(clazz.getModifiers());
-            }
-        },
-        INTERFACE {
-            @Override
-            public boolean accept(Class<?> clazz) {
-                if (clazz == null) {
-                    return false;
-                }
-                return clazz.isInterface();
-            }
-        },
-        PUBLIC {
-            @Override
-            public boolean accept(Class<?> clazz) {
-                if (clazz == null) {
-                    return false;
-                }
-                return Modifier.isPublic(clazz.getModifiers());
-            }
-        },
-        PROTECTED {
-            @Override
-            public boolean accept(Class<?> clazz) {
-                if (clazz == null) {
-                    return false;
-                }
-                return Modifier.isProtected(clazz.getModifiers());
-            }
-        },
-        PRIVATE {
-            @Override
-            public boolean accept(Class<?> clazz) {
-                if (clazz == null) {
-                    return false;
-                }
-                return Modifier.isPrivate(clazz.getModifiers());
-            }
-        };
-
-        public abstract boolean accept(Class<?> clazz);
-
-    }
-
-    /**
-     * 类过滤
-     *
-     * @author wuxii@foxmail.com
-     */
-    public interface ClassFilter {
-
-        /**
-         * 过滤类的信息
-         *
-         * @param clazz
-         * @return
-         */
-        boolean accept(Class<?> clazz);
-
     }
 
 }

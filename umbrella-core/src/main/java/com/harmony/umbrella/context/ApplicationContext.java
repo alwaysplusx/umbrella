@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -25,8 +26,8 @@ import com.harmony.umbrella.io.support.PathMatchingResourcePatternResolver;
 import com.harmony.umbrella.io.support.ResourcePatternResolver;
 import com.harmony.umbrella.log.Log;
 import com.harmony.umbrella.log.Logs;
+import com.harmony.umbrella.util.ClassFilter;
 import com.harmony.umbrella.util.ClassUtils;
-import com.harmony.umbrella.util.ClassUtils.ClassFilter;
 import com.harmony.umbrella.util.ReflectionUtils;
 
 /**
@@ -55,7 +56,8 @@ public abstract class ApplicationContext implements BeanFactory {
             return;
         }
         ApplicationContextInitializer applicationInitializer = null;
-        Class<? extends ApplicationContextInitializer> applicationInitializerClass = appConfig.getApplicationContextInitializerClass();
+        Class<? extends ApplicationContextInitializer> applicationInitializerClass = appConfig
+                .getApplicationContextInitializerClass();
 
         if (applicationInitializerClass == null) {
             applicationInitializerClass = ApplicationContextInitializer.class;
@@ -65,7 +67,7 @@ public abstract class ApplicationContext implements BeanFactory {
         // 初始化应用程序
         applicationInitializer.init(appConfig);
 
-        applicationConfiguration = ApplicationConfiguration.unmodifiableApplicationConfig(appConfig);
+        applicationConfiguration = appConfig;
 
     }
 
@@ -74,7 +76,7 @@ public abstract class ApplicationContext implements BeanFactory {
     }
 
     private static List<Runnable> shutdownHooks = new ArrayList<>();
-    
+
     public static synchronized void shutdown() {
         for (Runnable runnable : shutdownHooks) {
             runnable.run();
@@ -148,6 +150,10 @@ public abstract class ApplicationContext implements BeanFactory {
         return classes.toArray(new Class[classes.size()]);
     }
 
+    static int getApplicationClassSize() {
+        return classes.size();
+    }
+    
     @SuppressWarnings("rawtypes")
     public static Class[] getApplicationClasses(ClassFilter filter) {
         List<Class> result = new ArrayList<Class>();
@@ -298,9 +304,8 @@ public abstract class ApplicationContext implements BeanFactory {
             }
         }
 
-        @SuppressWarnings("rawtypes")
         private void init_application_classes() {
-            List<String> packages = cfg.getPackages();
+            Collection<String> packages = cfg.getScanPackages();
             if (packages != null && !packages.isEmpty()) {
                 classes.clear();
                 ResourcePatternResolver resourcePatternResolver = new PathMatchingResourcePatternResolver();
@@ -309,7 +314,8 @@ public abstract class ApplicationContext implements BeanFactory {
                     try {
                         Resource[] resources = resourcePatternResolver.getResources(resourcePath);
                         for (Resource resource : resources) {
-                            Class<?> clazz = forClass(resource, cfg.isInitializedClassWhenScan());
+                            Class<?> clazz = forClass(resource,
+                                    Boolean.valueOf(cfg.getStringProperty("init-class-when-scan")));
                             if (clazz != null && !classes.contains(clazz)) {
                                 classes.add(clazz);
                             }

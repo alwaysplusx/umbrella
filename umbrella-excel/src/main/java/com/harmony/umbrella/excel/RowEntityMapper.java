@@ -14,7 +14,7 @@ import org.apache.poi.ss.usermodel.Sheet;
 import com.harmony.umbrella.core.Member;
 import com.harmony.umbrella.excel.annotation.ExcelColumn;
 import com.harmony.umbrella.excel.cell.CellResolverFactory;
-import com.harmony.umbrella.util.ClassUtils.ClassFilterFeature;
+import com.harmony.umbrella.util.ClassFilter.ClassFilterFeature;
 import com.harmony.umbrella.util.CollectionUtils;
 import com.harmony.umbrella.util.MemberUtils;
 import com.harmony.umbrella.util.ReflectionUtils;

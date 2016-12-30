@@ -1,8 +1,10 @@
 package com.harmony.umbrella.context;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.ServiceLoader;
 import java.util.Set;
 
 import javax.servlet.ServletContainerInitializer;
@@ -12,125 +14,133 @@ import javax.servlet.ServletContextListener;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.HandlesTypes;
 
+import com.harmony.umbrella.context.listener.ApplicationDestroyListener;
+import com.harmony.umbrella.context.listener.ApplicationEventListener;
+import com.harmony.umbrella.context.listener.ApplicationStartListener;
 import com.harmony.umbrella.context.metadata.ApplicationMetadata;
 import com.harmony.umbrella.context.metadata.DatabaseMetadata;
 import com.harmony.umbrella.context.metadata.JavaMetadata;
 import com.harmony.umbrella.context.metadata.OperatingSystemMetadata;
 import com.harmony.umbrella.context.metadata.ServerMetadata;
 import com.harmony.umbrella.core.OrderComparator;
-import com.harmony.umbrella.util.ClassUtils.ClassFilterFeature;
+import com.harmony.umbrella.log.Logs;
+import com.harmony.umbrella.util.ClassFilter.ClassFilterFeature;
 import com.harmony.umbrella.util.ReflectionUtils;
-import com.harmony.umbrella.util.StringUtils;
 
 /**
  * @author wuxii@foxmail.com
  */
-@HandlesTypes({ ApplicationListener.class })
+@HandlesTypes({ ApplicationEventListener.class })
 public class ApplicationServletContainerInitializer implements ServletContainerInitializer {
 
-    private static final String INIT_PARAM_APPLICATION_CONFIGURATION_BUILDER = "applicationConfigurationBuilder";
-
-    private static final List<Class> HANDLES_TYPES;
-
-    static {
-        Class[] handlesTypes = ApplicationServletContainerInitializer.class.getAnnotation(HandlesTypes.class).value();
-        HANDLES_TYPES = new ArrayList<>();
-        for (Class c : handlesTypes) {
-            if (!HANDLES_TYPES.contains(c)) {
-                HANDLES_TYPES.add(c);
-            }
-        }
-    }
+    private ServletContext servletContext;
 
     @Override
     public void onStartup(Set<Class<?>> c, ServletContext servletContext) throws ServletException {
-        String builderClassName = servletContext.getInitParameter(INIT_PARAM_APPLICATION_CONFIGURATION_BUILDER);
-        if (StringUtils.isBlank(builderClassName)) {
-            builderClassName = ApplicationConfigurationBuilder.class.getName();
-        }
-        ApplicationConfigurationBuilder builder;
+        this.servletContext = servletContext;
+        c = new HashSet<>(c == null ? Collections.emptySet() : c);
+
         try {
-            builder = (ApplicationConfigurationBuilder) ReflectionUtils.instantiateClass(builderClassName);
+            final ApplicationConfiguration cfg = buildApplicationConfiguration();
+
+            // init application static first
+            ApplicationContext.initStatic(cfg);
+
+            if (Boolean.valueOf(getInitParameter("show-info")) || Logs.getLog().isDebugEnabled()) {
+                showApplicationInfo();
+
+            }
+            // must after application static init
+            c.addAll(scanApplicationEventListener());
+
+            if (c.isEmpty()) {
+                servletContext.log("No application ApplicationInitializer types detected on classpath");
+                return;
+            }
+
+            final List<ApplicationEventListener> eventListeners = new ArrayList<ApplicationEventListener>(c.size());
+            for (Class<?> cls : c) {
+                try {
+                    eventListeners.add((ApplicationEventListener) cls.newInstance());
+                } catch (Throwable e) {
+                    throw new ServletException("Failed to instantiate ApplicationInitializer class", e);
+                }
+            }
+
+            OrderComparator.sort(eventListeners);
+
+            servletContext.addListener(new ServletContextListener() {
+
+                @Override
+                public void contextInitialized(ServletContextEvent sce) {
+                    for (int i = 0, max = eventListeners.size(); i < max; i++) {
+                        if (eventListeners instanceof ApplicationStartListener) {
+                            ((ApplicationStartListener) eventListeners.get(i)).onStartup(cfg);
+                        }
+                    }
+                }
+
+                @Override
+                public void contextDestroyed(ServletContextEvent sce) {
+                    for (int i = eventListeners.size() - 1; i >= 0; i--) {
+                        ((ApplicationDestroyListener) eventListeners.get(i)).onDestroy(cfg);
+                    }
+                }
+
+            });
+
         } catch (ClassNotFoundException e) {
             throw new ServletException("can't create application configuration builder", e);
+        } catch (ClassCastException e) {
+            throw new ServletException("application configuration builder type mismatch", e);
         }
-
-        final ApplicationConfiguration cfg = builder.build(servletContext);
-        // init application static metadata information
-        ApplicationContext.initStatic(cfg);
-
-        if (cfg.isDevMode()) {
-            showApplicationInfo();
-        }
-
-        final ApplicationConfiguration unmodifiableApplicationConfig = ApplicationConfiguration.unmodifiableApplicationConfig(cfg);
-
-        if (c == null) {
-            c = new HashSet<>();
-        }
-        c.addAll(findMoreHandlesTypes());
-        final List<ApplicationListener> listeners = new ArrayList<ApplicationListener>();
-        if (!c.isEmpty()) {
-            for (Class<?> cls : c) {
-                if (ClassFilterFeature.NEWABLE.accept(cls)) {
-                    try {
-                        if (ApplicationListener.class.isAssignableFrom(cls)) {
-                            listeners.add((ApplicationListener) cls.newInstance());
-                        }
-                    } catch (Throwable e) {
-                        throw new ServletException("Failed to instantiate ApplicationInitializer class", e);
-                    }
-                }
-            }
-        }
-
-        if (listeners.isEmpty()) {
-            servletContext.log("No application ApplicationInitializer types detected on classpath");
-            return;
-        }
-
-        OrderComparator.sort(listeners);
-
-        servletContext.addListener(new ServletContextListener() {
-
-            @Override
-            public void contextInitialized(ServletContextEvent sce) {
-                for (int i = 0, max = listeners.size(); i < max; i++) {
-                    listeners.get(i).onStartup(unmodifiableApplicationConfig);
-                }
-            }
-
-            @Override
-            public void contextDestroyed(ServletContextEvent sce) {
-                for (int i = listeners.size() - 1; i >= 0; i--) {
-                    listeners.get(i).onDestroy(unmodifiableApplicationConfig);
-                }
-            }
-
-        });
-
     }
 
-    protected Set<Class<?>> findMoreHandlesTypes() throws ServletException {
-        Set<Class<?>> result = new HashSet<>();
+    protected Set<Class<?>> scanApplicationEventListener() throws ServletException {
         // under weblogic just load @HandlesTypes in WEB-INF/lib/*.jar, so load @HandlesTypes manually
-        if (ContextHelper.isWeblogic()) {
+        Set<Class<?>> result = new HashSet<>();
+        if (Boolean.valueOf(getInitParameter("scan-handles-types")) || ContextHelper.isWeblogic()) {
             Class[] classes = ApplicationContext.getApplicationClasses();
             for (Class clazz : classes) {
-                for (Class ht : HANDLES_TYPES) {
-                    if (ht.isAssignableFrom(clazz)) {
-                        result.add(ht);
-                    }
+                if (ClassFilterFeature.NEWABLE.accept(clazz) //
+                        && !result.contains(clazz) //
+                        && ApplicationEventListener.class.isAssignableFrom(clazz)) {
+                    result.add(clazz);
                 }
             }
         }
         return result;
     }
 
+    private String getInitParameter(String name) {
+        return servletContext.getInitParameter(name);
+    }
+
+    private ApplicationConfiguration buildApplicationConfiguration()
+            throws ClassNotFoundException, ClassCastException, ServletException {
+        ApplicationConfiguration appCfg = null;
+        String builderName = getInitParameter("applictionConfigurationBuilder");
+        if (builderName != null) {
+            appCfg = ((ApplicationConfigurationBuilder) ReflectionUtils.instantiateClass(builderName))
+                    .build(servletContext);
+        }
+        if (appCfg == null) {
+            ServiceLoader<ApplicationConfigurationBuilder> providers = ServiceLoader
+                    .load(ApplicationConfigurationBuilder.class);
+            for (ApplicationConfigurationBuilder builder : providers) {
+                appCfg = builder.build(servletContext);
+                if (appCfg != null) {
+                    servletContext.log("load builder " + builder + " to build application configuration by ");
+                    break;
+                }
+            }
+        }
+        return appCfg == null ? new ApplicationConfigurationBuilder().build(servletContext) : appCfg;
+    }
+
     protected void showApplicationInfo() {
 
         StringBuilder out = new StringBuilder();
-
         ApplicationConfiguration cfg = ApplicationContext.getApplicationConfiguration();
         ServerMetadata serverMetadata = ApplicationContext.getServerMetadata();
         JavaMetadata javaMetadata = ApplicationMetadata.getJavaMetadata();
@@ -171,7 +181,8 @@ public class ApplicationServletContainerInitializer implements ServletContainerI
                 .append("\n#          java version : ").append(javaMetadata.javaVersion)//
                 .append("\n#       runtime version : ").append(javaMetadata.runtimeVersion)//
                 .append("\n#")//
-                .append("\n#          app packages : ").append(cfg != null ? cfg.getPackages() : null)//
+                .append("\n#          app packages : ").append(cfg != null ? cfg.getScanPackages() : null)//
+                .append("\n#      app classes size : ").append(ApplicationContext.getApplicationClassSize())//
                 .append("\n################################################################")//
                 .append("\n\n");
         System.out.println(out.toString());

@@ -15,8 +15,8 @@ import com.harmony.umbrella.ee.BeanDefinition;
 import com.harmony.umbrella.ee.util.EJBUtils;
 import com.harmony.umbrella.log.Log;
 import com.harmony.umbrella.log.Logs;
+import com.harmony.umbrella.util.ClassFilter.ClassFilterFeature;
 import com.harmony.umbrella.util.ClassUtils;
-import com.harmony.umbrella.util.ClassUtils.ClassFilterFeature;
 import com.harmony.umbrella.util.StringUtils;
 
 /**
