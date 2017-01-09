@@ -17,7 +17,7 @@ import javax.jms.Session;
  * 
  * @author wuxii@foxmail.com
  */
-public interface JmsConfig {
+public interface JmsTemplate {
 
     /**
      * 配置的开始点

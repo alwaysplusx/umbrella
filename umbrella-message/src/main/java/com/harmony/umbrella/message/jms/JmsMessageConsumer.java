@@ -21,19 +21,19 @@ public interface JmsMessageConsumer extends MessageConsumer {
     /**
      * 通过jms的配置属性消费消息
      * 
-     * @param config
+     * @param jmsTemplate
      *            jms配置属性
      * @return 消费的消息
      * @throws MessageException
      */
-    Message consome(JmsConfig config) throws MessageException;
+    Message consome(JmsTemplate jmsTemplate) throws MessageException;
 
     /**
      * 通过jms配置项目消费消息并指定消费等待时间
      * <p>
      * timeout<0表示及时消费,如果没有消费到消息返回null
      * 
-     * @param config
+     * @param jmsTemplate
      *            jms配置项
      * @param timeout
      *            消费等待时间
@@ -41,20 +41,20 @@ public interface JmsMessageConsumer extends MessageConsumer {
      * @throws MessageException
      * @see {@link javax.jms.MessageConsumer#receiveNoWait()}
      */
-    Message consome(JmsConfig config, long timeout) throws MessageException;
+    Message consome(JmsTemplate jmsTemplate, long timeout) throws MessageException;
 
     /**
      * 消费jms消息
      * 
-     * @param config
+     * @param jmsTemplate
      *            jms配置项
      * @param timeout
      *            消费等待时间
      * @return
      * @throws JMSException
      * @see {@link javax.jms.MessageConsumer#receiveNoWait()}
-     * @see {@linkplain #consome(JmsConfig, long)}
+     * @see {@linkplain #consome(JmsTemplate, long)}
      */
-    javax.jms.Message consmeJmsMessage(JmsConfig config, long timeout) throws JMSException;
+    javax.jms.Message consmeJmsMessage(JmsTemplate jmsTemplate, long timeout) throws JMSException;
 
 }

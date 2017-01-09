@@ -13,7 +13,7 @@ import com.harmony.umbrella.util.Assert;
 /**
  * @author wuxii@foxmail.com
  */
-public class SimpleJmsConfig implements JmsConfig {
+public class SimpleJmsTemplate implements JmsTemplate {
 
     private ConnectionFactory connectionFactory;
     private Destination destination;
@@ -23,7 +23,7 @@ public class SimpleJmsConfig implements JmsConfig {
     private MessageProducer messageProducer;
     private MessageConsumer messageConsumer;
 
-    public SimpleJmsConfig(ConnectionFactory connectionFactory, Destination destination) {
+    public SimpleJmsTemplate(ConnectionFactory connectionFactory, Destination destination) {
         this.connectionFactory = connectionFactory;
         this.destination = destination;
     }

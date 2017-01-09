@@ -22,12 +22,12 @@ public abstract class AbstractJmsMessageProducer implements JmsMessageProducer {
 
     @Override
     public void send(Message message) throws MessageException {
-        send(message, createJmsConfig());
+        send(message, createJmsTemplate());
     }
 
-    public void send(Message message, JmsConfig config) throws MessageException {
+    public void send(Message message, JmsTemplate jmsTemplate) throws MessageException {
         try {
-            sendJmsMessage(message, config);
+            sendJmsMessage(message, jmsTemplate);
         } catch (JMSException e) {
             throw new MessageException(e);
         }
@@ -38,23 +38,23 @@ public abstract class AbstractJmsMessageProducer implements JmsMessageProducer {
      * 
      * @param message
      *            发送的消息
-     * @param config
+     * @param jmsTemplate
      *            jms的属性配置项目
      * @return 发送是否成功标志
      * @throws JMSException
      */
-    protected void sendJmsMessage(Message message, JmsConfig config) throws JMSException {
+    protected void sendJmsMessage(Message message, JmsTemplate jmsTemplate) throws JMSException {
         try {
-            config.start();
-            Session session = config.getSession();
+            jmsTemplate.start();
+            Session session = jmsTemplate.getSession();
             ObjectMessage om = session.createObjectMessage();
             om.setObject(message);
-            config.getMessageProducer().send(om);
+            jmsTemplate.getMessageProducer().send(om);
         } finally {
             try {
-                config.stop();
+                jmsTemplate.stop();
             } catch (Exception e) {
-                log.error("close jms config exception", e);
+                log.error("close jms jmsTemplate exception", e);
             }
         }
     }
@@ -72,8 +72,8 @@ public abstract class AbstractJmsMessageProducer implements JmsMessageProducer {
     /**
      * 创建jms配置项
      */
-    protected JmsConfig createJmsConfig() {
-        return new SimpleJmsConfig(getConnectionFactory(), getDestination());
+    protected JmsTemplate createJmsTemplate() {
+        return new SimpleJmsTemplate(getConnectionFactory(), getDestination());
     }
 
 }

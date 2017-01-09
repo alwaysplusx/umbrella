@@ -18,18 +18,18 @@ public abstract class AbstractJmsMessageConsumer implements JmsMessageConsumer {
 
     @Override
     public Message consome() throws MessageException {
-        return consome(createJmsConfig(), DEFAULT_RECEIVE_TIMEOUT);
+        return consome(createJmsTemplate(), DEFAULT_RECEIVE_TIMEOUT);
     }
 
     @Override
-    public Message consome(JmsConfig config) throws MessageException {
-        return consome(config, DEFAULT_RECEIVE_TIMEOUT);
+    public Message consome(JmsTemplate jmsTemplate) throws MessageException {
+        return consome(jmsTemplate, DEFAULT_RECEIVE_TIMEOUT);
     }
 
     @Override
-    public Message consome(JmsConfig config, long timeout) throws MessageException {
+    public Message consome(JmsTemplate jmsTemplate, long timeout) throws MessageException {
         try {
-            javax.jms.Message jmsMessage = consmeJmsMessage(config, timeout);
+            javax.jms.Message jmsMessage = consmeJmsMessage(jmsTemplate, timeout);
             if (jmsMessage == null) {
                 return null;
             }
@@ -51,18 +51,18 @@ public abstract class AbstractJmsMessageConsumer implements JmsMessageConsumer {
     }
 
     @Override
-    public javax.jms.Message consmeJmsMessage(JmsConfig config, long timeout) throws JMSException {
+    public javax.jms.Message consmeJmsMessage(JmsTemplate jmsTemplate, long timeout) throws JMSException {
         try {
-            config.start();
-            MessageConsumer consumer = config.getMessageConsumer();
+            jmsTemplate.start();
+            MessageConsumer consumer = jmsTemplate.getMessageConsumer();
             return timeout < 0 ? consumer.receiveNoWait() : consumer.receive(timeout);
         } finally {
-            config.stop();
+            jmsTemplate.stop();
         }
     }
 
-    protected JmsConfig createJmsConfig() {
-        return new SimpleJmsConfig(getConnectionFactory(), getDestination());
+    protected JmsTemplate createJmsTemplate() {
+        return new SimpleJmsTemplate(getConnectionFactory(), getDestination());
     }
 
     /**
