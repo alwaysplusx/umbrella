@@ -22,7 +22,7 @@ public abstract class AbstractJmsMessageProducer implements JmsMessageProducer {
 
     @Override
     public void send(Message message) throws MessageException {
-        send(message, createJmsTemplate());
+        send(message, getJmsTemplate());
     }
 
     public void send(Message message, JmsTemplate jmsTemplate) throws MessageException {
@@ -31,6 +31,14 @@ public abstract class AbstractJmsMessageProducer implements JmsMessageProducer {
         } catch (JMSException e) {
             throw new MessageException(e);
         }
+    }
+
+    @Override
+    public <T extends javax.jms.Message> void send(MessageConfiger<T> messageConfiger) throws JMSException {
+        JmsTemplate jmsTemplate = getJmsTemplate();
+        Session session = jmsTemplate.getSession();
+        javax.jms.Message message = messageConfiger.create(session);
+        jmsTemplate.getMessageProducer().send(message);
     }
 
     /**
@@ -72,7 +80,7 @@ public abstract class AbstractJmsMessageProducer implements JmsMessageProducer {
     /**
      * 创建jms配置项
      */
-    protected JmsTemplate createJmsTemplate() {
+    protected JmsTemplate getJmsTemplate() {
         return new SimpleJmsTemplate(getConnectionFactory(), getDestination());
     }
 

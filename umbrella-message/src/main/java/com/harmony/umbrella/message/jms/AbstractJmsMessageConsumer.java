@@ -18,7 +18,7 @@ public abstract class AbstractJmsMessageConsumer implements JmsMessageConsumer {
 
     @Override
     public Message consome() throws MessageException {
-        return consome(createJmsTemplate(), DEFAULT_RECEIVE_TIMEOUT);
+        return consome(getJmsTemplate(), DEFAULT_RECEIVE_TIMEOUT);
     }
 
     @Override
@@ -61,7 +61,7 @@ public abstract class AbstractJmsMessageConsumer implements JmsMessageConsumer {
         }
     }
 
-    protected JmsTemplate createJmsTemplate() {
+    protected JmsTemplate getJmsTemplate() {
         return new SimpleJmsTemplate(getConnectionFactory(), getDestination());
     }
 
