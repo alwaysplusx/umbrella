@@ -1,5 +1,7 @@
 package com.harmony.umbrella.message;
 
+import javax.jms.Message;
+
 /**
  * 消息解析
  *

@@ -1,4 +1,4 @@
-package com.harmony.umbrella.message.jms;
+package com.harmony.umbrella.message;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -63,4 +63,7 @@ public interface JmsTemplate {
      */
     Destination getDestination();
 
+    void commit() throws JMSException;
+
+    void rollback() throws JMSException;
 }

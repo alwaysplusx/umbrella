@@ -74,8 +74,9 @@ public class ApplicationServletContainerInitializer implements ServletContainerI
                 @Override
                 public void contextInitialized(ServletContextEvent sce) {
                     for (int i = 0, max = eventListeners.size(); i < max; i++) {
-                        if (eventListeners instanceof ApplicationStartListener) {
-                            ((ApplicationStartListener) eventListeners.get(i)).onStartup(cfg);
+                        ApplicationEventListener listener = eventListeners.get(i);
+                        if (listener instanceof ApplicationStartListener) {
+                            ((ApplicationStartListener) listener).onStartup(cfg);
                         }
                     }
                 }
@@ -83,7 +84,10 @@ public class ApplicationServletContainerInitializer implements ServletContainerI
                 @Override
                 public void contextDestroyed(ServletContextEvent sce) {
                     for (int i = eventListeners.size() - 1; i >= 0; i--) {
-                        ((ApplicationDestroyListener) eventListeners.get(i)).onDestroy(cfg);
+                        ApplicationEventListener listener = eventListeners.get(i);
+                        if (listener instanceof ApplicationDestroyListener) {
+                            ((ApplicationDestroyListener) listener).onDestroy(cfg);
+                        }
                     }
                 }
 
@@ -116,17 +120,14 @@ public class ApplicationServletContainerInitializer implements ServletContainerI
         return servletContext.getInitParameter(name);
     }
 
-    private ApplicationConfiguration buildApplicationConfiguration()
-            throws ClassNotFoundException, ClassCastException, ServletException {
+    private ApplicationConfiguration buildApplicationConfiguration() throws ClassNotFoundException, ClassCastException, ServletException {
         ApplicationConfiguration appCfg = null;
         String builderName = getInitParameter("applictionConfigurationBuilder");
         if (builderName != null) {
-            appCfg = ((ApplicationConfigurationBuilder) ReflectionUtils.instantiateClass(builderName))
-                    .build(servletContext);
+            appCfg = ((ApplicationConfigurationBuilder) ReflectionUtils.instantiateClass(builderName)).build(servletContext);
         }
         if (appCfg == null) {
-            ServiceLoader<ApplicationConfigurationBuilder> providers = ServiceLoader
-                    .load(ApplicationConfigurationBuilder.class);
+            ServiceLoader<ApplicationConfigurationBuilder> providers = ServiceLoader.load(ApplicationConfigurationBuilder.class);
             for (ApplicationConfigurationBuilder builder : providers) {
                 appCfg = builder.build(servletContext);
                 if (appCfg != null) {
