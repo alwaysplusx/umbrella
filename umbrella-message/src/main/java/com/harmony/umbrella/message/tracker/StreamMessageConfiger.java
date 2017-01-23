@@ -14,9 +14,6 @@ import com.harmony.umbrella.message.MessageHelper.MessageAppender;
  */
 public class StreamMessageConfiger extends AbstractMessageConfiger<StreamMessage> {
 
-    /**
-     * 
-     */
     private static final long serialVersionUID = -1513563775655520426L;
 
     private InputStream is;

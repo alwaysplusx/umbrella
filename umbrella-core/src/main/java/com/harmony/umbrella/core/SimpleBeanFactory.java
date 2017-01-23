@@ -23,6 +23,10 @@ public class SimpleBeanFactory implements BeanFactory, Serializable {
     protected SimpleBeanFactory() {
     }
 
+    @Override
+    public void autowrie(Object bean) throws BeansException {
+    }
+
     @SuppressWarnings("unchecked")
     @Override
     public <T> T getBean(String beanName) {

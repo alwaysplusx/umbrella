@@ -41,8 +41,9 @@ public abstract class ApplicationContext implements BeanFactory {
 
     protected static final ThreadLocal<CurrentContext> current = new InheritableThreadLocal<CurrentContext>();
 
-    @SuppressWarnings("rawtypes")
     private static final List<Class> classes = new Vector<Class>();
+
+    private static final List<Runnable> shutdownHooks = new ArrayList<>();
 
     private static ServerMetadata serverMetadata = ApplicationMetadata.EMPTY_SERVER_METADATA;
 
@@ -56,8 +57,7 @@ public abstract class ApplicationContext implements BeanFactory {
             return;
         }
         ApplicationContextInitializer applicationInitializer = null;
-        Class<? extends ApplicationContextInitializer> applicationInitializerClass = appConfig
-                .getApplicationContextInitializerClass();
+        Class<? extends ApplicationContextInitializer> applicationInitializerClass = appConfig.getApplicationContextInitializerClass();
 
         if (applicationInitializerClass == null) {
             applicationInitializerClass = ApplicationContextInitializer.class;
@@ -74,8 +74,6 @@ public abstract class ApplicationContext implements BeanFactory {
     public static synchronized void start(ApplicationConfiguration appConfig) {
         initStatic(appConfig);
     }
-
-    private static List<Runnable> shutdownHooks = new ArrayList<>();
 
     public static synchronized void shutdown() {
         for (Runnable runnable : shutdownHooks) {
@@ -145,7 +143,6 @@ public abstract class ApplicationContext implements BeanFactory {
         current.set(cc);
     }
 
-    @SuppressWarnings("rawtypes")
     public static Class[] getApplicationClasses() {
         return classes.toArray(new Class[classes.size()]);
     }
@@ -153,8 +150,7 @@ public abstract class ApplicationContext implements BeanFactory {
     static int getApplicationClassSize() {
         return classes.size();
     }
-    
-    @SuppressWarnings("rawtypes")
+
     public static Class[] getApplicationClasses(ClassFilter filter) {
         List<Class> result = new ArrayList<Class>();
         for (Class c : classes) {
@@ -181,6 +177,11 @@ public abstract class ApplicationContext implements BeanFactory {
      * 销毁bean工厂
      */
     public abstract void destroy();
+
+    @Override
+    public void autowrie(Object bean) throws BeansException {
+        getBeanFactory().autowrie(bean);
+    }
 
     @Override
     public <T> T getBean(Class<T> beanClass) throws BeansException {
@@ -314,8 +315,7 @@ public abstract class ApplicationContext implements BeanFactory {
                     try {
                         Resource[] resources = resourcePatternResolver.getResources(resourcePath);
                         for (Resource resource : resources) {
-                            Class<?> clazz = forClass(resource,
-                                    Boolean.valueOf(cfg.getStringProperty("init-class-when-scan")));
+                            Class<?> clazz = forClass(resource, Boolean.valueOf(cfg.getStringProperty("init-class-when-scan")));
                             if (clazz != null && !classes.contains(clazz)) {
                                 classes.add(clazz);
                             }

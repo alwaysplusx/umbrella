@@ -13,9 +13,6 @@ import com.harmony.umbrella.message.MessageHelper.MessageAppender;
  */
 public class ObjectMessageConfiger extends AbstractMessageConfiger<ObjectMessage> {
 
-    /**
-     * 
-     */
     private static final long serialVersionUID = -4357148380966416521L;
     private Serializable object;
 

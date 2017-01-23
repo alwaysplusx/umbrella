@@ -17,6 +17,8 @@ public interface BeanFactory {
      */
     String PROTOTYPE = "prototype";
 
+    void autowrie(Object bean) throws BeansException;
+
     /**
      * 根据bean的名称加载指定bean，默认获取单例的bean
      *

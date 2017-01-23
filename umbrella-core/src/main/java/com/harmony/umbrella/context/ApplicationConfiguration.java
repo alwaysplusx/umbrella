@@ -24,7 +24,9 @@ public interface ApplicationConfiguration {
     List<ConnectionSource> getConnectionSources();
 
     Object getProperty(String key);
-    
+
     String getStringProperty(String key);
+
+    Runnable[] getShutdownHook();
 
 }

@@ -11,9 +11,6 @@ import com.harmony.umbrella.message.MessageHelper.MessageAppender;
  */
 public class BytesMessageConfiger extends AbstractMessageConfiger<BytesMessage> {
 
-    /**
-     * 
-     */
     private static final long serialVersionUID = 3410905359933302863L;
     private byte[] buf;
 

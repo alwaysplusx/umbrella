@@ -22,7 +22,9 @@ import com.harmony.umbrella.context.ApplicationContext.ApplicationContextInitial
 import com.harmony.umbrella.core.ConnectionSource;
 import com.harmony.umbrella.log.Log;
 import com.harmony.umbrella.log.Logs;
+import com.harmony.umbrella.util.ClassFilter.ClassFilterFeature;
 import com.harmony.umbrella.util.ClassUtils;
+import com.harmony.umbrella.util.ReflectionUtils;
 import com.harmony.umbrella.util.StringUtils;
 
 /**
@@ -54,10 +56,13 @@ public class ApplicationConfigurationBuilder {
 
     public static final String INIT_PARAM_INITIALIZER = "applicationInitializer";
 
+    public static final String INIT_PARAM_SHUTDOWN_HOOKS = "shutdownHooks";
+
     private ServletContext servletContext;
     private Set<String> scanPackages;
     private Map properties;
     private List<ConnectionSource> connectionSources;
+    private List<Class<Runnable>> shutdownHookClasses;
     private Class<? extends ApplicationContextInitializer> applicationContextInitializerClass;
 
     protected ApplicationConfigurationBuilder() {
@@ -68,7 +73,7 @@ public class ApplicationConfigurationBuilder {
         this.scanPackages = new LinkedHashSet<>();
         this.properties = new HashMap<>();
         this.connectionSources = new ArrayList<>();
-
+        this.shutdownHookClasses = new ArrayList<>();
         // scan-packages
         String[] pkgs = getInitParameters(INIT_PARAM_SCAN_PACKAGES, APPLICATION_PACKAGE);
         for (String p : pkgs) {
@@ -88,12 +93,26 @@ public class ApplicationConfigurationBuilder {
             }
         }
 
+        // shutdown hooks
+        String[] shutdownHookNames = getInitParameters(INIT_PARAM_SHUTDOWN_HOOKS);
+        for (String hook : shutdownHookNames) {
+            try {
+                Class hookClass = ClassUtils.forName(hook);
+                if (Runnable.class.isAssignableFrom(hookClass) && ClassFilterFeature.NEWABLE.accept(hookClass)) {
+                    shutdownHookClasses.add(hookClass);
+                } else {
+                    log.warn("{} not type of {}", hookClass, Runnable.class);
+                }
+            } catch (ClassNotFoundException e) {
+                log.warn("shutdown hook {} not found", hook, e);
+            }
+        }
+
         // application initializer
         String initializerName = getInitParameter(INIT_PARAM_INITIALIZER);
         if (initializerName != null) {
             try {
-                this.applicationContextInitializerClass = (Class<? extends ApplicationContextInitializer>) Class
-                        .forName(initializerName, true, ClassUtils.getDefaultClassLoader());
+                this.applicationContextInitializerClass = (Class<? extends ApplicationContextInitializer>) Class.forName(initializerName, true, ClassUtils.getDefaultClassLoader());
             } catch (ClassNotFoundException e) {
                 throw new ServletException("Can't init class " + initializerName, e);
             } catch (ClassCastException e) {
@@ -139,6 +158,15 @@ public class ApplicationConfigurationBuilder {
             @Override
             public Class<? extends ApplicationContextInitializer> getApplicationContextInitializerClass() {
                 return applicationContextInitializerClass;
+            }
+
+            @Override
+            public Runnable[] getShutdownHook() {
+                List<Runnable> result = new ArrayList<>(shutdownHookClasses.size());
+                for (Class<Runnable> cls : shutdownHookClasses) {
+                    result.add(ReflectionUtils.instantiateClass(cls));
+                }
+                return result.toArray(new Runnable[result.size()]);
             }
         };
     }

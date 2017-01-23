@@ -11,9 +11,6 @@ import com.harmony.umbrella.message.MessageHelper.MessageAppender;
 
 public class MapMessageConfiger extends AbstractMessageConfiger<MapMessage> {
 
-    /**
-     * 
-     */
     private static final long serialVersionUID = 2091868113420068661L;
     private Map map;
     protected boolean skipNotSatisfiedEntry;

@@ -25,6 +25,8 @@ import javax.jms.TextMessage;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
+import com.harmony.umbrella.message.listener.PhaseMessageListener;
+import com.harmony.umbrella.message.listener.SimpleDynamicMessageListener;
 import com.harmony.umbrella.message.tracker.BytesMessageConfiger;
 import com.harmony.umbrella.message.tracker.MapMessageConfiger;
 import com.harmony.umbrella.message.tracker.ObjectMessageConfiger;
@@ -49,9 +51,9 @@ public class MessageHelper {
     private int acknowledgeMode;
 
     protected MessageTrackers trackers;
-    private DynamicMessageListener messageListener;
+    private SimpleDynamicMessageListener messageListener;
     private boolean sessionAutoCommit;
-    private boolean listenerStarted;
+    private boolean autoStartListener;
 
     public MessageHelper() {
     }
@@ -106,6 +108,29 @@ public class MessageHelper {
 
     public void sendMessage(MessageConfiger configer) throws JMSException {
         JmsTemplate jmsTemplate = getJmsTemplate();
+        Message message = null;
+        try {
+            jmsTemplate.start();
+            Session session = jmsTemplate.getSession();
+            MessageProducer producer = jmsTemplate.getMessageProducer();
+            message = configer.message(session);
+            message.setJMSDestination(jmsTemplate.getDestination());
+            message.setJMSTimestamp(System.currentTimeMillis());
+            trackers.onBeforeSend(message);
+            producer.send(message);
+            trackers.onAfterSend(message);
+        } catch (JMSException e) {
+            if (message != null) {
+                trackers.onSendException(message, e);
+            }
+            throw e;
+        } finally {
+            jmsTemplate.stop();
+        }
+    }
+
+    public void sendMessageQuietly(MessageConfiger configer) throws JMSException {
+        JmsTemplate jmsTemplate = getJmsTemplate();
         try {
             jmsTemplate.start();
             Session session = jmsTemplate.getSession();
@@ -113,9 +138,7 @@ public class MessageHelper {
             Message message = configer.message(session);
             message.setJMSDestination(jmsTemplate.getDestination());
             message.setJMSTimestamp(System.currentTimeMillis());
-            // phase before
             producer.send(message);
-            // phase after
         } finally {
             jmsTemplate.stop();
         }
@@ -130,9 +153,25 @@ public class MessageHelper {
         try {
             jmsTemplate.start();
             MessageConsumer consumer = jmsTemplate.getMessageConsumer();
-            return timeout < 0 ? consumer.receiveNoWait() : consumer.receive(timeout);
+            Message message = timeout < 0 ? consumer.receiveNoWait() : consumer.receive(timeout);
+            return message;
         } finally {
             jmsTemplate.stop();
+        }
+    }
+
+    public void setListener(MessageListener listener) {
+        if (messageListener != null) {
+            messageListener.setMessageListener(listener);
+        } else {
+            messageListener = wrap(listener);
+            if (autoStartListener) {
+                try {
+                    startListener();
+                } catch (JMSException e) {
+                    new IllegalStateException("can't start message listener " + messageListener, e);
+                }
+            }
         }
     }
 
@@ -140,11 +179,10 @@ public class MessageHelper {
         if (messageListener == null) {
             throw new IllegalStateException("message listener not set");
         }
-        if (this.listenerStarted) {
+        if (messageListener.isStarted()) {
             throw new IllegalStateException("listener already started");
         }
         this.messageListener.start();
-        this.listenerStarted = true;
     }
 
     public void stopListener() throws JMSException {
@@ -158,25 +196,33 @@ public class MessageHelper {
                 messageListener = null;
             }
         }
-        this.listenerStarted = false;
     }
 
-    public MessageListener getMessageListener() throws JMSException {
+    public MessageListener getMessageListener() {
         MessageListener result = messageListener;
-        /*while (true) {
+        while (true) {
             if (result instanceof SimpleDynamicMessageListener) {
                 result = ((SimpleDynamicMessageListener) result).getMessageListener();
-            } else if (result instanceof PhaseDynamicMessageListener) {
-                result = ((PhaseDynamicMessageListener) result).listener;
+            } else if (result instanceof PhaseMessageListener) {
+                result = ((PhaseMessageListener) result).getMessageListener();
             } else {
                 break;
             }
-        }*/
+        }
         return result;
+    }
+
+    public MessageTrackers getMessageTrackers() {
+        return trackers;
     }
 
     public JmsTemplate getJmsTemplate() {
         return new HelperJmsTemplate();
+    }
+
+    private SimpleDynamicMessageListener wrap(MessageListener listener) {
+        JmsTemplate jmsTemplate = getJmsTemplate();
+        return new SimpleDynamicMessageListener(jmsTemplate, new PhaseMessageListener(trackers, listener));
     }
 
     private class HelperJmsTemplate implements JmsTemplate {
@@ -188,6 +234,11 @@ public class MessageHelper {
 
         private boolean sessionRrollbacked;
         private boolean sessionCommited;
+
+        @Override
+        public boolean isStated() {
+            return connection != null;
+        }
 
         @Override
         public void start() throws JMSException {
@@ -295,43 +346,26 @@ public class MessageHelper {
 
     }
 
-    /**
-     * 消息创建外部接口
-     * 
-     * @author wuxii@foxmail.com
-     */
-    public interface MessageConfiger extends Serializable {
-
-        Message message(Session session) throws JMSException;
-
-    }
-
-    /**
-     * 消息中需要而外属性时候的扩展接口
-     * 
-     * @author wuxii@foxmail.com
-     */
-    public interface MessageAppender<T extends Message> extends Serializable {
-
-        void append(T message);
-
-    }
-
     public static class MessageHelperBuilder<T extends MessageHelperBuilder<T>> {
+
+        protected ConnectionFactory connectionFactory;
+        protected Destination destination;
 
         protected String username;
         protected String password;
-        protected ConnectionFactory connectionFactory;
-        protected Destination destination;
-        protected String connectionFactoryJNDI;
-        protected String destinationJNDI;
         protected boolean transacted = true;
         protected int acknowledgeMode = Session.AUTO_ACKNOWLEDGE;
-        protected Properties properties = new Properties();
         protected boolean sessionAutoCommit = true;
         protected boolean autoStartListener = true;
+
         protected List<MessageTracker> trackers = new ArrayList<>();
+
         protected Class<? extends MessageListener> messageListenerClass;
+        protected MessageListener messageListener;
+
+        protected String connectionFactoryJNDI;
+        protected String destinationJNDI;
+        protected Properties contextProperties = new Properties();
 
         public T username(String username) {
             this.username = username;
@@ -364,12 +398,12 @@ public class MessageHelper {
         }
 
         public T contextProperties(String name, String value) {
-            properties.setProperty(name, value);
+            contextProperties.setProperty(name, value);
             return (T) this;
         }
 
         public T contextProperties(Properties properties) {
-            properties.putAll(properties);
+            contextProperties.putAll(properties);
             return (T) this;
         }
 
@@ -415,6 +449,11 @@ public class MessageHelper {
             return (T) this;
         }
 
+        public T messageListener(MessageListener messageListener) {
+            this.messageListener = messageListener;
+            return (T) this;
+        }
+
         public MessageHelper build() {
             final ConnectionFactory connectionFactory;
             final Destination destination;
@@ -426,7 +465,7 @@ public class MessageHelper {
             }
             if (this.connectionFactory == null) {
                 try {
-                    InitialContext context = new InitialContext();
+                    InitialContext context = new InitialContext(contextProperties);
                     connectionFactory = (ConnectionFactory) context.lookup(connectionFactoryJNDI);
                 } catch (NamingException e) {
                     throw new IllegalStateException(connectionFactoryJNDI + " connection factory not found", e);
@@ -436,7 +475,7 @@ public class MessageHelper {
             }
             if (this.destination == null) {
                 try {
-                    InitialContext context = new InitialContext();
+                    InitialContext context = new InitialContext(contextProperties);
                     destination = (Destination) context.lookup(destinationJNDI);
                 } catch (NamingException e) {
                     throw new IllegalStateException(destinationJNDI + " destination not found", e);
@@ -444,6 +483,7 @@ public class MessageHelper {
             } else {
                 destination = this.destination;
             }
+
             MessageHelper helper = new MessageHelper();
             helper.connectionFactory = connectionFactory;
             helper.destination = destination;
@@ -452,11 +492,37 @@ public class MessageHelper {
             helper.username = this.username;
             helper.password = this.password;
             helper.sessionAutoCommit = this.sessionAutoCommit;
+            helper.autoStartListener = this.autoStartListener;
             helper.trackers = new MessageTrackers(this.trackers);
-            // TODO message listener
-            helper.messageListener = null;
+            final MessageListener listener = (messageListener == null && messageListenerClass != null)
+                    ? ReflectionUtils.instantiateClass(this.messageListenerClass) : messageListener;
+            if (listener != null) {
+                helper.setListener(listener);
+            }
             return helper;
         }
+
+    }
+
+    /**
+     * 消息创建外部接口
+     * 
+     * @author wuxii@foxmail.com
+     */
+    public interface MessageConfiger extends Serializable {
+
+        Message message(Session session) throws JMSException;
+
+    }
+
+    /**
+     * 消息中需要而外属性时候的扩展接口
+     * 
+     * @author wuxii@foxmail.com
+     */
+    public interface MessageAppender<T extends Message> extends Serializable {
+
+        void append(T message);
 
     }
 }

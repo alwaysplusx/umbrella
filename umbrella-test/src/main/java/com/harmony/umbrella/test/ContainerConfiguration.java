@@ -9,7 +9,7 @@ import java.lang.annotation.Target;
 /**
  * @author wuxii@foxmail.com
  */
-@Target({ElementType.TYPE})
+@Target({ ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ContainerConfiguration {
 
@@ -19,14 +19,6 @@ public @interface ContainerConfiguration {
 
     public String location() default "";
 
-    ActiveProperty[] properties() default {};
-
-    public @interface ActiveProperty {
-
-        public String name();
-
-        public String value();
-
-    }
+    Property[] properties() default {};
 
 }
