@@ -33,11 +33,16 @@ public class SimpleDynamicMessageListener implements DynamicMessageListener {
 
     @Override
     public void onMessage(Message message) {
-        this.messageListener.onMessage(message);
         try {
+            this.messageListener.onMessage(message);
             this.jmsTemplate.commit();
-        } catch (JMSException e) {
-            throw new IllegalStateException(e);
+        } catch (Exception e) {
+            try {
+                this.jmsTemplate.rollback();
+            } catch (JMSException e1) {
+                throw new IllegalStateException("rollback failed!", e);
+            }
+            throw new IllegalStateException("message consume failed!", e);
         }
     }
 

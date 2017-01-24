@@ -4,6 +4,7 @@ import org.apache.cxf.message.Exchange;
 import org.apache.cxf.service.invoker.AbstractInvoker;
 
 import com.harmony.umbrella.core.BeanFactory;
+import com.harmony.umbrella.core.BeansException;
 import com.harmony.umbrella.core.NoSuchBeanFoundException;
 import com.harmony.umbrella.core.SimpleBeanFactory;
 import com.harmony.umbrella.log.Log;
@@ -52,6 +53,11 @@ public class SimpleBeanFactoryInvoker extends AbstractInvoker implements BeanFac
     public Object getServiceObject(Exchange context) {
         log.debug("get instance [{}({})] from [{}]", serviceClass.getName(), PROTOTYPE, beanFactory);
         return getBean(serviceClass, PROTOTYPE);
+    }
+
+    @Override
+    public void autowrie(Object bean) throws BeansException {
+        beanFactory.autowrie(bean);
     }
 
 }

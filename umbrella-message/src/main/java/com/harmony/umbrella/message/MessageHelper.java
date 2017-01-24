@@ -37,6 +37,8 @@ import com.harmony.umbrella.util.ReflectionUtils;
 import com.harmony.umbrella.util.StringUtils;
 
 /**
+ * 消息发送helper
+ * 
  * @author wuxii@foxmail.com
  */
 public class MessageHelper {
@@ -58,10 +60,26 @@ public class MessageHelper {
     public MessageHelper() {
     }
 
+    /**
+     * 发送bytes message
+     * 
+     * @param buf
+     *            bytes
+     * @throws JMSException
+     */
     public void sendBytesMessage(byte[] buf) throws JMSException {
         sendBytesMessage(buf, null);
     }
 
+    /**
+     * 发送bytes message
+     * 
+     * @param buf
+     *            bytes
+     * @param appender
+     *            消息appender
+     * @throws JMSException
+     */
     public void sendBytesMessage(byte[] buf, MessageAppender<BytesMessage> appender) throws JMSException {
         sendMessage(new BytesMessageConfiger(buf, appender));
     }
@@ -106,6 +124,13 @@ public class MessageHelper {
         sendMessage(new StreamMessageConfiger(is, appender));
     }
 
+    /**
+     * 发送消息, 通过定制的消息{@linkplain MessageConfiger}configer来创建定制化的消息
+     * 
+     * @param configer
+     *            定制化消息创建器
+     * @throws JMSException
+     */
     public void sendMessage(MessageConfiger configer) throws JMSException {
         JmsTemplate jmsTemplate = getJmsTemplate();
         Message message = null;
@@ -123,6 +148,7 @@ public class MessageHelper {
             if (message != null) {
                 trackers.onSendException(message, e);
             }
+            jmsTemplate.rollback();
             throw e;
         } finally {
             jmsTemplate.stop();
@@ -139,6 +165,9 @@ public class MessageHelper {
             message.setJMSDestination(jmsTemplate.getDestination());
             message.setJMSTimestamp(System.currentTimeMillis());
             producer.send(message);
+        } catch (JMSException e) {
+            jmsTemplate.rollback();
+            throw e;
         } finally {
             jmsTemplate.stop();
         }
@@ -155,6 +184,9 @@ public class MessageHelper {
             MessageConsumer consumer = jmsTemplate.getMessageConsumer();
             Message message = timeout < 0 ? consumer.receiveNoWait() : consumer.receive(timeout);
             return message;
+        } catch (JMSException e) {
+            jmsTemplate.rollback();
+            throw e;
         } finally {
             jmsTemplate.stop();
         }
@@ -165,12 +197,12 @@ public class MessageHelper {
             messageListener.setMessageListener(listener);
         } else {
             messageListener = wrap(listener);
-            if (autoStartListener) {
-                try {
-                    startListener();
-                } catch (JMSException e) {
-                    new IllegalStateException("can't start message listener " + messageListener, e);
-                }
+        }
+        if (autoStartListener) {
+            try {
+                startListener();
+            } catch (JMSException e) {
+                new IllegalStateException("can't start message listener " + messageListener, e);
             }
         }
     }

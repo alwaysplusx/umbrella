@@ -3,6 +3,7 @@ package com.harmony.umbrella.ws.cxf;
 import org.apache.cxf.message.Message;
 
 import com.harmony.umbrella.core.BeanFactory;
+import com.harmony.umbrella.core.BeansException;
 import com.harmony.umbrella.core.NoSuchBeanFoundException;
 import com.harmony.umbrella.core.SimpleBeanFactory;
 import com.harmony.umbrella.ws.jaxrs.JaxRsServerBuilder.BeanFactoryProvider;
@@ -69,6 +70,11 @@ public class SimpleBeanFactoryProvider implements BeanFactoryProvider {
     @Override
     public <T> T getBean(Class<T> beanClass, String scope) throws NoSuchBeanFoundException {
         return beanFactory.getBean(beanClass, scope);
+    }
+
+    @Override
+    public void autowrie(Object bean) throws BeansException {
+        beanFactory.autowrie(bean);
     }
 
 }
