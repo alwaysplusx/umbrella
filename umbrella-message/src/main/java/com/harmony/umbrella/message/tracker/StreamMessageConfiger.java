@@ -7,7 +7,7 @@ import javax.jms.JMSException;
 import javax.jms.Session;
 import javax.jms.StreamMessage;
 
-import com.harmony.umbrella.message.MessageHelper.MessageAppender;
+import com.harmony.umbrella.message.MessageTemplate.MessageAppender;
 
 /**
  * @author wuxii@foxmail.com

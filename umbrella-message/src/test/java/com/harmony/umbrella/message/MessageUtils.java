@@ -6,6 +6,8 @@ import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.TextMessage;
 
+import com.harmony.umbrella.message.support.SimpleJmsTemplate;
+
 /**
  * @author wuxii@foxmail.com
  */

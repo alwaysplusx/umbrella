@@ -1,4 +1,4 @@
-package com.harmony.umbrella.message;
+package com.harmony.umbrella.message.support;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -8,25 +8,30 @@ import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 
+import com.harmony.umbrella.message.JmsTemplate;
+import com.harmony.umbrella.util.StringUtils;
+
 /**
- * jms配置的基础实现
- * 
  * @author wuxii@foxmail.com
  */
 public class SimpleJmsTemplate implements JmsTemplate {
 
+    protected String username;
+    protected String password;
+    protected boolean transacted;
+    protected int acknowledgeMode;
     protected boolean sessionAutoCommit;
 
     protected ConnectionFactory connectionFactory;
     protected Destination destination;
 
-    private boolean sessionRrollbacked;
-    private boolean sessionCommited;
-
     private Connection connection;
     private Session session;
     private MessageProducer messageProducer;
     private MessageConsumer messageConsumer;
+
+    private boolean sessionRrollbacked;
+    private boolean sessionCommited;
 
     public SimpleJmsTemplate() {
     }
@@ -49,42 +54,12 @@ public class SimpleJmsTemplate implements JmsTemplate {
 
     @Override
     public void start() throws JMSException {
-        // stop/clear first
-        stop();
-        this.connection = connectionFactory.createConnection();
+        if (StringUtils.isNotBlank(username)) {
+            this.connection = connectionFactory.createConnection(username, password);
+        } else {
+            this.connection = connectionFactory.createConnection();
+        }
         this.connection.start();
-    }
-
-    @Override
-    public Connection getConnection() throws JMSException {
-        if (connection == null) {
-            throw new IllegalStateException("connection not start");
-        }
-        return connection;
-    }
-
-    @Override
-    public Session getSession() throws JMSException {
-        if (session == null) {
-            session = connection.createSession(true, Session.AUTO_ACKNOWLEDGE);
-        }
-        return session;
-    }
-
-    @Override
-    public MessageProducer getMessageProducer() throws JMSException {
-        if (messageProducer == null) {
-            messageProducer = getSession().createProducer(destination);
-        }
-        return messageProducer;
-    }
-
-    @Override
-    public MessageConsumer getMessageConsumer() throws JMSException {
-        if (messageConsumer == null) {
-            messageConsumer = getSession().createConsumer(destination);
-        }
-        return messageConsumer;
     }
 
     @Override
@@ -127,6 +102,35 @@ public class SimpleJmsTemplate implements JmsTemplate {
     }
 
     @Override
+    public Connection getConnection() throws JMSException {
+        return connection;
+    }
+
+    @Override
+    public Session getSession() throws JMSException {
+        if (session == null) {
+            session = connection.createSession(transacted, acknowledgeMode);
+        }
+        return session;
+    }
+
+    @Override
+    public MessageProducer getMessageProducer() throws JMSException {
+        if (messageProducer == null) {
+            messageProducer = getSession().createProducer(destination);
+        }
+        return messageProducer;
+    }
+
+    @Override
+    public MessageConsumer getMessageConsumer() throws JMSException {
+        if (messageConsumer == null) {
+            messageConsumer = getSession().createConsumer(destination);
+        }
+        return messageConsumer;
+    }
+
+    @Override
     public ConnectionFactory getConnectionFactory() {
         return connectionFactory;
     }
@@ -134,22 +138,6 @@ public class SimpleJmsTemplate implements JmsTemplate {
     @Override
     public Destination getDestination() {
         return destination;
-    }
-
-    public void setConnectionFactory(ConnectionFactory connectionFactory) {
-        this.connectionFactory = connectionFactory;
-    }
-
-    public void setDestination(Destination destination) {
-        this.destination = destination;
-    }
-
-    public boolean isSessionAutoCommit() {
-        return sessionAutoCommit;
-    }
-
-    public void setSessionAutoCommit(boolean sessionAutoCommit) {
-        this.sessionAutoCommit = sessionAutoCommit;
     }
 
     @Override
@@ -166,6 +154,46 @@ public class SimpleJmsTemplate implements JmsTemplate {
             session.rollback();
             sessionRrollbacked = true;
         }
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public boolean isTransacted() {
+        return transacted;
+    }
+
+    public void setTransacted(boolean transacted) {
+        this.transacted = transacted;
+    }
+
+    public boolean isSessionAutoCommit() {
+        return sessionAutoCommit;
+    }
+
+    public void setSessionAutoCommit(boolean sessionAutoCommit) {
+        this.sessionAutoCommit = sessionAutoCommit;
+    }
+
+    public void setConnectionFactory(ConnectionFactory connectionFactory) {
+        this.connectionFactory = connectionFactory;
+    }
+
+    public void setDestination(Destination destination) {
+        this.destination = destination;
     }
 
 }

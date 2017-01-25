@@ -28,17 +28,17 @@ public class MessageTest {
 
     @Test
     public void test() throws JMSException, InterruptedException {
-        messageHelper.setListener(m -> {
+        messageHelper.setMessageListener(m -> {
             System.out.println("receive message " + m);
         });
         messageHelper.sendTextMessage("Hello World!");
-        messageHelper.stopListener();
+        messageHelper.stopMessageListener();
     }
 
     public static void main(String[] args) throws JMSException {
         beforeClass();
         Scanner scan = new Scanner(System.in);
-        messageHelper.setListener(m -> {
+        messageHelper.setMessageListener(m -> {
             System.err.println("receive message " + m);
         });
         while (true) {
@@ -48,7 +48,7 @@ public class MessageTest {
             }
             messageHelper.sendTextMessage(text);
         }
-        messageHelper.stopListener();
+        messageHelper.stopMessageListener();
         scan.close();
         System.exit(0);
     }

@@ -8,8 +8,6 @@ import javax.jms.MessageListener;
  */
 public interface DynamicMessageListener extends MessageListener {
 
-    boolean isStarted();
-
     void start() throws JMSException;
 
     void stop() throws JMSException;

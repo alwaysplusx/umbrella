@@ -2,11 +2,7 @@ package com.harmony.umbrella.message;
 
 import java.io.InputStream;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 import javax.jms.BytesMessage;
 import javax.jms.Connection;
@@ -22,8 +18,6 @@ import javax.jms.ObjectMessage;
 import javax.jms.Session;
 import javax.jms.StreamMessage;
 import javax.jms.TextMessage;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
 
 import com.harmony.umbrella.message.listener.PhaseMessageListener;
 import com.harmony.umbrella.message.listener.SimpleDynamicMessageListener;
@@ -32,8 +26,6 @@ import com.harmony.umbrella.message.tracker.MapMessageConfiger;
 import com.harmony.umbrella.message.tracker.ObjectMessageConfiger;
 import com.harmony.umbrella.message.tracker.StreamMessageConfiger;
 import com.harmony.umbrella.message.tracker.TextMessageConfiger;
-import com.harmony.umbrella.util.ClassFilter.ClassFilterFeature;
-import com.harmony.umbrella.util.ReflectionUtils;
 import com.harmony.umbrella.util.StringUtils;
 
 /**
@@ -41,21 +33,20 @@ import com.harmony.umbrella.util.StringUtils;
  * 
  * @author wuxii@foxmail.com
  */
-public class MessageHelper {
+public class MessageHelper implements MessageTemplate {
 
-    private ConnectionFactory connectionFactory;
-    private Destination destination;
+    ConnectionFactory connectionFactory;
+    Destination destination;
 
-    // 
-    private String username;
-    private String password;
-    private boolean transacted;
-    private int acknowledgeMode;
+    String username;
+    String password;
+    boolean transacted;
+    int acknowledgeMode;
 
-    protected MessageTrackers trackers;
-    private SimpleDynamicMessageListener messageListener;
-    private boolean sessionAutoCommit;
-    private boolean autoStartListener;
+    MessageTrackers trackers;
+    SimpleDynamicMessageListener messageListener;
+    boolean sessionAutoCommit;
+    boolean autoStartListener;
 
     public MessageHelper() {
     }
@@ -67,6 +58,7 @@ public class MessageHelper {
      *            bytes
      * @throws JMSException
      */
+    @Override
     public void sendBytesMessage(byte[] buf) throws JMSException {
         sendBytesMessage(buf, null);
     }
@@ -80,46 +72,57 @@ public class MessageHelper {
      *            消息appender
      * @throws JMSException
      */
+    @Override
     public void sendBytesMessage(byte[] buf, MessageAppender<BytesMessage> appender) throws JMSException {
         sendMessage(new BytesMessageConfiger(buf, appender));
     }
 
+    @Override
     public void sendObjectMessage(Serializable obj) throws JMSException {
         sendObjectMessage(obj, null);
     }
 
+    @Override
     public void sendObjectMessage(Serializable obj, MessageAppender<ObjectMessage> appender) throws JMSException {
         sendMessage(new ObjectMessageConfiger(obj, appender));
     }
 
+    @Override
     public void sendMapMessage(Map map) throws JMSException {
         sendMapMessage(map, false, null);
     }
 
+    @Override
     public void sendMapMessage(Map map, boolean skipNotStatisfiedEntry) throws JMSException {
         sendMapMessage(map, skipNotStatisfiedEntry, null);
     }
 
+    @Override
     public void sendMapMessage(Map map, MessageAppender<MapMessage> appender) throws JMSException {
         sendMapMessage(map, false, appender);
     }
 
+    @Override
     public void sendMapMessage(Map map, boolean skipNotStatisfiedEntry, MessageAppender<MapMessage> appender) throws JMSException {
         sendMessage(new MapMessageConfiger(map, skipNotStatisfiedEntry, appender));
     }
 
+    @Override
     public void sendTextMessage(String text) throws JMSException {
         sendTextMessage(text, null);
     }
 
+    @Override
     public void sendTextMessage(String text, MessageAppender<TextMessage> appender) throws JMSException {
         sendMessage(new TextMessageConfiger(text, appender));
     }
 
+    @Override
     public void sendStreamMessage(InputStream is) throws JMSException {
         sendStreamMessage(is, null);
     }
 
+    @Override
     public void sendStreamMessage(InputStream is, MessageAppender<StreamMessage> appender) throws JMSException {
         sendMessage(new StreamMessageConfiger(is, appender));
     }
@@ -131,6 +134,7 @@ public class MessageHelper {
      *            定制化消息创建器
      * @throws JMSException
      */
+    @Override
     public void sendMessage(MessageConfiger configer) throws JMSException {
         JmsTemplate jmsTemplate = getJmsTemplate();
         Message message = null;
@@ -173,10 +177,12 @@ public class MessageHelper {
         }
     }
 
+    @Override
     public Message receiveMessage() throws JMSException {
         return receiveMessage(-1);
     }
 
+    @Override
     public Message receiveMessage(long timeout) throws JMSException {
         JmsTemplate jmsTemplate = getJmsTemplate();
         try {
@@ -192,7 +198,8 @@ public class MessageHelper {
         }
     }
 
-    public void setListener(MessageListener listener) {
+    @Override
+    public void setMessageListener(MessageListener listener) {
         if (messageListener != null) {
             messageListener.setMessageListener(listener);
         } else {
@@ -200,28 +207,28 @@ public class MessageHelper {
         }
         if (autoStartListener) {
             try {
-                startListener();
+                startMessageListener();
             } catch (JMSException e) {
                 new IllegalStateException("can't start message listener " + messageListener, e);
             }
         }
     }
 
-    public void startListener() throws JMSException {
+    @Override
+    public void startMessageListener() throws JMSException {
         if (messageListener == null) {
             throw new IllegalStateException("message listener not set");
-        }
-        if (messageListener.isStarted()) {
-            throw new IllegalStateException("listener already started");
         }
         this.messageListener.start();
     }
 
-    public void stopListener() throws JMSException {
-        stopListener(false);
+    @Override
+    public void stopMessageListener() throws JMSException {
+        stopMessageListener(false);
     }
 
-    public void stopListener(boolean remove) throws JMSException {
+    @Override
+    public void stopMessageListener(boolean remove) throws JMSException {
         if (messageListener != null) {
             messageListener.stop();
             if (remove) {
@@ -230,6 +237,7 @@ public class MessageHelper {
         }
     }
 
+    @Override
     public MessageListener getMessageListener() {
         MessageListener result = messageListener;
         while (true) {
@@ -244,10 +252,12 @@ public class MessageHelper {
         return result;
     }
 
+    @Override
     public MessageTrackers getMessageTrackers() {
         return trackers;
     }
 
+    @Override
     public JmsTemplate getJmsTemplate() {
         return new HelperJmsTemplate();
     }
@@ -378,183 +388,80 @@ public class MessageHelper {
 
     }
 
-    public static class MessageHelperBuilder<T extends MessageHelperBuilder<T>> {
-
-        protected ConnectionFactory connectionFactory;
-        protected Destination destination;
-
-        protected String username;
-        protected String password;
-        protected boolean transacted = true;
-        protected int acknowledgeMode = Session.AUTO_ACKNOWLEDGE;
-        protected boolean sessionAutoCommit = true;
-        protected boolean autoStartListener = true;
-
-        protected List<MessageTracker> trackers = new ArrayList<>();
-
-        protected Class<? extends MessageListener> messageListenerClass;
-        protected MessageListener messageListener;
-
-        protected String connectionFactoryJNDI;
-        protected String destinationJNDI;
-        protected Properties contextProperties = new Properties();
-
-        public T username(String username) {
-            this.username = username;
-            return (T) this;
-        }
-
-        public T password(String password) {
-            this.password = password;
-            return (T) this;
-        }
-
-        public T connectionFactory(ConnectionFactory connectionFactory) {
-            this.connectionFactory = connectionFactory;
-            return (T) this;
-        }
-
-        public T destination(Destination destination) {
-            this.destination = destination;
-            return (T) this;
-        }
-
-        public T transacted(boolean transacted) {
-            this.transacted = transacted;
-            return (T) this;
-        }
-
-        public T acknowledgeMode(int acknowledgeMode) {
-            this.acknowledgeMode = acknowledgeMode;
-            return (T) this;
-        }
-
-        public T contextProperties(String name, String value) {
-            contextProperties.setProperty(name, value);
-            return (T) this;
-        }
-
-        public T contextProperties(Properties properties) {
-            contextProperties.putAll(properties);
-            return (T) this;
-        }
-
-        public T connectionFactoryJNDI(String connectionFactoryJNDI) {
-            this.connectionFactoryJNDI = connectionFactoryJNDI;
-            return (T) this;
-        }
-
-        public T destinationJNDI(String destinationJNDI) {
-            this.destinationJNDI = destinationJNDI;
-            return (T) this;
-        }
-
-        public T sessionAutoCommit(boolean sessionAutoCommit) {
-            this.sessionAutoCommit = sessionAutoCommit;
-            return (T) this;
-        }
-
-        public T autoStartListener(boolean autoStartListener) {
-            this.autoStartListener = autoStartListener;
-            return (T) this;
-        }
-
-        public T messageTracker(MessageTracker... messageTracker) {
-            this.trackers.addAll(Arrays.asList(messageTracker));
-            return (T) this;
-        }
-
-        public T messageTracker(Class<? extends MessageTracker>... messageTrackerClass) {
-            List<MessageTracker> trackers = new ArrayList<>(messageTrackerClass.length);
-            for (Class<? extends MessageTracker> cls : messageTrackerClass) {
-                trackers.add(ReflectionUtils.instantiateClass(cls));
-            }
-            this.trackers.addAll(trackers);
-            return (T) this;
-        }
-
-        public T messageListener(Class<? extends MessageListener> messageListenerClass) {
-            if (!ClassFilterFeature.NEWABLE.accept(messageListenerClass)) {
-                throw new IllegalArgumentException("can't create message listener " + messageListenerClass);
-            }
-            this.messageListenerClass = messageListenerClass;
-            return (T) this;
-        }
-
-        public T messageListener(MessageListener messageListener) {
-            this.messageListener = messageListener;
-            return (T) this;
-        }
-
-        public MessageHelper build() {
-            final ConnectionFactory connectionFactory;
-            final Destination destination;
-            if (this.connectionFactory == null && this.connectionFactoryJNDI == null) {
-                throw new IllegalStateException("connection factory not set");
-            }
-            if (this.destination == null && this.destinationJNDI == null) {
-                throw new IllegalStateException("destinaction not set");
-            }
-            if (this.connectionFactory == null) {
-                try {
-                    InitialContext context = new InitialContext(contextProperties);
-                    connectionFactory = (ConnectionFactory) context.lookup(connectionFactoryJNDI);
-                } catch (NamingException e) {
-                    throw new IllegalStateException(connectionFactoryJNDI + " connection factory not found", e);
-                }
-            } else {
-                connectionFactory = this.connectionFactory;
-            }
-            if (this.destination == null) {
-                try {
-                    InitialContext context = new InitialContext(contextProperties);
-                    destination = (Destination) context.lookup(destinationJNDI);
-                } catch (NamingException e) {
-                    throw new IllegalStateException(destinationJNDI + " destination not found", e);
-                }
-            } else {
-                destination = this.destination;
-            }
-
-            MessageHelper helper = new MessageHelper();
-            helper.connectionFactory = connectionFactory;
-            helper.destination = destination;
-            helper.acknowledgeMode = acknowledgeMode;
-            helper.transacted = transacted;
-            helper.username = this.username;
-            helper.password = this.password;
-            helper.sessionAutoCommit = this.sessionAutoCommit;
-            helper.autoStartListener = this.autoStartListener;
-            helper.trackers = new MessageTrackers(this.trackers);
-            final MessageListener listener = (messageListener == null && messageListenerClass != null)
-                    ? ReflectionUtils.instantiateClass(this.messageListenerClass) : messageListener;
-            if (listener != null) {
-                helper.setListener(listener);
-            }
-            return helper;
-        }
-
+    public ConnectionFactory getConnectionFactory() {
+        return connectionFactory;
     }
 
-    /**
-     * 消息创建外部接口
-     * 
-     * @author wuxii@foxmail.com
-     */
-    public interface MessageConfiger extends Serializable {
-
-        Message message(Session session) throws JMSException;
-
+    public void setConnectionFactory(ConnectionFactory connectionFactory) {
+        this.connectionFactory = connectionFactory;
     }
 
-    /**
-     * 消息中需要而外属性时候的扩展接口
-     * 
-     * @author wuxii@foxmail.com
-     */
-    public interface MessageAppender<T extends Message> extends Serializable {
-
-        void append(T message);
-
+    public Destination getDestination() {
+        return destination;
     }
+
+    public void setDestination(Destination destination) {
+        this.destination = destination;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public boolean isTransacted() {
+        return transacted;
+    }
+
+    public void setTransacted(boolean transacted) {
+        this.transacted = transacted;
+    }
+
+    public int getAcknowledgeMode() {
+        return acknowledgeMode;
+    }
+
+    public void setAcknowledgeMode(int acknowledgeMode) {
+        this.acknowledgeMode = acknowledgeMode;
+    }
+
+    public MessageTrackers getTrackers() {
+        return trackers;
+    }
+
+    public void setTrackers(MessageTrackers trackers) {
+        this.trackers = trackers;
+    }
+
+    public boolean isSessionAutoCommit() {
+        return sessionAutoCommit;
+    }
+
+    public void setSessionAutoCommit(boolean sessionAutoCommit) {
+        this.sessionAutoCommit = sessionAutoCommit;
+    }
+
+    public boolean isAutoStartListener() {
+        return autoStartListener;
+    }
+
+    public void setAutoStartListener(boolean autoStartListener) {
+        this.autoStartListener = autoStartListener;
+    }
+
+    public void setMessageListener(SimpleDynamicMessageListener messageListener) {
+        this.messageListener = messageListener;
+    }
+
 }

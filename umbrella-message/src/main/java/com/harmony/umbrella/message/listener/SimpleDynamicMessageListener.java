@@ -64,7 +64,7 @@ public class SimpleDynamicMessageListener implements DynamicMessageListener {
     }
 
     public void setMessageListener(MessageListener messageListener) {
-        if (isStarted()) {
+        if (jmsTemplate.isStated()) {
             throw new IllegalArgumentException("listener is started, can't set message listener");
         }
         this.messageListener = messageListener;
@@ -72,11 +72,6 @@ public class SimpleDynamicMessageListener implements DynamicMessageListener {
 
     public MessageListener getMessageListener() {
         return messageListener == null ? this : messageListener;
-    }
-
-    @Override
-    public boolean isStarted() {
-        return jmsTemplate.isStated();
     }
 
 }

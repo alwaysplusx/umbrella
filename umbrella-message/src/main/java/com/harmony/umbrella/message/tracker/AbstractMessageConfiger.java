@@ -4,8 +4,8 @@ import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.Session;
 
-import com.harmony.umbrella.message.MessageHelper.MessageAppender;
-import com.harmony.umbrella.message.MessageHelper.MessageConfiger;
+import com.harmony.umbrella.message.MessageTemplate.MessageAppender;
+import com.harmony.umbrella.message.MessageTemplate.MessageConfiger;
 
 /**
  * @author wuxii@foxmail.com
