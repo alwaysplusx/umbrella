@@ -30,10 +30,6 @@ import com.harmony.umbrella.util.StringUtils;
 /**
  * 应用程序配置构建builder, 依赖servletContext来创建应用配置
  * 
- * <pre>
- * 
- * </pre>
- * 
  * @author wuxii@foxmail.com
  */
 public class ApplicationConfigurationBuilder {
@@ -41,22 +37,22 @@ public class ApplicationConfigurationBuilder {
     public static final String APPLICATION_PACKAGE;
     public static final String APPLICATION_DATASOURCE;
 
+    public static final String INIT_PARAM_DATASOURCE = "harmony.datasource";
+
+    public static final String INIT_PARAM_SCAN_PACKAGES = "harmony.scan-packages";
+
+    public static final String INIT_PARAM_INITIALIZER = "harmony.applicationInitializer";
+
+    public static final String INIT_PARAM_SHUTDOWN_HOOKS = "harmony.shutdownHooks";
+
     static {
-        APPLICATION_PACKAGE = System.getProperty("harmony.scan-package", "com.harmony");
-        APPLICATION_DATASOURCE = System.getProperty("harmony.datasource", "jdbc/harmony");
+        APPLICATION_PACKAGE = System.getProperty(INIT_PARAM_SCAN_PACKAGES, "com.harmony");
+        APPLICATION_DATASOURCE = System.getProperty(INIT_PARAM_DATASOURCE, "jdbc/harmony");
     }
 
     private static final Log log = Logs.getLog(ApplicationConfigurationBuilder.class);
 
     protected static final Pattern PACKAGE_PATTERN = Pattern.compile("^[a-zA-Z]+[0-9a-zA-Z]*");
-
-    public static final String INIT_PARAM_DATASOURCE = "datasource";
-
-    public static final String INIT_PARAM_SCAN_PACKAGES = "scan-packages";
-
-    public static final String INIT_PARAM_INITIALIZER = "applicationInitializer";
-
-    public static final String INIT_PARAM_SHUTDOWN_HOOKS = "shutdownHooks";
 
     private ServletContext servletContext;
     private Set<String> scanPackages;
@@ -68,8 +64,12 @@ public class ApplicationConfigurationBuilder {
     protected ApplicationConfigurationBuilder() {
     }
 
-    public ApplicationConfiguration build(ServletContext servletContext) throws ServletException {
+    ApplicationConfiguration doBuild(ServletContext servletContext) throws ServletException {
         this.servletContext = servletContext;
+        return build();
+    }
+
+    public ApplicationConfiguration build() throws ServletException {
         this.scanPackages = new LinkedHashSet<>();
         this.properties = new HashMap<>();
         this.connectionSources = new ArrayList<>();
@@ -86,7 +86,7 @@ public class ApplicationConfigurationBuilder {
         String[] jndis = getInitParameters(INIT_PARAM_DATASOURCE, APPLICATION_DATASOURCE);
         for (String jndi : jndis) {
             try {
-                DataSource ds = getDataSource(jndi);
+                DataSource ds = lookup(jndi);
                 connectionSources.add(new DataSourceConnectionSource(ds));
             } catch (SQLException e) {
                 log.warn("Can not connection to datasource {}", jndi);
@@ -112,7 +112,8 @@ public class ApplicationConfigurationBuilder {
         String initializerName = getInitParameter(INIT_PARAM_INITIALIZER);
         if (initializerName != null) {
             try {
-                this.applicationContextInitializerClass = (Class<? extends ApplicationContextInitializer>) Class.forName(initializerName, true, ClassUtils.getDefaultClassLoader());
+                this.applicationContextInitializerClass = (Class<? extends ApplicationContextInitializer>) Class.forName(initializerName, true,
+                        ClassUtils.getDefaultClassLoader());
             } catch (ClassNotFoundException e) {
                 throw new ServletException("Can't init class " + initializerName, e);
             } catch (ClassCastException e) {
@@ -171,6 +172,10 @@ public class ApplicationConfigurationBuilder {
         };
     }
 
+    public ServletContext getServletContext() {
+        return servletContext;
+    }
+
     private void addPackage(String p) {
         Iterator<String> it = scanPackages.iterator();
         while (it.hasNext()) {
@@ -202,16 +207,16 @@ public class ApplicationConfigurationBuilder {
         return true;
     }
 
-    private String getInitParameter(String key) {
+    protected String getInitParameter(String key) {
         return servletContext.getInitParameter(key);
     }
 
-    private String[] getInitParameters(String key, String... defaultValue) {
+    protected String[] getInitParameters(String key, String... defaultValue) {
         String value = getInitParameter(key);
         return value != null ? StringUtils.tokenizeToStringArray(value, ",") : defaultValue;
     }
 
-    private DataSource getDataSource(String jndi) throws SQLException {
+    protected DataSource lookup(String jndi) throws SQLException {
         try {
             InitialContext ctx = new InitialContext();
             return (DataSource) ctx.lookup(jndi);

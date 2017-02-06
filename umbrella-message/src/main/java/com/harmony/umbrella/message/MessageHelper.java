@@ -5,7 +5,6 @@ import java.io.Serializable;
 import java.util.Map;
 
 import javax.jms.BytesMessage;
-import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.Destination;
 import javax.jms.JMSException;
@@ -21,12 +20,12 @@ import javax.jms.TextMessage;
 
 import com.harmony.umbrella.message.listener.PhaseMessageListener;
 import com.harmony.umbrella.message.listener.SimpleDynamicMessageListener;
+import com.harmony.umbrella.message.support.SimpleJmsTemplate;
 import com.harmony.umbrella.message.tracker.BytesMessageConfiger;
 import com.harmony.umbrella.message.tracker.MapMessageConfiger;
 import com.harmony.umbrella.message.tracker.ObjectMessageConfiger;
 import com.harmony.umbrella.message.tracker.StreamMessageConfiger;
 import com.harmony.umbrella.message.tracker.TextMessageConfiger;
-import com.harmony.umbrella.util.StringUtils;
 
 /**
  * 消息发送helper
@@ -34,7 +33,7 @@ import com.harmony.umbrella.util.StringUtils;
  * @author wuxii@foxmail.com
  */
 public class MessageHelper implements MessageTemplate {
-
+    
     ConnectionFactory connectionFactory;
     Destination destination;
 
@@ -159,24 +158,6 @@ public class MessageHelper implements MessageTemplate {
         }
     }
 
-    public void sendMessageQuietly(MessageConfiger configer) throws JMSException {
-        JmsTemplate jmsTemplate = getJmsTemplate();
-        try {
-            jmsTemplate.start();
-            Session session = jmsTemplate.getSession();
-            MessageProducer producer = jmsTemplate.getMessageProducer();
-            Message message = configer.message(session);
-            message.setJMSDestination(jmsTemplate.getDestination());
-            message.setJMSTimestamp(System.currentTimeMillis());
-            producer.send(message);
-        } catch (JMSException e) {
-            jmsTemplate.rollback();
-            throw e;
-        } finally {
-            jmsTemplate.stop();
-        }
-    }
-
     @Override
     public Message receiveMessage() throws JMSException {
         return receiveMessage(-1);
@@ -259,133 +240,18 @@ public class MessageHelper implements MessageTemplate {
 
     @Override
     public JmsTemplate getJmsTemplate() {
-        return new HelperJmsTemplate();
+        SimpleJmsTemplate jmsTemplate = new SimpleJmsTemplate(connectionFactory, destination);
+        jmsTemplate.setUsername(username);
+        jmsTemplate.setPassword(password);
+        jmsTemplate.setSessionAutoCommit(sessionAutoCommit);
+        jmsTemplate.setTransacted(transacted);
+        jmsTemplate.setAcknowledgeMode(acknowledgeMode);
+        return jmsTemplate;
     }
 
     private SimpleDynamicMessageListener wrap(MessageListener listener) {
         JmsTemplate jmsTemplate = getJmsTemplate();
         return new SimpleDynamicMessageListener(jmsTemplate, new PhaseMessageListener(trackers, listener));
-    }
-
-    private class HelperJmsTemplate implements JmsTemplate {
-
-        private Connection connection;
-        private Session session;
-        private MessageProducer messageProducer;
-        private MessageConsumer messageConsumer;
-
-        private boolean sessionRrollbacked;
-        private boolean sessionCommited;
-
-        @Override
-        public boolean isStated() {
-            return connection != null;
-        }
-
-        @Override
-        public void start() throws JMSException {
-            if (StringUtils.isNotBlank(username)) {
-                this.connection = connectionFactory.createConnection(username, password);
-            } else {
-                this.connection = connectionFactory.createConnection();
-            }
-            this.connection.start();
-        }
-
-        @Override
-        public void stop() {
-            if (sessionAutoCommit && !sessionRrollbacked && !sessionCommited) {
-                try {
-                    commit();
-                } catch (JMSException e) {
-                    throw new IllegalStateException("session not commit", e);
-                }
-            }
-            if (messageConsumer != null) {
-                try {
-                    messageConsumer.close();
-                } catch (JMSException e) {
-                }
-                messageConsumer = null;
-            }
-            if (messageProducer != null) {
-                try {
-                    messageProducer.close();
-                } catch (JMSException e) {
-                }
-                messageProducer = null;
-            }
-            if (session != null) {
-                try {
-                    session.close();
-                } catch (JMSException e) {
-                }
-                session = null;
-            }
-            if (connection != null) {
-                try {
-                    connection.close();
-                } catch (Exception e) {
-                }
-                connection = null;
-            }
-        }
-
-        @Override
-        public Connection getConnection() throws JMSException {
-            return connection;
-        }
-
-        @Override
-        public Session getSession() throws JMSException {
-            if (session == null) {
-                session = connection.createSession(transacted, acknowledgeMode);
-            }
-            return session;
-        }
-
-        @Override
-        public MessageProducer getMessageProducer() throws JMSException {
-            if (messageProducer == null) {
-                messageProducer = getSession().createProducer(destination);
-            }
-            return messageProducer;
-        }
-
-        @Override
-        public MessageConsumer getMessageConsumer() throws JMSException {
-            if (messageConsumer == null) {
-                messageConsumer = getSession().createConsumer(destination);
-            }
-            return messageConsumer;
-        }
-
-        @Override
-        public ConnectionFactory getConnectionFactory() {
-            return connectionFactory;
-        }
-
-        @Override
-        public Destination getDestination() {
-            return destination;
-        }
-
-        @Override
-        public void commit() throws JMSException {
-            if (session != null) {
-                session.commit();
-                sessionCommited = true;
-            }
-        }
-
-        @Override
-        public void rollback() throws JMSException {
-            if (session != null) {
-                session.rollback();
-                sessionRrollbacked = true;
-            }
-        }
-
     }
 
     public ConnectionFactory getConnectionFactory() {

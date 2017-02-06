@@ -54,17 +54,17 @@ public class SimpleDynamicMessageListener implements DynamicMessageListener {
     }
 
     public void setJmsTemplate(JmsTemplate jmsTemplate) {
-        if (jmsTemplate.isStated()) {
+        if (jmsTemplate.isStarted()) {
             throw new IllegalStateException("outer jmsTemplate is already started");
         }
-        if (this.jmsTemplate != null && this.jmsTemplate.isStated()) {
+        if (this.jmsTemplate != null && this.jmsTemplate.isStarted()) {
             throw new IllegalStateException("inner jmsTemplate is already started");
         }
         this.jmsTemplate = jmsTemplate;
     }
 
     public void setMessageListener(MessageListener messageListener) {
-        if (jmsTemplate.isStated()) {
+        if (jmsTemplate.isStarted()) {
             throw new IllegalArgumentException("listener is started, can't set message listener");
         }
         this.messageListener = messageListener;

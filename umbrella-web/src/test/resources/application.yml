@@ -1,0 +1,10 @@
+harmony:
+  initializer: com.harmony.umbrella.context.ApplicationContext.ApplicationContextInitializer
+  datasource: jdbc/platform
+  scan-packages: com.harmony
+activemq:
+  connector:
+  - tcp://localhost:61616
+  - vm://localhost
+  netwrokconnector:
+  - http://192.168.1.1:61616

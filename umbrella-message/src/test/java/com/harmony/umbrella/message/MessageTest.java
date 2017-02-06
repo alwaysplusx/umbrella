@@ -8,7 +8,7 @@ import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import com.harmony.umbrella.message.activemq.ActiveMQMessageHelperBuilder;
+import com.harmony.umbrella.message.activemq.ActiveMQMessageTemplateBuilder;
 
 /**
  * @author wuxii@foxmail.com
@@ -16,11 +16,11 @@ import com.harmony.umbrella.message.activemq.ActiveMQMessageHelperBuilder;
 @Ignore
 public class MessageTest {
 
-    private static MessageHelper messageHelper;
+    private static MessageTemplate messageTemplate;
 
     @BeforeClass
     public static void beforeClass() {
-        messageHelper = new ActiveMQMessageHelperBuilder()//
+        messageTemplate = new ActiveMQMessageTemplateBuilder()//
                 .connectionFactoryURL("tcp://localhost:61616")//
                 .queueName("queue")//
                 .build();
@@ -28,17 +28,17 @@ public class MessageTest {
 
     @Test
     public void test() throws JMSException, InterruptedException {
-        messageHelper.setMessageListener(m -> {
+        messageTemplate.setMessageListener(m -> {
             System.out.println("receive message " + m);
         });
-        messageHelper.sendTextMessage("Hello World!");
-        messageHelper.stopMessageListener();
+        messageTemplate.sendTextMessage("Hello World!");
+        messageTemplate.stopMessageListener();
     }
 
     public static void main(String[] args) throws JMSException {
         beforeClass();
         Scanner scan = new Scanner(System.in);
-        messageHelper.setMessageListener(m -> {
+        messageTemplate.setMessageListener(m -> {
             System.err.println("receive message " + m);
         });
         while (true) {
@@ -46,9 +46,9 @@ public class MessageTest {
             if (text.equals("exit")) {
                 break;
             }
-            messageHelper.sendTextMessage(text);
+            messageTemplate.sendTextMessage(text);
         }
-        messageHelper.stopMessageListener();
+        messageTemplate.stopMessageListener();
         scan.close();
         System.exit(0);
     }

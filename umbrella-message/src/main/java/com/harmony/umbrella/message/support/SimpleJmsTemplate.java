@@ -48,7 +48,7 @@ public class SimpleJmsTemplate implements JmsTemplate {
     }
 
     @Override
-    public boolean isStated() {
+    public boolean isStarted() {
         return connection != null;
     }
 
@@ -178,6 +178,14 @@ public class SimpleJmsTemplate implements JmsTemplate {
 
     public void setTransacted(boolean transacted) {
         this.transacted = transacted;
+    }
+
+    public int getAcknowledgeMode() {
+        return acknowledgeMode;
+    }
+
+    public void setAcknowledgeMode(int acknowledgeMode) {
+        this.acknowledgeMode = acknowledgeMode;
     }
 
     public boolean isSessionAutoCommit() {

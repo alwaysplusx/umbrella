@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
@@ -81,6 +82,7 @@
     <netty.version>5.0.0.Alpha2</netty.version>
     <jackson.version>2.6.2</jackson.version>
     <jetty.version> 9.4.0.v20161208</jetty.version>
+    <snakeyaml.version>1.17</snakeyaml.version>
   </properties>
 
   <dependencyManagement>
@@ -512,6 +514,11 @@
         <groupId>org.activiti</groupId>
         <artifactId>activiti-engine</artifactId>
         <version>${activiti.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.yaml</groupId>
+        <artifactId>snakeyaml</artifactId>
+        <version>${snakeyaml.version}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>

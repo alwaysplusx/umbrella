@@ -7,41 +7,41 @@ import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.command.ActiveMQQueue;
 import org.apache.activemq.command.ActiveMQTopic;
 
-import com.harmony.umbrella.message.MessageHelperBuilder;
+import com.harmony.umbrella.message.MessageTemplateBuilder;
 
 /**
  * @author wuxii@foxmail.com
  */
-public class ActiveMQMessageHelperBuilder extends MessageHelperBuilder<ActiveMQMessageHelperBuilder> {
+public class ActiveMQMessageTemplateBuilder extends MessageTemplateBuilder<ActiveMQMessageTemplateBuilder> {
 
-    public static ActiveMQMessageHelperBuilder createBuilder() {
-        return new ActiveMQMessageHelperBuilder();
+    public static ActiveMQMessageTemplateBuilder createBuilder() {
+        return new ActiveMQMessageTemplateBuilder();
     }
 
-    public static ActiveMQMessageHelperBuilder createBuilder(ConnectionFactory connectionFactory, Destination destination) {
-        return new ActiveMQMessageHelperBuilder().connectionFactory(connectionFactory).destination(destination);
+    public static ActiveMQMessageTemplateBuilder createBuilder(ConnectionFactory connectionFactory, Destination destination) {
+        return new ActiveMQMessageTemplateBuilder().connectionFactory(connectionFactory).destination(destination);
     }
 
-    public static ActiveMQMessageHelperBuilder createBuilder(String brokerUrl, String destinationName) {
-        return new ActiveMQMessageHelperBuilder().connectionFactoryURL(brokerUrl).destinationName(destinationName);
+    public static ActiveMQMessageTemplateBuilder createBuilder(String brokerUrl, String destinationName) {
+        return new ActiveMQMessageTemplateBuilder().connectionFactoryURL(brokerUrl).destinationName(destinationName);
     }
 
-    public ActiveMQMessageHelperBuilder connectionFactoryURL(String url) {
+    public ActiveMQMessageTemplateBuilder connectionFactoryURL(String url) {
         this.connectionFactory = new ActiveMQConnectionFactory(url);
         return this;
     }
 
-    public ActiveMQMessageHelperBuilder queueName(String queueName) {
+    public ActiveMQMessageTemplateBuilder queueName(String queueName) {
         this.destination = new ActiveMQQueue(queueName);
         return this;
     }
 
-    public ActiveMQMessageHelperBuilder topicName(String topicName) {
+    public ActiveMQMessageTemplateBuilder topicName(String topicName) {
         this.destination = new ActiveMQTopic(topicName);
         return this;
     }
 
-    public ActiveMQMessageHelperBuilder destinationName(String destinationName) {
+    public ActiveMQMessageTemplateBuilder destinationName(String destinationName) {
         final Destination dest;
         if (destinationName.startsWith("topic://") && destinationName.length() > 8) {
             dest = new ActiveMQTopic(destinationName.substring(8));

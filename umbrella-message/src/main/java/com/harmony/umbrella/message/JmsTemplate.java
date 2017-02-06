@@ -24,7 +24,7 @@ public interface JmsTemplate {
      * 
      * @return true is started
      */
-    boolean isStated();
+    boolean isStarted();
 
     /**
      * 启动jmsTemplate

@@ -46,9 +46,9 @@ public class ApplicationServletContainerInitializer implements ServletContainerI
             // init application static first
             ApplicationContext.initStatic(cfg);
 
-            if (Boolean.valueOf(getInitParameter("show-info")) || Logs.getLog().isDebugEnabled()) {
+            if (Boolean.valueOf(getInitParameter("show-info")) || Logs.getLog().isDebugEnabled()
+                    || Boolean.valueOf(cfg.getStringProperty("application.show-info"))) {
                 showApplicationInfo();
-
             }
             // must after application static init
             c.addAll(scanApplicationEventListener());
@@ -124,19 +124,20 @@ public class ApplicationServletContainerInitializer implements ServletContainerI
         ApplicationConfiguration appCfg = null;
         String builderName = getInitParameter("applictionConfigurationBuilder");
         if (builderName != null) {
-            appCfg = ((ApplicationConfigurationBuilder) ReflectionUtils.instantiateClass(builderName)).build(servletContext);
+            ApplicationConfigurationBuilder builder = (ApplicationConfigurationBuilder) ReflectionUtils.instantiateClass(builderName);
+            appCfg = builder.doBuild(servletContext);
         }
         if (appCfg == null) {
             ServiceLoader<ApplicationConfigurationBuilder> providers = ServiceLoader.load(ApplicationConfigurationBuilder.class);
-            for (ApplicationConfigurationBuilder builder : providers) {
-                appCfg = builder.build(servletContext);
+            for (ApplicationConfigurationBuilder b : providers) {
+                appCfg = b.doBuild(servletContext);
                 if (appCfg != null) {
-                    servletContext.log("load builder " + builder + " to build application configuration by ");
+                    servletContext.log("build application configuration with " + b);
                     break;
                 }
             }
         }
-        return appCfg == null ? new ApplicationConfigurationBuilder().build(servletContext) : appCfg;
+        return appCfg == null ? new ApplicationConfigurationBuilder().doBuild(servletContext) : appCfg;
     }
 
     protected void showApplicationInfo() {

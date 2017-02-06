@@ -19,7 +19,7 @@ import com.harmony.umbrella.util.ReflectionUtils;
  * 
  * @author wuxii@foxmail.com
  */
-public class MessageHelperBuilder<T extends MessageHelperBuilder<T>> {
+public class MessageTemplateBuilder<T extends MessageTemplateBuilder<T>> {
 
     protected ConnectionFactory connectionFactory;
     protected Destination destination;
@@ -40,18 +40,18 @@ public class MessageHelperBuilder<T extends MessageHelperBuilder<T>> {
     protected String destinationJNDI;
     protected Properties contextProperties = new Properties();
 
-    public static MessageHelperBuilder createBuilder(ConnectionFactory connectionFactory, Destination destination) {
-        return new MessageHelperBuilder<>(connectionFactory, destination);
+    public static MessageTemplateBuilder createBuilder(ConnectionFactory connectionFactory, Destination destination) {
+        return new MessageTemplateBuilder<>(connectionFactory, destination);
     }
 
-    public static MessageHelperBuilder createBuilder() {
-        return new MessageHelperBuilder<>();
+    public static MessageTemplateBuilder createBuilder() {
+        return new MessageTemplateBuilder<>();
     }
 
-    public MessageHelperBuilder() {
+    public MessageTemplateBuilder() {
     }
 
-    public MessageHelperBuilder(ConnectionFactory connectionFactory, Destination destination) {
+    public MessageTemplateBuilder(ConnectionFactory connectionFactory, Destination destination) {
         this.connectionFactory = connectionFactory;
         this.destination = destination;
     }
@@ -143,7 +143,7 @@ public class MessageHelperBuilder<T extends MessageHelperBuilder<T>> {
         return (T) this;
     }
 
-    public MessageHelper build() {
+    public MessageTemplate build() {
         final ConnectionFactory connectionFactory;
         final Destination destination;
         if (this.connectionFactory == null && this.connectionFactoryJNDI == null) {
