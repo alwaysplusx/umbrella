@@ -4,11 +4,12 @@ import java.util.List;
 
 import javax.persistence.EntityManager;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
+
 import com.harmony.umbrella.data.Queryable;
-import com.harmony.umbrella.data.Specification;
-import com.harmony.umbrella.data.domain.Page;
-import com.harmony.umbrella.data.domain.Pageable;
-import com.harmony.umbrella.data.domain.Sort;
 
 /**
  * @author wuxii@foxmail.com

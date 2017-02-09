@@ -5,8 +5,8 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.Properties;
 
-import com.harmony.umbrella.io.FileSystemResource;
-import com.harmony.umbrella.io.Resource;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
 
 /**
  * @author wuxii@foxmail.com

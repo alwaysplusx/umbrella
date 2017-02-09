@@ -11,9 +11,10 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
-import com.harmony.umbrella.io.DefaultResourceLoader;
-import com.harmony.umbrella.io.Resource;
-import com.harmony.umbrella.io.UrlResource;
+import org.springframework.core.io.DefaultResourceLoader;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.util.Assert;
 
 /**
  * 属性加载工具
@@ -206,7 +207,7 @@ public class PropertiesUtils {
      * @return key前缀相同的属性集合
      */
     public static Properties filterStartWith(String prefix, Properties props, boolean ignoreCase) {
-        Assert.notBlank(prefix, "prefix not allow null or blank");
+        Assert.hasLength(prefix, "prefix not allow null or blank");
         Properties result = new Properties();
         if (props == null || props.isEmpty()) {
             return result;

@@ -13,17 +13,18 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Selection;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.util.Assert;
+
 import com.harmony.umbrella.data.QueryFeature;
-import com.harmony.umbrella.data.Specification;
-import com.harmony.umbrella.data.domain.Page;
-import com.harmony.umbrella.data.domain.PageImpl;
-import com.harmony.umbrella.data.domain.PageRequest;
-import com.harmony.umbrella.data.domain.Pageable;
-import com.harmony.umbrella.data.domain.Sort;
 import com.harmony.umbrella.data.query.QueryBuilder.Attribute;
 import com.harmony.umbrella.data.query.QueryBuilder.FetchAttributes;
 import com.harmony.umbrella.data.query.QueryBuilder.JoinAttributes;
-import com.harmony.umbrella.util.Assert;
 
 /**
  * @author wuxii@foxmail.com

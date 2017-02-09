@@ -2,8 +2,8 @@ package com.harmony.umbrella.data.query;
 
 import java.util.List;
 
-import com.harmony.umbrella.data.domain.Page;
-import com.harmony.umbrella.data.domain.Pageable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 /**
  * @author wuxii@foxmail.com

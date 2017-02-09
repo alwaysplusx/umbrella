@@ -1,8 +1,9 @@
 package com.harmony.umbrella.plugin.log.access;
 
+import java.math.BigDecimal;
 import java.util.List;
 
-import com.harmony.umbrella.util.NumberUtils;
+import org.springframework.util.NumberUtils;
 
 /**
  * List解析工具，通过index获取值
@@ -22,7 +23,12 @@ public class ListAccessor extends CheckedAccessor<List> {
 
     @Override
     public boolean support(String name) {
-        return NumberUtils.isNumber(name);
+        try {
+            NumberUtils.parseNumber(name, BigDecimal.class);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     /**

@@ -12,10 +12,10 @@ import org.apache.cxf.jaxws.JaxWsProxyFactoryBean;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.transport.http.HTTPConduit;
 import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
+import org.springframework.util.Assert;
 
 import com.harmony.umbrella.log.Log;
 import com.harmony.umbrella.log.Logs;
-import com.harmony.umbrella.util.Assert;
 import com.harmony.umbrella.ws.FactoryConfig;
 
 /**
@@ -217,7 +217,7 @@ public class JaxWsProxyBuilder {
 
     private <T> T doBuild(Class<T> serviceClass, FactoryConfig<JaxWsProxyFactoryBean> factoryConfig) {
         Assert.notNull(serviceClass, "service class must be not null");
-        Assert.notBlank(address, "proxy address is null or blank");
+        Assert.hasLength(address, "proxy address is null or blank");
 
         if (factoryConfig != null) {
             factoryConfig.config(factoryBean);
@@ -283,7 +283,8 @@ public class JaxWsProxyBuilder {
      *            待设置的代理对象
      * @param receiveTimeout
      *            接收等待时间
-     * @see org.apache.cxf.transports.http.configuration.HTTPClientPolicy#setReceiveTimeout(long) HTTPClientPolicy.setReceiveTimeout(long)
+     * @see org.apache.cxf.transports.http.configuration.HTTPClientPolicy#setReceiveTimeout(long)
+     *      HTTPClientPolicy.setReceiveTimeout(long)
      */
     public static void setReceiveTimeout(Object target, long receiveTimeout) {
         if (receiveTimeout < 0) {

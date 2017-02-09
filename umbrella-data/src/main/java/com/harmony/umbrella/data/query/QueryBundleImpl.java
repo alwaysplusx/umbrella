@@ -2,9 +2,10 @@ package com.harmony.umbrella.data.query;
 
 import java.io.Serializable;
 
-import com.harmony.umbrella.data.Specification;
-import com.harmony.umbrella.data.domain.Pageable;
-import com.harmony.umbrella.data.domain.Sort;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
+
 import com.harmony.umbrella.data.query.QueryBuilder.FetchAttributes;
 import com.harmony.umbrella.data.query.QueryBuilder.JoinAttributes;
 

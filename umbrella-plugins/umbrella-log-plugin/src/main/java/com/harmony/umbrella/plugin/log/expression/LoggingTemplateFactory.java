@@ -7,10 +7,11 @@ import java.util.List;
 import java.util.Set;
 import java.util.StringTokenizer;
 
+import org.springframework.util.AntPathMatcher;
+import org.springframework.util.PathMatcher;
+
 import com.harmony.umbrella.log.annotation.Logging;
 import com.harmony.umbrella.log.annotation.Logging.Scope;
-import com.harmony.umbrella.util.AntPathMatcher;
-import com.harmony.umbrella.util.PathMatcher;
 import com.harmony.umbrella.util.StringUtils;
 
 /**
@@ -18,7 +19,7 @@ import com.harmony.umbrella.util.StringUtils;
  */
 public class LoggingTemplateFactory {
 
-    private static final String[] DEFAULT_OUT_KEY_WORDS = {"result", "exception", "response"};
+    private static final String[] DEFAULT_OUT_KEY_WORDS = { "result", "exception", "response" };
 
     private Set<String> inKeyWords = new HashSet<String>();
     private Set<String> outKeyWords = new HashSet<String>();
@@ -222,7 +223,8 @@ public class LoggingTemplateFactory {
         /**
          * 通过key expression 获取值
          *
-         * @param valueContext 日志消息的内容
+         * @param valueContext
+         *            日志消息的内容
          * @return
          */
         public Object getId(ValueContext valueContext) {
@@ -232,7 +234,8 @@ public class LoggingTemplateFactory {
         /**
          * 通过template expression 获取消息内容
          *
-         * @param valueContext 日志消息的内容
+         * @param valueContext
+         *            日志消息的内容
          * @return
          */
         public String getMessage(ValueContext valueContext) {
@@ -242,8 +245,10 @@ public class LoggingTemplateFactory {
         /**
          * 通过template expression 获取消息内容
          *
-         * @param valueContext 日志消息内容
-         * @param format       内容格式化工具
+         * @param valueContext
+         *            日志消息内容
+         * @param format
+         *            内容格式化工具
          * @return
          */
         public String getMessage(ValueContext valueContext, ObjectFormat format) {

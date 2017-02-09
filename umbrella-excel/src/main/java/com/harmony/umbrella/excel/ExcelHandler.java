@@ -1,5 +1,6 @@
 package com.harmony.umbrella.excel;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.EmptyStackException;
 import java.util.HashMap;
@@ -9,11 +10,10 @@ import java.util.Stack;
 
 import org.apache.poi.xssf.model.SharedStringsTable;
 import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTRst;
+import org.springframework.util.NumberUtils;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
-
-import com.harmony.umbrella.util.NumberUtils;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class ExcelHandler extends DefaultHandler {
@@ -66,7 +66,7 @@ public class ExcelHandler extends DefaultHandler {
             String currentQName = cellStack.peek();
             String content = new String(ch, start, length);
             if ("v".equals(currentQName)) {
-                if (cell.isRefCell() && NumberUtils.isNumber(content)) {
+                if (cell.isRefCell() && isNumber(content)) {
                     cell.value = getSharedText(Integer.parseInt(content));
                 } else {
                     cell.value = content;
@@ -76,6 +76,15 @@ public class ExcelHandler extends DefaultHandler {
             } else {
 
             }
+        }
+    }
+
+    private boolean isNumber(String text) {
+        try {
+            NumberUtils.parseNumber(text, BigDecimal.class);
+            return true;
+        } catch (Exception e) {
+            return false;
         }
     }
 

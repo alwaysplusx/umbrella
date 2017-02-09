@@ -6,7 +6,7 @@ import java.util.Map;
 
 import javax.xml.ws.WebServiceException;
 
-import com.harmony.umbrella.util.Assert;
+import org.springframework.util.Assert;
 
 /**
  * 服务管理, 负责管理所有的服务实例
@@ -73,7 +73,7 @@ public abstract class ServerManager<T> {
      * @return 发布的服务
      */
     public Server publish(Object service, String address) {
-        Assert.notBlank(address, "address is null or blank");
+        Assert.hasLength(address, "address is null or blank");
         return publish(service, address, null);
     }
 

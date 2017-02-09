@@ -5,8 +5,9 @@ import java.sql.SQLException;
 
 import javax.servlet.ServletContext;
 
+import org.springframework.core.io.Resource;
+
 import com.harmony.umbrella.core.ConnectionSource;
-import com.harmony.umbrella.io.Resource;
 
 /**
  * @author wuxii@foxmail.com

@@ -7,13 +7,14 @@ import java.util.Set;
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 
+import org.springframework.util.Assert;
+
 import com.harmony.umbrella.core.BeanFactory;
 import com.harmony.umbrella.core.SimpleBeanFactory;
 import com.harmony.umbrella.scheduling.Job;
 import com.harmony.umbrella.scheduling.JobFactory;
 import com.harmony.umbrella.scheduling.Trigger;
 import com.harmony.umbrella.scheduling.persistence.JobEntity;
-import com.harmony.umbrella.util.Assert;
 
 /**
  * @author wuxii@foxmail.com

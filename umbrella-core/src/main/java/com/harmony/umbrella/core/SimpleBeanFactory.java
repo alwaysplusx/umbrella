@@ -4,8 +4,7 @@ import java.io.Serializable;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.harmony.umbrella.util.ClassUtils;
-import com.harmony.umbrella.util.ReflectionUtils;
+import org.springframework.util.ClassUtils;
 
 /**
  * 通过类的反射{@linkplain Class#newInstance()}来创建Bean
@@ -31,7 +30,7 @@ public class SimpleBeanFactory implements BeanFactory, Serializable {
     @Override
     public <T> T getBean(String beanName) {
         try {
-            Class<?> clazz = ClassUtils.forName(beanName);
+            Class<?> clazz = ClassUtils.forName(beanName, ClassUtils.getDefaultClassLoader());
             return (T) getBean(clazz, SINGLETON);
         } catch (ClassNotFoundException e) {
             throw new NoSuchBeanFoundException(e.getMessage(), e);
@@ -42,7 +41,7 @@ public class SimpleBeanFactory implements BeanFactory, Serializable {
     @Override
     public <T> T getBean(String beanName, String scope) {
         try {
-            Class<?> clazz = ClassUtils.forName(beanName);
+            Class<?> clazz = ClassUtils.forName(beanName, ClassUtils.getDefaultClassLoader());
             return (T) getBean(clazz, scope);
         } catch (ClassNotFoundException e) {
             throw new NoSuchBeanFoundException(e.getMessage(), e);
@@ -77,7 +76,7 @@ public class SimpleBeanFactory implements BeanFactory, Serializable {
      */
     protected Object createBean(Class<?> beanClass, Map<String, Object> properties) {
         try {
-            return ReflectionUtils.instantiateClass(beanClass);
+            return beanClass.newInstance();
         } catch (Exception e) {
             throw new NoSuchBeanFoundException(e.getMessage(), e);
         }

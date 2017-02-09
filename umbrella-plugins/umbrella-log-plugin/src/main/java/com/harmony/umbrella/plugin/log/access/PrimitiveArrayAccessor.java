@@ -1,10 +1,11 @@
 package com.harmony.umbrella.plugin.log.access;
 
 import java.lang.reflect.Array;
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.harmony.umbrella.util.NumberUtils;
+import org.springframework.util.NumberUtils;
 
 /**
  * 元数据数组的解析工具
@@ -51,11 +52,21 @@ public class PrimitiveArrayAccessor extends CheckedAccessor<Object> {
      */
     @Override
     public boolean support(String name) {
-        return NumberUtils.isNumber(name);
+        try {
+            NumberUtils.parseNumber(name, BigDecimal.class);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     public boolean support(String name, Object val) {
-        return NumberUtils.isNumber(name) && primitiveArray.containsKey(val.getClass());
+        try {
+            NumberUtils.parseNumber(name, BigDecimal.class);
+            return primitiveArray.containsKey(val.getClass());
+        } catch (Exception e) {
+            return false;
+        }
     }
 
 }

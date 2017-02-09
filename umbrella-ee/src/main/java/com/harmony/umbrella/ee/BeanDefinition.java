@@ -7,7 +7,8 @@ import java.util.List;
 import javax.ejb.Local;
 import javax.ejb.Remote;
 
-import com.harmony.umbrella.util.ClassUtils;
+import org.springframework.util.ClassUtils;
+
 
 /**
  * @author wuxii@foxmail.com

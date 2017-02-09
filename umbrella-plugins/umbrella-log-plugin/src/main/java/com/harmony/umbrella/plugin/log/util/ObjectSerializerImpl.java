@@ -13,14 +13,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.springframework.util.AntPathMatcher;
+import org.springframework.util.PathMatcher;
+import org.springframework.util.ReflectionUtils;
+
 import com.alibaba.fastjson.serializer.SerializeFilter;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.harmony.umbrella.json.Json;
 import com.harmony.umbrella.plugin.log.interceptor.AbstractLoggingInterceptor.ObjectSerializer;
-import com.harmony.umbrella.plugin.log.util.ClassSortUtils;
-import com.harmony.umbrella.util.AntPathMatcher;
-import com.harmony.umbrella.util.PathMatcher;
-import com.harmony.umbrella.util.ReflectionUtils;
 
 /**
  * @author wuxii@foxmail.com
@@ -62,7 +62,7 @@ public class ObjectSerializerImpl implements ObjectSerializer {
         Map result = new HashMap();
         Field[] fields = getAllFields(val.getClass());
         for (Field field : fields) {
-            Object v = ReflectionUtils.getFieldValue(field, val);
+            Object v = ReflectionUtils.getField(field, val);
             result.put(field.getName(), (v == null) ? null : serializeObject(v));
         }
         return result;

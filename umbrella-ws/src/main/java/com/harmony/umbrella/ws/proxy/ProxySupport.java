@@ -8,9 +8,10 @@ import java.util.Map.Entry;
 
 import javax.xml.ws.WebServiceException;
 
+import org.springframework.util.Assert;
+
 import com.harmony.umbrella.log.Log;
 import com.harmony.umbrella.log.Logs;
-import com.harmony.umbrella.util.Assert;
 import com.harmony.umbrella.util.StringUtils;
 import com.harmony.umbrella.ws.Context;
 import com.harmony.umbrella.ws.annotation.Syncable;
@@ -171,7 +172,7 @@ public abstract class ProxySupport<T> implements Proxy<T> {
         Class<?> serviceInterface = getServiceInterface();
         Assert.notNull(serviceInterface, "service interface is null, use @Syncable#endpoint or override getServiceInterface method");
         String serviceMethod = getServiceMethod();
-        Assert.notBlank(serviceMethod, "service method is null or blank, use @Syncable#methodName or override getServiceMethod method");
+        Assert.hasLength(serviceMethod, "service method is null or blank, use @Syncable#methodName or override getServiceMethod method");
         return new SimpleContext(serviceInterface, serviceMethod, getAddress());
     }
 

@@ -28,7 +28,8 @@ import javax.persistence.metamodel.Bindable;
 import javax.persistence.metamodel.ManagedType;
 import javax.persistence.metamodel.PluralAttribute;
 
-import com.harmony.umbrella.data.domain.Sort;
+import org.springframework.data.domain.Sort;
+
 import com.harmony.umbrella.util.AnnotationUtils;
 
 /**

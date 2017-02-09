@@ -9,10 +9,11 @@ import java.util.Map;
 
 import javax.xml.ws.WebServiceException;
 
+import org.springframework.util.Assert;
+
 import com.harmony.umbrella.core.Invoker;
 import com.harmony.umbrella.log.Log;
 import com.harmony.umbrella.log.Logs;
-import com.harmony.umbrella.util.Assert;
 import com.harmony.umbrella.util.Exceptions;
 import com.harmony.umbrella.ws.Context;
 import com.harmony.umbrella.ws.Metadata;
@@ -44,8 +45,8 @@ public class JaxWsCXFExecutor extends ProxyExecutorSupport implements JaxWsExecu
     @Override
     public <T> T executeQuite(Context context, Class<T> resultType) {
         Assert.notNull(context.getServiceInterface(), "service interface not set");
-        Assert.notBlank(context.getAddress(), "service address not set");
-        Assert.notBlank(context.getMethodName(), "service method not set");
+        Assert.hasLength(context.getAddress(), "service address not set");
+        Assert.hasLength(context.getMethodName(), "service method not set");
         T result = null;
         try {
             Method method = context.getMethod();

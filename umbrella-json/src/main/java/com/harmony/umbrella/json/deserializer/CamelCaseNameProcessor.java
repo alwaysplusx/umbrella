@@ -4,12 +4,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.springframework.core.convert.converter.Converter;
+
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.TypeReference;
 import com.alibaba.fastjson.parser.deserializer.ExtraProcessor;
 import com.harmony.umbrella.core.Member;
-import com.harmony.umbrella.util.Converter;
 import com.harmony.umbrella.util.MemberUtils;
 
 /**

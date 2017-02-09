@@ -13,7 +13,8 @@ import javax.persistence.criteria.CriteriaDelete;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 
-import com.harmony.umbrella.data.domain.Sort;
+import org.springframework.data.domain.Sort;
+
 import com.harmony.umbrella.data.query.QueryUtils;
 
 /**

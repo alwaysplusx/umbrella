@@ -22,7 +22,6 @@ import com.harmony.umbrella.ee.EJBBeanFactory;
 import com.harmony.umbrella.test.ContainerConfiguration;
 import com.harmony.umbrella.test.TestUtils;
 import com.harmony.umbrella.util.PropertiesUtils;
-import com.harmony.umbrella.util.ReflectionUtils;
 import com.harmony.umbrella.util.StringUtils;
 
 /**
@@ -99,8 +98,7 @@ public class RemoteEJBRunner extends BlockJUnit4ClassRunner {
                     if (bean == null) {
                         throw new NoSuchBeanFoundException(field.getName());
                     }
-
-                    ReflectionUtils.setFieldValue(realField, target, bean);
+                    realField.set(target, bean);
                 }
                 next.evaluate();
             }

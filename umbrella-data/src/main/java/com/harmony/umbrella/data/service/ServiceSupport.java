@@ -6,10 +6,11 @@ import java.util.List;
 
 import javax.persistence.EntityManager;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
+
 import com.harmony.umbrella.data.Persistable;
 import com.harmony.umbrella.data.dao.JpaDAO;
-import com.harmony.umbrella.data.domain.Page;
-import com.harmony.umbrella.data.domain.Sort;
 import com.harmony.umbrella.data.query.QueryBundle;
 
 /**

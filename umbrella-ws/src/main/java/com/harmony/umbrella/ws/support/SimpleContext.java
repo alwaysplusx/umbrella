@@ -9,7 +9,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
-import com.harmony.umbrella.util.ClassUtils;
 import com.harmony.umbrella.util.StringUtils;
 import com.harmony.umbrella.ws.Context;
 
@@ -128,7 +127,7 @@ public class SimpleContext implements Context, Serializable {
     @Override
     public Method getMethod() throws NoSuchMethodException {
         // input
-        Class<?>[] types = ClassUtils.toTypeArray(parameters);
+        Class<?>[] types = toTypeArray(parameters);
         try {
             return serviceInterface.getMethod(methodName, types);
         } catch (NoSuchMethodException e) {
@@ -137,7 +136,7 @@ public class SimpleContext implements Context, Serializable {
                     // target
                     Class<?>[] pattern = method.getParameterTypes();
                     // input can be subclass of target, cannot be super class of target
-                    if (ClassUtils.isAssignable(types, pattern)) {
+                    if (isAssignable(types, pattern)) {
                         return method;
                     }
                 }
@@ -154,6 +153,33 @@ public class SimpleContext implements Context, Serializable {
     @Override
     public void put(String key, Object value) {
         contextMap.put(key, value);
+    }
+
+    private Class<?>[] toTypeArray(Object[] args) {
+        if (args == null || args.length == 0) {
+            return new Class<?>[0];
+        }
+        Class<?>[] parameterTypes = new Class[args.length];
+        if (args != null && args.length > 0) {
+            for (int i = 0, max = args.length; i < max; i++) {
+                if (args[i] != null) {
+                    parameterTypes[i] = args[i].getClass();
+                } else {
+                    parameterTypes[i] = Object.class;
+                }
+            }
+        }
+        return parameterTypes;
+    }
+
+    private boolean isAssignable(Class<?>[] pattern, Class<?>[] inputTypes) {
+        if (pattern.length != inputTypes.length)
+            return false;
+        for (int i = 0, max = pattern.length; i < max; i++) {
+            if (!inputTypes[i].isAssignableFrom(pattern[i]))
+                return false;
+        }
+        return true;
     }
 
     @Override

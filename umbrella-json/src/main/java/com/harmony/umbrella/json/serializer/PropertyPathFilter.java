@@ -4,13 +4,14 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.springframework.util.Assert;
+
 import com.alibaba.fastjson.serializer.JSONSerializer;
 import com.alibaba.fastjson.serializer.PropertyPreFilter;
 import com.alibaba.fastjson.serializer.SerialContext;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.harmony.umbrella.log.Log;
 import com.harmony.umbrella.log.Logs;
-import com.harmony.umbrella.util.Assert;
 
 /**
  * 通过构建字段的path来实现类中的字段的过滤

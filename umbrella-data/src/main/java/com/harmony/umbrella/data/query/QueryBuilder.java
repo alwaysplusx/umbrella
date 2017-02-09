@@ -17,16 +17,17 @@ import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.domain.Sort.Order;
+import org.springframework.data.jpa.domain.Specification;
+
 import com.harmony.umbrella.data.CompositionType;
 import com.harmony.umbrella.data.Operator;
 import com.harmony.umbrella.data.QueryFeature;
-import com.harmony.umbrella.data.Specification;
-import com.harmony.umbrella.data.domain.Page;
-import com.harmony.umbrella.data.domain.PageRequest;
-import com.harmony.umbrella.data.domain.Pageable;
-import com.harmony.umbrella.data.domain.Sort;
-import com.harmony.umbrella.data.domain.Sort.Direction;
-import com.harmony.umbrella.data.domain.Sort.Order;
 
 /**
  * 查询构建builder

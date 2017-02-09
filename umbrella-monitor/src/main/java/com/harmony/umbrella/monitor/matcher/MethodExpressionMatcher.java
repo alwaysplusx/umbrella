@@ -9,15 +9,15 @@ import java.util.Set;
 import org.aspectj.weaver.tools.PointcutExpression;
 import org.aspectj.weaver.tools.PointcutParser;
 import org.aspectj.weaver.tools.PointcutPrimitive;
+import org.springframework.util.ClassUtils;
 
 import com.harmony.umbrella.monitor.ResourceMatcher;
-import com.harmony.umbrella.util.ClassUtils;
 
 /**
  * 方法表达式匹配验证
  * <p>
- * 基于Aspectj来验证表达式与方法匹配的模式 <a
- * href="http://www.cnblogs.com/yudy/archive/2012/03/22/2411175.html"
+ * 基于Aspectj来验证表达式与方法匹配的模式
+ * <a href="http://www.cnblogs.com/yudy/archive/2012/03/22/2411175.html"
  * >http://www.cnblogs.com/yudy/archive/2012/03/22/2411175.html</a>
  * 
  * @author wuxii@foxmail.com
@@ -79,8 +79,8 @@ public class MethodExpressionMatcher implements ResourceMatcher<Method> {
 
         public PointcutParser getDefaultPointcutParser() {
             ClassLoader classLoader = ClassUtils.getDefaultClassLoader();
-            PointcutParser parser = PointcutParser.getPointcutParserSupportingSpecifiedPrimitivesAndUsingSpecifiedClassLoaderForResolution(
-                    SUPPORTED_PRIMITIVES, classLoader);
+            PointcutParser parser = PointcutParser.getPointcutParserSupportingSpecifiedPrimitivesAndUsingSpecifiedClassLoaderForResolution(SUPPORTED_PRIMITIVES,
+                    classLoader);
             return parser;
         }
     }

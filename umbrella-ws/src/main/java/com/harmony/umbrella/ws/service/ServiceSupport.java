@@ -17,13 +17,14 @@ import javax.validation.groups.Default;
 import javax.xml.ws.WebServiceContext;
 import javax.xml.ws.handler.MessageContext;
 
+import org.springframework.util.Assert;
+import org.springframework.util.ClassUtils;
+
 import com.harmony.umbrella.core.Member;
 import com.harmony.umbrella.i18n.MessageBundle;
 import com.harmony.umbrella.i18n.ResourceMessageBundle;
 import com.harmony.umbrella.log.Log;
 import com.harmony.umbrella.log.Logs;
-import com.harmony.umbrella.util.Assert;
-import com.harmony.umbrella.util.ClassUtils;
 import com.harmony.umbrella.util.Exceptions;
 import com.harmony.umbrella.util.StringUtils;
 import com.harmony.umbrella.validator.ValidVisitor;

@@ -1,11 +1,12 @@
 package com.harmony.umbrella.util;
 
-import static com.harmony.umbrella.util.ReflectionUtils.*;
-
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.StringTokenizer;
+
+import org.springframework.util.Assert;
+import org.springframework.util.ReflectionUtils;
 
 import com.harmony.umbrella.core.Member;
 
@@ -30,7 +31,7 @@ public class MemberUtils {
     public static Member access(Class<?> clazz, String name) {
         int lastDotIndex = name.lastIndexOf(".");
         if (lastDotIndex < 0) {
-            Field field = findField(clazz, name);
+            Field field = ReflectionUtils.findField(clazz, name);
             if (field == null) {
                 Method readMethod = findReadMethod(clazz, name);
                 if (readMethod != null) {
@@ -103,6 +104,82 @@ public class MemberUtils {
         return new PathMember(clazz, toFieldName(readMethod), readMethod);
     }
 
+    public static boolean isReadMethod(Method method) {
+        String methodName = method.getName();
+        return method.getParameterTypes().length == 0
+                && ((methodName.length() > 3 && methodName.startsWith("get")) || (methodName.length() > 2 && methodName.startsWith("is")));
+    }
+
+    public static boolean isWriteMethod(Method method) {
+        String methodName = method.getName();
+        return methodName.length() > 3//
+                && methodName.startsWith("set") //
+                && method.getReturnType() != void.class //
+                && method.getParameterTypes().length == 1;
+    }
+
+    /**
+     * 通过field名称查找对应的getter方法
+     * 
+     * @param source
+     *            目标类
+     * @param field
+     *            字段名称
+     * @return 字段对应的getter方法
+     */
+    public static Method findReadMethod(Class<?> source, String fieldName) {
+        String[] readMethodName = readMethodName(fieldName);
+        for (String name : readMethodName) {
+            Method method = ReflectionUtils.findMethod(source, name);
+            if (method != null) {
+                return method;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 将字段名转为getter的方法名
+     * 
+     * @param fieldName
+     * @return
+     */
+    static String[] readMethodName(String fieldName) {
+        if (StringUtils.isBlank(fieldName)) {
+            throw new IllegalArgumentException("field name is blank");
+        }
+        String name = Character.toUpperCase(fieldName.charAt(0)) + fieldName.substring(1);
+        return new String[] { "get" + name, "is" + name };
+    }
+
+    /**
+     * 将字段名转为setter的方法名
+     * 
+     * @param fieldName
+     * @return
+     */
+    static String writerMethodName(String fieldName) {
+        if (StringUtils.isBlank(fieldName)) {
+            throw new IllegalArgumentException("field name is blank");
+        }
+        return "set" + Character.toUpperCase(fieldName.charAt(0)) + fieldName.substring(1);
+    }
+
+    /**
+     * 通过field名称查找对应的setter方法
+     * 
+     * @param source
+     *            目标类
+     * @param field
+     *            字段名称
+     * @return 字段对应的setter方法
+     * @throws NoSuchMethodException
+     *             如果未找到getter方法
+     */
+    public static Method findWriterMethod(Class<?> source, String fieldName) {
+        return ReflectionUtils.findMethod(source, writerMethodName(fieldName), new Class[] { Object.class });
+    }
+
     /**
      * 判断字段是否可读
      * 
@@ -113,7 +190,7 @@ public class MemberUtils {
      * @return true 可读, false不可读
      */
     public static boolean isReadable(Class<?> clazz, String name) {
-        return findField(clazz, name) != null || findReadMethod(clazz, name) != null;
+        return ReflectionUtils.findField(clazz, name) != null || findReadMethod(clazz, name) != null;
     }
 
     /**
@@ -126,11 +203,59 @@ public class MemberUtils {
      * @return true可写, false不可写
      */
     public static boolean isWriteable(Class<?> clazz, String name) {
-        return findField(clazz, name) != null || findWriterMethod(clazz, name) != null;
+        return ReflectionUtils.findField(clazz, name) != null || findWriterMethod(clazz, name) != null;
     }
 
-    static Object get(String name, Object val) {
-        return ReflectionUtils.getFieldValue(name, val);
+    public static Object get(String name, Object val) {
+        Assert.notNull(val, "target not allow null");
+        Assert.notNull(name, "fieldName not allow null");
+
+        Class<?> targetClass = val.getClass();
+        Method readMethod = findReadMethod(targetClass, name);
+
+        if (readMethod != null) {
+            return ReflectionUtils.invokeMethod(readMethod, val);
+        }
+
+        Field field = ReflectionUtils.findField(targetClass, name);
+        if (field == null) {
+            throw new IllegalArgumentException(name + " field not find");
+        }
+        try {
+            if (!field.isAccessible()) {
+                field.setAccessible(true);
+            }
+            return field.get(val);
+        } catch (IllegalAccessException ex) {
+            ReflectionUtils.handleReflectionException(ex);
+            throw new IllegalStateException("Unexpected reflection exception - " + ex.getClass().getName() + ": " + ex.getMessage());
+        }
+    }
+
+    public static void set(String name, Object target, Object value) {
+        Assert.notNull(name, "fieldName not allow null");
+        Assert.notNull(target, "target not allow null");
+        // set in method way
+        Method writeMethod = findWriterMethod(target.getClass(), name);
+        if (writeMethod != null) {
+            ReflectionUtils.invokeMethod(writeMethod, target, value);
+            return;
+        }
+        // set in field way
+        Field field = ReflectionUtils.findField(target.getClass(), name);
+        if (field == null) {
+            throw new IllegalArgumentException(target + ", " + name + " field not find");
+        }
+        try {
+            if (!field.isAccessible()) {
+                field.setAccessible(true);
+            }
+            field.set(target, value);
+        } catch (IllegalAccessException ex) {
+            ReflectionUtils.handleReflectionException(ex);
+            throw new IllegalStateException("Unexpected reflection exception - " + ex.getClass().getName() + ": " + ex.getMessage());
+        }
+
     }
 
     static Class<?> getPathType(Class<?> clazz, String name) {
@@ -148,7 +273,7 @@ public class MemberUtils {
 
     static Class<?> getTokenType(Class<?> clazz, String token) {
         // 通过token找字段
-        Field f = findField(clazz, token);
+        Field f = ReflectionUtils.findField(clazz, token);
         if (f != null) {
             // 使用field的类型设置接下去要查找的token
             return clazz = f.getType();
@@ -168,12 +293,12 @@ public class MemberUtils {
 
     static boolean contains(Class<?> clazz, Method method) {
         Class<?> methodOwnerType = method.getDeclaringClass();
-        return ClassUtils.isAssignable(methodOwnerType, clazz);
+        return methodOwnerType.isAssignableFrom(clazz);
     }
 
     static boolean contains(Class<?> clazz, Field field) {
         Class<?> fieldOwnerType = field.getDeclaringClass();
-        return ClassUtils.isAssignable(fieldOwnerType, clazz);
+        return fieldOwnerType.isAssignableFrom(clazz);
     }
 
     static String toFieldName(Method method) {
@@ -266,14 +391,14 @@ public class MemberUtils {
 
         public Method getReadMethod() {
             if (readMethod == null) {
-                readMethod = ReflectionUtils.findReadMethod(getPathClass(), memberName);
+                readMethod = findReadMethod(getPathClass(), memberName);
             }
             return readMethod;
         }
 
         public Method getWriteMethod() {
             if (writeMethod == null) {
-                writeMethod = ReflectionUtils.findWriterMethod(getPathClass(), memberName);
+                writeMethod = findWriterMethod(getPathClass(), memberName);
             }
             return writeMethod;
         }
@@ -329,7 +454,7 @@ public class MemberUtils {
             StringTokenizer st = new StringTokenizer(path, ".");
             while (st.hasMoreTokens()) {
                 String token = st.nextToken();
-                Object tmp = getFieldValue(token, result);
+                Object tmp = MemberUtils.get(token, result);
                 if (tmp == null && st.hasMoreTokens()) {
                     throw new IllegalArgumentException(result + " " + token + " got null value");
                 }
@@ -351,11 +476,11 @@ public class MemberUtils {
         }
 
         protected final Object getTokenValue(String token, Object target) {
-            return getFieldValue(token, target);
+            return MemberUtils.get(token, target);
         }
 
         protected final void setTokenValue(String token, Object target, Object value) {
-            setFieldValue(token, target, value);
+            MemberUtils.set(token, target, value);
         }
 
     }

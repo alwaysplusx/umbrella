@@ -3,6 +3,8 @@ package com.harmony.umbrella.util;
 import java.io.File;
 import java.io.IOException;
 
+import org.springframework.util.ResourceUtils;
+
 /**
  * @author wuxii@foxmail.com
  */

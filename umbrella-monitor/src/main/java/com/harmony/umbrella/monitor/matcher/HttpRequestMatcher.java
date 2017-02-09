@@ -2,9 +2,10 @@ package com.harmony.umbrella.monitor.matcher;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.springframework.util.AntPathMatcher;
+import org.springframework.util.PathMatcher;
+
 import com.harmony.umbrella.monitor.ResourceMatcher;
-import com.harmony.umbrella.util.AntPathMatcher;
-import com.harmony.umbrella.util.PathMatcher;
 
 /**
  * @author wuxii@foxmail.com
@@ -12,7 +13,7 @@ import com.harmony.umbrella.util.PathMatcher;
 public class HttpRequestMatcher implements ResourceMatcher<HttpServletRequest> {
 
     private PathMatcher pathMatcher = new AntPathMatcher();
-    
+
     @Override
     public boolean matches(String pattern, HttpServletRequest resource) {
         return pathMatcher.match(pattern, toUri(resource));
@@ -23,4 +24,3 @@ public class HttpRequestMatcher implements ResourceMatcher<HttpServletRequest> {
     }
 
 }
-    

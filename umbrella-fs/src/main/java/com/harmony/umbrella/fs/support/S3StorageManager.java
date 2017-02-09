@@ -5,13 +5,14 @@ import java.io.InputStream;
 import java.util.Properties;
 import java.util.UUID;
 
+import org.springframework.core.io.Resource;
+
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.PutObjectResult;
 import com.harmony.umbrella.fs.StorageMetadata;
 import com.harmony.umbrella.fs.StorageType;
-import com.harmony.umbrella.io.Resource;
 
 /**
  * @author wuxii@foxmail.com

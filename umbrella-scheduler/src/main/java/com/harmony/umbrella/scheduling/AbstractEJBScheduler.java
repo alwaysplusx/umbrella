@@ -9,12 +9,8 @@ import javax.ejb.Timer;
 import javax.ejb.TimerConfig;
 import javax.ejb.TimerService;
 
-import com.harmony.umbrella.scheduling.AbstractScheduler;
-import com.harmony.umbrella.scheduling.Job;
-import com.harmony.umbrella.scheduling.Scheduler;
-import com.harmony.umbrella.scheduling.SchedulerException;
-import com.harmony.umbrella.scheduling.Trigger;
-import com.harmony.umbrella.util.Assert;
+import org.springframework.util.Assert;
+
 import com.harmony.umbrella.util.Exceptions;
 
 /**

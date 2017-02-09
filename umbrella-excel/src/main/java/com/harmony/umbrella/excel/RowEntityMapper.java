@@ -10,6 +10,7 @@ import java.util.Map;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
+import org.springframework.util.ReflectionUtils;
 
 import com.harmony.umbrella.core.Member;
 import com.harmony.umbrella.excel.annotation.ExcelColumn;
@@ -17,7 +18,6 @@ import com.harmony.umbrella.excel.cell.CellResolverFactory;
 import com.harmony.umbrella.util.ClassFilter.ClassFilterFeature;
 import com.harmony.umbrella.util.CollectionUtils;
 import com.harmony.umbrella.util.MemberUtils;
-import com.harmony.umbrella.util.ReflectionUtils;
 import com.harmony.umbrella.util.StringUtils;
 
 /**
@@ -103,7 +103,7 @@ public class RowEntityMapper<T> implements RowVisitor {
             Class<? extends CellResolver> cellResolverClass = ann.cellResolver();
             if (ClassFilterFeature.NEWABLE.accept(cellResolverClass)) {
                 try {
-                    return ReflectionUtils.instantiateClass(cellResolverClass);
+                    return cellResolverClass.newInstance();
                 } catch (Exception e) {
                     ReflectionUtils.rethrowRuntimeException(e);
                 }
@@ -117,7 +117,11 @@ public class RowEntityMapper<T> implements RowVisitor {
     }
 
     private T newEntity() {
-        return ReflectionUtils.instantiateClass(entityClass);
+        try {
+            return entityClass.newInstance();
+        } catch (Exception e) {
+            throw new IllegalStateException("unable create entity " + entityClass);
+        }
     }
 
     private int getMaxColumnNumber(Row row) {

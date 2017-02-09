@@ -9,11 +9,12 @@ import java.util.Date;
 import java.util.Properties;
 import java.util.UUID;
 
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.WritableResource;
+
 import com.harmony.umbrella.fs.StorageMetadata;
 import com.harmony.umbrella.fs.StorageType;
-import com.harmony.umbrella.io.FileSystemResource;
-import com.harmony.umbrella.io.Resource;
-import com.harmony.umbrella.io.WritableResource;
 import com.harmony.umbrella.util.FileUtils;
 import com.harmony.umbrella.util.IOUtils;
 import com.harmony.umbrella.util.StringUtils;

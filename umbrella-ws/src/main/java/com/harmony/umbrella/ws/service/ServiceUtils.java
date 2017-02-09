@@ -9,7 +9,6 @@ import java.util.List;
 
 import com.harmony.umbrella.core.Member;
 import com.harmony.umbrella.util.MemberUtils;
-import com.harmony.umbrella.util.ReflectionUtils;
 import com.harmony.umbrella.validator.Validators;
 import com.harmony.umbrella.ws.annotation.Key;
 
@@ -26,7 +25,7 @@ public class ServiceUtils {
         // 配置有@Key的get方法
         for (Method method : targetClass.getMethods()) {
             Key ann = method.getAnnotation(Key.class);
-            if (ann != null && ReflectionUtils.isReadMethod(method)) {
+            if (ann != null && MemberUtils.isReadMethod(method)) {
                 result.add(MemberUtils.access(targetClass, method));
             }
         }
@@ -46,8 +45,8 @@ public class ServiceUtils {
             public int compare(Member o1, Member o2) {
                 Key a1 = getKeyAnnotation(o1);
                 Key a2 = getKeyAnnotation(o2);
-                return (a1 == null) ? -1 : (a2 == null) ? 1 : (a1 == null && a2 == null) ? 0 : (a1.ordinal() < a2.ordinal()) ? -1 : (a1.ordinal() == a2
-                        .ordinal()) ? 0 : 1;
+                return (a1 == null) ? -1
+                        : (a2 == null) ? 1 : (a1 == null && a2 == null) ? 0 : (a1.ordinal() < a2.ordinal()) ? -1 : (a1.ordinal() == a2.ordinal()) ? 0 : 1;
             }
         });
     }

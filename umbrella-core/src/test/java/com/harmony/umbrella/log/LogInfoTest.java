@@ -1,9 +1,5 @@
 package com.harmony.umbrella.log;
 
-import java.io.IOException;
-
-import com.harmony.umbrella.util.ObjectUtils;
-
 /**
  * @author wuxii@foxmail.com
  */
@@ -30,13 +26,9 @@ public class LogInfoTest {
 
         LogInfo info = logMessage.asInfo();
 
-        try {
-            LogInfo logInfo = ObjectUtils.clone(info);
-            System.out.println(logInfo);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        System.out.println(info);
 
+        logMessage.log();
     }
 
 }

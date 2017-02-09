@@ -6,11 +6,12 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.springframework.util.ClassUtils;
+
 import com.harmony.umbrella.ee.BeanDefinition;
 import com.harmony.umbrella.ee.util.EJBUtils;
 import com.harmony.umbrella.log.Log;
 import com.harmony.umbrella.log.Logs;
-import com.harmony.umbrella.util.ClassUtils;
 import com.harmony.umbrella.util.StringUtils;
 
 /**
@@ -90,7 +91,7 @@ public class BeanInterfaceResolver implements PartResolver<Class> {
             for (String remoteSuffix : remoteClassSuffixes) {
                 String remoteFullName = localPrefix + localNameRemoveSuffix + remoteSuffix;
                 try {
-                    Class<?> cls = ClassUtils.forName(remoteFullName);
+                    Class<?> cls = ClassUtils.forName(remoteFullName, ClassUtils.getDefaultClassLoader());
                     if (EJBUtils.isRemoteClass(cls)) {
                         result.add(cls);
                     } else {

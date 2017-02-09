@@ -3,7 +3,7 @@ package com.harmony.umbrella.data.dao;
 import java.util.List;
 import java.util.Map;
 
-import com.harmony.umbrella.data.domain.Sort;
+import org.springframework.data.domain.Sort;
 
 /**
  * @author wuxii@foxmail.com

@@ -16,7 +16,6 @@ import com.harmony.umbrella.ee.util.EJBUtils;
 import com.harmony.umbrella.log.Log;
 import com.harmony.umbrella.log.Logs;
 import com.harmony.umbrella.util.ClassFilter.ClassFilterFeature;
-import com.harmony.umbrella.util.ClassUtils;
 import com.harmony.umbrella.util.StringUtils;
 
 /**
@@ -131,7 +130,7 @@ public class BeanNameResolver implements PartResolver<String> {
     protected List<Class> getSubClasses(Class<?> clazz) {
         List<Class> result = new ArrayList<Class>();
         for (Class c : ApplicationContext.getApplicationClasses()) {
-            if (ClassUtils.isAssignable(clazz, c) && clazz != c && ClassFilterFeature.NEWABLE.accept(clazz)) {
+            if (clazz.isAssignableFrom(c) && clazz != c && ClassFilterFeature.NEWABLE.accept(clazz)) {
                 result.add(c);
             }
         }

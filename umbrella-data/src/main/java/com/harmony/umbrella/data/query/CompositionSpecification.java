@@ -1,7 +1,8 @@
 package com.harmony.umbrella.data.query;
 
+import org.springframework.data.jpa.domain.Specification;
+
 import com.harmony.umbrella.data.CompositionType;
-import com.harmony.umbrella.data.Specification;
 
 /**
  * @author wuxii@foxmail.com

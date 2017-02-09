@@ -2,9 +2,10 @@ package com.harmony.umbrella.fs.support;
 
 import java.io.IOException;
 
+import org.springframework.core.io.Resource;
+
 import com.harmony.umbrella.fs.StorageManager;
 import com.harmony.umbrella.fs.StorageType;
-import com.harmony.umbrella.io.Resource;
 
 /**
  * @author wuxii@foxmail.com

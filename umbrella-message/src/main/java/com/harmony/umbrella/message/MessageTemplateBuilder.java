@@ -13,7 +13,6 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
 import com.harmony.umbrella.util.ClassFilter.ClassFilterFeature;
-import com.harmony.umbrella.util.ReflectionUtils;
 
 /**
  * 
@@ -124,7 +123,11 @@ public class MessageTemplateBuilder<T extends MessageTemplateBuilder<T>> {
     public T messageTracker(Class<? extends MessageTracker>... messageTrackerClass) {
         List<MessageTracker> trackers = new ArrayList<>(messageTrackerClass.length);
         for (Class<? extends MessageTracker> cls : messageTrackerClass) {
-            trackers.add(ReflectionUtils.instantiateClass(cls));
+            try {
+                trackers.add(cls.newInstance());
+            } catch (Exception e) {
+                // TODO
+            }
         }
         this.trackers.addAll(trackers);
         return (T) this;
@@ -183,10 +186,14 @@ public class MessageTemplateBuilder<T extends MessageTemplateBuilder<T>> {
         helper.sessionAutoCommit = this.sessionAutoCommit;
         helper.autoStartListener = this.autoStartListener;
         helper.trackers = new MessageTrackers(this.trackers);
-        final MessageListener listener = (messageListener == null && messageListenerClass != null) ? ReflectionUtils.instantiateClass(this.messageListenerClass)
-                : messageListener;
-        if (listener != null) {
-            helper.setMessageListener(listener);
+        MessageListener listener;
+        try {
+            listener = (messageListener == null && messageListenerClass != null) ? this.messageListenerClass.newInstance() : messageListener;
+            if (listener != null) {
+                helper.setMessageListener(listener);
+            }
+        } catch (Exception e) {
+            // TODO
         }
         return helper;
     }

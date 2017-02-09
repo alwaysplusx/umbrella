@@ -1,7 +1,6 @@
 package com.harmony.umbrella.plugin.log.access;
 
 import com.harmony.umbrella.util.MemberUtils;
-import com.harmony.umbrella.util.ReflectionUtils;
 
 /**
  * 反射获取值工具
@@ -27,7 +26,7 @@ public class NamedAccessor extends CheckedAccessor<Object> {
      */
     @Override
     public Object get(String name, Object obj) {
-        return ReflectionUtils.getFieldValue(name, obj);
+        return MemberUtils.get(name, obj);
     }
 
     /**
@@ -35,7 +34,7 @@ public class NamedAccessor extends CheckedAccessor<Object> {
      */
     @Override
     public void set(String name, Object obj, Object val) {
-        ReflectionUtils.setFieldValue(name, obj, val);
+        MemberUtils.set(name, obj, val);
     }
 
 }

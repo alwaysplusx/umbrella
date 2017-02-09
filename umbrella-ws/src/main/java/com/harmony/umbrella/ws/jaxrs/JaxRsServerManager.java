@@ -3,10 +3,10 @@ package com.harmony.umbrella.ws.jaxrs;
 import javax.xml.ws.WebServiceException;
 
 import org.apache.cxf.jaxrs.JAXRSServerFactoryBean;
+import org.springframework.util.Assert;
 
 import com.harmony.umbrella.log.Log;
 import com.harmony.umbrella.log.Logs;
-import com.harmony.umbrella.util.Assert;
 import com.harmony.umbrella.ws.FactoryConfig;
 import com.harmony.umbrella.ws.Server;
 import com.harmony.umbrella.ws.ServerManager;

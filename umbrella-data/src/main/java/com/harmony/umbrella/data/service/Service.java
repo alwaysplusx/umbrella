@@ -3,9 +3,10 @@ package com.harmony.umbrella.data.service;
 import java.io.Serializable;
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
+
 import com.harmony.umbrella.data.Persistable;
-import com.harmony.umbrella.data.domain.Page;
-import com.harmony.umbrella.data.domain.Sort;
 import com.harmony.umbrella.data.query.QueryBundle;
 
 /**

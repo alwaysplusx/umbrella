@@ -18,13 +18,13 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.sql.DataSource;
 
+import org.springframework.util.ClassUtils;
+
 import com.harmony.umbrella.context.ApplicationContext.ApplicationContextInitializer;
 import com.harmony.umbrella.core.ConnectionSource;
 import com.harmony.umbrella.log.Log;
 import com.harmony.umbrella.log.Logs;
 import com.harmony.umbrella.util.ClassFilter.ClassFilterFeature;
-import com.harmony.umbrella.util.ClassUtils;
-import com.harmony.umbrella.util.ReflectionUtils;
 import com.harmony.umbrella.util.StringUtils;
 
 /**
@@ -97,7 +97,7 @@ public class ApplicationConfigurationBuilder {
         String[] shutdownHookNames = getInitParameters(INIT_PARAM_SHUTDOWN_HOOKS);
         for (String hook : shutdownHookNames) {
             try {
-                Class hookClass = ClassUtils.forName(hook);
+                Class hookClass = ClassUtils.forName(hook, ClassUtils.getDefaultClassLoader());
                 if (Runnable.class.isAssignableFrom(hookClass) && ClassFilterFeature.NEWABLE.accept(hookClass)) {
                     shutdownHookClasses.add(hookClass);
                 } else {
@@ -165,7 +165,11 @@ public class ApplicationConfigurationBuilder {
             public Runnable[] getShutdownHook() {
                 List<Runnable> result = new ArrayList<>(shutdownHookClasses.size());
                 for (Class<Runnable> cls : shutdownHookClasses) {
-                    result.add(ReflectionUtils.instantiateClass(cls));
+                    try {
+                        result.add(cls.newInstance());
+                    } catch (Exception e) {
+                        throw new IllegalArgumentException("illegal shutdown hook " + cls);
+                    }
                 }
                 return result.toArray(new Runnable[result.size()]);
             }

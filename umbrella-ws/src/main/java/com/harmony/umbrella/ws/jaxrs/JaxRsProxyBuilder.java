@@ -9,10 +9,10 @@ import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.jaxrs.client.Client;
 import org.apache.cxf.jaxrs.client.JAXRSClientFactoryBean;
 import org.apache.cxf.message.Message;
+import org.springframework.util.Assert;
 
 import com.harmony.umbrella.log.Log;
 import com.harmony.umbrella.log.Logs;
-import com.harmony.umbrella.util.Assert;
 import com.harmony.umbrella.ws.FactoryConfig;
 
 /**
@@ -148,7 +148,7 @@ public class JaxRsProxyBuilder {
 
     private <T> T doBuild(Class<T> resourceClass, FactoryConfig<JAXRSClientFactoryBean> factoryConfig) {
         Assert.notNull(resourceClass, "service class must be not null");
-        Assert.notBlank(address, "proxy address is null or blank");
+        Assert.hasLength(address, "proxy address is null or blank");
 
         if (factoryConfig != null) {
             factoryConfig.config(clientFactoryBean);

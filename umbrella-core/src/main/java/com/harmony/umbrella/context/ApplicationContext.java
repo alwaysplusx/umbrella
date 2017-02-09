@@ -13,6 +13,11 @@ import java.util.Vector;
 
 import javax.servlet.ServletContext;
 
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
+import org.springframework.core.io.support.ResourcePatternResolver;
+import org.springframework.util.ClassUtils;
+
 import com.harmony.umbrella.asm.ClassReader;
 import com.harmony.umbrella.context.metadata.ApplicationMetadata;
 import com.harmony.umbrella.context.metadata.DatabaseMetadata;
@@ -21,14 +26,9 @@ import com.harmony.umbrella.core.BeanFactory;
 import com.harmony.umbrella.core.BeansException;
 import com.harmony.umbrella.core.ConnectionSource;
 import com.harmony.umbrella.core.SimpleBeanFactory;
-import com.harmony.umbrella.io.Resource;
-import com.harmony.umbrella.io.support.PathMatchingResourcePatternResolver;
-import com.harmony.umbrella.io.support.ResourcePatternResolver;
 import com.harmony.umbrella.log.Log;
 import com.harmony.umbrella.log.Logs;
 import com.harmony.umbrella.util.ClassFilter;
-import com.harmony.umbrella.util.ClassUtils;
-import com.harmony.umbrella.util.ReflectionUtils;
 
 /**
  * 运行的应用的上下文
@@ -63,7 +63,11 @@ public abstract class ApplicationContext implements BeanFactory {
             applicationInitializerClass = ApplicationContextInitializer.class;
         }
 
-        applicationInitializer = ReflectionUtils.instantiateClass(applicationInitializerClass);
+        try {
+            applicationInitializer = applicationInitializerClass.newInstance();
+        } catch (Exception e) {
+            throw new IllegalArgumentException("illegal application initializer class " + applicationInitializerClass);
+        }
         // 初始化应用程序
         applicationInitializer.init(appConfig);
 

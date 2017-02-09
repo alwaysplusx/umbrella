@@ -9,12 +9,12 @@ import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.jaxrs.JAXRSServerFactoryBean;
 import org.apache.cxf.jaxrs.lifecycle.ResourceProvider;
 import org.apache.cxf.message.Message;
+import org.springframework.util.Assert;
 
 import com.harmony.umbrella.core.BeanFactory;
 import com.harmony.umbrella.core.NoSuchBeanFoundException;
 import com.harmony.umbrella.log.Log;
 import com.harmony.umbrella.log.Logs;
-import com.harmony.umbrella.util.Assert;
 import com.harmony.umbrella.ws.FactoryConfig;
 import com.harmony.umbrella.ws.cxf.SimpleBeanFactoryProvider;
 
@@ -159,7 +159,7 @@ public class JaxRsServerBuilder {
 
     private Server doPublish(FactoryConfig<JAXRSServerFactoryBean> factoryConfig) {
         Assert.isTrue(resourceClass != null || resourceBean != null, "please set at least one service properties bean or class");
-        Assert.notBlank(address, "server address is null or blank");
+        Assert.hasLength(address, "server address is null or blank");
 
         if (factoryConfig != null) {
             factoryConfig.config(serverFactoryBean);

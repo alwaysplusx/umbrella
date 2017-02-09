@@ -16,6 +16,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.springframework.util.ReflectionUtils;
+
 import com.harmony.umbrella.context.ContextHelper;
 import com.harmony.umbrella.context.CurrentContext;
 import com.harmony.umbrella.log.Level;
@@ -29,7 +31,6 @@ import com.harmony.umbrella.plugin.log.expression.Property;
 import com.harmony.umbrella.plugin.log.expression.ValueContext;
 import com.harmony.umbrella.plugin.log.expression.ValueStack;
 import com.harmony.umbrella.plugin.log.util.ObjectSerializerFactory;
-import com.harmony.umbrella.util.ReflectionUtils;
 import com.harmony.umbrella.util.StringUtils;
 
 /**

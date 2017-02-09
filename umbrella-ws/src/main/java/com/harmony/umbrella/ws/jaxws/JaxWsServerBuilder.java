@@ -10,12 +10,12 @@ import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.jaxws.JaxWsServerFactoryBean;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.service.invoker.Invoker;
+import org.springframework.util.Assert;
 
 import com.harmony.umbrella.core.BeanFactory;
 import com.harmony.umbrella.core.NoSuchBeanFoundException;
 import com.harmony.umbrella.log.Log;
 import com.harmony.umbrella.log.Logs;
-import com.harmony.umbrella.util.Assert;
 import com.harmony.umbrella.ws.FactoryConfig;
 import com.harmony.umbrella.ws.cxf.SimpleBeanFactoryInvoker;
 
@@ -204,7 +204,7 @@ public class JaxWsServerBuilder {
 
     private Server doPublish(FactoryConfig<JaxWsServerFactoryBean> factoryConfig) {
         Assert.isTrue(serviceBean != null || serviceClass != null, "please set at least one service properties bean or class");
-        Assert.notBlank(address, "server address is null or blank");
+        Assert.hasLength(address, "server address is null or blank");
 
         if (factoryConfig != null) {
             factoryConfig.config(serverFactoryBean);

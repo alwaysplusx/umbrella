@@ -11,16 +11,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.util.AntPathMatcher;
+import org.springframework.util.ClassUtils;
+import org.springframework.util.PathMatcher;
+import org.springframework.util.ResourceUtils;
 import org.w3c.dom.Document;
 
 import com.harmony.umbrella.ee.formatter.AbstractJndiFormatter.Formatter;
 import com.harmony.umbrella.ee.formatter.DefaultFormatterFactory;
-import com.harmony.umbrella.io.Resource;
-import com.harmony.umbrella.io.UrlResource;
-import com.harmony.umbrella.util.AntPathMatcher;
-import com.harmony.umbrella.util.ClassUtils;
-import com.harmony.umbrella.util.PathMatcher;
-import com.harmony.umbrella.util.ResourceUtils;
 import com.harmony.umbrella.util.StringUtils;
 import com.harmony.umbrella.util.XmlUtils;
 

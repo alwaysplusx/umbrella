@@ -14,6 +14,8 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
+import org.springframework.core.convert.converter.Converter;
+
 /**
  * Zip压缩、解压工具类.
  * 

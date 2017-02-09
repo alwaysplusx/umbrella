@@ -17,11 +17,13 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 
+import org.springframework.util.ReflectionUtils;
+
 import com.harmony.umbrella.core.Member;
 import com.harmony.umbrella.log.Log;
 import com.harmony.umbrella.log.Logs;
 import com.harmony.umbrella.util.AnnotationUtils;
-import com.harmony.umbrella.util.ReflectionUtils;
+import com.harmony.umbrella.util.MemberUtils;
 
 /**
  * @author wuxii@foxmail.com
@@ -94,7 +96,7 @@ public class LazyAttributeFilter extends MemberPropertyFilter {
             if (!ReflectionUtils.isObjectMethod(method) //
                     && Modifier.isPublic(method.getModifiers())//
                     && !Modifier.isStatic(method.getModifiers())//
-                    && ReflectionUtils.isReadMethod(method)) {
+                    && MemberUtils.isReadMethod(method)) {
                 ReflectionUtils.invokeMethod(method, object);
                 return true;
             }

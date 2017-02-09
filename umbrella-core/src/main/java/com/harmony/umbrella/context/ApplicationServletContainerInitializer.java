@@ -14,6 +14,9 @@ import javax.servlet.ServletContextListener;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.HandlesTypes;
 
+import org.springframework.core.OrderComparator;
+import org.springframework.util.ClassUtils;
+
 import com.harmony.umbrella.context.listener.ApplicationDestroyListener;
 import com.harmony.umbrella.context.listener.ApplicationEventListener;
 import com.harmony.umbrella.context.listener.ApplicationStartListener;
@@ -22,10 +25,8 @@ import com.harmony.umbrella.context.metadata.DatabaseMetadata;
 import com.harmony.umbrella.context.metadata.JavaMetadata;
 import com.harmony.umbrella.context.metadata.OperatingSystemMetadata;
 import com.harmony.umbrella.context.metadata.ServerMetadata;
-import com.harmony.umbrella.core.OrderComparator;
 import com.harmony.umbrella.log.Logs;
 import com.harmony.umbrella.util.ClassFilter.ClassFilterFeature;
-import com.harmony.umbrella.util.ReflectionUtils;
 
 /**
  * @author wuxii@foxmail.com
@@ -124,8 +125,13 @@ public class ApplicationServletContainerInitializer implements ServletContainerI
         ApplicationConfiguration appCfg = null;
         String builderName = getInitParameter("applictionConfigurationBuilder");
         if (builderName != null) {
-            ApplicationConfigurationBuilder builder = (ApplicationConfigurationBuilder) ReflectionUtils.instantiateClass(builderName);
-            appCfg = builder.doBuild(servletContext);
+            ApplicationConfigurationBuilder builder;
+            try {
+                builder = (ApplicationConfigurationBuilder) ClassUtils.forName(builderName, ClassUtils.getDefaultClassLoader()).newInstance();
+                appCfg = builder.doBuild(servletContext);
+            } catch (Exception e) {
+                throw new IllegalArgumentException("illegal application cofngiuration builder " + builderName);
+            }
         }
         if (appCfg == null) {
             ServiceLoader<ApplicationConfigurationBuilder> providers = ServiceLoader.load(ApplicationConfigurationBuilder.class);

@@ -2,7 +2,7 @@ package com.harmony.umbrella.math;
 
 import java.math.BigDecimal;
 
-import com.harmony.umbrella.util.Converter;
+import org.springframework.core.convert.converter.Converter;
 
 /**
  * 数字计算的时候的帮助工具

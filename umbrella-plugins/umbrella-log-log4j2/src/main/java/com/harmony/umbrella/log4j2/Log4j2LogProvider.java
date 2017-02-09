@@ -2,6 +2,7 @@ package com.harmony.umbrella.log4j2;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.spi.ExtendedLogger;
+import org.springframework.util.Assert;
 
 import com.harmony.umbrella.log.AbstractLog;
 import com.harmony.umbrella.log.Level;
@@ -9,7 +10,6 @@ import com.harmony.umbrella.log.Log;
 import com.harmony.umbrella.log.LogInfo;
 import com.harmony.umbrella.log.LogProvider;
 import com.harmony.umbrella.log.Message;
-import com.harmony.umbrella.util.Assert;
 
 /**
  * 日志的log4j实现

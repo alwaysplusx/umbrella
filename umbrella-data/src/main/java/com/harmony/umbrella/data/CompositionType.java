@@ -3,7 +3,8 @@ package com.harmony.umbrella.data;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Predicate;
 
-import com.harmony.umbrella.data.domain.Specifications;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.jpa.domain.Specifications;
 
 /**
  * Enum for the composition types for {@link Predicate}s.

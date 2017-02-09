@@ -2,10 +2,10 @@ package com.harmony.umbrella.data.dao;
 
 import java.util.List;
 
-import com.harmony.umbrella.data.Specification;
-import com.harmony.umbrella.data.domain.Page;
-import com.harmony.umbrella.data.domain.Pageable;
-import com.harmony.umbrella.data.domain.Sort;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 
 public interface EntityDAO<T> extends JpaDAO, DAO {
 
