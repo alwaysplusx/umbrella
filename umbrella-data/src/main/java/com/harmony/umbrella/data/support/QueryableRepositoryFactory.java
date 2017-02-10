@@ -1,8 +1,13 @@
 package com.harmony.umbrella.data.support;
 
+import java.io.Serializable;
+
 import javax.persistence.EntityManager;
 
 import org.springframework.data.jpa.repository.support.JpaRepositoryFactory;
+import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
+import org.springframework.data.repository.core.RepositoryInformation;
+import org.springframework.data.repository.core.RepositoryMetadata;
 
 /**
  * @author wuxii@foxmail.com
@@ -14,8 +19,12 @@ public class QueryableRepositoryFactory extends JpaRepositoryFactory {
     }
 
     @Override
-    public <T> T getRepository(Class<T> repositoryInterface, Object customImplementation) {
-        return super.getRepository(repositoryInterface, customImplementation);
+    protected <T, ID extends Serializable> SimpleJpaRepository<?, ?> getTargetRepository(RepositoryInformation information, EntityManager entityManager) {
+        return new SimpleQueryableJpaRepository<>(information.getDomainType(), entityManager);
     }
 
+    @Override
+    protected Class<?> getRepositoryBaseClass(RepositoryMetadata metadata) {
+        return SimpleQueryableJpaRepository.class;
+    }
 }

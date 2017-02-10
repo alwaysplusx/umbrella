@@ -12,7 +12,7 @@ public class QueryableRepositoryFactoryBean extends JpaRepositoryFactoryBean {
 
     @Override
     protected RepositoryFactorySupport createRepositoryFactory(EntityManager entityManager) {
-        return super.createRepositoryFactory(entityManager);
+        return new QueryableRepositoryFactory(entityManager);
     }
 
 }
