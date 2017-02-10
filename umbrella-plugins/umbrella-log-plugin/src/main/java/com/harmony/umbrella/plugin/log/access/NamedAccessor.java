@@ -26,7 +26,7 @@ public class NamedAccessor extends CheckedAccessor<Object> {
      */
     @Override
     public Object get(String name, Object obj) {
-        return MemberUtils.get(name, obj);
+        return MemberUtils.getValue(name, obj);
     }
 
     /**
@@ -34,7 +34,7 @@ public class NamedAccessor extends CheckedAccessor<Object> {
      */
     @Override
     public void set(String name, Object obj, Object val) {
-        MemberUtils.set(name, obj, val);
+        MemberUtils.setValue(name, obj, val);
     }
 
 }

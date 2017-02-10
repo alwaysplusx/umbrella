@@ -28,9 +28,8 @@ import javax.persistence.metamodel.Bindable;
 import javax.persistence.metamodel.ManagedType;
 import javax.persistence.metamodel.PluralAttribute;
 
+import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.data.domain.Sort;
-
-import com.harmony.umbrella.util.AnnotationUtils;
 
 /**
  * 查询工具类
@@ -126,7 +125,7 @@ public abstract class QueryUtils {
             }
         } catch (Exception ex) {
         }
-        return annotation == null ? true : (Boolean) AnnotationUtils.getAnnotationValue(annotation, "optional");
+        return annotation == null ? true : (Boolean) AnnotationUtils.getValue(annotation, "optional");
     }
 
     /**

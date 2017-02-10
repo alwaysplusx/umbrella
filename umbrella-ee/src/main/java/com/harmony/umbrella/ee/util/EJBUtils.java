@@ -13,7 +13,8 @@ import javax.ejb.Singleton;
 import javax.ejb.Stateful;
 import javax.ejb.Stateless;
 
-import com.harmony.umbrella.util.AnnotationUtils;
+import org.springframework.core.annotation.AnnotationUtils;
+
 import com.harmony.umbrella.util.StringUtils;
 
 /**
@@ -78,7 +79,7 @@ public class EJBUtils {
         Object value = null;
         for (Class<? extends Annotation> req : seqance) {
             Annotation resp = clazz.getAnnotation(req);
-            value = AnnotationUtils.getAnnotationValue(resp, name);
+            value = AnnotationUtils.getValue(resp, name);
             if (value != null) {
                 break;
             }

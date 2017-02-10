@@ -6,8 +6,8 @@ import java.util.Collection;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Persistable;
 
-import com.harmony.umbrella.data.Persistable;
 import com.harmony.umbrella.data.domain.BaseEntity;
 import com.harmony.umbrella.json.PropertyTransformer;
 import com.harmony.umbrella.json.builder.SerializerConfigBuilderFactory;

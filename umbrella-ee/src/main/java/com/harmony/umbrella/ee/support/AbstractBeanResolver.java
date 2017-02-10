@@ -15,6 +15,8 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
+import org.springframework.core.annotation.AnnotationUtils;
+
 import com.harmony.umbrella.core.BeansException;
 import com.harmony.umbrella.ee.BeanDefinition;
 import com.harmony.umbrella.ee.BeanResolver;
@@ -22,7 +24,6 @@ import com.harmony.umbrella.ee.SessionBean;
 import com.harmony.umbrella.ee.formatter.JndiFormatter;
 import com.harmony.umbrella.log.Log;
 import com.harmony.umbrella.log.Logs;
-import com.harmony.umbrella.util.AnnotationUtils;
 import com.harmony.umbrella.util.StringUtils;
 
 /**
@@ -209,7 +210,7 @@ public abstract class AbstractBeanResolver implements BeanResolver {
         if (ann != null && ann.length > 0) {
             properties = new HashMap<String, Object>();
             for (Annotation a : ann) {
-                properties.putAll(AnnotationUtils.toMap(a));
+                properties.putAll(AnnotationUtils.getAnnotationAttributes(a));
             }
         }
         return properties;

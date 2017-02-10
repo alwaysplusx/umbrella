@@ -17,7 +17,7 @@ import com.harmony.umbrella.core.Member;
  * 
  * @author wuxii@foxmail.com
  */
-public class MemberUtils {
+public class MemberUtils extends ReflectionUtils {
 
     /**
      * 通过指定的字段名称或字段路径到达最终的字段member(该路径表达式使用{@code '.'}分割)
@@ -28,10 +28,10 @@ public class MemberUtils {
      *            字段的路径
      * @return member
      */
-    public static Member access(Class<?> clazz, String name) {
+    public static Member accessMember(Class<?> clazz, String name) {
         int lastDotIndex = name.lastIndexOf(".");
         if (lastDotIndex < 0) {
-            Field field = ReflectionUtils.findField(clazz, name);
+            Field field = findField(clazz, name);
             if (field == null) {
                 Method readMethod = findReadMethod(clazz, name);
                 if (readMethod != null) {
@@ -53,8 +53,8 @@ public class MemberUtils {
      *            字段
      * @return member
      */
-    public static Member access(Field field) {
-        return access(field.getDeclaringClass(), field);
+    public static Member accessMember(Field field) {
+        return accessMember(field.getDeclaringClass(), field);
     }
 
     /**
@@ -66,7 +66,7 @@ public class MemberUtils {
      *            最终接触的field
      * @return member
      */
-    public static Member access(Class<?> clazz, Field field) {
+    public static Member accessMember(Class<?> clazz, Field field) {
         if (!contains(clazz, field)) {
             throw new IllegalArgumentException(field + " not in " + clazz);
         }
@@ -81,8 +81,8 @@ public class MemberUtils {
      * @return member
      * @see #access(Class, Method)
      */
-    public static Member access(Method readMethod) {
-        return access(readMethod.getDeclaringClass(), readMethod);
+    public static Member accessMember(Method readMethod) {
+        return accessMember(readMethod.getDeclaringClass(), readMethod);
     }
 
     /**
@@ -94,7 +94,7 @@ public class MemberUtils {
      *            最终解除的readMethod
      * @return member
      */
-    public static Member access(Class<?> clazz, Method readMethod) {
+    public static Member accessMember(Class<?> clazz, Method readMethod) {
         if (!isReadMethod(readMethod)) {
             throw new IllegalArgumentException(readMethod + " not a getter method");
         }
@@ -139,6 +139,21 @@ public class MemberUtils {
     }
 
     /**
+     * 通过field名称查找对应的setter方法
+     * 
+     * @param source
+     *            目标类
+     * @param field
+     *            字段名称
+     * @return 字段对应的setter方法
+     * @throws NoSuchMethodException
+     *             如果未找到getter方法
+     */
+    public static Method findWriterMethod(Class<?> source, String fieldName) {
+        return ReflectionUtils.findMethod(source, writerMethodName(fieldName), new Class[] { Object.class });
+    }
+
+    /**
      * 将字段名转为getter的方法名
      * 
      * @param fieldName
@@ -163,21 +178,6 @@ public class MemberUtils {
             throw new IllegalArgumentException("field name is blank");
         }
         return "set" + Character.toUpperCase(fieldName.charAt(0)) + fieldName.substring(1);
-    }
-
-    /**
-     * 通过field名称查找对应的setter方法
-     * 
-     * @param source
-     *            目标类
-     * @param field
-     *            字段名称
-     * @return 字段对应的setter方法
-     * @throws NoSuchMethodException
-     *             如果未找到getter方法
-     */
-    public static Method findWriterMethod(Class<?> source, String fieldName) {
-        return ReflectionUtils.findMethod(source, writerMethodName(fieldName), new Class[] { Object.class });
     }
 
     /**
@@ -206,56 +206,84 @@ public class MemberUtils {
         return ReflectionUtils.findField(clazz, name) != null || findWriterMethod(clazz, name) != null;
     }
 
-    public static Object get(String name, Object val) {
-        Assert.notNull(val, "target not allow null");
-        Assert.notNull(name, "fieldName not allow null");
-
-        Class<?> targetClass = val.getClass();
-        Method readMethod = findReadMethod(targetClass, name);
-
-        if (readMethod != null) {
-            return ReflectionUtils.invokeMethod(readMethod, val);
-        }
-
-        Field field = ReflectionUtils.findField(targetClass, name);
-        if (field == null) {
-            throw new IllegalArgumentException(name + " field not find");
-        }
+    /**
+     * 强制获取target中对应的field的值
+     * 
+     * @param field
+     *            需要获取的字段
+     * @param target
+     *            目标对象
+     * @return 字段值
+     */
+    public static Object getFieldValue(Field field, Object target) {
+        makeAccessible(field);
         try {
-            if (!field.isAccessible()) {
-                field.setAccessible(true);
-            }
-            return field.get(val);
+            return field.get(target);
         } catch (IllegalAccessException ex) {
-            ReflectionUtils.handleReflectionException(ex);
+            handleReflectionException(ex);
             throw new IllegalStateException("Unexpected reflection exception - " + ex.getClass().getName() + ": " + ex.getMessage());
         }
     }
 
-    public static void set(String name, Object target, Object value) {
+    public static void setFieldValue(Field field, Object target, Object val) {
+        makeAccessible(field);
+        try {
+            field.set(target, val);
+        } catch (IllegalAccessException ex) {
+            handleReflectionException(ex);
+            throw new IllegalStateException("Unexpected reflection exception - " + ex.getClass().getName() + ": " + ex.getMessage());
+        }
+    }
+
+    /**
+     * 获取val中对应属性名称为name的值
+     * 
+     * @param name
+     *            属性名称
+     * @param val
+     *            目标对象
+     * @return 属性值
+     */
+    public static Object getValue(String name, Object val) {
+        Assert.notNull(val, "target not allow null");
+        Assert.notNull(name, "property name not allow null");
+        Class<?> targetClass = val.getClass();
+        Method readMethod = findReadMethod(targetClass, name);
+        if (readMethod != null) {
+            return invokeMethod(readMethod, val);
+        }
+
+        Field field = findField(targetClass, name);
+        if (field == null) {
+            throw new IllegalArgumentException(name + " field not find");
+        }
+        return getFieldValue(field, val);
+    }
+
+    /**
+     * 设置目标对象target的属性name的值
+     * 
+     * @param name
+     *            属性名称
+     * @param target
+     *            目标对象
+     * @param val
+     *            属性值
+     */
+    public static void setValue(String name, Object target, Object val) {
         Assert.notNull(name, "fieldName not allow null");
         Assert.notNull(target, "target not allow null");
-        // set in method way
-        Method writeMethod = findWriterMethod(target.getClass(), name);
+        Class<?> targetClass = val.getClass();
+        Method writeMethod = findWriterMethod(targetClass, name);
         if (writeMethod != null) {
-            ReflectionUtils.invokeMethod(writeMethod, target, value);
+            invokeMethod(writeMethod, target, val);
             return;
         }
-        // set in field way
-        Field field = ReflectionUtils.findField(target.getClass(), name);
+        Field field = ReflectionUtils.findField(targetClass, name);
         if (field == null) {
             throw new IllegalArgumentException(target + ", " + name + " field not find");
         }
-        try {
-            if (!field.isAccessible()) {
-                field.setAccessible(true);
-            }
-            field.set(target, value);
-        } catch (IllegalAccessException ex) {
-            ReflectionUtils.handleReflectionException(ex);
-            throw new IllegalStateException("Unexpected reflection exception - " + ex.getClass().getName() + ": " + ex.getMessage());
-        }
-
+        setFieldValue(field, target, val);
     }
 
     static Class<?> getPathType(Class<?> clazz, String name) {
@@ -311,7 +339,7 @@ public class MemberUtils {
      * 
      * @author wuxii@foxmail.com
      */
-    static final class PathMember implements Member {
+    private static final class PathMember implements Member {
 
         protected final Class<?> rootClass;
         protected final String fullName;
@@ -370,10 +398,6 @@ public class MemberUtils {
             return fullName;
         }
 
-        public String getMemberName() {
-            return memberName;
-        }
-
         @Override
         public Class<?> getType() {
             if (type == null) {
@@ -382,6 +406,7 @@ public class MemberUtils {
             return type;
         }
 
+        @Override
         public Field getField() {
             if (field == null) {
                 field = ReflectionUtils.findField(getPathClass(), memberName);
@@ -389,6 +414,7 @@ public class MemberUtils {
             return field;
         }
 
+        @Override
         public Method getReadMethod() {
             if (readMethod == null) {
                 readMethod = findReadMethod(getPathClass(), memberName);
@@ -396,6 +422,7 @@ public class MemberUtils {
             return readMethod;
         }
 
+        @Override
         public Method getWriteMethod() {
             if (writeMethod == null) {
                 writeMethod = findWriterMethod(getPathClass(), memberName);
@@ -414,10 +441,12 @@ public class MemberUtils {
             return ann;
         }
 
+        @Override
         public boolean isReadable() {
             return getField() != null || getReadMethod() != null;
         }
 
+        @Override
         public boolean isWriteable() {
             return getField() != null || getWriteMethod() != null;
         }
@@ -430,6 +459,7 @@ public class MemberUtils {
             return new PathMember(rootClass, path, name, pathClass);
         }
 
+        @Override
         public Object get(Object root) {
             Assert.isTrue(isReadable(), rootClass + " " + fullName + " unreadable");
             Object pathObject = getPathObject(root);
@@ -439,6 +469,7 @@ public class MemberUtils {
             return getTokenValue(memberName, pathObject);
         }
 
+        @Override
         public void set(Object obj, Object val) {
             Assert.isTrue(isWriteable(), rootClass + " " + fullName + " unwriteable");
             // 获取$.user.name中的user
@@ -454,7 +485,7 @@ public class MemberUtils {
             StringTokenizer st = new StringTokenizer(path, ".");
             while (st.hasMoreTokens()) {
                 String token = st.nextToken();
-                Object tmp = MemberUtils.get(token, result);
+                Object tmp = getTokenValue(token, result);
                 if (tmp == null && st.hasMoreTokens()) {
                     throw new IllegalArgumentException(result + " " + token + " got null value");
                 }
@@ -476,11 +507,11 @@ public class MemberUtils {
         }
 
         protected final Object getTokenValue(String token, Object target) {
-            return MemberUtils.get(token, target);
+            return getValue(token, target);
         }
 
         protected final void setTokenValue(String token, Object target, Object value) {
-            MemberUtils.set(token, target, value);
+            setValue(token, target, value);
         }
 
     }

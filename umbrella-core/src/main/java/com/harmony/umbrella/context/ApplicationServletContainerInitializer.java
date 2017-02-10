@@ -19,6 +19,7 @@ import org.springframework.util.ClassUtils;
 
 import com.harmony.umbrella.context.listener.ApplicationDestroyListener;
 import com.harmony.umbrella.context.listener.ApplicationEventListener;
+import com.harmony.umbrella.context.listener.ApplicationListener;
 import com.harmony.umbrella.context.listener.ApplicationStartListener;
 import com.harmony.umbrella.context.metadata.ApplicationMetadata;
 import com.harmony.umbrella.context.metadata.DatabaseMetadata;
@@ -31,7 +32,7 @@ import com.harmony.umbrella.util.ClassFilter.ClassFilterFeature;
 /**
  * @author wuxii@foxmail.com
  */
-@HandlesTypes({ ApplicationEventListener.class })
+@HandlesTypes({ ApplicationEventListener.class, ApplicationStartListener.class, ApplicationDestroyListener.class, ApplicationListener.class })
 public class ApplicationServletContainerInitializer implements ServletContainerInitializer {
 
     private ServletContext servletContext;

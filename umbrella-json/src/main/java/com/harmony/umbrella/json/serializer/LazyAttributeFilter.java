@@ -17,12 +17,12 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 
+import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.util.ReflectionUtils;
 
 import com.harmony.umbrella.core.Member;
 import com.harmony.umbrella.log.Log;
 import com.harmony.umbrella.log.Logs;
-import com.harmony.umbrella.util.AnnotationUtils;
 import com.harmony.umbrella.util.MemberUtils;
 
 /**
@@ -112,7 +112,7 @@ public class LazyAttributeFilter extends MemberPropertyFilter {
                 break;
             }
         }
-        return ann == null ? null : (FetchType) AnnotationUtils.getAnnotationValue(ann, "fetch");
+        return ann == null ? null : (FetchType) AnnotationUtils.getValue(ann, "fetch");
     }
 
     public void addFilterAnnotationClass(Iterable<Class<? extends Annotation>> annCls) {

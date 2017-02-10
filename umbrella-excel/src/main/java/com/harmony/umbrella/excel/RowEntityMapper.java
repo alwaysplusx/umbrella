@@ -1,5 +1,6 @@
 package com.harmony.umbrella.excel;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -16,7 +17,6 @@ import com.harmony.umbrella.core.Member;
 import com.harmony.umbrella.excel.annotation.ExcelColumn;
 import com.harmony.umbrella.excel.cell.CellResolverFactory;
 import com.harmony.umbrella.util.ClassFilter.ClassFilterFeature;
-import com.harmony.umbrella.util.CollectionUtils;
 import com.harmony.umbrella.util.MemberUtils;
 import com.harmony.umbrella.util.StringUtils;
 
@@ -77,7 +77,7 @@ public class RowEntityMapper<T> implements RowVisitor {
         for (int i = startColumn, max = getMaxColumnNumber(row); i < max; i++) {
             Cell cell = row.getCell(i);
             if (cell != null) {
-                Member member = MemberUtils.access(entityClass, headerIndexToFieldNameMap.get(i));
+                Member member = MemberUtils.accessMember(entityClass, headerIndexToFieldNameMap.get(i));
                 CellResolver<?> cellResolver = getCellResolver(member);
                 member.set(entity, cellResolver.resolve(cell.getRowIndex(), cell.getColumnIndex(), cell));
             }
@@ -91,7 +91,8 @@ public class RowEntityMapper<T> implements RowVisitor {
     }
 
     public T[] getEntities() {
-        return CollectionUtils.toArray(result, entityClass);
+        T[] array = (T[]) Array.newInstance(entityClass, result.size());
+        return result.toArray(array);
     }
 
     @SuppressWarnings("rawtypes")

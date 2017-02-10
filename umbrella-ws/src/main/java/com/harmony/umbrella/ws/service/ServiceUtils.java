@@ -26,14 +26,14 @@ public class ServiceUtils {
         for (Method method : targetClass.getMethods()) {
             Key ann = method.getAnnotation(Key.class);
             if (ann != null && MemberUtils.isReadMethod(method)) {
-                result.add(MemberUtils.access(targetClass, method));
+                result.add(MemberUtils.accessMember(targetClass, method));
             }
         }
         // 配置有@Key的字段
         for (Field field : targetClass.getDeclaredFields()) {
             Key ann = field.getAnnotation(Key.class);
             if (ann != null) {
-                result.add(MemberUtils.access(targetClass, field));
+                result.add(MemberUtils.accessMember(targetClass, field));
             }
         }
         return result.toArray(new Member[result.size()]);

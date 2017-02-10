@@ -37,7 +37,7 @@ public abstract class MemberPropertyFilter implements PropertyPreFilter {
 
     protected Member getObjectMember(Class<?> targetClass, String name) {
         try {
-            return MemberUtils.access(targetClass, name);
+            return MemberUtils.accessMember(targetClass, name);
         } catch (Exception e) {
             return null;
         }

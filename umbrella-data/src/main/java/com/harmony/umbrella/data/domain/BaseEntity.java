@@ -8,7 +8,7 @@ import javax.persistence.MappedSuperclass;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
-import com.harmony.umbrella.data.Persistable;
+import org.springframework.data.domain.Persistable;
 
 /**
  * @author wuxii@foxmail.com
