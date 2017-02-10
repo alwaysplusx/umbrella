@@ -9,12 +9,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 
-import com.harmony.umbrella.data.Queryable;
-
 /**
  * @author wuxii@foxmail.com
  */
-public interface JpaDAO extends DAO, Queryable {
+public interface JpaDAO extends DAO {
 
     <T> int remove(Class<T> entityClass, Specification<T> spec);
 

@@ -7,7 +7,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 
-public interface EntityDAO<T> extends JpaDAO, DAO {
+import com.harmony.umbrella.data.Queryable;
+
+public interface EntityDAO<T> extends JpaDAO, DAO, Queryable<T> {
 
     int remove(Specification<T> spec);
 

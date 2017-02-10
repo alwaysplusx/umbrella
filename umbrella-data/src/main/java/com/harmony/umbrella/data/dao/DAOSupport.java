@@ -22,7 +22,7 @@ import com.harmony.umbrella.data.query.QueryUtils;
  */
 public abstract class DAOSupport implements DAO {
 
-    public abstract EntityManager getEntityManager();
+    protected abstract EntityManager getEntityManager();
 
     @Override
     public <T> T persist(T entity) {

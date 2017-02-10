@@ -7,14 +7,17 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 
+import com.harmony.umbrella.data.query.QueryBundle;
+import com.harmony.umbrella.data.query.QueryResult;
+
 /**
  * @author wuxii@foxmail.com
  */
-public abstract class EntityEAOSupport<T> extends JpaDAOSupport implements EntityDAO<T> {
+public abstract class EntityDAOSupport<T> extends JpaDAOSupport implements EntityDAO<T> {
 
     protected final Class<T> entityClass;
 
-    protected EntityEAOSupport(Class<T> entityClass) {
+    protected EntityDAOSupport(Class<T> entityClass) {
         this.entityClass = entityClass;
     }
 
@@ -80,6 +83,22 @@ public abstract class EntityEAOSupport<T> extends JpaDAOSupport implements Entit
     @Override
     public long count(Specification<T> spec) {
         return count(entityClass, spec);
+    }
+
+    @Override
+    public QueryResult<T> query(QueryBundle<T> bundle) {
+        if (bundle.getEntityClass() == null) {
+            throw new IllegalStateException("entity class not set");
+        }
+        return queryWith(entityClass).unbundle(bundle).execute();
+    }
+
+    @Override
+    public <M> QueryResult<M> query(QueryBundle bundle, Class<M> entityClass) {
+        if (entityClass == null) {
+            throw new IllegalStateException("entity class not set");
+        }
+        return queryWith(entityClass).unbundle(bundle).from(entityClass).execute();
     }
 
 }

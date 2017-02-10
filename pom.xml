@@ -56,7 +56,6 @@
     <apache.poi.version>3.14</apache.poi.version>
     <!-- spring -->
     <spring.version>4.3.2.RELEASE</spring.version>
-    <spring.data.version>1.10.0.RELEASE</spring.data.version>
     <spring.data.jpa.version>1.10.2.RELEASE</spring.data.jpa.version>
     <spring.security.version>4.0.0.RELEASE</spring.security.version>
     <!-- hibernate -->
@@ -236,11 +235,6 @@
         <groupId>org.springframework.data</groupId>
         <artifactId>spring-data-jpa</artifactId>
         <version>${spring.data.jpa.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.springframework.data</groupId>
-        <artifactId>spring-data-commons</artifactId>
-        <version>${spring.data.version}</version>
       </dependency>
       <!-- spring security -->
       <dependency>
