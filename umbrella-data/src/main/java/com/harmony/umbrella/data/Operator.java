@@ -10,6 +10,8 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Predicate;
 
+import org.springframework.util.Assert;
+
 import com.harmony.umbrella.util.StringUtils;
 
 public enum Operator {
@@ -326,16 +328,14 @@ public enum Operator {
     }
 
     public static Operator forName(String qualifiedName) {
-        if (qualifiedName == null) {
-            return null;
-        }
+        Assert.notNull(qualifiedName, "name not allow null");
         Operator[] values = Operator.values();
         for (Operator operator : values) {
             if (qualifiedName.equals(operator.qualifiedName)) {
                 return operator;
             }
         }
-        return null;
+        throw new IllegalArgumentException(qualifiedName + " not found!");
     }
 
 }

@@ -54,4 +54,14 @@ public enum CompositionType {
     public String qualifiedName() {
         return qualifiedName;
     }
+
+    public static CompositionType forName(String name) {
+        for (CompositionType ct : values()) {
+            if (ct.qualifiedName.equals(name)) {
+                return ct;
+            }
+        }
+        throw new IllegalArgumentException("invalid composition type " + name);
+    }
+
 }

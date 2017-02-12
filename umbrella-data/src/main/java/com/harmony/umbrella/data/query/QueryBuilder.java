@@ -509,7 +509,7 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
      *            条件类型
      * @return this
      */
-    protected T addCondition(String name, Object value, Operator operator) {
+    public T addCondition(String name, Object value, Operator operator) {
         return (T) addSpecication(new Condition<>(name, operator, value));
     }
 
@@ -524,7 +524,7 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
      *            条件类型
      * @return this
      */
-    protected T addExpressionCodition(String left, String right, Operator operator) {
+    public T addExpressionCodition(String left, String right, Operator operator) {
         return (T) addSpecication(new ExpressionCondition<>(left, right, operator));
     }
 
