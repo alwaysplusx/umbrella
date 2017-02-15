@@ -46,7 +46,7 @@ public class ApplicationServletContainerInitializer implements ServletContainerI
             final ApplicationConfiguration cfg = buildApplicationConfiguration();
 
             // init application static first
-            ApplicationContext.initStatic(cfg);
+            ApplicationContext.start(cfg);
 
             if (Boolean.valueOf(getInitParameter("show-info")) || Logs.getLog().isDebugEnabled()
                     || Boolean.valueOf(cfg.getStringProperty("application.show-info"))) {
@@ -91,6 +91,7 @@ public class ApplicationServletContainerInitializer implements ServletContainerI
                             ((ApplicationDestroyListener) listener).onDestroy(cfg);
                         }
                     }
+                    ApplicationContext.shutdown();
                 }
 
             });

@@ -8,6 +8,8 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 import com.harmony.umbrella.util.TimeUtils;
 
@@ -28,6 +30,7 @@ public class Model implements Serializable {
     private String content;
     private int ordinal;
 
+    @Temporal(TemporalType.TIMESTAMP)
     private Calendar createDate;
 
     @OneToMany(mappedBy = "model")

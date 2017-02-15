@@ -212,6 +212,7 @@ public class QueryResultImpl<T> implements QueryResult<T> {
     }
 
     protected final <E> CriteriaQuery<E> createQuery(Class<E> resultType) {
+        // TODO distinct 
         return (resultType == null || resultType == Object.class) ? (CriteriaQuery<E>) builder.createQuery() : builder.createQuery(resultType);
     }
 

@@ -29,6 +29,7 @@ import com.harmony.umbrella.core.SimpleBeanFactory;
 import com.harmony.umbrella.log.Log;
 import com.harmony.umbrella.log.Logs;
 import com.harmony.umbrella.util.ClassFilter;
+import com.harmony.umbrella.util.IOUtils;
 
 /**
  * 运行的应用的上下文
@@ -51,7 +52,7 @@ public abstract class ApplicationContext implements BeanFactory {
 
     private static ApplicationConfiguration applicationConfiguration;
 
-    public static synchronized void initStatic(ApplicationConfiguration appConfig) {
+    public static synchronized void start(ApplicationConfiguration appConfig) {
         if (applicationConfiguration != null) {
             LOG.warn("application metadata already initial");
             return;
@@ -73,10 +74,6 @@ public abstract class ApplicationContext implements BeanFactory {
 
         applicationConfiguration = appConfig;
 
-    }
-
-    public static synchronized void start(ApplicationConfiguration appConfig) {
-        initStatic(appConfig);
     }
 
     public static synchronized void shutdown() {
@@ -207,44 +204,14 @@ public abstract class ApplicationContext implements BeanFactory {
         return getBeanFactory().getBean(beanName, scope);
     }
 
-    /**
-     * 将包名转化为需要扫描的路径
-     * 
-     * @param pkg
-     *            包名
-     * @return 扫描路径
-     */
-    private static String toResourcePath(String pkg) {
-        return ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX + pkg.replace(".", "/") + "/**/*.class";
-    }
-
-    private static Class<?> forClass(Resource resource, boolean initialize) {
-        InputStream is = null;
+    private static String readClassName(Resource resource) throws IOException {
+        InputStream is = resource.getInputStream();
+        byte[] b = IOUtils.toByteArray(is);
         try {
-            is = resource.getInputStream();
-            return forName(new ClassReader(is).getClassName(), initialize);
+            is.close();
         } catch (IOException e) {
-            LOG.error(e);
-        } finally {
-            if (is != null) {
-                try {
-                    is.close();
-                } catch (IOException e) {
-                }
-            }
         }
-        return null;
-    }
-
-    private static Class<?> forName(String className, boolean initialize) {
-        try {
-            return Class.forName(className.replace("/", "."), initialize, ClassUtils.getDefaultClassLoader());
-        } catch (Error e) {
-            LOG.warn("{} in classpath jar no fully configured, {}", className, e.toString());
-        } catch (Throwable e) {
-            LOG.error("{}", className, e);
-        }
-        return null;
+        return new ClassReader(b).getClassName().replaceAll("/", ".");
     }
 
     public static class ApplicationContextInitializer {
@@ -313,15 +280,27 @@ public abstract class ApplicationContext implements BeanFactory {
             Collection<String> packages = cfg.getScanPackages();
             if (packages != null && !packages.isEmpty()) {
                 classes.clear();
-                ResourcePatternResolver resourcePatternResolver = new PathMatchingResourcePatternResolver();
+                ResourcePatternResolver resourceLoader = new PathMatchingResourcePatternResolver();
+                ClassLoader classLoader = ClassUtils.getDefaultClassLoader();
+                boolean initialize = Boolean.valueOf(cfg.getStringProperty("init-class-when-scan"));
                 for (String pkg : packages) {
-                    String resourcePath = toResourcePath(pkg);
+                    String path = ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX + pkg.replace(".", "/") + "/**/*.class";
                     try {
-                        Resource[] resources = resourcePatternResolver.getResources(resourcePath);
+                        Resource[] resources = resourceLoader.getResources(path);
                         for (Resource resource : resources) {
-                            Class<?> clazz = forClass(resource, Boolean.valueOf(cfg.getStringProperty("init-class-when-scan")));
-                            if (clazz != null && !classes.contains(clazz)) {
-                                classes.add(clazz);
+                            String className = null;
+                            try {
+                                className = readClassName(resource);
+                                Class<?> clazz = Class.forName(className, initialize, classLoader);
+                                if (classes.contains(clazz)) {
+                                    classes.add(clazz);
+                                }
+                            } catch (IOException e) {
+                                LOG.error("can't read resource {}", resource);
+                            } catch (Error e) {
+                                LOG.warn("{} in classpath jar no fully configured, {}", className, e.toString());
+                            } catch (Throwable e) {
+                                LOG.error("{}", className, e);
                             }
                         }
                     } catch (IOException e) {

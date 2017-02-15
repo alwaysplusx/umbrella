@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 import java.net.URL;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -230,7 +230,7 @@ public class PropertiesUtils {
      *            属性集合
      * @return key前缀相同的属性集合
      */
-    public static Map<String, Object> filterStartWith(String prefix, Map<String, Object> map) {
+    public static <T> Map<String, T> filterStartWith(String prefix, Map<String, T> map) {
         return filterStartWith(prefix, map, false);
     }
 
@@ -245,12 +245,12 @@ public class PropertiesUtils {
      *            是否忽略大小写
      * @return key前缀相同的属性集合
      */
-    public static Map<String, Object> filterStartWith(String prefix, Map<String, Object> map, boolean ignoreCase) {
+    public static <T> Map<String, T> filterStartWith(String prefix, Map<String, T> map, boolean ignoreCase) {
         Assert.notNull(prefix, "prefix not allow null");
         if (StringUtils.isBlank(prefix)) {
-            return new HashMap<String, Object>(map);
+            return new LinkedHashMap<String, T>(map);
         }
-        Map<String, Object> result = new HashMap<String, Object>();
+        Map<String, T> result = new LinkedHashMap<String, T>();
         Set<String> keys = map.keySet();
         for (String key : keys) {
             if (key.startsWith(prefix) || (ignoreCase && key.toLowerCase().startsWith(prefix.toLowerCase()))) {

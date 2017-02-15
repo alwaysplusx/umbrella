@@ -4,9 +4,12 @@ import static com.harmony.umbrella.data.CompositionType.*;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.Stack;
 
 import javax.persistence.EntityManager;
@@ -60,6 +63,7 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
 
     protected boolean autoEnclose = true;
     protected boolean strictMode;
+    protected Set<String> groupingProperties = new LinkedHashSet<>();
 
     /**
      * 当前查询条件与上个查询条件的连接条件, 当前查询条件被添加完成后将被清空
@@ -562,6 +566,10 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
                 end();
             }
         }
+        if (!groupingProperties.isEmpty()) {
+            specification = new GrouppingSpecification<>(groupingProperties, specification);
+            groupingProperties.clear();
+        }
     }
 
     // paging
@@ -784,6 +792,13 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
         return (T) this;
     }
 
+    // group by
+
+    public T groupBy(String... names) {
+        this.groupingProperties.addAll(Arrays.asList(names));
+        return (T) this;
+    }
+
     // enclose method
 
     /**
@@ -835,6 +850,7 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
     public void clear() {
         queryStack.clear();
         temp.clear();
+        groupingProperties.clear();
         assembleType = null;
         fetchAttributes = null;
         joinAttributes = null;
@@ -905,10 +921,9 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
     /**
      * 查询条件
      */
-    private static final class Condition<T> implements Serializable, Specification<T> {
+    private static final class Condition<T> implements Specification<T>, Serializable {
 
-        private static final long serialVersionUID = 1L;
-
+        private static final long serialVersionUID = -8202741905554082489L;
         String name;
         Operator operator;
         Object value;
@@ -935,8 +950,9 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
     /**
      * 表达式查询条件
      */
-    private static final class ExpressionCondition<T> implements Specification<T> {
+    private static final class ExpressionCondition<T> implements Specification<T>, Serializable {
 
+        private static final long serialVersionUID = 5736236577457666032L;
         String left;
         String right;
         Operator operator;
@@ -952,6 +968,27 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
             Expression leftExpression = QueryUtils.toExpressionRecursively(root, left);
             Expression rightExpression = QueryUtils.toExpressionRecursively(root, right);
             return operator.explain(leftExpression, cb, rightExpression);
+        }
+
+    }
+
+    private static final class GrouppingSpecification<T> implements Specification<T>, Serializable {
+
+        private static final long serialVersionUID = -3833941238207876441L;
+        private Collection<String> groupingProperties;
+        private Specification<T> spec;
+
+        public GrouppingSpecification(Collection<String> grouping, Specification<T> spec) {
+            this.groupingProperties = grouping;
+            this.spec = spec;
+        }
+
+        @Override
+        public Predicate toPredicate(Root<T> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+            for (String p : groupingProperties) {
+                query.groupBy(QueryUtils.toExpressionRecursively(root, p));
+            }
+            return spec == null ? cb.conjunction() : spec.toPredicate(root, query, cb);
         }
 
     }

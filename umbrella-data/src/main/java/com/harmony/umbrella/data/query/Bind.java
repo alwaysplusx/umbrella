@@ -19,9 +19,9 @@ import com.harmony.umbrella.data.CompositionType;
  * 
  * @author wuxii@foxmail.com
  */
-class Bind<T> implements Serializable, CompositionSpecification<T> {
+class Bind<T> implements CompositionSpecification<T>, Serializable {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -9083093297662256433L;
     private CompositionType compositionType;
     private List<CompositionSpecification> items = new ArrayList<CompositionSpecification>();
 
@@ -82,7 +82,7 @@ class Bind<T> implements Serializable, CompositionSpecification<T> {
 
     private static final class SpecificationWrapper<T> implements CompositionSpecification<T>, Serializable {
 
-        private static final long serialVersionUID = 1L;
+        private static final long serialVersionUID = 957944078509511795L;
         private Specification spec;
         private CompositionType compositionType;
 
