@@ -160,6 +160,8 @@ public class QueryResultImpl<T> implements QueryResult<T> {
 
     // query result
 
+    // function expression
+
     private void checkListQuery() {
         Specification spec = bundle.getSpecification();
         if (spec == null && !QueryFeature.isEnabled(bundle.getQueryFeature(), QueryFeature.ALLOW_EMPTY_CONDITION)) {
@@ -196,9 +198,29 @@ public class QueryResultImpl<T> implements QueryResult<T> {
 
         List<Selection> columns = new ArrayList<Selection>();
         for (String c : column) {
-            columns.add(QueryUtils.toExpressionRecursively(root, c));
+            if (isFunctionExpression(c)) {
+                columns.add(functionExpression(c, root));
+            } else {
+                columns.add(QueryUtils.toExpressionRecursively(root, c));
+            }
         }
         return columns.size() == 1 ? query.select(columns.get(0)) : query.multiselect(columns.toArray(new Selection[0]));
+    }
+
+    protected Expression functionExpression(String attributeName, Root root) {
+        int left = attributeName.indexOf("(");
+        int right = attributeName.indexOf(")");
+        String functionName = attributeName.substring(0, left);
+        String expressionName = attributeName.substring(left, right);
+        return builder.function(functionName, null, root.get(expressionName));
+    }
+
+    protected boolean isFunctionExpression(String attributeName) {
+        return attributeName.indexOf("(") > -1 && attributeName.indexOf(")") > -1;
+    }
+
+    protected <E> Expression<E> functionExpression(String function, Expression<T> expression) {
+        return null;
     }
 
     protected <E> CriteriaQuery<E> buildFunctionCriteriaQuery(Class<E> resultType, String function, String column) {
@@ -212,8 +234,13 @@ public class QueryResultImpl<T> implements QueryResult<T> {
     }
 
     protected final <E> CriteriaQuery<E> createQuery(Class<E> resultType) {
-        // TODO distinct 
-        return (resultType == null || resultType == Object.class) ? (CriteriaQuery<E>) builder.createQuery() : builder.createQuery(resultType);
+        CriteriaQuery<E> query = null;
+        if (resultType == null || resultType == Object.class) {
+            query = (CriteriaQuery<E>) builder.createQuery();
+        } else {
+            query = builder.createQuery(resultType);
+        }
+        return query.distinct(QueryFeature.DISTINCT.isEnable(bundle.getQueryFeature()));
     }
 
     // apply query feature

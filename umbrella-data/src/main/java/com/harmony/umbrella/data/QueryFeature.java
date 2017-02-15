@@ -27,6 +27,10 @@ public enum QueryFeature {
         return mask;
     }
 
+    public final boolean isEnable(int mask) {
+        return isEnabled(mask, this);
+    }
+
     public static boolean isEnabled(int features, QueryFeature feature) {
         return (features & feature.getMask()) != 0;
     }
