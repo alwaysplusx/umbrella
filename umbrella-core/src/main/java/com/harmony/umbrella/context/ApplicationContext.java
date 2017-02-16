@@ -145,6 +145,7 @@ public abstract class ApplicationContext implements BeanFactory {
     }
 
     public static Class[] getApplicationClasses() {
+        // FIXME safely get class
         return classes.toArray(new Class[classes.size()]);
     }
 

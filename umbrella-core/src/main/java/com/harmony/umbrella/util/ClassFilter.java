@@ -18,7 +18,7 @@ public interface ClassFilter {
     boolean accept(Class<?> clazz);
 
     public enum ClassFilterFeature implements ClassFilter {
-
+        // FIXME safely accept
         NOTNULL {
             @Override
             public boolean accept(Class<?> clazz) {
