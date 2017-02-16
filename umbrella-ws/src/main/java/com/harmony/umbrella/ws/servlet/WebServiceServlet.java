@@ -11,6 +11,7 @@ import com.harmony.umbrella.context.ApplicationContext;
 import com.harmony.umbrella.log.Log;
 import com.harmony.umbrella.log.Logs;
 import com.harmony.umbrella.util.ClassFilter;
+import com.harmony.umbrella.util.ClassFilterFeature;
 import com.harmony.umbrella.util.StringUtils;
 import com.harmony.umbrella.ws.jaxrs.JaxRsServerManager;
 import com.harmony.umbrella.ws.jaxws.JaxWsServerManager;

@@ -12,7 +12,7 @@ import javax.jms.Session;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
-import com.harmony.umbrella.util.ClassFilter.ClassFilterFeature;
+import com.harmony.umbrella.util.ClassFilterFeature;
 
 /**
  * 
@@ -126,7 +126,7 @@ public class MessageTemplateBuilder<T extends MessageTemplateBuilder<T>> {
             try {
                 trackers.add(cls.newInstance());
             } catch (Exception e) {
-                // TODO
+                throw new IllegalArgumentException("can't create instance of " + cls);
             }
         }
         this.trackers.addAll(trackers);
@@ -193,7 +193,7 @@ public class MessageTemplateBuilder<T extends MessageTemplateBuilder<T>> {
                 helper.setMessageListener(listener);
             }
         } catch (Exception e) {
-            // TODO
+            throw new IllegalArgumentException("can't create message listense instance " + this.messageListenerClass);
         }
         return helper;
     }

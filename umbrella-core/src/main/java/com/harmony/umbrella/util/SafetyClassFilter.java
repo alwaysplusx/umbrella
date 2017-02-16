@@ -20,10 +20,8 @@ public class SafetyClassFilter implements ClassFilter {
     public boolean accept(Class<?> clazz) {
         try {
             return filter.accept(clazz);
-        } catch (Error e) {
-            log.error("unable accept class", e);
         } catch (Throwable e) {
-            log.error("unable accept class", e);
+            log.error("unable accept class {}", clazz, e);
         }
         return false;
     }

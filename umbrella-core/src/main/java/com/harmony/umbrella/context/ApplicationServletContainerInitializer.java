@@ -27,7 +27,8 @@ import com.harmony.umbrella.context.metadata.JavaMetadata;
 import com.harmony.umbrella.context.metadata.OperatingSystemMetadata;
 import com.harmony.umbrella.context.metadata.ServerMetadata;
 import com.harmony.umbrella.log.Logs;
-import com.harmony.umbrella.util.ClassFilter.ClassFilterFeature;
+import com.harmony.umbrella.util.ClassFilter;
+import com.harmony.umbrella.util.ClassFilterFeature;
 
 /**
  * @author wuxii@foxmail.com
@@ -107,14 +108,16 @@ public class ApplicationServletContainerInitializer implements ServletContainerI
         // under weblogic just load @HandlesTypes in WEB-INF/lib/*.jar, so load @HandlesTypes manually
         Set<Class<?>> result = new HashSet<>();
         if (Boolean.valueOf(getInitParameter("scan-handles-types")) || ContextHelper.isWeblogic()) {
-            Class[] classes = ApplicationContext.getApplicationClasses();
-            for (Class clazz : classes) {
-                if (ClassFilterFeature.NEWABLE.accept(clazz) //
-                        && !result.contains(clazz) //
-                        && ApplicationEventListener.class.isAssignableFrom(clazz)) {
-                    result.add(clazz);
+            ApplicationContext.getApplicationClasses(new ClassFilter() {
+                @Override
+                public boolean accept(Class<?> clazz) {
+                    if (ClassFilterFeature.NEWABLE.accept(clazz)//
+                            && !result.contains(clazz)//
+                            && ApplicationEventListener.class.isAssignableFrom(clazz))
+                        result.add(clazz);
+                    return false;
                 }
-            }
+            });
         }
         return result;
     }

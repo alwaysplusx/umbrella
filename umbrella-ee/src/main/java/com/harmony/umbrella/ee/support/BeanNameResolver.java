@@ -1,9 +1,7 @@
 package com.harmony.umbrella.ee.support;
 
 import java.lang.annotation.Annotation;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -15,7 +13,8 @@ import com.harmony.umbrella.ee.BeanDefinition;
 import com.harmony.umbrella.ee.util.EJBUtils;
 import com.harmony.umbrella.log.Log;
 import com.harmony.umbrella.log.Logs;
-import com.harmony.umbrella.util.ClassFilter.ClassFilterFeature;
+import com.harmony.umbrella.util.ClassFilter;
+import com.harmony.umbrella.util.ClassFilterFeature;
 import com.harmony.umbrella.util.StringUtils;
 
 /**
@@ -76,7 +75,7 @@ public class BeanNameResolver implements PartResolver<String> {
 
         // 查找子类
         if (beanClass.isInterface()) {
-            List<Class> subClasses = getSubClasses(beanClass);
+            Class[] subClasses = getSubClasses(beanClass);
             for (Class c : subClasses) {
                 if (EJBUtils.isSessionBean(c)) {
                     String name = getBeanName(c);
@@ -88,9 +87,9 @@ public class BeanNameResolver implements PartResolver<String> {
         }
 
         if (guessAlways || result.isEmpty()) {
-            Collection<String> guessResult = guessBeanName(beanClass);
-            if (guessResult != null) {
-                result.addAll(guessResult);
+            String[] guessResult = guessBeanName(beanClass);
+            if (guessResult != null && guessResult.length > 0) {
+                result.addAll(Arrays.asList(guessResult));
             }
         }
         log.debug("{} resolve bean name as {}", beanClass, result);
@@ -100,10 +99,10 @@ public class BeanNameResolver implements PartResolver<String> {
     /*
      * 通过bean definition猜想对应的bean name
      */
-    protected Collection<String> guessBeanName(final Class<?> beanClass) {
+    protected String[] guessBeanName(final Class<?> beanClass) {
         if (beanNameSuffixes == null || interfaceSuffixes == null //
                 || beanNameSuffixes.isEmpty() || interfaceSuffixes.isEmpty()) {
-            return Arrays.asList();
+            return new String[0];
         }
         Set<String> result = new HashSet<String>();
         final String name = beanClass.getSimpleName();
@@ -123,21 +122,18 @@ public class BeanNameResolver implements PartResolver<String> {
             }
         }
 
-        return result;
+        return result.toArray(new String[result.size()]);
     }
 
-    @SuppressWarnings("rawtypes")
-    protected List<Class> getSubClasses(Class<?> clazz) {
-        List<Class> result = new ArrayList<Class>();
-        for (Class c : ApplicationContext.getApplicationClasses()) {
-            if (clazz.isAssignableFrom(c) && clazz != c && ClassFilterFeature.NEWABLE.accept(clazz)) {
-                result.add(c);
+    protected Class[] getSubClasses(Class<?> clazz) {
+        return ApplicationContext.getApplicationClasses(new ClassFilter() {
+            @Override
+            public boolean accept(Class<?> c) {
+                return c.isAssignableFrom(c) && c != clazz && ClassFilterFeature.NEWABLE.accept(c);
             }
-        }
-        return result;
+        });
     }
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
     protected String getBeanName(Class<?> beanClass) {
         // 1. @Stateless#name 
         // 2. @Stateless#mappedName

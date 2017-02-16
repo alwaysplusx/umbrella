@@ -24,7 +24,7 @@ import com.harmony.umbrella.context.ApplicationContext.ApplicationContextInitial
 import com.harmony.umbrella.core.ConnectionSource;
 import com.harmony.umbrella.log.Log;
 import com.harmony.umbrella.log.Logs;
-import com.harmony.umbrella.util.ClassFilter.ClassFilterFeature;
+import com.harmony.umbrella.util.ClassFilterFeature;
 import com.harmony.umbrella.util.StringUtils;
 
 /**

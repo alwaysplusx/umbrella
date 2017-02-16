@@ -19,6 +19,7 @@ import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import javax.persistence.criteria.Subquery;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -1034,6 +1035,27 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
 
         public JoinType getJoniType() {
             return joniType;
+        }
+    }
+
+    public <E> SubQueryBuilder<E> subquery(Class<E> clazz) {
+        return null;
+    }
+
+    public class SubQueryBuilder<E> {
+        private Class<E> entityClass;
+
+        public void apply() {
+            addSpecication(new Specification<T>() {
+
+                @Override
+                public Predicate toPredicate(Root<T> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+                    Subquery<E> subquery = query.subquery(entityClass);
+                    Root<E> subRoot = query.from(entityClass);
+                    
+                    return null;
+                }
+            });
         }
     }
 

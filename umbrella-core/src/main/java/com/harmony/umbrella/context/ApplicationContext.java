@@ -29,6 +29,7 @@ import com.harmony.umbrella.core.SimpleBeanFactory;
 import com.harmony.umbrella.log.Log;
 import com.harmony.umbrella.log.Logs;
 import com.harmony.umbrella.util.ClassFilter;
+import com.harmony.umbrella.util.ClassFilterFeature;
 import com.harmony.umbrella.util.IOUtils;
 
 /**
@@ -144,11 +145,6 @@ public abstract class ApplicationContext implements BeanFactory {
         current.set(cc);
     }
 
-    public static Class[] getApplicationClasses() {
-        // FIXME safely get class
-        return classes.toArray(new Class[classes.size()]);
-    }
-
     static int getApplicationClassSize() {
         return classes.size();
     }
@@ -156,7 +152,7 @@ public abstract class ApplicationContext implements BeanFactory {
     public static Class[] getApplicationClasses(ClassFilter filter) {
         List<Class> result = new ArrayList<Class>();
         for (Class c : classes) {
-            if (filter.accept(c)) {
+            if (ClassFilterFeature.safetyAccess(filter, c)) {
                 result.add(c);
             }
         }

@@ -35,6 +35,7 @@ public final class Logs {
         if (logProvider == null) {
             logProvider = new SystemLogProvider();
         }
+        StaticLogger.debug("Load log provider {}", logProvider);
     }
 
     /**
