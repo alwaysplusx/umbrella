@@ -56,13 +56,11 @@ public abstract class QueryUtils {
     private QueryUtils() {
     }
 
-    @SuppressWarnings("unchecked")
     public static <T> Expression<T> toExpressionRecursively(final From<?, ?> from, String name) {
         return toExpressionRecursively(from, new StringTokenizer(name, "."));
     }
 
-    @SuppressWarnings("unchecked")
-    static <T> Expression<T> toExpressionRecursively(From<?, ?> from, StringTokenizer st) {
+    private static <T> Expression<T> toExpressionRecursively(From<?, ?> from, StringTokenizer st) {
         Bindable<?> propertyPathModel = null;
         Bindable<?> model = from.getModel();
         String segment = st.nextToken();
@@ -146,15 +144,6 @@ public abstract class QueryUtils {
             }
         }
         return from.join(attribute, JoinType.LEFT);
-    }
-
-    public static List<javax.persistence.criteria.Order> toJpaOrders(Sort sort, Root<?> root, CriteriaBuilder cb) {
-        List<javax.persistence.criteria.Order> result = new ArrayList<javax.persistence.criteria.Order>();
-        for (Sort.Order order : sort) {
-            Expression<?> expression = toExpressionRecursively(root, order.getProperty());
-            result.add(order.isAscending() ? cb.asc(expression) : cb.desc(expression));
-        }
-        return result;
     }
 
     /**

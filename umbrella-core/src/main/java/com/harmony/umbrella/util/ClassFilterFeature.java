@@ -79,7 +79,12 @@ public enum ClassFilterFeature implements ClassFilter {
 
     @Override
     public final boolean accept(Class<?> clazz) {
-        return safetyAccess(this, clazz);
+        try {
+            return doAccept(clazz);
+        } catch (Throwable e) {
+            log.error("unable accept class {}", clazz, e);
+        }
+        return false;
     }
 
     protected abstract boolean doAccept(Class<?> clazz);

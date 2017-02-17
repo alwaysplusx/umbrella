@@ -45,7 +45,7 @@ public abstract class JpaDAOSupport extends DAOSupport implements JpaDAO {
 
     @Override
     public <T> List<T> findAll(Class<T> entityClass, Specification<T> spec, Sort sort) {
-        return queryWith(entityClass).withSort(sort).withSpecification(spec).getResultList();
+        return queryWith(entityClass).sort(sort).withSpecification(spec).getResultList();
     }
 
     @Override

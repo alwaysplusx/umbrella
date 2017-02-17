@@ -127,7 +127,7 @@ public class QueryResultImpl<T> implements QueryResult<T> {
 
     @Override
     public Page<T> getResultPage(int pageNumber, int pageSize) {
-        return getResultPage(new PageRequest(pageNumber, pageSize, bundle.getSort()));
+        return getResultPage(new PageRequest(pageNumber, pageSize, getSort()));
     }
 
     @Override
@@ -170,7 +170,11 @@ public class QueryResultImpl<T> implements QueryResult<T> {
     }
 
     private CriteriaQuery<T> buildCriteriaQuery() {
-        return buildCriteriaQuery(bundle.getEntityClass(), bundle.getSort(), bundle.getFetchAttributes(), bundle.getJoinAttributes());
+        return buildCriteriaQuery(bundle.getEntityClass(), getSort(), bundle.getFetchAttributes(), bundle.getJoinAttributes());
+    }
+
+    private Sort getSort() {
+        return bundle.getPageable() == null ? null : bundle.getPageable().getSort();
     }
 
     protected <E> CriteriaQuery<E> buildCriteriaQuery(Class<E> resultType, Sort sort, FetchAttributes fetchAttr, JoinAttributes joinAttr) {
@@ -194,7 +198,7 @@ public class QueryResultImpl<T> implements QueryResult<T> {
         Root root = query.from(bundle.getEntityClass());
 
         applySpecification(root, query, bundle.getSpecification());
-        applySort(root, query, bundle.getSort());
+        applySort(root, query, getSort());
 
         List<Selection> columns = new ArrayList<Selection>();
         for (String c : column) {
@@ -217,10 +221,6 @@ public class QueryResultImpl<T> implements QueryResult<T> {
 
     protected boolean isFunctionExpression(String attributeName) {
         return attributeName.indexOf("(") > -1 && attributeName.indexOf(")") > -1;
-    }
-
-    protected <E> Expression<E> functionExpression(String function, Expression<T> expression) {
-        return null;
     }
 
     protected <E> CriteriaQuery<E> buildFunctionCriteriaQuery(Class<E> resultType, String function, String column) {

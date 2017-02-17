@@ -6,7 +6,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -19,7 +18,6 @@ import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
-import javax.persistence.criteria.Subquery;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -28,6 +26,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.domain.Sort.Order;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.util.Assert;
 
 import com.harmony.umbrella.data.CompositionType;
 import com.harmony.umbrella.data.Operator;
@@ -64,7 +63,6 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
 
     protected boolean autoEnclose = true;
     protected boolean strictMode;
-    protected Set<String> groupingProperties = new LinkedHashSet<>();
 
     /**
      * 当前查询条件与上个查询条件的连接条件, 当前查询条件被添加完成后将被清空
@@ -81,6 +79,7 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
     protected int pageNumber;
     protected int pageSize;
 
+    protected Set<String> groupingProperties = new LinkedHashSet<>();
     protected FetchAttributes fetchAttributes;
     protected JoinAttributes joinAttributes;
     protected Specification specification;
@@ -114,18 +113,6 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
     }
 
     /**
-     * 设置被查询的entity(表)
-     * 
-     * @param entityClass
-     *            实体
-     * @return this
-     * @see #from(Class)
-     */
-    public T withEntityClass(Class<M> entityClass) {
-        return from(entityClass);
-    }
-
-    /**
      * 设置查询条件, 通过此方法设置条件后前所有条件将会被清除
      * 
      * @param specification
@@ -153,24 +140,24 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
     }
 
     /**
-     * 设置排序条件
-     * 
-     * @param sort
-     *            排序条件
-     * @return this
-     */
-    public T withSort(Sort sort) {
-        this.sort = sort;
-        return (T) this;
-    }
-
-    /**
      * 启用/禁用自动匹配括号, default is enabled
      * 
      * @return this
      */
     public T autoEnclose(boolean flag) {
         this.autoEnclose = flag;
+        return (T) this;
+    }
+
+    /**
+     * 启用/禁用查询严格校验模式
+     * 
+     * @param strictMode
+     *            严格校验模式flag
+     * @return true is strictMode
+     */
+    public T strictMode(boolean strictMode) {
+        this.strictMode = strictMode;
         return (T) this;
     }
 
@@ -217,9 +204,6 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
         clear();
         this.entityClass = bundle.getEntityClass();
         this.specification = bundle.getSpecification();
-        this.pageNumber = bundle.getPageNumber();
-        this.pageSize = bundle.getPageSize();
-        this.sort = bundle.getSort();
         this.fetchAttributes = bundle.getFetchAttributes();
         this.joinAttributes = bundle.getJoinAttributes();
         this.queryFeature = bundle.getQueryFeature();
@@ -591,6 +575,17 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
     }
 
     // sort
+    /**
+     * 设置排序条件
+     * 
+     * @param sort
+     *            排序条件
+     * @return this
+     */
+    public T sort(Sort sort) {
+        this.sort = sort;
+        return (T) this;
+    }
 
     /**
      * 设置升序排序条件
@@ -871,6 +866,7 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
      * @return 查询结果
      */
     public QueryResult<M> execute() {
+        Assert.notNull(entityManager, "Can't execute query, because entity manager not exists! Please set entity manager before execute.");
         return new QueryResultImpl<M>(entityManager, bundle());
     }
 
@@ -994,37 +990,43 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
 
     }
 
-    static final class FetchAttributes implements Serializable {
+    public static final class FetchAttributes implements Serializable {
 
         private static final long serialVersionUID = 1L;
 
-        List<Attribute> attrs = new ArrayList<Attribute>();
+        public final List<Attribute> attrs = new ArrayList<Attribute>();
+
+        private FetchAttributes() {
+        }
 
         public List<Attribute> getAttributes() {
-            return Collections.unmodifiableList(attrs);
+            return attrs;
         }
     }
 
-    static final class JoinAttributes implements Serializable {
+    public static final class JoinAttributes implements Serializable {
 
         private static final long serialVersionUID = 1L;
 
-        List<Attribute> attrs = new ArrayList<Attribute>();
+        public final List<Attribute> attrs = new ArrayList<Attribute>();
+
+        private JoinAttributes() {
+        }
 
         public List<Attribute> getAttributes() {
-            return Collections.unmodifiableList(attrs);
+            return attrs;
         }
 
     }
 
-    static final class Attribute implements Serializable {
+    public static final class Attribute implements Serializable {
 
         private static final long serialVersionUID = 1L;
 
-        String name;
-        JoinType joniType;
+        public final String name;
+        public final JoinType joniType;
 
-        public Attribute(String name, JoinType joniType) {
+        private Attribute(String name, JoinType joniType) {
             this.name = name;
             this.joniType = joniType;
         }
@@ -1038,25 +1040,37 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
         }
     }
 
-    public <E> SubQueryBuilder<E> subquery(Class<E> clazz) {
-        return null;
+    public <B extends SubQueryBuilder<B, E>, E> SubQueryBuilder<B, E> subquery(Class<E> clazz) {
+        return new SubQueryBuilder<B, E>(clazz);
     }
 
-    public class SubQueryBuilder<E> {
-        private Class<E> entityClass;
+    public class SubQueryBuilder<B extends SubQueryBuilder<B, E>, E> extends QueryBuilder<B, E> {
 
-        public void apply() {
-            addSpecication(new Specification<T>() {
+        private static final long serialVersionUID = -7997630445529853487L;
 
-                @Override
-                public Predicate toPredicate(Root<T> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
-                    Subquery<E> subquery = query.subquery(entityClass);
-                    Root<E> subRoot = query.from(entityClass);
-                    
-                    return null;
-                }
-            });
+        protected final T parentQueryBuilder = (T) QueryBuilder.this;
+
+        protected Set<String> selections = new LinkedHashSet<>();
+
+        private SubQueryBuilder(Class<E> entityClass) {
+            super(QueryBuilder.this.entityManager);
+            this.entityClass = entityClass;
+            this.assembleType = parentQueryBuilder.assembleType;
+            this.autoEnclose = parentQueryBuilder.autoEnclose;
+            this.strictMode = parentQueryBuilder.strictMode;
         }
+
+        public B select(String... name) {
+            this.selections.addAll(Arrays.asList(name));
+            return (B) this;
+        }
+
+        public T apply() {
+            finishQuery();
+            addSpecication(this.specification);
+            return (T) QueryBuilder.this;
+        }
+
     }
 
 }
