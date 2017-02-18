@@ -13,9 +13,17 @@ public enum QueryFeature {
     DISTINCT,
 
     /**
-     * 是否允许空条件的查询, 对于查询list数据时候尤为重要
+     * 允许无条件的全表查询
      */
-    ALLOW_EMPTY_CONDITION;
+    ALLOW_LIST_QUERY_WHEN_EMPTY_CONDITION,
+    /**
+     * 当无查询条件时采用conjunction为默认条件
+     */
+    CONJUNCTION_WHEN_EMPTY_CONDITION,
+    /**
+     * 当无查询条件时候采用disjunction为默认条件
+     */
+    DISJUNCTION_WHEN_EMPTY_CONDITION;
 
     private QueryFeature() {
         mask = (1 << ordinal());

@@ -18,6 +18,7 @@ import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import javax.persistence.criteria.Subquery;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -31,6 +32,7 @@ import org.springframework.util.Assert;
 import com.harmony.umbrella.data.CompositionType;
 import com.harmony.umbrella.data.Operator;
 import com.harmony.umbrella.data.QueryFeature;
+import com.harmony.umbrella.data.util.QueryUtils;
 
 /**
  * 查询构建builder
@@ -542,7 +544,7 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
         return queryStack.peek();
     }
 
-    private void finishQuery() {
+    protected void finishQuery() {
         if (!queryStack.isEmpty()) {
             if (!autoEnclose) {
                 throw new IllegalStateException("query not finish, please turn enclosed on");
@@ -554,6 +556,9 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
         if (!groupingProperties.isEmpty()) {
             specification = new GrouppingSpecification<>(groupingProperties, specification);
             groupingProperties.clear();
+        }
+        if (specification == null) {
+            this.specification = QueryFeature.DISJUNCTION_WHEN_EMPTY_CONDITION.isEnable(queryFeature) ? QueryUtils.disjunction() : QueryUtils.conjunction();
         }
     }
 
@@ -677,8 +682,8 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
      * 
      * @return this
      */
-    public T allowEmptyCondition() {
-        return enable(QueryFeature.ALLOW_EMPTY_CONDITION);
+    public T allowEmptyConditionListQuery() {
+        return enable(QueryFeature.ALLOW_LIST_QUERY_WHEN_EMPTY_CONDITION);
     }
 
     /**
@@ -686,8 +691,28 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
      * 
      * @return this
      */
-    public T forbidEmptyConditon() {
-        return disable(QueryFeature.ALLOW_EMPTY_CONDITION);
+    public T forbidEmptyConditionListQuery() {
+        return disable(QueryFeature.ALLOW_LIST_QUERY_WHEN_EMPTY_CONDITION);
+    }
+
+    /**
+     * 当无查询条件时候默认为true
+     * 
+     * @return this
+     */
+    public T conjunctionWhenEmptyCondition() {
+        disable(QueryFeature.DISJUNCTION_WHEN_EMPTY_CONDITION);
+        return enable(QueryFeature.CONJUNCTION_WHEN_EMPTY_CONDITION);
+    }
+
+    /**
+     * 当无查询条件时候默认为false
+     * 
+     * @return this
+     */
+    public T disjunctionWhenEmptyCondition() {
+        disable(QueryFeature.CONJUNCTION_WHEN_EMPTY_CONDITION);
+        return enable(QueryFeature.CONJUNCTION_WHEN_EMPTY_CONDITION);
     }
 
     /**
@@ -1040,35 +1065,59 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
         }
     }
 
-    public <B extends SubQueryBuilder<B, E>, E> SubQueryBuilder<B, E> subquery(Class<E> clazz) {
-        return new SubQueryBuilder<B, E>(clazz);
+    public <B extends SubqueryBuilder<B, E>, E> SubqueryBuilder<B, E> subquery(Class<E> clazz) {
+        return new SubqueryBuilder<B, E>(clazz, this);
     }
 
-    public class SubQueryBuilder<B extends SubQueryBuilder<B, E>, E> extends QueryBuilder<B, E> {
+    public class SubqueryBuilder<B extends SubqueryBuilder<B, E>, E> extends QueryBuilder<B, E> {
 
         private static final long serialVersionUID = -7997630445529853487L;
 
-        protected final T parentQueryBuilder = (T) QueryBuilder.this;
+        protected final QueryBuilder parentQueryBuilder;
 
-        protected Set<String> selections = new LinkedHashSet<>();
+        protected String column;
 
-        private SubQueryBuilder(Class<E> entityClass) {
-            super(QueryBuilder.this.entityManager);
+        private String function;
+
+        protected SubqueryBuilder(Class<E> entityClass, QueryBuilder parent) {
+            super(parent.entityManager);
+            this.parentQueryBuilder = parent;
             this.entityClass = entityClass;
             this.assembleType = parentQueryBuilder.assembleType;
             this.autoEnclose = parentQueryBuilder.autoEnclose;
             this.strictMode = parentQueryBuilder.strictMode;
         }
 
-        public B select(String... name) {
-            this.selections.addAll(Arrays.asList(name));
+        public B select(String column) {
+            this.column = column;
             return (B) this;
         }
 
-        public T apply() {
-            finishQuery();
-            addSpecication(this.specification);
-            return (T) QueryBuilder.this;
+        public B selectFunction(String function, String column) {
+            this.function = function;
+            this.column = column;
+            return (B) this;
+        }
+
+        public T apply(final String column, final Operator operator) {
+            this.finishQuery();
+            final Specification<E> subCondition = this.specification;
+            return (T) parentQueryBuilder.addSpecication(new Specification<T>() {
+                @Override
+                public Predicate toPredicate(Root<T> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+                    final String subColumn = SubqueryBuilder.this.column;
+                    Subquery<E> subquery = query.subquery(entityClass);
+                    Root<E> subRoot = subquery.from(entityClass);
+                    subquery.where(subCondition.toPredicate(subRoot, null, cb));
+                    Expression subExpression = QueryUtils.toExpressionRecursively(subRoot, subColumn);
+                    if (function != null) {
+                        subExpression = cb.function(function, null, subExpression);
+                    }
+                    subquery.select(subExpression);
+                    Expression parentExpression = QueryUtils.toExpressionRecursively(root, column);
+                    return operator.explain(parentExpression, cb, subquery);
+                }
+            });
         }
 
     }

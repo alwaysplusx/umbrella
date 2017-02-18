@@ -10,7 +10,7 @@ import javax.persistence.criteria.Root;
 
 import org.springframework.data.jpa.domain.Specification;
 
-import com.harmony.umbrella.data.query.QueryUtils;
+import com.harmony.umbrella.data.util.QueryUtils;
 
 /**
  * @author wuxii@foxmail.com

@@ -25,6 +25,7 @@ import com.harmony.umbrella.data.QueryFeature;
 import com.harmony.umbrella.data.query.QueryBuilder.Attribute;
 import com.harmony.umbrella.data.query.QueryBuilder.FetchAttributes;
 import com.harmony.umbrella.data.query.QueryBuilder.JoinAttributes;
+import com.harmony.umbrella.data.util.QueryUtils;
 
 /**
  * @author wuxii@foxmail.com
@@ -164,7 +165,7 @@ public class QueryResultImpl<T> implements QueryResult<T> {
 
     private void checkListQuery() {
         Specification spec = bundle.getSpecification();
-        if (spec == null && !QueryFeature.isEnabled(bundle.getQueryFeature(), QueryFeature.ALLOW_EMPTY_CONDITION)) {
+        if (spec == null && !QueryFeature.ALLOW_LIST_QUERY_WHEN_EMPTY_CONDITION.isEnable(bundle.getQueryFeature())) {
             throw new IllegalStateException("not allow empty condition query list");
         }
     }
@@ -254,7 +255,7 @@ public class QueryResultImpl<T> implements QueryResult<T> {
 
     protected void applySort(Root root, CriteriaQuery query, Sort sort) {
         if (sort != null) {
-            query.orderBy(QueryUtils.toJpaOrders(sort, root, builder));
+            query.orderBy(QueryUtils.toOrders(sort, root, builder));
         }
     }
 

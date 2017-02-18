@@ -1,4 +1,4 @@
-package com.harmony.umbrella.data.query;
+package com.harmony.umbrella.data.util;
 
 import static javax.persistence.metamodel.Attribute.PersistentAttributeType.*;
 
@@ -15,12 +15,14 @@ import java.util.StringTokenizer;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Fetch;
 import javax.persistence.criteria.From;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Path;
+import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.persistence.metamodel.Attribute;
 import javax.persistence.metamodel.Attribute.PersistentAttributeType;
@@ -30,6 +32,7 @@ import javax.persistence.metamodel.PluralAttribute;
 
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 
 /**
  * 查询工具类
@@ -56,8 +59,25 @@ public abstract class QueryUtils {
     private QueryUtils() {
     }
 
+    public static <T> Specification<T> conjunction() {
+        return new SignalSpecification<T>(true);
+    }
+
+    public static <T> Specification<T> disjunction() {
+        return new SignalSpecification<T>(false);
+    }
+
     public static <T> Expression<T> toExpressionRecursively(final From<?, ?> from, String name) {
         return toExpressionRecursively(from, new StringTokenizer(name, "."));
+    }
+
+    public static List<javax.persistence.criteria.Order> toOrders(Sort sort, Root<?> root, CriteriaBuilder cb) {
+        List<javax.persistence.criteria.Order> result = new ArrayList<javax.persistence.criteria.Order>();
+        for (Sort.Order order : sort) {
+            Expression<?> expression = toExpressionRecursively(root, order.getProperty());
+            result.add(order.isAscending() ? cb.asc(expression) : cb.desc(expression));
+        }
+        return result;
     }
 
     private static <T> Expression<T> toExpressionRecursively(From<?, ?> from, StringTokenizer st) {
@@ -166,4 +186,18 @@ public abstract class QueryUtils {
         return false;
     }
 
+    private static final class SignalSpecification<T> implements Specification<T> {
+
+        private boolean signal;
+
+        private SignalSpecification(boolean signal) {
+            this.signal = signal;
+        }
+
+        @Override
+        public Predicate toPredicate(Root<T> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+            return signal ? cb.conjunction() : cb.disjunction();
+        }
+
+    }
 }

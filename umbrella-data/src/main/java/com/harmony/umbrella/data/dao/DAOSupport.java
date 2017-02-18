@@ -15,7 +15,7 @@ import javax.persistence.criteria.Root;
 
 import org.springframework.data.domain.Sort;
 
-import com.harmony.umbrella.data.query.QueryUtils;
+import com.harmony.umbrella.data.util.QueryUtils;
 
 /**
  * @author wuxii@foxmail.com
@@ -123,7 +123,7 @@ public abstract class DAOSupport implements DAO {
         CriteriaQuery<T> query = cb.createQuery(entityClass);
         Root<T> root = query.from(entityClass);
         if (sort != null) {
-            query.orderBy(QueryUtils.toJpaOrders(sort, root, cb));
+            query.orderBy(QueryUtils.toOrders(sort, root, cb));
         }
         return em.createQuery(query).getResultList();
     }
