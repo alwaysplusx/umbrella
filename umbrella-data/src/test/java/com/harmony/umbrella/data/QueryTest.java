@@ -7,6 +7,7 @@ import java.util.Enumeration;
 import javax.persistence.EntityManager;
 import javax.persistence.Persistence;
 
+import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -14,6 +15,7 @@ import com.harmony.umbrella.data.entity.Model;
 import com.harmony.umbrella.data.entity.SubModel;
 import com.harmony.umbrella.data.query.JpaQueryBuilder;
 import com.harmony.umbrella.data.query.QueryBuilder;
+import com.harmony.umbrella.data.vo.ModelVo;
 
 /**
  * @author wuxii@foxmail.com
@@ -21,6 +23,13 @@ import com.harmony.umbrella.data.query.QueryBuilder;
 public class QueryTest {
 
     static EntityManager entityManager = Persistence.createEntityManagerFactory("umbrella").createEntityManager();
+
+    @BeforeClass
+    public static void beforeClass() {
+        entityManager.getTransaction().begin();
+        entityManager.persist(new Model(1l, "wuxii", "content"));
+        entityManager.getTransaction().commit();
+    }
 
     @Test
     public void testQuery() {
@@ -65,6 +74,26 @@ public class QueryTest {
                     .equal("name", "wuxii")//
                     .apply("model.id", Operator.IN);
         builder.getResultList();
+    }
+
+    @Test
+    public void testVoQuery() {
+        JpaQueryBuilder<Model> builder = new JpaQueryBuilder<Model>(entityManager);
+        builder.from(Model.class).equal("name", "wuxii");
+        ModelVo vo = builder//
+                .execute()//
+                .getVoResult(new String[] { "name", "code", "content" }, ModelVo.class);
+        System.out.println(vo);
+    }
+
+    @Test
+    public void testVoFunctionQuery() {
+        JpaQueryBuilder<Model> builder = new JpaQueryBuilder<Model>(entityManager);
+        builder.from(Model.class).equal("name", "wuxii");
+        ModelVo vo = builder//
+                .execute()//
+                .getVoResult(new String[] { "max(id)", "name", "content" }, ModelVo.class);
+        System.out.println(vo);
     }
 
     @Test

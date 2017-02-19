@@ -217,7 +217,7 @@ public class QueryResultImpl<T> implements QueryResult<T> {
         int left = attributeName.indexOf("(");
         int right = attributeName.indexOf(")");
         String functionName = attributeName.substring(0, left);
-        String expressionName = attributeName.substring(left, right);
+        String expressionName = attributeName.substring(left + 1, right);
         return builder.function(functionName, null, root.get(expressionName));
     }
 
