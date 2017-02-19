@@ -1,5 +1,7 @@
 package com.harmony.umbrella.data.query;
 
+import java.util.Set;
+
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 
@@ -22,5 +24,7 @@ public interface QueryBundle<M> {
     FetchAttributes getFetchAttributes();
 
     JoinAttributes getJoinAttributes();
+
+    Set<String> getGrouping();
 
 }

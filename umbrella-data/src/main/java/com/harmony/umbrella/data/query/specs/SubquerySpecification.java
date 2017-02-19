@@ -25,6 +25,14 @@ public class SubquerySpecification<T> implements Specification<T>, Serializable 
     private Operator operator;
     private String selection;
 
+    public SubquerySpecification(Class<T> entityClass, Specification<T> condition, String column, Operator operator, String selection) {
+        this.entityClass = entityClass;
+        this.condition = condition;
+        this.column = column;
+        this.operator = operator;
+        this.selection = selection;
+    }
+
     public SubquerySpecification(Class<T> entityClass) {
         this.entityClass = entityClass;
     }

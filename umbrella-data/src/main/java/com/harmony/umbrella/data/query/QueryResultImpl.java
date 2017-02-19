@@ -1,6 +1,7 @@
 package com.harmony.umbrella.data.query;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import javax.persistence.EntityManager;
@@ -272,6 +273,12 @@ public class QueryResultImpl<T> implements QueryResult<T> {
             for (Attribute attr : attributes.attrs) {
                 root.join(attr.name, attr.joniType == null ? JoinType.INNER : attr.joniType);
             }
+        }
+    }
+
+    protected void applyGrouping(Root root, CriteriaQuery query, Collection<String> grouping) {
+        for (String s : grouping) {
+            query.groupBy(QueryUtils.toExpressionRecursively(root, s));
         }
     }
 

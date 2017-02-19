@@ -24,10 +24,20 @@ public class ConditionSpecification<T> implements Specification<T>, Serializable
     private Object right;
     private Operator operator;
 
+    public ConditionSpecification(String x, Object y, Operator operator) {
+        this.left = x;
+        this.right = y;
+        this.operator = operator;
+    }
+
     @Override
     public Predicate toPredicate(Root<T> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
         Expression x = QueryUtils.toExpressionRecursively(root, left);
         return operator.explain(x, cb, right);
     }
 
+    @Override
+    public String toString() {
+        return left + " " + operator.symbol() + " " + "?";
+    }
 }

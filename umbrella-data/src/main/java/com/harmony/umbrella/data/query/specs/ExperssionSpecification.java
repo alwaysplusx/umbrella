@@ -24,11 +24,22 @@ public class ExperssionSpecification<T> implements Specification<T>, Serializabl
     private String right;
     private Operator operator;
 
+    public ExperssionSpecification(String x, String y, Operator operator) {
+        this.left = x;
+        this.right = y;
+        this.operator = operator;
+    }
+
     @Override
     public Predicate toPredicate(Root<T> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
         Expression<Object> x = QueryUtils.toExpressionRecursively(root, left);
         Expression<Object> y = QueryUtils.toExpressionRecursively(root, right);
         return operator.explain(x, cb, y);
+    }
+
+    @Override
+    public String toString() {
+        return left + " " + operator.symbol() + " " + right;
     }
 
 }

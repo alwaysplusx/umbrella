@@ -1,9 +1,10 @@
 package com.harmony.umbrella.data.query;
 
 import java.io.Serializable;
+import java.util.Iterator;
+import java.util.Set;
 
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 
 import com.harmony.umbrella.data.query.QueryBuilder.FetchAttributes;
@@ -26,11 +27,9 @@ public class QueryBundleImpl<M> implements QueryBundle<M>, Serializable {
 
     JoinAttributes joinAttributes;
 
+    Set<String> grouping;
+
     int queryFeature;
-
-    boolean distinct;
-
-    boolean allowEmptyCondition;
 
     public QueryBundleImpl() {
     }
@@ -42,19 +41,12 @@ public class QueryBundleImpl<M> implements QueryBundle<M>, Serializable {
         this.fetchAttributes = bundle.getFetchAttributes();
         this.joinAttributes = bundle.getJoinAttributes();
         this.queryFeature = bundle.getQueryFeature();
+        this.grouping = bundle.getGrouping();
     }
 
     @Override
     public Class<M> getEntityClass() {
         return entityClass;
-    }
-
-    public int getPageNumber() {
-        return pageable == null ? 0 : this.pageable.getPageNumber();
-    }
-
-    public int getPageSize() {
-        return pageable == null ? 20 : this.pageable.getPageSize();
     }
 
     @Override
@@ -72,10 +64,6 @@ public class QueryBundleImpl<M> implements QueryBundle<M>, Serializable {
         return queryFeature;
     }
 
-    public Sort getSort() {
-        return pageable == null ? null : pageable.getSort();
-    }
-
     @Override
     public FetchAttributes getFetchAttributes() {
         return fetchAttributes;
@@ -87,11 +75,26 @@ public class QueryBundleImpl<M> implements QueryBundle<M>, Serializable {
     }
 
     @Override
+    public Set<String> getGrouping() {
+        return grouping;
+    }
+
+    @Override
     public String toString() {
         StringBuilder out = new StringBuilder();
         out.append("select * from ").append(entityClass != null ? entityClass.getSimpleName() : "UnknowType");
         if (specification != null) {
             out.append(" where ").append(specification);
+        }
+        if (grouping != null && grouping.isEmpty()) {
+            out.append(" group by ");
+            Iterator<String> it = grouping.iterator();
+            while (it.hasNext()) {
+                out.append(it.next());
+                if (it.hasNext()) {
+                    out.append(", ");
+                }
+            }
         }
         return out.toString();
     }

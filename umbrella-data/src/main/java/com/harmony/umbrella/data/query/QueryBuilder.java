@@ -6,19 +6,14 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.Stack;
 
 import javax.persistence.EntityManager;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.JoinType;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
-import javax.persistence.criteria.Subquery;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -32,6 +27,8 @@ import org.springframework.util.Assert;
 import com.harmony.umbrella.data.CompositionType;
 import com.harmony.umbrella.data.Operator;
 import com.harmony.umbrella.data.QueryFeature;
+import com.harmony.umbrella.data.query.specs.ConditionSpecification;
+import com.harmony.umbrella.data.query.specs.ExperssionSpecification;
 import com.harmony.umbrella.data.util.QueryUtils;
 
 /**
@@ -81,7 +78,7 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
     protected int pageNumber;
     protected int pageSize;
 
-    protected Set<String> groupingProperties = new LinkedHashSet<>();
+    protected Set<String> grouping;
     protected FetchAttributes fetchAttributes;
     protected JoinAttributes joinAttributes;
     protected Specification specification;
@@ -192,6 +189,7 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
         o.fetchAttributes = b.fetchAttributes;
         o.joinAttributes = b.joinAttributes;
         o.queryFeature = b.queryFeature;
+        o.grouping = b.grouping;
         return o;
     }
 
@@ -209,6 +207,7 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
         this.fetchAttributes = bundle.getFetchAttributes();
         this.joinAttributes = bundle.getJoinAttributes();
         this.queryFeature = bundle.getQueryFeature();
+        this.grouping = new LinkedHashSet<>(bundle.getGrouping() == null ? Collections.emptyList() : bundle.getGrouping());
         return (T) this;
     }
 
@@ -501,7 +500,7 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
      * @return this
      */
     public T addCondition(String name, Object value, Operator operator) {
-        return (T) addSpecication(new Condition<>(name, operator, value));
+        return (T) addSpecication(new ConditionSpecification<>(name, value, operator));
     }
 
     /**
@@ -516,7 +515,7 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
      * @return this
      */
     public T addExpressionCodition(String left, String right, Operator operator) {
-        return (T) addSpecication(new ExpressionCondition<>(left, right, operator));
+        return (T) addSpecication(new ExperssionSpecification<>(left, right, operator));
     }
 
     /**
@@ -552,10 +551,6 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
             for (int i = 0, max = queryStack.size(); i < max; i++) {
                 end();
             }
-        }
-        if (!groupingProperties.isEmpty()) {
-            specification = new GrouppingSpecification<>(groupingProperties, specification);
-            groupingProperties.clear();
         }
         if (specification == null) {
             this.specification = QueryFeature.DISJUNCTION_WHEN_EMPTY_CONDITION.isEnable(queryFeature) ? QueryUtils.disjunction() : QueryUtils.conjunction();
@@ -761,7 +756,10 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
      * @return this
      */
     public T fetch(String... names) {
-        return (T) fetch(JoinType.INNER, names);
+        for (String name : names) {
+            fetch(name, JoinType.INNER);
+        }
+        return (T) this;
     }
 
     /**
@@ -773,13 +771,11 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
      *            fetch attr
      * @return this
      */
-    public T fetch(JoinType joinType, String... names) {
+    public T fetch(String name, JoinType joinType) {
         if (this.fetchAttributes == null) {
             this.fetchAttributes = new FetchAttributes();
         }
-        for (String name : names) {
-            this.fetchAttributes.attrs.add(new Attribute(name, joinType));
-        }
+        this.fetchAttributes.attrs.add(new Attribute(name, joinType));
         return (T) this;
     }
 
@@ -791,7 +787,10 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
      * @return this
      */
     public T join(String... names) {
-        return (T) join(JoinType.INNER, names);
+        for (String name : names) {
+            join(name, JoinType.INNER);
+        }
+        return (T) this;
     }
 
     /**
@@ -803,20 +802,21 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
      *            join tables
      * @return this
      */
-    public T join(JoinType joinType, String... names) {
+    public T join(String name, JoinType joinType) {
         if (this.joinAttributes == null) {
             this.joinAttributes = new JoinAttributes();
         }
-        for (String name : names) {
-            this.joinAttributes.attrs.add(new Attribute(name, joinType));
-        }
+        this.joinAttributes.attrs.add(new Attribute(name, joinType));
         return (T) this;
     }
 
     // group by
 
     public T groupBy(String... names) {
-        this.groupingProperties.addAll(Arrays.asList(names));
+        if (this.grouping == null) {
+            this.grouping = new LinkedHashSet<>();
+        }
+        this.grouping.addAll(Arrays.asList(names));
         return (T) this;
     }
 
@@ -871,7 +871,7 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
     public void clear() {
         queryStack.clear();
         temp.clear();
-        groupingProperties.clear();
+        grouping.clear();
         assembleType = null;
         fetchAttributes = null;
         joinAttributes = null;
@@ -940,81 +940,6 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
         return execute().getCountResult();
     }
 
-    /**
-     * 查询条件
-     */
-    private static final class Condition<T> implements Specification<T>, Serializable {
-
-        private static final long serialVersionUID = -8202741905554082489L;
-        String name;
-        Operator operator;
-        Object value;
-
-        public Condition(String name, Operator operator, Object value) {
-            this.name = name;
-            this.operator = operator;
-            this.value = value;
-        }
-
-        @Override
-        public Predicate toPredicate(Root<T> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
-            Expression<Object> x = QueryUtils.toExpressionRecursively(root, name);
-            return operator.explain(x, cb, value);
-        }
-
-        @Override
-        public String toString() {
-            return name + " " + operator.symbol() + " " + "?";
-        }
-
-    }
-
-    /**
-     * 表达式查询条件
-     */
-    private static final class ExpressionCondition<T> implements Specification<T>, Serializable {
-
-        private static final long serialVersionUID = 5736236577457666032L;
-        String left;
-        String right;
-        Operator operator;
-
-        public ExpressionCondition(String left, String right, Operator operator) {
-            this.left = left;
-            this.right = right;
-            this.operator = operator;
-        }
-
-        @Override
-        public Predicate toPredicate(Root<T> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
-            Expression leftExpression = QueryUtils.toExpressionRecursively(root, left);
-            Expression rightExpression = QueryUtils.toExpressionRecursively(root, right);
-            return operator.explain(leftExpression, cb, rightExpression);
-        }
-
-    }
-
-    private static final class GrouppingSpecification<T> implements Specification<T>, Serializable {
-
-        private static final long serialVersionUID = -3833941238207876441L;
-        private Collection<String> groupingProperties;
-        private Specification<T> spec;
-
-        public GrouppingSpecification(Collection<String> grouping, Specification<T> spec) {
-            this.groupingProperties = grouping;
-            this.spec = spec;
-        }
-
-        @Override
-        public Predicate toPredicate(Root<T> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
-            for (String p : groupingProperties) {
-                query.groupBy(QueryUtils.toExpressionRecursively(root, p));
-            }
-            return spec == null ? cb.conjunction() : spec.toPredicate(root, query, cb);
-        }
-
-    }
-
     public static final class FetchAttributes implements Serializable {
 
         private static final long serialVersionUID = 1L;
@@ -1063,63 +988,6 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
         public JoinType getJoniType() {
             return joniType;
         }
-    }
-
-    public <B extends SubqueryBuilder<B, E>, E> SubqueryBuilder<B, E> subquery(Class<E> clazz) {
-        return new SubqueryBuilder<B, E>(clazz, this);
-    }
-
-    public class SubqueryBuilder<B extends SubqueryBuilder<B, E>, E> extends QueryBuilder<B, E> {
-
-        private static final long serialVersionUID = -7997630445529853487L;
-
-        protected final QueryBuilder parentQueryBuilder;
-
-        protected String column;
-
-        private String function;
-
-        protected SubqueryBuilder(Class<E> entityClass, QueryBuilder parent) {
-            super(parent.entityManager);
-            this.parentQueryBuilder = parent;
-            this.entityClass = entityClass;
-            this.assembleType = parentQueryBuilder.assembleType;
-            this.autoEnclose = parentQueryBuilder.autoEnclose;
-            this.strictMode = parentQueryBuilder.strictMode;
-        }
-
-        public B select(String column) {
-            this.column = column;
-            return (B) this;
-        }
-
-        public B selectFunction(String function, String column) {
-            this.function = function;
-            this.column = column;
-            return (B) this;
-        }
-
-        public T apply(final String column, final Operator operator) {
-            this.finishQuery();
-            final Specification<E> subCondition = this.specification;
-            return (T) parentQueryBuilder.addSpecication(new Specification<T>() {
-                @Override
-                public Predicate toPredicate(Root<T> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
-                    final String subColumn = SubqueryBuilder.this.column;
-                    Subquery<E> subquery = query.subquery(entityClass);
-                    Root<E> subRoot = subquery.from(entityClass);
-                    subquery.where(subCondition.toPredicate(subRoot, null, cb));
-                    Expression subExpression = QueryUtils.toExpressionRecursively(subRoot, subColumn);
-                    if (function != null) {
-                        subExpression = cb.function(function, null, subExpression);
-                    }
-                    subquery.select(subExpression);
-                    Expression parentExpression = QueryUtils.toExpressionRecursively(root, column);
-                    return operator.explain(parentExpression, cb, subquery);
-                }
-            });
-        }
-
     }
 
 }
