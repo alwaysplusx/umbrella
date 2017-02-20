@@ -22,6 +22,7 @@
   </scm>
 
   <modules>
+    <module>umbrella-cache</module>
     <module>umbrella-core</module>
     <module>umbrella-ee</module>
     <module>umbrella-json</module>
@@ -131,11 +132,6 @@
       </dependency>
       <dependency>
         <groupId>com.harmony.umbrella</groupId>
-        <artifactId>umbrella-mapper</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.harmony.umbrella</groupId>
         <artifactId>umbrella-validator</artifactId>
         <version>${project.version}</version>
       </dependency>
@@ -147,11 +143,6 @@
       <dependency>
         <groupId>com.harmony.umbrella</groupId>
         <artifactId>umbrella-scheduler</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.harmony.umbrella</groupId>
-        <artifactId>umbrella-security</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
@@ -246,11 +237,6 @@
       <dependency>
         <groupId>org.hibernate</groupId>
         <artifactId>hibernate-core</artifactId>
-        <version>${hibernate.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.hibernate</groupId>
-        <artifactId>hibernate-entitymanager</artifactId>
         <version>${hibernate.version}</version>
       </dependency>
       <dependency>
@@ -432,6 +418,11 @@
         <artifactId>ojdbc6</artifactId>
         <version>${oracle.version}</version>
       </dependency>
+      <dependency>
+        <groupId>com.h2database</groupId>
+        <artifactId>h2</artifactId>
+        <version>${h2.version}</version>
+      </dependency>      
       <!-- jetty -->
       <dependency>
         <groupId>org.eclipse.jetty</groupId>
@@ -458,11 +449,6 @@
         <groupId>org.ow2.asm</groupId>
         <artifactId>asm</artifactId>
         <version>${asm.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.h2database</groupId>
-        <artifactId>h2</artifactId>
-        <version>${h2.version}</version>
       </dependency>
       <dependency>
         <groupId>joda-time</groupId>
