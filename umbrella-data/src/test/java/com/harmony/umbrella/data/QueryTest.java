@@ -6,6 +6,9 @@ import java.util.Enumeration;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Persistence;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
 
 import org.junit.BeforeClass;
 import org.junit.Ignore;
@@ -69,10 +72,10 @@ public class QueryTest {
     public void testSubquery() {
         JpaQueryBuilder<SubModel> builder = new JpaQueryBuilder<SubModel>(entityManager)//
                 .from(SubModel.class)//
-                    .subquery(Model.class)//
-                    .select("id")//
-                    .equal("name", "wuxii")//
-                    .apply("model.id", Operator.IN);
+                .subquery(Model.class)//
+                .select("id")//
+                .equal("name", "wuxii")//
+                .apply("model.id", Operator.IN);
         builder.getResultList();
     }
 
@@ -103,6 +106,15 @@ public class QueryTest {
         while (urls.hasMoreElements()) {
             System.out.println(urls.nextElement());
         }
+    }
+
+    @Test
+    public void testEmptySpec() {
+        CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Model> query = builder.createQuery(Model.class);
+        query.from(Model.class);
+        query.where((Predicate) null);
+        entityManager.createQuery(query).getResultList();
     }
 
 }

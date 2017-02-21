@@ -30,7 +30,13 @@ public interface QueryResult<T> {
 
     T getFirstResult();
 
+    List<T> getAllMatchResult();
+
     List<T> getResultList();
+
+    List<T> getResultList(int pageNumber, int pageSize);
+
+    List<T> getResultList(Pageable pageable);
 
     Page<T> getResultPage();
 
