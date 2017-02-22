@@ -53,7 +53,13 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
 
     private static final long serialVersionUID = 1L;
 
+    /**
+     * 查询条件栈, 一个括号内的查询条件即为一个栈值
+     */
     private final transient Stack<Bind> queryStack = new Stack<Bind>();
+    /**
+     * 一个括号内暂存的组合查询条件, 在括号结束后将情况temp中的查询条件
+     */
     private final transient List<CompositionSpecification> temp = new ArrayList<CompositionSpecification>();
 
     protected transient EntityManager entityManager;
@@ -147,7 +153,7 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
     }
 
     /**
-     * 启用/禁用查询严格校验模式
+     * 启用/禁用查询严格校验模式, 严格模式用于校验当前的assembleType
      * 
      * @param strictMode
      *            严格校验模式flag
@@ -539,6 +545,11 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
         return (T) this;
     }
 
+    /**
+     * 获取查询条件栈中的查询条件. (同一个括号内的查询条件)
+     * 
+     * @return Bind
+     */
     protected final Bind currentBind() {
         if (queryStack.isEmpty()) {
             start();
@@ -546,6 +557,9 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
         return queryStack.peek();
     }
 
+    /**
+     * 结束查询, 将所有查询栈中的查询条件组合成为规范化的查询条件specification
+     */
     protected void finishQuery() {
         if (!queryStack.isEmpty()) {
             if (!autoEnclose) {
@@ -806,6 +820,13 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
 
     // group by
 
+    /**
+     * 添加分组条件
+     * 
+     * @param names
+     *            分组的字段
+     * @return this
+     */
     public T groupBy(String... names) {
         if (this.grouping == null) {
             this.grouping = new LinkedHashSet<>();
