@@ -1,4 +1,4 @@
-package com.harmony.umbrella.data;
+package com.harmony.umbrella.data.query;
 
 /**
  * 查询特性
@@ -11,19 +11,18 @@ public enum QueryFeature {
      * select distinct * from xx_table;
      */
     DISTINCT,
-
     /**
-     * 允许无条件的全表查询
+     * 允许无条件的全表不分页查询
      */
-    ALLOW_LIST_QUERY_WHEN_EMPTY_CONDITION,
+    FULL_TABLE_QUERY,
     /**
      * 当无查询条件时采用conjunction为默认条件
      */
-    CONJUNCTION_WHEN_EMPTY_CONDITION,
+    CONJUNCTION,
     /**
      * 当无查询条件时候采用disjunction为默认条件
      */
-    DISJUNCTION_WHEN_EMPTY_CONDITION;
+    DISJUNCTION;
 
     private QueryFeature() {
         mask = (1 << ordinal());

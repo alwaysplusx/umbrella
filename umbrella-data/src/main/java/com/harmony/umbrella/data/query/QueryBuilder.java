@@ -25,7 +25,6 @@ import org.springframework.util.Assert;
 
 import com.harmony.umbrella.data.CompositionType;
 import com.harmony.umbrella.data.Operator;
-import com.harmony.umbrella.data.QueryFeature;
 import com.harmony.umbrella.data.query.specs.ConditionSpecification;
 import com.harmony.umbrella.data.query.specs.ExperssionSpecification;
 import com.harmony.umbrella.data.util.QueryUtils;
@@ -557,7 +556,15 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
             }
         }
         if (specification == null) {
-            this.specification = QueryFeature.DISJUNCTION_WHEN_EMPTY_CONDITION.isEnable(queryFeature) ? QueryUtils.disjunction() : QueryUtils.conjunction();
+            if (QueryFeature.DISJUNCTION.isEnable(queryFeature) && QueryFeature.CONJUNCTION.isEnable(queryFeature)) {
+                throw new IllegalStateException("confusion default condition, " + queryFeature);
+            }
+            if (QueryFeature.DISJUNCTION.isEnable(queryFeature)) {
+                this.specification = QueryUtils.disjunction();
+            }
+            if (QueryFeature.CONJUNCTION.isEnable(queryFeature)) {
+                this.specification = QueryUtils.conjunction();
+            }
         }
     }
 
@@ -573,6 +580,9 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
      * @return this
      */
     public T paging(int pageNumber, int pageSize) {
+        if (QueryUtils.isPaging(pageNumber, pageSize)) {
+            throw new IllegalArgumentException("invalid page setting page=" + pageNumber + ", size=" + pageSize);
+        }
         this.pageNumber = pageNumber;
         this.pageSize = pageSize;
         return (T) this;
@@ -681,8 +691,8 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
      * 
      * @return this
      */
-    public T allowEmptyConditionListQuery() {
-        return enable(QueryFeature.ALLOW_LIST_QUERY_WHEN_EMPTY_CONDITION);
+    public T allowFullTableQuery() {
+        return enable(QueryFeature.FULL_TABLE_QUERY);
     }
 
     /**
@@ -690,28 +700,8 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
      * 
      * @return this
      */
-    public T forbidEmptyConditionListQuery() {
-        return disable(QueryFeature.ALLOW_LIST_QUERY_WHEN_EMPTY_CONDITION);
-    }
-
-    /**
-     * 当无查询条件时候默认为true
-     * 
-     * @return this
-     */
-    public T conjunctionWhenEmptyCondition() {
-        disable(QueryFeature.DISJUNCTION_WHEN_EMPTY_CONDITION);
-        return enable(QueryFeature.CONJUNCTION_WHEN_EMPTY_CONDITION);
-    }
-
-    /**
-     * 当无查询条件时候默认为false
-     * 
-     * @return this
-     */
-    public T disjunctionWhenEmptyCondition() {
-        disable(QueryFeature.CONJUNCTION_WHEN_EMPTY_CONDITION);
-        return enable(QueryFeature.CONJUNCTION_WHEN_EMPTY_CONDITION);
+    public T forbidFullTableQuery() {
+        return disable(QueryFeature.FULL_TABLE_QUERY);
     }
 
     /**

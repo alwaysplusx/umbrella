@@ -1,6 +1,7 @@
 package com.harmony.umbrella.test.runner;
 
 import java.lang.reflect.Field;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
 
@@ -60,7 +61,7 @@ public class RemoteEJBRunner extends BlockJUnit4ClassRunner {
                         properties.put(Context.PROVIDER_URL, ann.providerUrl());
                     }
                 }
-                new EJBApplicationContextProvider().createApplicationContext();
+                new EJBApplicationContextProvider().createApplicationContext(new HashMap<>());
                 next.evaluate();
             }
         };

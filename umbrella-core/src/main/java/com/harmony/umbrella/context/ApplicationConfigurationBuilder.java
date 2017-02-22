@@ -3,6 +3,7 @@ package com.harmony.umbrella.context;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -22,8 +23,6 @@ import org.springframework.util.ClassUtils;
 
 import com.harmony.umbrella.context.ApplicationContext.ApplicationContextInitializer;
 import com.harmony.umbrella.core.ConnectionSource;
-import com.harmony.umbrella.log.Log;
-import com.harmony.umbrella.log.Logs;
 import com.harmony.umbrella.util.ClassFilterFeature;
 import com.harmony.umbrella.util.StringUtils;
 
@@ -50,11 +49,9 @@ public class ApplicationConfigurationBuilder {
         APPLICATION_DATASOURCE = System.getProperty(INIT_PARAM_DATASOURCE, "jdbc/harmony");
     }
 
-    private static final Log log = Logs.getLog(ApplicationConfigurationBuilder.class);
-
     protected static final Pattern PACKAGE_PATTERN = Pattern.compile("^[a-zA-Z]+[0-9a-zA-Z]*");
 
-    private ServletContext servletContext;
+    protected ServletContext servletContext;
     private Set<String> scanPackages;
     private Map properties;
     private List<ConnectionSource> connectionSources;
@@ -89,7 +86,7 @@ public class ApplicationConfigurationBuilder {
                 DataSource ds = lookup(jndi);
                 connectionSources.add(new DataSourceConnectionSource(ds));
             } catch (SQLException e) {
-                log.warn("Can not connection to datasource {}", jndi);
+                servletContext.log("Can not connection to datasource " + jndi);
             }
         }
 
@@ -101,10 +98,10 @@ public class ApplicationConfigurationBuilder {
                 if (Runnable.class.isAssignableFrom(hookClass) && ClassFilterFeature.NEWABLE.accept(hookClass)) {
                     shutdownHookClasses.add(hookClass);
                 } else {
-                    log.warn("{} not type of {}", hookClass, Runnable.class);
+                    servletContext.log(hookClass + " not type of " + Runnable.class);
                 }
             } catch (ClassNotFoundException e) {
-                log.warn("shutdown hook {} not found", hook, e);
+                servletContext.log("shutdown hook " + hook + " not found", e);
             }
         }
 
@@ -138,6 +135,11 @@ public class ApplicationConfigurationBuilder {
             @Override
             public Set<String> getScanPackages() {
                 return new LinkedHashSet<>(scanPackages);
+            }
+
+            @Override
+            public Map getApplicationProperties() {
+                return Collections.unmodifiableMap(properties);
             }
 
             @Override

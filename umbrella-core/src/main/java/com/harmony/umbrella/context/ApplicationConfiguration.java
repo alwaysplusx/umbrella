@@ -1,6 +1,7 @@
 package com.harmony.umbrella.context;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.servlet.ServletContext;
@@ -26,6 +27,8 @@ public interface ApplicationConfiguration {
     Object getProperty(String key);
 
     String getStringProperty(String key);
+
+    Map getApplicationProperties();
 
     Runnable[] getShutdownHook();
 

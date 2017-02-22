@@ -1,5 +1,7 @@
 package com.harmony.umbrella.context.spring;
 
+import java.util.Map;
+
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContextAware;
 
@@ -12,7 +14,7 @@ import com.harmony.umbrella.context.ApplicationContextProvider;
 public class SpringContextProvider implements ApplicationContextProvider {
 
     @Override
-    public ApplicationContext createApplicationContext() {
+    public ApplicationContext createApplicationContext(Map applicationProperties) {
         return new SpringApplicationContext(SpringContextHolder.springApplication, null);
     }
 

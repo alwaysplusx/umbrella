@@ -14,8 +14,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 
-import com.harmony.umbrella.data.QueryFeature;
-
 /**
  * @author wuxii@foxmail.com
  */
@@ -59,7 +57,7 @@ public class QueryResultImpl<T> implements QueryResult<T> {
         query.assembly(FETCH, JOIN, GROUP, SORT);
         query.select(column);
         TypedQuery<E> typedQuery = entityManager.createQuery(query.query);
-        if (query.applyPaging(typedQuery) && !query.hasRestriction() && !query.isAllowEmptyConditionQuery()) {
+        if (query.applyPaging(typedQuery) && !query.hasRestriction() && !query.isAllowFullTableQuery()) {
             throw new IllegalStateException("not allow empty condition full table query");
         }
         return typedQuery.getResultList();
@@ -96,7 +94,7 @@ public class QueryResultImpl<T> implements QueryResult<T> {
         query.assembly(FETCH, JOIN, GROUP, SORT);
         query.select(columns);
         TypedQuery<VO> typedQuery = entityManager.createQuery(query.query);
-        if (query.applyPaging(typedQuery) && !query.hasRestriction() && !query.isAllowEmptyConditionQuery()) {
+        if (query.applyPaging(typedQuery) && !query.hasRestriction() && !query.isAllowFullTableQuery()) {
             throw new IllegalStateException("not allow empty condition full table query");
         }
         return typedQuery.getResultList();
@@ -129,7 +127,7 @@ public class QueryResultImpl<T> implements QueryResult<T> {
     public List<T> getAllMatchResult() {
         InternalQuery<T, T> query = createQuery();
         query.assembly(FETCH, JOIN, SORT);
-        if (!query.hasRestriction() && !query.isAllowEmptyConditionQuery()) {
+        if (!query.hasRestriction() && !query.isAllowFullTableQuery()) {
             throw new IllegalStateException("not allow empty condition full table query");
         }
         return entityManager.createQuery(query.query).getResultList();
@@ -140,7 +138,7 @@ public class QueryResultImpl<T> implements QueryResult<T> {
         InternalQuery<T, T> query = createQuery();
         query.assembly(FETCH, JOIN, SORT);
         TypedQuery<T> typedQuery = entityManager.createQuery(query.query);
-        if (!query.applyPaging(typedQuery) && !query.hasRestriction() && !query.isAllowEmptyConditionQuery()) {
+        if (!query.applyPaging(typedQuery) && !query.hasRestriction() && !query.isAllowFullTableQuery()) {
             throw new IllegalStateException("not allow empty condition full table query");
         }
         return typedQuery.getResultList();

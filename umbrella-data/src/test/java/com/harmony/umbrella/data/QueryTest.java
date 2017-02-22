@@ -32,8 +32,8 @@ public class QueryTest {
     @BeforeClass
     public static void beforeClass() {
         entityManager.getTransaction().begin();
-        entityManager.persist(new Model(1l, "wuxii", "content"));
-        entityManager.persist(new Model(2l, "aaa", "content"));
+        entityManager.persist(new Model(1l, "wuxii", "code1"));
+        entityManager.persist(new Model(2l, "david", "code2"));
         entityManager.getTransaction().commit();
     }
 
@@ -53,11 +53,11 @@ public class QueryTest {
         QueryBuilder builder = new QueryBuilder(entityManager)//
                 .from(Model.class)//
                 .equal("id", "4")//
-                .start()//匹配括号开始
-                .equal("name", "1")//
-                .or()//
-                .equal("code", "2")//
-                .end()//匹配括号结束
+                    .start()//匹配括号开始
+                        .equal("name", "1")//
+                        .or()//
+                        .equal("code", "2")//
+                    .end()//匹配括号结束
         ;
         builder.getResultList();
     }
@@ -75,17 +75,16 @@ public class QueryTest {
     public void testSubquery() {
         JpaQueryBuilder<SubModel> builder = new JpaQueryBuilder<SubModel>(entityManager)//
                 .from(SubModel.class)//
-                .subquery(Model.class)//
-                .select("id")//
-                .equal("name", "wuxii")//
-                .apply("model.id", Operator.IN);
+                    .subquery(Model.class)//
+                    .select("id")//
+                    .equal("name", "wuxii")//
+                    .apply("model.id", Operator.IN);
         builder.getResultList();
     }
 
     @Test
     public void testVoQuery() {
-        JpaQueryBuilder<Model> builder = new JpaQueryBuilder<Model>(entityManager);
-        builder.from(Model.class).equal("name", "wuxii");
+        JpaQueryBuilder<Model> builder = new JpaQueryBuilder<Model>(entityManager).from(Model.class).equal("name", "wuxii");
         ModelVo vo = builder//
                 .execute()//
                 .getVoSingleResult(new String[] { "name", "code", "content" }, ModelVo.class);
@@ -132,4 +131,14 @@ public class QueryTest {
         System.out.println(list);
     }
 
+    @Test
+    public void testColumnResult() {
+        List<Object> v = new JpaQueryBuilder<Model>(entityManager)//
+                .from(Model.class)//
+                .equal("name", "wuxii")//
+                .execute()//
+                .getColumnResultList("name");
+        System.out.println(v);
+    }
+    
 }

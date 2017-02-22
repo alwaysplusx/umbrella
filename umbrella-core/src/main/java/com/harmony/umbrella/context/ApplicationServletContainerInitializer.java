@@ -33,7 +33,12 @@ import com.harmony.umbrella.util.ClassFilterFeature;
 /**
  * @author wuxii@foxmail.com
  */
-@HandlesTypes({ ApplicationEventListener.class, ApplicationStartListener.class, ApplicationDestroyListener.class, ApplicationListener.class })
+@HandlesTypes({ //
+        ApplicationEventListener.class, //
+        ApplicationStartListener.class, //
+        ApplicationDestroyListener.class, //
+        ApplicationListener.class //
+})
 public class ApplicationServletContainerInitializer implements ServletContainerInitializer {
 
     private ServletContext servletContext;
@@ -49,7 +54,8 @@ public class ApplicationServletContainerInitializer implements ServletContainerI
             // init application static first
             ApplicationContext.start(cfg);
 
-            if (Boolean.valueOf(getInitParameter("show-info")) || Logs.getLog().isDebugEnabled()
+            if (Boolean.valueOf(getInitParameter("show-info")) //
+                    || Logs.getLog().isDebugEnabled()//
                     || Boolean.valueOf(cfg.getStringProperty("application.show-info"))) {
                 showApplicationInfo();
             }
@@ -160,43 +166,44 @@ public class ApplicationServletContainerInitializer implements ServletContainerI
         OperatingSystemMetadata osMetadata = ApplicationMetadata.getOperatingSystemMetadata();
         DatabaseMetadata[] dms = ApplicationContext.getDatabaseMetadatas();
         out//
-                .append("\n################################################################")//
-                .append("\n#                     Application Information                  #")//
-                .append("\n################################################################")//
-                .append("\n#                   cpu : ").append(osMetadata.cpu)//
-                .append("\n#               os name : ").append(osMetadata.osName)//
-                .append("\n#             time zone : ").append(osMetadata.timeZone)//
-                .append("\n#            os version : ").append(osMetadata.osVersion)//
-                .append("\n#             user home : ").append(osMetadata.userHome)//
-                .append("\n#         file encoding : ").append(osMetadata.fileEncoding)//
+                .append("\n############################################################")//
+                .append("\n#                   Application Information                #")//
+                .append("\n############################################################")//
+                .append("\n#                      cpu : ").append(osMetadata.cpu)//
+                .append("\n#                  os name : ").append(osMetadata.osName)//
+                .append("\n#                time zone : ").append(osMetadata.timeZone)//
+                .append("\n#               os version : ").append(osMetadata.osVersion)//
+                .append("\n#                user home : ").append(osMetadata.userHome)//
+                .append("\n#            file encoding : ").append(osMetadata.fileEncoding)//
                 .append("\n#")//
-                .append("\n#              jvm name : ").append(javaMetadata.vmName)//
-                .append("\n#            jvm vendor : ").append(javaMetadata.vmVendor)//
-                .append("\n#           jvm version : ").append(javaMetadata.vmVersion)//
+                .append("\n#                 jvm name : ").append(javaMetadata.vmName)//
+                .append("\n#               jvm vendor : ").append(javaMetadata.vmVendor)//
+                .append("\n#              jvm version : ").append(javaMetadata.vmVersion)//
                 .append("\n#");//
         for (DatabaseMetadata dm : dms) {
             out//
-                    .append("\n#              database : ").append(dm.productName)//
-                    .append("\n#          database url : ").append(dm.url)//
-                    .append("\n#         database user : ").append(dm.userName)//
-                    .append("\n#           driver name : ").append(dm.driverName)//
-                    .append("\n#        driver version : ").append(dm.driverVersion)//
+                    .append("\n#                 database : ").append(dm.productName)//
+                    .append("\n#             database url : ").append(dm.url)//
+                    .append("\n#            database user : ").append(dm.userName)//
+                    .append("\n#              driver name : ").append(dm.driverName)//
+                    .append("\n#           driver version : ").append(dm.driverVersion)//
                     .append("\n#");//
         }
         out//
-                .append("\n#            app server : ").append(serverMetadata.serverName)//
-                .append("\n#       servlet version : ").append(serverMetadata.servletVersion)//
+                .append("\n#          app server type : ").append(serverMetadata.serverName)//
+                .append("\n#          app server name : ").append(serverMetadata.serverInfo)//
+                .append("\n#          servlet version : ").append(serverMetadata.servletVersion)//
                 .append("\n#")//
-                .append("\n#             spec name : ").append(javaMetadata.specificationName)//
-                .append("\n#          spec version : ").append(javaMetadata.specificationVersion)//
-                .append("\n#             java home : ").append(javaMetadata.javaHome)//
-                .append("\n#           java vendor : ").append(javaMetadata.javaVendor)//
-                .append("\n#          java version : ").append(javaMetadata.javaVersion)//
-                .append("\n#       runtime version : ").append(javaMetadata.runtimeVersion)//
+                .append("\n#                spec name : ").append(javaMetadata.specificationName)//
+                .append("\n#             spec version : ").append(javaMetadata.specificationVersion)//
+                .append("\n#                java home : ").append(javaMetadata.javaHome)//
+                .append("\n#              java vendor : ").append(javaMetadata.javaVendor)//
+                .append("\n#             java version : ").append(javaMetadata.javaVersion)//
+                .append("\n#          runtime version : ").append(javaMetadata.runtimeVersion)//
                 .append("\n#")//
-                .append("\n#          app packages : ").append(cfg != null ? cfg.getScanPackages() : null)//
-                .append("\n#      app classes size : ").append(ApplicationContext.getApplicationClassSize())//
-                .append("\n################################################################")//
+                .append("\n#             app packages : ").append(cfg != null ? cfg.getScanPackages() : null)//
+                .append("\n#         app classes size : ").append(ApplicationContext.getApplicationClassSize())//
+                .append("\n############################################################")//
                 .append("\n\n");
         System.out.println(out.toString());
     }

@@ -171,7 +171,7 @@ public enum Operator {
         }
 
     },
-    NULL("is null", "IS_NULL") {
+    NULL("is null", "NULL") {
 
         @Override
         public Operator negated() {
@@ -184,7 +184,7 @@ public enum Operator {
         }
 
     },
-    NOT_NULL("is not null", "IS_NOTNULL") {
+    NOT_NULL("is not null", "NOTNULL") {
 
         @Override
         public Operator negated() {
@@ -197,7 +197,7 @@ public enum Operator {
         }
 
     },
-    TRUE("is true", "IS_TRUE") {
+    TRUE("is true", "TRUE") {
 
         @Override
         public Operator negated() {
@@ -210,7 +210,7 @@ public enum Operator {
         }
 
     },
-    FALSE("is false", "IS_FALSE") {
+    FALSE("is false", "FALSE") {
 
         @Override
         public Operator negated() {

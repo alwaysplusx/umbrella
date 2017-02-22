@@ -16,7 +16,6 @@ import javax.persistence.criteria.Selection;
 
 import org.springframework.data.jpa.domain.Specification;
 
-import com.harmony.umbrella.data.QueryFeature;
 import com.harmony.umbrella.data.query.QueryBuilder.Attribute;
 import com.harmony.umbrella.data.query.QueryBuilder.FetchAttributes;
 import com.harmony.umbrella.data.query.QueryBuilder.JoinAttributes;
@@ -161,7 +160,7 @@ public class InternalQuery<T, R> {
 
     // function expression
 
-    protected Expression functionExpression(String attributeName, Root root) {
+    private Expression functionExpression(String attributeName, Root root) {
         int left = attributeName.indexOf("(");
         int right = attributeName.indexOf(")");
         String functionName = attributeName.substring(0, left);
@@ -169,12 +168,12 @@ public class InternalQuery<T, R> {
         return builder.function(functionName, null, root.get(expressionName));
     }
 
-    protected boolean isFunctionExpression(String attributeName) {
+    private boolean isFunctionExpression(String attributeName) {
         return attributeName.indexOf("(") > -1 && attributeName.indexOf(")") > -1;
     }
 
-    protected boolean isAllowEmptyConditionQuery() {
-        return QueryFeature.ALLOW_LIST_QUERY_WHEN_EMPTY_CONDITION.isEnable(bundle.getQueryFeature());
+    protected boolean isAllowFullTableQuery() {
+        return QueryFeature.FULL_TABLE_QUERY.isEnable(bundle.getQueryFeature());
     }
 
     protected boolean hasRestriction() {
@@ -186,7 +185,7 @@ public class InternalQuery<T, R> {
     }
 
     protected boolean isVaildPaging() {
-        return bundle.getPageNumber() >= 0 && bundle.getPageSize() >= 1;
+        return QueryUtils.isPaging(bundle.getPageNumber(), bundle.getPageSize());
     }
 
     static enum Assembly {

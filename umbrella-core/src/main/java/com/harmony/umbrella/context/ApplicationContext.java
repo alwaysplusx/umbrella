@@ -7,7 +7,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.ServiceLoader;
 import java.util.Vector;
 
@@ -53,18 +55,18 @@ public abstract class ApplicationContext implements BeanFactory {
 
     private static ApplicationConfiguration applicationConfiguration;
 
+    private static boolean applicationStarted;
+
     public static synchronized void start(ApplicationConfiguration appConfig) {
-        if (applicationConfiguration != null) {
-            LOG.warn("application metadata already initial");
+        if (applicationStarted) {
+            LOG.warn("application already started");
             return;
         }
         ApplicationContextInitializer applicationInitializer = null;
         Class<? extends ApplicationContextInitializer> applicationInitializerClass = appConfig.getApplicationContextInitializerClass();
-
         if (applicationInitializerClass == null) {
             applicationInitializerClass = ApplicationContextInitializer.class;
         }
-
         try {
             applicationInitializer = applicationInitializerClass.newInstance();
         } catch (Exception e) {
@@ -72,9 +74,8 @@ public abstract class ApplicationContext implements BeanFactory {
         }
         // 初始化应用程序
         applicationInitializer.init(appConfig);
-
         applicationConfiguration = appConfig;
-
+        applicationStarted = true;
     }
 
     public static synchronized void shutdown() {
@@ -83,8 +84,23 @@ public abstract class ApplicationContext implements BeanFactory {
         }
     }
 
+    /**
+     * 获取应用的初始化配置, 必须在启动后才能获取
+     * 
+     * @return 初始化配置
+     */
     public static ApplicationConfiguration getApplicationConfiguration() {
+        checkApplicationState();
         return applicationConfiguration;
+    }
+
+    /**
+     * 判断应用是否已经启动
+     * 
+     * @return true is started
+     */
+    public static synchronized boolean isStarted() {
+        return applicationStarted;
     }
 
     /**
@@ -96,17 +112,15 @@ public abstract class ApplicationContext implements BeanFactory {
      * @return 应用上下文
      */
     public static final ApplicationContext getApplicationContext() {
+        checkApplicationState();
         ApplicationContext context = null;
         ServiceLoader<ApplicationContextProvider> providers = ServiceLoader.load(ApplicationContextProvider.class);
         for (ApplicationContextProvider provider : providers) {
-            try {
-                context = provider.createApplicationContext();
-                if (context != null) {
-                    LOG.debug("create context [{}] by [{}]", context, provider);
-                    break;
-                }
-            } catch (Exception e) {
-                LOG.warn("", e);
+            Map applicationProperties = new HashMap<>(applicationConfiguration.getApplicationProperties());
+            context = provider.createApplicationContext(applicationProperties);
+            if (context != null) {
+                LOG.debug("create context [{}] by [{}]", context, provider);
+                break;
             }
         }
         if (context == null) {
@@ -124,14 +138,17 @@ public abstract class ApplicationContext implements BeanFactory {
      * @return 用户环境
      */
     public static CurrentContext getCurrentContext() {
+        checkApplicationState();
         return current.get();
     }
 
     public static ServerMetadata getServerMetadata() {
+        checkApplicationState();
         return serverMetadata;
     }
 
     public static DatabaseMetadata[] getDatabaseMetadatas() {
+        checkApplicationState();
         return databaseMetadatas.toArray(new DatabaseMetadata[0]);
     }
 
@@ -142,14 +159,17 @@ public abstract class ApplicationContext implements BeanFactory {
      *            用户环境
      */
     static void setCurrentContext(CurrentContext cc) {
+        checkApplicationState();
         current.set(cc);
     }
 
     static int getApplicationClassSize() {
+        checkApplicationState();
         return classes.size();
     }
 
     public static Class[] getApplicationClasses(ClassFilter filter) {
+        checkApplicationState();
         List<Class> result = new ArrayList<Class>();
         for (Class c : classes) {
             if (ClassFilterFeature.safetyAccess(filter, c)) {
@@ -159,9 +179,14 @@ public abstract class ApplicationContext implements BeanFactory {
         return result.toArray(new Class[result.size()]);
     }
 
+    private static void checkApplicationState() {
+        if (!isStarted()) {
+            throw new IllegalStateException("application not start!");
+        }
+    }
     // application bean scope
 
-    public ApplicationContext() {
+    protected ApplicationContext() {
     }
 
     public abstract BeanFactory getBeanFactory();
@@ -289,7 +314,7 @@ public abstract class ApplicationContext implements BeanFactory {
                             try {
                                 className = readClassName(resource);
                                 Class<?> clazz = Class.forName(className, initialize, classLoader);
-                                if (classes.contains(clazz)) {
+                                if (!classes.contains(clazz)) {
                                     classes.add(clazz);
                                 }
                             } catch (IOException e) {

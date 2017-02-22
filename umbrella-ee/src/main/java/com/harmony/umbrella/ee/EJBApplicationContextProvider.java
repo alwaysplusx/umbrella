@@ -2,6 +2,7 @@ package com.harmony.umbrella.ee;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Map;
 
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.core.io.Resource;
@@ -28,7 +29,7 @@ public class EJBApplicationContextProvider implements ApplicationContextProvider
     private static final Log log = Logs.getLog(EJBApplicationContextProvider.class);
 
     @Override
-    public ApplicationContext createApplicationContext() {
+    public ApplicationContext createApplicationContext(Map applicationProperties) {
         if (springContext == null) {
             synchronized (EJBApplicationContextProvider.class) {
                 if (springContext == null) {
