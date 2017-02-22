@@ -1,18 +1,18 @@
 package com.harmony.umbrella.data.query;
 
+import static com.harmony.umbrella.data.query.InternalQuery.Assembly.*;
+
 import java.util.List;
 
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
+import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Expression;
-import javax.persistence.criteria.Root;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 
 import com.harmony.umbrella.data.QueryFeature;
 
@@ -38,9 +38,11 @@ public class QueryResultImpl<T> implements QueryResult<T> {
 
     @Override
     public <E> E getColumnSingleResult(String column, Class<E> columnType) {
-        CriteriaQuery<E> query = buildColumnCriteriaQuery(new String[] { column }, columnType);
+        InternalQuery<T, E> query = createQuery(columnType);
+        query.assembly(FETCH, JOIN, GROUP);
+        query.select(column);
         try {
-            return (E) entityManager.createQuery(query).getSingleResult();
+            return (E) entityManager.createQuery(query.query).getSingleResult();
         } catch (NoResultException e) {
             return null;
         }
@@ -52,9 +54,15 @@ public class QueryResultImpl<T> implements QueryResult<T> {
     }
 
     @Override
-    public <E> List<E> getColumnResultList(String column, Class<E> columnType) {
-        CriteriaQuery<E> query = buildColumnCriteriaQuery(new String[] { column }, columnType);
-        return entityManager.createQuery(query).getResultList();
+    public <E> List<E> getColumnResultList(String column, Class<E> resultType) {
+        InternalQuery<T, E> query = createQuery(resultType);
+        query.assembly(FETCH, JOIN, GROUP, SORT);
+        query.select(column);
+        TypedQuery<E> typedQuery = entityManager.createQuery(query.query);
+        if (query.applyPaging(typedQuery) && !query.hasRestriction() && !query.isAllowEmptyConditionQuery()) {
+            throw new IllegalStateException("not allow empty condition full table query");
+        }
+        return typedQuery.getResultList();
     }
 
     @Override
@@ -63,30 +71,40 @@ public class QueryResultImpl<T> implements QueryResult<T> {
     }
 
     @Override
-    public <E> E getFunctionResult(String function, String column, Class<E> functionResultType) {
-        CriteriaQuery<E> query = buildFunctionCriteriaQuery(functionResultType, function, column);
-        return entityManager.createQuery(query).getSingleResult();
+    public <E> E getFunctionResult(String function, String column, Class<E> resultType) {
+        InternalQuery<T, E> query = createQuery(resultType);
+        query.assembly(FETCH, JOIN, GROUP, SORT);
+        query.selectFunction(function, column, resultType);
+        return entityManager.createQuery(query.query).getSingleResult();
     }
 
     @Override
-    public <VO> VO getVoResult(String[] columns, Class<VO> voType) {
-        CriteriaQuery<VO> query = buildColumnCriteriaQuery(columns, voType);
+    public <VO> VO getVoSingleResult(String[] columns, Class<VO> resultType) {
+        InternalQuery<T, VO> query = createQuery(resultType);
+        query.assembly(FETCH, JOIN, GROUP);
+        query.select(columns);
         try {
-            return entityManager.createQuery(query).getSingleResult();
+            return entityManager.createQuery(query.query).getSingleResult();
         } catch (NoResultException e) {
             return null;
         }
     }
 
     @Override
-    public <VO> List<VO> getVoResultList(String[] columns, Class<VO> voType) {
-        CriteriaQuery<VO> query = buildColumnCriteriaQuery(columns, voType);
-        return entityManager.createQuery(query).getResultList();
+    public <VO> List<VO> getVoResultList(String[] columns, Class<VO> resultType) {
+        InternalQuery<T, VO> query = createQuery(resultType);
+        query.assembly(FETCH, JOIN, GROUP, SORT);
+        query.select(columns);
+        TypedQuery<VO> typedQuery = entityManager.createQuery(query.query);
+        if (query.applyPaging(typedQuery) && !query.hasRestriction() && !query.isAllowEmptyConditionQuery()) {
+            throw new IllegalStateException("not allow empty condition full table query");
+        }
+        return typedQuery.getResultList();
     }
 
     @Override
     public T getSingleResult() {
-        CriteriaQuery<T> query = createQuery().assembly();
+        CriteriaQuery<T> query = createQuery().assembly(FETCH, JOIN);
         try {
             return entityManager.createQuery(query).getSingleResult();
         } catch (NoResultException e) {
@@ -96,11 +114,12 @@ public class QueryResultImpl<T> implements QueryResult<T> {
 
     @Override
     public T getFirstResult() {
-        CriteriaQuery<T> query = createQuery().assembly();
+        CriteriaQuery<T> query = createQuery().assembly(FETCH, JOIN, SORT);
         try {
             return entityManager.createQuery(query)//
                     .setFirstResult(0)//
-                    .setMaxResults(1).getSingleResult();
+                    .setMaxResults(1)//
+                    .getSingleResult();
         } catch (NoResultException e) {
             return null;
         }
@@ -108,70 +127,44 @@ public class QueryResultImpl<T> implements QueryResult<T> {
 
     @Override
     public List<T> getAllMatchResult() {
-        CriteriaQuery<T> query = createQuery().assembly();
-        return entityManager.createQuery(query).getResultList();
+        InternalQuery<T, T> query = createQuery();
+        query.assembly(FETCH, JOIN, SORT);
+        if (!query.hasRestriction() && !query.isAllowEmptyConditionQuery()) {
+            throw new IllegalStateException("not allow empty condition full table query");
+        }
+        return entityManager.createQuery(query.query).getResultList();
     }
 
     @Override
     public List<T> getResultList() {
-        return getResultList(bundle.getPageable());
-    }
-
-    @Override
-    public List<T> getResultList(int pageNumber, int pageSize) {
-        return getResultList(new PageRequest(pageNumber, pageSize));
-    }
-
-    @Override
-    public List<T> getResultList(Pageable pageable) {
-        InternalQuery<T, T> query = createQuery(bundle.getEntityClass());
-        query.applyFetchAttributes();
-        query.applyGrouping();
-        query.applyJoinAttribute();
-        query.applySpecification();
-        return null;
+        InternalQuery<T, T> query = createQuery();
+        query.assembly(FETCH, JOIN, SORT);
+        TypedQuery<T> typedQuery = entityManager.createQuery(query.query);
+        if (!query.applyPaging(typedQuery) && !query.hasRestriction() && !query.isAllowEmptyConditionQuery()) {
+            throw new IllegalStateException("not allow empty condition full table query");
+        }
+        return typedQuery.getResultList();
     }
 
     @Override
     public Page<T> getResultPage() {
-        return getResultPage(bundle.getPageable());
-    }
-
-    @Override
-    public Page<T> getResultPage(int pageNumber, int pageSize) {
-        return getResultPage(new PageRequest(pageNumber, pageSize, getSort()));
-    }
-
-    @Override
-    public Page<T> getResultPage(Pageable pageable) {
-        if (pageable == null) {
-            throw new IllegalStateException("page request not set");
-        }
-        // page count result
-        long total = getCountResult();
-
-        CriteriaQuery<T> query = buildCriteriaQuery(bundle.getEntityClass(), pageable.getSort(), bundle.getFetchAttributes(), bundle.getJoinAttributes());
-
-        List<T> content = entityManager.createQuery(query)//
-                .setFirstResult(pageable.getOffset())//
-                .setMaxResults(pageable.getPageSize())//
-                .getResultList();
-        return new PageImpl<T>(content, pageable, total);
+        List<T> content = getResultList();
+        PageRequest pageable = new PageRequest(bundle.getPageNumber(), bundle.getPageSize(), bundle.getSort());
+        return new PageImpl<T>(content, pageable, getCountResult());
     }
 
     @Override
     public long getCountResult() {
-        CriteriaQuery<Long> query = buildCriteriaQuery(Long.class, null, null, null);
-        Root root = query.from(bundle.getEntityClass());
-        if (QueryFeature.isEnabled(bundle.getQueryFeature(), QueryFeature.DISTINCT)) {
-            query.select(builder.countDistinct(root));
+        InternalQuery<T, Long> query = createQuery(Long.class);
+        if (QueryFeature.DISTINCT.isEnable(bundle.getQueryFeature())) {
+            query.query.select(builder.countDistinct(query.root));
         } else {
-            query.select(builder.count(root));
+            query.query.select(builder.count(query.root));
         }
-        return entityManager.createQuery(query).getSingleResult();
+        return entityManager.createQuery(query.query).getSingleResult();
     }
 
-    // query result
+    // build query 
 
     private InternalQuery<T, T> createQuery() {
         return createQuery(bundle.getEntityClass());
@@ -180,21 +173,5 @@ public class QueryResultImpl<T> implements QueryResult<T> {
     protected <R> InternalQuery<T, R> createQuery(Class<R> resultClass) {
         return new InternalQuery<T, R>(resultClass, builder, bundle);
     }
-
-    // function expression
-
-    protected Expression functionExpression(String attributeName, Root root) {
-        int left = attributeName.indexOf("(");
-        int right = attributeName.indexOf(")");
-        String functionName = attributeName.substring(0, left);
-        String expressionName = attributeName.substring(left + 1, right);
-        return builder.function(functionName, null, root.get(expressionName));
-    }
-
-    protected boolean isFunctionExpression(String attributeName) {
-        return attributeName.indexOf("(") > -1 && attributeName.indexOf(")") > -1;
-    }
-
-    // query method
 
 }

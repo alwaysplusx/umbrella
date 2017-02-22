@@ -2,7 +2,7 @@ package com.harmony.umbrella.data.query;
 
 import java.util.Set;
 
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 
 import com.harmony.umbrella.data.query.QueryBuilder.FetchAttributes;
@@ -15,8 +15,6 @@ public interface QueryBundle<M> {
 
     Class<M> getEntityClass();
 
-    Pageable getPageable();
-
     Specification getSpecification();
 
     int getQueryFeature();
@@ -26,5 +24,11 @@ public interface QueryBundle<M> {
     JoinAttributes getJoinAttributes();
 
     Set<String> getGrouping();
+
+    int getPageNumber();
+
+    int getPageSize();
+
+    Sort getSort();
 
 }

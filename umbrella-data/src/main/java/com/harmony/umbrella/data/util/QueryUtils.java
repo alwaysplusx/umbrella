@@ -67,6 +67,10 @@ public abstract class QueryUtils {
         return new SignalSpecification<T>(false);
     }
 
+    public static boolean isPaging(int page, int size) {
+        return !(page < 0 || size < 1);
+    }
+
     public static <T> Expression<T> toExpressionRecursively(final From<?, ?> from, String name) {
         return toExpressionRecursively(from, new StringTokenizer(name, "."));
     }

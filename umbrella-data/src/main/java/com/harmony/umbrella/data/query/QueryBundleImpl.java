@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.util.Iterator;
 import java.util.Set;
 
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 
 import com.harmony.umbrella.data.query.QueryBuilder.FetchAttributes;
@@ -19,8 +19,6 @@ public class QueryBundleImpl<M> implements QueryBundle<M>, Serializable {
 
     Class<M> entityClass;
 
-    Pageable pageable;
-
     Specification specification;
 
     FetchAttributes fetchAttributes;
@@ -31,12 +29,17 @@ public class QueryBundleImpl<M> implements QueryBundle<M>, Serializable {
 
     int queryFeature;
 
+    int pageNumber;
+
+    int pageSize;
+
+    Sort sort;
+
     public QueryBundleImpl() {
     }
 
     public QueryBundleImpl(QueryBundle bundle) {
         this.entityClass = bundle.getEntityClass();
-        this.pageable = bundle.getPageable();
         this.specification = bundle.getSpecification();
         this.fetchAttributes = bundle.getFetchAttributes();
         this.joinAttributes = bundle.getJoinAttributes();
@@ -50,8 +53,18 @@ public class QueryBundleImpl<M> implements QueryBundle<M>, Serializable {
     }
 
     @Override
-    public Pageable getPageable() {
-        return pageable;
+    public int getPageNumber() {
+        return pageNumber;
+    }
+
+    @Override
+    public int getPageSize() {
+        return pageSize;
+    }
+
+    @Override
+    public Sort getSort() {
+        return sort;
     }
 
     @Override

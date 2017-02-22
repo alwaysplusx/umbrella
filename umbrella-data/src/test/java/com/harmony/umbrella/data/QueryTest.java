@@ -3,12 +3,14 @@ package com.harmony.umbrella.data;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Enumeration;
+import java.util.List;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Persistence;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 
 import org.junit.BeforeClass;
 import org.junit.Ignore;
@@ -31,6 +33,7 @@ public class QueryTest {
     public static void beforeClass() {
         entityManager.getTransaction().begin();
         entityManager.persist(new Model(1l, "wuxii", "content"));
+        entityManager.persist(new Model(2l, "aaa", "content"));
         entityManager.getTransaction().commit();
     }
 
@@ -85,7 +88,7 @@ public class QueryTest {
         builder.from(Model.class).equal("name", "wuxii");
         ModelVo vo = builder//
                 .execute()//
-                .getVoResult(new String[] { "name", "code", "content" }, ModelVo.class);
+                .getVoSingleResult(new String[] { "name", "code", "content" }, ModelVo.class);
         System.out.println(vo);
     }
 
@@ -95,7 +98,7 @@ public class QueryTest {
         builder.from(Model.class).equal("name", "wuxii");
         ModelVo vo = builder//
                 .execute()//
-                .getVoResult(new String[] { "max(id)", "name", "content" }, ModelVo.class);
+                .getVoSingleResult(new String[] { "max(id)", "name", "content" }, ModelVo.class);
         System.out.println(vo);
     }
 
@@ -108,13 +111,25 @@ public class QueryTest {
         }
     }
 
-    @Test
+    @Test(expected = NullPointerException.class)
     public void testEmptySpec() {
         CriteriaBuilder builder = entityManager.getCriteriaBuilder();
         CriteriaQuery<Model> query = builder.createQuery(Model.class);
         query.from(Model.class);
         query.where((Predicate) null);
+        System.out.println(query.getRestriction().getExpressions().size());
+        System.out.println(query.getGroupRestriction());
         entityManager.createQuery(query).getResultList();
+    }
+
+    @Test
+    public void testGrouping() {
+        CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Model> query = builder.createQuery(Model.class);
+        Root<Model> root = query.from(Model.class);
+        query.groupBy(root.get("name"));
+        List<Model> list = entityManager.createQuery(query).getResultList();
+        System.out.println(list);
     }
 
 }

@@ -16,7 +16,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.criteria.JoinType;
 
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
@@ -75,8 +74,8 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
     protected Class<M> entityClass;
 
     protected Sort sort;
-    protected int pageNumber;
-    protected int pageSize;
+    protected int pageNumber = -1;
+    protected int pageSize = -1;
 
     protected Set<String> grouping;
     protected FetchAttributes fetchAttributes;
@@ -184,7 +183,9 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
         final QueryBundleImpl<M> o = new QueryBundleImpl<M>();
         final QueryBuilder b = this;
         o.entityClass = b.entityClass;
-        o.pageable = new PageRequest(b.pageNumber < 0 ? 0 : b.pageNumber, b.pageSize < 1 ? 20 : b.pageSize, b.sort);
+        o.pageNumber = b.pageNumber;
+        o.pageSize = b.pageSize;
+        o.sort = b.sort;
         o.specification = b.specification;
         o.fetchAttributes = b.fetchAttributes;
         o.joinAttributes = b.joinAttributes;
@@ -203,6 +204,9 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
     public T unbundle(QueryBundle<M> bundle) {
         clear();
         this.entityClass = bundle.getEntityClass();
+        this.pageNumber = bundle.getPageNumber();
+        this.pageSize = bundle.getPageSize();
+        this.sort = bundle.getSort();
         this.specification = bundle.getSpecification();
         this.fetchAttributes = bundle.getFetchAttributes();
         this.joinAttributes = bundle.getJoinAttributes();
