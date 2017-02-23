@@ -1,16 +1,24 @@
 package com.harmony.umbrella.cache;
 
-import net.oschina.j2cache.CacheChannel;
-import net.oschina.j2cache.J2Cache;
+import java.io.IOException;
+import java.util.Properties;
+
+import org.junit.Test;
+
+import com.harmony.umbrella.util.PropertiesUtils;
 
 /**
  * @author wuxii@foxmail.com
  */
 public class J2CacheTest {
 
-    public static void main(String[] args) {
-        CacheChannel channel = J2Cache.getChannel();
-        System.out.println(channel);
+    @Test
+    public void test() throws IOException, InterruptedException {
+        Properties props = PropertiesUtils.loadProperties("j2cache.properties");
+        J2Cache j2Cache = J2Cache.getInstance();
+        j2Cache.init(props);
+        j2Cache.getChannel();
+        Thread.sleep(1000 * 100);
     }
 
 }
