@@ -43,20 +43,19 @@ public class RedisCacheChannel extends AbstractCacheChannel {
 
     @Override
     public void start(Map properties) {
-        this.cacheManager = CacheManager.getInstance();
-        this.cacheManager.init(properties);
+        this.cacheManager = CacheManager.getInstance(properties);
         this.redisCacheProxy = new RedisCacheProvider().getResource();
         this.channel = (String) properties.get("redis.channel_name");
+        long ct = System.currentTimeMillis();
         thread_subscribe = new Thread(new Runnable() {
             @Override
             public void run() {
-                long ct = System.currentTimeMillis();
                 redisCacheProxy.subscribe(messageHandler, SafeEncoder.encode(channel));
-                log.info("Connected to channel:" + channel + ", time " + (System.currentTimeMillis() - ct) + " ms.");
             }
         });
         try {
             thread_subscribe.start();
+            log.info("Connected to channel:" + channel + ", time " + (System.currentTimeMillis() - ct) + " ms.");
         } catch (Exception e) {
             throw new CacheException("unable connection redis", e);
         }

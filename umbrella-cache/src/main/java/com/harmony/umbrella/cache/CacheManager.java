@@ -24,18 +24,22 @@ public class CacheManager {
     private CacheProvider l1_provider;
     private CacheProvider l2_provider;
 
+    private Map properties;
+
     protected CacheExpiredListener listener;
 
     private String serializer;
 
-    private CacheManager() {
+    private CacheManager(Map properties) {
+        this.properties = properties;
     }
 
-    public static CacheManager getInstance() {
+    public static CacheManager getInstance(Map properties) {
         if (INSTANCE == null) {
             synchronized (J2Cache.class) {
                 if (INSTANCE == null) {
-                    INSTANCE = new CacheManager();
+                    INSTANCE = new CacheManager(properties);
+                    INSTANCE.init();
                 }
             }
         }
@@ -50,7 +54,7 @@ public class CacheManager {
         return getCacheProvider(level).build(cacheName, autoCreate);
     }
 
-    public void init(Map properties) {
+    private void init() {
         try {
             this.l1_provider = getProviderInstance((String) properties.get("cache.L1.provider_class"));
             this.l1_provider.start(getProviderProperties(properties, this.l1_provider));

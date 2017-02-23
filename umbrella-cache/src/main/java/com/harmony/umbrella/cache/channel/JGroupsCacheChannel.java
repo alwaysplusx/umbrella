@@ -51,8 +51,7 @@ public class JGroupsCacheChannel extends AbstractCacheChannel {
 
     @Override
     public void start(Map properties) {
-        this.cacheManager = CacheManager.getInstance();
-        this.cacheManager.init(properties);
+        this.cacheManager = CacheManager.getInstance(properties);
         InputStream is = null;
         try {
             is = getJGroupConfig(properties);

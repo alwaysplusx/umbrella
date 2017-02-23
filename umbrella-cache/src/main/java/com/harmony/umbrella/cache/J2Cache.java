@@ -34,9 +34,6 @@ public class J2Cache {
     }
 
     public CacheChannel getChannel() {
-        if (channel == null) {
-            throw new IllegalStateException("cache channel not init!");
-        }
         synchronized (lock) {
             if (channel == null) {
                 throw new IllegalStateException("cache channel not init!");
