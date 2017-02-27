@@ -20,24 +20,27 @@ public class ConditionSpecification<T> implements Specification<T>, Serializable
 
     private static final long serialVersionUID = 5012760558487273137L;
 
-    private String left;
-    private Object right;
+    private String x;
+    private Object y;
     private Operator operator;
 
     public ConditionSpecification(String x, Object y, Operator operator) {
-        this.left = x;
-        this.right = y;
+        this.x = x;
+        this.y = y;
         this.operator = operator;
     }
 
     @Override
     public Predicate toPredicate(Root<T> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
-        Expression x = QueryUtils.toExpressionRecursively(root, left);
-        return operator.explain(x, cb, right);
+        return operator.explain(toExpression(x, root, cb), cb, y);
     }
 
     @Override
     public String toString() {
-        return left + " " + operator.symbol() + " " + "?";
+        return x + " " + operator.symbol() + " " + "?";
+    }
+
+    protected Expression toExpression(String name, Root root, CriteriaBuilder cb) {
+        return QueryUtils.isFunctionExpression(name) ? QueryUtils.functionExpression(name, root, cb, null) : QueryUtils.toExpressionRecursively(root, name);
     }
 }

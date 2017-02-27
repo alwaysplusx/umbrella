@@ -463,21 +463,6 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
     }
 
     /**
-     * 两个字段的条件查询
-     * 
-     * @param left
-     *            字段1
-     * @param right
-     *            字段2
-     * @param operator
-     *            条件
-     * @return this
-     */
-    public T expression(String left, String right, Operator operator) {
-        return addExpressionCodition(left, right, operator);
-    }
-
-    /**
      * 设置条件的连接条件and
      * 
      * @return this
@@ -495,6 +480,16 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
     public T or() {
         this.assembleType = OR;
         return (T) this;
+    }
+
+    public T and(Specification<T> spec) {
+        this.assembleType = AND;
+        return addSpecication(spec, AND);
+    }
+
+    public T or(Specification<T> spec) {
+        this.assembleType = OR;
+        return addSpecication(spec, OR);
     }
 
     /**
@@ -535,13 +530,20 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
      *            条件
      * @return this
      */
-    protected final T addSpecication(Specification spec) {
+    public T addSpecication(Specification spec) {
         final CompositionType type = assembleType;
         this.assembleType = null;
         if (type == null && strictMode) {
             throw new IllegalStateException("assemble type not set, or disabled statict mode");
         }
-        currentBind().add(spec, type == null ? AND : type);
+        return addSpecication(spec, type);
+    }
+
+    protected final T addSpecication(Specification spec, CompositionType type) {
+        if (type == null) {
+            throw new IllegalStateException("assemble type not set, or disabled statict mode");
+        }
+        currentBind().add(spec, type);
         return (T) this;
     }
 
@@ -560,7 +562,7 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
     /**
      * 结束查询, 将所有查询栈中的查询条件组合成为规范化的查询条件specification
      */
-    protected void finishQuery() {
+    protected final void finishQuery() {
         if (!queryStack.isEmpty()) {
             if (!autoEnclose) {
                 throw new IllegalStateException("query not finish, please turn enclosed on");

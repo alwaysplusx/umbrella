@@ -20,26 +20,27 @@ public class ExperssionSpecification<T> implements Specification<T>, Serializabl
 
     private static final long serialVersionUID = 1171738576029238894L;
 
-    private String left;
-    private String right;
+    private String x;
+    private String y;
     private Operator operator;
 
     public ExperssionSpecification(String x, String y, Operator operator) {
-        this.left = x;
-        this.right = y;
+        this.x = x;
+        this.y = y;
         this.operator = operator;
     }
 
     @Override
     public Predicate toPredicate(Root<T> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
-        Expression<Object> x = QueryUtils.toExpressionRecursively(root, left);
-        Expression<Object> y = QueryUtils.toExpressionRecursively(root, right);
-        return operator.explain(x, cb, y);
+        return operator.explain(toExpression(x, root, cb), cb, toExpression(y, root, cb));
     }
 
     @Override
     public String toString() {
-        return left + " " + operator.symbol() + " " + right;
+        return x + " " + operator.symbol() + " " + y;
     }
 
+    protected Expression toExpression(String name, Root root, CriteriaBuilder cb) {
+        return QueryUtils.isFunctionExpression(name) ? QueryUtils.functionExpression(name, root, cb, null) : QueryUtils.toExpressionRecursively(root, name);
+    }
 }

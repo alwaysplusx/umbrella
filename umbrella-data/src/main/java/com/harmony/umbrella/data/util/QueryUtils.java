@@ -71,6 +71,17 @@ public abstract class QueryUtils {
         return !(page < 0 || size < 1);
     }
 
+    public static boolean isFunctionExpression(String name) {
+        return name.indexOf("(") > -1 && name.indexOf(")") > -1 && name.indexOf("(") > name.indexOf(")");
+    }
+
+    public static <T> Expression<T> functionExpression(String name, Root<?> root, CriteriaBuilder builder, Class<T> type) {
+        StringTokenizer st = new StringTokenizer(name);
+        String f = st.nextToken("(").trim();
+        String n = st.nextToken(")").trim();
+        return builder.function(f, type, toExpressionRecursively(root, n));
+    }
+
     public static <T> Expression<T> toExpressionRecursively(final From<?, ?> from, String name) {
         return toExpressionRecursively(from, new StringTokenizer(name, "."));
     }
