@@ -55,7 +55,7 @@ public class ApplicationServletContainerInitializer implements ServletContainerI
             ApplicationContext.start(cfg);
 
             if (Boolean.valueOf(getInitParameter("show-info")) //
-                    || Logs.getLog().isDebugEnabled()//
+                    || Logs.getLog("com.harmony.umbrella.context").isDebugEnabled()//
                     || Boolean.valueOf(cfg.getStringProperty("application.show-info"))) {
                 showApplicationInfo();
             }

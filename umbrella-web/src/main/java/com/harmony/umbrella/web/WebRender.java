@@ -18,7 +18,7 @@ import com.harmony.umbrella.util.IOUtils;
 public class WebRender {
 
     public static final String DEFAULT_CONTENT_TYPE = "plain/text";
-    public static final String DEFAULT_STREAM_CONTENT_TYPE = "application/octet- stream";
+    public static final String DEFAULT_STREAM_CONTENT_TYPE = "application/octet-stream";
     public static final String DEFAULT_ENCODING = "UTF-8";
     private HttpServletResponse response;
     private String encoding;

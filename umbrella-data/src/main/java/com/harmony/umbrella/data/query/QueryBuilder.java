@@ -536,7 +536,7 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
         if (type == null && strictMode) {
             throw new IllegalStateException("assemble type not set, or disabled statict mode");
         }
-        return addSpecication(spec, type);
+        return addSpecication(spec, type == null ? AND : type);
     }
 
     protected final T addSpecication(Specification spec, CompositionType type) {
@@ -596,9 +596,6 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
      * @return this
      */
     public T paging(int pageNumber, int pageSize) {
-        if (QueryUtils.isPaging(pageNumber, pageSize)) {
-            throw new IllegalArgumentException("invalid page setting page=" + pageNumber + ", size=" + pageSize);
-        }
         this.pageNumber = pageNumber;
         this.pageSize = pageSize;
         return (T) this;
@@ -888,7 +885,9 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
     public void clear() {
         queryStack.clear();
         temp.clear();
-        grouping.clear();
+        if (grouping != null) {
+            grouping.clear();
+        }
         assembleType = null;
         fetchAttributes = null;
         joinAttributes = null;
