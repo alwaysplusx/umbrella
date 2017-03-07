@@ -36,11 +36,7 @@ public class QueryBundleMethodArgumentResolver implements HandlerMethodArgumentR
         Map<String, String[]> queryParams = PropertiesUtils.filterStartWith(prefix, webRequest.getParameterMap());
         Class<?> domainClass = getMethodParameterDomainClass(parameter);
         WebDataBinder binder = binderFactory.createBinder(webRequest, null, null);
-        RequestQueryBundle ann = parameter.getParameterAnnotation(RequestQueryBundle.class);
-        if (queryParams.isEmpty() && (ann == null || ann.required())) {
-            throw new IllegalArgumentException("no query bundle for " + webRequest.getNativeRequest(HttpServletRequest.class).getRequestURI());
-        }
-        return new WebQueryAssamble(prefix, separator, binder, domainClass, ann).bundle(webRequest);
+        return new WebQueryAssamble(prefix, separator, binder, domainClass, parameter).bundle(webRequest);
     }
 
     private Class<?> getMethodParameterDomainClass(MethodParameter parameter) {

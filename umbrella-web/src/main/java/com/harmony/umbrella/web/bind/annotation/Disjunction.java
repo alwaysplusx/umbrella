@@ -12,22 +12,6 @@ import java.lang.annotation.Target;
 @Documented
 @Target(ElementType.PARAMETER)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface RequestQueryBundle {
-
-    Junction bundle() default Junction.CONJUNCTION;
-
-    int page() default -1;
-
-    int size() default -1;
-
-    String[] gouping() default {};
-
-    String[] asc() default {};
-
-    String[] desc() default {};
-
-    public enum Junction {
-        CONJUNCTION, DISJUNCTION
-    }
+public @interface Disjunction {
 
 }

@@ -6,15 +6,21 @@ import java.util.Map.Entry;
 import java.util.StringTokenizer;
 
 import org.springframework.beans.TypeConverter;
+import org.springframework.core.MethodParameter;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.web.context.request.NativeWebRequest;
 
 import com.harmony.umbrella.core.Member;
 import com.harmony.umbrella.data.Operator;
 import com.harmony.umbrella.data.query.JpaQueryBuilder;
 import com.harmony.umbrella.data.query.QueryBundle;
+import com.harmony.umbrella.data.util.QueryUtils;
 import com.harmony.umbrella.util.MemberUtils;
 import com.harmony.umbrella.util.PropertiesUtils;
+import com.harmony.umbrella.web.bind.annotation.Conjunction;
+import com.harmony.umbrella.web.bind.annotation.Disjunction;
 import com.harmony.umbrella.web.bind.annotation.RequestQueryBundle;
+import com.harmony.umbrella.web.bind.annotation.RequestQueryBundle.Junction;
 
 public class WebQueryAssamble {
 
@@ -22,16 +28,16 @@ public class WebQueryAssamble {
     private String separator;
     private TypeConverter typeConverter;
     private Class<?> domainClass;
+    private MethodParameter parameter;
 
-    RequestQueryBundle ann;
     private JpaQueryBuilder builder;
 
-    public WebQueryAssamble(String prefix, String separator, TypeConverter typeConverter, Class<?> domainClass, RequestQueryBundle ann) {
+    public WebQueryAssamble(String prefix, String separator, TypeConverter typeConverter, Class<?> domainClass, MethodParameter parameter) {
         this.prefix = prefix;
         this.separator = separator;
         this.typeConverter = typeConverter;
         this.domainClass = domainClass;
-        this.ann = ann;
+        this.parameter = parameter;
         this.builder = new JpaQueryBuilder<>(domainClass);
     }
 
@@ -72,34 +78,73 @@ public class WebQueryAssamble {
     }
 
     protected void assembleGroupBy(String[] gouping) {
-
+        for (String s : gouping) {
+            StringTokenizer st = new StringTokenizer(s, ",");
+            while (st.hasMoreTokens()) {
+                builder.groupBy(st.nextToken().trim());
+            }
+        }
     }
 
-    protected void assembleOrderBy(String[] asc, String[] desc) {
+    protected void assembleAsc(String[] asc) {
+        for (String s : asc) {
+            StringTokenizer st = new StringTokenizer(s, ",");
+            while (st.hasMoreTokens()) {
+                builder.asc(st.nextToken().trim());
+            }
+        }
+    }
 
+    protected void assembleDesc(String[] desc) {
+        for (String s : desc) {
+            StringTokenizer st = new StringTokenizer(s, ",");
+            while (st.hasMoreTokens()) {
+                builder.desc(st.nextToken().trim());
+            }
+        }
     }
 
     public QueryBundle<?> bundle(NativeWebRequest webRequest) {
+        // query params
         Map<String, String[]> queryParams = PropertiesUtils.filterStartWith(prefix, webRequest.getParameterMap());
+        RequestQueryBundle ann = parameter.getParameterAnnotation(RequestQueryBundle.class);
+        Conjunction conjunction = parameter.getParameterAnnotation(Conjunction.class);
+        Disjunction disjunction = parameter.getParameterAnnotation(Disjunction.class);
+
         if (!queryParams.isEmpty()) {
             assembleParameters(queryParams);
         }
-        // TODO if query if null add default junction
+        /*else {
+            Specification spec = requestQueryBundle != null || requestQueryBundle.bundle() == Junction.DISJUNCTION ? QueryUtils.disjunction()
+                    : QueryUtils.conjunction();
+            builder.withSpecification(spec);
+        }*/
+        // paging
+        assemblePaging(//
+                getParameter(webRequest, "page", ann == null ? -1 : ann.page()), //
+                getParameter(webRequest, "size", ann == null ? -1 : ann.size())//
+        );
 
-        Integer page = typeConverter.convertIfNecessary(webRequest.getParameter("page"), Integer.class);
-        Integer size = typeConverter.convertIfNecessary(webRequest.getParameter("size"), Integer.class);
-        // if null use default
-        final int pageNumber = (page == null && ann != null) ? ann.page() : -1;
-        final int pageSize = (size == null && ann != null) ? ann.size() : -1;
+        // asc
+        assembleAsc(getParameterValues(webRequest, "asc", ann == null ? new String[0] : ann.asc()));
 
-        assemblePaging(pageNumber, pageSize);
+        // desc
+        assembleDesc(getParameterValues(webRequest, "desc", ann == null ? new String[0] : ann.desc()));
 
-        String[] asc = webRequest.getParameterValues("asc");
-        String[] desc = webRequest.getParameterValues("desc");
-        if (asc != null || desc != null) {
+        // gouping
+        assembleGroupBy(getParameterValues(webRequest, "gouping", ann == null ? new String[0] : ann.gouping()));
 
-        }
         return builder.bundle();
+    }
+
+    private int getParameter(NativeWebRequest webRequest, String key, int defaultValues) {
+        Integer v = typeConverter.convertIfNecessary(webRequest.getParameter(key), Integer.class);
+        return v == null ? defaultValues : v;
+    }
+
+    private String[] getParameterValues(NativeWebRequest webRequest, String key, String[] defaultValues) {
+        String[] v = webRequest.getParameterValues(key);
+        return v == null ? defaultValues : v;
     }
 
 }
