@@ -23,6 +23,10 @@ public class JpaQueryBuilder<M> extends QueryBuilder<JpaQueryBuilder<M>, M> {
     public JpaQueryBuilder() {
     }
 
+    public JpaQueryBuilder(Class<M> entityClass) {
+        super(entityClass);
+    }
+
     public JpaQueryBuilder(Class<M> entityClass, EntityManager entityManager) {
         super(entityClass, entityManager);
     }

@@ -94,6 +94,10 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
     public QueryBuilder() {
     }
 
+    public QueryBuilder(Class<M> entityClass) {
+        this.entityClass = entityClass;
+    }
+
     public QueryBuilder(EntityManager entityManager) {
         this(null, entityManager);
     }
