@@ -14,7 +14,9 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface RequestQueryBundle {
 
-    Junction bundle() default Junction.CONJUNCTION;
+    boolean required() default true;
+
+    Option option() default Option.EMPTY_CONJUNCTION;
 
     int page() default -1;
 
@@ -26,8 +28,8 @@ public @interface RequestQueryBundle {
 
     String[] desc() default {};
 
-    public enum Junction {
-        CONJUNCTION, DISJUNCTION
+    public static enum Option {
+        EMPTY_CONJUNCTION, EMPTY_DISJUNCTION
     }
 
 }

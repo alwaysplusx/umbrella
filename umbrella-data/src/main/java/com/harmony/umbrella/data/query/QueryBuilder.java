@@ -127,7 +127,8 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
      * @return this
      */
     public T withSpecification(Specification<M> specification) {
-        clear();
+        this.queryStack.clear();
+        this.temp.clear();
         this.specification = specification;
         return (T) this;
     }

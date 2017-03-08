@@ -5,9 +5,10 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.StringTokenizer;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.beans.TypeConverter;
 import org.springframework.core.MethodParameter;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.web.context.request.NativeWebRequest;
 
 import com.harmony.umbrella.core.Member;
@@ -17,10 +18,8 @@ import com.harmony.umbrella.data.query.QueryBundle;
 import com.harmony.umbrella.data.util.QueryUtils;
 import com.harmony.umbrella.util.MemberUtils;
 import com.harmony.umbrella.util.PropertiesUtils;
-import com.harmony.umbrella.web.bind.annotation.Conjunction;
-import com.harmony.umbrella.web.bind.annotation.Disjunction;
 import com.harmony.umbrella.web.bind.annotation.RequestQueryBundle;
-import com.harmony.umbrella.web.bind.annotation.RequestQueryBundle.Junction;
+import com.harmony.umbrella.web.bind.annotation.RequestQueryBundle.Option;
 
 public class WebQueryAssamble {
 
@@ -28,16 +27,17 @@ public class WebQueryAssamble {
     private String separator;
     private TypeConverter typeConverter;
     private Class<?> domainClass;
-    private MethodParameter parameter;
 
     private JpaQueryBuilder builder;
+    private RequestQueryBundle bundleAnn;
 
     public WebQueryAssamble(String prefix, String separator, TypeConverter typeConverter, Class<?> domainClass, MethodParameter parameter) {
         this.prefix = prefix;
         this.separator = separator;
         this.typeConverter = typeConverter;
         this.domainClass = domainClass;
-        this.parameter = parameter;
+        // this.parameter = parameter;
+        this.bundleAnn = parameter.getMethodAnnotation(RequestQueryBundle.class);
         this.builder = new JpaQueryBuilder<>(domainClass);
     }
 
@@ -107,18 +107,18 @@ public class WebQueryAssamble {
     public QueryBundle<?> bundle(NativeWebRequest webRequest) {
         // query params
         Map<String, String[]> queryParams = PropertiesUtils.filterStartWith(prefix, webRequest.getParameterMap());
-        RequestQueryBundle ann = parameter.getParameterAnnotation(RequestQueryBundle.class);
-        Conjunction conjunction = parameter.getParameterAnnotation(Conjunction.class);
-        Disjunction disjunction = parameter.getParameterAnnotation(Disjunction.class);
+        final RequestQueryBundle ann = this.bundleAnn;
 
         if (!queryParams.isEmpty()) {
             assembleParameters(queryParams);
+        } else if (ann != null && ann.required()) {
+            // query bundle is needed!
+            throw new IllegalArgumentException("no query bundle for request " + webRequest.getNativeRequest(HttpServletRequest.class).getRequestURI());
+        } else {
+            Option defaultOption = ann == null ? Option.EMPTY_CONJUNCTION : ann.option();
+            builder.withSpecification(defaultOption == Option.EMPTY_CONJUNCTION ? QueryUtils.conjunction() : QueryUtils.disjunction());
         }
-        /*else {
-            Specification spec = requestQueryBundle != null || requestQueryBundle.bundle() == Junction.DISJUNCTION ? QueryUtils.disjunction()
-                    : QueryUtils.conjunction();
-            builder.withSpecification(spec);
-        }*/
+
         // paging
         assemblePaging(//
                 getParameter(webRequest, "page", ann == null ? -1 : ann.page()), //
