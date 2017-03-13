@@ -1,22 +1,22 @@
 package com.harmony.umbrella.web.bind.annotation;
 
-import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import com.harmony.umbrella.data.query.QueryFeature;
+
 /**
  * @author wuxii@foxmail.com
  */
-@Documented
-@Target(ElementType.PARAMETER)
+@Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface RequestQueryBundle {
+public @interface RequestBundle {
 
-    boolean required() default true;
+    boolean required() default false;
 
-    Option option() default Option.EMPTY_CONJUNCTION;
+    QueryFeature[] feature() default { QueryFeature.CONJUNCTION };
 
     int page() default -1;
 
@@ -27,9 +27,5 @@ public @interface RequestQueryBundle {
     String[] asc() default {};
 
     String[] desc() default {};
-
-    public static enum Option {
-        EMPTY_CONJUNCTION, EMPTY_DISJUNCTION
-    }
 
 }

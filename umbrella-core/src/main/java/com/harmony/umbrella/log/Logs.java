@@ -4,7 +4,11 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ServiceLoader;
 
+import org.springframework.util.ClassUtils;
+
 import com.harmony.umbrella.log.Level.StandardLevel;
+import com.harmony.umbrella.log.support.CommonLogProvider;
+import com.harmony.umbrella.log.support.Slf4jLogProvider;
 import com.harmony.umbrella.util.Environments;
 
 /**
@@ -17,13 +21,15 @@ public final class Logs {
     static final boolean LOG_FULL_NAME;
     static final StandardLevel LOG_LEVEL;
 
-    static {
+    static final boolean slf4jFactoryPresent;
+    static final boolean commonLogPresent;
 
+    static {
         LOG_FULL_NAME = Boolean.valueOf(Environments.getProperty("umbrella.log.fullname", "false"));
         LOG_LEVEL = StandardLevel.valueOf(Environments.getProperty("umbrella.log.level", "DEBUG"));
-
+        slf4jFactoryPresent = ClassUtils.isPresent("org.slf4j.LoggerFactory", Logs.class.getClassLoader());
+        commonLogPresent = ClassUtils.isPresent("org.apache.commons.logging.Log", Logs.class.getClassLoader());
         flushProvider();
-
     }
 
     public static void flushProvider() {
@@ -33,7 +39,7 @@ public final class Logs {
             break;
         }
         if (logProvider == null) {
-            logProvider = new SystemLogProvider();
+            logProvider = slf4jFactoryPresent ? new Slf4jLogProvider() : commonLogPresent ? new CommonLogProvider() : new SystemLogProvider();
         }
         StaticLogger.debug("Load log provider {}", logProvider);
     }
@@ -182,4 +188,5 @@ public final class Logs {
             return sb.toString();
         }
     }
+
 }

@@ -5,7 +5,6 @@ import static org.junit.Assert.*;
 import org.junit.Test;
 
 import com.alibaba.fastjson.JSON;
-import com.harmony.umbrella.json.serializer.FilterMode;
 import com.harmony.umbrella.json.serializer.SimpleAnnotationFilter;
 import com.harmony.umbrella.json.serializer.SimplePatternFilter;
 import com.harmony.umbrella.json.vo.Person;

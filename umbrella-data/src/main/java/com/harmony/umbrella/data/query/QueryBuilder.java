@@ -743,8 +743,10 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
      *            查询属性
      * @return this
      */
-    public T enable(QueryFeature feature) {
-        this.queryFeature = QueryFeature.config(queryFeature, feature, true);
+    public T enable(QueryFeature... feature) {
+        for (QueryFeature f : feature) {
+            this.queryFeature = QueryFeature.config(queryFeature, f, true);
+        }
         return (T) this;
     }
 
@@ -755,8 +757,10 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
      *            查询属性
      * @return this
      */
-    public T disable(QueryFeature feature) {
-        this.queryFeature = QueryFeature.config(queryFeature, feature, false);
+    public T disable(QueryFeature... feature) {
+        for (QueryFeature f : feature) {
+            this.queryFeature = QueryFeature.config(queryFeature, f, false);
+        }
         return (T) this;
     }
 

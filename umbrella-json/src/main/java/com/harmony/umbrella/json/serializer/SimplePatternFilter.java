@@ -9,6 +9,7 @@ import org.springframework.util.AntPathMatcher;
 import org.springframework.util.PathMatcher;
 
 import com.alibaba.fastjson.serializer.JSONSerializer;
+import com.harmony.umbrella.json.FilterMode;
 
 /**
  * 对需要json格式化的对象进行字段的过滤，默认filterMode = EXCLUDE

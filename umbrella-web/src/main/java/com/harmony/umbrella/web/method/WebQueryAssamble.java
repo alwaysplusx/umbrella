@@ -15,11 +15,10 @@ import com.harmony.umbrella.core.Member;
 import com.harmony.umbrella.data.Operator;
 import com.harmony.umbrella.data.query.JpaQueryBuilder;
 import com.harmony.umbrella.data.query.QueryBundle;
-import com.harmony.umbrella.data.util.QueryUtils;
+import com.harmony.umbrella.data.query.QueryFeature;
 import com.harmony.umbrella.util.MemberUtils;
 import com.harmony.umbrella.util.PropertiesUtils;
-import com.harmony.umbrella.web.bind.annotation.RequestQueryBundle;
-import com.harmony.umbrella.web.bind.annotation.RequestQueryBundle.Option;
+import com.harmony.umbrella.web.bind.annotation.RequestBundle;
 
 public class WebQueryAssamble {
 
@@ -29,7 +28,7 @@ public class WebQueryAssamble {
     private Class<?> domainClass;
 
     private JpaQueryBuilder builder;
-    private RequestQueryBundle bundleAnn;
+    private RequestBundle bundleAnn;
 
     public WebQueryAssamble(String prefix, String separator, TypeConverter typeConverter, Class<?> domainClass, MethodParameter parameter) {
         this.prefix = prefix;
@@ -37,7 +36,7 @@ public class WebQueryAssamble {
         this.typeConverter = typeConverter;
         this.domainClass = domainClass;
         // this.parameter = parameter;
-        this.bundleAnn = parameter.getMethodAnnotation(RequestQueryBundle.class);
+        this.bundleAnn = parameter.getMethodAnnotation(RequestBundle.class);
         this.builder = new JpaQueryBuilder<>(domainClass);
     }
 
@@ -107,17 +106,17 @@ public class WebQueryAssamble {
     public QueryBundle<?> bundle(NativeWebRequest webRequest) {
         // query params
         Map<String, String[]> queryParams = PropertiesUtils.filterStartWith(prefix, webRequest.getParameterMap());
-        final RequestQueryBundle ann = this.bundleAnn;
+        final RequestBundle ann = this.bundleAnn;
 
         if (!queryParams.isEmpty()) {
             assembleParameters(queryParams);
         } else if (ann != null && ann.required()) {
             // query bundle is needed!
             throw new IllegalArgumentException("no query bundle for request " + webRequest.getNativeRequest(HttpServletRequest.class).getRequestURI());
-        } else {
-            Option defaultOption = ann == null ? Option.EMPTY_CONJUNCTION : ann.option();
-            builder.withSpecification(defaultOption == Option.EMPTY_CONJUNCTION ? QueryUtils.conjunction() : QueryUtils.disjunction());
         }
+
+        // query feature
+        builder.enable(ann != null ? ann.feature() : new QueryFeature[0]);
 
         // paging
         assemblePaging(//

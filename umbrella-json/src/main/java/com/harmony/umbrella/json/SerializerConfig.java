@@ -30,6 +30,6 @@ public interface SerializerConfig {
      * 
      * @return fastjson序列化配置
      */
-    SerializeConfig getSerializeConfig();
+    SerializeConfig getFastjsonSerializeConfig();
 
 }

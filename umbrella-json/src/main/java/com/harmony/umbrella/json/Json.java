@@ -125,7 +125,7 @@ public class Json {
     public static String toJson(Object object, SerializerConfig cfg) {
         SerializeFilter[] filters = cfg.getFilters();
         SerializerFeature[] features = cfg.getFeatures();
-        SerializeConfig scfg = cfg.getSerializeConfig();
+        SerializeConfig scfg = cfg.getFastjsonSerializeConfig();
         return scfg == null ? JSON.toJSONString(object, filters, features) : JSON.toJSONString(object, scfg, filters, features);
     }
 

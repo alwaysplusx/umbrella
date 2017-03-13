@@ -1,4 +1,4 @@
-package com.harmony.umbrella.json.serializer;
+package com.harmony.umbrella.json;
 
 /**
  * @author wuxii@foxmail.com

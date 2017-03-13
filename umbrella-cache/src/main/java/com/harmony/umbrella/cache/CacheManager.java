@@ -75,8 +75,6 @@ public class CacheManager {
             return new EhCacheProvider();
         if ("redis".equalsIgnoreCase(value))
             return new RedisCacheProvider();
-        if ("none".equalsIgnoreCase(value))
-            return new NullCacheProvider();
         return (CacheProvider) Class.forName(value).newInstance();
     }
 

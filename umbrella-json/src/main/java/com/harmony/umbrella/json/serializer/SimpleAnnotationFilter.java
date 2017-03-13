@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import com.harmony.umbrella.core.Member;
+import com.harmony.umbrella.json.FilterMode;
 
 /**
  * @author wuxii@foxmail.com
