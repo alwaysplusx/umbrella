@@ -31,4 +31,6 @@ public @interface Serialization {
 
     boolean safeFetch() default true;
 
+    boolean simplePage() default true;
+
 }

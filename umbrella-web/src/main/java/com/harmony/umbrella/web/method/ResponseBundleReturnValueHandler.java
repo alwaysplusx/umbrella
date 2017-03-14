@@ -1,5 +1,7 @@
 package com.harmony.umbrella.web.method;
 
+import static com.harmony.umbrella.web.method.ViewFragment.*;
+
 import java.io.OutputStream;
 import java.util.List;
 import java.util.Map;
@@ -17,7 +19,6 @@ import org.springframework.web.method.support.ModelAndViewContainer;
 
 import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.serializer.SerializeFilter;
-import com.harmony.umbrella.json.FilterMode;
 import com.harmony.umbrella.json.SerializerConfig;
 import com.harmony.umbrella.json.SerializerConfigBuilder;
 import com.harmony.umbrella.util.IOUtils;
@@ -54,8 +55,6 @@ public class ResponseBundleReturnValueHandler implements HandlerMethodReturnValu
     public boolean supportsReturnType(MethodParameter returnType) {
         return returnType.getContainingClass().getAnnotation(BundleController.class) != null //
                 || returnType.hasMethodAnnotation(ResponseBundle.class);
-        /*|| (AnnotatedElementUtils.hasAnnotation(returnType.getContainingClass(), ResponseBody.class)//
-        || returnType.hasMethodAnnotation(ResponseBody.class));*/
     }
 
     @Override
@@ -70,14 +69,12 @@ public class ResponseBundleReturnValueHandler implements HandlerMethodReturnValu
             }
         }
         // 
-        FilterMode defaultFilterMode = (FilterMode) modelMap.getOrDefault("serialer.defaultFilterMode", FilterMode.EXCLUDE);
-
-        SerializerConfigBuilder serialer = SerializerConfigBuilder.create(defaultFilterMode)//
+        SerializerConfigBuilder serialer = SerializerConfigBuilder.create()//
                 .camelCase(camelCase)//
                 .fetchLazyAttribute(fetchLazy)//
                 .safeFetch(safeFetch);
 
-        boolean ignore = (boolean) modelMap.getOrDefault("serialer.ignoreSerializationAnnotation", true);
+        boolean ignore = (boolean) modelMap.getOrDefault(SERIALER_IGNORE_SERIALIZATION, true);
         Serialization ann = returnType.getMethodAnnotation(Serialization.class);
 
         if (!ignore && ann != null) {
@@ -99,12 +96,13 @@ public class ResponseBundleReturnValueHandler implements HandlerMethodReturnValu
             }
         }
 
-        if (returnValue instanceof org.springframework.data.domain.Page) {
-            // TODO simple page
+        boolean simplePage = (boolean) modelMap.getOrDefault(SERIALER_SIMPLE_PAGE, ann != null ? ann.simplePage() : true);
+
+        if (simplePage && returnValue instanceof org.springframework.data.domain.Page) {
             returnValue = new Page((org.springframework.data.domain.Page<?>) returnValue);
         }
 
-        SerializerConfig serialConfig = (SerializerConfig) modelMap.get("serialer.config");
+        SerializerConfig serialConfig = (SerializerConfig) modelMap.get(SERIALER_CONFIG);
         if (serialConfig != null) {
             serialer.withFilter(serialConfig.getFilters())//
                     .withSerializeConfig(serialConfig.getFastjsonSerializeConfig())//
@@ -112,7 +110,7 @@ public class ResponseBundleReturnValueHandler implements HandlerMethodReturnValu
         }
 
         ServletServerHttpResponse outputMessage = createOutputMessage(webRequest);
-        Map<String, List<String>> headers = (Map<String, List<String>>) modelMap.get("render.headers");
+        Map<String, List<String>> headers = (Map<String, List<String>>) modelMap.get(RENDER_HEADERS);
         if (headers != null && headers.isEmpty()) {
             outputMessage.getHeaders().putAll(headers);
         }
