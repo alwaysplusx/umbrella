@@ -45,7 +45,7 @@ public class Log4j2LogProvider implements LogProvider {
 
         @Override
         public Log relative(Object relativeProperties) {
-            Assert.notNull(relativeProperties);
+            Assert.notNull(relativeProperties, "relative properties is null");
             return caller.equals(relativeProperties) ? this : new Log4j2Log(getName(), (String) relativeProperties);
         }
 

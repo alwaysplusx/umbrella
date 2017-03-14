@@ -26,7 +26,7 @@ class Bind<T> implements CompositionSpecification<T>, Serializable {
     private List<CompositionSpecification> items = new ArrayList<CompositionSpecification>();
 
     public Bind(CompositionType compositionType) {
-        Assert.notNull(compositionType);
+        Assert.notNull(compositionType, "composition type is null");
         this.compositionType = compositionType;
     }
 

@@ -15,7 +15,7 @@ import java.util.Set;
  * @author zhangyw
  * @date 2017/1/13 10:57
  */
-public class SingleRedisClient implements RedisClient{
+public class SingleRedisClient implements RedisClient {
 
     private Jedis jedis;
 
@@ -2309,5 +2309,10 @@ public class SingleRedisClient implements RedisClient{
     @Override
     public List<GeoRadiusResponse> georadiusByMember(byte[] key, byte[] member, double radius, GeoUnit unit, GeoRadiusParam param) {
         return jedis.georadiusByMember(key, member, radius, unit, param);
+    }
+
+    @Override
+    public List<Long> bitfield(String key, String... arguments) {
+        return null;
     }
 }

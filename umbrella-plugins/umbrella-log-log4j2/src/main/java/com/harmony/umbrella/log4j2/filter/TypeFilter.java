@@ -16,8 +16,6 @@ import com.harmony.umbrella.log.LogInfo;
 @Plugin(name = "TypeFilter", category = Node.CATEGORY, elementType = Filter.ELEMENT_TYPE, printObject = true)
 public class TypeFilter extends AbstractFilter {
 
-    private static final long serialVersionUID = 1L;
-
     @Override
     public Result filter(LogEvent event) {
         Message message = event.getMessage();

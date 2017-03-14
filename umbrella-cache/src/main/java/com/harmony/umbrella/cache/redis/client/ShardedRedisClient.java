@@ -1954,4 +1954,10 @@ public class ShardedRedisClient implements RedisClient {
     public Long waitReplicas(int replicas, long timeout) {
         return null;
     }
+    
+    @Override
+    public List<Long> bitfield(String arg0, String... arg1) {
+        return null;
+    }
+    
 }

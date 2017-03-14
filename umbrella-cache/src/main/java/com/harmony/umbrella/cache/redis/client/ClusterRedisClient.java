@@ -1932,4 +1932,9 @@ public class ClusterRedisClient implements RedisClient {
     public byte[] randomBinaryKey() {
         throw new UnsupportedOperationException("cluster not support randomBinaryKey ");
     }
+
+    @Override
+    public List<Long> bitfield(String key, String... arguments) {
+        return jedis.bitfield(key, arguments);
+    }
 }
