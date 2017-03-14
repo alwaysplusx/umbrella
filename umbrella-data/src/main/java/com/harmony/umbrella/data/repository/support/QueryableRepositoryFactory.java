@@ -1,4 +1,4 @@
-package com.harmony.umbrella.data.support;
+package com.harmony.umbrella.data.repository.support;
 
 import java.io.Serializable;
 
@@ -8,6 +8,8 @@ import org.springframework.data.jpa.repository.support.JpaRepositoryFactory;
 import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
 import org.springframework.data.repository.core.RepositoryInformation;
 import org.springframework.data.repository.core.RepositoryMetadata;
+
+import com.harmony.umbrella.data.repository.SimpleQueryableJpaRepository;
 
 /**
  * @author wuxii@foxmail.com
@@ -27,4 +29,5 @@ public class QueryableRepositoryFactory extends JpaRepositoryFactory {
     protected Class<?> getRepositoryBaseClass(RepositoryMetadata metadata) {
         return SimpleQueryableJpaRepository.class;
     }
+
 }

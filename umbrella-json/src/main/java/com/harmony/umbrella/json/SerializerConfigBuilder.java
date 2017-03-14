@@ -38,6 +38,14 @@ import com.harmony.umbrella.util.MemberUtils;
  */
 public class SerializerConfigBuilder {
 
+    public static SerializerConfigBuilder create() {
+        return create(FilterMode.EXCLUDE);
+    }
+
+    public static SerializerConfigBuilder create(FilterMode defaultMode) {
+        return new SerializerConfigBuilder(defaultMode);
+    }
+
     /**
      * 默认配置的过滤模式
      */
@@ -46,32 +54,32 @@ public class SerializerConfigBuilder {
     /**
      * 排除的属性集合
      */
-    private Set<String> excludePatterns = new LinkedHashSet<String>();
+    private final Set<String> excludePatterns = new LinkedHashSet<String>();
 
     /**
      * 包含的属性集合
      */
-    private Set<String> includePatterns = new LinkedHashSet<String>();
+    private final Set<String> includePatterns = new LinkedHashSet<String>();
 
     /**
      * 包含的注解集合
      */
-    private Set<Class<? extends Annotation>> includeAnnCls = new LinkedHashSet<>();
+    private final Set<Class<? extends Annotation>> includeAnnCls = new LinkedHashSet<>();
 
     /**
      * 排除的注解集合
      */
-    private Set<Class<? extends Annotation>> excludeAnnCls = new LinkedHashSet<>();
+    private final Set<Class<? extends Annotation>> excludeAnnCls = new LinkedHashSet<>();
 
     /**
      * 序列化特性
      */
-    private Set<SerializerFeature> features = new HashSet<>();
+    private final Set<SerializerFeature> features = new HashSet<>();
 
     /**
      * 序列化过滤器
      */
-    private List<SerializeFilter> filters = new ArrayList<>();
+    private final List<SerializeFilter> filters = new ArrayList<>();
 
     /**
      * fastjson序列化配置

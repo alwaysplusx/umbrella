@@ -9,15 +9,12 @@ import org.springframework.data.repository.NoRepositoryBean;
 
 import com.harmony.umbrella.data.Queryable;
 import com.harmony.umbrella.data.query.QueryBundle;
-import com.harmony.umbrella.data.query.QueryResult;
 
 /**
  * @author wuxii@foxmail.com
  */
 @NoRepositoryBean
 public interface QueryableRepository<T, ID extends Serializable> extends JpaRepository<T, ID>, Queryable<T> {
-
-    <RESULT> RESULT query(QueryBundle<T> bundle, QueryResultFetcher<RESULT> fetcher);
 
     T getSingleResult(QueryBundle<T> bundle);
 
@@ -26,11 +23,5 @@ public interface QueryableRepository<T, ID extends Serializable> extends JpaRepo
     List<T> getResultList(QueryBundle<T> bundle);
 
     Page<T> getResultPage(QueryBundle<T> bundle);
-
-    public interface QueryResultFetcher<RESULT> {
-
-        RESULT fetch(QueryResult<?> result);
-
-    }
 
 }

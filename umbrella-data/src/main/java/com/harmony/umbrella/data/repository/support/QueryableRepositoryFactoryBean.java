@@ -1,4 +1,4 @@
-package com.harmony.umbrella.data.support;
+package com.harmony.umbrella.data.repository.support;
 
 import java.io.Serializable;
 

@@ -24,6 +24,10 @@ public class WebRender {
     private String encoding;
     private String contentType;
 
+    public static WebRender create(HttpServletResponse response) {
+        return new WebRender(response);
+    }
+
     public WebRender(HttpServletResponse response) {
         this.response = response;
     }

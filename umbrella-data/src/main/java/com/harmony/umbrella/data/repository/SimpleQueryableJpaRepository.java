@@ -1,4 +1,4 @@
-package com.harmony.umbrella.data.support;
+package com.harmony.umbrella.data.repository;
 
 import java.io.Serializable;
 import java.util.List;
@@ -11,7 +11,6 @@ import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
 import com.harmony.umbrella.data.query.JpaQueryBuilder;
 import com.harmony.umbrella.data.query.QueryBundle;
 import com.harmony.umbrella.data.query.QueryResult;
-import com.harmony.umbrella.data.repository.QueryableRepository;
 
 /**
  * @author wuxii@foxmail.com
@@ -42,11 +41,6 @@ public class SimpleQueryableJpaRepository<T, ID extends Serializable> extends Si
     }
 
     @Override
-    public <RESULT> RESULT query(QueryBundle<T> bundle, QueryResultFetcher<RESULT> fetcher) {
-        return fetcher.fetch(query(bundle));
-    }
-
-    @Override
     public T getSingleResult(QueryBundle<T> bundle) {
         return query(bundle).getSingleResult();
     }
@@ -64,6 +58,16 @@ public class SimpleQueryableJpaRepository<T, ID extends Serializable> extends Si
     @Override
     public Page<T> getResultPage(QueryBundle<T> bundle) {
         return query(bundle).getResultPage();
+    }
+
+    @Override
+    public <RESULT> RESULT query(QueryBundle<T> bundle, QueryResultFetcher<T, RESULT> fetcher) {
+        return fetcher.fetch(query(bundle));
+    }
+
+    @Override
+    public <M, RESULT> RESULT query(QueryBundle<?> bundle, Class<M> entityClass, QueryResultFetcher<M, RESULT> fetcher) {
+        return fetcher.fetch(query(bundle, entityClass));
     }
 
 }
