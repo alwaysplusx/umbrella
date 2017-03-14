@@ -9,6 +9,11 @@ import org.springframework.data.jpa.domain.Specification;
 
 import com.harmony.umbrella.data.Queryable;
 
+/**
+ * @deprecated spring-data repository or
+ *             {@linkplain com.harmony.umbrella.data.repository.QueryableRepository}
+ * @author wuxii@foxmail.com
+ */
 public interface EntityDAO<T> extends JpaDAO, DAO, Queryable<T> {
 
     int remove(Specification<T> spec);

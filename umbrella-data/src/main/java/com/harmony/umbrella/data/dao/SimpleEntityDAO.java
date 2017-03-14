@@ -1,10 +1,10 @@
-package com.harmony.umbrella.data.support;
+package com.harmony.umbrella.data.dao;
 
 import javax.persistence.EntityManager;
 
-import com.harmony.umbrella.data.dao.EntityDAOSupport;
-
 /**
+ * @deprecated spring-data repository or
+ *             {@linkplain com.harmony.umbrella.data.repository.QueryableRepository}
  * @author wuxii@foxmail.com
  */
 public class SimpleEntityDAO<T> extends EntityDAOSupport<T> {

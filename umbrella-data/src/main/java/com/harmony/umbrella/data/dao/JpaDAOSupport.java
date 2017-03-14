@@ -16,6 +16,8 @@ import org.springframework.data.jpa.domain.Specification;
 import com.harmony.umbrella.data.query.JpaQueryBuilder;
 
 /**
+ * @deprecated spring-data repository or
+ *             {@linkplain com.harmony.umbrella.data.repository.QueryableRepository}
  * @author wuxii@foxmail.com
  */
 public abstract class JpaDAOSupport extends DAOSupport implements JpaDAO {

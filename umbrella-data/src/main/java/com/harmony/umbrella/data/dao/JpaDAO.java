@@ -10,6 +10,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 
 /**
+ * @deprecated spring-data repository or
+ *             {@linkplain com.harmony.umbrella.data.repository.QueryableRepository}
  * @author wuxii@foxmail.com
  */
 public interface JpaDAO extends DAO {

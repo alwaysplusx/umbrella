@@ -11,6 +11,8 @@ import com.harmony.umbrella.data.query.QueryBundle;
 import com.harmony.umbrella.data.query.QueryResult;
 
 /**
+ * @deprecated spring-data repository or
+ *             {@linkplain com.harmony.umbrella.data.repository.QueryableRepository}
  * @author wuxii@foxmail.com
  */
 public abstract class EntityDAOSupport<T> extends JpaDAOSupport implements EntityDAO<T> {
@@ -94,11 +96,11 @@ public abstract class EntityDAOSupport<T> extends JpaDAOSupport implements Entit
     }
 
     @Override
-    public <M> QueryResult<M> query(QueryBundle bundle, Class<M> entityClass) {
+    public <M> QueryResult<M> query(QueryBundle<?> bundle, Class<M> entityClass) {
         if (entityClass == null) {
             throw new IllegalStateException("entity class not set");
         }
-        return queryWith(entityClass).unbundle(bundle).from(entityClass).execute();
+        return queryWith(entityClass).unbundle((QueryBundle) bundle).from(entityClass).execute();
     }
 
 }

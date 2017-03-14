@@ -18,6 +18,8 @@ import org.springframework.data.domain.Sort;
 import com.harmony.umbrella.data.util.QueryUtils;
 
 /**
+ * @deprecated spring-data repository or
+ *             {@linkplain com.harmony.umbrella.data.repository.QueryableRepository}
  * @author wuxii@foxmail.com
  */
 public abstract class DAOSupport implements DAO {

@@ -6,6 +6,8 @@ import java.util.Map;
 import org.springframework.data.domain.Sort;
 
 /**
+ * @deprecated spring-data repository or
+ *             {@linkplain com.harmony.umbrella.data.repository.QueryableRepository}
  * @author wuxii@foxmail.com
  */
 public interface DAO {

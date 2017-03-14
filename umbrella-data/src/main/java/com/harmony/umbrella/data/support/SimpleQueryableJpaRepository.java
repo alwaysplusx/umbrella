@@ -37,8 +37,8 @@ public class SimpleQueryableJpaRepository<T, ID extends Serializable> extends Si
     }
 
     @Override
-    public <M> QueryResult<M> query(QueryBundle bundle, Class<M> entityClass) {
-        return queryWith(entityClass).unbundle(bundle).from(entityClass).execute();
+    public <M> QueryResult<M> query(QueryBundle<?> bundle, Class<M> entityClass) {
+        return queryWith(entityClass).unbundle((QueryBundle) bundle).from(entityClass).execute();
     }
 
     @Override

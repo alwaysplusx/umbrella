@@ -1,4 +1,4 @@
-package com.harmony.umbrella.fs;
+package com.huiju.module.fs;
 
 import java.io.File;
 import java.io.IOException;
@@ -18,13 +18,6 @@ public interface FileItem extends Serializable {
      * @return 文件id
      */
     Long getFileId();
-
-    /**
-     * 文件组id
-     * 
-     * @return 文件组id
-     */
-    Long getGroupId();
 
     /**
      * 文件名
