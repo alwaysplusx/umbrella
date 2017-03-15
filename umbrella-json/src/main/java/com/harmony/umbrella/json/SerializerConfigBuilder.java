@@ -39,17 +39,8 @@ import com.harmony.umbrella.util.MemberUtils;
 public class SerializerConfigBuilder {
 
     public static SerializerConfigBuilder create() {
-        return create(FilterMode.EXCLUDE);
+        return new SerializerConfigBuilder();
     }
-
-    public static SerializerConfigBuilder create(FilterMode defaultMode) {
-        return new SerializerConfigBuilder(defaultMode);
-    }
-
-    /**
-     * 默认配置的过滤模式
-     */
-    private final FilterMode defaultMode;
 
     /**
      * 排除的属性集合
@@ -95,19 +86,7 @@ public class SerializerConfigBuilder {
 
     private boolean camelCase;
 
-    protected SerializerConfigBuilder(FilterMode defaultMode) {
-        this.defaultMode = defaultMode;
-    }
-
-    /**
-     * 使用默认的过滤模式{@linkplain #defaultMode}过滤属性
-     * 
-     * @param property
-     *            待过滤的属性
-     * @return this
-     */
-    public SerializerConfigBuilder withPatterns(String... property) {
-        return withPatterns(defaultMode, property);
+    protected SerializerConfigBuilder() {
     }
 
     /**
@@ -122,17 +101,6 @@ public class SerializerConfigBuilder {
     public SerializerConfigBuilder withPatterns(FilterMode mode, String... property) {
         patternSet(mode).addAll(Arrays.asList(property));
         return this;
-    }
-
-    /**
-     * 使用默认过滤模式过滤带有输入注解的attribute
-     * 
-     * @param annCls
-     *            需要过滤的注解
-     * @return this
-     */
-    public SerializerConfigBuilder withAnnotationClass(Class<? extends Annotation>... annCls) {
-        return withAnnotationClass(defaultMode, annCls);
     }
 
     /**
@@ -170,18 +138,6 @@ public class SerializerConfigBuilder {
      */
     public SerializerConfigBuilder withFilter(SerializeFilter... filter) {
         this.filters.addAll(Arrays.asList(filter));
-        return this;
-    }
-
-    /**
-     * 添加fastjson序列化配置
-     * 
-     * @param config
-     *            fastjson序列化配置
-     * @return this
-     */
-    public SerializerConfigBuilder withSerializeConfig(SerializeConfig config) {
-        this.fastjsonSerializeConfig = config;
         return this;
     }
 

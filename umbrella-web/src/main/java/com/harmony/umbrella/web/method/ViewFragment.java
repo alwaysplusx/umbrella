@@ -1,5 +1,6 @@
 package com.harmony.umbrella.web.method;
 
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -7,45 +8,34 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.ui.ModelMap;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.springframework.http.MediaType;
+import org.springframework.http.server.ServletServerHttpResponse;
+import org.springframework.web.servlet.View;
 
 import com.alibaba.fastjson.serializer.SerializeFilter;
 import com.alibaba.fastjson.serializer.SerializerFeature;
-import com.harmony.umbrella.json.FilterMode;
+import com.harmony.umbrella.json.Json;
+import com.harmony.umbrella.json.SerializerConfig;
 import com.harmony.umbrella.json.SerializerConfigBuilder;
+import com.harmony.umbrella.util.IOUtils;
 import com.harmony.umbrella.web.bind.annotation.PatternConverter;
+import com.harmony.umbrella.web.method.RequestResponseBundleMethodProcessor.Page;
 
 /**
  * @author wuxii@foxmail.com
  */
 public class ViewFragment {
 
-    static final String SERIALER_IGNORE_SERIALIZATION = "serialer.ignoreSerialization";
-    static final String SERIALER_SIMPLE_PAGE = "serialer.simplePage";
-    static final String SERIALER_CONFIG = "serialer.config";
-    static final String RENDER_HEADERS = "render.headers";
+    SerializerConfigBuilder serializer;
+    final Map<String, List<String>> headers;
+    boolean simplePage = true;
 
-    private final SerializerConfigBuilder serializer;
-    private final Map<String, List<String>> headers;
-    private final ModelMap modelMap;
-    private boolean ignoreSerialization;
-    private boolean simplePage;
-
-    private boolean finished;
-
-    public ViewFragment(ModelMap modelMap, FilterMode mode) {
-        this.serializer = SerializerConfigBuilder.create(mode);
-        this.modelMap = modelMap;
+    ViewFragment() {
+        this.serializer = SerializerConfigBuilder.create();
         this.headers = new LinkedHashMap<>();
-    }
-
-    public SerializerConfigBuilder serializer() {
-        return serializer;
-    }
-
-    public ViewFragment ignoreSerialization(boolean ignore) {
-        this.ignoreSerialization = ignore;
-        return this;
     }
 
     public ViewFragment simplePage(boolean simplePage) {
@@ -116,6 +106,26 @@ public class ViewFragment {
         return this;
     }
 
+    public ViewFragment disableCaching() {
+        setHeader("Pragma", "no-cache");
+        setHeader("Cache-Control", "no-cache, no-store, max-age=0");
+        setHeader("Expires", "1");
+        return this;
+    }
+
+    public ViewFragment caching(long maxAge) {
+        headers.remove("Pragma");
+        headers.remove("Expires");
+        setHeader("Cache-Control", "max-age=" + maxAge);
+        return this;
+    }
+
+    public void reset() {
+        this.serializer = SerializerConfigBuilder.create();
+        this.headers.clear();
+        this.simplePage = true;
+    }
+
     private List<String> getRowHeader(String name) {
         List<String> rows = headers.get(name);
         if (rows == null) {
@@ -124,13 +134,40 @@ public class ViewFragment {
         return rows;
     }
 
-    void finish() {
-        if (!finished) {
-            modelMap.addAttribute(SERIALER_IGNORE_SERIALIZATION, ignoreSerialization);
-            modelMap.addAttribute(SERIALER_SIMPLE_PAGE, simplePage);
-            modelMap.addAttribute(SERIALER_CONFIG, serializer.build());
-            modelMap.addAttribute(RENDER_HEADERS, Collections.unmodifiableMap(headers));
-            finished = true;
+    public View finish(Object obj) {
+        return new BundleView(obj, this);
+    }
+
+    private static final class BundleView implements View {
+
+        private Object obj;
+        private SerializerConfig serializerConfig;
+        private Map<String, List<String>> headers;
+
+        public BundleView(Object obj, ViewFragment vf) {
+            this.serializerConfig = vf.serializer.build();
+            this.headers = Collections.unmodifiableMap(vf.headers);
+            this.obj = vf.simplePage && obj instanceof org.springframework.data.domain.Page ? new Page((org.springframework.data.domain.Page<?>) obj) : obj;
+        }
+
+        @Override
+        public String getContentType() {
+            return MediaType.APPLICATION_JSON_UTF8_VALUE;
+        }
+
+        @Override
+        public void render(Map<String, ?> model, HttpServletRequest request, HttpServletResponse response) throws Exception {
+            ServletServerHttpResponse outputMessage = createOutputMessage(response);
+            outputMessage.getHeaders().putAll(headers);
+            outputMessage.getServletResponse().setContentType(getContentType());
+            OutputStream body = outputMessage.getBody();
+            String text = Json.toJson(obj, serializerConfig);
+            IOUtils.write(text, body);
+            body.flush();
+        }
+
+        protected ServletServerHttpResponse createOutputMessage(HttpServletResponse response) {
+            return new ServletServerHttpResponse(response);
         }
     }
 
