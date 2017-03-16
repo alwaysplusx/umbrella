@@ -2,18 +2,10 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-
-  <parent>
-    <groupId>com.harmony</groupId>
-    <artifactId>harmony</artifactId>
-    <version>3</version>
-  </parent>
-
   <groupId>com.harmony.umbrella</groupId>
   <artifactId>umbrella</artifactId>
   <version>0.0.5-SNAPSHOT</version>
   <packaging>pom</packaging>
-
   <name>Harmony Umbrella</name>
 
   <scm>
@@ -43,17 +35,20 @@
   </modules>
 
   <properties>
+    <encoding>UTF-8</encoding>
+    <java.version>1.8</java.version>
+    <project.build.sourceEncoding>${encoding}</project.build.sourceEncoding>
+    <project.reporting.outputEncoding>${encoding}</project.reporting.outputEncoding>
+    <maven.compiler.source>${java.version}</maven.compiler.source>
+    <maven.compiler.target>${java.version}</maven.compiler.target>
     <javax.ee.version>7.0</javax.ee.version>
     <spring.dependencies.version>1.5.2.RELEASE</spring.dependencies.version>
     <apache.cxf.version>3.0.2</apache.cxf.version>
     <apache.openejb.version>4.7.1</apache.openejb.version>
-    <apache.shiro.version>1.2.3</apache.shiro.version>
     <apache.poi.version>3.14</apache.poi.version>
-    <guava.version>19.0</guava.version>
     <eclipselink.version>2.6.3</eclipselink.version>
     <fastjson.version>1.2.5</fastjson.version>
     <dozer.version>5.5.1</dozer.version>
-    <netty.version>5.0.0.Alpha2</netty.version>
   </properties>
 
   <dependencyManagement>
@@ -206,22 +201,6 @@
           </exclusion>
         </exclusions>
       </dependency>
-      <!-- shiro -->
-      <dependency>
-        <groupId>org.apache.shiro</groupId>
-        <artifactId>shiro-core</artifactId>
-        <version>${apache.shiro.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.shiro</groupId>
-        <artifactId>shiro-web</artifactId>
-        <version>${apache.shiro.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.shiro</groupId>
-        <artifactId>shiro-spring</artifactId>
-        <version>${apache.shiro.version}</version>
-      </dependency>
       <!-- apache poi -->
       <dependency>
         <groupId>org.apache.poi</groupId>
@@ -234,11 +213,6 @@
         <version>${apache.poi.version}</version>
       </dependency>
       <!-- others -->
-      <dependency>
-        <groupId>com.google.guava</groupId>
-        <artifactId>guava</artifactId>
-        <version>${guava.version}</version>
-      </dependency>
       <dependency>
         <groupId>org.eclipse.persistence</groupId>
         <artifactId>eclipselink</artifactId>
@@ -254,27 +228,75 @@
         <artifactId>dozer</artifactId>
         <version>${dozer.version}</version>
       </dependency>
-      <dependency>
-        <groupId>io.netty</groupId>
-        <artifactId>netty-all</artifactId>
-        <version>${netty.version}</version>
-      </dependency>
     </dependencies>
   </dependencyManagement>
+
   <build>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-source-plugin</artifactId>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-surefire-plugin</artifactId>
-        <version>2.18.1</version>
-        <configuration>
-          <skipTests>true</skipTests>
-        </configuration>
-      </plugin>
-    </plugins>
+    <resources>
+      <resource>
+        <filtering>true</filtering>
+        <directory>src/main/java</directory>
+        <includes>
+          <include>**/*.xml</include>
+          <include>**/*.properties</include>
+        </includes>
+      </resource>
+      <resource>
+        <filtering>true</filtering>
+        <directory>src/main/resources</directory>
+      </resource>
+    </resources>
+    <testResources>
+      <testResource>
+        <filtering>true</filtering>
+        <directory>src/test/resources</directory>
+      </testResource>
+      <testResource>
+        <filtering>true</filtering>
+        <directory>src/test/java</directory>
+        <includes>
+          <include>**/*.xml</include>
+          <include>**/*.properties</include>
+        </includes>
+      </testResource>
+    </testResources>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-source-plugin</artifactId>
+          <version>3.0.1</version>
+          <executions>
+            <execution>
+              <id>attach-sources</id>
+              <phase>verify</phase>
+              <goals>
+                <goal>jar-no-fork</goal>
+              </goals>
+            </execution>
+          </executions>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-javadoc-plugin</artifactId>
+          <version>2.10.3</version>
+          <executions>
+            <execution>
+              <id>attach-javadocs</id>
+              <phase>verify</phase>
+              <goals>
+                <goal>javadoc-no-fork</goal>
+              </goals>
+            </execution>
+          </executions>
+          <configuration>
+            <aggregate>true</aggregate>
+            <charset>${project.build.sourceEncoding}</charset>
+            <encoding>${project.build.sourceEncoding}</encoding>
+            <docencoding>${project.build.sourceEncoding}</docencoding>
+          </configuration>
+        </plugin>
+      </plugins>
+    </pluginManagement>
   </build>
 </project>
