@@ -2,8 +2,8 @@
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-  <bean name="paramManager" class="com.harmony.umbrella.config.PrefixableParamManager">
-    <property name="propertiesFile" value="jndi.properties" />
+  <bean name="paramManager" class="com.harmony.umbrella.ee.PrefixablePropertyManager2">
+    <constructor-arg index="0" value="jndi.properties" />
   </bean>
 
   <bean name="formatterFactory" class="com.harmony.umbrella.ee.formatter.DefaultFormatterFactory" />
@@ -56,7 +56,7 @@
   </bean>
 
   <bean name="beanResolver " class="com.harmony.umbrella.ee.support.ConfigurableBeanResolver">
-    <property name="paramManager" ref="paramManager" />
+    <property name="propertyManager" ref="paramManager" />
     <property name="jndiFormatter" ref="jndiFormatter" />
     <property name="beanInterfaceResolver" ref="beanInterfaceResolver" />
     <property name="beanNameResolver" ref="beanNameResolver" />

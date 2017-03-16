@@ -2,6 +2,7 @@ package com.harmony.umbrella.context.spring;
 
 import static org.junit.Assert.*;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.harmony.umbrella.context.ApplicationContext;
@@ -9,6 +10,7 @@ import com.harmony.umbrella.context.ApplicationContext;
 /**
  * @author wuxii@foxmail.com
  */
+@Ignore
 public class ApplicationContextTest {
 
     @Test

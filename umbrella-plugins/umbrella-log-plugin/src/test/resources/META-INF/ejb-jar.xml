@@ -5,7 +5,7 @@
   <assembly-descriptor>
     <interceptor-binding>
       <ejb-name>*</ejb-name>
-      <interceptor-class>com.huiju.module.plugin.log.interceptor.EJBLoggingInterceptor</interceptor-class>
+      <interceptor-class>com.harmony.umbrella.plugin.log.EJBLoggingInterceptor</interceptor-class>
     </interceptor-binding>
   </assembly-descriptor>
 </ejb-jar>

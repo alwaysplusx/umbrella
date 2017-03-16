@@ -18,8 +18,7 @@ import org.junit.Test;
 public class ValidatorTest {
 
     public static void main(String[] args) throws Exception {
-        Configuration<?> configure = Validation.byDefaultProvider()//
-                .configure();
+        Configuration<?> configure = Validation.byDefaultProvider().configure();
         ValidatorFactory validatorFactory = configure.buildValidatorFactory();
         Validator validator = validatorFactory.getValidator();
         print(validator.validate(new Foo()));
@@ -29,11 +28,14 @@ public class ValidatorTest {
     @Test
     public void testAddMapping() throws Exception {
 
-        Validator validator = Validation.byDefaultProvider().configure()//
+        Validator validator = Validation//
+                .byDefaultProvider()//
+                .configure()//
                 .addMapping(new FileInputStream(new File("src/test/resources/constraints-bar.xml")))//
-                .buildValidatorFactory().getValidator();
+                .buildValidatorFactory()//
+                .getValidator();
         print(validator.validate(new Bar()));
-        
+
     }
 
     private static void print(Set<?> set) {

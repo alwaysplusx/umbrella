@@ -1,4 +1,4 @@
-package com.huiju.module.plugin.log;
+package com.harmony.umbrella.plugin.log;
 
 import java.io.Serializable;
 import java.util.Map;

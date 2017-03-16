@@ -63,6 +63,10 @@
       <scope>test</scope>
     </dependency>
     <dependency>
+      <groupId>org.eclipse.jetty</groupId>
+      <artifactId>jetty-server</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-log4j12</artifactId>
       <scope>test</scope>
@@ -78,63 +82,76 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
-  <!-- <build>
-    <plugins>
-      <plugin>
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
         <groupId>org.apache.cxf</groupId>
-        <artifactId>cxf-codegen-plugin</artifactId>
+        <artifactId>cxf-parent</artifactId>
         <version>${apache.cxf.version}</version>
-        <executions>
-          <execution>
-            <id>generate-sources</id>
-            <phase>generate-sources</phase>
-            <configuration>
-              <sourceRoot>${project.build.directory}/generated/cxf</sourceRoot>
-              <wsdlOptions>
-                <wsdlOption>
-                  <wsdl>${basedir}/src/test/resources/hello.wsdl</wsdl>
-                  <extraargs>
-                    <extraarg>-impl</extraarg>
-                    <extraarg>-verbose</extraarg>
-                    <extraarg>-client</extraarg>
-                    <extraarg>-server</extraarg>
-                  </extraargs>
-                </wsdlOption>
-              </wsdlOptions>
-            </configuration>
-            <goals>
-              <goal>wsdl2java</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.cxf</groupId>
-        <artifactId>cxf-wadl2java-plugin</artifactId>
-        <version>2.4.1</version>
-        <executions>
-          <execution>
-            <id>generate-sources</id>
-            <phase>generate-sources</phase>
-            <configuration>
-              <sourceRoot>${basedir}/target/generated/src/main/java</sourceRoot>
-              <wadlOptions>
-                <wadlOption>
-                  <wadl>${basedir}/src/test/resources/wadl/bookstoreImport.xml</wadl>
-                  <impl>true</impl>
-                  <packagename>org.apache.cxf.systest.jaxrs.codegen.service</packagename>
-                  <schemaPackagenames>
-                    <schemaPackagename>http://superbooks=org.apache.cxf.systest.jaxrs.codegen.schema</schemaPackagename>
-                  </schemaPackagenames>
-                </wadlOption>
-              </wadlOptions>
-            </configuration>
-            <goals>
-              <goal>wadl2java</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+  <!--
+    <build>
+    <plugins>
+    <plugin>
+    <groupId>org.apache.cxf</groupId>
+    <artifactId>cxf-codegen-plugin</artifactId>
+    <version>${apache.cxf.version}</version>
+    <executions>
+    <execution>
+    <id>generate-sources</id>
+    <phase>generate-sources</phase>
+    <configuration>
+    <sourceRoot>${project.build.directory}/generated/cxf</sourceRoot>
+    <wsdlOptions>
+    <wsdlOption>
+    <wsdl>${basedir}/src/test/resources/hello.wsdl</wsdl>
+    <extraargs>
+    <extraarg>-impl</extraarg>
+    <extraarg>-verbose</extraarg>
+    <extraarg>-client</extraarg>
+    <extraarg>-server</extraarg>
+    </extraargs>
+    </wsdlOption>
+    </wsdlOptions>
+    </configuration>
+    <goals>
+    <goal>wsdl2java</goal>
+    </goals>
+    </execution>
+    </executions>
+    </plugin>
+    <plugin>
+    <groupId>org.apache.cxf</groupId>
+    <artifactId>cxf-wadl2java-plugin</artifactId>
+    <version>2.4.1</version>
+    <executions>
+    <execution>
+    <id>generate-sources</id>
+    <phase>generate-sources</phase>
+    <configuration>
+    <sourceRoot>${basedir}/target/generated/src/main/java</sourceRoot>
+    <wadlOptions>
+    <wadlOption>
+    <wadl>${basedir}/src/test/resources/wadl/bookstoreImport.xml</wadl>
+    <impl>true</impl>
+    <packagename>org.apache.cxf.systest.jaxrs.codegen.service</packagename>
+    <schemaPackagenames>
+    <schemaPackagename>http://superbooks=org.apache.cxf.systest.jaxrs.codegen.schema</schemaPackagename>
+    </schemaPackagenames>
+    </wadlOption>
+    </wadlOptions>
+    </configuration>
+    <goals>
+    <goal>wadl2java</goal>
+    </goals>
+    </execution>
+    </executions>
+    </plugin>
     </plugins>
-  </build> -->
+    </build>
+  -->
 </project>

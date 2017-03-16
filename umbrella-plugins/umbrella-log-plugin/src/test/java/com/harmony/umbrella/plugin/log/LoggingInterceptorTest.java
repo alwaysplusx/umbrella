@@ -1,15 +1,17 @@
-package com.huiju.module.plugin.log;
+package com.harmony.umbrella.plugin.log;
 
 import javax.ejb.EJB;
 import javax.ejb.embeddable.EJBContainer;
 
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
  * @author wuxii@foxmail.com
  */
+@Ignore
 public class LoggingInterceptorTest {
 
     private static EJBContainer container;

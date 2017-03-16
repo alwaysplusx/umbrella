@@ -11,6 +11,7 @@ import javax.mail.Transport;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.harmony.umbrella.mail.Authenticator;
@@ -19,6 +20,7 @@ import com.harmony.umbrella.mail.Mail;
 /**
  * @author wuxii@foxmail.com
  */
+@Ignore
 public class MailUtilsTest {
 
     private static final Session session;
