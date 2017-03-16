@@ -6,6 +6,7 @@ import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.core.MethodParameter;
+import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.http.MediaType;
 import org.springframework.http.server.ServletServerHttpResponse;
 import org.springframework.ui.ModelMap;
@@ -18,10 +19,9 @@ import org.springframework.web.method.support.ModelAndViewContainer;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.serializer.SerializeFilter;
 import com.harmony.umbrella.util.IOUtils;
-import com.harmony.umbrella.web.bind.annotation.BundleController;
+import com.harmony.umbrella.web.bind.annotation.BundleView;
 import com.harmony.umbrella.web.bind.annotation.PatternConverter;
 import com.harmony.umbrella.web.bind.annotation.ResponseBundle;
-import com.harmony.umbrella.web.bind.annotation.Serialization;
 
 /**
  * @author wuxii@foxmail.com
@@ -50,8 +50,8 @@ public class RequestResponseBundleMethodProcessor implements HandlerMethodReturn
             WebDataBinderFactory binderFactory) throws Exception {
         // create and user default
         final ViewFragment viewFragment;
-        if (parameter.hasMethodAnnotation(Serialization.class)) {
-            viewFragment = buildViewFragment(parameter.getMethodAnnotation(Serialization.class), parameter.getMethod().getReturnType());
+        if (parameter.hasMethodAnnotation(BundleView.class)) {
+            viewFragment = buildViewFragment(parameter.getMethodAnnotation(BundleView.class), parameter.getMethod().getReturnType());
         } else {
             viewFragment = new ViewFragment();
         }
@@ -61,8 +61,8 @@ public class RequestResponseBundleMethodProcessor implements HandlerMethodReturn
 
     @Override
     public boolean supportsReturnType(MethodParameter returnType) {
-        return returnType.getContainingClass().getAnnotation(BundleController.class) != null //
-                || returnType.hasMethodAnnotation(ResponseBundle.class);
+        return (AnnotatedElementUtils.hasAnnotation(returnType.getContainingClass(), ResponseBundle.class) //
+                || returnType.hasMethodAnnotation(ResponseBundle.class));
     }
 
     @Override
@@ -76,8 +76,8 @@ public class RequestResponseBundleMethodProcessor implements HandlerMethodReturn
         final ModelMap modelMap = mavContainer.getModel();
         ViewFragment viewFragment = (ViewFragment) modelMap.get(VIEW_FRAGMENT);
         if (viewFragment == null) {
-            if (returnType.hasMethodAnnotation(Serialization.class)) {
-                viewFragment = buildViewFragment(returnType.getMethodAnnotation(Serialization.class), returnType.getParameterType());
+            if (returnType.hasMethodAnnotation(BundleView.class)) {
+                viewFragment = buildViewFragment(returnType.getMethodAnnotation(BundleView.class), returnType.getParameterType());
             } else {
                 viewFragment = new ViewFragment();
             }
@@ -101,7 +101,7 @@ public class RequestResponseBundleMethodProcessor implements HandlerMethodReturn
         return new ServletServerHttpResponse(response);
     }
 
-    private ViewFragment buildViewFragment(Serialization ann, Class<?> returnType) throws Exception {
+    private ViewFragment buildViewFragment(BundleView ann, Class<?> returnType) throws Exception {
         ViewFragment viewFragment = new ViewFragment();
         PatternConverter converter = ann.converter();
         if (PatternConverter.AUTO.equals(converter)) {

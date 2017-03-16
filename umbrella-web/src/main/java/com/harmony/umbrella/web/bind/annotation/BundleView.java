@@ -13,7 +13,7 @@ import com.alibaba.fastjson.serializer.SerializerFeature;
  */
 @Target({ ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Serialization {
+public @interface BundleView {
 
     PatternConverter converter() default PatternConverter.AUTO;
 
