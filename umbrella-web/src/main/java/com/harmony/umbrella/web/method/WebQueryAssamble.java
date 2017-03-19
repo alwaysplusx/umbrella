@@ -29,13 +29,14 @@ public class WebQueryAssamble {
 
     private JpaQueryBuilder builder;
     private RequestBundle bundleAnn;
+    MethodParameter parameter;
 
     public WebQueryAssamble(String prefix, String separator, TypeConverter typeConverter, Class<?> domainClass, MethodParameter parameter) {
         this.prefix = prefix;
         this.separator = separator;
         this.typeConverter = typeConverter;
         this.domainClass = domainClass;
-        // this.parameter = parameter;
+        this.parameter = parameter;
         this.bundleAnn = parameter.getMethodAnnotation(RequestBundle.class);
         this.builder = new JpaQueryBuilder<>(domainClass);
     }
@@ -119,6 +120,7 @@ public class WebQueryAssamble {
         builder.enable(ann != null ? ann.feature() : new QueryFeature[0]);
 
         // paging
+        // FIXME if return type is page set default paging
         assemblePaging(//
                 getParameter(webRequest, "page", ann == null ? -1 : ann.page()), //
                 getParameter(webRequest, "size", ann == null ? -1 : ann.size())//

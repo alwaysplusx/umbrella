@@ -14,6 +14,8 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Selection;
 
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 
 import com.harmony.umbrella.data.query.QueryBuilder.Attribute;
@@ -86,14 +88,14 @@ public class InternalQuery<T, R> {
     }
 
     protected boolean applyPaging(TypedQuery<R> typedQuery) {
-        boolean isPaging = isPaging();
-        if (isPaging && !isVaildPaging()) {
-            throw new IllegalArgumentException("not valid paging page=" + bundle.getPageNumber() + ", size=" + bundle.getPageSize());
+        Pageable pageable = getPageRequest();
+        if (pageable != null) {
+            typedQuery//
+                    .setFirstResult(pageable.getOffset())//
+                    .setMaxResults(pageable.getPageSize());
+            return true;
         }
-        if (isPaging) {
-            typedQuery.setFirstResult(bundle.getPageNumber()).setMaxResults(bundle.getPageSize());
-        }
-        return isPaging;
+        return false;
     }
 
     private boolean applySpecification(Specification<T> spec) {
@@ -180,12 +182,10 @@ public class InternalQuery<T, R> {
         return query.getRestriction() != null;
     }
 
-    protected boolean isPaging() {
-        return bundle.getPageNumber() != -1 && bundle.getPageSize() != -1;
-    }
-
-    protected boolean isVaildPaging() {
-        return QueryUtils.isPaging(bundle.getPageNumber(), bundle.getPageSize());
+    private Pageable getPageRequest() {
+        int page = bundle.getPageNumber();
+        int size = bundle.getPageSize();
+        return page != -1 || size != -1 ? new PageRequest(bundle.getPageNumber(), bundle.getPageSize()) : null;
     }
 
     static enum Assembly {
