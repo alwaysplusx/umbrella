@@ -33,6 +33,7 @@ import javax.persistence.metamodel.PluralAttribute;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.util.Assert;
 
 /**
  * 查询工具类
@@ -93,6 +94,40 @@ public abstract class QueryUtils {
             result.add(order.isAscending() ? cb.asc(expression) : cb.desc(expression));
         }
         return result;
+    }
+
+    public static <T> Specification<T> and(final Specification<T>... specs) {
+        Assert.notEmpty(specs, "spec not allow empty");
+        return new Specification<T>() {
+            @Override
+            public Predicate toPredicate(Root<T> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+                Predicate predicate = null;
+                for (Specification<T> spec : specs) {
+                    Predicate p = spec.toPredicate(root, query, cb);
+                    if (p != null) {
+                        predicate = predicate == null ? p : cb.and(predicate, p);
+                    }
+                }
+                return predicate;
+            }
+        };
+    }
+
+    public static <T> Specification<T> or(Specification<T>... specs) {
+        Assert.notEmpty(specs, "spec not allow empty");
+        return new Specification<T>() {
+            @Override
+            public Predicate toPredicate(Root<T> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+                Predicate predicate = null;
+                for (Specification<T> spec : specs) {
+                    Predicate p = spec.toPredicate(root, query, cb);
+                    if (p != null) {
+                        predicate = predicate == null ? p : cb.or(predicate, p);
+                    }
+                }
+                return predicate;
+            }
+        };
     }
 
     private static <T> Expression<T> toExpressionRecursively(From<?, ?> from, StringTokenizer st) {

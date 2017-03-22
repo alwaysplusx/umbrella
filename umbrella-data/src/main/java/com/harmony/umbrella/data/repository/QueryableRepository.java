@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.repository.NoRepositoryBean;
 
 import com.harmony.umbrella.data.Queryable;
@@ -14,7 +15,7 @@ import com.harmony.umbrella.data.query.QueryBundle;
  * @author wuxii@foxmail.com
  */
 @NoRepositoryBean
-public interface QueryableRepository<T, ID extends Serializable> extends JpaRepository<T, ID>, Queryable<T> {
+public interface QueryableRepository<T, ID extends Serializable> extends JpaRepository<T, ID>, JpaSpecificationExecutor<T>, Queryable<T> {
 
     T getSingleResult(QueryBundle<T> bundle);
 

@@ -38,8 +38,6 @@ public interface QueryResult<T> {
 
     T getFirstResult();
 
-    List<T> getAllMatchResult();
-
     List<T> getResultList();
 
     Page<T> getResultPage();

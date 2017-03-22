@@ -27,7 +27,7 @@ public interface QueryBundle<M> {
      * 
      * @return 查询条件
      */
-    Specification getSpecification();
+    Specification<M> getSpecification();
 
     /**
      * 查询的特性
@@ -37,7 +37,7 @@ public interface QueryBundle<M> {
     int getQueryFeature();
 
     /**
-     * 抓去的字段
+     * 抓取的字段
      * 
      * @return fetch attrs
      */

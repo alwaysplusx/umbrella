@@ -21,6 +21,10 @@ import org.springframework.data.jpa.domain.Specification;
 import com.harmony.umbrella.data.query.QueryBuilder.Attribute;
 import com.harmony.umbrella.data.query.QueryBuilder.FetchAttributes;
 import com.harmony.umbrella.data.query.QueryBuilder.JoinAttributes;
+import com.harmony.umbrella.data.query.specs.FetchSpecification;
+import com.harmony.umbrella.data.query.specs.GrouppingSpecification;
+import com.harmony.umbrella.data.query.specs.JoinSpecification;
+import com.harmony.umbrella.data.query.specs.SortSpecification;
 import com.harmony.umbrella.data.util.QueryUtils;
 import com.harmony.umbrella.log.Log;
 import com.harmony.umbrella.log.Logs;
@@ -88,7 +92,7 @@ public class InternalQuery<T, R> {
     }
 
     protected boolean applyPaging(TypedQuery<R> typedQuery) {
-        Pageable pageable = getPageRequest();
+        Pageable pageable = pageRequest();
         if (pageable != null) {
             typedQuery//
                     .setFirstResult(pageable.getOffset())//
@@ -174,22 +178,42 @@ public class InternalQuery<T, R> {
         return attributeName.indexOf("(") > -1 && attributeName.indexOf(")") > -1;
     }
 
-    protected boolean isAllowFullTableQuery() {
+    public boolean allowFullTableQuery() {
         return QueryFeature.FULL_TABLE_QUERY.isEnable(bundle.getQueryFeature());
     }
 
-    protected boolean hasRestriction() {
+    public boolean hasRestriction() {
         return query.getRestriction() != null;
     }
 
-    private Pageable getPageRequest() {
+    public Pageable pageRequest() {
         int page = bundle.getPageNumber();
         int size = bundle.getPageSize();
         return page != -1 || size != -1 ? new PageRequest(bundle.getPageNumber(), bundle.getPageSize()) : null;
     }
 
+    public Specification<T> fetchSpec() {
+        return bundle.getFetchAttributes() == null ? null : new FetchSpecification<T>(bundle.getFetchAttributes().attrs);
+    }
+
+    public Specification<T> joinSpec() {
+        return bundle.getJoinAttributes() == null ? null : new JoinSpecification<T>(bundle.getJoinAttributes().attrs);
+    }
+
+    public Specification<T> groupingSpec() {
+        return bundle.getGrouping() == null ? null : new GrouppingSpecification<T>(bundle.getGrouping());
+    }
+
+    public Specification<T> conditonSpec() {
+        return bundle.getSpecification();
+    }
+
+    public Specification<T> storSpec() {
+        return bundle.getSort() == null ? null : new SortSpecification<T>(bundle.getSort());
+    }
+
     static enum Assembly {
-        FETCH, JOIN, GROUP, SORT
+        CONDITION, FETCH, JOIN, GROUP, SORT
     }
 
 }

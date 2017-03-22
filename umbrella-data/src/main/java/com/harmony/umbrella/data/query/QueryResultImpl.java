@@ -57,7 +57,7 @@ public class QueryResultImpl<T> implements QueryResult<T> {
         query.assembly(FETCH, JOIN, GROUP, SORT);
         query.select(column);
         TypedQuery<E> typedQuery = entityManager.createQuery(query.query);
-        if (query.applyPaging(typedQuery) && !query.hasRestriction() && !query.isAllowFullTableQuery()) {
+        if (!query.hasRestriction() && !query.allowFullTableQuery()) {
             throw new IllegalStateException("not allow empty condition full table query");
         }
         return typedQuery.getResultList();
@@ -94,7 +94,7 @@ public class QueryResultImpl<T> implements QueryResult<T> {
         query.assembly(FETCH, JOIN, GROUP, SORT);
         query.select(columns);
         TypedQuery<VO> typedQuery = entityManager.createQuery(query.query);
-        if (query.applyPaging(typedQuery) && !query.hasRestriction() && !query.isAllowFullTableQuery()) {
+        if (!query.hasRestriction() && !query.allowFullTableQuery()) {
             throw new IllegalStateException("not allow empty condition full table query");
         }
         return typedQuery.getResultList();
@@ -124,21 +124,11 @@ public class QueryResultImpl<T> implements QueryResult<T> {
     }
 
     @Override
-    public List<T> getAllMatchResult() {
-        InternalQuery<T, T> query = createQuery();
-        query.assembly(FETCH, JOIN, SORT);
-        if (!query.hasRestriction() && !query.isAllowFullTableQuery()) {
-            throw new IllegalStateException("not allow empty condition full table query");
-        }
-        return entityManager.createQuery(query.query).getResultList();
-    }
-
-    @Override
     public List<T> getResultList() {
         InternalQuery<T, T> query = createQuery();
         query.assembly(FETCH, JOIN, SORT);
         TypedQuery<T> typedQuery = entityManager.createQuery(query.query);
-        if (!query.applyPaging(typedQuery) && !query.hasRestriction() && !query.isAllowFullTableQuery()) {
+        if (!query.hasRestriction() && !query.allowFullTableQuery()) {
             throw new IllegalStateException("not allow empty condition full table query");
         }
         return typedQuery.getResultList();
