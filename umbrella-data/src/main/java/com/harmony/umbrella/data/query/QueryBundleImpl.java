@@ -19,7 +19,7 @@ public class QueryBundleImpl<M> implements QueryBundle<M>, Serializable {
 
     Class<M> entityClass;
 
-    Specification specification;
+    Specification condition;
 
     FetchAttributes fetchAttributes;
 
@@ -40,11 +40,14 @@ public class QueryBundleImpl<M> implements QueryBundle<M>, Serializable {
 
     public QueryBundleImpl(QueryBundle bundle) {
         this.entityClass = bundle.getEntityClass();
-        this.specification = bundle.getSpecification();
+        this.condition = bundle.getCondition();
         this.fetchAttributes = bundle.getFetchAttributes();
         this.joinAttributes = bundle.getJoinAttributes();
-        this.queryFeature = bundle.getQueryFeature();
         this.grouping = bundle.getGrouping();
+        this.queryFeature = bundle.getQueryFeature();
+        this.pageNumber = bundle.getPageNumber();
+        this.pageSize = bundle.getPageSize();
+        this.sort = bundle.getSort();
     }
 
     @Override
@@ -68,8 +71,8 @@ public class QueryBundleImpl<M> implements QueryBundle<M>, Serializable {
     }
 
     @Override
-    public Specification getSpecification() {
-        return specification;
+    public Specification getCondition() {
+        return condition;
     }
 
     @Override
@@ -96,8 +99,8 @@ public class QueryBundleImpl<M> implements QueryBundle<M>, Serializable {
     public String toString() {
         StringBuilder out = new StringBuilder();
         out.append("select * from ").append(entityClass != null ? entityClass.getSimpleName() : "UnknowType");
-        if (specification != null) {
-            out.append(" where ").append(specification);
+        if (condition != null) {
+            out.append(" where ").append(condition);
         }
         if (grouping != null && grouping.isEmpty()) {
             out.append(" group by ");

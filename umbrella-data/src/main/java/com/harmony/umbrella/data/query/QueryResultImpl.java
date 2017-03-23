@@ -1,7 +1,11 @@
 package com.harmony.umbrella.data.query;
 
-import static com.harmony.umbrella.data.query.InternalQuery.Assembly.*;
+import static com.harmony.umbrella.data.query.QueryFeature.*;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import javax.persistence.EntityManager;
@@ -9,41 +13,43 @@ import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Expression;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.repository.support.PageableExecutionUtils;
+import org.springframework.data.repository.support.PageableExecutionUtils.TotalSupplier;
+
+import com.harmony.umbrella.data.query.SpecificationAssembler.SpecificationType;
+import com.harmony.umbrella.data.util.QueryUtils;
 
 /**
  * @author wuxii@foxmail.com
  */
 public class QueryResultImpl<T> implements QueryResult<T> {
 
-    protected final EntityManager entityManager;
-    protected final CriteriaBuilder builder;
-    protected final QueryBundle<T> bundle;
+    private Class<T> domainClass;
+    private SpecificationExecutor executor;
+    private SpecificationAssembler assembler;
 
-    protected QueryResultImpl(EntityManager entityManager, QueryBundle<T> bundle) {
-        this.entityManager = entityManager;
-        this.builder = entityManager.getCriteriaBuilder();
-        this.bundle = bundle;
+    public QueryResultImpl(EntityManager entityManager, QueryBundle<T> bundle) {
+        this.domainClass = bundle.getEntityClass();
+        this.executor = new SpecificationExecutor(bundle, entityManager);
+        this.assembler = new SpecificationAssembler<>(bundle);
     }
 
     @Override
     public <E> E getColumnSingleResult(String column) {
-        return (E) getColumnSingleResult(column, null);
+        return getColumnSingleResult(column, null);
     }
 
     @Override
-    public <E> E getColumnSingleResult(String column, Class<E> columnType) {
-        InternalQuery<T, E> query = createQuery(columnType);
-        query.assembly(FETCH, JOIN, GROUP);
-        query.select(column);
-        try {
-            return (E) entityManager.createQuery(query.query).getSingleResult();
-        } catch (NoResultException e) {
-            return null;
-        }
+    public <E> E getColumnSingleResult(String column, Class<E> resultType) {
+        return getSingleResult(new ColumnSelections<T>(column), resultType);
     }
 
     @Override
@@ -53,14 +59,7 @@ public class QueryResultImpl<T> implements QueryResult<T> {
 
     @Override
     public <E> List<E> getColumnResultList(String column, Class<E> resultType) {
-        InternalQuery<T, E> query = createQuery(resultType);
-        query.assembly(FETCH, JOIN, GROUP, SORT);
-        query.select(column);
-        TypedQuery<E> typedQuery = entityManager.createQuery(query.query);
-        if (!query.hasRestriction() && !query.allowFullTableQuery()) {
-            throw new IllegalStateException("not allow empty condition full table query");
-        }
-        return typedQuery.getResultList();
+        return getResultList(new ColumnSelections<T>(column), resultType);
     }
 
     @Override
@@ -70,96 +69,217 @@ public class QueryResultImpl<T> implements QueryResult<T> {
 
     @Override
     public <E> E getFunctionResult(String function, String column, Class<E> resultType) {
-        InternalQuery<T, E> query = createQuery(resultType);
-        query.assembly(FETCH, JOIN, GROUP, SORT);
-        query.selectFunction(function, column, resultType);
-        return entityManager.createQuery(query.query).getSingleResult();
+        return getSingleResult(new FunctionSelections<T>(function, column), resultType);
     }
 
     @Override
     public <VO> VO getVoSingleResult(String[] columns, Class<VO> resultType) {
-        InternalQuery<T, VO> query = createQuery(resultType);
-        query.assembly(FETCH, JOIN, GROUP);
-        query.select(columns);
-        try {
-            return entityManager.createQuery(query.query).getSingleResult();
-        } catch (NoResultException e) {
-            return null;
-        }
+        return getSingleResult(new ColumnSelections<T>(columns), resultType);
     }
 
     @Override
     public <VO> List<VO> getVoResultList(String[] columns, Class<VO> resultType) {
-        InternalQuery<T, VO> query = createQuery(resultType);
-        query.assembly(FETCH, JOIN, GROUP, SORT);
-        query.select(columns);
-        TypedQuery<VO> typedQuery = entityManager.createQuery(query.query);
-        if (!query.hasRestriction() && !query.allowFullTableQuery()) {
-            throw new IllegalStateException("not allow empty condition full table query");
-        }
-        return typedQuery.getResultList();
+        return getResultList(new ColumnSelections<T>(columns), resultType);
     }
 
     @Override
     public T getSingleResult() {
-        CriteriaQuery<T> query = createQuery().assembly(FETCH, JOIN);
-        try {
-            return entityManager.createQuery(query).getSingleResult();
-        } catch (NoResultException e) {
-            return null;
-        }
+        return getSingleResult(null, domainClass);
     }
 
     @Override
     public T getFirstResult() {
-        CriteriaQuery<T> query = createQuery().assembly(FETCH, JOIN, SORT);
-        try {
-            return entityManager.createQuery(query)//
-                    .setFirstResult(0)//
-                    .setMaxResults(1)//
-                    .getSingleResult();
-        } catch (NoResultException e) {
-            return null;
-        }
+        return getFirstResult(null, domainClass);
     }
 
     @Override
     public List<T> getResultList() {
-        InternalQuery<T, T> query = createQuery();
-        query.assembly(FETCH, JOIN, SORT);
-        TypedQuery<T> typedQuery = entityManager.createQuery(query.query);
-        if (!query.hasRestriction() && !query.allowFullTableQuery()) {
-            throw new IllegalStateException("not allow empty condition full table query");
-        }
-        return typedQuery.getResultList();
+        return getResultList(null, domainClass);
     }
 
     @Override
     public Page<T> getResultPage() {
-        List<T> content = getResultList();
-        PageRequest pageable = new PageRequest(bundle.getPageNumber(), bundle.getPageSize(), bundle.getSort());
-        return new PageImpl<T>(content, pageable, getCountResult());
+        return getResultPage(null, domainClass);
     }
 
     @Override
     public long getCountResult() {
-        InternalQuery<T, Long> query = createQuery(Long.class);
-        if (QueryFeature.DISTINCT.isEnable(bundle.getQueryFeature())) {
-            query.query.select(builder.countDistinct(query.root));
-        } else {
-            query.query.select(builder.count(query.root));
+        return getSingleResult(new CountSelections<T>(assembler.isEnable(DISTINCT)), Long.class);
+    }
+
+    @Override
+    public <E> E getSingleResult(Selections<T> selections) {
+        return getSingleResult(selections, null);
+    }
+
+    @Override
+    public <E> E getSingleResult(Selections<T> selections, Class<E> resultType) {
+        Specification<T> spec = assembler.assembly(selections, SpecificationType.values());
+        return executor.getOne(spec, resultType);
+    }
+
+    @Override
+    public <E> E getFirstResult(Selections<T> selections) {
+        return getFirstResult(selections, null);
+    }
+
+    @Override
+    public <E> E getFirstResult(Selections<T> selections, Class<E> resultType) {
+        List<E> list = getRangeList(selections, new PageRequest(0, 1), resultType);
+        if (list.isEmpty()) {
+            throw new NoResultException("can't found first result");
         }
-        return entityManager.createQuery(query.query).getSingleResult();
+        return list.get(0);
     }
 
-    // build query 
-
-    private InternalQuery<T, T> createQuery() {
-        return createQuery(bundle.getEntityClass());
+    @Override
+    public <E> List<E> getResultList(Selections<T> selections) {
+        return getResultList(selections, null);
     }
 
-    protected <R> InternalQuery<T, R> createQuery(Class<R> resultClass) {
-        return new InternalQuery<T, R>(resultClass, builder, bundle);
+    @Override
+    public <E> List<E> getResultList(Selections<T> selections, Class<E> resultType) {
+        Specification spec = assembler.assembly(selections, SpecificationType.values());
+        return executor.getAll(spec, resultType);
+    }
+
+    @Override
+    public <E> Page<E> getResultPage(Selections<T> selections) {
+        return getResultPage(selections, null);
+    }
+
+    @Override
+    public <E> Page<E> getResultPage(Selections<T> selections, Class<E> resultType) {
+        Pageable pageable = assembler.getPageable();
+        return PageableExecutionUtils.getPage(getRangeList(selections, pageable, resultType), pageable, new TotalSupplier() {
+            @Override
+            public long get() {
+                return getCountResult();
+            }
+        });
+    }
+
+    private <E> List<E> getRangeList(Selections<T> selections, Pageable pageable, Class<E> resultType) {
+        Specification spec = assembler.assembly(selections, SpecificationType.values());
+        return executor.getRange(pageable.getOffset(), pageable.getPageSize(), spec, resultType);
+    }
+
+    static final class ColumnSelections<T> implements Selections<T> {
+
+        private final List<String> columns;
+
+        public ColumnSelections(String... columns) {
+            this.columns = Arrays.asList(columns);
+        }
+
+        public ColumnSelections(Collection<String> columns) {
+            this.columns = Collections.unmodifiableList(new ArrayList<>(columns));
+        }
+
+        @Override
+        public List<Expression<?>> selection(Root<T> root, CriteriaBuilder cb) {
+            List<Expression<?>> cs = new ArrayList<>();
+            for (String c : columns) {
+                cs.add(QueryUtils.parseExpression(c, root, cb));
+            }
+            return cs;
+        }
+
+    }
+
+    static final class FunctionSelections<T> implements Selections<T> {
+
+        private final String function;
+        private final String column;
+
+        public FunctionSelections(String function, String column) {
+            this.function = function;
+            this.column = column;
+        }
+
+        @Override
+        public List<Expression<?>> selection(Root<T> root, CriteriaBuilder cb) {
+            List<Expression<?>> result = new ArrayList<>();
+            result.add(cb.function(function, null, QueryUtils.toExpressionRecursively(root, column)));
+            return result;
+        }
+
+    }
+
+    static final class CountSelections<T> implements Selections<T> {
+
+        private final String column;
+        private final boolean distinct;
+
+        public CountSelections(boolean distinct) {
+            this(null, distinct);
+        }
+
+        public CountSelections(String column, boolean distinct) {
+            this.column = column;
+            this.distinct = distinct;
+        }
+
+        @Override
+        public List<Expression<?>> selection(Root<T> root, CriteriaBuilder cb) {
+            Expression exp = column == null ? root : QueryUtils.toExpressionRecursively(root, column);
+            return new ArrayList<>(Arrays.asList(distinct ? cb.countDistinct(exp) : cb.count(exp)));
+        }
+
+    }
+
+    static final class SpecificationExecutor {
+
+        private final EntityManager entityManager;
+        private final CriteriaBuilder builder;
+        private final Class domainClass;
+        private final int queryFeature;
+
+        private SpecificationExecutor(QueryBundle<?> bundle, EntityManager entityManager) {
+            this.entityManager = entityManager;
+            this.builder = entityManager.getCriteriaBuilder();
+            this.domainClass = bundle.getEntityClass();
+            this.queryFeature = bundle.getQueryFeature();
+        }
+
+        private <T> T getOne(Specification spec, Class<T> resultClass) {
+            try {
+                CriteriaQuery<T> query = createCriteriaQuery(spec, resultClass);
+                return entityManager.createQuery(query).getSingleResult();
+            } catch (NoResultException e) {
+                return null;
+            }
+        }
+
+        private <T> List<T> getAll(Specification spec, Class<T> resultClass) {
+            CriteriaQuery<T> query = createCriteriaQuery(spec, resultClass);
+            if (!QueryUtils.hasRestriction(query) && !FULL_TABLE_QUERY.isEnable(queryFeature)) {
+                throw new IllegalStateException("not allow empty condition full table query");
+            }
+            return entityManager.createQuery(query).getResultList();
+        }
+
+        private <T> List<T> getRange(int offset, int size, Specification spec, Class<T> resultClass) {
+            CriteriaQuery<T> criteriaQuery = createCriteriaQuery(spec, resultClass);
+            TypedQuery<T> query = entityManager.createQuery(criteriaQuery);
+            query.setFirstResult(offset);
+            query.setMaxResults(size);
+            return query.getResultList();
+        }
+
+        private <T> CriteriaQuery<T> createCriteriaQuery(Specification spec, Class<T> resultClass) {
+            CriteriaQuery<T> query = builder.createQuery(resultClass);
+            Root<T> root = query.from(domainClass);
+            if (spec != null) {
+                Predicate predicate = spec.toPredicate(root, query, builder);
+                if (predicate != null) {
+                    query.where(predicate);
+                }
+            }
+            query.distinct(DISTINCT.isEnable(queryFeature));
+            return query;
+        }
+
     }
 
 }

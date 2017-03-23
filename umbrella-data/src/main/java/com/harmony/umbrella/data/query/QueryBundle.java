@@ -27,7 +27,7 @@ public interface QueryBundle<M> {
      * 
      * @return 查询条件
      */
-    Specification<M> getSpecification();
+    Specification<M> getCondition();
 
     /**
      * 查询的特性

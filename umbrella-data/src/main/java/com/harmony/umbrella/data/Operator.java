@@ -125,15 +125,14 @@ public enum Operator {
 
         @Override
         public Predicate explain(Expression x, CriteriaBuilder cb, Object y) {
-            x = cb.not(x);
             if (y instanceof Expression) {
                 return x.in((Expression) y);
             }
             List<Collection> v = cuttingBySize(inValue(y), 999);
             Iterator<Collection> it = v.iterator();
-            Predicate predicate = x.in(it.next());
+            Predicate predicate = x.in(it.next()).not();
             for (; it.hasNext();) {
-                predicate = cb.and(predicate, x.in(it.next()));
+                predicate = cb.and(predicate, x.in(it.next()).not());
             }
             return predicate;
         }

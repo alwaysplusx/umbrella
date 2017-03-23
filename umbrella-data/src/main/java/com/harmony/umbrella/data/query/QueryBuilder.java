@@ -85,7 +85,7 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
     protected Set<String> grouping;
     protected FetchAttributes fetchAttributes;
     protected JoinAttributes joinAttributes;
-    protected Specification specification;
+    protected Specification<M> condition;
 
     protected int queryFeature = 0;
 
@@ -122,14 +122,14 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
     /**
      * 设置查询条件, 通过此方法设置条件后前所有条件将会被清除
      * 
-     * @param specification
+     * @param condition
      *            查询条件
      * @return this
      */
-    public T withSpecification(Specification<M> specification) {
+    public T withCondition(Specification<M> condition) {
         this.queryStack.clear();
         this.temp.clear();
-        this.specification = specification;
+        this.condition = condition;
         return (T) this;
     }
 
@@ -196,7 +196,7 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
         o.pageNumber = b.pageNumber;
         o.pageSize = b.pageSize;
         o.sort = b.sort;
-        o.specification = b.specification;
+        o.condition = b.condition;
         o.fetchAttributes = b.fetchAttributes;
         o.joinAttributes = b.joinAttributes;
         o.queryFeature = b.queryFeature;
@@ -217,7 +217,7 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
         this.pageNumber = bundle.getPageNumber();
         this.pageSize = bundle.getPageSize();
         this.sort = bundle.getSort();
-        this.specification = bundle.getSpecification();
+        this.condition = bundle.getCondition();
         this.fetchAttributes = bundle.getFetchAttributes();
         this.joinAttributes = bundle.getJoinAttributes();
         this.queryFeature = bundle.getQueryFeature();
@@ -576,15 +576,15 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
                 end();
             }
         }
-        if (specification == null) {
+        if (condition == null) {
             if (QueryFeature.DISJUNCTION.isEnable(queryFeature) && QueryFeature.CONJUNCTION.isEnable(queryFeature)) {
                 throw new IllegalStateException("confusion default condition, " + queryFeature);
             }
             if (QueryFeature.DISJUNCTION.isEnable(queryFeature)) {
-                this.specification = QueryUtils.disjunction();
+                this.condition = QueryUtils.disjunction();
             }
             if (QueryFeature.CONJUNCTION.isEnable(queryFeature)) {
-                this.specification = QueryUtils.conjunction();
+                this.condition = QueryUtils.conjunction();
             }
         }
     }
@@ -882,7 +882,7 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
             temp.clear();
             for (int i = css.length; i > 0; i--) {
                 CompositionSpecification cs = css[i - 1];
-                specification = cs.getCompositionType().combine(specification, cs);
+                condition = cs.getCompositionType().combine(condition, cs);
             }
         }
         return (T) this;
@@ -900,7 +900,7 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
         assembleType = null;
         fetchAttributes = null;
         joinAttributes = null;
-        specification = null;
+        condition = null;
         sort = null;
         entityClass = null;
         pageNumber = 0;

@@ -25,6 +25,14 @@ public class SubModel implements Serializable {
     @JoinColumn(name = "modelId", referencedColumnName = "id")
     private Model model;
 
+    public SubModel() {
+    }
+
+    public SubModel(String id, String name) {
+        this.id = id;
+        this.name = name;
+    }
+
     public String getId() {
         return id;
     }

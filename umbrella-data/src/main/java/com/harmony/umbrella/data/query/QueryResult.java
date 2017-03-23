@@ -2,6 +2,10 @@ package com.harmony.umbrella.data.query;
 
 import java.util.List;
 
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.Expression;
+import javax.persistence.criteria.Root;
+
 import org.springframework.data.domain.Page;
 
 /**
@@ -43,5 +47,26 @@ public interface QueryResult<T> {
     Page<T> getResultPage();
 
     long getCountResult();
+
+    <E> E getSingleResult(Selections<T> selections);
+
+    <E> E getSingleResult(Selections<T> selections, Class<E> resultType);
+
+    <E> E getFirstResult(Selections<T> selections);
+
+    <E> E getFirstResult(Selections<T> selections, Class<E> resultType);
+
+    <E> List<E> getResultList(Selections<T> selections);
+
+    <E> List<E> getResultList(Selections<T> selections, Class<E> resultType);
+
+    <E> Page<E> getResultPage(Selections<T> selections);
+
+    <E> Page<E> getResultPage(Selections<T> selections, Class<E> resultType);
+
+    public interface Selections<T> {
+
+        List<Expression<?>> selection(Root<T> root, CriteriaBuilder cb);
+    }
 
 }

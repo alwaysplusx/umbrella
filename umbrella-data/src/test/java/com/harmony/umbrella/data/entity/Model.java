@@ -1,9 +1,11 @@
 package com.harmony.umbrella.data.entity;
 
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
@@ -30,19 +32,30 @@ public class Model implements Serializable {
     private String content;
     private int ordinal;
 
+    private String nullField;
+
     @Temporal(TemporalType.TIMESTAMP)
     private Calendar createDate;
 
-    @OneToMany(mappedBy = "model")
+    @OneToMany(mappedBy = "model", cascade = CascadeType.ALL)
     private List<SubModel> subModels;
 
     public Model() {
     }
 
-    public Model(Long id, String name, String code) {
+    public Model(Long id, String name, String code, SubModel... e) {
         this.id = id;
         this.name = name;
         this.code = code;
+        this.setSubModels(Arrays.asList(e));
+    }
+
+    public Model(Long id, String name, String code, String content, SubModel... e) {
+        this.id = id;
+        this.name = name;
+        this.code = code;
+        this.content = content;
+        this.setSubModels(Arrays.asList(e));
     }
 
     public Long getId() {
@@ -98,7 +111,18 @@ public class Model implements Serializable {
     }
 
     public void setSubModels(List<SubModel> subModels) {
+        subModels.forEach(e -> {
+            e.setModel(this);
+        });
         this.subModels = subModels;
+    }
+
+    public String getNullField() {
+        return nullField;
+    }
+
+    public void setNullField(String nullField) {
+        this.nullField = nullField;
     }
 
     @Override

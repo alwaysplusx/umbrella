@@ -73,13 +73,13 @@ public abstract class QueryUtils {
     }
 
     public static boolean isFunctionExpression(String name) {
-        return name.indexOf("(") > -1 && name.indexOf(")") > -1 && name.indexOf("(") > name.indexOf(")");
+        return name.indexOf("(") > -1 && name.indexOf(")") > -1 && name.indexOf("(") < name.indexOf(")");
     }
 
     public static <T> Expression<T> functionExpression(String name, Root<?> root, CriteriaBuilder builder, Class<T> type) {
         StringTokenizer st = new StringTokenizer(name);
         String f = st.nextToken("(").trim();
-        String n = st.nextToken(")").trim();
+        String n = st.nextToken(")").substring(1).trim();
         return builder.function(f, type, toExpressionRecursively(root, n));
     }
 
@@ -96,7 +96,11 @@ public abstract class QueryUtils {
         return result;
     }
 
-    public static <T> Specification<T> and(final Specification<T>... specs) {
+    public static Expression<?> parseExpression(String name, Root<?> root, CriteriaBuilder cb) {
+        return QueryUtils.isFunctionExpression(name) ? QueryUtils.functionExpression(name, root, cb, null) : QueryUtils.toExpressionRecursively(root, name);
+    }
+
+    public static <T> Specification<T> all(Specification<T>... specs) {
         Assert.notEmpty(specs, "spec not allow empty");
         return new Specification<T>() {
             @Override
@@ -113,21 +117,8 @@ public abstract class QueryUtils {
         };
     }
 
-    public static <T> Specification<T> or(Specification<T>... specs) {
-        Assert.notEmpty(specs, "spec not allow empty");
-        return new Specification<T>() {
-            @Override
-            public Predicate toPredicate(Root<T> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
-                Predicate predicate = null;
-                for (Specification<T> spec : specs) {
-                    Predicate p = spec.toPredicate(root, query, cb);
-                    if (p != null) {
-                        predicate = predicate == null ? p : cb.or(predicate, p);
-                    }
-                }
-                return predicate;
-            }
-        };
+    public static boolean hasRestriction(CriteriaQuery<?> query) {
+        return query.getRestriction() != null;
     }
 
     private static <T> Expression<T> toExpressionRecursively(From<?, ?> from, StringTokenizer st) {

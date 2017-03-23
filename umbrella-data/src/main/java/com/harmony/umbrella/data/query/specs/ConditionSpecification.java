@@ -4,7 +4,6 @@ import java.io.Serializable;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
@@ -32,7 +31,7 @@ public class ConditionSpecification<T> implements Specification<T>, Serializable
 
     @Override
     public Predicate toPredicate(Root<T> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
-        return operator.explain(toExpression(x, root, cb), cb, y);
+        return operator.explain(QueryUtils.parseExpression(x, root, cb), cb, y);
     }
 
     @Override
@@ -40,7 +39,4 @@ public class ConditionSpecification<T> implements Specification<T>, Serializable
         return x + " " + operator.symbol() + " " + "?";
     }
 
-    protected Expression toExpression(String name, Root root, CriteriaBuilder cb) {
-        return QueryUtils.isFunctionExpression(name) ? QueryUtils.functionExpression(name, root, cb, null) : QueryUtils.toExpressionRecursively(root, name);
-    }
 }

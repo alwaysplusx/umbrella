@@ -73,7 +73,7 @@ public class JpaQueryBuilder<M> extends QueryBuilder<JpaQueryBuilder<M>, M> {
 
         public JpaQueryBuilder<M> apply(final String column, final Operator operator) {
             this.finishQuery();
-            final Specification<R> subCondition = this.specification;
+            final Specification<R> subCondition = this.condition;
             return (JpaQueryBuilder<M>) parentQueryBuilder.addSpecication(new Specification<M>() {
                 @Override
                 public Predicate toPredicate(Root<M> root, CriteriaQuery<?> query, CriteriaBuilder cb) {

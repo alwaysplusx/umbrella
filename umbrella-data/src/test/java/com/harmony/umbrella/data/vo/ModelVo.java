@@ -25,6 +25,11 @@ public class ModelVo {
         this.content = content;
     }
 
+    public ModelVo(long size, String content) {
+        this.size = size;
+        this.content = content;
+    }
+
     public long getSize() {
         return size;
     }
