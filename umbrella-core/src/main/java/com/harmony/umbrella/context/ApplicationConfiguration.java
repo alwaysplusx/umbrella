@@ -28,6 +28,8 @@ public interface ApplicationConfiguration {
 
     String getStringProperty(String key);
 
+    String getStringProperty(String key, String def);
+
     Map getApplicationProperties();
 
     Runnable[] getShutdownHook();

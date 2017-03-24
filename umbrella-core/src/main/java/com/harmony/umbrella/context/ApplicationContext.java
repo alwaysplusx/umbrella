@@ -55,32 +55,53 @@ public abstract class ApplicationContext implements BeanFactory {
 
     private static ApplicationConfiguration applicationConfiguration;
 
-    private static boolean applicationStarted;
+    private static final String STANDBY = "standby";
+    private static final String STARTED = "started";
+    private static final String SHUTDOWN = "shutdown";
 
-    public static synchronized void start(ApplicationConfiguration appConfig) {
-        if (applicationStarted) {
-            LOG.warn("application already started");
-            return;
+    private static final Object applicationStatusLock = new Object();
+
+    private static String applicationStatus;
+
+    public static void start(ApplicationConfiguration appConfig) {
+        synchronized (applicationStatusLock) {
+            if (!isStandBy()) {
+                LOG.warn("application already started");
+                return;
+            }
+            ApplicationContextInitializer applicationInitializer = null;
+            Class<? extends ApplicationContextInitializer> applicationInitializerClass = appConfig.getApplicationContextInitializerClass();
+            if (applicationInitializerClass == null) {
+                applicationInitializerClass = ApplicationContextInitializer.class;
+            }
+            try {
+                applicationInitializer = applicationInitializerClass.newInstance();
+            } catch (Exception e) {
+                throw new IllegalArgumentException("illegal application initializer class " + applicationInitializerClass);
+            }
+            // 初始化应用程序
+            applicationInitializer.init(appConfig);
+            applicationConfiguration = appConfig;
+            applicationStatus = STARTED;
         }
-        ApplicationContextInitializer applicationInitializer = null;
-        Class<? extends ApplicationContextInitializer> applicationInitializerClass = appConfig.getApplicationContextInitializerClass();
-        if (applicationInitializerClass == null) {
-            applicationInitializerClass = ApplicationContextInitializer.class;
-        }
-        try {
-            applicationInitializer = applicationInitializerClass.newInstance();
-        } catch (Exception e) {
-            throw new IllegalArgumentException("illegal application initializer class " + applicationInitializerClass);
-        }
-        // 初始化应用程序
-        applicationInitializer.init(appConfig);
-        applicationConfiguration = appConfig;
-        applicationStarted = true;
     }
 
-    public static synchronized void shutdown() {
-        for (Runnable runnable : shutdownHooks) {
-            runnable.run();
+    public static void shutdown() {
+        synchronized (applicationStatusLock) {
+            try {
+                for (Runnable runnable : shutdownHooks) {
+                    runnable.run();
+                }
+            } catch (Throwable e) {
+                if (!Boolean.valueOf(applicationConfiguration.getStringProperty("focus-showdown", "true"))) {
+                    throw e;
+                }
+                LOG.error("shutdown hooks mount fail", e);
+            }
+            classes.clear();
+            shutdownHooks.clear();
+            databaseMetadatas.clear();
+            applicationConfiguration = null;
         }
     }
 
@@ -99,8 +120,22 @@ public abstract class ApplicationContext implements BeanFactory {
      * 
      * @return true is started
      */
-    public static synchronized boolean isStarted() {
-        return applicationStarted;
+    public static boolean isStarted() {
+        synchronized (applicationStatusLock) {
+            return applicationStatus == STARTED;
+        }
+    }
+
+    public static boolean isStandBy() {
+        synchronized (applicationStatusLock) {
+            return applicationStatus == STANDBY;
+        }
+    }
+
+    public static boolean isShutdown() {
+        synchronized (applicationStatusLock) {
+            return applicationStatus == SHUTDOWN;
+        }
     }
 
     /**
@@ -181,9 +216,13 @@ public abstract class ApplicationContext implements BeanFactory {
 
     private static void checkApplicationState() {
         if (!isStarted()) {
-            throw new IllegalStateException("application not start!");
+            throw new IllegalStateException("application not started!");
+        }
+        if (isShutdown()) {
+            throw new IllegalStateException("application already shutdown");
         }
     }
+    
     // application bean scope
 
     protected ApplicationContext() {

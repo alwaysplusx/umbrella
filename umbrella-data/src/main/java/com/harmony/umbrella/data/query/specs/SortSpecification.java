@@ -17,7 +17,7 @@ import org.springframework.data.jpa.repository.query.QueryUtils;
 public class SortSpecification<T> implements Specification<T>, Serializable {
 
     private static final long serialVersionUID = 430336683524432193L;
-    private Sort sort;
+    private final Sort sort;
 
     public SortSpecification(Sort sort) {
         this.sort = sort;

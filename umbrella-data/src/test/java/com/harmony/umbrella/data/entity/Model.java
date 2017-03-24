@@ -1,6 +1,5 @@
 package com.harmony.umbrella.data.entity;
 
-import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
@@ -13,6 +12,7 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
+import com.harmony.umbrella.data.domain.BaseEntity;
 import com.harmony.umbrella.util.TimeUtils;
 
 /**
@@ -20,7 +20,7 @@ import com.harmony.umbrella.util.TimeUtils;
  */
 @Entity
 @Table(name = "TEST_MODEL")
-public class Model implements Serializable {
+public class Model extends BaseEntity<Long> {
 
     private static final long serialVersionUID = 1L;
 

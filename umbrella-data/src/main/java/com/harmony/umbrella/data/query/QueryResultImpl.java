@@ -1,11 +1,8 @@
 package com.harmony.umbrella.data.query;
 
 import static com.harmony.umbrella.data.query.QueryFeature.*;
+import static com.harmony.umbrella.data.util.QueryUtils.*;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 import javax.persistence.EntityManager;
@@ -13,7 +10,6 @@ import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
@@ -49,7 +45,7 @@ public class QueryResultImpl<T> implements QueryResult<T> {
 
     @Override
     public <E> E getColumnSingleResult(String column, Class<E> resultType) {
-        return getSingleResult(new ColumnSelections<T>(column), resultType);
+        return getSingleResult(select(column), resultType);
     }
 
     @Override
@@ -59,7 +55,7 @@ public class QueryResultImpl<T> implements QueryResult<T> {
 
     @Override
     public <E> List<E> getColumnResultList(String column, Class<E> resultType) {
-        return getResultList(new ColumnSelections<T>(column), resultType);
+        return getResultList(select(column), resultType);
     }
 
     @Override
@@ -69,17 +65,17 @@ public class QueryResultImpl<T> implements QueryResult<T> {
 
     @Override
     public <E> E getFunctionResult(String function, String column, Class<E> resultType) {
-        return getSingleResult(new FunctionSelections<T>(function, column), resultType);
+        return getSingleResult(select(function, column), resultType);
     }
 
     @Override
     public <VO> VO getVoSingleResult(String[] columns, Class<VO> resultType) {
-        return getSingleResult(new ColumnSelections<T>(columns), resultType);
+        return getSingleResult(select(columns), resultType);
     }
 
     @Override
     public <VO> List<VO> getVoResultList(String[] columns, Class<VO> resultType) {
-        return getResultList(new ColumnSelections<T>(columns), resultType);
+        return getResultList(select(columns), resultType);
     }
 
     @Override
@@ -104,7 +100,7 @@ public class QueryResultImpl<T> implements QueryResult<T> {
 
     @Override
     public long getCountResult() {
-        return getSingleResult(new CountSelections<T>(assembler.isEnable(DISTINCT)), Long.class);
+        return getSingleResult(count(assembler.isEnable(DISTINCT)), Long.class);
     }
 
     @Override
@@ -162,70 +158,6 @@ public class QueryResultImpl<T> implements QueryResult<T> {
     private <E> List<E> getRangeList(Selections<T> selections, Pageable pageable, Class<E> resultType) {
         Specification spec = assembler.assembly(selections, SpecificationType.values());
         return executor.getRange(pageable.getOffset(), pageable.getPageSize(), spec, resultType);
-    }
-
-    static final class ColumnSelections<T> implements Selections<T> {
-
-        private final List<String> columns;
-
-        public ColumnSelections(String... columns) {
-            this.columns = Arrays.asList(columns);
-        }
-
-        public ColumnSelections(Collection<String> columns) {
-            this.columns = Collections.unmodifiableList(new ArrayList<>(columns));
-        }
-
-        @Override
-        public List<Expression<?>> selection(Root<T> root, CriteriaBuilder cb) {
-            List<Expression<?>> cs = new ArrayList<>();
-            for (String c : columns) {
-                cs.add(QueryUtils.parseExpression(c, root, cb));
-            }
-            return cs;
-        }
-
-    }
-
-    static final class FunctionSelections<T> implements Selections<T> {
-
-        private final String function;
-        private final String column;
-
-        public FunctionSelections(String function, String column) {
-            this.function = function;
-            this.column = column;
-        }
-
-        @Override
-        public List<Expression<?>> selection(Root<T> root, CriteriaBuilder cb) {
-            List<Expression<?>> result = new ArrayList<>();
-            result.add(cb.function(function, null, QueryUtils.toExpressionRecursively(root, column)));
-            return result;
-        }
-
-    }
-
-    static final class CountSelections<T> implements Selections<T> {
-
-        private final String column;
-        private final boolean distinct;
-
-        public CountSelections(boolean distinct) {
-            this(null, distinct);
-        }
-
-        public CountSelections(String column, boolean distinct) {
-            this.column = column;
-            this.distinct = distinct;
-        }
-
-        @Override
-        public List<Expression<?>> selection(Root<T> root, CriteriaBuilder cb) {
-            Expression exp = column == null ? root : QueryUtils.toExpressionRecursively(root, column);
-            return new ArrayList<>(Arrays.asList(distinct ? cb.countDistinct(exp) : cb.count(exp)));
-        }
-
     }
 
     static final class SpecificationExecutor {

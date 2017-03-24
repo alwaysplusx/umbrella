@@ -149,8 +149,13 @@ public class ApplicationConfigurationBuilder {
 
             @Override
             public String getStringProperty(String key) {
-                Object v = getProperty(key);
-                return v != null ? v.toString() : null;
+                return getStringProperty(key, null);
+            }
+
+            @Override
+            public String getStringProperty(String key, String def) {
+                String v = getProperty(key) == null ? null : getProperty(key).toString();
+                return v != null ? v : def;
             }
 
             @Override

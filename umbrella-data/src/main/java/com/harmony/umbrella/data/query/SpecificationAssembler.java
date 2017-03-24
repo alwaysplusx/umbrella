@@ -1,6 +1,7 @@
 package com.harmony.umbrella.data.query;
 
 import static com.harmony.umbrella.data.query.SpecificationAssembler.SpecificationType.*;
+import static com.harmony.umbrella.data.util.QueryUtils.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -12,7 +13,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 
 import com.harmony.umbrella.data.query.QueryResult.Selections;
-import com.harmony.umbrella.data.query.QueryResultImpl.ColumnSelections;
 import com.harmony.umbrella.data.query.specs.FetchSpecification;
 import com.harmony.umbrella.data.query.specs.GrouppingSpecification;
 import com.harmony.umbrella.data.query.specs.JoinSpecification;
@@ -101,7 +101,7 @@ public class SpecificationAssembler<T> {
     }
 
     private Specification<T> groupingSpec() {
-        return bundle.getGrouping() == null ? null : new GrouppingSpecification<>(new ColumnSelections<T>(bundle.getGrouping()));
+        return bundle.getGrouping() == null ? null : new GrouppingSpecification<>(select(bundle.getGrouping()));
     }
 
     private Specification<T> conditonSpec() {

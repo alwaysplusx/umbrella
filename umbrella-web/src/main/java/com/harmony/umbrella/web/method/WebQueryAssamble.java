@@ -120,7 +120,6 @@ public class WebQueryAssamble {
         builder.enable(ann != null ? ann.feature() : new QueryFeature[0]);
 
         // paging
-        // FIXME if return type is page set default paging
         assemblePaging(//
                 getParameter(webRequest, "page", ann == null ? -1 : ann.page()), //
                 getParameter(webRequest, "size", ann == null ? -1 : ann.size())//

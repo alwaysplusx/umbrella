@@ -53,9 +53,9 @@ public enum PatternConverter {
     public abstract String[] convert(String[] patterns);
 
     public static PatternConverter suitableConverter(Class<?> clazz) {
-        if (clazz.isAssignableFrom(Page.class)) {
+        if (Page.class.isAssignableFrom(clazz)) {
             return PAGE;
-        } else if (clazz.isAssignableFrom(Collection.class) || clazz.isArray()) {
+        } else if (Collection.class.isAssignableFrom(clazz) || clazz.isArray()) {
             return PatternConverter.COLLECTION;
         }
         return PatternConverter.OBJECT;

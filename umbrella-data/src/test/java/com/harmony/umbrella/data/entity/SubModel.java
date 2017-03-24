@@ -1,19 +1,19 @@
 package com.harmony.umbrella.data.entity;
 
-import java.io.Serializable;
-
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import com.harmony.umbrella.data.domain.BaseEntity;
+
 /**
  * @author wuxii@foxmail.com
  */
 @Entity
 @Table(name = "TEST_SUBMODEL")
-public class SubModel implements Serializable {
+public class SubModel extends BaseEntity<String> {
 
     private static final long serialVersionUID = 1L;
 
