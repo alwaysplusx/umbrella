@@ -9,9 +9,6 @@
   </parent>
   <name>Harmony Umbrella :: Web</name>
   <artifactId>umbrella-web</artifactId>
-  <properties>
-    <apache.struts.version>2.5</apache.struts.version>
-  </properties>
   <dependencies>
     <dependency>
       <groupId>com.harmony.umbrella</groupId>
