@@ -1,7 +1,7 @@
 package com.harmony.umbrella.data.domain;
 
 import java.io.Serializable;
-import java.util.Calendar;
+import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.MappedSuperclass;
@@ -29,7 +29,7 @@ public abstract class BaseEntity<ID extends Serializable> implements Persistable
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(updatable = false)
-    protected Calendar createdTime;
+    protected Date createdTime = new Date();
 
     protected Long modifierId;
 
@@ -38,7 +38,7 @@ public abstract class BaseEntity<ID extends Serializable> implements Persistable
     protected String modifierCode;
 
     @Temporal(TemporalType.TIMESTAMP)
-    protected Calendar modifiedTime;
+    protected Date modifiedTime;
 
     @Override
     public boolean isNew() {
@@ -69,11 +69,11 @@ public abstract class BaseEntity<ID extends Serializable> implements Persistable
         this.creatorCode = creatorCode;
     }
 
-    public Calendar getCreatedTime() {
+    public Date getCreatedTime() {
         return createdTime;
     }
 
-    public void setCreatedTime(Calendar createdTime) {
+    public void setCreatedTime(Date createdTime) {
         this.createdTime = createdTime;
     }
 
@@ -101,11 +101,11 @@ public abstract class BaseEntity<ID extends Serializable> implements Persistable
         this.modifierCode = modifierCode;
     }
 
-    public Calendar getModifiedTime() {
+    public Date getModifiedTime() {
         return modifiedTime;
     }
 
-    public void setModifiedTime(Calendar modifiedTime) {
+    public void setModifiedTime(Date modifiedTime) {
         this.modifiedTime = modifiedTime;
     }
 

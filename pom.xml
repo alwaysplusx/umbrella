@@ -7,6 +7,8 @@
   <version>0.0.5-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>Harmony Umbrella</name>
+  <url>https://github.com/wuxii/umbrella</url>
+  <description>Basic function library for developer</description>
 
   <scm>
     <url>https://git.oschina.net/wuxii/umbrella.git</url>
@@ -14,8 +16,8 @@
   </scm>
 
   <modules>
-    <module>umbrella-cache</module>
     <module>umbrella-core</module>
+    <module>umbrella-cache</module>
     <module>umbrella-ee</module>
     <module>umbrella-json</module>
     <module>umbrella-message</module>
@@ -33,6 +35,13 @@
     <module>umbrella-excel</module>
     <module>umbrella-fs</module>
   </modules>
+
+  <distributionManagement>
+    <site>
+      <id>umbrella</id>
+      <url>http://localhost:8080/umbrella</url>
+    </site>
+  </distributionManagement>
 
   <properties>
     <encoding>UTF-8</encoding>
@@ -230,7 +239,6 @@
       </dependency>
     </dependencies>
   </dependencyManagement>
-
   <build>
     <resources>
       <resource>
@@ -296,7 +304,24 @@
             <docencoding>${project.build.sourceEncoding}</docencoding>
           </configuration>
         </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-site-plugin</artifactId>
+          <version>3.6</version>
+        </plugin>
       </plugins>
     </pluginManagement>
   </build>
+  <reporting>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-project-info-reports-plugin</artifactId>
+        <version>2.9</version>
+        <configuration>
+          <dependencyLocationsEnabled>false</dependencyLocationsEnabled>
+        </configuration>
+      </plugin>
+    </plugins>
+  </reporting>
 </project>
