@@ -55,13 +55,13 @@ public abstract class ApplicationContext implements BeanFactory {
 
     private static ApplicationConfiguration applicationConfiguration;
 
-    private static final String STANDBY = "standby";
-    private static final String STARTED = "started";
-    private static final String SHUTDOWN = "shutdown";
+    private static final int STANDBY = 0;
+    private static final int STARTED = 1;
+    private static final int SHUTDOWN = -1;
 
     private static final Object applicationStatusLock = new Object();
 
-    private static String applicationStatus;
+    private static int applicationStatus;
 
     public static void start(ApplicationConfiguration appConfig) {
         synchronized (applicationStatusLock) {
@@ -112,6 +112,7 @@ public abstract class ApplicationContext implements BeanFactory {
      */
     public static ApplicationConfiguration getApplicationConfiguration() {
         checkApplicationState();
+        // FIXME unmodifiable configuration
         return applicationConfiguration;
     }
 
@@ -205,6 +206,16 @@ public abstract class ApplicationContext implements BeanFactory {
 
     public static Class[] getApplicationClasses(ClassFilter filter) {
         checkApplicationState();
+        if (scaned) {
+            return get(filter);
+        } else {
+            synchronized (classes) {
+                return get(filter);
+            }
+        }
+    }
+
+    private static Class[] get(ClassFilter filter) {
         List<Class> result = new ArrayList<Class>();
         for (Class c : classes) {
             if (ClassFilterFeature.safetyAccess(filter, c)) {
@@ -214,15 +225,15 @@ public abstract class ApplicationContext implements BeanFactory {
         return result.toArray(new Class[result.size()]);
     }
 
-    private static void checkApplicationState() {
+    protected static final void checkApplicationState() throws ApplicationContextException {
         if (!isStarted()) {
-            throw new IllegalStateException("application not started!");
+            throw new ApplicationContextException("application not started!");
         }
         if (isShutdown()) {
-            throw new IllegalStateException("application already shutdown");
+            throw new ApplicationContextException("application is shutdown!");
         }
     }
-    
+
     // application bean scope
 
     protected ApplicationContext() {
@@ -230,15 +241,13 @@ public abstract class ApplicationContext implements BeanFactory {
 
     public abstract BeanFactory getBeanFactory();
 
-    /**
-     * 初始化bean工厂
-     */
-    public abstract void init();
+    public void init() {
 
-    /**
-     * 销毁bean工厂
-     */
-    public abstract void destroy();
+    }
+
+    public void destroy() {
+
+    }
 
     @Override
     public void autowrie(Object bean) throws BeansException {
@@ -339,11 +348,32 @@ public abstract class ApplicationContext implements BeanFactory {
 
         private void init_application_classes() {
             Collection<String> packages = cfg.getScanPackages();
-            if (packages != null && !packages.isEmpty()) {
+            boolean initialize = Boolean.valueOf(cfg.getStringProperty("harmony.scan-init"));
+            boolean async = Boolean.valueOf(cfg.getStringProperty("harmony.scan-async", "true"));
+            if (async) {
+                new Thread(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        scan(packages, initialize);
+                    }
+                }).start();
+            } else {
+                scan(packages, initialize);
+            }
+        }
+
+    }
+
+    private static final void scan(Collection<String> packages, boolean init) {
+        // TODO 外部工具整理
+        if (packages != null && !packages.isEmpty()) {
+            scaned = false;
+            synchronized (classes) {
                 classes.clear();
-                ResourcePatternResolver resourceLoader = new PathMatchingResourcePatternResolver();
                 ClassLoader classLoader = ClassUtils.getDefaultClassLoader();
-                boolean initialize = Boolean.valueOf(cfg.getStringProperty("init-class-when-scan"));
+                ResourcePatternResolver resourceLoader = new PathMatchingResourcePatternResolver(classLoader);
+
                 for (String pkg : packages) {
                     String path = ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX + pkg.replace(".", "/") + "/**/*.class";
                     try {
@@ -352,7 +382,7 @@ public abstract class ApplicationContext implements BeanFactory {
                             String className = null;
                             try {
                                 className = readClassName(resource);
-                                Class<?> clazz = Class.forName(className, initialize, classLoader);
+                                Class<?> clazz = Class.forName(className, init, classLoader);
                                 if (!classes.contains(clazz)) {
                                     classes.add(clazz);
                                 }
@@ -376,10 +406,12 @@ public abstract class ApplicationContext implements BeanFactory {
                         return o1.getName().compareTo(o2.getName());
                     }
                 });
+                scaned = true;
             }
         }
-
     }
+
+    private static boolean scaned;
 
     private static final class SimpleApplicationContext extends ApplicationContext {
 
