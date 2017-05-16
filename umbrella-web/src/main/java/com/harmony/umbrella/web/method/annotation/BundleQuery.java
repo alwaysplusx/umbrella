@@ -1,4 +1,4 @@
-package com.harmony.umbrella.web.bind.annotation;
+package com.harmony.umbrella.web.method.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -13,7 +13,7 @@ import com.alibaba.fastjson.serializer.SerializerFeature;
  */
 @Target({ ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
-public @interface BundleView {
+public @interface BundleQuery {
 
     PatternConverter converter() default PatternConverter.AUTO;
 

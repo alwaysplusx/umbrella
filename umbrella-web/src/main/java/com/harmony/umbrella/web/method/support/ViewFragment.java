@@ -1,4 +1,4 @@
-package com.harmony.umbrella.web.method;
+package com.harmony.umbrella.web.method.support;
 
 import java.io.OutputStream;
 import java.util.ArrayList;
@@ -21,8 +21,8 @@ import com.harmony.umbrella.json.Json;
 import com.harmony.umbrella.json.SerializerConfig;
 import com.harmony.umbrella.json.SerializerConfigBuilder;
 import com.harmony.umbrella.util.IOUtils;
-import com.harmony.umbrella.web.bind.annotation.PatternConverter;
-import com.harmony.umbrella.web.method.RequestResponseBundleMethodProcessor.Page;
+import com.harmony.umbrella.web.method.annotation.PatternConverter;
+import com.harmony.umbrella.web.method.support.BundleRequestResponseMethodProcessor.Page;
 
 /**
  * @author wuxii@foxmail.com

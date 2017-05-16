@@ -1,4 +1,4 @@
-package com.harmony.umbrella.web.method;
+package com.harmony.umbrella.web.method.support;
 
 import java.util.Iterator;
 import java.util.Map;
@@ -18,7 +18,7 @@ import com.harmony.umbrella.data.query.QueryBundle;
 import com.harmony.umbrella.data.query.QueryFeature;
 import com.harmony.umbrella.util.MemberUtils;
 import com.harmony.umbrella.util.PropertiesUtils;
-import com.harmony.umbrella.web.bind.annotation.RequestBundle;
+import com.harmony.umbrella.web.method.annotation.BundleRequest;
 
 public class WebQueryAssamble {
 
@@ -28,7 +28,7 @@ public class WebQueryAssamble {
     private Class<?> domainClass;
 
     private JpaQueryBuilder builder;
-    private RequestBundle bundleAnn;
+    private BundleRequest bundleAnn;
     MethodParameter parameter;
 
     public WebQueryAssamble(String prefix, String separator, TypeConverter typeConverter, Class<?> domainClass, MethodParameter parameter) {
@@ -37,7 +37,7 @@ public class WebQueryAssamble {
         this.typeConverter = typeConverter;
         this.domainClass = domainClass;
         this.parameter = parameter;
-        this.bundleAnn = parameter.getMethodAnnotation(RequestBundle.class);
+        this.bundleAnn = parameter.getMethodAnnotation(BundleRequest.class);
         this.builder = new JpaQueryBuilder<>(domainClass);
     }
 
@@ -107,7 +107,7 @@ public class WebQueryAssamble {
     public QueryBundle<?> bundle(NativeWebRequest webRequest) {
         // query params
         Map<String, String[]> queryParams = PropertiesUtils.filterStartWith(prefix, webRequest.getParameterMap());
-        final RequestBundle ann = this.bundleAnn;
+        final BundleRequest ann = this.bundleAnn;
 
         if (!queryParams.isEmpty()) {
             assembleParameters(queryParams);

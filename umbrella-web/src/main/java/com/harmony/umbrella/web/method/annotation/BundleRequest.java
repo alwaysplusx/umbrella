@@ -1,4 +1,4 @@
-package com.harmony.umbrella.web.bind.annotation;
+package com.harmony.umbrella.web.method.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -12,7 +12,7 @@ import com.harmony.umbrella.data.query.QueryFeature;
  */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface RequestBundle {
+public @interface BundleRequest {
 
     boolean required() default false;
 

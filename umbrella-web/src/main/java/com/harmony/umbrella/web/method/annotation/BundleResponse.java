@@ -1,4 +1,4 @@
-package com.harmony.umbrella.web.bind.annotation;
+package com.harmony.umbrella.web.method.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -10,6 +10,6 @@ import java.lang.annotation.Target;
  */
 @Target({ ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
-public @interface ResponseBundle {
+public @interface BundleResponse {
 
 }

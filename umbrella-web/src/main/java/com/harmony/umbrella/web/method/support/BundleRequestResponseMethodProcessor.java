@@ -1,4 +1,4 @@
-package com.harmony.umbrella.web.method;
+package com.harmony.umbrella.web.method.support;
 
 import java.io.OutputStream;
 import java.util.List;
@@ -19,24 +19,24 @@ import org.springframework.web.method.support.ModelAndViewContainer;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.serializer.SerializeFilter;
 import com.harmony.umbrella.util.IOUtils;
-import com.harmony.umbrella.web.bind.annotation.BundleView;
-import com.harmony.umbrella.web.bind.annotation.PatternConverter;
-import com.harmony.umbrella.web.bind.annotation.ResponseBundle;
+import com.harmony.umbrella.web.method.annotation.BundleQuery;
+import com.harmony.umbrella.web.method.annotation.BundleResponse;
+import com.harmony.umbrella.web.method.annotation.PatternConverter;
 
 /**
  * @author wuxii@foxmail.com
  */
-public class RequestResponseBundleMethodProcessor implements HandlerMethodReturnValueHandler, HandlerMethodArgumentResolver {
+public class BundleRequestResponseMethodProcessor implements HandlerMethodReturnValueHandler, HandlerMethodArgumentResolver {
 
     public static final String VIEW_FRAGMENT = "viewFragment";
 
     private final String contentType;
 
-    public RequestResponseBundleMethodProcessor() {
+    public BundleRequestResponseMethodProcessor() {
         this(MediaType.APPLICATION_JSON_UTF8_VALUE);
     }
 
-    public RequestResponseBundleMethodProcessor(String contentType) {
+    public BundleRequestResponseMethodProcessor(String contentType) {
         this.contentType = contentType;
     }
 
@@ -50,8 +50,8 @@ public class RequestResponseBundleMethodProcessor implements HandlerMethodReturn
             WebDataBinderFactory binderFactory) throws Exception {
         // create and user default
         final ViewFragment viewFragment;
-        if (parameter.hasMethodAnnotation(BundleView.class)) {
-            viewFragment = buildViewFragment(parameter.getMethodAnnotation(BundleView.class), parameter.getMethod().getReturnType());
+        if (parameter.hasMethodAnnotation(BundleQuery.class)) {
+            viewFragment = buildViewFragment(parameter.getMethodAnnotation(BundleQuery.class), parameter.getMethod().getReturnType());
         } else {
             viewFragment = new ViewFragment();
         }
@@ -61,8 +61,8 @@ public class RequestResponseBundleMethodProcessor implements HandlerMethodReturn
 
     @Override
     public boolean supportsReturnType(MethodParameter returnType) {
-        return (AnnotatedElementUtils.hasAnnotation(returnType.getContainingClass(), ResponseBundle.class) //
-                || returnType.hasMethodAnnotation(ResponseBundle.class));
+        return (AnnotatedElementUtils.hasAnnotation(returnType.getContainingClass(), BundleResponse.class) //
+                || returnType.hasMethodAnnotation(BundleResponse.class));
     }
 
     @Override
@@ -76,8 +76,8 @@ public class RequestResponseBundleMethodProcessor implements HandlerMethodReturn
         final ModelMap modelMap = mavContainer.getModel();
         ViewFragment viewFragment = (ViewFragment) modelMap.get(VIEW_FRAGMENT);
         if (viewFragment == null) {
-            if (returnType.hasMethodAnnotation(BundleView.class)) {
-                viewFragment = buildViewFragment(returnType.getMethodAnnotation(BundleView.class), returnType.getParameterType());
+            if (returnType.hasMethodAnnotation(BundleQuery.class)) {
+                viewFragment = buildViewFragment(returnType.getMethodAnnotation(BundleQuery.class), returnType.getParameterType());
             } else {
                 viewFragment = new ViewFragment();
             }
@@ -101,7 +101,7 @@ public class RequestResponseBundleMethodProcessor implements HandlerMethodReturn
         return new ServletServerHttpResponse(response);
     }
 
-    private ViewFragment buildViewFragment(BundleView ann, Class<?> returnType) throws Exception {
+    private ViewFragment buildViewFragment(BundleQuery ann, Class<?> returnType) throws Exception {
         ViewFragment viewFragment = new ViewFragment();
         PatternConverter converter = ann.converter();
         if (PatternConverter.AUTO.equals(converter)) {

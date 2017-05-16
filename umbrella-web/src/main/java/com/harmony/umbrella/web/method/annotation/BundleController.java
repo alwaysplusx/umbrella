@@ -1,4 +1,4 @@
-package com.harmony.umbrella.web.bind.annotation;
+package com.harmony.umbrella.web.method.annotation;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -15,7 +15,7 @@ import org.springframework.stereotype.Controller;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Controller
-@ResponseBundle
+@BundleResponse
 public @interface BundleController {
 
 }

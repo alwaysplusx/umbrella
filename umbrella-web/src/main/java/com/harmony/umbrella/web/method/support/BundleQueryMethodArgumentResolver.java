@@ -1,4 +1,4 @@
-package com.harmony.umbrella.web.method;
+package com.harmony.umbrella.web.method.support;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -15,7 +15,7 @@ import com.harmony.umbrella.data.query.QueryBundle;
 /**
  * @author wuxii@foxmail.com
  */
-public class QueryBundleMethodArgumentResolver implements HandlerMethodArgumentResolver {
+public class BundleQueryMethodArgumentResolver implements HandlerMethodArgumentResolver {
 
     private String prefix = "filter_";
     private String separator = "_";

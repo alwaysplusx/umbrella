@@ -1,4 +1,4 @@
-package com.harmony.umbrella.web.bind.annotation;
+package com.harmony.umbrella.web.method.annotation;
 
 import java.util.Collection;
 
