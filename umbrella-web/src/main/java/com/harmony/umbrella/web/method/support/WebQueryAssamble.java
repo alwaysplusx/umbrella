@@ -18,7 +18,7 @@
 //import com.harmony.umbrella.data.query.QueryFeature;
 //import com.harmony.umbrella.util.MemberUtils;
 //import com.harmony.umbrella.util.PropertiesUtils;
-//import com.harmony.umbrella.web.method.annotation.BundleRequest;
+//import com.harmony.umbrella.web.method.annotation.BundleQuery;
 //
 //public class WebQueryAssamble {
 //
@@ -28,7 +28,7 @@
 //    private Class<?> domainClass;
 //
 //    private JpaQueryBuilder builder;
-//    private BundleRequest bundleAnn;
+//    private BundleQuery ann;
 //    MethodParameter parameter;
 //
 //    public WebQueryAssamble(String prefix, String separator, TypeConverter typeConverter, Class<?> domainClass, MethodParameter parameter) {
@@ -37,7 +37,6 @@
 //        this.typeConverter = typeConverter;
 //        this.domainClass = domainClass;
 //        this.parameter = parameter;
-//        this.bundleAnn = parameter.getMethodAnnotation(BundleRequest.class);
 //        this.builder = new JpaQueryBuilder<>(domainClass);
 //    }
 //
@@ -107,7 +106,6 @@
 //    public QueryBundle<?> bundle(NativeWebRequest webRequest) {
 //        // query params
 //        Map<String, String[]> queryParams = PropertiesUtils.filterStartWith(prefix, webRequest.getParameterMap());
-//        final BundleRequest ann = this.bundleAnn;
 //
 //        if (!queryParams.isEmpty()) {
 //            assembleParameters(queryParams);
