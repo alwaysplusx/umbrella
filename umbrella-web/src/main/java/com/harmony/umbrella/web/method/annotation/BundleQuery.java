@@ -5,32 +5,35 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import com.alibaba.fastjson.serializer.SerializeFilter;
-import com.alibaba.fastjson.serializer.SerializerFeature;
+import org.springframework.core.annotation.AliasFor;
+
+import com.harmony.umbrella.data.query.QueryFeature;
 
 /**
  * @author wuxii@foxmail.com
  */
-@Target({ ElementType.METHOD })
+@Target({ ElementType.METHOD, ElementType.PARAMETER })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface BundleQuery {
 
-    PatternConverter converter() default PatternConverter.AUTO;
+    boolean required() default false;
 
-    String[] excludes() default {};
+    QueryFeature[] feature() default { QueryFeature.CONJUNCTION };
 
-    String[] includes() default {};
+    @AliasFor("value")
+    String prefix() default "";
 
-    SerializerFeature[] features() default {};
+    @AliasFor("prefix")
+    String value() default "";
 
-    Class<? extends SerializeFilter>[] filters() default {};
+    int page() default -1;
 
-    boolean camelCase() default false;
+    int size() default -1;
 
-    boolean fetchLazy() default true;
+    String[] gouping() default {};
 
-    boolean safeFetch() default true;
+    String[] asc() default {};
 
-    boolean simplePage() default true;
+    String[] desc() default {};
 
 }

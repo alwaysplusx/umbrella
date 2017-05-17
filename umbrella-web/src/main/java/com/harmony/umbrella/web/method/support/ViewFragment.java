@@ -1,9 +1,8 @@
 package com.harmony.umbrella.web.method.support;
 
-import java.io.OutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,31 +14,50 @@ import org.springframework.http.MediaType;
 import org.springframework.http.server.ServletServerHttpResponse;
 import org.springframework.web.servlet.View;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.serializer.SerializeFilter;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.harmony.umbrella.json.Json;
-import com.harmony.umbrella.json.SerializerConfig;
 import com.harmony.umbrella.json.SerializerConfigBuilder;
+import com.harmony.umbrella.log.Log;
+import com.harmony.umbrella.log.Logs;
 import com.harmony.umbrella.util.IOUtils;
-import com.harmony.umbrella.web.method.annotation.PatternConverter;
-import com.harmony.umbrella.web.method.support.BundleRequestResponseMethodProcessor.Page;
+import com.harmony.umbrella.util.StringUtils;
+import com.harmony.umbrella.web.method.annotation.BundleView.PatternConverter;
 
 /**
  * @author wuxii@foxmail.com
  */
 public class ViewFragment {
 
+    private static final Log log = Logs.getLog(ViewFragment.class);
+
+    public static final String ENCODING = "UTF-8";
+    public static final String CONTENT_TYPE = MediaType.APPLICATION_JSON_UTF8_VALUE;
+
     SerializerConfigBuilder serializer;
     final Map<String, List<String>> headers;
-    boolean simplePage = true;
+    protected String contentType;
+    protected boolean wrappage;
+    protected String encoding;
 
-    ViewFragment() {
-        this.serializer = SerializerConfigBuilder.create();
+    protected ViewFragment() {
         this.headers = new LinkedHashMap<>();
+        this.serializer = SerializerConfigBuilder.create();
     }
 
-    public ViewFragment simplePage(boolean simplePage) {
-        this.simplePage = simplePage;
+    public ViewFragment encoding(String encoding) {
+        this.encoding = encoding;
+        return this;
+    }
+
+    public ViewFragment contentType(String contentType) {
+        this.contentType = contentType;
+        return this;
+    }
+
+    public ViewFragment wrappage(boolean wrappage) {
+        this.wrappage = wrappage;
         return this;
     }
 
@@ -123,7 +141,8 @@ public class ViewFragment {
     public void reset() {
         this.serializer = SerializerConfigBuilder.create();
         this.headers.clear();
-        this.simplePage = true;
+        this.wrappage = true;
+        this.contentType = null;
     }
 
     private List<String> getRowHeader(String name) {
@@ -134,20 +153,73 @@ public class ViewFragment {
         return rows;
     }
 
-    public View finish(Object obj) {
-        return new BundleView(obj, this);
+    public View toView(Object obj) {
+        return new BundleView(obj);
     }
 
-    private static final class BundleView implements View {
+    protected void render(Object o, HttpServletResponse response) throws IOException {
+        String type = contentType == null ? MediaType.APPLICATION_JSON_UTF8_VALUE : contentType;
+        render(o, type, createOutputMessage(response));
+    }
+
+    private void render(Object o, String contentType, ServletServerHttpResponse outputMessage) throws IOException {
+        String encoding = StringUtils.isBlank(this.encoding) ? ENCODING : this.encoding;
+        outputMessage.getHeaders().putAll(headers);
+        HttpServletResponse response = outputMessage.getServletResponse();
+        response.setContentType(contentType);
+        if (response.getCharacterEncoding() == null) {
+            response.setCharacterEncoding(encoding);
+        } else if (!response.getCharacterEncoding().equalsIgnoreCase(encoding)) {
+            log.warn("response charset encoding already set, expect set to {} but actual is {}", encoding, response.getCharacterEncoding());
+        }
+        if (o instanceof org.springframework.data.domain.Page && wrappage) {
+            o = new Page((org.springframework.data.domain.Page) o);
+        }
+        String text = Json.toJson(o, serializer.build());
+        IOUtils.write(text.getBytes(encoding), outputMessage.getBody());
+        outputMessage.flush();
+    }
+
+    protected static ServletServerHttpResponse createOutputMessage(HttpServletResponse response) {
+        return new ServletServerHttpResponse(response);
+    }
+
+    public static final class Page {
+
+        private org.springframework.data.domain.Page<?> page;
+
+        public Page(org.springframework.data.domain.Page<?> page) {
+            this.page = page;
+        }
+
+        @JSONField(ordinal = 4)
+        public List<?> getContent() {
+            return page.getContent();
+        }
+
+        @JSONField(ordinal = 1)
+        public int getPage() {
+            return page.getNumber();
+        }
+
+        @JSONField(ordinal = 2)
+        public int getSize() {
+            return page.getSize();
+        }
+
+        @JSONField(ordinal = 3)
+        public long getTotal() {
+            return page.getTotalElements();
+        }
+
+    }
+
+    private final class BundleView implements View {
 
         private Object obj;
-        private SerializerConfig serializerConfig;
-        private Map<String, List<String>> headers;
 
-        public BundleView(Object obj, ViewFragment vf) {
-            this.serializerConfig = vf.serializer.build();
-            this.headers = Collections.unmodifiableMap(vf.headers);
-            this.obj = vf.simplePage && obj instanceof org.springframework.data.domain.Page ? new Page((org.springframework.data.domain.Page<?>) obj) : obj;
+        public BundleView(Object obj) {
+            this.obj = obj;
         }
 
         @Override
@@ -157,18 +229,9 @@ public class ViewFragment {
 
         @Override
         public void render(Map<String, ?> model, HttpServletRequest request, HttpServletResponse response) throws Exception {
-            ServletServerHttpResponse outputMessage = createOutputMessage(response);
-            outputMessage.getHeaders().putAll(headers);
-            outputMessage.getServletResponse().setContentType(getContentType());
-            OutputStream body = outputMessage.getBody();
-            String text = Json.toJson(obj, serializerConfig);
-            IOUtils.write(text, body);
-            body.flush();
+            ViewFragment.this.render(obj, getContentType(), createOutputMessage(response));
         }
 
-        protected ServletServerHttpResponse createOutputMessage(HttpServletResponse response) {
-            return new ServletServerHttpResponse(response);
-        }
     }
 
 }
