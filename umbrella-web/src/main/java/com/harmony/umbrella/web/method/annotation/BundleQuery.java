@@ -26,11 +26,13 @@ public @interface BundleQuery {
     @AliasFor("prefix")
     String value() default "";
 
+    String separator() default "";
+
     int page() default -1;
 
     int size() default -1;
 
-    String[] gouping() default {};
+    String[] grouping() default {};
 
     String[] asc() default {};
 

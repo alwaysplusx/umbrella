@@ -27,8 +27,8 @@ public class PrefixablePropertyManager extends AbstractPropertyManager {
     public PrefixablePropertyManager() {
     }
 
-    @SuppressWarnings("rawtypes")
-    public PrefixablePropertyManager(Map properties) {
+    public PrefixablePropertyManager(String prefix, Map properties) {
+        this.prefix = prefix;
         this.properties = properties;
     }
 

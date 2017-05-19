@@ -32,11 +32,13 @@ public class ViewFragment {
 
     private static final Log log = Logs.getLog(ViewFragment.class);
 
+    public static final String VIEW_FRAGMENT = "viewFragment";
+
     public static final String ENCODING = "UTF-8";
     public static final String CONTENT_TYPE = MediaType.APPLICATION_JSON_UTF8_VALUE;
 
-    SerializerConfigBuilder serializer;
-    final Map<String, List<String>> headers;
+    protected SerializerConfigBuilder serializer;
+    protected final Map<String, List<String>> headers;
     protected String contentType;
     protected boolean wrappage;
     protected String encoding;

@@ -15,6 +15,10 @@ import org.springframework.web.method.support.ModelAndViewContainer;
 import com.harmony.umbrella.web.method.annotation.BundleModel;
 
 /**
+ * http request model param argument resolver
+ * 
+ * @author wuxii@foxmail.com
+ * @see BundleModel
  * @author wuxii@foxmail.com
  */
 public class BundleModelMethodArgumentResolver implements HandlerMethodArgumentResolver {

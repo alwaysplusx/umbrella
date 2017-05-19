@@ -19,11 +19,12 @@ import com.harmony.umbrella.web.method.annotation.BundleView.BehaviorType;
 import com.harmony.umbrella.web.method.annotation.BundleView.PatternConverter;
 
 /**
+ * http request & response method processor
+ * 
  * @author wuxii@foxmail.com
+ * @see BundleView
  */
 public class BundleViewMethodProcessor implements HandlerMethodReturnValueHandler, HandlerMethodArgumentResolver {
-
-    public static final String VIEW_FRAGMENT = "viewFragment";
 
     public BundleViewMethodProcessor() {
     }
@@ -51,7 +52,7 @@ public class BundleViewMethodProcessor implements HandlerMethodReturnValueHandle
     public void handleReturnValue(Object returnValue, MethodParameter returnType, ModelAndViewContainer mavContainer, NativeWebRequest webRequest)
             throws Exception {
         mavContainer.setRequestHandled(true);
-        boolean viewFragmentCreated = mavContainer.containsAttribute(VIEW_FRAGMENT);
+        boolean viewFragmentCreated = mavContainer.containsAttribute(ViewFragment.VIEW_FRAGMENT);
         ViewFragment viewFragment = getOrCreateViewFragment(mavContainer, false);
         if (!viewFragmentCreated) {
             fillViewFragment(returnType, viewFragment);
@@ -60,17 +61,27 @@ public class BundleViewMethodProcessor implements HandlerMethodReturnValueHandle
     }
 
     protected final ViewFragment getOrCreateViewFragment(ModelAndViewContainer mavContainer, boolean addAttribute) {
-        Object o = mavContainer.getModel().get(VIEW_FRAGMENT);
+        Object o = mavContainer.getModel().get(ViewFragment.VIEW_FRAGMENT);
         if (o != null && !(o instanceof ViewFragment)) {
             throw new IllegalArgumentException("model attribute viewFragment not instance " + ViewFragment.class);
         }
         final ViewFragment viewFragment = (o == null) ? new ViewFragment() : (ViewFragment) o;
         if (addAttribute) {
-            mavContainer.addAttribute(VIEW_FRAGMENT, viewFragment);
+            mavContainer.addAttribute(ViewFragment.VIEW_FRAGMENT, viewFragment);
         }
         return viewFragment;
     }
 
+    /**
+     * 根据方法上注有的{@code BundleView}注解来配置默认的{@code ViewFragment}
+     * 
+     * @param parameter
+     *            方法参数
+     * @param viewFragment
+     *            viewFragment
+     * @throws Exception
+     *             can't create PatternConverter
+     */
     protected void fillViewFragment(MethodParameter parameter, ViewFragment viewFragment) throws Exception {
         BundleView ann = parameter.getMethodAnnotation(BundleView.class);
         if (ann != null) {

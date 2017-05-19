@@ -17,7 +17,7 @@ import com.harmony.umbrella.web.method.support.ViewFragment;
 /**
  * @author wuxii@foxmail.com
  */
-@Target({ ElementType.METHOD, ElementType.PARAMETER })
+@Target({ ElementType.METHOD, ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface BundleView {
 

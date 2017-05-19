@@ -631,6 +631,17 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
     }
 
     /**
+     * 设置升序排序条件
+     * 
+     * @param name
+     *            排序的字段
+     * @return this
+     */
+    public T asc(List<String> name) {
+        return orderBy(Direction.ASC, name);
+    }
+
+    /**
      * 设置降序排序条件
      * 
      * @param name
@@ -638,6 +649,17 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
      * @return this
      */
     public T desc(String... name) {
+        return orderBy(Direction.DESC, name);
+    }
+
+    /**
+     * 设置降序排序条件
+     * 
+     * @param name
+     *            排序字段
+     * @return this
+     */
+    public T desc(List<String> name) {
         return orderBy(Direction.DESC, name);
     }
 
@@ -654,6 +676,23 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
         Order[] orders = new Order[name.length];
         for (int i = 0, max = orders.length; i < max; i++) {
             orders[i] = new Order(dir, name[i]);
+        }
+        return (T) orderBy(orders);
+    }
+
+    /**
+     * 设置排序条件
+     * 
+     * @param dir
+     *            排序方向
+     * @param name
+     *            排序字段
+     * @return this
+     */
+    public T orderBy(Direction dir, List<String> name) {
+        Order[] orders = new Order[name.size()];
+        for (int i = 0, max = orders.length; i < max; i++) {
+            orders[i] = new Order(dir, name.get(i));
         }
         return (T) orderBy(orders);
     }
@@ -751,6 +790,20 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
     }
 
     /**
+     * 启用查询属性
+     * 
+     * @param feature
+     *            查询属性
+     * @return this
+     */
+    public T enable(Collection<QueryFeature> feature) {
+        for (QueryFeature f : feature) {
+            this.queryFeature = QueryFeature.config(queryFeature, f, true);
+        }
+        return (T) this;
+    }
+
+    /**
      * 禁用查询属性
      * 
      * @param feature
@@ -836,10 +889,21 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
      * @return this
      */
     public T groupBy(String... names) {
+        return (T) groupBy(Arrays.asList(names));
+    }
+
+    /**
+     * 添加分组条件
+     * 
+     * @param names
+     *            分组的字段
+     * @return this
+     */
+    public T groupBy(Collection<String> names) {
         if (this.grouping == null) {
             this.grouping = new LinkedHashSet<>();
         }
-        this.grouping.addAll(Arrays.asList(names));
+        this.grouping.addAll(names);
         return (T) this;
     }
 

@@ -34,6 +34,7 @@
     <module>umbrella-spring</module>
     <module>umbrella-excel</module>
     <module>umbrella-fs</module>
+    <module>umbrella-autoconfigure</module>
   </modules>
 
   <distributionManagement>
