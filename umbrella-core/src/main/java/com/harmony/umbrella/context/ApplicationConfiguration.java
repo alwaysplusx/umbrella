@@ -32,6 +32,6 @@ public interface ApplicationConfiguration {
 
     Map getApplicationProperties();
 
-    Runnable[] getShutdownHook();
+    Runnable[] getShutdownHooks();
 
 }

@@ -1,20 +1,24 @@
 package com.harmony.umbrella.context;
 
+import static com.harmony.umbrella.context.WebXmlConstant.*;
+
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.regex.Pattern;
 
 import javax.naming.InitialContext;
+import javax.naming.NamingException;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.sql.DataSource;
@@ -36,81 +40,94 @@ public class ApplicationConfigurationBuilder {
     public static final String APPLICATION_PACKAGE;
     public static final String APPLICATION_DATASOURCE;
 
-    public static final String INIT_PARAM_DATASOURCE = "harmony.datasource";
-
-    public static final String INIT_PARAM_SCAN_PACKAGES = "harmony.scan-packages";
-
-    public static final String INIT_PARAM_INITIALIZER = "harmony.applicationInitializer";
-
-    public static final String INIT_PARAM_SHUTDOWN_HOOKS = "harmony.shutdownHooks";
-
     static {
-        APPLICATION_PACKAGE = System.getProperty(INIT_PARAM_SCAN_PACKAGES, "com.harmony");
-        APPLICATION_DATASOURCE = System.getProperty(INIT_PARAM_DATASOURCE, "jdbc/harmony");
+        APPLICATION_PACKAGE = System.getProperty(CONTEXT_PARAM_SCAN_PACKAGES, CONTEXT_PARAM_SCAN_PACKAGES_VALUE);
+        APPLICATION_DATASOURCE = System.getProperty(CONTEXT_PARAM_DATASOURCE, CONTEXT_PARAM_DATASOURCE_VALUE);
     }
 
     protected static final Pattern PACKAGE_PATTERN = Pattern.compile("^[a-zA-Z]+[0-9a-zA-Z]*");
 
-    protected ServletContext servletContext;
-    private Set<String> scanPackages;
-    private Map properties;
-    private List<ConnectionSource> connectionSources;
-    private List<Class<Runnable>> shutdownHookClasses;
+    private ServletContext servletContext;
     private Class<? extends ApplicationContextInitializer> applicationContextInitializerClass;
+
+    private final Set<String> scanPackages = new LinkedHashSet<>();
+    private final Map properties = new LinkedHashMap<>();
+    private final List<ConnectionSource> connectionSources = new ArrayList<>();
+    private final List<Class<? extends Runnable>> shutdownHookClasses = new ArrayList<>();
+
+    public static ApplicationConfigurationBuilder create() {
+        return new ApplicationConfigurationBuilder();
+    }
+
+    public static ApplicationConfiguration emptyApplicationConfiguration() {
+        return EMPTY_APP_CONFIG;
+    }
 
     protected ApplicationConfigurationBuilder() {
     }
 
-    ApplicationConfiguration doBuild(ServletContext servletContext) throws ServletException {
-        this.servletContext = servletContext;
-        return build();
+    public ApplicationConfigurationBuilder addScanPackage(String pkg) {
+        if (!isPackage(pkg)) {
+            throw new IllegalArgumentException(pkg + " is not a vaild package name");
+        }
+        addPackage(pkg);
+        return this;
     }
 
-    public ApplicationConfiguration build() throws ServletException {
-        this.scanPackages = new LinkedHashSet<>();
-        this.properties = new HashMap<>();
-        this.connectionSources = new ArrayList<>();
-        this.shutdownHookClasses = new ArrayList<>();
-        // scan-packages
-        String[] pkgs = getInitParameters(INIT_PARAM_SCAN_PACKAGES, APPLICATION_PACKAGE);
-        for (String p : pkgs) {
-            if (isPackage(p)) {
-                addPackage(p);
-            }
-        }
+    public ApplicationConfigurationBuilder addDataSource(String jndi) throws NamingException {
+        return addDataSource(jndi, null);
+    }
 
-        // connection source
-        String[] jndis = getInitParameters(INIT_PARAM_DATASOURCE, APPLICATION_DATASOURCE);
-        for (String jndi : jndis) {
-            try {
-                DataSource ds = lookup(jndi);
-                connectionSources.add(new DataSourceConnectionSource(ds));
-            } catch (SQLException e) {
-                servletContext.log("Can not connection to datasource " + jndi);
-            }
-        }
+    public ApplicationConfigurationBuilder addDataSource(String jndi, Properties contextProperties) throws NamingException {
+        DataSource ds = (DataSource) lookup(jndi, contextProperties);
+        return addDataSource(ds);
+    }
 
-        // shutdown hooks
-        String[] shutdownHookNames = getInitParameters(INIT_PARAM_SHUTDOWN_HOOKS);
-        for (String hook : shutdownHookNames) {
-            try {
-                Class hookClass = ClassUtils.forName(hook, ClassUtils.getDefaultClassLoader());
-                if (Runnable.class.isAssignableFrom(hookClass) && ClassFilterFeature.NEWABLE.accept(hookClass)) {
-                    shutdownHookClasses.add(hookClass);
-                } else {
-                    servletContext.log(hookClass + " not type of " + Runnable.class);
-                }
-            } catch (ClassNotFoundException e) {
-                servletContext.log("shutdown hook " + hook + " not found", e);
-            }
-        }
+    public ApplicationConfigurationBuilder addDataSource(DataSource dataSource) {
+        connectionSources.add(new DataSourceConnectionSource(dataSource));
+        return this;
+    }
 
+    public ApplicationConfigurationBuilder addProperty(String key, Object value) {
+        properties.put(key, value);
+        return this;
+    }
+
+    public ApplicationConfigurationBuilder addShutdownHook(Class<? extends Runnable> hookClass) {
+        if (hookClass == null || !Runnable.class.isAssignableFrom(hookClass) || !ClassFilterFeature.NEWABLE.accept(hookClass)) {
+            throw new IllegalArgumentException(hookClass + " not type of " + Runnable.class);
+        }
+        shutdownHookClasses.add(hookClass);
+        return this;
+    }
+
+    public ApplicationConfigurationBuilder setApplicationContextInitializer(Class<? extends ApplicationContextInitializer> initializerClass) {
+        this.applicationContextInitializerClass = initializerClass;
+        return this;
+    }
+
+    public ApplicationConfiguration build() {
+        AppConfig cfg = new AppConfig();
+        cfg.servletContext = this.servletContext;
+        cfg.applicationContextInitializerClass = this.applicationContextInitializerClass;
+        cfg.scanPackages = Collections.unmodifiableSet(this.scanPackages);
+        cfg.properties = Collections.unmodifiableMap(this.properties);
+        cfg.connectionSources = Collections.unmodifiableList(this.connectionSources);
+        cfg.shutdownHookClasses = Collections.unmodifiableList(this.shutdownHookClasses);
+        return cfg;
+    }
+
+    public ApplicationConfigurationBuilder apply(ServletContext servletContext) throws ServletException {
+        if (servletContext == null) {
+            throw new IllegalArgumentException("applied servlet context is null");
+        }
+        this.servletContext = servletContext;
+        ClassLoader loader = ClassUtils.getDefaultClassLoader();
         // application initializer
-        String initializerName = getInitParameter(INIT_PARAM_INITIALIZER);
+        String initializerName = getInitParameter(CONTEXT_PARAM_INITIALIZER);
         if (initializerName != null) {
             try {
-                this.applicationContextInitializerClass = (Class<? extends ApplicationContextInitializer>) Class.forName(initializerName, true,
-                        ClassUtils.getDefaultClassLoader());
+                setApplicationContextInitializer((Class<? extends ApplicationContextInitializer>) ClassUtils.forName(initializerName, loader));
             } catch (ClassNotFoundException e) {
                 throw new ServletException("Can't init class " + initializerName, e);
             } catch (ClassCastException e) {
@@ -118,69 +135,45 @@ public class ApplicationConfigurationBuilder {
             }
         }
 
+        // scan-packages
+        String[] packages = getInitParameters(CONTEXT_PARAM_SCAN_PACKAGES, APPLICATION_PACKAGE);
+        for (String pkg : packages) {
+            try {
+                addScanPackage(pkg);
+            } catch (IllegalArgumentException e) {
+                servletContext.log(e.getMessage());
+            }
+        }
+
+        // connection source
+        String[] jndis = getInitParameters(CONTEXT_PARAM_DATASOURCE, APPLICATION_DATASOURCE);
+        for (String jndi : jndis) {
+            try {
+                addDataSource(jndi);
+            } catch (NamingException e) {
+                servletContext.log("Can not connection to datasource " + jndi);
+            }
+        }
+
+        // shutdown hooks
+        String[] shutdownHookNames = getInitParameters(CONTEXT_PARAM_SHUTDOWN_HOOKS);
+        for (String hook : shutdownHookNames) {
+            try {
+                addShutdownHook((Class<? extends Runnable>) ClassUtils.forName(hook, loader));
+            } catch (ClassNotFoundException e) {
+                servletContext.log("shutdown hook " + hook + " not found", e);
+            } catch (IllegalArgumentException e) {
+                servletContext.log(e.getMessage());
+            }
+        }
+
         // config properties
         Enumeration<String> initParameterNames = servletContext.getInitParameterNames();
         for (; initParameterNames.hasMoreElements();) {
             String name = initParameterNames.nextElement();
-            properties.put(name, servletContext.getInitParameter(name));
+            addProperty(name, servletContext.getInitParameter(name));
         }
-
-        return new ApplicationConfiguration() {
-
-            @Override
-            public ServletContext getServletContext() {
-                return servletContext;
-            }
-
-            @Override
-            public Set<String> getScanPackages() {
-                return new LinkedHashSet<>(scanPackages);
-            }
-
-            @Override
-            public Map getApplicationProperties() {
-                return Collections.unmodifiableMap(properties);
-            }
-
-            @Override
-            public Object getProperty(String key) {
-                return properties.get(key);
-            }
-
-            @Override
-            public String getStringProperty(String key) {
-                return getStringProperty(key, null);
-            }
-
-            @Override
-            public String getStringProperty(String key, String def) {
-                String v = getProperty(key) == null ? null : getProperty(key).toString();
-                return v != null ? v : def;
-            }
-
-            @Override
-            public List<ConnectionSource> getConnectionSources() {
-                return new ArrayList<>(connectionSources);
-            }
-
-            @Override
-            public Class<? extends ApplicationContextInitializer> getApplicationContextInitializerClass() {
-                return applicationContextInitializerClass;
-            }
-
-            @Override
-            public Runnable[] getShutdownHook() {
-                List<Runnable> result = new ArrayList<>(shutdownHookClasses.size());
-                for (Class<Runnable> cls : shutdownHookClasses) {
-                    try {
-                        result.add(cls.newInstance());
-                    } catch (Exception e) {
-                        throw new IllegalArgumentException("illegal shutdown hook " + cls);
-                    }
-                }
-                return result.toArray(new Runnable[result.size()]);
-            }
-        };
+        return this;
     }
 
     public ServletContext getServletContext() {
@@ -218,25 +211,20 @@ public class ApplicationConfigurationBuilder {
         return true;
     }
 
-    protected String getInitParameter(String key) {
+    protected final String getInitParameter(String key) {
         return servletContext.getInitParameter(key);
     }
 
-    protected String[] getInitParameters(String key, String... defaultValue) {
+    private String[] getInitParameters(String key, String... defaultValue) {
         String value = getInitParameter(key);
         return value != null ? StringUtils.tokenizeToStringArray(value, ",") : defaultValue;
     }
 
-    protected DataSource lookup(String jndi) throws SQLException {
-        try {
-            InitialContext ctx = new InitialContext();
-            return (DataSource) ctx.lookup(jndi);
-        } catch (Exception e) {
-            throw new SQLException("can not connection to datasource " + jndi, e);
-        }
+    protected final Object lookup(String jndi, Properties properties) throws NamingException {
+        return new InitialContext(properties).lookup(jndi);
     }
 
-    protected static class DataSourceConnectionSource implements ConnectionSource {
+    static final class DataSourceConnectionSource implements ConnectionSource {
 
         private DataSource datasource;
 
@@ -250,4 +238,80 @@ public class ApplicationConfigurationBuilder {
         }
 
     }
+
+    private static final AppConfig EMPTY_APP_CONFIG;
+
+    static {
+        EMPTY_APP_CONFIG = new AppConfig();
+        EMPTY_APP_CONFIG.scanPackages = Collections.emptySet();
+        EMPTY_APP_CONFIG.properties = Collections.emptyMap();
+        EMPTY_APP_CONFIG.connectionSources = Collections.emptyList();
+        EMPTY_APP_CONFIG.shutdownHookClasses = Collections.emptyList();
+    }
+
+    static class AppConfig implements com.harmony.umbrella.context.ApplicationConfiguration {
+
+        private ServletContext servletContext;
+        private Class<? extends ApplicationContextInitializer> applicationContextInitializerClass;
+        private Set<String> scanPackages = new LinkedHashSet<>();
+        private Map properties = new LinkedHashMap<>();
+        private List<ConnectionSource> connectionSources = new ArrayList<>();
+        private List<Class<? extends Runnable>> shutdownHookClasses = new ArrayList<>();
+
+        @Override
+        public Set<String> getScanPackages() {
+            return scanPackages;
+        }
+
+        @Override
+        public Class<? extends ApplicationContextInitializer> getApplicationContextInitializerClass() {
+            return applicationContextInitializerClass;
+        }
+
+        @Override
+        public ServletContext getServletContext() {
+            return servletContext;
+        }
+
+        @Override
+        public List<ConnectionSource> getConnectionSources() {
+            return connectionSources;
+        }
+
+        @Override
+        public Object getProperty(String key) {
+            return properties.get(key);
+        }
+
+        @Override
+        public String getStringProperty(String key) {
+            return getStringProperty(key, null);
+        }
+
+        @Override
+        public String getStringProperty(String key, String def) {
+            Object o = properties.get(key);
+            return o == null ? def : o.toString();
+        }
+
+        @Override
+        public Map getApplicationProperties() {
+            return properties;
+        }
+
+        @Override
+        public Runnable[] getShutdownHooks() {
+            List<Runnable> hooks = new ArrayList<>();
+            try {
+                for (Class<? extends Runnable> hookClass : shutdownHookClasses) {
+                    hooks.add(hookClass.newInstance());
+                }
+            } catch (Exception e) {
+                // checked
+            }
+            return hooks.toArray(new Runnable[hooks.size()]);
+        }
+
+    }
+
 }

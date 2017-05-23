@@ -1,10 +1,11 @@
 package com.harmony.umbrella.context;
 
+import static com.harmony.umbrella.context.WebXmlConstant.*;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.ServiceLoader;
 import java.util.Set;
 
 import javax.servlet.ServletContainerInitializer;
@@ -48,72 +49,105 @@ public class ApplicationServletContainerInitializer implements ServletContainerI
         this.servletContext = servletContext;
         c = new HashSet<>(c == null ? Collections.emptySet() : c);
 
+        final ApplicationConfiguration cfg;
         try {
-            final ApplicationConfiguration cfg = buildApplicationConfiguration();
-
-            // init application static first
-            ApplicationContext.start(cfg);
-
-            if (Boolean.valueOf(getInitParameter("show-info")) //
-                    || Logs.getLog("com.harmony.umbrella.context").isDebugEnabled()//
-                    || Boolean.valueOf(cfg.getStringProperty("application.show-info"))) {
-                showApplicationInfo();
-            }
-            // must after application static init
-            c.addAll(scanApplicationEventListener());
-
-            if (c.isEmpty()) {
-                servletContext.log("No application ApplicationInitializer types detected on classpath");
-                return;
-            }
-
-            final List<ApplicationEventListener> eventListeners = new ArrayList<ApplicationEventListener>(c.size());
-            for (Class<?> cls : c) {
-                try {
-                    eventListeners.add((ApplicationEventListener) cls.newInstance());
-                } catch (Throwable e) {
-                    throw new ServletException("Failed to instantiate ApplicationInitializer class", e);
-                }
-            }
-
-            OrderComparator.sort(eventListeners);
-
-            servletContext.addListener(new ServletContextListener() {
-
-                @Override
-                public void contextInitialized(ServletContextEvent sce) {
-                    for (int i = 0, max = eventListeners.size(); i < max; i++) {
-                        ApplicationEventListener listener = eventListeners.get(i);
-                        if (listener instanceof ApplicationStartListener) {
-                            ((ApplicationStartListener) listener).onStartup(cfg);
-                        }
-                    }
-                }
-
-                @Override
-                public void contextDestroyed(ServletContextEvent sce) {
-                    for (int i = eventListeners.size() - 1; i >= 0; i--) {
-                        ApplicationEventListener listener = eventListeners.get(i);
-                        if (listener instanceof ApplicationDestroyListener) {
-                            ((ApplicationDestroyListener) listener).onDestroy(cfg);
-                        }
-                    }
-                    ApplicationContext.shutdown();
-                }
-
-            });
-
-        } catch (ClassNotFoundException e) {
-            throw new ServletException("can't create application configuration builder", e);
-        } catch (ClassCastException e) {
-            throw new ServletException("application configuration builder type mismatch", e);
+            cfg = buildApplicationConfiguration();
+        } catch (Exception e) {
+            throw new ServletException("build application configuration failure!", e);
         }
+
+        // init application static first
+        ApplicationContext.start(cfg);
+
+        if (Boolean.valueOf(getInitParameter(CONTEXT_PARAM_SHOW_INFO)) //
+                || Logs.getLog("com.harmony.umbrella.context").isDebugEnabled()) {
+            showApplicationInfo();
+        }
+
+        // must after application static init
+        c.addAll(scanApplicationEventListener());
+
+        if (c.isEmpty()) {
+            servletContext.log("No application ApplicationInitializer types detected on classpath");
+            return;
+        }
+
+        ApplicationContext applicationContext = null;
+        boolean autowire = Boolean.valueOf(getInitParameter(CONTEXT_PARAM_SERVLET_AUTOWIRE));
+
+        final List<ApplicationEventListener> eventListeners = new ArrayList<ApplicationEventListener>(c.size());
+
+        for (Class<?> cls : c) {
+            try {
+                ApplicationEventListener listener = (ApplicationEventListener) cls.newInstance();
+                if (autowire) {
+                    if (applicationContext == null) {
+                        applicationContext = ApplicationContext.getApplicationContext();
+                    }
+                    applicationContext.autowrie(listener);
+                }
+                eventListeners.add(listener);
+            } catch (Throwable e) {
+                throw new ServletException("Failed to instantiate ApplicationInitializer class", e);
+            }
+        }
+
+        OrderComparator.sort(eventListeners);
+
+        servletContext.addListener(new ServletContextListener() {
+
+            @Override
+            public void contextInitialized(ServletContextEvent sce) {
+                long s = System.currentTimeMillis();
+                sce.getServletContext().log("begin start application");
+                for (int i = 0, max = eventListeners.size(); i < max; i++) {
+                    ApplicationEventListener listener = eventListeners.get(i);
+                    if (listener instanceof ApplicationStartListener) {
+                        ((ApplicationStartListener) listener).onStartup(cfg);
+                    }
+                }
+                sce.getServletContext().log("application started, use " + (System.currentTimeMillis() - s) + "ms");
+            }
+
+            @Override
+            public void contextDestroyed(ServletContextEvent sce) {
+                long s = System.currentTimeMillis();
+                sce.getServletContext().log("begin stop application");
+                for (int i = eventListeners.size() - 1; i >= 0; i--) {
+                    ApplicationEventListener listener = eventListeners.get(i);
+                    if (listener instanceof ApplicationDestroyListener) {
+                        ((ApplicationDestroyListener) listener).onDestroy(cfg);
+                    }
+                }
+                ApplicationContext.shutdown();
+                sce.getServletContext().log("application stopped, use " + (System.currentTimeMillis() - s) + "ms");
+            }
+
+        });
+
+    }
+
+    private ApplicationConfiguration buildApplicationConfiguration() throws Exception {
+        Object cfg = servletContext.getAttribute(CONTEXT_ATTRIBUTE_APP_CONFIG);
+        if (cfg != null) {
+            return (ApplicationConfiguration) cfg;
+        }
+
+        ApplicationConfigurationBuilder builder = null;
+        String builderName = getInitParameter(CONTEXT_PARAM_BUILDER);
+        if (builderName != null) {
+            Class<?> builderClass = ClassUtils.forName(builderName, ClassUtils.getDefaultClassLoader());
+            builder = (ApplicationConfigurationBuilder) builderClass.newInstance();
+        } else {
+            builder = ApplicationConfigurationBuilder.create();
+        }
+        return builder.apply(servletContext).build();
     }
 
     protected Set<Class<?>> scanApplicationEventListener() throws ServletException {
         // under weblogic just load @HandlesTypes in WEB-INF/lib/*.jar, so load @HandlesTypes manually
         Set<Class<?>> result = new HashSet<>();
-        if (Boolean.valueOf(getInitParameter("scan-handles-types")) || ContextHelper.isWeblogic()) {
+        if (Boolean.valueOf(getInitParameter(CONTEXT_PARAM_SCAN_HANDLES_TYPES)) || ContextHelper.isWeblogic()) {
             ApplicationContext.getApplicationClasses(new ClassFilter() {
                 @Override
                 public boolean accept(Class<?> clazz) {
@@ -130,31 +164,6 @@ public class ApplicationServletContainerInitializer implements ServletContainerI
 
     private String getInitParameter(String name) {
         return servletContext.getInitParameter(name);
-    }
-
-    private ApplicationConfiguration buildApplicationConfiguration() throws ClassNotFoundException, ClassCastException, ServletException {
-        ApplicationConfiguration appCfg = null;
-        String builderName = getInitParameter("applictionConfigurationBuilder");
-        if (builderName != null) {
-            ApplicationConfigurationBuilder builder;
-            try {
-                builder = (ApplicationConfigurationBuilder) ClassUtils.forName(builderName, ClassUtils.getDefaultClassLoader()).newInstance();
-                appCfg = builder.doBuild(servletContext);
-            } catch (Exception e) {
-                throw new IllegalArgumentException("illegal application cofngiuration builder " + builderName);
-            }
-        }
-        if (appCfg == null) {
-            ServiceLoader<ApplicationConfigurationBuilder> providers = ServiceLoader.load(ApplicationConfigurationBuilder.class);
-            for (ApplicationConfigurationBuilder b : providers) {
-                appCfg = b.doBuild(servletContext);
-                if (appCfg != null) {
-                    servletContext.log("build application configuration with " + b);
-                    break;
-                }
-            }
-        }
-        return appCfg == null ? new ApplicationConfigurationBuilder().doBuild(servletContext) : appCfg;
     }
 
     protected void showApplicationInfo() {
