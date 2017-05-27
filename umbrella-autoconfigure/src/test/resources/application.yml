@@ -1,9 +1,9 @@
 harmony:
   web:
     show-info: true
-  ejb:
-    contextProperties:
-      java.naming.factory.initial: weblogic.jndi.WLInitialContextFactory
-      java.naming.provider.url: t3://localhost:7001
-      java.naming.security.principal: admin
-      java.naming.security.credentials: admin
+#  ejb:
+#    contextProperties:
+#      java.naming.factory.initial: weblogic.jndi.WLInitialContextFactory
+#      java.naming.provider.url: t3://localhost:7001
+#      java.naming.security.principal: admin
+#      java.naming.security.credentials: admin

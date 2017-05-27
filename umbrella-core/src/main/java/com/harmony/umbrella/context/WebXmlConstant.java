@@ -29,6 +29,10 @@ public abstract class WebXmlConstant {
 
     public static final String CONTEXT_PARAM_DATASOURCE_VALUE = "jdbc/harmony";
 
+    public static final String CONTEXT_PARAM_SCAN_INIT = "harmony.servlet.scan-init";
+
+    public static final String CONTEXT_PARAM_SCAN_ASYNC = "harmony.servlet.scan-async";
+
     public static final String CONTEXT_ATTRIBUTE_APP_CONFIG = ApplicationConfiguration.class.getName() + ".app-config";
 
     private WebXmlConstant() {

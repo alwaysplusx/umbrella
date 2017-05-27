@@ -200,6 +200,7 @@ public abstract class ApplicationContext implements BeanFactory {
     }
 
     static int getApplicationClassSize() {
+        // FIXME async scan show-info return size 0
         checkApplicationState();
         return classes.size();
     }

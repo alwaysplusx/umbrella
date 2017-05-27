@@ -14,7 +14,7 @@ import com.harmony.umbrella.context.ApplicationContext.ApplicationContextInitial
 public class WebAppProperties {
 
     private Class<? extends ApplicationContextInitializer> initializer;
-    private List<String> datasources = Arrays.asList("jdbc/harmony");
+    private List<String> datasources;
     private List<String> scanPackages = Arrays.asList("com.harmony");
     private List<Class<? extends Runnable>> shutdownHooks;
     private boolean showInfo = true;

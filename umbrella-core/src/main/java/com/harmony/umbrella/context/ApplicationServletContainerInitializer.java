@@ -42,16 +42,13 @@ import com.harmony.umbrella.util.ClassFilterFeature;
 })
 public class ApplicationServletContainerInitializer implements ServletContainerInitializer {
 
-    private ServletContext servletContext;
-
     @Override
     public void onStartup(Set<Class<?>> c, ServletContext servletContext) throws ServletException {
-        this.servletContext = servletContext;
         c = new HashSet<>(c == null ? Collections.emptySet() : c);
 
         final ApplicationConfiguration cfg;
         try {
-            cfg = buildApplicationConfiguration();
+            cfg = buildApplicationConfiguration(servletContext);
         } catch (Exception e) {
             throw new ServletException("build application configuration failure!", e);
         }
@@ -59,13 +56,13 @@ public class ApplicationServletContainerInitializer implements ServletContainerI
         // init application static first
         ApplicationContext.start(cfg);
 
-        if (Boolean.valueOf(getInitParameter(CONTEXT_PARAM_SHOW_INFO)) //
+        if (Boolean.valueOf(cfg.getStringProperty(CONTEXT_PARAM_SHOW_INFO))
                 || Logs.getLog("com.harmony.umbrella.context").isDebugEnabled()) {
             showApplicationInfo();
         }
 
-        // must after application static init
-        c.addAll(scanApplicationEventListener());
+        // must after application started
+        c.addAll(scanApplicationEventListener(Boolean.valueOf(cfg.getStringProperty(CONTEXT_PARAM_SCAN_HANDLES_TYPES))));
 
         if (c.isEmpty()) {
             servletContext.log("No application ApplicationInitializer types detected on classpath");
@@ -73,7 +70,7 @@ public class ApplicationServletContainerInitializer implements ServletContainerI
         }
 
         ApplicationContext applicationContext = null;
-        boolean autowire = Boolean.valueOf(getInitParameter(CONTEXT_PARAM_SERVLET_AUTOWIRE));
+        boolean autowire = Boolean.valueOf(cfg.getStringProperty(CONTEXT_PARAM_SERVLET_AUTOWIRE));
 
         final List<ApplicationEventListener> eventListeners = new ArrayList<ApplicationEventListener>(c.size());
 
@@ -127,14 +124,14 @@ public class ApplicationServletContainerInitializer implements ServletContainerI
 
     }
 
-    private ApplicationConfiguration buildApplicationConfiguration() throws Exception {
+    private ApplicationConfiguration buildApplicationConfiguration(ServletContext servletContext) throws Exception {
         Object cfg = servletContext.getAttribute(CONTEXT_ATTRIBUTE_APP_CONFIG);
         if (cfg != null) {
             return (ApplicationConfiguration) cfg;
         }
 
         ApplicationConfigurationBuilder builder = null;
-        String builderName = getInitParameter(CONTEXT_PARAM_BUILDER);
+        String builderName = servletContext.getInitParameter(CONTEXT_PARAM_BUILDER);
         if (builderName != null) {
             Class<?> builderClass = ClassUtils.forName(builderName, ClassUtils.getDefaultClassLoader());
             builder = (ApplicationConfigurationBuilder) builderClass.newInstance();
@@ -144,10 +141,10 @@ public class ApplicationServletContainerInitializer implements ServletContainerI
         return builder.apply(servletContext).build();
     }
 
-    protected Set<Class<?>> scanApplicationEventListener() throws ServletException {
+    protected Set<Class<?>> scanApplicationEventListener(boolean scanHandlesTypes) throws ServletException {
         // under weblogic just load @HandlesTypes in WEB-INF/lib/*.jar, so load @HandlesTypes manually
         Set<Class<?>> result = new HashSet<>();
-        if (Boolean.valueOf(getInitParameter(CONTEXT_PARAM_SCAN_HANDLES_TYPES)) || ContextHelper.isWeblogic()) {
+        if (scanHandlesTypes || ContextHelper.isWeblogic()) {
             ApplicationContext.getApplicationClasses(new ClassFilter() {
                 @Override
                 public boolean accept(Class<?> clazz) {
@@ -160,10 +157,6 @@ public class ApplicationServletContainerInitializer implements ServletContainerI
             });
         }
         return result;
-    }
-
-    private String getInitParameter(String name) {
-        return servletContext.getInitParameter(name);
     }
 
     protected void showApplicationInfo() {

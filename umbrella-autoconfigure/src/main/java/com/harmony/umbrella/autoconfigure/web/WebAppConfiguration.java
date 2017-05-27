@@ -8,12 +8,13 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.web.servlet.ServletContextInitializer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.WebApplicationInitializer;
 
 import com.harmony.umbrella.context.ApplicationConfiguration;
 import com.harmony.umbrella.context.ApplicationConfigurationBuilder;
+import com.harmony.umbrella.context.WebXmlConstant;
 import com.harmony.umbrella.web.context.WebApplicationSpringInitializer;
 
 /**
@@ -36,7 +37,9 @@ public class WebAppConfiguration {
 
     private ApplicationConfiguration appConfig() throws NamingException, ServletException {
         ApplicationConfigurationBuilder builder = ApplicationConfigurationBuilder.create();
-        builder.apply(servletContext);
+        if (servletContext != null) {
+            builder.apply(servletContext);
+        }
         if (webAppProperties.getDatasources() != null) {
             for (String jndi : webAppProperties.getDatasources()) {
                 builder.addDataSource(jndi);
@@ -55,14 +58,26 @@ public class WebAppConfiguration {
                 builder.addShutdownHook(cls);
             }
         }
+        
+        builder.addProperty(WebXmlConstant.CONTEXT_PARAM_SHOW_INFO, webAppProperties.isShowInfo());
+        builder.addProperty(WebXmlConstant.CONTEXT_PARAM_SCAN_HANDLES_TYPES, webAppProperties.isScanHandlersTypes());
+        builder.addProperty(WebXmlConstant.CONTEXT_PARAM_SERVLET_AUTOWIRE, webAppProperties.isAutowire());
+        
         return builder.build();
     }
 
     @Bean
-    WebApplicationInitializer webAppInitializer() throws NamingException, ServletException {
+    ServletContextInitializer webAppInitializer() throws NamingException, ServletException {
         WebApplicationSpringInitializer initializer = new WebApplicationSpringInitializer();
         initializer.setApplicationConfiguration(appConfig());
-        return initializer;
+        return new ServletContextInitializer() {
+
+            @Override
+            public void onStartup(ServletContext servletContext) throws ServletException {
+                initializer.onStartup(servletContext);
+            }
+
+        };
     }
 
 }
