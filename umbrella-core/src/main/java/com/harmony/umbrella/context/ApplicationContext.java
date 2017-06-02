@@ -64,13 +64,14 @@ public abstract class ApplicationContext implements BeanFactory {
     private static int applicationStatus;
 
     public static void start(ApplicationConfiguration appConfig) {
+        final ApplicationConfiguration cfg = ApplicationConfigurationBuilder.unmodifiableApplicationConfiguation(appConfig);
         synchronized (applicationStatusLock) {
             if (!isStandBy()) {
                 LOG.warn("application already started");
                 return;
             }
             ApplicationContextInitializer applicationInitializer = null;
-            Class<? extends ApplicationContextInitializer> applicationInitializerClass = appConfig.getApplicationContextInitializerClass();
+            Class<? extends ApplicationContextInitializer> applicationInitializerClass = cfg.getApplicationContextInitializerClass();
             if (applicationInitializerClass == null) {
                 applicationInitializerClass = ApplicationContextInitializer.class;
             }
@@ -79,9 +80,8 @@ public abstract class ApplicationContext implements BeanFactory {
             } catch (Exception e) {
                 throw new IllegalArgumentException("illegal application initializer class " + applicationInitializerClass);
             }
-            // 初始化应用程序
-            applicationInitializer.init(appConfig);
-            applicationConfiguration = appConfig;
+            applicationInitializer.init(cfg);
+            applicationConfiguration = cfg;
             applicationStatus = STARTED;
         }
     }
@@ -93,7 +93,7 @@ public abstract class ApplicationContext implements BeanFactory {
                     runnable.run();
                 }
             } catch (Throwable e) {
-                if (!Boolean.valueOf(applicationConfiguration.getStringProperty("focus-showdown", "true"))) {
+                if (!Boolean.valueOf(applicationConfiguration.getStringProperty("focus-shutdown", "true"))) {
                     throw e;
                 }
                 LOG.error("shutdown hooks mount fail", e);
@@ -112,7 +112,6 @@ public abstract class ApplicationContext implements BeanFactory {
      */
     public static ApplicationConfiguration getApplicationConfiguration() {
         checkApplicationState();
-        // FIXME unmodifiable configuration
         return applicationConfiguration;
     }
 
@@ -142,7 +141,7 @@ public abstract class ApplicationContext implements BeanFactory {
     /**
      * 获取当前应用的应用上下文
      * <p>
-     * 加载 {@code META-INF/services/com.huiju.module.context.ContextProvider}
+     * 加载 {@code META-INF/services/com.huiju.module.context.ApplicationContextProvider}
      * 文件中的实际类型来创建
      *
      * @return 应用上下文
@@ -163,7 +162,6 @@ public abstract class ApplicationContext implements BeanFactory {
             context = SimpleApplicationContext.INSTANCE;
             LOG.debug("no context provider find, use default {}", SimpleApplicationContext.class.getName());
         }
-        // 初始化
         context.init();
         return context;
     }
@@ -317,7 +315,7 @@ public abstract class ApplicationContext implements BeanFactory {
 
             init_server();
 
-            init_database();
+            init_connection_sources();
 
             init_application_classes();
 
@@ -332,7 +330,7 @@ public abstract class ApplicationContext implements BeanFactory {
             serverMetadata = ApplicationMetadata.getServerMetadata(servletContext);
         }
 
-        private void init_database() {
+        private void init_connection_sources() {
             List<ConnectionSource> css = cfg.getConnectionSources();
             if (css == null || css.isEmpty()) {
                 LOG.warn("connection source not set, database metadata could not be initialized");
@@ -420,16 +418,6 @@ public abstract class ApplicationContext implements BeanFactory {
         private static BeanFactory beanFactory = SimpleBeanFactory.INSTANCE;
 
         public SimpleApplicationContext() {
-        }
-
-        @Override
-        public void init() {
-
-        }
-
-        @Override
-        public void destroy() {
-
         }
 
         @Override

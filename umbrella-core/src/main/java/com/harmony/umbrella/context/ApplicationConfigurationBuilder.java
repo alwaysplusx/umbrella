@@ -63,6 +63,10 @@ public class ApplicationConfigurationBuilder {
         return EMPTY_APP_CONFIG;
     }
 
+    public static ApplicationConfiguration unmodifiableApplicationConfiguation(ApplicationConfiguration cfg) {
+        return new UnmodifiableAppConfig(cfg);
+    }
+
     protected ApplicationConfigurationBuilder() {
     }
 
@@ -249,7 +253,65 @@ public class ApplicationConfigurationBuilder {
         EMPTY_APP_CONFIG.shutdownHookClasses = Collections.emptyList();
     }
 
-    static class AppConfig implements com.harmony.umbrella.context.ApplicationConfiguration {
+    private static class UnmodifiableAppConfig implements ApplicationConfiguration {
+
+        private ApplicationConfiguration cfg;
+
+        private UnmodifiableAppConfig(ApplicationConfiguration cfg) {
+            this.cfg = cfg;
+        }
+
+        @Override
+        public Set<String> getScanPackages() {
+            return Collections.unmodifiableSet(cfg.getScanPackages());
+        }
+
+        @Override
+        public Class<? extends ApplicationContextInitializer> getApplicationContextInitializerClass() {
+            return cfg.getApplicationContextInitializerClass();
+        }
+
+        @Override
+        public ServletContext getServletContext() {
+            return cfg.getServletContext();
+        }
+
+        @Override
+        public List<ConnectionSource> getConnectionSources() {
+            return Collections.unmodifiableList(cfg.getConnectionSources());
+        }
+
+        @Override
+        public Object getProperty(String key) {
+            return cfg.getProperty(key);
+        }
+
+        @Override
+        public String getStringProperty(String key) {
+            return cfg.getStringProperty(key);
+        }
+
+        @Override
+        public String getStringProperty(String key, String def) {
+            return cfg.getStringProperty(key, def);
+        }
+
+        @Override
+        public Map getApplicationProperties() {
+            return Collections.unmodifiableMap(cfg.getApplicationProperties());
+        }
+
+        @Override
+        public Runnable[] getShutdownHooks() {
+            Runnable[] hooks = cfg.getShutdownHooks();
+            Runnable[] result = new Runnable[hooks.length];
+            System.arraycopy(hooks, 0, result, 0, hooks.length);
+            return result;
+        }
+
+    }
+
+    private static class AppConfig implements ApplicationConfiguration {
 
         private ServletContext servletContext;
         private Class<? extends ApplicationContextInitializer> applicationContextInitializerClass;
