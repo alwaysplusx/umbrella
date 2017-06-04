@@ -56,13 +56,15 @@ public class ApplicationServletContainerInitializer implements ServletContainerI
         // init application static first
         ApplicationContext.start(cfg);
 
-        if (Boolean.valueOf(cfg.getStringProperty(CONTEXT_PARAM_SHOW_INFO))
+        if (cfg.getBooleanProperty(APPLICATION_CFG_PROPERTIES_SHOW_INFO) //
                 || Logs.getLog("com.harmony.umbrella.context").isDebugEnabled()) {
             showApplicationInfo();
         }
 
         // must after application started
-        c.addAll(scanApplicationEventListener(Boolean.valueOf(cfg.getStringProperty(CONTEXT_PARAM_SCAN_HANDLES_TYPES))));
+        if (cfg.getBooleanProperty(APPLICATION_CFG_PROPERTIES_SCAN_HANDLES_TYPES) || ContextHelper.isWeblogic()) {
+            c.addAll(scanApplicationEventListener());
+        }
 
         if (c.isEmpty()) {
             servletContext.log("No application ApplicationInitializer types detected on classpath");
@@ -70,7 +72,7 @@ public class ApplicationServletContainerInitializer implements ServletContainerI
         }
 
         ApplicationContext applicationContext = null;
-        boolean autowire = Boolean.valueOf(cfg.getStringProperty(CONTEXT_PARAM_SERVLET_AUTOWIRE));
+        boolean autowire = cfg.getBooleanProperty(APPLICATION_CFG_PROPERTIES_LISTENER_AUTOWIRE);
 
         final List<ApplicationEventListener> eventListeners = new ArrayList<ApplicationEventListener>(c.size());
 
@@ -131,7 +133,7 @@ public class ApplicationServletContainerInitializer implements ServletContainerI
         }
 
         ApplicationConfigurationBuilder builder = null;
-        String builderName = servletContext.getInitParameter(CONTEXT_PARAM_BUILDER);
+        String builderName = servletContext.getInitParameter(APPLICATION_CFG_PROPERTIES_CUSTOM_BUILDER);
         if (builderName != null) {
             Class<?> builderClass = ClassUtils.forName(builderName, ClassUtils.getDefaultClassLoader());
             builder = (ApplicationConfigurationBuilder) builderClass.newInstance();
@@ -141,21 +143,21 @@ public class ApplicationServletContainerInitializer implements ServletContainerI
         return builder.apply(servletContext).build();
     }
 
-    protected Set<Class<?>> scanApplicationEventListener(boolean scanHandlesTypes) throws ServletException {
-        // under weblogic just load @HandlesTypes in WEB-INF/lib/*.jar, so load @HandlesTypes manually
+    /*
+     * under weblogic just load @HandlesTypes in WEB-INF/lib/*.jar, so load @HandlesTypes manually
+     */
+    protected Set<Class<?>> scanApplicationEventListener() throws ServletException {
         Set<Class<?>> result = new HashSet<>();
-        if (scanHandlesTypes || ContextHelper.isWeblogic()) {
-            ApplicationContext.getApplicationClasses(new ClassFilter() {
-                @Override
-                public boolean accept(Class<?> clazz) {
-                    if (ClassFilterFeature.NEWABLE.accept(clazz)//
-                            && !result.contains(clazz)//
-                            && ApplicationEventListener.class.isAssignableFrom(clazz))
-                        result.add(clazz);
-                    return false;
-                }
-            });
-        }
+        ApplicationContext.getApplicationClasses(new ClassFilter() {
+            @Override
+            public boolean accept(Class<?> clazz) {
+                if (ClassFilterFeature.NEWABLE.accept(clazz)//
+                        && !result.contains(clazz)//
+                        && ApplicationEventListener.class.isAssignableFrom(clazz))
+                    result.add(clazz);
+                return false;
+            }
+        });
         return result;
     }
 

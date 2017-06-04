@@ -1,26 +1,17 @@
 package com.harmony.umbrella.context;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
+import java.util.Set;
 import java.util.Vector;
 
 import javax.servlet.ServletContext;
 
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
-import org.springframework.core.io.support.ResourcePatternResolver;
-import org.springframework.util.ClassUtils;
-
-import com.harmony.umbrella.asm.ClassReader;
 import com.harmony.umbrella.context.metadata.ApplicationMetadata;
 import com.harmony.umbrella.context.metadata.DatabaseMetadata;
 import com.harmony.umbrella.context.metadata.ServerMetadata;
@@ -32,7 +23,7 @@ import com.harmony.umbrella.log.Log;
 import com.harmony.umbrella.log.Logs;
 import com.harmony.umbrella.util.ClassFilter;
 import com.harmony.umbrella.util.ClassFilterFeature;
-import com.harmony.umbrella.util.IOUtils;
+import com.harmony.umbrella.util.Scanner;
 
 /**
  * 运行的应用的上下文
@@ -47,8 +38,6 @@ public abstract class ApplicationContext implements BeanFactory {
 
     private static final List<Class> classes = new Vector<Class>();
 
-    private static final List<Runnable> shutdownHooks = new ArrayList<>();
-
     private static ServerMetadata serverMetadata = ApplicationMetadata.EMPTY_SERVER_METADATA;
 
     private static List<DatabaseMetadata> databaseMetadatas = new ArrayList<DatabaseMetadata>();
@@ -62,6 +51,8 @@ public abstract class ApplicationContext implements BeanFactory {
     private static final Object applicationStatusLock = new Object();
 
     private static int applicationStatus;
+
+    private static boolean scaned;
 
     public static void start(ApplicationConfiguration appConfig) {
         final ApplicationConfiguration cfg = ApplicationConfigurationBuilder.unmodifiableApplicationConfiguation(appConfig);
@@ -88,18 +79,23 @@ public abstract class ApplicationContext implements BeanFactory {
 
     public static void shutdown() {
         synchronized (applicationStatusLock) {
+            List<Runnable> hooks = null;
             try {
-                for (Runnable runnable : shutdownHooks) {
+                hooks = getShutdownHooks();
+            } catch (Exception e) {
+                throw new ApplicationContextException("can't instance shutdown hooks", e);
+            }
+            try {
+                for (Runnable runnable : hooks) {
                     runnable.run();
                 }
             } catch (Throwable e) {
-                if (!Boolean.valueOf(applicationConfiguration.getStringProperty("focus-shutdown", "true"))) {
+                if (!applicationConfiguration.getBooleanProperty(WebXmlConstant.APPLICATION_CFG_PROPERTIES_FOCUS_SHUTDOWN)) {
                     throw e;
                 }
                 LOG.error("shutdown hooks mount fail", e);
             }
             classes.clear();
-            shutdownHooks.clear();
             databaseMetadatas.clear();
             applicationConfiguration = null;
         }
@@ -141,7 +137,8 @@ public abstract class ApplicationContext implements BeanFactory {
     /**
      * 获取当前应用的应用上下文
      * <p>
-     * 加载 {@code META-INF/services/com.huiju.module.context.ApplicationContextProvider}
+     * 加载
+     * {@code META-INF/services/com.huiju.module.context.ApplicationContextProvider}
      * 文件中的实际类型来创建
      *
      * @return 应用上下文
@@ -198,9 +195,8 @@ public abstract class ApplicationContext implements BeanFactory {
     }
 
     static int getApplicationClassSize() {
-        // FIXME async scan show-info return size 0
         checkApplicationState();
-        return classes.size();
+        return scaned ? classes.size() : -1;
     }
 
     public static Class[] getApplicationClasses(ClassFilter filter) {
@@ -231,6 +227,24 @@ public abstract class ApplicationContext implements BeanFactory {
         if (isShutdown()) {
             throw new ApplicationContextException("application is shutdown!");
         }
+    }
+
+    private static List<Runnable> getShutdownHooks() throws Exception {
+        ApplicationContext applicationContext = null;
+        boolean autowire = applicationConfiguration.getBooleanProperty(WebXmlConstant.APPLICATION_CFG_PROPERTIES_HOOK_AUTOWIRE);
+        if (autowire) {
+            applicationContext = ApplicationContext.getApplicationContext();
+        }
+        List<Runnable> result = new ArrayList<>();
+        Class<? extends Runnable>[] shutdownHooks = applicationConfiguration.getShutdownHooks();
+        for (Class<? extends Runnable> c : shutdownHooks) {
+            Runnable runnable = c.newInstance();
+            if (autowire) {
+                applicationContext.autowrie(runnable);
+            }
+            result.add(runnable);
+        }
+        return result;
     }
 
     // application bean scope
@@ -271,16 +285,6 @@ public abstract class ApplicationContext implements BeanFactory {
     @Override
     public <T> T getBean(String beanName, String scope) throws BeansException {
         return getBeanFactory().getBean(beanName, scope);
-    }
-
-    private static String readClassName(Resource resource) throws IOException {
-        InputStream is = resource.getInputStream();
-        byte[] b = IOUtils.toByteArray(is);
-        try {
-            is.close();
-        } catch (IOException e) {
-        }
-        return new ClassReader(b).getClassName().replaceAll("/", ".");
     }
 
     public static class ApplicationContextInitializer {
@@ -346,71 +350,37 @@ public abstract class ApplicationContext implements BeanFactory {
         }
 
         private void init_application_classes() {
-            Collection<String> packages = cfg.getScanPackages();
-            boolean initialize = Boolean.valueOf(cfg.getStringProperty("harmony.scan-init"));
             boolean async = Boolean.valueOf(cfg.getStringProperty("harmony.scan-async", "true"));
+
             if (async) {
                 new Thread(new Runnable() {
 
                     @Override
                     public void run() {
-                        scan(packages, initialize);
+                        scan();
                     }
+
                 }).start();
             } else {
-                scan(packages, initialize);
+                scan();
             }
+
         }
 
-    }
-
-    private static final void scan(Collection<String> packages, boolean init) {
-        // TODO 外部工具整理
-        if (packages != null && !packages.isEmpty()) {
-            scaned = false;
+        private void scan() {
             synchronized (classes) {
                 classes.clear();
-                ClassLoader classLoader = ClassUtils.getDefaultClassLoader();
-                ResourcePatternResolver resourceLoader = new PathMatchingResourcePatternResolver(classLoader);
+                scaned = false;
 
-                for (String pkg : packages) {
-                    String path = ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX + pkg.replace(".", "/") + "/**/*.class";
-                    try {
-                        Resource[] resources = resourceLoader.getResources(path);
-                        for (Resource resource : resources) {
-                            String className = null;
-                            try {
-                                className = readClassName(resource);
-                                Class<?> clazz = Class.forName(className, init, classLoader);
-                                if (!classes.contains(clazz)) {
-                                    classes.add(clazz);
-                                }
-                            } catch (IOException e) {
-                                LOG.error("can't read resource {}", resource);
-                            } catch (Error e) {
-                                LOG.warn("{} in classpath jar no fully configured, {}", className, e.toString());
-                            } catch (Throwable e) {
-                                LOG.error("{}", className, e);
-                            }
-                        }
-                    } catch (IOException e) {
-                        LOG.error("{} package not found", pkg, e);
-                    }
-                }
+                Set<String> packages = cfg.getScanPackages();
+                boolean initialize = cfg.getBooleanProperty(WebXmlConstant.APPLICATION_CFG_PROPERTIES_SCAN_INIT);
 
-                Collections.sort(classes, new Comparator<Class>() {
+                Collections.addAll(classes, Scanner.scan(packages, initialize, true));
 
-                    @Override
-                    public int compare(Class o1, Class o2) {
-                        return o1.getName().compareTo(o2.getName());
-                    }
-                });
                 scaned = true;
             }
         }
     }
-
-    private static boolean scaned;
 
     private static final class SimpleApplicationContext extends ApplicationContext {
 

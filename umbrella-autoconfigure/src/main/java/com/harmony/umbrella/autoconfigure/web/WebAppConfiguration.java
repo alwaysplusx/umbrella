@@ -1,5 +1,9 @@
 package com.harmony.umbrella.autoconfigure.web;
 
+import java.util.Iterator;
+import java.util.Map.Entry;
+import java.util.Properties;
+
 import javax.naming.NamingException;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
@@ -58,11 +62,14 @@ public class WebAppConfiguration {
                 builder.addShutdownHook(cls);
             }
         }
-        
-        builder.addProperty(WebXmlConstant.CONTEXT_PARAM_SHOW_INFO, webAppProperties.isShowInfo());
-        builder.addProperty(WebXmlConstant.CONTEXT_PARAM_SCAN_HANDLES_TYPES, webAppProperties.isScanHandlersTypes());
-        builder.addProperty(WebXmlConstant.CONTEXT_PARAM_SERVLET_AUTOWIRE, webAppProperties.isAutowire());
-        
+
+        Properties properties = webAppProperties.getProperties();
+        Iterator<Entry<Object, Object>> it = properties.entrySet().iterator();
+        while (it.hasNext()) {
+            Entry<Object, Object> entry = it.next();
+            builder.addProperty(WebXmlConstant.APPLICATION_CFG_PROPERTIES + "." + entry.getKey().toString(), entry.getValue());
+        }
+
         return builder.build();
     }
 

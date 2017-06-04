@@ -30,8 +30,12 @@ public interface ApplicationConfiguration {
 
     String getStringProperty(String key, String def);
 
+    boolean getBooleanProperty(String key);
+
+    boolean getBooleanProperty(String key, boolean def);
+
     Map getApplicationProperties();
 
-    Runnable[] getShutdownHooks();
+    Class<? extends Runnable>[] getShutdownHooks();
 
 }

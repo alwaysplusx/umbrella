@@ -1,6 +1,9 @@
 harmony:
-  web:
-    show-info: true
+  cfg:
+    properties:
+      scan-init: true
+      scan-async: true
+      show-info: true
 #  ejb:
 #    contextProperties:
 #      java.naming.factory.initial: weblogic.jndi.WLInitialContextFactory

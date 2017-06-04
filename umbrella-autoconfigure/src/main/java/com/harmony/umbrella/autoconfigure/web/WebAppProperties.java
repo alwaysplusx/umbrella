@@ -2,6 +2,7 @@ package com.harmony.umbrella.autoconfigure.web;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Properties;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
@@ -10,16 +11,14 @@ import com.harmony.umbrella.context.ApplicationContext.ApplicationContextInitial
 /**
  * @author wuxii@foxmail.com
  */
-@ConfigurationProperties(prefix = "harmony.web")
+@ConfigurationProperties(prefix = "harmony.cfg")
 public class WebAppProperties {
 
     private Class<? extends ApplicationContextInitializer> initializer;
     private List<String> datasources;
     private List<String> scanPackages = Arrays.asList("com.harmony");
     private List<Class<? extends Runnable>> shutdownHooks;
-    private boolean showInfo = true;
-    private boolean autowire = true;
-    private boolean scanHandlersTypes = true;
+    private Properties properties;
 
     public Class<? extends ApplicationContextInitializer> getInitializer() {
         return initializer;
@@ -53,28 +52,12 @@ public class WebAppProperties {
         this.shutdownHooks = shutdownHooks;
     }
 
-    public boolean isShowInfo() {
-        return showInfo;
+    public Properties getProperties() {
+        return properties;
     }
 
-    public void setShowInfo(boolean showInfo) {
-        this.showInfo = showInfo;
-    }
-
-    public boolean isAutowire() {
-        return autowire;
-    }
-
-    public void setAutowire(boolean autowire) {
-        this.autowire = autowire;
-    }
-
-    public boolean isScanHandlersTypes() {
-        return scanHandlersTypes;
-    }
-
-    public void setScanHandlersTypes(boolean scanHandlersTypes) {
-        this.scanHandlersTypes = scanHandlersTypes;
+    public void setProperties(Properties properties) {
+        this.properties = properties;
     }
 
 }

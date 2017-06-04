@@ -41,8 +41,8 @@ public class ApplicationConfigurationBuilder {
     public static final String APPLICATION_DATASOURCE;
 
     static {
-        APPLICATION_PACKAGE = System.getProperty(CONTEXT_PARAM_SCAN_PACKAGES, CONTEXT_PARAM_SCAN_PACKAGES_VALUE);
-        APPLICATION_DATASOURCE = System.getProperty(CONTEXT_PARAM_DATASOURCE, CONTEXT_PARAM_DATASOURCE_VALUE);
+        APPLICATION_PACKAGE = System.getProperty(APPLICATION_CFG_SCAN_PACKAGES, APPLICATION_CFG_SCAN_PACKAGES_VALUE);
+        APPLICATION_DATASOURCE = System.getProperty(APPLICATION_CFG_DATASOURCE, APPLICATION_CFG_DATASOURCE_VALUE);
     }
 
     protected static final Pattern PACKAGE_PATTERN = Pattern.compile("^[a-zA-Z]+[0-9a-zA-Z]*");
@@ -92,6 +92,11 @@ public class ApplicationConfigurationBuilder {
         return this;
     }
 
+    public ApplicationConfigurationBuilder addProperty(Map properties) {
+        this.properties.putAll(properties);
+        return this;
+    }
+
     public ApplicationConfigurationBuilder addProperty(String key, Object value) {
         properties.put(key, value);
         return this;
@@ -128,7 +133,7 @@ public class ApplicationConfigurationBuilder {
         this.servletContext = servletContext;
         ClassLoader loader = ClassUtils.getDefaultClassLoader();
         // application initializer
-        String initializerName = getInitParameter(CONTEXT_PARAM_INITIALIZER);
+        String initializerName = getInitParameter(APPLICATION_CFG_INITIALIZER);
         if (initializerName != null) {
             try {
                 setApplicationContextInitializer((Class<? extends ApplicationContextInitializer>) ClassUtils.forName(initializerName, loader));
@@ -140,7 +145,7 @@ public class ApplicationConfigurationBuilder {
         }
 
         // scan-packages
-        String[] packages = getInitParameters(CONTEXT_PARAM_SCAN_PACKAGES, APPLICATION_PACKAGE);
+        String[] packages = getInitParameters(APPLICATION_CFG_SCAN_PACKAGES, APPLICATION_PACKAGE);
         for (String pkg : packages) {
             try {
                 addScanPackage(pkg);
@@ -150,7 +155,7 @@ public class ApplicationConfigurationBuilder {
         }
 
         // connection source
-        String[] jndis = getInitParameters(CONTEXT_PARAM_DATASOURCE, APPLICATION_DATASOURCE);
+        String[] jndis = getInitParameters(APPLICATION_CFG_DATASOURCE, APPLICATION_DATASOURCE);
         for (String jndi : jndis) {
             try {
                 addDataSource(jndi);
@@ -160,7 +165,7 @@ public class ApplicationConfigurationBuilder {
         }
 
         // shutdown hooks
-        String[] shutdownHookNames = getInitParameters(CONTEXT_PARAM_SHUTDOWN_HOOKS);
+        String[] shutdownHookNames = getInitParameters(APPLICATION_CFG_SHUTDOWN_HOOKS);
         for (String hook : shutdownHookNames) {
             try {
                 addShutdownHook((Class<? extends Runnable>) ClassUtils.forName(hook, loader));
@@ -297,14 +302,24 @@ public class ApplicationConfigurationBuilder {
         }
 
         @Override
+        public boolean getBooleanProperty(String key) {
+            return getBooleanProperty(key, false);
+        }
+
+        @Override
+        public boolean getBooleanProperty(String key, boolean def) {
+            return Boolean.valueOf(getStringProperty(key, String.valueOf(def)));
+        }
+
+        @Override
         public Map getApplicationProperties() {
             return Collections.unmodifiableMap(cfg.getApplicationProperties());
         }
 
         @Override
-        public Runnable[] getShutdownHooks() {
-            Runnable[] hooks = cfg.getShutdownHooks();
-            Runnable[] result = new Runnable[hooks.length];
+        public Class<? extends Runnable>[] getShutdownHooks() {
+            Class<? extends Runnable>[] hooks = cfg.getShutdownHooks();
+            Class<? extends Runnable>[] result = new Class[hooks.length];
             System.arraycopy(hooks, 0, result, 0, hooks.length);
             return result;
         }
@@ -357,21 +372,23 @@ public class ApplicationConfigurationBuilder {
         }
 
         @Override
+        public boolean getBooleanProperty(String key) {
+            return getBooleanProperty(key, false);
+        }
+
+        @Override
+        public boolean getBooleanProperty(String key, boolean def) {
+            return Boolean.valueOf(getStringProperty(key, String.valueOf(def)));
+        }
+
+        @Override
         public Map getApplicationProperties() {
             return properties;
         }
 
         @Override
-        public Runnable[] getShutdownHooks() {
-            List<Runnable> hooks = new ArrayList<>();
-            try {
-                for (Class<? extends Runnable> hookClass : shutdownHookClasses) {
-                    hooks.add(hookClass.newInstance());
-                }
-            } catch (Exception e) {
-                // checked
-            }
-            return hooks.toArray(new Runnable[hooks.size()]);
+        public Class<? extends Runnable>[] getShutdownHooks() {
+            return shutdownHookClasses.toArray(new Class[shutdownHookClasses.size()]);
         }
 
     }
