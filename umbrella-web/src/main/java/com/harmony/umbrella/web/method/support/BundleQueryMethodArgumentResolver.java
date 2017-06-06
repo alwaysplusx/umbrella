@@ -4,19 +4,26 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.StringTokenizer;
 
 import org.springframework.core.MethodParameter;
+import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
+import com.harmony.umbrella.core.Member;
+import com.harmony.umbrella.data.Operator;
 import com.harmony.umbrella.data.query.JpaQueryBuilder;
 import com.harmony.umbrella.data.query.QueryBuilder;
 import com.harmony.umbrella.data.query.QueryBundle;
 import com.harmony.umbrella.data.query.QueryFeature;
+import com.harmony.umbrella.util.MemberUtils;
 import com.harmony.umbrella.util.PropertiesUtils;
 import com.harmony.umbrella.util.StringUtils;
 import com.harmony.umbrella.web.method.annotation.BundleQuery;
@@ -28,9 +35,6 @@ import com.harmony.umbrella.web.method.annotation.BundleQuery;
  * @see BundleQuery
  */
 public class BundleQueryMethodArgumentResolver implements HandlerMethodArgumentResolver {
-
-    public static final String QUERY_PARAM_PREFIX = "filter_";
-    public static final String QUERY_PARAM_SEPARATOR = "_";
 
     @Override
     public boolean supportsParameter(MethodParameter parameter) {
@@ -46,10 +50,17 @@ public class BundleQueryMethodArgumentResolver implements HandlerMethodArgumentR
         JpaQueryBuilder builder = new JpaQueryBuilder<>(domainClass);
 
         BundleQueryAnnotation ann = BundleQueryAnnotation.create(parameter);
+
         apply(ann, builder);
 
-        // WebDataBinder binder = binderFactory.createBinder(webRequest, null, null);
-        // TODO apply query params
+        Map<String, String[]> queryParams = filterOut(ann.prefix, webRequest);
+
+        WebDataBinder binder = binderFactory.createBinder(webRequest, null, null);
+
+        if (!queryParams.isEmpty()) {
+            WebQueryBuilder queryBuilder = new WebQueryBuilder(domainClass, ann, binder, builder);
+            queryBuilder.apply(queryParams);
+        }
 
         return QueryBundle.class.isAssignableFrom(parameter.getParameterType()) ? builder.bundle() : builder;
     }
@@ -86,14 +97,70 @@ public class BundleQueryMethodArgumentResolver implements HandlerMethodArgumentR
         return PropertiesUtils.filterStartWith(prefix, webRequest.getParameterMap());
     }
 
-    protected void applyQueryParams(BundleQueryAnnotation ann, JpaQueryBuilder builder, Map<String, String[]> queryParams) {
+    private static final class WebQueryBuilder {
+
+        private BundleQueryAnnotation ann;
+        private WebDataBinder binder;
+        private JpaQueryBuilder builder;
+        private Class domainClass;
+
+        public WebQueryBuilder(Class domainClass, BundleQueryAnnotation ann, WebDataBinder binder, JpaQueryBuilder builder) {
+            this.binder = binder;
+            this.domainClass = domainClass;
+            this.builder = builder;
+            this.ann = ann;
+        }
+
+        public void apply(Map<String, String[]> queryParams) {
+            Iterator<Entry<String, String[]>> it = queryParams.entrySet().iterator();
+            while (it.hasNext()) {
+                Entry<String, String[]> entry = it.next();
+                String key = entry.getKey().substring(ann.prefix.length());
+                String[] values = entry.getValue();
+                StringTokenizer st = new StringTokenizer(key, "AND");
+                int index = 0;
+                for (; st.hasMoreTokens();) {
+                    builder.and();
+                    StringTokenizer rawConditionTokenizer = new StringTokenizer(st.nextToken(), "OR");
+                    builder.start();
+                    try {
+                        for (; rawConditionTokenizer.hasMoreTokens();) {
+                            StringTokenizer raw = new StringTokenizer(rawConditionTokenizer.nextToken());
+                            Operator operator = Operator.forName(raw.nextToken(ann.separator));
+                            String propertyName = raw.nextToken().replaceAll(ann.separator, ".");
+                            Member rawMember = MemberUtils.accessMember(domainClass, propertyName);
+                            Object value = binder.convertIfNecessary(values[index++], rawMember.getType());
+                            builder.addCondition(propertyName, value, operator);
+                            if (rawConditionTokenizer.hasMoreTokens()) {
+                                builder.or();
+                            }
+                        }
+                    } catch (ArrayIndexOutOfBoundsException e) {
+                        throw new IllegalArgumentException("not enough query parameters", e);
+                    }
+                    builder.end();
+                }
+            }
+        }
 
     }
 
     public static final class BundleQueryAnnotation {
 
-        private static final BundleQueryAnnotation EMPTY_QUERY_ANNOTATION = new BundleQueryAnnotation(QUERY_PARAM_PREFIX, QUERY_PARAM_SEPARATOR, -1, -1,
-                Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
+        private static final String QUERY_PARAM_PREFIX = "filter_";
+        private static final String QUERY_PARAM_SEPARATOR = "_";
+
+        private static final BundleQueryAnnotation EMPTY_QUERY_ANNOTATION = //
+                new BundleQueryAnnotation(//
+                        QUERY_PARAM_PREFIX, //
+                        QUERY_PARAM_SEPARATOR, //
+                        -1, //
+                        -1, //
+                        Collections.emptyList(), //
+                        Collections.emptyList(), //
+                        Collections.emptyList(), //
+                        Collections.emptyList()//
+                );
 
         public final String prefix;
         public final String separator;

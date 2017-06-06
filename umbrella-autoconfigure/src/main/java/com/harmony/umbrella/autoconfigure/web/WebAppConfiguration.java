@@ -27,7 +27,7 @@ import com.harmony.umbrella.web.context.WebApplicationSpringInitializer;
 @Configuration
 @ConditionalOnWebApplication
 @ConditionalOnClass(WebApplicationSpringInitializer.class)
-@ConditionalOnProperty(prefix = "harmony.web", name = "enabled", havingValue = "true", matchIfMissing = true)
+@ConditionalOnProperty(prefix = "harmony.cfg", name = "enabled", havingValue = "true", matchIfMissing = true)
 @EnableConfigurationProperties(WebAppProperties.class)
 public class WebAppConfiguration {
 
