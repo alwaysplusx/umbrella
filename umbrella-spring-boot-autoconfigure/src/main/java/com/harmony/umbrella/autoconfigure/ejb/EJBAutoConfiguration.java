@@ -31,11 +31,11 @@ import com.harmony.umbrella.util.PropertiesUtils;
 @ConditionalOnClass(EJBApplicationContext.class)
 @ConditionalOnProperty(prefix = "harmony.ejb", name = "enabled", havingValue = "true", matchIfMissing = false)
 @EnableConfigurationProperties(EJBProperties.class)
-public class EJBConfiguration {
+public class EJBAutoConfiguration {
 
     private final EJBProperties ejbProperties;
 
-    public EJBConfiguration(EJBProperties ejbProperties) {
+    public EJBAutoConfiguration(EJBProperties ejbProperties) {
         this.ejbProperties = ejbProperties;
     }
 

@@ -6,7 +6,7 @@
     <artifactId>umbrella</artifactId>
     <version>0.0.5-SNAPSHOT</version>
   </parent>
-  <artifactId>umbrella-autoconfigure</artifactId>
+  <artifactId>umbrella-spring-boot-autoconfigure</artifactId>
   <dependencies>
     <dependency>
       <groupId>com.harmony.umbrella</groupId>

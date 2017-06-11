@@ -1,0 +1,3 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+com.harmony.umbrella.autoconfigure.web.WebAppAutoConfiguration
+com.harmony.umbrella.autoconfigure.web.EJBAutoConfiguration

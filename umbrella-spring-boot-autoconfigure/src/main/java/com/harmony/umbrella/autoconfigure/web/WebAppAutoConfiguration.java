@@ -9,7 +9,6 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.servlet.ServletContextInitializer;
@@ -27,14 +26,13 @@ import com.harmony.umbrella.web.context.WebApplicationSpringInitializer;
 @Configuration
 @ConditionalOnWebApplication
 @ConditionalOnClass(WebApplicationSpringInitializer.class)
-@ConditionalOnProperty(prefix = "harmony.cfg", name = "enabled", havingValue = "true", matchIfMissing = true)
 @EnableConfigurationProperties(WebAppProperties.class)
-public class WebAppConfiguration {
+public class WebAppAutoConfiguration {
 
     private final WebAppProperties webAppProperties;
     private final ServletContext servletContext;
 
-    public WebAppConfiguration(WebAppProperties webAppProperties, ServletContext servletContext) {
+    public WebAppAutoConfiguration(WebAppProperties webAppProperties, ServletContext servletContext) {
         this.servletContext = servletContext;
         this.webAppProperties = webAppProperties;
     }
