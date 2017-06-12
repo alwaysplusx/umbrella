@@ -8,16 +8,13 @@ package com.harmony.umbrella.core;
 public interface BeanFactory {
 
     /**
-     * 单例
+     * 为bean自动注入所需要的依赖
+     * 
+     * @param bean
+     *            bean
+     * @throws BeansException
      */
-    String SINGLETON = "singleton";
-
-    /**
-     * 原型
-     */
-    String PROTOTYPE = "prototype";
-
-    void autowrie(Object bean) throws BeansException;
+    void autowrie(Object existingBean) throws BeansException;
 
     /**
      * 根据bean的名称加载指定bean，默认获取单例的bean
@@ -29,15 +26,16 @@ public interface BeanFactory {
     <T> T getBean(String beanName) throws BeansException;
 
     /**
-     * 加载一个指定类型的bean
-     *
+     * 根据bean的名称以及类型加载对应的bean
+     * 
      * @param beanName
-     *            需要获取的bean名称
-     * @param scope
-     *            bean scope
-     * @return 指定名称的bean
+     *            bean名称
+     * @param requireType
+     *            bean类型
+     * @return bean
+     * @throws BeansException
      */
-    <T> T getBean(String beanName, String scope) throws BeansException;
+    <T> T getBean(String beanName, Class<T> requireType) throws BeansException;
 
     /**
      * 默认加载一个单例的bean
@@ -47,16 +45,5 @@ public interface BeanFactory {
      * @return 指定类型的bean
      */
     <T> T getBean(Class<T> beanClass) throws BeansException;
-
-    /**
-     * 加载一个指定类型的bean
-     *
-     * @param beanClass
-     *            需要获取的bean类
-     * @param scope
-     *            bean scope
-     * @return 指定类型的bean
-     */
-    <T> T getBean(Class<T> beanClass, String scope) throws BeansException;
 
 }

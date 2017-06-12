@@ -1,17 +1,17 @@
 package com.harmony.umbrella.core;
 
 import java.io.Serializable;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-
-import org.springframework.util.ClassUtils;
 
 /**
  * 通过类的反射{@linkplain Class#newInstance()}来创建Bean
  * 
  * @author wuxii@foxmail.com
  */
-public class SimpleBeanFactory implements BeanFactory, Serializable {
+public class SimpleBeanFactory extends AbstractBeanFactory implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -19,52 +19,25 @@ public class SimpleBeanFactory implements BeanFactory, Serializable {
 
     public static final SimpleBeanFactory INSTANCE = new SimpleBeanFactory();
 
-    protected SimpleBeanFactory() {
+    // FIXME no effective beanName
+    @Override
+    public <T> T getBean(String beanName, Class<T> requireType) throws BeansException {
+        return getBean(requireType);
     }
 
     @Override
-    public void autowrie(Object bean) throws BeansException {
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public <T> T getBean(String beanName) {
-        try {
-            Class<?> clazz = ClassUtils.forName(beanName, ClassUtils.getDefaultClassLoader());
-            return (T) getBean(clazz, SINGLETON);
-        } catch (ClassNotFoundException e) {
-            throw new NoSuchBeanFoundException(e.getMessage(), e);
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public <T> T getBean(String beanName, String scope) {
-        try {
-            Class<?> clazz = ClassUtils.forName(beanName, ClassUtils.getDefaultClassLoader());
-            return (T) getBean(clazz, scope);
-        } catch (ClassNotFoundException e) {
-            throw new NoSuchBeanFoundException(e.getMessage(), e);
-        }
+    public <T> T getBean(Class<T> beanClass) throws BeansException {
+        return (T) createBean(beanClass);
     }
 
     @Override
-    public <T> T getBean(Class<T> beanClass) {
-        return getBean(beanClass, SINGLETON);
+    protected Object getBean(Field field) {
+        return getBean(field.getType());
     }
 
-    @SuppressWarnings("unchecked")
     @Override
-    public <T> T getBean(Class<T> beanClass, String scope) {
-        if (SINGLETON.equals(scope)) {
-            if (!beans.containsKey(beanClass)) {
-                beans.put(beanClass, createBean(beanClass, null));
-            }
-            return (T) beans.get(beanClass);
-        } else if (PROTOTYPE.equals(scope)) {
-            return (T) createBean(beanClass, null);
-        }
-        throw new IllegalArgumentException("unsupport scope " + scope);
+    protected Object getBean(Method method) {
+        return getBean(method.getParameterTypes()[0]);
     }
 
     /**
@@ -74,12 +47,11 @@ public class SimpleBeanFactory implements BeanFactory, Serializable {
      * @param properties
      * @return
      */
-    protected Object createBean(Class<?> beanClass, Map<String, Object> properties) {
+    protected Object createBean(Class<?> beanClass) {
         try {
             return beanClass.newInstance();
         } catch (Exception e) {
             throw new NoSuchBeanFoundException(e.getMessage(), e);
         }
     }
-
 }

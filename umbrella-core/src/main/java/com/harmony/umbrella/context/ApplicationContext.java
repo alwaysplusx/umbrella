@@ -273,18 +273,13 @@ public abstract class ApplicationContext implements BeanFactory {
     }
 
     @Override
-    public <T> T getBean(Class<T> beanClass, String scope) throws BeansException {
-        return getBeanFactory().getBean(beanClass, scope);
-    }
-
-    @Override
     public <T> T getBean(String beanName) throws BeansException {
         return getBeanFactory().getBean(beanName);
     }
 
     @Override
-    public <T> T getBean(String beanName, String scope) throws BeansException {
-        return getBeanFactory().getBean(beanName, scope);
+    public <T> T getBean(String beanName, Class<T> requireType) throws BeansException {
+        return getBeanFactory().getBean(beanName, requireType);
     }
 
     public static class ApplicationContextInitializer {
@@ -385,6 +380,7 @@ public abstract class ApplicationContext implements BeanFactory {
     private static final class SimpleApplicationContext extends ApplicationContext {
 
         private static final SimpleApplicationContext INSTANCE = new SimpleApplicationContext();
+
         private static BeanFactory beanFactory = SimpleBeanFactory.INSTANCE;
 
         public SimpleApplicationContext() {
