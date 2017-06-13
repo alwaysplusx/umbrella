@@ -21,15 +21,6 @@ public class SpringApplicationContext extends ApplicationContext implements Bean
     }
 
     @Override
-    public void init() {
-    }
-
-    @Override
-    public void destroy() {
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
     public Object getBean(String name) throws BeansException {
         return springContext.getBean(name);
     }

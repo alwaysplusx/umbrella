@@ -49,7 +49,11 @@ public abstract class AbstractBeanFactory implements BeanFactory {
 
     @Override
     public <T> T getBean(String beanName) throws BeansException {
-        return (T) getBean(beanName, Object.class);
+        try {
+            return (T) getBean(beanName, Class.forName(beanName));
+        } catch (ClassNotFoundException e) {
+            return (T) getBean(beanName, Object.class);
+        }
     }
 
     public Class<? extends Annotation>[] getAutowrieAnnotations() {
@@ -110,9 +114,11 @@ public abstract class AbstractBeanFactory implements BeanFactory {
     }
 
     protected boolean isAutowireField(Field field) {
-        for (Class<? extends Annotation> annCls : autowrieAnnotations) {
-            if (!Modifier.isStatic(field.getModifiers()) && field.getAnnotation(annCls) != null) {
-                return true;
+        if (autowrieAnnotations != null) {
+            for (Class<? extends Annotation> annCls : autowrieAnnotations) {
+                if (!Modifier.isStatic(field.getModifiers()) && field.getAnnotation(annCls) != null) {
+                    return true;
+                }
             }
         }
         return false;

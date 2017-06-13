@@ -35,29 +35,24 @@ public class SimpleBeanFactoryInvoker extends AbstractInvoker implements BeanFac
     }
 
     @Override
-    public <T> T getBean(String beanName, String scope) throws NoSuchBeanFoundException {
-        return beanFactory.getBean(beanName, scope);
-    }
-
-    @Override
     public <T> T getBean(Class<T> beanClass) throws NoSuchBeanFoundException {
         return beanFactory.getBean(beanClass);
     }
 
     @Override
-    public <T> T getBean(Class<T> beanClass, String scope) throws NoSuchBeanFoundException {
-        return beanFactory.getBean(beanClass, scope);
-    }
-
-    @Override
     public Object getServiceObject(Exchange context) {
-        log.debug("get instance [{}({})] from [{}]", serviceClass.getName(), PROTOTYPE, beanFactory);
-        return getBean(serviceClass, PROTOTYPE);
+        log.debug("get instance [{}] from [{}]", serviceClass.getName(), beanFactory);
+        return getBean(serviceClass);
     }
 
     @Override
     public void autowrie(Object bean) throws BeansException {
         beanFactory.autowrie(bean);
+    }
+
+    @Override
+    public <T> T getBean(String beanName, Class<T> requireType) throws BeansException {
+        return beanFactory.getBean(beanName, requireType);
     }
 
 }

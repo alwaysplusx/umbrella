@@ -19,7 +19,6 @@ public class SimpleBeanFactory extends AbstractBeanFactory implements Serializab
 
     public static final SimpleBeanFactory INSTANCE = new SimpleBeanFactory();
 
-    // FIXME no effective beanName
     @Override
     public <T> T getBean(String beanName, Class<T> requireType) throws BeansException {
         return getBean(requireType);
@@ -40,13 +39,6 @@ public class SimpleBeanFactory extends AbstractBeanFactory implements Serializab
         return getBean(method.getParameterTypes()[0]);
     }
 
-    /**
-     * 反射创建bean
-     * 
-     * @param beanClass
-     * @param properties
-     * @return
-     */
     protected Object createBean(Class<?> beanClass) {
         try {
             return beanClass.newInstance();

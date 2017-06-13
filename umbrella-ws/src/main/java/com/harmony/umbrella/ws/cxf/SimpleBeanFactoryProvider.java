@@ -34,7 +34,7 @@ public class SimpleBeanFactoryProvider implements BeanFactoryProvider {
 
     @Override
     public Object getInstance(Message m) {
-        return getBean(resourceClass, isSingleton() ? SINGLETON : PROTOTYPE);
+        return getBean(resourceClass);
     }
 
     @Override
@@ -58,23 +58,18 @@ public class SimpleBeanFactoryProvider implements BeanFactoryProvider {
     }
 
     @Override
-    public <T> T getBean(String beanName, String scope) throws NoSuchBeanFoundException {
-        return beanFactory.getBean(beanName, scope);
-    }
-
-    @Override
     public <T> T getBean(Class<T> beanClass) throws NoSuchBeanFoundException {
         return beanFactory.getBean(beanClass);
     }
 
     @Override
-    public <T> T getBean(Class<T> beanClass, String scope) throws NoSuchBeanFoundException {
-        return beanFactory.getBean(beanClass, scope);
+    public void autowrie(Object bean) throws BeansException {
+        beanFactory.autowrie(bean);
     }
 
     @Override
-    public void autowrie(Object bean) throws BeansException {
-        beanFactory.autowrie(bean);
+    public <T> T getBean(String beanName, Class<T> requireType) throws BeansException {
+        return beanFactory.getBean(beanName, requireType);
     }
 
 }
