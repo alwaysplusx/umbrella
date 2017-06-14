@@ -27,10 +27,12 @@ public class ModelFragmentInterceptor implements HandlerInterceptor {
 
     @Override
     public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception {
-        Map<String, Object> model = modelAndView.getModel();
-        if (model.containsKey(ModelFragment.MODEL_FRAGMENT)) {
-            ((ModelFragment) model.get(ModelFragment.MODEL_FRAGMENT)).render(request);
-            model.remove(ModelFragment.MODEL_FRAGMENT);
+        if (modelAndView != null) {
+            Map<String, Object> model = modelAndView.getModel();
+            if (model != null && model.containsKey(ModelFragment.MODEL_FRAGMENT)) {
+                ((ModelFragment) model.get(ModelFragment.MODEL_FRAGMENT)).render(request);
+                model.remove(ModelFragment.MODEL_FRAGMENT);
+            }
         }
     }
 
