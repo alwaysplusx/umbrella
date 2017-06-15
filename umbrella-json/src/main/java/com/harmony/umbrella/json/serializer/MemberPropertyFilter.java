@@ -32,7 +32,7 @@ public abstract class MemberPropertyFilter implements PropertyPreFilter {
         if (member == null) {
             return accepptNullMember;
         }
-        return accept(member, member);
+        return accept(member, object);
     }
 
     protected Member getObjectMember(Class<?> targetClass, String name) {

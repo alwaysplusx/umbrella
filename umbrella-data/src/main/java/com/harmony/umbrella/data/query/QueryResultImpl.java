@@ -94,6 +94,12 @@ public class QueryResultImpl<T> implements QueryResult<T> {
     }
 
     @Override
+    public List<T> getRangeResultList() {
+        Pageable pageable = assembler.getPageable();
+        return getRangeList(null, pageable, domainClass);
+    }
+
+    @Override
     public Page<T> getResultPage() {
         return getResultPage(null, domainClass);
     }

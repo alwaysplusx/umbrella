@@ -67,6 +67,7 @@ public class BundleQueryMethodArgumentResolver implements HandlerMethodArgumentR
 
     protected void apply(BundleQueryAnnotation ann, JpaQueryBuilder builder) {
         builder.enable(ann.feature)//
+                .paging(ann.page, ann.size)//
                 .groupBy(ann.grouping)//
                 .asc(ann.asc)//
                 .desc(ann.desc);

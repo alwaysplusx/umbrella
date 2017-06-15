@@ -261,6 +261,7 @@ public class SerializerConfigBuilder {
 
         public LazyAttributeFilter(boolean tryFetch) {
             super(false);
+            this.tryFetch = tryFetch;
         }
 
         @Override

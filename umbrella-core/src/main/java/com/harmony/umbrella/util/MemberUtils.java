@@ -514,5 +514,10 @@ public class MemberUtils extends ReflectionUtils {
             setValue(token, target, value);
         }
 
+        @Override
+        public String toString() {
+            return rootClass.getName() + "#" + fullName;
+        }
+
     }
 }

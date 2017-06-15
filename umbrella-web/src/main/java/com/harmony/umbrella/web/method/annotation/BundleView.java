@@ -162,7 +162,7 @@ public @interface BundleView {
             }
         };
 
-        private static final String[] DEFAULT_EXCLUDES = { "id", "new", "idType", "idValue", "idNames" };
+        private static final String[] DEFAULT_EXCLUDES = { "id", "new" };
 
         public static BehaviorType convert(Class<?> type) {
             if (Page.class.isAssignableFrom(type)) {

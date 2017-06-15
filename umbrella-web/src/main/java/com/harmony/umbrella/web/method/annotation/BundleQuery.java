@@ -28,9 +28,9 @@ public @interface BundleQuery {
 
     String separator() default "";
 
-    int page() default -1;
+    int page() default 0;
 
-    int size() default -1;
+    int size() default 20;
 
     String[] grouping() default {};
 

@@ -17,7 +17,7 @@ public class ModelResourceView extends InternalResourceView {
 
     @Override
     protected void exposeModelAsRequestAttributes(Map<String, Object> model, HttpServletRequest request) throws Exception {
-        if (model.containsKey(ModelFragment.MODEL_FRAGMENT)) {
+        if (model != null && model.containsKey(ModelFragment.MODEL_FRAGMENT)) {
             ((ModelFragment) model.get(ModelFragment.MODEL_FRAGMENT)).render(request);
             model.remove(ModelFragment.MODEL_FRAGMENT);
         } else {

@@ -44,6 +44,8 @@ public interface QueryResult<T> {
 
     List<T> getResultList();
 
+    List<T> getRangeResultList();
+    
     Page<T> getResultPage();
 
     long getCountResult();
