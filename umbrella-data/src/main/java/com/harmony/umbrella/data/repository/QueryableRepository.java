@@ -25,4 +25,6 @@ public interface QueryableRepository<T, ID extends Serializable> extends JpaRepo
 
     Page<T> getResultPage(QueryBundle<T> bundle);
 
+    long getCountResult(QueryBundle<T> bundle);
+
 }

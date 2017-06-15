@@ -13,7 +13,7 @@ import com.harmony.umbrella.data.repository.QueryableRepository;
  * 
  * @author wuxii@foxmail.com
  */
-public abstract class ServiceSupport<T, ID extends Serializable> implements Service<T> {
+public abstract class ServiceSupport<T, ID extends Serializable> implements Service<T, ID> {
 
     protected abstract QueryableRepository<T, ID> getRepository();
 
@@ -28,23 +28,60 @@ public abstract class ServiceSupport<T, ID extends Serializable> implements Serv
     }
 
     @Override
+    public void delete(ID id) {
+        getRepository().delete(id);
+    }
+
+    @Override
+    public T getAndDelete(ID id) {
+        T entity = findOne(id);
+        getRepository().delete(entity);
+        return entity;
+    }
+
+    @Override
     public T findOne(QueryBundle<T> bundle) {
-        return null;
+        return getRepository().getSingleResult(bundle);
+    }
+
+    @Override
+    public T findOne(ID id) {
+        return getRepository().findOne(id);
     }
 
     @Override
     public T findFirst(QueryBundle<T> bundle) {
-        return null;
+        return getRepository().getFirstResult(bundle);
     }
 
     @Override
     public List<T> findList(QueryBundle<T> bundle) {
-        return null;
+        return getRepository().getResultList(bundle);
     }
 
     @Override
     public Page<T> findPage(QueryBundle<T> bundle) {
-        return null;
+        return getRepository().getResultPage(bundle);
+    }
+
+    @Override
+    public boolean exists(QueryBundle<T> bundle) {
+        return count(bundle) > 0;
+    }
+
+    @Override
+    public long count(QueryBundle<T> bundle) {
+        return getRepository().getCountResult(bundle);
+    }
+
+    @Override
+    public void deleteInBatch(List<T> entities) {
+        getRepository().deleteInBatch(entities);
+    }
+
+    @Override
+    public void deleteAll() {
+        getRepository().deleteAllInBatch();
     }
 
 }

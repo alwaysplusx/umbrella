@@ -61,6 +61,11 @@ public class SimpleQueryableJpaRepository<T, ID extends Serializable> extends Si
     }
 
     @Override
+    public long getCountResult(QueryBundle<T> bundle) {
+        return query(bundle).getCountResult();
+    }
+
+    @Override
     public <RESULT> RESULT query(QueryBundle<T> bundle, QueryResultFetcher<T, RESULT> fetcher) {
         return fetcher.fetch(query(bundle));
     }
