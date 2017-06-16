@@ -102,7 +102,7 @@ public class QueryBundleImpl<M> implements QueryBundle<M>, Serializable {
         if (condition != null) {
             out.append(" where ").append(condition);
         }
-        if (grouping != null && grouping.isEmpty()) {
+        if (grouping != null && !grouping.isEmpty()) {
             out.append(" group by ");
             Iterator<String> it = grouping.iterator();
             while (it.hasNext()) {

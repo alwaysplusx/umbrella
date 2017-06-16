@@ -13,7 +13,10 @@ import org.springframework.web.method.support.HandlerMethodReturnValueHandler;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
 import com.alibaba.fastjson.serializer.SerializeFilter;
+import com.harmony.umbrella.log.Log;
+import com.harmony.umbrella.log.Logs;
 import com.harmony.umbrella.util.StringUtils;
+import com.harmony.umbrella.web.method.annotation.BundleController;
 import com.harmony.umbrella.web.method.annotation.BundleView;
 import com.harmony.umbrella.web.method.annotation.BundleView.BehaviorType;
 import com.harmony.umbrella.web.method.annotation.BundleView.PatternConverter;
@@ -25,6 +28,8 @@ import com.harmony.umbrella.web.method.annotation.BundleView.PatternConverter;
  * @see BundleView
  */
 public class BundleViewMethodProcessor implements HandlerMethodReturnValueHandler, HandlerMethodArgumentResolver {
+
+    private static final Log log = Logs.getLog(BundleViewMethodProcessor.class);
 
     public BundleViewMethodProcessor() {
     }
@@ -84,47 +89,52 @@ public class BundleViewMethodProcessor implements HandlerMethodReturnValueHandle
      */
     protected void fillViewFragment(MethodParameter parameter, ViewFragment viewFragment) throws Exception {
         BundleView ann = parameter.getMethodAnnotation(BundleView.class);
-        if (ann != null) {
-            Class<?> returnType = parameter.getMethod().getReturnType();
-            final BehaviorType behavior;
-            if (AUTO.equals(ann.behavior())) {
-                behavior = BehaviorType.convert(returnType);
-            } else {
-                behavior = ann.behavior();
-            }
-            if (!NONE.equals(behavior)) {
-                // apply default behavior
-                behavior.apply(viewFragment);
-            }
+        if (ann == null) {
+            ann = BundleController.class.getAnnotation(BundleView.class);
+        }
+        if (ann == null) {
+            log.info("{} no default bundle view", parameter);
+            return;
+        }
+        Class<?> returnType = parameter.getMethod().getReturnType();
+        final BehaviorType behavior;
+        if (AUTO.equals(ann.behavior())) {
+            behavior = BehaviorType.convert(returnType);
+        } else {
+            behavior = ann.behavior();
+        }
+        if (!NONE.equals(behavior)) {
+            // apply default behavior
+            behavior.apply(viewFragment);
+        }
 
-            viewFragment.features(ann.features())//
-                    .wrappage(ann.wrappage())//
-                    .fetchLazy(ann.fetchLazy())//
-                    .safeFetch(ann.safeFetch());//
+        viewFragment.features(ann.features())//
+                .wrappage(ann.wrappage())//
+                .fetchLazy(ann.fetchLazy())//
+                .safeFetch(ann.safeFetch());//
 
-            if (StringUtils.isNotBlank(ann.encoding())) {
-                viewFragment.encoding(ann.encoding());
-            }
+        if (StringUtils.isNotBlank(ann.encoding())) {
+            viewFragment.encoding(ann.encoding());
+        }
 
-            PatternConverter converter = behavior;
-            if (!PatternConverter.class.equals(ann.converter())) {
-                converter = ann.converter().newInstance();
-            }
+        PatternConverter converter = behavior;
+        if (!PatternConverter.class.equals(ann.converter())) {
+            converter = ann.converter().newInstance();
+        }
 
-            if (ann.excludes().length > 0) {
-                viewFragment.excludes(converter, ann.excludes());
-            } else if (ann.includes().length > 0) {
-                viewFragment.includes(converter, ann.includes());
-            }
+        if (ann.excludes().length > 0) {
+            viewFragment.excludes(converter, ann.excludes());
+        } else if (ann.includes().length > 0) {
+            viewFragment.includes(converter, ann.includes());
+        }
 
-            if (StringUtils.isNotBlank(ann.contentType())) {
-                viewFragment.contentType(ann.contentType());
-            }
+        if (StringUtils.isNotBlank(ann.contentType())) {
+            viewFragment.contentType(ann.contentType());
+        }
 
-            Class<? extends SerializeFilter>[] filtersClasses = ann.filters();
-            for (Class<? extends SerializeFilter> c : filtersClasses) {
-                viewFragment.filters(c.newInstance());
-            }
+        Class<? extends SerializeFilter>[] filtersClasses = ann.filters();
+        for (Class<? extends SerializeFilter> c : filtersClasses) {
+            viewFragment.filters(c.newInstance());
         }
     }
 

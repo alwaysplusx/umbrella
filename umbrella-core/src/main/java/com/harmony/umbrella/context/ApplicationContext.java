@@ -345,7 +345,7 @@ public abstract class ApplicationContext implements BeanFactory {
         }
 
         private void init_application_classes() {
-            boolean async = Boolean.valueOf(cfg.getStringProperty("harmony.scan-async", "true"));
+            boolean async = cfg.getBooleanProperty(WebXmlConstant.APPLICATION_CFG_PROPERTIES_SCAN_ASYNC, true);
 
             if (async) {
                 new Thread(new Runnable() {

@@ -104,7 +104,7 @@ public @interface BundleView {
                     if (p.startsWith("$.")) {
                         result[i] = p.substring(2);
                     } else {
-                        result[i] = "records[*]." + p;
+                        result[i] = "content[*]." + p;
                     }
                 }
                 return result;

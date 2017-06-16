@@ -11,6 +11,7 @@ import java.util.Map.Entry;
 import java.util.StringTokenizer;
 
 import org.springframework.core.MethodParameter;
+import org.springframework.util.Assert;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
@@ -49,7 +50,7 @@ public class BundleQueryMethodArgumentResolver implements HandlerMethodArgumentR
         Class<?> domainClass = getDomainType(parameter);
         JpaQueryBuilder builder = new JpaQueryBuilder<>(domainClass);
 
-        BundleQueryAnnotation ann = BundleQueryAnnotation.create(parameter);
+        BundleQueryAnnotation ann = getBundleQueryAnnotation(parameter);
 
         apply(ann, builder);
 
@@ -96,6 +97,13 @@ public class BundleQueryMethodArgumentResolver implements HandlerMethodArgumentR
 
     protected Map<String, String[]> filterOut(String prefix, NativeWebRequest webRequest) {
         return PropertiesUtils.filterStartWith(prefix, webRequest.getParameterMap());
+    }
+
+    protected BundleQueryAnnotation getBundleQueryAnnotation(MethodParameter parameter) {
+        BundleQuery ann = parameter.getParameterAnnotation(BundleQuery.class) != null //
+                ? parameter.getParameterAnnotation(BundleQuery.class) //
+                : parameter.getMethodAnnotation(BundleQuery.class);
+        return ann == null ? BundleQueryAnnotation.EMPTY_QUERY_ANNOTATION : BundleQueryAnnotation.create(ann);
     }
 
     private static final class WebQueryBuilder {
@@ -150,13 +158,12 @@ public class BundleQueryMethodArgumentResolver implements HandlerMethodArgumentR
 
         private static final String QUERY_PARAM_PREFIX = "filter_";
         private static final String QUERY_PARAM_SEPARATOR = "_";
-
         private static final BundleQueryAnnotation EMPTY_QUERY_ANNOTATION = //
                 new BundleQueryAnnotation(//
                         QUERY_PARAM_PREFIX, //
                         QUERY_PARAM_SEPARATOR, //
-                        -1, //
-                        -1, //
+                        0, //
+                        20, //
                         Collections.emptyList(), //
                         Collections.emptyList(), //
                         Collections.emptyList(), //
@@ -172,7 +179,7 @@ public class BundleQueryMethodArgumentResolver implements HandlerMethodArgumentR
         public final List<String> desc;
         public final List<QueryFeature> feature;
 
-        public BundleQueryAnnotation(String prefix, String separator, int page, int size, List<String> grouping, List<String> asc, List<String> desc,
+        private BundleQueryAnnotation(String prefix, String separator, int page, int size, List<String> grouping, List<String> asc, List<String> desc,
                 List<QueryFeature> feature) {
             this.prefix = prefix;
             this.separator = separator;
@@ -184,20 +191,8 @@ public class BundleQueryMethodArgumentResolver implements HandlerMethodArgumentR
             this.feature = feature;
         }
 
-        public static BundleQueryAnnotation create(MethodParameter parameter) {
-            BundleQueryAnnotation ann;
-            if (parameter.getParameterAnnotation(BundleQuery.class) != null) {
-                ann = BundleQueryAnnotation.create(parameter.getParameterAnnotation(BundleQuery.class));
-            } else {
-                ann = BundleQueryAnnotation.create(parameter.getMethodAnnotation(BundleQuery.class));
-            }
-            return ann;
-        }
-
         public static BundleQueryAnnotation create(BundleQuery ann) {
-            if (ann == null) {
-                return EMPTY_QUERY_ANNOTATION;
-            }
+            Assert.notNull(ann, "bundle query annotation is null");
             String prefix = StringUtils.isBlank(ann.prefix()) ? QUERY_PARAM_PREFIX : ann.prefix();
             String separator = StringUtils.isBlank(ann.separator()) ? QUERY_PARAM_SEPARATOR : ann.separator();
             List<String> grouping = Collections.unmodifiableList(Arrays.asList(ann.grouping()));
