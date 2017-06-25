@@ -27,11 +27,11 @@ public class SimplePropertyManager extends AbstractPropertyManager {
     }
 
     public SimplePropertyManager(Properties properties) {
-        this.properties = properties;
+        this.properties = new HashMap<>(properties);
     }
 
-    public SimplePropertyManager(Map<String, String> properties) {
-        this.properties = properties;
+    public SimplePropertyManager(Map<?, ?> properties) {
+        this.properties = new HashMap<>(properties);
     }
 
     @Override

@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -260,4 +261,14 @@ public class PropertiesUtils {
         return result;
     }
 
+    public static Map<?, ?> mergeProperties(Map<?, ?>... properties) {
+        Map<Object, Object> result = new HashMap<>();
+        for (Map<?, ?> map : properties) {
+            if (map != null) {
+                result.putAll(map);
+            }
+        }
+        return result;
+    }
+    
 }

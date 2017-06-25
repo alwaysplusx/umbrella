@@ -208,6 +208,14 @@ public class XmlUtils {
         return obj instanceof String ? (String) obj : null;
     }
 
+    public static String getContent(Node item, String xpath) throws XPathException {
+        Element element = getElement(item, xpath);
+        if (element == null) {
+            throw new XPathException(xpath + " element not found");
+        }
+        return element.getTextContent();
+    }
+
     /**
      * 从指定路径中加载xml文件
      * 
