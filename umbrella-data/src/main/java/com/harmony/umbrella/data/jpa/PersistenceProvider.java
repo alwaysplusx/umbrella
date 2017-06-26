@@ -7,10 +7,14 @@ import javax.persistence.spi.PersistenceUnitInfo;
 import javax.persistence.spi.ProviderUtil;
 
 import org.eclipse.persistence.internal.jpa.EntityManagerFactoryImpl;
+import org.hibernate.jpa.boot.spi.EntityManagerFactoryBuilder;
+import org.hibernate.jpa.boot.spi.PersistenceUnitDescriptor;
 import org.springframework.util.ClassUtils;
 
 import com.harmony.umbrella.data.jpa.eclipselink.EclipselinkUtils;
 import com.harmony.umbrella.data.jpa.eclipselink.HarmonyPersistenceUnitInfo;
+import com.harmony.umbrella.data.jpa.hibernate.HarmonyPersistenceUnitDescriptor;
+import com.harmony.umbrella.data.jpa.hibernate.HibernateUtils;
 import com.harmony.umbrella.log.StaticLogger;
 
 /**
@@ -18,8 +22,8 @@ import com.harmony.umbrella.log.StaticLogger;
  */
 public class PersistenceProvider implements javax.persistence.spi.PersistenceProvider {
 
-    static final boolean eclipselinkPersent = isPersent("org.eclipse.persistence.jpa.PersistenceProvider");
-    static final boolean hibernatePersent = isPersent("org.hibernate.jpa.HibernatePersistenceProvider");
+    private static final boolean EclipseLinkPersent = isPresent("org.eclipse.persistence.jpa.PersistenceProvider");
+    private static final boolean HibernatePersent = isPresent("org.hibernate.jpa.HibernatePersistenceProvider");
 
     @Override
     public EntityManagerFactory createEntityManagerFactory(String emName, Map map) {
@@ -47,21 +51,16 @@ public class PersistenceProvider implements javax.persistence.spi.PersistencePro
     }
 
     private javax.persistence.spi.PersistenceProvider findProvider() {
-        if (eclipselinkPersent) {
-            return EclipsePersistenceProvider.INSTANCE;
-        } else if (hibernatePersent) {
+        if (HibernatePersent) {
             return HibernatePersistenceProvider.INSTANCE;
+        } else if (EclipseLinkPersent) {
+            return EclipsePersistenceProvider.INSTANCE;
         }
         throw new IllegalStateException("persistence provider not found");
     }
 
-    private static boolean isPersent(String className) {
-        try {
-            Class.forName(className, false, ClassUtils.getDefaultClassLoader());
-        } catch (ClassNotFoundException e) {
-            return false;
-        }
-        return true;
+    private static boolean isPresent(String name) {
+        return ClassUtils.isPresent(name, ClassUtils.getDefaultClassLoader());
     }
 
     private static class EclipsePersistenceProvider extends org.eclipse.persistence.jpa.PersistenceProvider {
@@ -69,7 +68,7 @@ public class PersistenceProvider implements javax.persistence.spi.PersistencePro
         private static final javax.persistence.spi.PersistenceProvider INSTANCE = new EclipsePersistenceProvider();
 
         private EclipsePersistenceProvider() {
-            StaticLogger.info("Runtime eclipselink version [%s]", org.eclipse.persistence.Version.getVersionString());
+            StaticLogger.info("Runtime EclipseLink version [%s]", org.eclipse.persistence.Version.getVersionString());
         }
 
         // override from interface
@@ -115,21 +114,29 @@ public class PersistenceProvider implements javax.persistence.spi.PersistencePro
 
         private static final HibernatePersistenceProvider INSTANCE = new HibernatePersistenceProvider();
 
-        // dependency 5.1.7
-        // private final String version = org.hibernate.Version.getVersionString();
+        public HibernatePersistenceProvider() {
+            StaticLogger.info("Runtime Hibernate version [%s]", org.hibernate.Version.getVersionString());
+        }
 
         // override from interface
 
-        @Override
-        public EntityManagerFactory createContainerEntityManagerFactory(PersistenceUnitInfo info, Map map) {
-            return null;
-        }
-
-        @Override
-        public void generateSchema(PersistenceUnitInfo info, Map map) {
-        }
-
         // override parent
+
+        @Override
+        protected EntityManagerFactoryBuilder getEntityManagerFactoryBuilder(PersistenceUnitDescriptor persistenceUnitDescriptor, Map integration,
+                ClassLoader providedClassLoader) {
+            PersistenceUnitDescriptor harmony = integrate(persistenceUnitDescriptor, integration);
+            return super.getEntityManagerFactoryBuilder(harmony, integration, providedClassLoader);
+        }
+
+        private PersistenceUnitDescriptor integrate(PersistenceUnitDescriptor master, Map map) {
+            if (master instanceof HarmonyPersistenceUnitDescriptor) {
+                return master;
+            }
+            String unitName = master.getName();
+            PersistenceUnitDescriptor slave = HibernateUtils.loadDefault(unitName, map);
+            return new HarmonyPersistenceUnitDescriptor(master, slave);
+        }
 
     }
 

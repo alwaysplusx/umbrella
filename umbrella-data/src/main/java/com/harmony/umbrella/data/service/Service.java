@@ -28,6 +28,8 @@ public interface Service<T, ID extends Serializable> {
 
     List<T> findList(QueryBundle<T> bundle);
 
+    List<T> findAll();
+
     Page<T> findPage(QueryBundle<T> bundle);
 
     boolean exists(QueryBundle<T> bundle);

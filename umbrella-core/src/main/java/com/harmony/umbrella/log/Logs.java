@@ -7,8 +7,8 @@ import java.util.ServiceLoader;
 import org.springframework.util.ClassUtils;
 
 import com.harmony.umbrella.log.Level.StandardLevel;
-import com.harmony.umbrella.log.support.CommonLogProvider;
-import com.harmony.umbrella.log.support.Slf4jLogProvider;
+import com.harmony.umbrella.log.spi.CommonLogProvider;
+import com.harmony.umbrella.log.spi.Slf4jLogProvider;
 import com.harmony.umbrella.util.Environments;
 
 /**
@@ -21,26 +21,32 @@ public final class Logs {
     static final boolean LOG_FULL_NAME;
     static final StandardLevel LOG_LEVEL;
 
-    static final boolean slf4jFactoryPresent;
-    static final boolean commonLogPresent;
+    static final boolean Slf4jLoggerPresent;
+    static final boolean CommonLogPresent;
 
     static {
         LOG_FULL_NAME = Boolean.valueOf(Environments.getProperty("umbrella.log.fullname", "false"));
         LOG_LEVEL = StandardLevel.valueOf(Environments.getProperty("umbrella.log.level", "DEBUG"));
-        slf4jFactoryPresent = ClassUtils.isPresent("org.slf4j.LoggerFactory", Logs.class.getClassLoader());
-        commonLogPresent = ClassUtils.isPresent("org.apache.commons.logging.Log", Logs.class.getClassLoader());
+        Slf4jLoggerPresent = ClassUtils.isPresent("org.slf4j.LoggerFactory", Logs.class.getClassLoader());
+        CommonLogPresent = ClassUtils.isPresent("org.apache.commons.logging.Log", Logs.class.getClassLoader());
         flushProvider();
     }
 
     public static void flushProvider() {
-        ServiceLoader<LogProvider> providers = ServiceLoader.load(LogProvider.class);
-        for (LogProvider provider : providers) {
-            logProvider = provider;
-            break;
+
+        try {
+            ServiceLoader<LogProvider> providers = ServiceLoader.load(LogProvider.class);
+            for (LogProvider provider : providers) {
+                logProvider = provider;
+                break;
+            }
+        } catch (Exception e) {
         }
+
         if (logProvider == null) {
-            logProvider = slf4jFactoryPresent ? new Slf4jLogProvider() : commonLogPresent ? new CommonLogProvider() : new SystemLogProvider();
+            logProvider = Slf4jLoggerPresent ? new Slf4jLogProvider() : CommonLogPresent ? new CommonLogProvider() : new SystemLogProvider();
         }
+
         StaticLogger.debug("Load log provider {}", logProvider);
     }
 
@@ -144,13 +150,13 @@ public final class Logs {
         }
 
         @Override
-        protected void logMessage(Level level, Message message, Throwable t) {
-            print(level, message.getFormattedMessage(), t);
+        protected void logMessage(Level level, LogInfo logInfo) {
+            print(level, logInfo.toString(), logInfo.getThrowable());
         }
 
         @Override
-        protected void logMessage(Level level, LogInfo logInfo) {
-            print(level, logInfo.toString(), logInfo.getThrowable());
+        protected void logMessage(Level level, Message message, Throwable t) {
+            print(level, message.getFormattedMessage(), t);
         }
 
         private void print(Level level, String message, Throwable t) {
@@ -187,6 +193,7 @@ public final class Logs {
             sb.append(".").append(ste.getMethodName()).append("(").append(ste.getFileName()).append(":").append(ste.getLineNumber()).append(")");
             return sb.toString();
         }
+
     }
 
 }

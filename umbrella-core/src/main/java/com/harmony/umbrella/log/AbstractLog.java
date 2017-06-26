@@ -1,6 +1,6 @@
 package com.harmony.umbrella.log;
 
-import com.harmony.umbrella.log.message.ParameterizedMessageFactory;
+import com.harmony.umbrella.log.support.MessageFactoryFactoryBean;
 
 /**
  * 日志基础抽象实现,负责桥接实际实现
@@ -22,16 +22,12 @@ public abstract class AbstractLog implements Log {
 
     public AbstractLog(String className) {
         this.className = className;
-        this.messageFactory = createDefaultMessageFactory();
+        this.messageFactory = MessageFactoryFactoryBean.getMessageFactory();
     }
 
     public AbstractLog(String className, MessageFactory messageFactory) {
         this.className = className;
         this.messageFactory = messageFactory;
-    }
-
-    protected MessageFactory createDefaultMessageFactory() {
-        return new ParameterizedMessageFactory();
     }
 
     /**
@@ -60,70 +56,39 @@ public abstract class AbstractLog implements Log {
      */
     protected abstract void logMessage(Level level, LogInfo logInfo);
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public String getName() {
         return className;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public boolean isTraceEnabled() {
         return isTraceEnabled;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public boolean isDebugEnabled() {
         return isDebugEnabled;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public boolean isInfoEnabled() {
         return isInfoEnabled;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public boolean isWarnEnabled() {
         return isWarnEnabled;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public boolean isErrorEnabled() {
         return isErrorEnabled;
     }
 
-    protected void logIfEnable(Level level, Object message) {
-        if (isEnable(level)) {
-            Message msg = messageFactory.newMessage(message);
-            logMessage(level, msg, null);
-        }
-    }
-
     protected void logIfEnable(Level level, LogInfo logInfo) {
         if (isEnable(level)) {
             logMessage(level, logInfo);
-        }
-    }
-
-    protected void logIfEnable(Level level, Object message, Throwable t) {
-        if (isEnable(level)) {
-            logMessage(level, messageFactory.newMessage(message), t);
         }
     }
 
@@ -162,169 +127,106 @@ public abstract class AbstractLog implements Log {
         return isInfoEnabled();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void trace(Object msg) {
-        logIfEnable(Level.TRACE, msg);
+        logIfEnable(Level.TRACE, String.valueOf(msg));
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void trace(String msg, Object... arguments) {
         logIfEnable(Level.TRACE, msg, arguments);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void trace(String msg, Throwable t) {
         logIfEnable(Level.TRACE, msg, t);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void trace(LogInfo logInfo) {
         logIfEnable(Level.TRACE, logInfo);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void debug(Object msg) {
-        logIfEnable(Level.DEBUG, msg);
+        logIfEnable(Level.DEBUG, String.valueOf(msg));
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void debug(String msg, Object... arguments) {
         logIfEnable(Level.DEBUG, msg, arguments);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void debug(String msg, Throwable t) {
         logIfEnable(Level.DEBUG, msg, t);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void debug(LogInfo logInfo) {
         logIfEnable(Level.DEBUG, logInfo);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void info(Object msg) {
-        logIfEnable(Level.INFO, msg);
+        logIfEnable(Level.INFO, String.valueOf(msg));
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void info(String msg, Object... arguments) {
         logIfEnable(Level.INFO, msg, arguments);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void info(String msg, Throwable t) {
         logIfEnable(Level.INFO, msg, t);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void info(LogInfo logInfo) {
         logIfEnable(Level.INFO, logInfo);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void warn(Object msg) {
-        logIfEnable(Level.WARN, msg);
+        logIfEnable(Level.WARN, String.valueOf(msg));
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void warn(String msg, Object... arguments) {
         logIfEnable(Level.WARN, msg, arguments);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void warn(String msg, Throwable t) {
         logIfEnable(Level.WARN, msg, t);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void warn(LogInfo logInfo) {
         logIfEnable(Level.WARN, logInfo);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void error(Object msg) {
-        logIfEnable(Level.ERROR, msg);
+        logIfEnable(Level.ERROR, String.valueOf(msg));
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void error(String msg, Object... arguments) {
         logIfEnable(Level.ERROR, msg, arguments);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void error(String msg, Throwable t) {
         logIfEnable(Level.ERROR, msg, t);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void error(LogInfo logInfo) {
         logIfEnable(Level.ERROR, logInfo);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public MessageFactory getMessageFactory() {
         return messageFactory;

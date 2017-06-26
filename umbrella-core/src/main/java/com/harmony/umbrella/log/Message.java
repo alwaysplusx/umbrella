@@ -1,16 +1,17 @@
 package com.harmony.umbrella.log;
 
-/**
- * @author wuxii@foxmail.com
- */
-public interface Message {
+import java.io.Serializable;
 
-    String getFormat();
+/**
+ * @author apache log4j2
+ */
+public interface Message extends Serializable {
 
     String getFormattedMessage();
+
+    String getFormat();
 
     Object[] getParameters();
 
     Throwable getThrowable();
-
 }

@@ -5,7 +5,7 @@ package com.harmony.umbrella.data.jpa;
  */
 public interface PersistenceXmlProperties {
 
-    // String SCAN_PACKAGE = "huiju.jpa.scan-packages";
+    // String SCAN_PACKAGE = "umbrella.jpa.scan-packages";
 
     String SCAN_JAR_FILE = "umbrella.jpa.scan-jar-file";
 

@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.harmony.umbrella.log.Level.StandardLevel;
+import com.harmony.umbrella.log.support.MessageFactoryFactoryBean;
 
 /**
  * 统一日志消息
@@ -48,13 +49,17 @@ public class LogMessage {
 
     private Map<String, Object> context;
 
-    public LogMessage(Log log) {
+    public LogMessage(Log log, MessageFactory messageFactory) {
         this.log = log;
-        this.messageFactory = log.getMessageFactory();
+        this.messageFactory = messageFactory;
     }
 
     public static LogMessage create(Log log) {
-        return new LogMessage(log);
+        return new LogMessage(log, MessageFactoryFactoryBean.getMessageFactory());
+    }
+
+    public static LogMessage create(Log log, MessageFactory messageFactory) {
+        return new LogMessage(log, messageFactory);
     }
 
     /**

@@ -1,4 +1,4 @@
-package com.harmony.umbrella.log.support;
+package com.harmony.umbrella.log.spi;
 
 import org.apache.commons.logging.LogFactory;
 
@@ -56,6 +56,7 @@ public class CommonLogProvider implements LogProvider {
                 logger.info(message, t);
             }
         }
+
     }
 
 }

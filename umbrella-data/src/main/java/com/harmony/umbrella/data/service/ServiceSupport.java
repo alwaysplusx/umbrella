@@ -60,6 +60,11 @@ public abstract class ServiceSupport<T, ID extends Serializable> implements Serv
     }
 
     @Override
+    public List<T> findAll() {
+        return getRepository().findAll();
+    }
+
+    @Override
     public Page<T> findPage(QueryBundle<T> bundle) {
         return getRepository().getResultPage(bundle);
     }

@@ -2,8 +2,6 @@ package com.harmony.umbrella.log;
 
 import java.io.PrintStream;
 
-import com.harmony.umbrella.log.message.StringFormattedMessage;
-
 /**
  * @author wuxii@foxmail.com
  */
@@ -47,6 +45,6 @@ public class StaticLogger {
     }
 
     private static String format(String text, Object... args) {
-        return new StringFormattedMessage(text, args).getFormattedMessage();
+        return text;
     }
 }

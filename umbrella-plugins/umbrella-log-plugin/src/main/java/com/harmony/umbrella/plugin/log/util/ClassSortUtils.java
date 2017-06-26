@@ -10,7 +10,6 @@ import java.util.List;
  */
 public class ClassSortUtils {
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
     public static void sort(Class[] classes) {
         Arrays.sort(classes, new Comparator<Class>() {
             @Override
@@ -20,7 +19,6 @@ public class ClassSortUtils {
         });
     }
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
     public static void sort(List<Class> classes) {
         Collections.sort(classes, new Comparator<Class>() {
             @Override

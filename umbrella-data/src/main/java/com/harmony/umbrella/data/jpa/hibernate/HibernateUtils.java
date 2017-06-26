@@ -66,12 +66,13 @@ public class HibernateUtils {
 
             // property jar-file
             String location = pm.getString(PersistenceXmlProperties.SCAN_JAR_FILE);
-            Set<URL> jarUrls = JarLoader.findJars(StringUtils.tokenizeToStringArray(location, ",", true, true));
-            if (jarUrls.isEmpty()) {
-                StaticLogger.warn("can't found any jars with [%s]", location);
+            if (location != null) {
+                Set<URL> jarUrls = JarLoader.findJars(StringUtils.tokenizeToStringArray(location, ",", true, true));
+                if (jarUrls.isEmpty()) {
+                    StaticLogger.warn("can't found any jars with [%s]", location);
+                }
+                result.addAll(jarUrls);
             }
-
-            result.addAll(jarUrls);
 
             return Collections.unmodifiableList(new ArrayList<>(result));
         }
