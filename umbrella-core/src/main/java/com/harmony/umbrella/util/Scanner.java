@@ -24,13 +24,13 @@ public class Scanner {
 
     private static final Log log = Logs.getLog(Scanner.class);
 
-    public static Class[] scan(Set<String> packages, boolean init, boolean sort) {
+    public static Class<?>[] scan(Set<String> packages, boolean init, boolean sort) {
         return scan(packages.toArray(new String[packages.size()]), init, sort);
     }
 
-    public static Class[] scan(String[] packages, boolean init, boolean sort) {
+    public static Class<?>[] scan(String[] packages, boolean init, boolean sort) {
 
-        List<Class> result = new ArrayList();
+        List<Class> result = new ArrayList<>();
         ClassLoader classLoader = ClassUtils.getDefaultClassLoader();
         ResourcePatternResolver resourceLoader = new PathMatchingResourcePatternResolver(classLoader);
 

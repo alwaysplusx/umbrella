@@ -186,11 +186,11 @@ public class ViewFragment {
         return new ServletServerHttpResponse(response);
     }
 
-    public static final class Page {
+    private static final class Page {
 
         private org.springframework.data.domain.Page<?> page;
 
-        public Page(org.springframework.data.domain.Page<?> page) {
+        private Page(org.springframework.data.domain.Page<?> page) {
             this.page = page;
         }
 
