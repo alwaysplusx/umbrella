@@ -37,13 +37,6 @@
     <module>umbrella-spring-boot-autoconfigure</module>
   </modules>
 
-  <distributionManagement>
-    <site>
-      <id>umbrella</id>
-      <url>http://localhost:8080/umbrella</url>
-    </site>
-  </distributionManagement>
-
   <properties>
     <encoding>UTF-8</encoding>
     <java.version>1.8</java.version>
@@ -241,34 +234,6 @@
     </dependencies>
   </dependencyManagement>
   <build>
-    <resources>
-      <resource>
-        <filtering>true</filtering>
-        <directory>src/main/java</directory>
-        <includes>
-          <include>**/*.xml</include>
-          <include>**/*.properties</include>
-        </includes>
-      </resource>
-      <resource>
-        <filtering>true</filtering>
-        <directory>src/main/resources</directory>
-      </resource>
-    </resources>
-    <testResources>
-      <testResource>
-        <filtering>true</filtering>
-        <directory>src/test/resources</directory>
-      </testResource>
-      <testResource>
-        <filtering>true</filtering>
-        <directory>src/test/java</directory>
-        <includes>
-          <include>**/*.xml</include>
-          <include>**/*.properties</include>
-        </includes>
-      </testResource>
-    </testResources>
     <pluginManagement>
       <plugins>
         <plugin>

@@ -34,7 +34,7 @@ public interface ApplicationConfiguration {
 
     boolean getBooleanProperty(String key, boolean def);
 
-    Map getApplicationProperties();
+    Map<?, ?> getApplicationProperties();
 
     Class<? extends Runnable>[] getShutdownHooks();
 

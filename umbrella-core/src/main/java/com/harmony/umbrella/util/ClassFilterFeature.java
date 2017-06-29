@@ -2,9 +2,6 @@ package com.harmony.umbrella.util;
 
 import java.lang.reflect.Modifier;
 
-import com.harmony.umbrella.log.Log;
-import com.harmony.umbrella.log.Logs;
-
 public enum ClassFilterFeature implements ClassFilter {
 
     NOTNULL {
@@ -82,14 +79,12 @@ public enum ClassFilterFeature implements ClassFilter {
         try {
             return doAccept(clazz);
         } catch (Throwable e) {
-            log.error("unable accept class {}", clazz, e);
+            // ignore
         }
         return false;
     }
 
     protected abstract boolean doAccept(Class<?> clazz);
-
-    private static final Log log = Logs.getLog(ClassFilterFeature.class);
 
     /**
      * 单抛出异常时候filter返回false
@@ -104,7 +99,7 @@ public enum ClassFilterFeature implements ClassFilter {
         try {
             return filter.accept(clazz);
         } catch (Throwable e) {
-            log.error("unable accept class {}", clazz, e);
+            // ignore
         }
         return false;
     }

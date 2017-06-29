@@ -92,7 +92,7 @@ public class ApplicationConfigurationBuilder {
         return this;
     }
 
-    public ApplicationConfigurationBuilder addProperty(Map properties) {
+    public ApplicationConfigurationBuilder addProperty(Map<?, ?> properties) {
         this.properties.putAll(properties);
         return this;
     }
@@ -312,7 +312,7 @@ public class ApplicationConfigurationBuilder {
         }
 
         @Override
-        public Map getApplicationProperties() {
+        public Map<?, ?> getApplicationProperties() {
             return Collections.unmodifiableMap(cfg.getApplicationProperties());
         }
 
@@ -382,7 +382,7 @@ public class ApplicationConfigurationBuilder {
         }
 
         @Override
-        public Map getApplicationProperties() {
+        public Map<?, ?> getApplicationProperties() {
             return properties;
         }
 

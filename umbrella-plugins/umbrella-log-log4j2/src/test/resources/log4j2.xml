@@ -8,16 +8,10 @@
     <Console name="Console" target="SYSTEM_OUT">
       <PatternLayout pattern="${DEV_PATTERN}" />
     </Console>
-    <huiju-jdbc name="huiju-console">
-      <filters>
-        <typeFilter />
-      </filters>
-    </huiju-jdbc>
   </Appenders>
   <Loggers>
     <Root level="info">
       <AppenderRef ref="Console" />
-      <AppenderRef ref="huiju-console" />
     </Root>
   </Loggers>
 </Configuration>

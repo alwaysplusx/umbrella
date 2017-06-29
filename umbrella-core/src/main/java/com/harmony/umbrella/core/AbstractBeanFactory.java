@@ -20,10 +20,6 @@ public abstract class AbstractBeanFactory implements BeanFactory {
     public AbstractBeanFactory() {
     }
 
-    public AbstractBeanFactory(Class<? extends Annotation>... anns) {
-        this.autowrieAnnotations = anns;
-    }
-
     protected abstract Object getBean(Field field);
 
     protected abstract Object getBean(Method method);
