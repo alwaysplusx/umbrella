@@ -15,13 +15,24 @@ public final class Response extends LinkedHashMap<String, Object> {
     }
 
     public static ErrorResponseBuilder error(String error) {
-        return null;
+        return new ErrorResponseBuilder();
+    }
+
+    public static ResponseBuilder success() {
+        return new ResponseBuilder();
     }
 
     protected static class AbstractResponseBuider<T extends AbstractResponseBuider> {
 
+        protected final Response response = new Response();
+
         public T param(String key, Object value) {
+            response.put(key, value);
             return (T) this;
+        }
+
+        public Response build() {
+            return response;
         }
 
     }
@@ -33,15 +44,11 @@ public final class Response extends LinkedHashMap<String, Object> {
     public static class ErrorResponseBuilder extends AbstractResponseBuider<ErrorResponseBuilder> {
 
         public ErrorResponseBuilder code(int code) {
-            return this;
+            return param("error_code", code);
         }
 
         public ErrorResponseBuilder error(String error) {
-            return this;
-        }
-
-        public Response build() {
-            return null;
+            return param("error", error);
         }
 
     }

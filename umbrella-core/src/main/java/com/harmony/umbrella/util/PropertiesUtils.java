@@ -9,6 +9,7 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 
@@ -210,15 +211,7 @@ public class PropertiesUtils {
     public static Properties filterStartWith(String prefix, Properties props, boolean ignoreCase) {
         Assert.hasLength(prefix, "prefix not allow null or blank");
         Properties result = new Properties();
-        if (props == null || props.isEmpty()) {
-            return result;
-        }
-        Set<String> propertyNames = props.stringPropertyNames();
-        for (String name : propertyNames) {
-            if (name.startsWith(prefix) || (ignoreCase && name.toLowerCase().startsWith(prefix.toLowerCase()))) {
-                result.put(name, props.get(name));
-            }
-        }
+        result.putAll(filterStartWith(prefix, (Map) props, ignoreCase));
         return result;
     }
 
@@ -248,9 +241,6 @@ public class PropertiesUtils {
      */
     public static <T> Map<String, T> filterStartWith(String prefix, Map<String, T> map, boolean ignoreCase) {
         Assert.notNull(prefix, "prefix not allow null");
-        if (StringUtils.isBlank(prefix)) {
-            return new LinkedHashMap<String, T>(map);
-        }
         Map<String, T> result = new LinkedHashMap<String, T>();
         Set<String> keys = map.keySet();
         for (String key : keys) {
@@ -261,14 +251,58 @@ public class PropertiesUtils {
         return result;
     }
 
-    public static Map<?, ?> mergeProperties(Map<?, ?>... properties) {
+    /**
+     * 过滤属性
+     * 
+     * @param properties
+     *            带过来的属性
+     * @param entryFilter
+     *            entry filter
+     * @return
+     */
+    public static Map<Object, Object> filter(Map<Object, Object> properties, EntryFilter entryFilter) {
+        Map result = new LinkedHashMap<>();
+        for (Entry entry : properties.entrySet()) {
+            if (entryFilter.accept(entry)) {
+                result.put(entry.getKey(), entry.getValue());
+            }
+        }
+        return result;
+    }
+
+    /**
+     * 合并properties
+     * 
+     * @param properties
+     *            属性组
+     * @return 合并后的属性
+     */
+    public static Map<Object, Object> mergeProperties(Map<Object, Object>... properties) {
         Map<Object, Object> result = new HashMap<>();
-        for (Map<?, ?> map : properties) {
+        for (Map map : properties) {
             if (map != null) {
                 result.putAll(map);
             }
         }
         return result;
     }
-    
+
+    /**
+     * 属性entry过滤器
+     * 
+     * @author wuxii@foxmail.com
+     */
+    public interface EntryFilter {
+
+        /**
+         * 属性过滤
+         * 
+         * @param entry
+         *            属性entry
+         * @return true or false
+         */
+        boolean accept(Map.Entry<Object, Object> entry);
+
+    }
+
 }

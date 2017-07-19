@@ -4,11 +4,7 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.StringTokenizer;
 
 import org.springframework.core.MethodParameter;
 import org.springframework.util.Assert;
@@ -18,14 +14,10 @@ import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
-import com.harmony.umbrella.core.Member;
-import com.harmony.umbrella.data.Operator;
 import com.harmony.umbrella.data.query.JpaQueryBuilder;
 import com.harmony.umbrella.data.query.QueryBuilder;
 import com.harmony.umbrella.data.query.QueryBundle;
 import com.harmony.umbrella.data.query.QueryFeature;
-import com.harmony.umbrella.util.MemberUtils;
-import com.harmony.umbrella.util.PropertiesUtils;
 import com.harmony.umbrella.util.StringUtils;
 import com.harmony.umbrella.web.method.annotation.BundleQuery;
 
@@ -46,32 +38,14 @@ public class BundleQueryMethodArgumentResolver implements HandlerMethodArgumentR
     @Override
     public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer, NativeWebRequest webRequest,
             WebDataBinderFactory binderFactory) throws Exception {
-        // 不同的参数类型选择的泛型位置不同
         Class<?> domainClass = getDomainType(parameter);
-        JpaQueryBuilder builder = new JpaQueryBuilder<>(domainClass);
-
         BundleQueryAnnotation ann = getBundleQueryAnnotation(parameter);
-
-        apply(ann, builder);
-
-        Map<String, String[]> queryParams = filterOut(ann.prefix, webRequest);
-
         WebDataBinder binder = binderFactory.createBinder(webRequest, null, null);
 
-        if (!queryParams.isEmpty()) {
-            WebQueryBuilder queryBuilder = new WebQueryBuilder(domainClass, ann, binder, builder);
-            queryBuilder.apply(queryParams);
-        }
+        JpaQueryBuilder<?> builder = new WebQueryAssembly(ann, binder, webRequest, domainClass)//
+                .assemble();
 
         return QueryBundle.class.isAssignableFrom(parameter.getParameterType()) ? builder.bundle() : builder;
-    }
-
-    protected void apply(BundleQueryAnnotation ann, JpaQueryBuilder builder) {
-        builder.enable(ann.feature)//
-                .paging(ann.page, ann.size)//
-                .groupBy(ann.grouping)//
-                .asc(ann.asc)//
-                .desc(ann.desc);
     }
 
     public final Class<?> getDomainType(MethodParameter parameter) {
@@ -95,63 +69,11 @@ public class BundleQueryMethodArgumentResolver implements HandlerMethodArgumentR
         throw new IllegalArgumentException("QueryBundle not have generic(domain) type");
     }
 
-    protected Map<String, String[]> filterOut(String prefix, NativeWebRequest webRequest) {
-        return PropertiesUtils.filterStartWith(prefix, webRequest.getParameterMap());
-    }
-
     protected BundleQueryAnnotation getBundleQueryAnnotation(MethodParameter parameter) {
         BundleQuery ann = parameter.getParameterAnnotation(BundleQuery.class) != null //
                 ? parameter.getParameterAnnotation(BundleQuery.class) //
                 : parameter.getMethodAnnotation(BundleQuery.class);
         return ann == null ? BundleQueryAnnotation.EMPTY_QUERY_ANNOTATION : BundleQueryAnnotation.create(ann);
-    }
-
-    private static final class WebQueryBuilder {
-
-        private BundleQueryAnnotation ann;
-        private WebDataBinder binder;
-        private JpaQueryBuilder builder;
-        private Class domainClass;
-
-        public WebQueryBuilder(Class domainClass, BundleQueryAnnotation ann, WebDataBinder binder, JpaQueryBuilder builder) {
-            this.binder = binder;
-            this.domainClass = domainClass;
-            this.builder = builder;
-            this.ann = ann;
-        }
-
-        public void apply(Map<String, String[]> queryParams) {
-            Iterator<Entry<String, String[]>> it = queryParams.entrySet().iterator();
-            while (it.hasNext()) {
-                Entry<String, String[]> entry = it.next();
-                String key = entry.getKey().substring(ann.prefix.length());
-                String[] values = entry.getValue();
-                StringTokenizer st = new StringTokenizer(key, "AND");
-                int index = 0;
-                for (; st.hasMoreTokens();) {
-                    builder.and();
-                    StringTokenizer rawConditionTokenizer = new StringTokenizer(st.nextToken(), "OR");
-                    builder.start();
-                    try {
-                        for (; rawConditionTokenizer.hasMoreTokens();) {
-                            StringTokenizer raw = new StringTokenizer(rawConditionTokenizer.nextToken());
-                            Operator operator = Operator.forName(raw.nextToken(ann.separator));
-                            String propertyName = raw.nextToken().replaceAll(ann.separator, ".");
-                            Member rawMember = MemberUtils.accessMember(domainClass, propertyName);
-                            Object value = binder.convertIfNecessary(values[index++], rawMember.getType());
-                            builder.addCondition(propertyName, value, operator);
-                            if (rawConditionTokenizer.hasMoreTokens()) {
-                                builder.or();
-                            }
-                        }
-                    } catch (ArrayIndexOutOfBoundsException e) {
-                        throw new IllegalArgumentException("not enough query parameters", e);
-                    }
-                    builder.end();
-                }
-            }
-        }
-
     }
 
     public static final class BundleQueryAnnotation {

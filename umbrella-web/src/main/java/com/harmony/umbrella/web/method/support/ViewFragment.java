@@ -26,12 +26,17 @@ import com.harmony.umbrella.util.StringUtils;
 import com.harmony.umbrella.web.method.annotation.BundleView.PatternConverter;
 
 /**
+ * 待渲染的视图片段(用于配置视图)
+ * 
  * @author wuxii@foxmail.com
  */
 public class ViewFragment {
 
     private static final Log log = Logs.getLog(ViewFragment.class);
 
+    /**
+     * ModelAndViewContainer中的key
+     */
     public static final String VIEW_FRAGMENT = "viewFragment";
 
     public static final String ENCODING = "UTF-8";

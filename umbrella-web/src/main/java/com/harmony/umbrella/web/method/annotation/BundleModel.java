@@ -36,11 +36,26 @@ public @interface BundleModel {
     @AliasFor("prefix")
     String value() default "";
 
+    /**
+     * 提交数据的前缀
+     * 
+     * @return 前缀
+     */
     @AliasFor("value")
     String prefix() default "";
 
+    /**
+     * model名称的分隔符
+     * 
+     * @return 分隔符
+     */
     String separator() default ".";
 
+    /**
+     * mavContainer Model中的名称
+     * 
+     * @return model name
+     */
     String model() default "";
 
 }

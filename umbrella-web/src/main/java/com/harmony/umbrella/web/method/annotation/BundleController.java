@@ -9,6 +9,8 @@ import java.lang.annotation.Target;
 import org.springframework.stereotype.Controller;
 
 /**
+ * 自定义Bundle控制器
+ * 
  * @author wuxii@foxmail.com
  */
 @Documented

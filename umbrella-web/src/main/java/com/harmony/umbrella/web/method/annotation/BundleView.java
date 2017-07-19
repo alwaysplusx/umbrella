@@ -21,11 +21,16 @@ import com.harmony.umbrella.web.method.support.ViewFragment;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface BundleView {
 
+    /**
+     * alias for excludes
+     * 
+     * @return 渲染view时候需要排除的字段
+     */
     @AliasFor("excludes")
     String[] value() default {};
 
     /**
-     * 序列化排除的字段
+     * 渲染view时候需要排除的字段
      * 
      * @return serialzation excludes
      */
@@ -33,14 +38,14 @@ public @interface BundleView {
     String[] excludes() default {};
 
     /**
-     * 只序列化的字段
+     * view所需要序列化的字段
      * 
-     * @return serialzation includes
+     * @return 所需要序列化的字段
      */
     String[] includes() default {};
 
     /**
-     * json序列化的特性
+     * view进行序列化的特性
      * 
      * @return 序列化特性
      */
@@ -67,18 +72,53 @@ public @interface BundleView {
      */
     boolean safeFetch() default true;
 
+    /**
+     * 序列化到web前台时候的content-type
+     * 
+     * @return content-type
+     */
     String contentType() default "";
 
+    /**
+     * 是否对{@linkplain org.springframework.data.domain.Page Page}进行自动封装
+     * 
+     * @return 自动封装page
+     */
     boolean wrappage() default true;
 
+    /**
+     * 对内容类型的序列化行为
+     * 
+     * @return 序列化内容的类型行为
+     */
     BehaviorType behavior() default BehaviorType.AUTO;
 
+    /**
+     * 渲染到web前台的内容字符集
+     * 
+     * @return 渲染的字符集
+     */
     String encoding() default "";
 
+    /**
+     * 内容类型序列化行为自定义类
+     * 
+     * @return 内容序列化自定义类
+     */
     Class<? extends BundleViewBehavior> behaviorClass() default BundleViewBehavior.class;
 
+    /**
+     * 序列化字段的转换器
+     * 
+     * @return 序列化字段转化器
+     */
     Class<? extends PatternConverter> converter() default PatternConverter.class;
 
+    /**
+     * 对内容类型序列化的行为设置
+     * 
+     * @author wuxii@foxmail.com
+     */
     public enum BehaviorType implements PatternConverter, BundleViewBehavior {
 
         AUTO {

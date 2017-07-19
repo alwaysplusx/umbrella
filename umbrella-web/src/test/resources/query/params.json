@@ -1,0 +1,19 @@
+{
+	"name": "username",
+	"value": "wuxii",
+	"operator": "equals",
+	"params": [
+		{
+			"name": "age",
+			"value": "18",
+			"operator": "greateThan",
+			"composition": "AND"
+		},
+		{
+			"name": "password",
+			"value": "abc123",
+			"operator": "equals",
+			"composition": "OR"
+		}
+	]
+}
