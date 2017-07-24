@@ -32,7 +32,7 @@ public class BundleQueryMethodArgumentResolver implements HandlerMethodArgumentR
     @Override
     public boolean supportsParameter(MethodParameter parameter) {
         Class<?> rowType = parameter.getParameterType();
-        return rowType.isAssignableFrom(QueryBundle.class) || rowType.isAssignableFrom(QueryBuilder.class);
+        return rowType == QueryBundle.class || QueryBuilder.class == rowType || JpaQueryBuilder.class == rowType;
     }
 
     @Override

@@ -1,18 +1,17 @@
 {
 	"name": "username",
 	"value": "wuxii",
-	"operator": "equals",
+	"operator": "1",
 	"params": [
 		{
 			"name": "age",
 			"value": "18",
-			"operator": "greateThan",
-			"composition": "AND"
+			"operator": "2"
 		},
 		{
 			"name": "password",
 			"value": "abc123",
-			"operator": "equals",
+			"operator": "2",
 			"composition": "OR"
 		}
 	]

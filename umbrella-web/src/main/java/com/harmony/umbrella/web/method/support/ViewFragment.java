@@ -206,7 +206,7 @@ public class ViewFragment {
 
         @JSONField(ordinal = 1)
         public int getPage() {
-            return page.getNumber();
+            return page.getNumber() + 1;
         }
 
         @JSONField(ordinal = 2)

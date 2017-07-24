@@ -58,19 +58,14 @@ class WebQueryAssembly {
     protected void applyRequestQueryParameters() {
         Set<Entry<String, String[]>> entries = getRequestParameters().entrySet();
         for (Entry<String, String[]> entry : entries) {
-            applyQueryParameter(builder, parseEntry(entry.getKey(), entry.getValue()));
+            QueryParameter parameter = parseEntry(entry.getKey(), entry.getValue());
+            parameter.apply(builder);
         }
-    }
-
-    protected void applyQueryParameter(JpaQueryBuilder builder, QueryParameter queryParameter) {
-        // builder//
-        //        .start(queryParameter.compositionType)//
-        //        .addCondition(queryParameter.name, queryParameter.value, queryParameter.operator);
     }
 
     protected int getPage() {
         int page = getInteger("page", -1);
-        return page == -1 ? ann.page : page - 1;
+        return page == -1 ? ann.page : page == 0 ? 0 : page - 1;
     }
 
     protected int getSize() {

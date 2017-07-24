@@ -34,7 +34,7 @@ public class HibernateUtils {
             if (name.equals(unit.getName())//
                     && (ProviderChecker.isProvider(unit, properties) //
                             || PersistenceProvider.class.getName().equals(providerClassName))) {
-                Map mergeProperties = PropertiesUtils.mergeProperties(unit.getProperties(), properties);
+                Map mergeProperties = PropertiesUtils.mergeProperties(unit.getProperties(), (Map) properties);
                 return new HibernatePersistenceUnitDescriptor(mergeProperties, unit);
             }
         }
