@@ -22,7 +22,7 @@ public class EJBApplicationContextProvider implements ApplicationContextProvider
 
     private static final String DEFAULT_CONTEXT = "classpath*:default-ee.xml";
 
-    private static final String APPLICATION_CONTEXT = "classpath:huiju-ee.xml";
+    private static final String APPLICATION_CONTEXT = "classpath:harmony-ee.xml";
 
     private static org.springframework.context.ApplicationContext springContext;
 
@@ -65,7 +65,7 @@ public class EJBApplicationContextProvider implements ApplicationContextProvider
         if (appResource.exists()) {
             app = new ClassPathXmlApplicationContext(new String[] { APPLICATION_CONTEXT }, app);
         } else {
-            log.info("You can add huiju-ee.xml in classpath to override default application configuration");
+            log.info("You can add harmony-ee.xml in classpath to override default application configuration");
         }
         return app;
     }

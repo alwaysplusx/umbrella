@@ -10,44 +10,9 @@
     </layout>
   </appender>
 
-  <!-- 
-    | 可配置的字段名称, 相同的source名称只允许配置一次
-    |  Key - 业务数据key
-    |  Message - 日志消息
-    |  Type - 日志的类别(LogType.System, LogType.Operation)
-    |  Result - 操作结果
-    |  Module - 模块
-    |  Action - 日志的操作动作
-    |  Throwable - 日志异常的原因
-    |  Level - 日志级别
-    |  RequestTime - 操作开始时间
-    |  ResponseTime - 操作结束时间
-    |  OperatorName - 操作人员名称
-    |  OperatorId - 操作人员id
-    |  OperatorHost - 操作的人的主机地址
-    |  StackLocation - 日志发生的方法栈
-    |  ThreadName - 日志发生的线程名称
-    |  Context - 日志context内容
-   -->
-  <appender name="jdbc" class="com.huiju.module.log4j.jdbc.JdbcAppender">
-    <param name="tableName" value="TEST_LOGMESSAGE" />
-    <param name="url" value="jdbc:oracle:thin:@192.168.1.156:1521/platform" />
-    <param name="user" value="platform" />
-    <param name="password" value="ptt715" />
-    <param name="include" value="all" />
-    <columns>
-      <column source="#uuid" target="logId" />
-      <column source="#time" target="createTime" />
-      <column source="level" target="levelName" />
-      <column source="throwable" target="exceptionMessage" />
-      <column source="type" target="logType" />
-    </columns>
-  </appender>
-
   <root>
     <level value="debug" />
     <appender-ref ref="console" />
-    <!-- <appender-ref ref="jdbc" /> -->
   </root>
 
 </log4j:configuration>

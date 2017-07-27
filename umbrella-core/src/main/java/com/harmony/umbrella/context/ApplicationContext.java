@@ -138,7 +138,7 @@ public abstract class ApplicationContext implements BeanFactory {
      * 获取当前应用的应用上下文
      * <p>
      * 加载
-     * {@code META-INF/services/com.huiju.module.context.ApplicationContextProvider}
+     * {@code META-INF/services/com.harmony.umbrella.context.ApplicationContextProvider}
      * 文件中的实际类型来创建
      *
      * @return 应用上下文

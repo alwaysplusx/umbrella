@@ -95,7 +95,7 @@ public abstract class ProxySupport<T> implements Proxy<T> {
     }
 
     /**
-     * @see com.huiju.module.ws.proxy.Proxy#syncInBatch(List)
+     * @see com.harmony.umbrella.ws.proxy.Proxy#syncInBatch(List)
      * @see #syncInBatch(List, Map)
      */
     @Override
@@ -106,7 +106,7 @@ public abstract class ProxySupport<T> implements Proxy<T> {
     /**
      * 默认不开启批量同步
      *
-     * @see com.huiju.module.ws.proxy.Proxy#syncInBatch(List)
+     * @see com.harmony.umbrella.ws.proxy.Proxy#syncInBatch(List)
      */
     @Override
     public boolean syncInBatch(List<T> objects, Map<String, Object> properties) {

@@ -9,26 +9,10 @@
       <param name="ConversionPattern" value="[%p] %c{1}.%M(%F:%L) - %m%n" />
     </layout>
   </appender>
-
-  <appender name="jdbc" class="com.huiju.module.log.jdbc.JdbcAppender">
-    <param name="tableName" value="T_LOG" />
-    <param name="url" value="jdbc:h2:file:~/.h2/huiju" />
-    <param name="user" value="sa" />
-    <param name="password" value="" />
-    <!-- <param name="includeFields" value="" /> -->
-    <param name="excludeFields" value="context" />
-    <columns>
-      <column source="module" target="module" />
-      <column source="action" target="action" />
-      <column source="message" target="message" />
-      <column source="level" target="level" />
-    </columns>
-  </appender>
-
+  
   <root>
     <level value="debug" />
     <appender-ref ref="console" />
-    <appender-ref ref="jdbc" />
   </root>
 
 </log4j:configuration>
