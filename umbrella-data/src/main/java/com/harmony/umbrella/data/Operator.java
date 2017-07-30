@@ -14,7 +14,7 @@ import org.springframework.util.Assert;
 
 import com.harmony.umbrella.util.StringUtils;
 
-public enum Operator {
+public enum Operator implements ExpressionExplainer {
 
     EQUAL("=", "EQ") {
 
@@ -306,8 +306,6 @@ public enum Operator {
      */
     public abstract Operator negated();
 
-    public abstract Predicate explain(Expression x, CriteriaBuilder cb, Object y);
-
     /**
      * sql对应的操作符
      * 
@@ -324,6 +322,11 @@ public enum Operator {
      */
     public String qualifiedName() {
         return qualifiedName;
+    }
+
+    @Override
+    public String toString() {
+        return symbol;
     }
 
     public static Operator forName(String qualifiedName) {

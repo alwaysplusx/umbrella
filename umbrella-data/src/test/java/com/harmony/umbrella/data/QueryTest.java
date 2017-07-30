@@ -6,6 +6,10 @@ import java.util.List;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Persistence;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -110,4 +114,25 @@ public class QueryTest {
         List<String> v = builder.distinct().allowFullTableQuery().execute().getColumnResultList("content", String.class);
         assertEquals(1, v.size());
     }
+
+    @Test
+    public void testSizeOf() {
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Model> query = cb.createQuery(Model.class);
+        Root<Model> root = query.from(Model.class);
+        Predicate predicate = cb.equal(cb.size(root.get("subModels")), 0);
+        query.where(predicate);
+        entityManager.createQuery(query).getResultList();
+    }
+
+    @Test
+    public void testSizeOfWithBuilder() {
+        builder.sizeOf("subModels", 0).getResultList();
+    }
+
+    @Test
+    public void testSubModelQuery() {
+        builder.equal("subModels.name", "wuxii").getResultList();
+    }
+
 }

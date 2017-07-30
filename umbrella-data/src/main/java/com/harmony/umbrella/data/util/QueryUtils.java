@@ -97,6 +97,10 @@ public abstract class QueryUtils {
     }
 
     public static <T> Expression<T> functionExpression(String name, Root<?> root, CriteriaBuilder builder, Class<T> type) {
+        return functionExpression(name, root, builder, type, true);
+    }
+
+    public static <T> Expression<T> functionExpression(String name, Root<?> root, CriteriaBuilder builder, Class<T> type, boolean autoJoin) {
         StringTokenizer st = new StringTokenizer(name);
         String f = st.nextToken("(").trim();
         String n = st.nextToken(")").substring(1).trim();
@@ -104,7 +108,11 @@ public abstract class QueryUtils {
     }
 
     public static <T> Expression<T> toExpressionRecursively(final From<?, ?> from, String name) {
-        return toExpressionRecursively(from, new StringTokenizer(name, "."));
+        return toExpressionRecursively(from, name, true);
+    }
+
+    public static <T> Expression<T> toExpressionRecursively(final From<?, ?> from, String name, boolean autoJoin) {
+        return toExpressionRecursively(from, new StringTokenizer(name, "."), autoJoin);
     }
 
     public static List<javax.persistence.criteria.Order> toOrders(Sort sort, Root<?> root, CriteriaBuilder cb) {
@@ -117,7 +125,11 @@ public abstract class QueryUtils {
     }
 
     public static Expression<?> parseExpression(String name, Root<?> root, CriteriaBuilder cb) {
-        return QueryUtils.isFunctionExpression(name) ? QueryUtils.functionExpression(name, root, cb, null) : QueryUtils.toExpressionRecursively(root, name);
+        return parseExpression(name, root, cb, true);
+    }
+
+    public static Expression<?> parseExpression(String name, Root<?> root, CriteriaBuilder cb, boolean autoJoin) {
+        return isFunctionExpression(name) ? functionExpression(name, root, cb, null, autoJoin) : toExpressionRecursively(root, name, autoJoin);
     }
 
     public static <T> Specification<T> all(Specification<T>... specs) {
@@ -141,7 +153,7 @@ public abstract class QueryUtils {
         return query.getRestriction() != null;
     }
 
-    private static <T> Expression<T> toExpressionRecursively(From<?, ?> from, StringTokenizer st) {
+    private static <T> Expression<T> toExpressionRecursively(From<?, ?> from, StringTokenizer st, boolean autoJoin) {
         Bindable<?> propertyPathModel = null;
         Bindable<?> model = from.getModel();
         String segment = st.nextToken();
@@ -150,9 +162,9 @@ public abstract class QueryUtils {
         } else {
             propertyPathModel = from.get(segment).getModel();
         }
-        if (requiresJoin(propertyPathModel, model instanceof PluralAttribute) && !isAlreadyFetched(from, segment)) {
+        if (autoJoin && requiresJoin(propertyPathModel, model instanceof PluralAttribute) && !isAlreadyFetched(from, segment)) {
             Join<?, ?> join = getOrCreateJoin(from, segment);
-            return (Expression<T>) (st.hasMoreTokens() ? toExpressionRecursively(join, st) : join);
+            return (Expression<T>) (st.hasMoreTokens() ? toExpressionRecursively(join, st, autoJoin) : join);
         } else {
             Path result = from.get(segment);
             while (st.hasMoreTokens()) {
@@ -160,6 +172,7 @@ public abstract class QueryUtils {
             }
             return result;
         }
+
     }
 
     /**

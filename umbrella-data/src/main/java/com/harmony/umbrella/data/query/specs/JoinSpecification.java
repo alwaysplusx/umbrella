@@ -29,7 +29,7 @@ public class JoinSpecification<T> implements Specification<T>, Serializable {
     @Override
     public Predicate toPredicate(Root<T> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
         for (Attribute attr : attrs) {
-            root.join(attr.name, attr.joniType == null ? JoinType.INNER : attr.joniType);
+            root.join(attr.name, attr.joniType == null ? JoinType.LEFT : attr.joniType);
         }
         return null;
     }

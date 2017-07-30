@@ -19,11 +19,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.domain.Sort.NullHandling;
 import org.springframework.data.domain.Sort.Order;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.util.Assert;
 
 import com.harmony.umbrella.data.CompositionType;
+import com.harmony.umbrella.data.ExpressionExplainer;
 import com.harmony.umbrella.data.Operator;
 import com.harmony.umbrella.data.query.specs.ConditionSpecification;
 import com.harmony.umbrella.data.query.specs.ExperssionSpecification;
@@ -468,6 +470,32 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
     }
 
     /**
+     * 设置size of条件
+     * 
+     * @param name
+     *            字段
+     * @param size
+     *            size
+     * @return this
+     */
+    public T sizeOf(String name, long size) {
+        return addCondition(name, size, Operator.SIZE_OF, false);
+    }
+
+    /**
+     * 设置not size of条件
+     * 
+     * @param name
+     *            字段
+     * @param size
+     *            size
+     * @return
+     */
+    public T notSizeOf(String name, long size) {
+        return addCondition(name, size, Operator.NOT_SIZE_OF, false);
+    }
+
+    /**
      * 设置条件的连接条件and
      * 
      * @return this
@@ -509,7 +537,26 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
      * @return this
      */
     public T addCondition(String name, Object value, Operator operator) {
-        return (T) addSpecication(new ConditionSpecification<>(name, value, operator));
+        return addCondition(name, value, (ExpressionExplainer) operator);
+    }
+
+    /**
+     * 添加查询条件
+     * 
+     * @param name
+     *            字段
+     * @param value
+     *            值
+     * @param operator
+     *            条件类型
+     * @return this
+     */
+    public T addCondition(String name, Object value, ExpressionExplainer operator) {
+        return (T) addCondition(name, value, operator, true);
+    }
+
+    protected T addCondition(String name, Object value, ExpressionExplainer operator, boolean autoJoin) {
+        return (T) addSpecication(new ConditionSpecification<>(name, value, operator, autoJoin));
     }
 
     /**
@@ -619,6 +666,10 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
         return (T) this;
     }
 
+    public T asc(String name, NullHandling nullHandling) {
+        return orderBy(new Order(Direction.ASC, name, nullHandling));
+    }
+
     /**
      * 设置升序排序条件
      * 
@@ -639,6 +690,10 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
      */
     public T asc(List<String> name) {
         return orderBy(Direction.ASC, name);
+    }
+
+    public T desc(String name, NullHandling nullHandling) {
+        return orderBy(new Order(Direction.DESC, name, nullHandling));
     }
 
     /**
