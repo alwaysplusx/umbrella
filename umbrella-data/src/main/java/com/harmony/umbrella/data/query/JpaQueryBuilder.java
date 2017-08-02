@@ -12,6 +12,7 @@ import javax.persistence.criteria.Subquery;
 
 import org.springframework.data.jpa.domain.Specification;
 
+import com.harmony.umbrella.data.CompositionType;
 import com.harmony.umbrella.data.Operator;
 import com.harmony.umbrella.data.query.QueryResult.Selections;
 import com.harmony.umbrella.data.util.QueryUtils;
@@ -46,6 +47,136 @@ public class JpaQueryBuilder<M> extends QueryBuilder<JpaQueryBuilder<M>, M> {
 
     public <R> SubqueryBuilder<R> subquery(Class<R> clazz) {
         return this.new SubqueryBuilder<R>(clazz, this);
+    }
+
+    public OneTimeColumn start(String name) {
+        return new OneTimeColumn(name, CompositionType.AND);
+    }
+
+    public OneTimeColumn and(String name) {
+        return new OneTimeColumn(name, CompositionType.AND);
+    }
+
+    public OneTimeColumn or(String name) {
+        return new OneTimeColumn(name, CompositionType.OR);
+    }
+
+    /**
+     * 用于创建列条件(使用条件方法后无法再次设置条件)
+     * 
+     * FIXME 一次性限制
+     * 
+     * @author wuxii@foxmail.com
+     */
+    public final class OneTimeColumn {
+
+        private JpaQueryBuilder<M> parent;
+
+        private String name;
+        private CompositionType composition;
+
+        private OneTimeColumn(String name, CompositionType composition) {
+            this.name = name;
+            this.composition = composition;
+            this.parent = JpaQueryBuilder.this;
+        }
+
+        public JpaQueryBuilder<M> equal(Object val) {
+            parent.assembleType = composition;
+            parent.equal(name, val);
+            return parent;
+        }
+
+        public JpaQueryBuilder<M> notEqual(Object val) {
+            parent.assembleType = composition;
+            parent.notEqual(name, val);
+            return parent;
+        }
+
+        public JpaQueryBuilder<M> like(Object val) {
+            parent.assembleType = composition;
+            parent.like(name, val);
+            return parent;
+        }
+
+        public JpaQueryBuilder<M> notLike(Object val) {
+            parent.assembleType = composition;
+            parent.notLike(name, val);
+            return parent;
+        }
+
+        public JpaQueryBuilder<M> in(Object val) {
+            parent.assembleType = composition;
+            parent.in(name, val);
+            return parent;
+        }
+
+        public JpaQueryBuilder<M> notIn(Object val) {
+            parent.assembleType = composition;
+            parent.notIn(name, val);
+            return parent;
+        }
+
+        public JpaQueryBuilder<M> between(Object left, Object right) {
+            parent.assembleType = composition;
+            parent.between(name, left, right);
+            return parent;
+        }
+
+        public JpaQueryBuilder<M> notBetween(Object left, Object right) {
+            parent.assembleType = composition;
+            parent.notBetween(name, left, right);
+            return parent;
+        }
+
+        public JpaQueryBuilder<M> greatThen(Object val) {
+            parent.assembleType = composition;
+            parent.greatThen(name, val);
+            return parent;
+        }
+
+        public JpaQueryBuilder<M> greatEqual(Object val) {
+            parent.assembleType = composition;
+            parent.greatEqual(name, val);
+            return parent;
+        }
+
+        public JpaQueryBuilder<M> lessThen(Object val) {
+            parent.assembleType = composition;
+            parent.lessThen(name, val);
+            return parent;
+        }
+
+        public JpaQueryBuilder<M> lessEqual(Object val) {
+            parent.assembleType = composition;
+            parent.lessEqual(name, val);
+            return parent;
+        }
+
+        public JpaQueryBuilder<M> isNull() {
+            parent.assembleType = composition;
+            parent.isNull(name);
+            return parent;
+        }
+
+        public JpaQueryBuilder<M> isNotNull() {
+            parent.assembleType = composition;
+            parent.isNotNull(name);
+            return parent;
+        }
+
+        public JpaQueryBuilder<M> sizeOf(int size) {
+            parent.assembleType = composition;
+            parent.sizeOf(name, size);
+            return parent;
+        }
+
+        public JpaQueryBuilder<M> notSizeOf(int size) {
+            parent.assembleType = composition;
+            parent.notSizeOf(name, size);
+            return parent;
+        }
+
     }
 
     public final class SubqueryBuilder<R> extends QueryBuilder<SubqueryBuilder<R>, R> {

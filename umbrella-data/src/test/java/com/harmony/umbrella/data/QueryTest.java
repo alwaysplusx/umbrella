@@ -98,13 +98,13 @@ public class QueryTest {
 
     @Test
     public void testVoQuery() {
-        ModelVo v = builder.equal("name", "wuxii").execute().getVoSingleResult(new String[] { "name", "code", "content" }, ModelVo.class);
+        ModelVo v = builder.equal("name", "wuxii").execute().getColumnSingleResult(new String[] { "name", "code", "content" }, ModelVo.class);
         assertEquals("wuxii", v.getName());
     }
 
     @Test
     public void testVoAndFunctionQuery() {
-        List<ModelVo> v = builder.allowFullTableQuery().groupBy("content").execute().getVoResultList(new String[] { "max(id)", "content" }, ModelVo.class);
+        List<ModelVo> v = builder.allowFullTableQuery().groupBy("content").execute().getColumnResultList(new String[] { "max(id)", "content" }, ModelVo.class);
         assertEquals(1, v.size());
         assertEquals(2, v.get(0).getSize());
     }
@@ -133,6 +133,13 @@ public class QueryTest {
     @Test
     public void testSubModelQuery() {
         builder.equal("subModels.name", "wuxii").getResultList();
+    }
+
+    @Test
+    public void testColumnQuery() {
+        builder.start("name").equal("wuxii")//
+                .or("code").equal("1092")//
+                .getResultList();
     }
 
 }

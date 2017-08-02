@@ -39,46 +39,6 @@ public class QueryResultImpl<T> implements QueryResult<T> {
     }
 
     @Override
-    public <E> E getColumnSingleResult(String column) {
-        return getColumnSingleResult(column, null);
-    }
-
-    @Override
-    public <E> E getColumnSingleResult(String column, Class<E> resultType) {
-        return getSingleResult(select(column), resultType);
-    }
-
-    @Override
-    public <E> List<E> getColumnResultList(String column) {
-        return getColumnResultList(column, null);
-    }
-
-    @Override
-    public <E> List<E> getColumnResultList(String column, Class<E> resultType) {
-        return getResultList(select(column), resultType);
-    }
-
-    @Override
-    public <E> E getFunctionResult(String function, String column) {
-        return getFunctionResult(function, column, null);
-    }
-
-    @Override
-    public <E> E getFunctionResult(String function, String column, Class<E> resultType) {
-        return getSingleResult(select(function, column), resultType);
-    }
-
-    @Override
-    public <VO> VO getVoSingleResult(String[] columns, Class<VO> resultType) {
-        return getSingleResult(select(columns), resultType);
-    }
-
-    @Override
-    public <VO> List<VO> getVoResultList(String[] columns, Class<VO> resultType) {
-        return getResultList(select(columns), resultType);
-    }
-
-    @Override
     public T getSingleResult() {
         return getSingleResult(null, domainClass);
     }
@@ -110,19 +70,51 @@ public class QueryResultImpl<T> implements QueryResult<T> {
     }
 
     @Override
-    public <E> E getSingleResult(Selections<T> selections) {
-        return getSingleResult(selections, null);
+    public <E> E getColumnSingleResult(String column, Class<E> resultType) {
+        return getSingleResult(select(column), resultType);
+    }
+
+    @Override
+    public <E> E getColumnSingleResult(String[] column, Class<E> resultType) {
+        return getSingleResult(select(column), resultType);
+    }
+
+    @Override
+    public <E> List<E> getColumnResultList(String column, Class<E> resultType) {
+        return getResultList(select(column), resultType);
+    }
+
+    @Override
+    public <E> List<E> getColumnResultList(String[] column, Class<E> resultType) {
+        return getResultList(select(column), resultType);
+    }
+
+    @Override
+    public <E> List<E> getColumnRangeResultList(String column, Class<E> resultType) {
+        Pageable pageable = assembler.getPageable();
+        return getRangeList(select(column), pageable, resultType);
+    }
+
+    @Override
+    public <E> List<E> getColumnRangeResultList(String[] column, Class<E> resultType) {
+        Pageable pageable = assembler.getPageable();
+        return getRangeList(select(column), pageable, resultType);
+    }
+
+    @Override
+    public <E> E getFunctionResult(String function, String column) {
+        return getFunctionResult(function, column, null);
+    }
+
+    @Override
+    public <E> E getFunctionResult(String function, String column, Class<E> resultType) {
+        return getSingleResult(select(function, column), resultType);
     }
 
     @Override
     public <E> E getSingleResult(Selections<T> selections, Class<E> resultType) {
         Specification<T> spec = assembler.assembly(selections, SpecificationType.values());
         return executor.getOne(spec, resultType);
-    }
-
-    @Override
-    public <E> E getFirstResult(Selections<T> selections) {
-        return getFirstResult(selections, null);
     }
 
     @Override
@@ -135,19 +127,14 @@ public class QueryResultImpl<T> implements QueryResult<T> {
     }
 
     @Override
-    public <E> List<E> getResultList(Selections<T> selections) {
-        return getResultList(selections, null);
-    }
-
-    @Override
     public <E> List<E> getResultList(Selections<T> selections, Class<E> resultType) {
         Specification spec = assembler.assembly(selections, SpecificationType.values());
         return executor.getAll(spec, resultType);
     }
 
     @Override
-    public <E> Page<E> getResultPage(Selections<T> selections) {
-        return getResultPage(selections, null);
+    public <E> List<E> getRangeResultList(Selections<T> selections, Class<E> resultType) {
+        return getRangeList(selections, assembler.getPageable(), resultType);
     }
 
     @Override

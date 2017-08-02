@@ -14,58 +14,203 @@ import org.springframework.data.domain.Page;
  * @author wuxii@foxmail.com
  */
 public interface QueryResult<T> {
-
     /**
-     * 获取列值
+     * 单实体结果查询
      * 
-     * @param column
-     *            列名(字段名)
-     * @return column result
+     * @return single entity result
      */
-    <E> E getColumnSingleResult(String column);
-
-    <E> E getColumnSingleResult(String column, Class<E> resultType);
-
-    <E> List<E> getColumnResultList(String column);
-
-    <E> List<E> getColumnResultList(String column, Class<E> resultType);
-
-    <E> E getFunctionResult(String function, String column);
-
-    <E> E getFunctionResult(String function, String column, Class<E> resultType);
-
-    <VO> VO getVoSingleResult(String[] columns, Class<VO> resultType);
-
-    <VO> List<VO> getVoResultList(String[] columns, Class<VO> resultType);
-
     T getSingleResult();
 
+    /**
+     * 符合查询条件的首个实体
+     * 
+     * @return 符合条件的首个结果
+     */
     T getFirstResult();
 
+    /**
+     * 符合条件的结果集
+     * 
+     * <b>此结果集不分页, 即为所有符合条件的实体</b>
+     * 
+     * @return 符合条件的结果集
+     */
     List<T> getResultList();
 
+    /**
+     * 符合条件的分页结果集
+     * 
+     * @return 符合条件的分页结果集
+     */
     List<T> getRangeResultList();
-    
+
+    /**
+     * 符合条件的分页结果集
+     * 
+     * @return result page
+     */
     Page<T> getResultPage();
 
+    /**
+     * 符合条件的结果总数
+     * 
+     * @return 结果总数
+     */
     long getCountResult();
 
-    <E> E getSingleResult(Selections<T> selections);
+    /**
+     * 获取列值并返回期待的类型
+     * 
+     * @param column
+     *            列名
+     * @param resultType
+     *            期待类型
+     * @return resultType column result
+     */
+    <E> E getColumnSingleResult(String column, Class<E> resultType);
 
+    /**
+     * 获取列值并返回期待的类型
+     * 
+     * @param column
+     *            列名
+     * @param resultType
+     *            期待类型
+     * @return resultType column result
+     */
+    <E> E getColumnSingleResult(String[] column, Class<E> resultType);
+
+    /**
+     * 获取列值并返回期待的类型
+     * 
+     * @param column
+     *            列名
+     * @param resultType
+     *            期待类型
+     * @return resultType column result
+     */
+    <E> List<E> getColumnResultList(String column, Class<E> resultType);
+
+    /**
+     * 获取列值并返回期待的类型
+     * 
+     * @param column
+     *            列名
+     * @param resultType
+     *            期待类型
+     * @return resultType column result
+     */
+    <E> List<E> getColumnResultList(String[] column, Class<E> resultType);
+
+    /**
+     * 分页的列值结果
+     * 
+     * @param column
+     *            列名
+     * @param resultType
+     *            期待类型
+     * @return range column result
+     */
+    <E> List<E> getColumnRangeResultList(String column, Class<E> resultType);
+
+    /**
+     * 分页的列值结果
+     * 
+     * @param column
+     *            列名
+     * @param resultType
+     *            期待类型
+     * @return range column result
+     */
+    <E> List<E> getColumnRangeResultList(String[] column, Class<E> resultType);
+
+    /**
+     * 查询计算单列的function结果
+     * 
+     * @param function
+     *            function name
+     * @param column
+     *            column name
+     * @return column function result
+     */
+    <E> E getFunctionResult(String function, String column);
+
+    /**
+     * 
+     * 查询计算单列的function结果
+     * 
+     * @param function
+     *            function name
+     * @param column
+     *            column name
+     * @param resultType
+     *            期待的值类型
+     * @return column function result
+     */
+    <E> E getFunctionResult(String function, String column, Class<E> resultType);
+
+    /**
+     * 定制列的单结果查询
+     * 
+     * @param selections
+     *            定制查询列
+     * @param resultType
+     *            期待结果类型
+     * @return 符合条件的单个结果
+     */
     <E> E getSingleResult(Selections<T> selections, Class<E> resultType);
 
-    <E> E getFirstResult(Selections<T> selections);
-
+    /**
+     * 定制列的符合条件的首个结果
+     * 
+     * @param selections
+     *            定制查询列
+     * @param resultType
+     *            期待结果类型
+     * @return 符合条件的首个结果
+     */
     <E> E getFirstResult(Selections<T> selections, Class<E> resultType);
 
-    <E> List<E> getResultList(Selections<T> selections);
-
+    /**
+     * 定制列的结果集查询
+     * 
+     * <b>此结果集不含分页信息</b>
+     * 
+     * @param selections
+     *            定制列
+     * @param resultType
+     *            期待结果类型
+     * @return 符合条件的结果集
+     */
     <E> List<E> getResultList(Selections<T> selections, Class<E> resultType);
 
-    <E> Page<E> getResultPage(Selections<T> selections);
+    /**
+     * 定制列的符合条件的分页结果集
+     * 
+     * @param selections
+     *            定制列
+     * @param resultType
+     *            期待结果类型
+     * @return 分页结果集
+     */
+    <E> List<E> getRangeResultList(Selections<T> selections, Class<E> resultType);
 
+    /**
+     * 定制列的分页结果集
+     * 
+     * @param selections
+     *            定制列
+     * @param resultType
+     *            期待结果类型
+     * @return 分页结果集
+     */
     <E> Page<E> getResultPage(Selections<T> selections, Class<E> resultType);
 
+    /**
+     * 定制查询列
+     * 
+     * @author wuxii@foxmail.com
+     */
     public interface Selections<T> {
 
         List<Expression<?>> selection(Root<T> root, CriteriaBuilder cb);
