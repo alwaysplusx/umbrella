@@ -49,7 +49,12 @@ public class JpaQueryBuilder<M> extends QueryBuilder<JpaQueryBuilder<M>, M> {
         return this.new SubqueryBuilder<R>(clazz, this);
     }
 
+    public OneTimeColumn column(String name) {
+        return new OneTimeColumn(name, CompositionType.AND);
+    }
+
     public OneTimeColumn start(String name) {
+        start(assembleType == null ? CompositionType.AND : assembleType);
         return new OneTimeColumn(name, CompositionType.AND);
     }
 
@@ -62,15 +67,15 @@ public class JpaQueryBuilder<M> extends QueryBuilder<JpaQueryBuilder<M>, M> {
     }
 
     /**
-     * 用于创建列条件(使用条件方法后无法再次设置条件)
-     * 
-     * FIXME 一次性限制
+     * 用于创建列条件, 当条件创建后则无法修改或者再使用当前的column来创建新条件
      * 
      * @author wuxii@foxmail.com
      */
     public final class OneTimeColumn {
 
         private JpaQueryBuilder<M> parent;
+
+        private boolean added;
 
         private String name;
         private CompositionType composition;
@@ -82,98 +87,88 @@ public class JpaQueryBuilder<M> extends QueryBuilder<JpaQueryBuilder<M>, M> {
         }
 
         public JpaQueryBuilder<M> equal(Object val) {
-            parent.assembleType = composition;
-            parent.equal(name, val);
-            return parent;
+            return addCondition(val, Operator.EQUAL);
         }
 
         public JpaQueryBuilder<M> notEqual(Object val) {
-            parent.assembleType = composition;
-            parent.notEqual(name, val);
-            return parent;
+            return addCondition(val, Operator.NOT_EQUAL);
         }
 
         public JpaQueryBuilder<M> like(Object val) {
-            parent.assembleType = composition;
-            parent.like(name, val);
-            return parent;
+            return addCondition(val, Operator.LIKE);
         }
 
         public JpaQueryBuilder<M> notLike(Object val) {
-            parent.assembleType = composition;
-            parent.notLike(name, val);
-            return parent;
+            return addCondition(val, Operator.NOT_LIKE);
         }
 
         public JpaQueryBuilder<M> in(Object val) {
-            parent.assembleType = composition;
-            parent.in(name, val);
-            return parent;
+            return addCondition(val, Operator.IN);
         }
 
         public JpaQueryBuilder<M> notIn(Object val) {
-            parent.assembleType = composition;
-            parent.notIn(name, val);
-            return parent;
+            return addCondition(val, Operator.NOT_IN);
         }
 
+        // between and notBewteen 需要添加两个条件, 添加一条后将临时变量置为false
         public JpaQueryBuilder<M> between(Object left, Object right) {
-            parent.assembleType = composition;
-            parent.between(name, left, right);
+            greatEqual(left);
+            this.added = false;
+            lessEqual(right);
             return parent;
         }
 
         public JpaQueryBuilder<M> notBetween(Object left, Object right) {
-            parent.assembleType = composition;
-            parent.notBetween(name, left, right);
+            lessThen(left);
+            this.added = false;
+            greatThen(right);
             return parent;
         }
 
         public JpaQueryBuilder<M> greatThen(Object val) {
-            parent.assembleType = composition;
-            parent.greatThen(name, val);
-            return parent;
+            return addCondition(val, Operator.GREATER_THAN);
         }
 
         public JpaQueryBuilder<M> greatEqual(Object val) {
-            parent.assembleType = composition;
-            parent.greatEqual(name, val);
-            return parent;
+            return addCondition(val, Operator.GREATER_THAN_OR_EQUAL);
         }
 
         public JpaQueryBuilder<M> lessThen(Object val) {
-            parent.assembleType = composition;
-            parent.lessThen(name, val);
-            return parent;
+            return addCondition(val, Operator.LESS_THAN);
         }
 
         public JpaQueryBuilder<M> lessEqual(Object val) {
-            parent.assembleType = composition;
-            parent.lessEqual(name, val);
-            return parent;
+            return addCondition(val, Operator.LESS_THAN_OR_EQUAL);
         }
 
         public JpaQueryBuilder<M> isNull() {
-            parent.assembleType = composition;
-            parent.isNull(name);
-            return parent;
+            return addCondition(null, Operator.NULL);
         }
 
         public JpaQueryBuilder<M> isNotNull() {
-            parent.assembleType = composition;
-            parent.isNotNull(name);
-            return parent;
+            return addCondition(null, Operator.NOT_NULL);
         }
 
         public JpaQueryBuilder<M> sizeOf(int size) {
-            parent.assembleType = composition;
-            parent.sizeOf(name, size);
-            return parent;
+            return addCondition(size, Operator.SIZE_OF);
         }
 
         public JpaQueryBuilder<M> notSizeOf(int size) {
-            parent.assembleType = composition;
-            parent.notSizeOf(name, size);
+            return addCondition(size, Operator.NOT_SIZE_OF);
+        }
+
+        private JpaQueryBuilder<M> addCondition(Object val, Operator operator) {
+            if (!this.added) {
+                parent.assembleType = composition;
+                if (val instanceof JpaQueryBuilder.OneTimeColumn) {
+                    parent.addExpressionCodition(name, ((OneTimeColumn) val).name, operator);
+                } else {
+                    parent.addCondition(name, val, operator);
+                }
+                this.added = true;
+            } else {
+                throw new IllegalStateException("one time column just allow build only one condition");
+            }
             return parent;
         }
 

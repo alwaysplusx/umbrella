@@ -18,6 +18,7 @@ import org.springframework.data.domain.Page;
 
 import com.harmony.umbrella.data.entity.Model;
 import com.harmony.umbrella.data.query.JpaQueryBuilder;
+import com.harmony.umbrella.data.query.JpaQueryBuilder.OneTimeColumn;
 import com.harmony.umbrella.data.vo.ModelVo;
 
 /**
@@ -137,9 +138,19 @@ public class QueryTest {
 
     @Test
     public void testColumnQuery() {
-        builder.start("name").equal("wuxii")//
+        builder//
+                .start("name").equal("wuxii")//
                 .or("code").equal("1092")//
+                .and()//
+                .start("content").equal("abc")//
+                .or("code").like("123")//
                 .getResultList();
+    }
+
+    @Test
+    public void testInnerClassInstance() {
+        Object val = builder.start("name");
+        System.out.println(val instanceof OneTimeColumn);
     }
 
 }
