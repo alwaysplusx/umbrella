@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.StringTokenizer;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -13,7 +14,10 @@ import org.springframework.beans.TypeMismatchException;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.context.request.NativeWebRequest;
 
+import com.harmony.umbrella.data.CompositionType;
+import com.harmony.umbrella.data.Operator;
 import com.harmony.umbrella.data.query.JpaQueryBuilder;
+import com.harmony.umbrella.data.query.QueryFeature;
 import com.harmony.umbrella.log.Log;
 import com.harmony.umbrella.log.Logs;
 import com.harmony.umbrella.util.PropertiesUtils;
@@ -50,16 +54,22 @@ class WebQueryAssembly {
         builder.paging(getPage(), getSize())//
                 .groupBy(getGrouping())//
                 .asc(getAsc())//
-                .desc(getDesc());
+                .desc(getDesc())//
+                .enable(getQueryFeature());
         applyRequestQueryParameters();
         return builder;
     }
 
     protected void applyRequestQueryParameters() {
-        Set<Entry<String, String[]>> entries = getRequestParameters().entrySet();
-        for (Entry<String, String[]> entry : entries) {
-            QueryParameter parameter = parseEntry(entry.getKey(), entry.getValue());
-            parameter.apply(builder);
+        String requestMethod = request.getMethod();
+        if (requestMethod.equalsIgnoreCase("GET")) {
+            Set<Entry<String, String[]>> entries = getRequestParameters().entrySet();
+            for (Entry<String, String[]> entry : entries) {
+                QueryParameter parameter = parseEntry(entry.getKey(), entry.getValue());
+                parameter.apply(builder);
+            }
+        } else if (requestMethod.equalsIgnoreCase("POST")) {
+
         }
     }
 
@@ -87,6 +97,10 @@ class WebQueryAssembly {
         return desc.toArray(new String[desc.size()]);
     }
 
+    protected QueryFeature[] getQueryFeature() {
+        return ann.feature.toArray(new QueryFeature[ann.feature.size()]);
+    }
+
     /**
      * 过滤web请求中的参数, 返回的参数已经去除了prefix
      * 
@@ -98,7 +112,7 @@ class WebQueryAssembly {
         Map<String, String[]> parameters = PropertiesUtils.filterStartWith(prefix, request.getParameterMap());
         for (String s : parameters.keySet()) {
             String[] value = parameters.get(s);
-            String key = s.substring(prefix.length() + 1);
+            String key = s.substring(prefix.length());
             if (StringUtils.isNotBlank(key)) {
                 result.put(key, value);
             }
@@ -145,21 +159,24 @@ class WebQueryAssembly {
      * @return
      */
     private QueryParameter parseEntry(String key, String[] value) {
-        // String lowerCaseKey = key.toLowerCase();
-        // CompositionType compositionType = CompositionType.AND;
-        //
-        // if (lowerCaseKey.startsWith("and_")) {
-        //     compositionType = CompositionType.AND;
-        //     key = key.substring(4);
-        // } else if (lowerCaseKey.startsWith("or_")) {
-        //     compositionType = CompositionType.OR;
-        //     key = key.substring(3);
-        // }
-        //
-        // StringTokenizer st = new StringTokenizer(key);
-        // Operator operator = Operator.forName(st.nextToken(ann.prefix).toUpperCase());
-        // return new QueryParameter(compositionType, operator, st.nextToken(), value.length == 1 ? value[0] : value);
-        return null;
+        QueryParameter queryParameter = new QueryParameter();
+        String lowerCaseKey = key.toLowerCase();
+        CompositionType compositionType = CompositionType.AND;
+
+        if (lowerCaseKey.startsWith("and_")) {
+            compositionType = CompositionType.AND;
+            key = key.substring(4);
+        } else if (lowerCaseKey.startsWith("or_")) {
+            compositionType = CompositionType.OR;
+            key = key.substring(3);
+        }
+
+        StringTokenizer st = new StringTokenizer(key);
+        queryParameter.setOperator(Operator.forName(st.nextToken(ann.prefix).toUpperCase()).toString());
+        queryParameter.setName(st.nextToken(""));
+        queryParameter.setValue(value.length == 1 ? value[0] : value);
+        queryParameter.setComposition(compositionType.toString());
+        return queryParameter;
     }
 
 }

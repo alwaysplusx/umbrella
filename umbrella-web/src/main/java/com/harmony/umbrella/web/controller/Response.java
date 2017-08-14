@@ -3,7 +3,7 @@ package com.harmony.umbrella.web.controller;
 import java.util.LinkedHashMap;
 
 /**
- * FIXME
+ * FIXME 参数顺序修改
  * 
  * @author wuxii@foxmail.com
  */
@@ -15,7 +15,7 @@ public final class Response extends LinkedHashMap<String, Object> {
     }
 
     public static ErrorResponseBuilder error(String error) {
-        return new ErrorResponseBuilder();
+        return new ErrorResponseBuilder().error(error);
     }
 
     public static ResponseBuilder success() {
