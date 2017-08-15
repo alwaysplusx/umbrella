@@ -37,11 +37,16 @@ public class CurrentContextFilter implements Filter {
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         CurrentContext occ = ApplicationContext.getCurrentContext();
         try {
-            ApplicationContext.setCurrentContext(new DefaultCurrentContext((HttpServletRequest) request, (HttpServletResponse) response));
+            CurrentContext ncc = createCurrentContext(request, response);
+            ApplicationContext.setCurrentContext(ncc);
             chain.doFilter(request, response);
         } finally {
             ApplicationContext.setCurrentContext(occ);
         }
+    }
+
+    protected CurrentContext createCurrentContext(ServletRequest request, ServletResponse response) {
+        return new DefaultCurrentContext((HttpServletRequest) request, (HttpServletResponse) response);
     }
 
     @Override

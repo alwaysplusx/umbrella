@@ -16,19 +16,9 @@ import javax.servlet.http.HttpSession;
 public interface CurrentContext extends Serializable {
 
     /**
-     * key: 用户
-     */
-    String USER = CurrentContext.class.getName() + ".USER";
-
-    /**
      * key:用户id
      */
     String USER_ID = CurrentContext.class.getName() + ".USER_ID";
-
-    /**
-     * key:client id
-     */
-    String CLIENT_ID = CurrentContext.class.getName() + ".CLIENT_ID";
 
     /**
      * key:用户的名称
@@ -39,13 +29,6 @@ public interface CurrentContext extends Serializable {
      * key:用户别名
      */
     String USER_NICKNAME = CurrentContext.class.getName() + ".USER_NICKNAME";
-
-    /**
-     * 自定义用户
-     * 
-     * @return user
-     */
-    <T> T getUser();
 
     /**
      * 用户id
@@ -155,7 +138,7 @@ public interface CurrentContext extends Serializable {
      *
      * @return if {@code true} has been created
      */
-    boolean doesSessionCreated();
+    boolean doesHttpSessionCreated();
 
     /**
      * 获取当前的http-session
@@ -179,5 +162,5 @@ public interface CurrentContext extends Serializable {
      *
      * @return session id
      */
-    String getSessionId();
+    String getHttpSessionId();
 }

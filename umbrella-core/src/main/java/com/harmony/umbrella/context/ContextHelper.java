@@ -81,11 +81,22 @@ public class ContextHelper {
     /**
      * 获取用户当前线程的http session, 如果未找到用户context返回null
      * 
-     * @return user session
+     * @return http session
      */
     public static HttpSession getHttpSession() {
+        return getHttpSession(true);
+    }
+
+    /**
+     * 获取当前用户线程中的http session
+     * 
+     * @param create
+     *            session 尚未创建时候自动创建
+     * @return http session
+     */
+    public static HttpSession getHttpSession(boolean create) {
         CurrentContext cc = getCurrentContext();
-        return cc != null ? cc.getHttpSession() : null;
+        return cc != null ? cc.getHttpSession(create) : null;
     }
 
     /**

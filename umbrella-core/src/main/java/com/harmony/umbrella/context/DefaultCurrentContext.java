@@ -24,11 +24,6 @@ public class DefaultCurrentContext implements CurrentContext {
     }
 
     @Override
-    public <T> T getUser() {
-        return getSessionAttribute(USER);
-    }
-
-    @Override
     public <T> T getUserId() {
         return getSessionAttribute(USER_ID);
     }
@@ -92,7 +87,7 @@ public class DefaultCurrentContext implements CurrentContext {
     }
 
     @Override
-    public boolean doesSessionCreated() {
+    public boolean doesHttpSessionCreated() {
         return request.getSession(false) != null;
     }
 
@@ -107,7 +102,7 @@ public class DefaultCurrentContext implements CurrentContext {
     }
 
     @Override
-    public String getSessionId() {
+    public String getHttpSessionId() {
         return getHttpSession().getId();
     }
 

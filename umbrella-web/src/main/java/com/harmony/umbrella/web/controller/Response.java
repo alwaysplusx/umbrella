@@ -14,11 +14,26 @@ public final class Response extends LinkedHashMap<String, Object> {
     private Response() {
     }
 
-    public static ErrorResponseBuilder error(String error) {
-        return new ErrorResponseBuilder().error(error);
+    public static Response error(int code, String error, String description) {
+        return errorBulider()//
+                .code(code)//
+                .error(error)//
+                .description(description)//
+                .build();
     }
 
-    public static ResponseBuilder success() {
+    public static Response error(int code, String error) {
+        return errorBulider()//
+                .code(code)//
+                .error(error)//
+                .build();
+    }
+
+    public static ErrorResponseBuilder errorBulider() {
+        return new ErrorResponseBuilder();
+    }
+
+    public static ResponseBuilder successBuilder() {
         return new ResponseBuilder();
     }
 
@@ -49,6 +64,10 @@ public final class Response extends LinkedHashMap<String, Object> {
 
         public ErrorResponseBuilder error(String error) {
             return param("error", error);
+        }
+
+        public ErrorResponseBuilder description(String description) {
+            return param("description", description);
         }
 
     }
