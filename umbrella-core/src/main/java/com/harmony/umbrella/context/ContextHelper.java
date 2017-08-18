@@ -1,8 +1,18 @@
 package com.harmony.umbrella.context;
 
+import static com.harmony.umbrella.context.CurrentContext.*;
+
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+
+import org.springframework.util.Assert;
 
 import com.harmony.umbrella.context.metadata.DatabaseMetadata;
 import com.harmony.umbrella.context.metadata.ServerMetadata;
@@ -134,6 +144,34 @@ public class ContextHelper {
         return cc != null ? cc.getUserHost() : null;
     }
 
+    public static UserInfo getUserInfo() {
+        HttpSession session = getHttpSession();
+        if (session == null) {
+            throw new ApplicationContextException("not http request, can't get http session");
+        }
+        Map<String, Object> properties = new LinkedHashMap<>();
+        Enumeration<String> attributeNames = session.getAttributeNames();
+        while (attributeNames.hasMoreElements()) {
+            String attrName = attributeNames.nextElement();
+            properties.put(attrName, session.getAttribute(attrName));
+        }
+        return new UserInfo(getUserId(), getUsername(), getNickname(), properties);
+    }
+
+    public static void applyToSession(UserInfo userInfo) throws ApplicationContextException {
+        Assert.notNull(userInfo, "user info not allow null");
+        HttpSession session = getHttpSession();
+        if (session == null) {
+            throw new ApplicationContextException("not http request, can't get http session");
+        }
+        for (Entry<String, Object> entry : userInfo.properties.entrySet()) {
+            session.setAttribute(entry.getKey(), entry.getValue());
+        }
+        session.setAttribute(USER_ID, userInfo.userId);
+        session.setAttribute(USER_NAME, userInfo.username);
+        session.setAttribute(USER_NICKNAME, userInfo.nickname);
+    }
+
     public static boolean isUnknowServer() {
         return getServerMetadata().serverType == ServerMetadata.UNKNOW;
     }
@@ -162,4 +200,39 @@ public class ContextHelper {
         return getServerMetadata().serverType == ServerMetadata.TOMCAT;
     }
 
+    public static final class UserInfo {
+
+        protected final Long userId;
+        protected final String username;
+        protected final String nickname;
+        protected final Map<String, Object> properties;
+
+        public UserInfo(Long userId, String username, String nickname) {
+            this(userId, username, nickname, null);
+        }
+
+        public UserInfo(Long userId, String username, String nickname, Map<String, Object> properties) {
+            this.userId = userId;
+            this.username = username;
+            this.nickname = nickname;
+            this.properties = properties == null ? Collections.emptyMap() : Collections.unmodifiableMap(properties);
+        }
+
+        public Long getUserId() {
+            return userId;
+        }
+
+        public String getUsername() {
+            return username;
+        }
+
+        public String getNickname() {
+            return nickname;
+        }
+
+        public Map<String, Object> getProperties() {
+            return properties;
+        }
+
+    }
 }

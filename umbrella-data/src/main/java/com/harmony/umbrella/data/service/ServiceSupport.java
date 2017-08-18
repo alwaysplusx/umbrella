@@ -23,6 +23,16 @@ public abstract class ServiceSupport<T, ID extends Serializable> implements Serv
     }
 
     @Override
+    public T save(T entity) {
+        return getRepository().save(entity);
+    }
+
+    @Override
+    public T update(T entity) {
+        return getRepository().save(entity);
+    }
+
+    @Override
     public void delete(T entity) {
         getRepository().delete(entity);
     }
