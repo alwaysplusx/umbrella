@@ -1,4 +1,4 @@
-package com.harmony.umbrella.message.tracker;
+package com.harmony.umbrella.message.creator;
 
 import java.io.Serializable;
 import java.util.Map;
@@ -9,13 +9,13 @@ import javax.jms.Session;
 
 import com.harmony.umbrella.message.MessageTemplate.MessageAppender;
 
-public class MapMessageConfiger extends AbstractMessageConfiger<MapMessage> {
+public class MapMessageCreator extends AbstractMessageCreator<MapMessage> {
 
     private static final long serialVersionUID = 2091868113420068661L;
     private Map map;
     protected boolean skipNotSatisfiedEntry;
 
-    public MapMessageConfiger(Map map, boolean skipNotStatisfiedEntry, MessageAppender<MapMessage> appender) {
+    public MapMessageCreator(Map map, boolean skipNotStatisfiedEntry, MessageAppender<MapMessage> appender) {
         super(appender);
         this.map = map;
         this.skipNotSatisfiedEntry = skipNotStatisfiedEntry;

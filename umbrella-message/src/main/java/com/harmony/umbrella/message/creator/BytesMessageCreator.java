@@ -1,4 +1,4 @@
-package com.harmony.umbrella.message.tracker;
+package com.harmony.umbrella.message.creator;
 
 import javax.jms.BytesMessage;
 import javax.jms.JMSException;
@@ -9,12 +9,12 @@ import com.harmony.umbrella.message.MessageTemplate.MessageAppender;
 /**
  * @author wuxii@foxmail.com
  */
-public class BytesMessageConfiger extends AbstractMessageConfiger<BytesMessage> {
+public class BytesMessageCreator extends AbstractMessageCreator<BytesMessage> {
 
     private static final long serialVersionUID = 3410905359933302863L;
     private byte[] buf;
 
-    public BytesMessageConfiger(byte[] buf, MessageAppender<BytesMessage> appender) {
+    public BytesMessageCreator(byte[] buf, MessageAppender<BytesMessage> appender) {
         super(appender);
         this.buf = buf;
     }

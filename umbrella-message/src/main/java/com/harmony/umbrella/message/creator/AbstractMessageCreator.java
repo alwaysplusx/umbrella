@@ -1,16 +1,16 @@
-package com.harmony.umbrella.message.tracker;
+package com.harmony.umbrella.message.creator;
 
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.Session;
 
 import com.harmony.umbrella.message.MessageTemplate.MessageAppender;
-import com.harmony.umbrella.message.MessageTemplate.MessageConfiger;
+import com.harmony.umbrella.message.MessageTemplate.MessageCreator;
 
 /**
  * @author wuxii@foxmail.com
  */
-public abstract class AbstractMessageConfiger<T extends Message> implements MessageConfiger {
+public abstract class AbstractMessageCreator<T extends Message> implements MessageCreator {
 
     private static final long serialVersionUID = -4262070889661021925L;
 
@@ -18,7 +18,7 @@ public abstract class AbstractMessageConfiger<T extends Message> implements Mess
 
     protected boolean beforeMappingDoAppend;
 
-    public AbstractMessageConfiger(MessageAppender<T> appender) {
+    public AbstractMessageCreator(MessageAppender<T> appender) {
         this.messageAppender = appender;
     }
 

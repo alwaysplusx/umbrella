@@ -167,7 +167,7 @@ public interface MessageTemplate {
      *            通过configer自定义构建消息主体
      * @throws JMSException
      */
-    void sendMessage(MessageConfiger configer) throws JMSException;
+    void sendMessage(MessageCreator configer) throws JMSException;
 
     /**
      * 接收消息
@@ -230,18 +230,11 @@ public interface MessageTemplate {
     void stopMessageListener(boolean remove) throws JMSException;
 
     /**
-     * 获取消息tracker, 并可以听歌设置tracker中的内容动态追踪消息的动态
-     * 
-     * @return message tracker
-     */
-    MessageTrackers getMessageTrackers();
-
-    /**
      * 自定义消息构建器
      * 
      * @author wuxii@foxmail.com
      */
-    public interface MessageConfiger extends Serializable {
+    public interface MessageCreator extends Serializable {
         Message message(Session session) throws JMSException;
     }
 

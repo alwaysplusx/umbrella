@@ -6,6 +6,7 @@ import javax.jms.MessageListener;
 
 import com.harmony.umbrella.message.DynamicMessageListener;
 import com.harmony.umbrella.message.JmsTemplate;
+import com.harmony.umbrella.message.MessageAbortException;
 
 /**
  * @author wuxii@foxmail.com
@@ -33,16 +34,28 @@ public class SimpleDynamicMessageListener implements DynamicMessageListener {
 
     @Override
     public void onMessage(Message message) {
+        Exception exception = null;
         try {
             this.messageListener.onMessage(message);
-            this.jmsTemplate.commit();
         } catch (Exception e) {
+            exception = e;
+        }
+        if (exception == null || exception instanceof MessageAbortException) {
+            try {
+                this.jmsTemplate.commit();
+            } catch (JMSException e) {
+                if (exception != null) {
+                    exception.addSuppressed(e);
+                }
+                throw new IllegalStateException("commit failure", exception);
+            }
+        } else {
             try {
                 this.jmsTemplate.rollback();
-            } catch (JMSException e1) {
-                throw new IllegalStateException("rollback failed!", e);
+            } catch (JMSException e) {
+                exception.addSuppressed(e);
+                throw new IllegalStateException("rollback failure", exception);
             }
-            throw new IllegalStateException("message consume failed!", e);
         }
     }
 

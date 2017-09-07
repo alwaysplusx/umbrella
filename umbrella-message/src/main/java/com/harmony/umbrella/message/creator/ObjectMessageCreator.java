@@ -1,4 +1,4 @@
-package com.harmony.umbrella.message.tracker;
+package com.harmony.umbrella.message.creator;
 
 import java.io.Serializable;
 
@@ -11,12 +11,12 @@ import com.harmony.umbrella.message.MessageTemplate.MessageAppender;
 /**
  * @author wuxii@foxmail.com
  */
-public class ObjectMessageConfiger extends AbstractMessageConfiger<ObjectMessage> {
+public class ObjectMessageCreator extends AbstractMessageCreator<ObjectMessage> {
 
     private static final long serialVersionUID = -4357148380966416521L;
     private Serializable object;
 
-    public ObjectMessageConfiger(Serializable object, MessageAppender<ObjectMessage> appender) {
+    public ObjectMessageCreator(Serializable object, MessageAppender<ObjectMessage> appender) {
         super(appender);
         this.object = object;
     }

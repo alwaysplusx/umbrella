@@ -1,5 +1,6 @@
 package com.harmony.umbrella.message;
 
+import java.beans.EventHandler;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.util.Map;
@@ -18,14 +19,17 @@ import javax.jms.Session;
 import javax.jms.StreamMessage;
 import javax.jms.TextMessage;
 
+import com.harmony.umbrella.message.MessageEventListener.DestinationType;
+import com.harmony.umbrella.message.MessageEventListener.EventPhase;
+import com.harmony.umbrella.message.MessageEventListener.MessageEvent;
+import com.harmony.umbrella.message.creator.BytesMessageCreator;
+import com.harmony.umbrella.message.creator.MapMessageCreator;
+import com.harmony.umbrella.message.creator.ObjectMessageCreator;
+import com.harmony.umbrella.message.creator.StreamMessageCreator;
+import com.harmony.umbrella.message.creator.TextMessageCreator;
 import com.harmony.umbrella.message.listener.PhaseMessageListener;
 import com.harmony.umbrella.message.listener.SimpleDynamicMessageListener;
 import com.harmony.umbrella.message.support.SimpleJmsTemplate;
-import com.harmony.umbrella.message.tracker.BytesMessageConfiger;
-import com.harmony.umbrella.message.tracker.MapMessageConfiger;
-import com.harmony.umbrella.message.tracker.ObjectMessageConfiger;
-import com.harmony.umbrella.message.tracker.StreamMessageConfiger;
-import com.harmony.umbrella.message.tracker.TextMessageConfiger;
 
 /**
  * 消息发送helper
@@ -33,7 +37,7 @@ import com.harmony.umbrella.message.tracker.TextMessageConfiger;
  * @author wuxii@foxmail.com
  */
 public class MessageHelper implements MessageTemplate {
-    
+
     ConnectionFactory connectionFactory;
     Destination destination;
 
@@ -42,7 +46,7 @@ public class MessageHelper implements MessageTemplate {
     boolean transacted;
     int acknowledgeMode;
 
-    MessageTrackers trackers;
+    MessageEventListener messageEventListener;
     SimpleDynamicMessageListener messageListener;
     boolean sessionAutoCommit;
     boolean autoStartListener;
@@ -73,7 +77,7 @@ public class MessageHelper implements MessageTemplate {
      */
     @Override
     public void sendBytesMessage(byte[] buf, MessageAppender<BytesMessage> appender) throws JMSException {
-        sendMessage(new BytesMessageConfiger(buf, appender));
+        sendMessage(new BytesMessageCreator(buf, appender));
     }
 
     @Override
@@ -83,7 +87,7 @@ public class MessageHelper implements MessageTemplate {
 
     @Override
     public void sendObjectMessage(Serializable obj, MessageAppender<ObjectMessage> appender) throws JMSException {
-        sendMessage(new ObjectMessageConfiger(obj, appender));
+        sendMessage(new ObjectMessageCreator(obj, appender));
     }
 
     @Override
@@ -103,7 +107,7 @@ public class MessageHelper implements MessageTemplate {
 
     @Override
     public void sendMapMessage(Map map, boolean skipNotStatisfiedEntry, MessageAppender<MapMessage> appender) throws JMSException {
-        sendMessage(new MapMessageConfiger(map, skipNotStatisfiedEntry, appender));
+        sendMessage(new MapMessageCreator(map, skipNotStatisfiedEntry, appender));
     }
 
     @Override
@@ -113,7 +117,7 @@ public class MessageHelper implements MessageTemplate {
 
     @Override
     public void sendTextMessage(String text, MessageAppender<TextMessage> appender) throws JMSException {
-        sendMessage(new TextMessageConfiger(text, appender));
+        sendMessage(new TextMessageCreator(text, appender));
     }
 
     @Override
@@ -123,18 +127,18 @@ public class MessageHelper implements MessageTemplate {
 
     @Override
     public void sendStreamMessage(InputStream is, MessageAppender<StreamMessage> appender) throws JMSException {
-        sendMessage(new StreamMessageConfiger(is, appender));
+        sendMessage(new StreamMessageCreator(is, appender));
     }
 
     /**
-     * 发送消息, 通过定制的消息{@linkplain MessageConfiger}configer来创建定制化的消息
+     * 发送消息, 通过定制的消息{@linkplain MessageCreator}configer来创建定制化的消息
      * 
      * @param configer
      *            定制化消息创建器
      * @throws JMSException
      */
     @Override
-    public void sendMessage(MessageConfiger configer) throws JMSException {
+    public void sendMessage(MessageCreator configer) throws JMSException {
         JmsTemplate jmsTemplate = getJmsTemplate();
         Message message = null;
         try {
@@ -234,11 +238,6 @@ public class MessageHelper implements MessageTemplate {
     }
 
     @Override
-    public MessageTrackers getMessageTrackers() {
-        return trackers;
-    }
-
-    @Override
     public JmsTemplate getJmsTemplate() {
         SimpleJmsTemplate jmsTemplate = new SimpleJmsTemplate(connectionFactory, destination);
         jmsTemplate.setUsername(username);
@@ -249,8 +248,15 @@ public class MessageHelper implements MessageTemplate {
         return jmsTemplate;
     }
 
+    private void fireEvent(Message message, EventPhase evenPhase) {
+
+    }
+
     private SimpleDynamicMessageListener wrap(MessageListener listener) {
         JmsTemplate jmsTemplate = getJmsTemplate();
+        if (messageEventListener != null) {
+
+        }
         return new SimpleDynamicMessageListener(jmsTemplate, new PhaseMessageListener(trackers, listener));
     }
 
@@ -300,14 +306,6 @@ public class MessageHelper implements MessageTemplate {
 
     public void setAcknowledgeMode(int acknowledgeMode) {
         this.acknowledgeMode = acknowledgeMode;
-    }
-
-    public MessageTrackers getTrackers() {
-        return trackers;
-    }
-
-    public void setTrackers(MessageTrackers trackers) {
-        this.trackers = trackers;
     }
 
     public boolean isSessionAutoCommit() {

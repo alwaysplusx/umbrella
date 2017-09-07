@@ -1,4 +1,4 @@
-package com.harmony.umbrella.message.tracker;
+package com.harmony.umbrella.message.creator;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -12,7 +12,7 @@ import com.harmony.umbrella.message.MessageTemplate.MessageAppender;
 /**
  * @author wuxii@foxmail.com
  */
-public class StreamMessageConfiger extends AbstractMessageConfiger<StreamMessage> {
+public class StreamMessageCreator extends AbstractMessageCreator<StreamMessage> {
 
     private static final long serialVersionUID = -1513563775655520426L;
 
@@ -20,7 +20,7 @@ public class StreamMessageConfiger extends AbstractMessageConfiger<StreamMessage
 
     private static final int DEFAULT_BUFFER_SIZE = 1024 * 4;
 
-    public StreamMessageConfiger(InputStream is, MessageAppender<StreamMessage> appender) {
+    public StreamMessageCreator(InputStream is, MessageAppender<StreamMessage> appender) {
         super(appender);
         this.is = is;
     }

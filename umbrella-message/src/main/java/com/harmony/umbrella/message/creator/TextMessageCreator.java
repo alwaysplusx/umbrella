@@ -1,4 +1,4 @@
-package com.harmony.umbrella.message.tracker;
+package com.harmony.umbrella.message.creator;
 
 import javax.jms.JMSException;
 import javax.jms.Session;
@@ -9,12 +9,12 @@ import com.harmony.umbrella.message.MessageTemplate.MessageAppender;
 /**
  * @author wuxii@foxmail.com
  */
-public class TextMessageConfiger extends AbstractMessageConfiger<TextMessage> {
+public class TextMessageCreator extends AbstractMessageCreator<TextMessage> {
 
     private static final long serialVersionUID = -2792527853518523027L;
     private String text;
 
-    public TextMessageConfiger(String text, MessageAppender<TextMessage> appender) {
+    public TextMessageCreator(String text, MessageAppender<TextMessage> appender) {
         super(appender);
         this.text = text;
     }
