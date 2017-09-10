@@ -1,6 +1,5 @@
 package com.harmony.umbrella.message;
 
-import java.beans.EventHandler;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.util.Map;
@@ -19,9 +18,7 @@ import javax.jms.Session;
 import javax.jms.StreamMessage;
 import javax.jms.TextMessage;
 
-import com.harmony.umbrella.message.MessageEventListener.DestinationType;
 import com.harmony.umbrella.message.MessageEventListener.EventPhase;
-import com.harmony.umbrella.message.MessageEventListener.MessageEvent;
 import com.harmony.umbrella.message.creator.BytesMessageCreator;
 import com.harmony.umbrella.message.creator.MapMessageCreator;
 import com.harmony.umbrella.message.creator.ObjectMessageCreator;
@@ -29,6 +26,7 @@ import com.harmony.umbrella.message.creator.StreamMessageCreator;
 import com.harmony.umbrella.message.creator.TextMessageCreator;
 import com.harmony.umbrella.message.listener.PhaseMessageListener;
 import com.harmony.umbrella.message.listener.SimpleDynamicMessageListener;
+import com.harmony.umbrella.message.support.MessageEventListenerComposite;
 import com.harmony.umbrella.message.support.SimpleJmsTemplate;
 
 /**
@@ -148,13 +146,11 @@ public class MessageHelper implements MessageTemplate {
             message = configer.message(session);
             message.setJMSDestination(jmsTemplate.getDestination());
             message.setJMSTimestamp(System.currentTimeMillis());
-            trackers.onBeforeSend(message);
+            fireEvent(message, EventPhase.BEFORE_SEND);
             producer.send(message);
-            trackers.onAfterSend(message);
-        } catch (JMSException e) {
-            if (message != null) {
-                trackers.onSendException(message, e);
-            }
+            fireEvent(message, EventPhase.AFTER_SEND);
+        } catch (Exception e) {
+            fireEvent(message, EventPhase.SEND_FAILURE);
             jmsTemplate.rollback();
             throw e;
         } finally {
@@ -249,15 +245,15 @@ public class MessageHelper implements MessageTemplate {
     }
 
     private void fireEvent(Message message, EventPhase evenPhase) {
-
+        // FIXME fire event
     }
 
     private SimpleDynamicMessageListener wrap(MessageListener listener) {
         JmsTemplate jmsTemplate = getJmsTemplate();
         if (messageEventListener != null) {
-
+            listener = new PhaseMessageListener(listener, new MessageEventListenerComposite(messageEventListener));
         }
-        return new SimpleDynamicMessageListener(jmsTemplate, new PhaseMessageListener(trackers, listener));
+        return new SimpleDynamicMessageListener(jmsTemplate, listener);
     }
 
     public ConnectionFactory getConnectionFactory() {

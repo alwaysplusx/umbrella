@@ -1,52 +1,67 @@
 package com.harmony.umbrella.message.listener;
 
+import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageListener;
 
-import com.harmony.umbrella.message.MessageTrackers;
+import com.harmony.umbrella.message.MessageEventListener;
+import com.harmony.umbrella.message.MessageEventListener.DestinationType;
+import com.harmony.umbrella.message.MessageEventListener.EventPhase;
+import com.harmony.umbrella.message.MessageEventListener.MessageEvent;
 
 /**
  * @author wuxii@foxmail.com
  */
 public class PhaseMessageListener implements MessageListener {
 
-    private MessageTrackers messageTrackers;
     private MessageListener messageListener;
+    private MessageEventListener messageEventListener;
 
     public PhaseMessageListener() {
     }
 
-    public PhaseMessageListener(MessageTrackers trackers, MessageListener messageListener) {
-        this.messageTrackers = trackers;
+    public PhaseMessageListener(MessageListener messageListener, MessageEventListener messageEventListener) {
         this.messageListener = messageListener;
+        this.messageEventListener = messageEventListener;
     }
 
     @Override
     public void onMessage(Message message) {
-        boolean hasTracker = messageTrackers != null;
         try {
-            if (hasTracker) {
-                messageTrackers.onBeforeConsume(message);
-            }
+            this.fireEvent(message, EventPhase.BEFORE_CONSUME);
             messageListener.onMessage(message);
-            if (hasTracker) {
-                messageTrackers.onAfterConsume(message);
-            }
+            this.fireEvent(message, EventPhase.AFTER_CONSUME);
         } catch (Exception e) {
-            if (hasTracker && e instanceof JMSException) {
-                messageTrackers.onConsumeException(message, e);
-            }
+            this.fireEvent(message, EventPhase.CONSUME_FAILURE);
             throw e;
         }
     }
 
-    public MessageTrackers getMessageTrackers() {
-        return messageTrackers;
-    }
+    protected void fireEvent(final Message message, EventPhase eventPhase) {
+        messageEventListener.onEvent(new MessageEvent() {
 
-    public void setMessageTrackers(MessageTrackers messageTrackers) {
-        this.messageTrackers = messageTrackers;
+            @Override
+            public Message getMessage() {
+                return message;
+            }
+
+            @Override
+            public EventPhase getEventPhase() {
+                return eventPhase;
+            }
+
+            @Override
+            public DestinationType getDestinationType() {
+                Destination destination;
+                try {
+                    destination = message.getJMSDestination();
+                    return DestinationType.forType(destination.getClass());
+                } catch (JMSException e) {
+                    return null;
+                }
+            }
+        });
     }
 
     public MessageListener getMessageListener() {
@@ -55,6 +70,14 @@ public class PhaseMessageListener implements MessageListener {
 
     public void setMessageListener(MessageListener messageListener) {
         this.messageListener = messageListener;
+    }
+
+    public MessageEventListener getMessageEventListener() {
+        return messageEventListener;
+    }
+
+    public void setMessageEventListener(MessageEventListener messageEventListener) {
+        this.messageEventListener = messageEventListener;
     }
 
 }

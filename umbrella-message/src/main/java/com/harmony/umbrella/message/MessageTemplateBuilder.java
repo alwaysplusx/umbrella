@@ -34,6 +34,7 @@ public class MessageTemplateBuilder<T extends MessageTemplateBuilder<T>> {
 
     protected Class<? extends MessageListener> messageListenerClass;
     protected MessageListener messageListener;
+    protected MessageEventListener messageEventListener;
 
     protected String connectionFactoryJNDI;
     protected String destinationJNDI;
@@ -185,7 +186,7 @@ public class MessageTemplateBuilder<T extends MessageTemplateBuilder<T>> {
         helper.password = this.password;
         helper.sessionAutoCommit = this.sessionAutoCommit;
         helper.autoStartListener = this.autoStartListener;
-        helper.trackers = new MessageTrackers(this.trackers);
+        helper.messageEventListener = this.messageEventListener;
         MessageListener listener;
         try {
             listener = (messageListener == null && messageListenerClass != null) ? this.messageListenerClass.newInstance() : messageListener;
