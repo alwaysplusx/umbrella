@@ -50,12 +50,10 @@ public class CellResolverFactory {
         return findCellResolver(targetType, RESOLVERS);
     }
 
-    @SuppressWarnings("rawtypes")
     public static CellResolver<?> findCellResolver(Class<?> targetType, CellResolver[] cellResolvers) {
         return findCellResolver(targetType, Arrays.asList(cellResolvers));
     }
 
-    @SuppressWarnings("rawtypes")
     public static CellResolver<?> findCellResolver(Class<?> targetType, List<CellResolver> cellResolvers) {
         // in, long等类型转为包装类
         targetType = targetType.isPrimitive() ? primitiveTypeToWrapperMap.get(targetType) : targetType;

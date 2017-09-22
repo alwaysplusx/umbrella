@@ -35,7 +35,6 @@ public class ObjectSerializerImpl implements ObjectSerializer {
 
     private final Set<String> primitivePackages = new HashSet<String>();
 
-    @SuppressWarnings("rawtypes")
     private final List<Class> endTypes = new ArrayList<Class>();
 
     private PathMatcher pathMatcher = new AntPathMatcher(".");
@@ -43,12 +42,10 @@ public class ObjectSerializerImpl implements ObjectSerializer {
     public ObjectSerializerImpl() {
     }
 
-    @SuppressWarnings("unchecked")
     protected ObjectSerializerImpl(Class<? extends Annotation>... ignoreTypes) {
         this.addIgnoreType(ignoreTypes);
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
     public Object serialize(Object val) {
         if (val == null) {
@@ -81,7 +78,6 @@ public class ObjectSerializerImpl implements ObjectSerializer {
         return false;
     }
 
-    @SuppressWarnings("rawtypes")
     protected Field[] getAllFields(Class<?> targetClass) {
         if (targetClass == null) {
             return new Field[0];
@@ -127,7 +123,6 @@ public class ObjectSerializerImpl implements ObjectSerializer {
         return Json.parse(text, Object.class);
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
     public Class<?> getEndType(Class<?> type) {
         ClassSortUtils.sort(endTypes);
         for (Class t : endTypes) {
@@ -138,7 +133,6 @@ public class ObjectSerializerImpl implements ObjectSerializer {
         return null;
     }
 
-    @SuppressWarnings("unchecked")
     public void addIgnoreType(Class<? extends Annotation>... annCls) {
         for (Class<? extends Annotation> ac : annCls) {
             if (!ignoreTypes.contains(ac)) {
@@ -182,12 +176,10 @@ public class ObjectSerializerImpl implements ObjectSerializer {
         this.features.addAll(features);
     }
 
-    @SuppressWarnings("rawtypes")
     public List<Class> getEndTypes() {
         return endTypes;
     }
 
-    @SuppressWarnings("rawtypes")
     public void setEndTypes(Collection<Class> endTypes) {
         this.endTypes.clear();
         this.endTypes.addAll(endTypes);

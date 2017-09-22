@@ -50,7 +50,6 @@ public interface Cache {
 	 */
 	public void update(Object key, Object value, Integer expireInSec) throws CacheException;
 
-	@SuppressWarnings("rawtypes")
 	public List keys() throws CacheException ;
 	
 	/**
@@ -63,7 +62,6 @@ public interface Cache {
 	 * Batch remove cache objects
 	 * @param keys the cache keys to be evicted
 	 */
-	@SuppressWarnings("rawtypes")
 	public void evict(List keys) throws CacheException;
 	
 	/**

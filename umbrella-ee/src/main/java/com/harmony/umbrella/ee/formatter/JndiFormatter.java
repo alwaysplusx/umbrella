@@ -7,7 +7,6 @@ import java.util.Collection;
  */
 public interface JndiFormatter {
 
-    @SuppressWarnings("rawtypes")
     Collection<String> format(Collection<String> beanNames, Collection<Class> beanInterfaces);
 
 }

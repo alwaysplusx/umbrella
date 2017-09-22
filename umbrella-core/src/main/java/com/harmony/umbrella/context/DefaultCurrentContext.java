@@ -106,13 +106,11 @@ public class DefaultCurrentContext implements CurrentContext {
         return getHttpSession().getId();
     }
 
-    @SuppressWarnings("unchecked")
     public <T> T getSessionAttribute(String name) {
         HttpSession session = getHttpSession(false);
         return session == null ? null : (T) session.getAttribute(name);
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public <T> T get(String name) {
         return (T) request.getAttribute(name);

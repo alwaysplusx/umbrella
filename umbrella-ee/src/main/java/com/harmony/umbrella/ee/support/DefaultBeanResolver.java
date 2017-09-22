@@ -12,7 +12,6 @@ import com.harmony.umbrella.log.Logs;
 /**
  * @author wuxii@foxmail.com
  */
-@SuppressWarnings("rawtypes")
 public class DefaultBeanResolver extends AbstractBeanResolver {
 
     private static final Log log = Logs.getLog(DefaultBeanResolver.class);

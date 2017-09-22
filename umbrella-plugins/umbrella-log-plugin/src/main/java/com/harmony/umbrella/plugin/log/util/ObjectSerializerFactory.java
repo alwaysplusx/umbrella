@@ -22,7 +22,6 @@ import com.harmony.umbrella.plugin.log.interceptor.AbstractLoggingInterceptor.Ob
  */
 public class ObjectSerializerFactory {
 
-    @SuppressWarnings("unchecked")
     public static ObjectSerializer createDefault() {
         ObjectSerializerImpl serializer = new ObjectSerializerImpl();
         serializer.addIgnoreType(LogIgnore.class, EJB.class, Inject.class, PersistenceUnit.class, PersistenceContext.class);
@@ -44,14 +43,12 @@ public class ObjectSerializerFactory {
 
     public static class LogSerializerConfig {
 
-        @SuppressWarnings("rawtypes")
         private List<Class> endTypes = new ArrayList<Class>();
 
         private Set<String> primitivePackages = new HashSet<String>();
 
         private Set<Class<? extends Annotation>> ignoreType = new HashSet<Class<? extends Annotation>>();
 
-        @SuppressWarnings("rawtypes")
         private SerializerConfig cfg;
 
         public LogSerializerConfig withEndType(Class<?>... endTypes) {
@@ -64,13 +61,11 @@ public class ObjectSerializerFactory {
             return this;
         }
 
-        @SuppressWarnings("unchecked")
         public LogSerializerConfig withIgnoreType(Class<? extends Annotation>... annCls) {
             Collections.addAll(this.ignoreType, annCls);
             return this;
         }
 
-        @SuppressWarnings("rawtypes")
         public LogSerializerConfig withSerializerConfig(SerializerConfig cfg) {
             this.cfg = cfg;
             return this;

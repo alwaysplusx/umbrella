@@ -11,7 +11,7 @@ import com.harmony.umbrella.data.query.JpaQueryBuilder;
  * 
  * @author wuxii@foxmail.com
  */
-public class QueryParameter {
+public final class QueryParameter {
 
     protected String name;
     protected Object value;
@@ -19,6 +19,9 @@ public class QueryParameter {
     protected String composition;
 
     protected List<QueryParameter> params;
+
+    private Operator operatorType;
+    private CompositionType compositionType;
 
     public QueryParameter() {
     }
@@ -49,44 +52,58 @@ public class QueryParameter {
         }
     }
 
-    private Operator getOperatorType() {
-        if (operator == null) {
-            return Operator.EQUAL;
-        }
-        int ordinal = -1;
-        try {
-            ordinal = Integer.parseInt(operator);
-        } catch (NumberFormatException e) {
-        }
-        for (Operator op : Operator.values()) {
-            if (op.name().equalsIgnoreCase(operator) //
-                    || op.qualifiedName().equalsIgnoreCase(operator) //
-                    || op.qualifiedName().replace("_", "").equalsIgnoreCase(operator)//
-                    || op.symbol().equals(operator)//
-                    || op.ordinal() == ordinal) {
-                return op;
+    protected Operator getOperatorType() {
+        if (operatorType == null) {
+            if (operator == null) {
+                operatorType = Operator.EQUAL;
+            } else {
+                int ordinal = -1;
+                try {
+                    ordinal = Integer.parseInt(operator);
+                } catch (NumberFormatException e) {
+                }
+                for (Operator op : Operator.values()) {
+                    if (op.name().equalsIgnoreCase(operator) //
+                            || op.qualifiedName().equalsIgnoreCase(operator) //
+                            || op.qualifiedName().replace("_", "").equalsIgnoreCase(operator)//
+                            || op.symbol().equals(operator)//
+                            || op.ordinal() == ordinal) {
+                        operatorType = op;
+                        break;
+                    }
+                }
+                if (operatorType == null) {
+                    throw new IllegalArgumentException("illegal query operator name " + operator);
+                }
             }
         }
-        throw new IllegalArgumentException("illegal query operator name " + operator);
+        return operatorType;
     }
 
     protected CompositionType getCompositionType() {
-        if (composition == null) {
-            return CompositionType.AND;
-        }
-        int ordinal = -1;
-        try {
-            ordinal = Integer.parseInt(composition);
-        } catch (NumberFormatException e) {
-        }
-        for (CompositionType c : CompositionType.values()) {
-            if (c.name().equalsIgnoreCase(composition) //
-                    || c.qualifiedName().equalsIgnoreCase(composition)//
-                    || c.ordinal() == ordinal) {
-                return c;
+        if (compositionType == null) {
+            if (composition == null) {
+                compositionType = CompositionType.AND;
+            } else {
+                int ordinal = -1;
+                try {
+                    ordinal = Integer.parseInt(composition);
+                } catch (NumberFormatException e) {
+                }
+                for (CompositionType c : CompositionType.values()) {
+                    if (c.name().equalsIgnoreCase(composition) //
+                            || c.qualifiedName().equalsIgnoreCase(composition)//
+                            || c.ordinal() == ordinal) {
+                        compositionType = c;
+                        break;
+                    }
+                }
+                if (compositionType == null) {
+                    throw new IllegalArgumentException("illegal query composition " + composition);
+                }
             }
         }
-        throw new IllegalArgumentException("illegal query composition " + composition);
+        return compositionType;
     }
 
     public String getComposition() {
@@ -95,6 +112,7 @@ public class QueryParameter {
 
     public void setComposition(String composition) {
         this.composition = composition;
+        this.compositionType = null;
     }
 
     public String getOperator() {
@@ -103,6 +121,7 @@ public class QueryParameter {
 
     public void setOperator(String operator) {
         this.operator = operator;
+        this.operatorType = null;
     }
 
     public String getName() {

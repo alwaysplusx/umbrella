@@ -19,7 +19,7 @@ public class WebApplicationSpringInitializer extends ApplicationServletContainer
     @Override
     public void onStartup(ServletContext servletContext) throws ServletException {
         if (appConfig != null) {
-            servletContext.setAttribute(WebXmlConstant.CONTEXT_ATTRIBUTE_APP_CONFIG, appConfig);
+            servletContext.setAttribute(WebXmlConstant.CONTAINER_CONTEXT_ATTRIBUTE_APP_CONFIG, appConfig);
         }
         this.onStartup(null, servletContext);
     }

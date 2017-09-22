@@ -256,7 +256,6 @@ public class JaxWsProxyBuilder {
      *            期待的类型
      * @return
      */
-    @SuppressWarnings("unchecked")
     public <T> T unwrap(Class<T> cls) {
         if (ClientProxyFactoryBean.class.isAssignableFrom(cls)) {
             return (T) factoryBean;

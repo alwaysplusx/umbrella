@@ -36,12 +36,11 @@ public class BundleQueryMethodArgumentResolver implements HandlerMethodArgumentR
     }
 
     @Override
-    public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer, NativeWebRequest webRequest,
-            WebDataBinderFactory binderFactory) throws Exception {
+    public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer,
+            NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
         Class<?> domainClass = getDomainType(parameter);
         BundleQueryAnnotation ann = getBundleQueryAnnotation(parameter);
         WebDataBinder binder = binderFactory.createBinder(webRequest, null, null);
-
         JpaQueryBuilder<?> builder = new WebQueryAssembly(ann, binder, webRequest, domainClass)//
                 .assemble();
 
@@ -101,8 +100,8 @@ public class BundleQueryMethodArgumentResolver implements HandlerMethodArgumentR
         public final List<String> desc;
         public final List<QueryFeature> feature;
 
-        private BundleQueryAnnotation(String prefix, String separator, int page, int size, List<String> grouping, List<String> asc, List<String> desc,
-                List<QueryFeature> feature) {
+        private BundleQueryAnnotation(String prefix, String separator, int page, int size, List<String> grouping,
+                List<String> asc, List<String> desc, List<QueryFeature> feature) {
             this.prefix = prefix;
             this.separator = separator;
             this.page = page;

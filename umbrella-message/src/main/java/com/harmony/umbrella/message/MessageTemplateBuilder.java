@@ -1,8 +1,5 @@
 package com.harmony.umbrella.message;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Properties;
 
 import javax.jms.ConnectionFactory;
@@ -29,8 +26,6 @@ public class MessageTemplateBuilder<T extends MessageTemplateBuilder<T>> {
     protected int acknowledgeMode = Session.AUTO_ACKNOWLEDGE;
     protected boolean sessionAutoCommit = true;
     protected boolean autoStartListener = true;
-
-    protected List<MessageTracker> trackers = new ArrayList<>();
 
     protected Class<? extends MessageListener> messageListenerClass;
     protected MessageListener messageListener;
@@ -116,24 +111,6 @@ public class MessageTemplateBuilder<T extends MessageTemplateBuilder<T>> {
         return (T) this;
     }
 
-    public T messageTracker(MessageTracker... messageTracker) {
-        this.trackers.addAll(Arrays.asList(messageTracker));
-        return (T) this;
-    }
-
-    public T messageTracker(Class<? extends MessageTracker>... messageTrackerClass) {
-        List<MessageTracker> trackers = new ArrayList<>(messageTrackerClass.length);
-        for (Class<? extends MessageTracker> cls : messageTrackerClass) {
-            try {
-                trackers.add(cls.newInstance());
-            } catch (Exception e) {
-                throw new IllegalArgumentException("can't create instance of " + cls);
-            }
-        }
-        this.trackers.addAll(trackers);
-        return (T) this;
-    }
-
     public T messageListener(Class<? extends MessageListener> messageListenerClass) {
         if (!ClassFilterFeature.NEWABLE.accept(messageListenerClass)) {
             throw new IllegalArgumentException("can't create message listener " + messageListenerClass);
@@ -148,34 +125,8 @@ public class MessageTemplateBuilder<T extends MessageTemplateBuilder<T>> {
     }
 
     public MessageTemplate build() {
-        final ConnectionFactory connectionFactory;
-        final Destination destination;
-        if (this.connectionFactory == null && this.connectionFactoryJNDI == null) {
-            throw new IllegalStateException("connection factory not set");
-        }
-        if (this.destination == null && this.destinationJNDI == null) {
-            throw new IllegalStateException("destinaction not set");
-        }
-        if (this.connectionFactory == null) {
-            try {
-                InitialContext context = new InitialContext(contextProperties);
-                connectionFactory = (ConnectionFactory) context.lookup(connectionFactoryJNDI);
-            } catch (NamingException e) {
-                throw new IllegalStateException(connectionFactoryJNDI + " connection factory not found", e);
-            }
-        } else {
-            connectionFactory = this.connectionFactory;
-        }
-        if (this.destination == null) {
-            try {
-                InitialContext context = new InitialContext(contextProperties);
-                destination = (Destination) context.lookup(destinationJNDI);
-            } catch (NamingException e) {
-                throw new IllegalStateException(destinationJNDI + " destination not found", e);
-            }
-        } else {
-            destination = this.destination;
-        }
+        final ConnectionFactory connectionFactory = getConnectionFactory();
+        final Destination destination = getDestination();
 
         MessageHelper helper = new MessageHelper();
         helper.connectionFactory = connectionFactory;
@@ -187,16 +138,61 @@ public class MessageTemplateBuilder<T extends MessageTemplateBuilder<T>> {
         helper.sessionAutoCommit = this.sessionAutoCommit;
         helper.autoStartListener = this.autoStartListener;
         helper.messageEventListener = this.messageEventListener;
-        MessageListener listener;
-        try {
-            listener = (messageListener == null && messageListenerClass != null) ? this.messageListenerClass.newInstance() : messageListener;
-            if (listener != null) {
-                helper.setMessageListener(listener);
-            }
-        } catch (Exception e) {
-            throw new IllegalArgumentException("can't create message listense instance " + this.messageListenerClass);
+
+        MessageListener listener = getMessageListener();
+        if (listener != null) {
+            helper.setMessageListener(listener);
         }
+
         return helper;
+    }
+
+    protected Destination getDestination() {
+        if (this.destination != null) {
+            return destination;
+        }
+        if (this.destinationJNDI == null) {
+            throw new IllegalStateException("destinaction not set");
+        }
+        Object dest = lookup(destinationJNDI);
+        if (!(dest instanceof Destination)) {
+            throw new IllegalStateException(dest + " not type of destination");
+        }
+        return (Destination) dest;
+    }
+
+    protected ConnectionFactory getConnectionFactory() {
+        if (connectionFactory != null) {
+            return connectionFactory;
+        }
+        if (connectionFactoryJNDI == null) {
+            throw new IllegalStateException("connection factory not set");
+        }
+        Object cf = lookup(connectionFactoryJNDI);
+        if (!(cf instanceof ConnectionFactory)) {
+            throw new IllegalStateException(cf + " not type of connection factory");
+        }
+        return (ConnectionFactory) cf;
+    }
+
+    protected MessageListener getMessageListener() {
+        MessageListener listener = this.messageListener;
+        if (listener == null && messageListenerClass != null) {
+            try {
+                listener = messageListenerClass.newInstance();
+            } catch (Exception e) {
+                throw new IllegalStateException("unable create message listener instance", e);
+            }
+        }
+        return listener;
+    }
+
+    protected Object lookup(String jndi) {
+        try {
+            return new InitialContext(contextProperties).lookup(jndi);
+        } catch (NamingException e) {
+            throw new IllegalStateException(jndi + " not found, ", e);
+        }
     }
 
 }

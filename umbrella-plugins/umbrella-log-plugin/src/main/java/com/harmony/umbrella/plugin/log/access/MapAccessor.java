@@ -7,7 +7,6 @@ import java.util.Map;
  * 
  * @author wuxii@foxmail.com
  */
-@SuppressWarnings("rawtypes")
 public class MapAccessor extends CheckedAccessor<Map> {
 
     public MapAccessor() {
@@ -35,7 +34,6 @@ public class MapAccessor extends CheckedAccessor<Map> {
     /**
      * {@inheritDoc}
      */
-    @SuppressWarnings("unchecked")
     @Override
     public void set(String name, Map obj, Object val) {
         obj.put(name, val);

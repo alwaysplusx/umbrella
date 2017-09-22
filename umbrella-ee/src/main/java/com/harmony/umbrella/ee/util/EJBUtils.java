@@ -20,7 +20,6 @@ import com.harmony.umbrella.util.StringUtils;
 /**
  * @author wuxii@foxmail.com
  */
-@SuppressWarnings("unchecked")
 public class EJBUtils {
 
     private static final Class<? extends Annotation>[] SESSION_ANNOTATIONS;

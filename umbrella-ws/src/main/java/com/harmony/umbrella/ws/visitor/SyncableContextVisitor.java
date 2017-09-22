@@ -8,10 +8,10 @@ import java.util.List;
 import java.util.Map;
 
 import com.harmony.umbrella.context.ApplicationContext;
+import com.harmony.umbrella.context.ApplicationContext.ClassResource;
 import com.harmony.umbrella.core.BeanFactory;
 import com.harmony.umbrella.log.Log;
 import com.harmony.umbrella.log.Logs;
-import com.harmony.umbrella.util.ClassFilter;
 import com.harmony.umbrella.ws.Context;
 import com.harmony.umbrella.ws.ProxyExecutor;
 import com.harmony.umbrella.ws.WebServiceAbortException;
@@ -54,7 +54,6 @@ public class SyncableContextVisitor extends AbstractContextVisitor {
         this.beanFactory = beanFactory;
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
     public boolean visitBefore(Context context) throws WebServiceAbortException {
         Object obj = context.get(Proxy.SYNC_OBJECT);
@@ -69,7 +68,6 @@ public class SyncableContextVisitor extends AbstractContextVisitor {
         return true;
     }
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
     @Override
     public void visitCompletion(Object result, Context context) {
         Object obj = context.get(Proxy.SYNC_OBJECT);
@@ -81,7 +79,6 @@ public class SyncableContextVisitor extends AbstractContextVisitor {
         }
     }
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
     @Override
     public void visitThrowing(Throwable throwable, Context context) {
         Object obj = context.get(Proxy.SYNC_OBJECT);
@@ -111,12 +108,10 @@ public class SyncableContextVisitor extends AbstractContextVisitor {
         this.beanFactory = beanFactory;
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
     private List asList(Object obj) {
         return obj instanceof Collection ? new ArrayList((Collection) obj) : Arrays.asList(obj);
     }
 
-    @SuppressWarnings("rawtypes")
     private List<ProxyCallback> getCallbacks(Context context) {
         List<ProxyCallback> result = new ArrayList<ProxyCallback>();
         Class<ProxyCallback>[] classes = callbackFinder.getCallbackClasses(context.getServiceClass(), context.getMethodName());
@@ -139,13 +134,11 @@ public class SyncableContextVisitor extends AbstractContextVisitor {
         /**
          * 所有标注了syncable注解的class
          */
-        @SuppressWarnings("rawtypes")
         private Class<? extends ProxyCallback>[] callbacks;
 
         /**
          * 各个类对应的{@linkplain ProxyCallback}缓存
          */
-        @SuppressWarnings("rawtypes")
         private final Map<String, List> callbackMap = new HashMap<String, List>();
 
         /**
@@ -158,7 +151,6 @@ public class SyncableContextVisitor extends AbstractContextVisitor {
          *            服务方法
          * @return 对应的SyncCallback
          */
-        @SuppressWarnings({ "rawtypes", "unchecked" })
         public Class<ProxyCallback>[] getCallbackClasses(Class<?> serviceClass, String methodName) {
             String key = serviceClass.getName() + "#" + methodName;
             List classes = callbackMap.get(key);
@@ -175,7 +167,6 @@ public class SyncableContextVisitor extends AbstractContextVisitor {
             return (Class<ProxyCallback>[]) classes.toArray(new Class[classes.size()]);
         }
 
-        @SuppressWarnings("rawtypes")
         protected Class<? extends ProxyCallback>[] callbacks() {
             if (callbacks == null) {
                 callbacks = getAllCallbackClass();
@@ -188,23 +179,19 @@ public class SyncableContextVisitor extends AbstractContextVisitor {
             this.callbackMap.clear();
         }
 
-        @SuppressWarnings({ "unchecked", "rawtypes" })
         private Class<? extends ProxyCallback>[] getAllCallbackClass() {
-            return (Class<? extends ProxyCallback>[]) ApplicationContext.getApplicationClasses(new ClassFilter() {
-
-                @Override
-                public boolean accept(Class<?> clazz) {
-                    if (clazz == null) {
-                        return false;
-                    }
-                    if (ProxyCallback.class.isAssignableFrom(clazz) && clazz.getAnnotation(Syncable.class) != null) {
-                        log.info("accept {} as callback", clazz);
-                        return true;
-                    }
-                    return false;
+            List<Class<? extends ProxyCallback>> result = new ArrayList<>();
+            ClassResource[] resources = ApplicationContext.getApplicationClassResources();
+            for (ClassResource res : resources) {
+                Class<?> clazz = res.forClass();
+                if (clazz != null //
+                        && !result.contains(clazz)//
+                        && ProxyCallback.class.isAssignableFrom(clazz) //
+                        && clazz.getAnnotation(Syncable.class) != null) {
+                    result.add((Class<? extends ProxyCallback>) clazz);
                 }
-
-            });
+            }
+            return result.toArray(new Class[result.size()]);
         }
 
         /*

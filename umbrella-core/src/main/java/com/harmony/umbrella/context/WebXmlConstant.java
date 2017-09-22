@@ -55,7 +55,7 @@ public abstract class WebXmlConstant {
 
     public static final String APPLICATION_CFG_DATASOURCE_VALUE = "jdbc/harmony";
 
-    public static final String CONTEXT_ATTRIBUTE_APP_CONFIG = ApplicationConfiguration.class.getName() + ".app-config";
+    public static final String CONTAINER_CONTEXT_ATTRIBUTE_APP_CONFIG = ApplicationConfiguration.class.getName() + ".app-config";
 
     private WebXmlConstant() {
     }

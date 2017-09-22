@@ -13,7 +13,6 @@ import org.springframework.util.ReflectionUtils;
 /**
  * @author wuxii@foxmail.com
  */
-@SuppressWarnings("rawtypes")
 public class TypedAccessorChainImpl implements TypedAccessorChain {
 
     private List<TypedAccessor> typedAccessors = new ArrayList<TypedAccessor>();
@@ -39,7 +38,6 @@ public class TypedAccessorChainImpl implements TypedAccessorChain {
      * @return 目标值
      * @see TypedAccessor#get(String, Object)
      */
-    @SuppressWarnings("unchecked")
     public Object getValue(String name, Object obj) {
         Assert.notNull(obj, "expression target object is null, " + name);
         Exception ex = null;
@@ -73,7 +71,6 @@ public class TypedAccessorChainImpl implements TypedAccessorChain {
      *            目标值
      * @see TypedAccessor#set(String, Object, Object)
      */
-    @SuppressWarnings("unchecked")
     public void setValue(String name, Object obj, Object val) {
         Assert.notNull(obj, "target object is null");
         Exception ex = null;
@@ -95,7 +92,6 @@ public class TypedAccessorChainImpl implements TypedAccessorChain {
         throw new IllegalArgumentException("");
     }
 
-    @SuppressWarnings("unchecked")
     private List<TypedAccessor> updateIterator(Class<?> clazz) {
         List<TypedAccessor> result = new ArrayList<TypedAccessor>();
         for (TypedAccessor ta : typedAccessors) {

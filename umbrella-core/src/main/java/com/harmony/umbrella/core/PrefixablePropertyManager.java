@@ -13,7 +13,6 @@ import com.harmony.umbrella.util.StringUtils;
  */
 public class PrefixablePropertyManager extends AbstractPropertyManager {
 
-    @SuppressWarnings("rawtypes")
     private Map properties;
 
     private String prefix;
@@ -39,7 +38,6 @@ public class PrefixablePropertyManager extends AbstractPropertyManager {
         return value == null ? null : new PropertyEntry(fetchWithoutPrefix ? key : fullKey, value);
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public List<Property> getStartWith(final String prefix) {
         String fullPrefix = getFullKey(prefix);
@@ -56,7 +54,6 @@ public class PrefixablePropertyManager extends AbstractPropertyManager {
         return result;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public void set(Property param) {
         String key = param.getKey();
@@ -73,12 +70,10 @@ public class PrefixablePropertyManager extends AbstractPropertyManager {
         return prefix + "." + key;
     }
 
-    @SuppressWarnings("rawtypes")
     public Map getProperties() {
         return properties;
     }
 
-    @SuppressWarnings("rawtypes")
     public void setProperties(Map properties) {
         this.properties = properties;
     }

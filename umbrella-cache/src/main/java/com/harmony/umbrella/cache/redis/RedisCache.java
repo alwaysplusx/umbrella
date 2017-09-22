@@ -102,7 +102,6 @@ public class RedisCache implements Cache {
         }
     }
 
-    @SuppressWarnings("rawtypes")
     public void evict(List keys) throws CacheException {
         if (keys == null || keys.size() == 0)
             return;

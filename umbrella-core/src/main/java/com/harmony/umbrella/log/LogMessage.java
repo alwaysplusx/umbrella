@@ -432,7 +432,6 @@ public class LogMessage {
             return Collections.unmodifiableMap(contextMap);
         }
 
-        @SuppressWarnings("unchecked")
         private void readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException {
             this.action = ois.readUTF();
             this.contextMap = (Map<String, Object>) ois.readObject();

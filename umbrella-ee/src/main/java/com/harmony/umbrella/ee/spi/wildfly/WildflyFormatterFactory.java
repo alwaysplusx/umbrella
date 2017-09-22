@@ -35,7 +35,6 @@ public class WildflyFormatterFactory extends DefaultFormatterFactory {
 
     private PathMatcher packageMatcher = new AntPathMatcher(".");
 
-    @SuppressWarnings("rawtypes")
     private Map<Class, String> classModuleMapping = new HashMap<Class, String>();
 
     private Map<String, String> packageModuleMapping = new LinkedHashMap<String, String>();
@@ -134,12 +133,10 @@ public class WildflyFormatterFactory extends DefaultFormatterFactory {
         this.packageModuleMapping = packageModuleMapping;
     }
 
-    @SuppressWarnings("rawtypes")
     public Map<Class, String> getClassModuleMapping() {
         return classModuleMapping;
     }
 
-    @SuppressWarnings("rawtypes")
     public void setClassModuleMapping(Map<Class, String> classModuleMapping) {
         this.classModuleMapping = classModuleMapping;
     }

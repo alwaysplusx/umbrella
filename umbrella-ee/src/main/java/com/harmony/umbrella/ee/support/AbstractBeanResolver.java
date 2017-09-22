@@ -68,7 +68,6 @@ public abstract class AbstractBeanResolver implements BeanResolver {
         return new String[0];
     }
 
-    @SuppressWarnings("rawtypes")
     protected boolean findInProperties(BeanDefinition bd, Map<String, Object> properties, JndiHolder holder) {
         if (properties.isEmpty()) {
             return false;
@@ -248,7 +247,6 @@ public abstract class AbstractBeanResolver implements BeanResolver {
         this.testForced = testForced;
     }
 
-    @SuppressWarnings("rawtypes")
     protected class JndiHolder {
 
         private boolean forced;

@@ -90,7 +90,6 @@ public abstract class ProxyExecutorSupport implements ProxyExecutor {
         return task;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public <V> void executeAsync(final Context context, ResponseCallback<V> callback) throws WebServiceException {
         Future<V> future = (Future<V>) executeAsync(context);

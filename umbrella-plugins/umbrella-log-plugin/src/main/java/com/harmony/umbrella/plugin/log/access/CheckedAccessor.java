@@ -27,7 +27,6 @@ public abstract class CheckedAccessor<T> implements TypedAccessor<T> {
     /**
      * {@inheritDoc}
      */
-    @SuppressWarnings("unchecked")
     @Override
     public Class<T> getType() {
         if (type == null) {

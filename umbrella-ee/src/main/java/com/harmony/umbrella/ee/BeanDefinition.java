@@ -55,7 +55,6 @@ public class BeanDefinition {
         return beanClass.getAnnotation(annCls);
     }
 
-    @SuppressWarnings("rawtypes")
     private Class[] findRemoteClasses(Class<?> clazz) {
         List<Class> remoteClasses = new ArrayList<Class>();
         if (isRemoteClass(clazz) || (clazz.isInterface() && !isLocalClass(clazz))) {
@@ -80,7 +79,6 @@ public class BeanDefinition {
         return remoteClasses.toArray(new Class[remoteClasses.size()]);
     }
 
-    @SuppressWarnings("rawtypes")
     private Class<?>[] findLocalClasses(Class<?> clazz) {
         List<Class> localClasses = new ArrayList<Class>();
         if (isLocalClass(clazz) || (clazz.isInterface() && !isRemoteClass(clazz))) {

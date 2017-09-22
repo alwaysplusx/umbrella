@@ -15,7 +15,6 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
-@SuppressWarnings({ "unchecked", "rawtypes" })
 public class ExcelHandler extends DefaultHandler {
 
     private SharedStringsTable sharedStringsTable;

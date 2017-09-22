@@ -65,7 +65,6 @@ public class NullCacheProvider implements CacheProvider {
          * @see net.oschina.j2cache.Cache#keys()
          */
         @Override
-        @SuppressWarnings("rawtypes")
         public List keys() throws CacheException {
             return null;
         }
@@ -81,7 +80,6 @@ public class NullCacheProvider implements CacheProvider {
          * @see net.oschina.j2cache.Cache#batchRemove(java.util.List)
          */
         @Override
-        @SuppressWarnings("rawtypes")
         public void evict(List keys) throws CacheException {
         }
 

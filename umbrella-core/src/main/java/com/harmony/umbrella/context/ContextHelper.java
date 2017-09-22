@@ -1,6 +1,8 @@
 package com.harmony.umbrella.context;
 
-import static com.harmony.umbrella.context.CurrentContext.*;
+import static com.harmony.umbrella.context.CurrentContext.USER_ID;
+import static com.harmony.umbrella.context.CurrentContext.USER_NAME;
+import static com.harmony.umbrella.context.CurrentContext.USER_NICKNAME;
 
 import java.util.Collections;
 import java.util.Enumeration;
@@ -14,7 +16,7 @@ import javax.servlet.http.HttpSession;
 
 import org.springframework.util.Assert;
 
-import com.harmony.umbrella.context.metadata.DatabaseMetadata;
+import com.harmony.umbrella.context.metadata.ApplicationMetadata;
 import com.harmony.umbrella.context.metadata.ServerMetadata;
 import com.harmony.umbrella.log.Log;
 import com.harmony.umbrella.log.Logs;
@@ -56,16 +58,11 @@ public class ContextHelper {
      * @return server metadata
      */
     public static ServerMetadata getServerMetadata() {
-        return ApplicationContext.getServerMetadata();
-    }
-
-    /**
-     * 获取应用的所有数据库元信息
-     * 
-     * @return database metadata
-     */
-    public static DatabaseMetadata[] getDatabaseMetadatas() {
-        return ApplicationContext.getDatabaseMetadatas();
+        try {
+            return ApplicationContext.getServerMetadata();
+        } catch (ApplicationContextException e) {
+            return ApplicationMetadata.EMPTY_SERVER_METADATA;
+        }
     }
 
     /**

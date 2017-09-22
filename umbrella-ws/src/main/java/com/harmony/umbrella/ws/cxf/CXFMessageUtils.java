@@ -21,18 +21,15 @@ public class CXFMessageUtils {
      * @param message
      * @return
      */
-    @SuppressWarnings("unchecked")
     public static Map<String, Object> getContext(Message message) {
         return (Map<String, Object>) message.get(INVOCATION_CONTEXT);
     }
 
-    @SuppressWarnings("unchecked")
     public static Map<String, Object> getRequestContext(Message message) {
         Map<String, Object> context = getContext(message);
         return (Map<String, Object>) (null != context ? context.get(REQUEST_CONTEXT) : null);
     }
 
-    @SuppressWarnings("unchecked")
     public static Map<String, Object> getResponseContext(Message message) {
         Map<String, Object> context = getContext(message);
         return (Map<String, Object>) (null != context ? context.get(RESPONSE_CONTEXT) : null);

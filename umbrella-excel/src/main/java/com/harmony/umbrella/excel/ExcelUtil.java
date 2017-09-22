@@ -281,7 +281,6 @@ public class ExcelUtil {
      *            枚举
      * @return 与cell文本匹配的枚举类
      */
-    @SuppressWarnings("rawtypes")
     public static <T extends Enum> T getEnumCellValue(Cell cell, Class<T> enumType) {
         for (T t : enumType.getEnumConstants()) {
             if (t.name().equalsIgnoreCase(cell.getStringCellValue())) {

@@ -245,7 +245,6 @@ public class JaxWsServerBuilder {
      * @throws IllegalArgumentException
      *             不支持的类型
      */
-    @SuppressWarnings("unchecked")
     public <T> T unwrap(Class<T> cls) {
         if (ServerFactoryBean.class.isAssignableFrom(cls)) {
             return (T) serverFactoryBean;

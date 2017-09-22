@@ -43,8 +43,12 @@ import com.harmony.umbrella.util.ClassFilterFeature;
 public class ApplicationServletContainerInitializer implements ServletContainerInitializer {
 
     @Override
-    public void onStartup(Set<Class<?>> c, ServletContext servletContext) throws ServletException {
-        c = new HashSet<>(c == null ? Collections.emptySet() : c);
+    public void onStartup(final Set<Class<?>> c, final ServletContext servletContext) throws ServletException {
+        Set<Class<?>> classToUse = new HashSet<>();
+
+        if (c != null && !c.isEmpty()) {
+            classToUse.addAll(c);
+        }
 
         final ApplicationConfiguration cfg;
         try {
@@ -63,71 +67,23 @@ public class ApplicationServletContainerInitializer implements ServletContainerI
 
         // must after application started
         if (cfg.getBooleanProperty(APPLICATION_CFG_PROPERTIES_SCAN_HANDLES_TYPES) || ContextHelper.isWeblogic()) {
-            c.addAll(scanApplicationEventListener());
+            classToUse.addAll(scanApplicationEventListeners());
         }
 
-        if (c.isEmpty()) {
-            servletContext.log("No application ApplicationInitializer types detected on classpath");
+        if (classToUse.isEmpty()) {
+            servletContext.log("No application initializer detected on classpath");
             return;
         }
 
-        ApplicationContext applicationContext = null;
-        boolean autowire = cfg.getBooleanProperty(APPLICATION_CFG_PROPERTIES_LISTENER_AUTOWIRE);
+        ApplicationServletContextListener applicationServletContextListener = buildApplicationServletContextListener(classToUse, cfg);
 
-        final List<ApplicationEventListener> eventListeners = new ArrayList<ApplicationEventListener>(c.size());
-
-        for (Class<?> cls : c) {
-            try {
-                ApplicationEventListener listener = (ApplicationEventListener) cls.newInstance();
-                if (autowire) {
-                    if (applicationContext == null) {
-                        applicationContext = ApplicationContext.getApplicationContext();
-                    }
-                    applicationContext.autowrie(listener);
-                }
-                eventListeners.add(listener);
-            } catch (Throwable e) {
-                throw new ServletException("Failed to instantiate ApplicationInitializer class", e);
-            }
-        }
-
-        OrderComparator.sort(eventListeners);
-
-        servletContext.addListener(new ServletContextListener() {
-
-            @Override
-            public void contextInitialized(ServletContextEvent sce) {
-                long s = System.currentTimeMillis();
-                sce.getServletContext().log("begin start application");
-                for (int i = 0, max = eventListeners.size(); i < max; i++) {
-                    ApplicationEventListener listener = eventListeners.get(i);
-                    if (listener instanceof ApplicationStartListener) {
-                        ((ApplicationStartListener) listener).onStartup(cfg);
-                    }
-                }
-                sce.getServletContext().log("application started, use " + (System.currentTimeMillis() - s) + "ms");
-            }
-
-            @Override
-            public void contextDestroyed(ServletContextEvent sce) {
-                long s = System.currentTimeMillis();
-                sce.getServletContext().log("begin stop application");
-                for (int i = eventListeners.size() - 1; i >= 0; i--) {
-                    ApplicationEventListener listener = eventListeners.get(i);
-                    if (listener instanceof ApplicationDestroyListener) {
-                        ((ApplicationDestroyListener) listener).onDestroy(cfg);
-                    }
-                }
-                ApplicationContext.shutdown();
-                sce.getServletContext().log("application stopped, use " + (System.currentTimeMillis() - s) + "ms");
-            }
-
-        });
+        servletContext.log("add dynamic servlet context listener " + applicationServletContextListener);
+        servletContext.addListener(applicationServletContextListener);
 
     }
 
     private ApplicationConfiguration buildApplicationConfiguration(ServletContext servletContext) throws Exception {
-        Object cfg = servletContext.getAttribute(CONTEXT_ATTRIBUTE_APP_CONFIG);
+        Object cfg = servletContext.getAttribute(CONTAINER_CONTEXT_ATTRIBUTE_APP_CONFIG);
         if (cfg != null) {
             return (ApplicationConfiguration) cfg;
         }
@@ -143,26 +99,55 @@ public class ApplicationServletContainerInitializer implements ServletContainerI
         return builder.apply(servletContext).build();
     }
 
+    private ApplicationServletContextListener buildApplicationServletContextListener(Set<Class<?>> classToUse, ApplicationConfiguration cfg)
+            throws ServletException {
+        ServletContext servletContext = cfg.getServletContext();
+        ApplicationContext applicationContext = null;
+        boolean autowire = cfg.getBooleanProperty(APPLICATION_CFG_PROPERTIES_LISTENER_AUTOWIRE);
+
+        final List<ApplicationEventListener> eventListeners = new ArrayList<ApplicationEventListener>(classToUse.size());
+
+        for (Class<?> cls : classToUse) {
+            try {
+                ApplicationEventListener listener = (ApplicationEventListener) cls.newInstance();
+                if (autowire) {
+                    if (applicationContext == null) {
+                        applicationContext = ApplicationContext.getApplicationContext();
+                    }
+                    applicationContext.autowrie(listener);
+                }
+                eventListeners.add(listener);
+            } catch (Throwable e) {
+                servletContext.log("Ignore initializer " + cls.getName() + ", " + e.toString());
+            }
+        }
+
+        OrderComparator.sort(eventListeners);
+        return new ApplicationServletContextListener(eventListeners, cfg);
+    }
+
     /*
-     * under weblogic just load @HandlesTypes in WEB-INF/lib/*.jar, so load @HandlesTypes manually
+     * under weblogic just load @HandlesTypes in WEB-INF/lib/*.jar, so
+     * load @HandlesTypes manually
      */
-    protected Set<Class<?>> scanApplicationEventListener() throws ServletException {
+    protected Set<Class<?>> scanApplicationEventListeners() throws ServletException {
         Set<Class<?>> result = new HashSet<>();
-        ApplicationContext.getApplicationClasses(new ClassFilter() {
+
+        Class<?>[] classes = ApplicationContext.getApplicationClasses(new ClassFilter() {
+
             @Override
-            public boolean accept(Class<?> clazz) {
-                if (ClassFilterFeature.NEWABLE.accept(clazz)//
-                        && !result.contains(clazz)//
-                        && ApplicationEventListener.class.isAssignableFrom(clazz))
-                    result.add(clazz);
-                return false;
+            public boolean accept(Class<?> c) {
+                return ClassFilterFeature.NEWABLE.accept(c)//
+                        && !result.contains(c)//
+                        && ApplicationEventListener.class.isAssignableFrom(c);
             }
         });
+
+        Collections.addAll(result, classes);
         return result;
     }
 
     protected void showApplicationInfo() {
-
         StringBuilder out = new StringBuilder();
         ApplicationConfiguration cfg = ApplicationContext.getApplicationConfiguration();
         ServerMetadata serverMetadata = ApplicationContext.getServerMetadata();
@@ -206,10 +191,59 @@ public class ApplicationServletContainerInitializer implements ServletContainerI
                 .append("\n#          runtime version : ").append(javaMetadata.runtimeVersion)//
                 .append("\n#")//
                 .append("\n#             app packages : ").append(cfg != null ? cfg.getScanPackages() : null)//
-                .append("\n#         app classes size : ").append(ApplicationContext.getApplicationClassSize())//
+                .append("\n#      class resource size : ").append(ApplicationContext.getApplicationClassResourceSize())//
                 .append("\n############################################################")//
                 .append("\n\n");
         System.out.println(out.toString());
+    }
+
+    /**
+     * 内部动态servlet context listener
+     * 
+     * @author wuxii@foxmail.com
+     */
+    private static final class ApplicationServletContextListener implements ServletContextListener {
+
+        private ApplicationConfiguration cfg;
+        private List<ApplicationEventListener> eventListeners;
+
+        public ApplicationServletContextListener(List<ApplicationEventListener> listeners, ApplicationConfiguration cfg) {
+            this.cfg = cfg;
+            this.eventListeners = listeners;
+        }
+
+        @Override
+        public void contextInitialized(ServletContextEvent sce) {
+            ServletContext servletContext = sce.getServletContext();
+            long s = System.currentTimeMillis();
+            servletContext.log("begin start application");
+            for (int i = 0, max = eventListeners.size(); i < max; i++) {
+                ApplicationEventListener listener = eventListeners.get(i);
+                if (listener instanceof ApplicationStartListener) {
+                    ((ApplicationStartListener) listener).onStartup(cfg);
+                }
+            }
+            servletContext.log("application started, use " + (System.currentTimeMillis() - s) + "ms");
+        }
+
+        @Override
+        public void contextDestroyed(ServletContextEvent sce) {
+            ServletContext servletContext = sce.getServletContext();
+            long s = System.currentTimeMillis();
+            servletContext.log("begin stop application");
+            for (int i = eventListeners.size() - 1; i >= 0; i--) {
+                ApplicationEventListener listener = eventListeners.get(i);
+                if (listener instanceof ApplicationDestroyListener) {
+                    ((ApplicationDestroyListener) listener).onDestroy(cfg);
+                }
+            }
+            if (ApplicationContext.isStarted()) {
+                // shutdown application context
+                ApplicationContext.shutdown();
+            }
+            servletContext.log("application stopped, use " + (System.currentTimeMillis() - s) + "ms");
+        }
+
     }
 
 }

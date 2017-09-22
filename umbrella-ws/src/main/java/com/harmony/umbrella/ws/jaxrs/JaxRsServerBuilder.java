@@ -201,7 +201,6 @@ public class JaxRsServerBuilder {
      * @throws IllegalArgumentException
      *             不支持的类型
      */
-    @SuppressWarnings("unchecked")
     public <T> T unwrap(Class<T> cls) {
         if (JAXRSServerFactoryBean.class.isAssignableFrom(cls)) {
             return (T) serverFactoryBean;

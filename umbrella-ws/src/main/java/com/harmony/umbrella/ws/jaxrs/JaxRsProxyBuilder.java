@@ -170,7 +170,6 @@ public class JaxRsProxyBuilder {
         return resourceClass.cast(target);
     }
 
-    @SuppressWarnings("unchecked")
     public <T> T unwrap(Class<T> cls) {
         if (JAXRSClientFactoryBean.class.isAssignableFrom(cls)) {
             return (T) clientFactoryBean;

@@ -292,7 +292,6 @@ public abstract class ProxySupport<T> implements Proxy<T> {
             this.properties.putAll(properties);
         }
 
-        @SuppressWarnings({ "unchecked", "rawtypes" })
         public Object[] packing() {
             if (object instanceof List) {
                 return ProxySupport.this.packing((List) object, properties);
@@ -301,7 +300,6 @@ public abstract class ProxySupport<T> implements Proxy<T> {
             }
         }
 
-        @SuppressWarnings("unchecked")
         public void applySyncing() {
             if (object instanceof List) {
                 ProxySupport.this.applySyncing((List<T>) object, properties);

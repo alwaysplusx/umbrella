@@ -16,7 +16,6 @@ public @interface ExcelColumn {
 
     int value() default -1;
 
-    @SuppressWarnings("rawtypes")
     Class<? extends CellResolver> cellResolver() default CellResolver.class;
 
     String header() default "";

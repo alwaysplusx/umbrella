@@ -1,5 +1,7 @@
 package com.harmony.umbrella.web.method.support;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -18,8 +20,10 @@ import com.harmony.umbrella.data.CompositionType;
 import com.harmony.umbrella.data.Operator;
 import com.harmony.umbrella.data.query.JpaQueryBuilder;
 import com.harmony.umbrella.data.query.QueryFeature;
+import com.harmony.umbrella.json.Json;
 import com.harmony.umbrella.log.Log;
 import com.harmony.umbrella.log.Logs;
+import com.harmony.umbrella.util.IOUtils;
 import com.harmony.umbrella.util.PropertiesUtils;
 import com.harmony.umbrella.util.StringUtils;
 import com.harmony.umbrella.web.method.annotation.BundleQuery;
@@ -42,7 +46,8 @@ class WebQueryAssembly {
     protected JpaQueryBuilder builder;
     protected HttpServletRequest request;
 
-    public WebQueryAssembly(BundleQueryAnnotation ann, WebDataBinder binder, NativeWebRequest webRequest, Class domainClass) {
+    public WebQueryAssembly(BundleQueryAnnotation ann, WebDataBinder binder, NativeWebRequest webRequest,
+            Class domainClass) {
         this.ann = ann;
         this.builder = new JpaQueryBuilder<>(domainClass);
         this.domainClass = domainClass;
@@ -62,15 +67,33 @@ class WebQueryAssembly {
 
     protected void applyRequestQueryParameters() {
         String requestMethod = request.getMethod();
+        List<QueryParameter> parameters = new ArrayList<>();
         if (requestMethod.equalsIgnoreCase("GET")) {
             Set<Entry<String, String[]>> entries = getRequestParameters().entrySet();
             for (Entry<String, String[]> entry : entries) {
-                QueryParameter parameter = parseEntry(entry.getKey(), entry.getValue());
-                parameter.apply(builder);
+                parameters.add(parseEntry(entry.getKey(), entry.getValue()));
             }
         } else if (requestMethod.equalsIgnoreCase("POST")) {
-
+            try {
+                InputStream is = request.getInputStream();
+                String json = IOUtils.toString(is);
+                if (isArray(json)) {
+                    parameters.addAll(Json.parseArray(json, QueryParameter.class));
+                } else {
+                    parameters.add(Json.parse(IOUtils.toString(is), QueryParameter.class));
+                }
+            } catch (IOException e) {
+            }
         }
+
+        for (QueryParameter p : parameters) {
+            p.apply(builder);
+        }
+    }
+
+    private boolean isArray(String json) {
+        json = json.trim();
+        return json.startsWith("[") && json.endsWith("]");
     }
 
     protected int getPage() {

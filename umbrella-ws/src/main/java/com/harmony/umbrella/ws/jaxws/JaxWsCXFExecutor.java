@@ -41,7 +41,6 @@ public class JaxWsCXFExecutor extends ProxyExecutorSupport implements JaxWsExecu
 
     private Invoker invoker = new JaxWsInvoker();
 
-    @SuppressWarnings("unchecked")
     @Override
     public <T> T executeQuite(Context context, Class<T> resultType) {
         Assert.notNull(context.getServiceInterface(), "service interface not set");

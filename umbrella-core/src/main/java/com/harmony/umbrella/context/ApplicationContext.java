@@ -1,17 +1,27 @@
 package com.harmony.umbrella.context;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
 import java.util.Set;
-import java.util.Vector;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.servlet.ServletContext;
 
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
+import org.springframework.core.io.support.ResourcePatternResolver;
+import org.springframework.util.ClassUtils;
+
+import com.harmony.umbrella.asm.ClassReader;
 import com.harmony.umbrella.context.metadata.ApplicationMetadata;
 import com.harmony.umbrella.context.metadata.DatabaseMetadata;
 import com.harmony.umbrella.context.metadata.ServerMetadata;
@@ -22,8 +32,7 @@ import com.harmony.umbrella.core.SimpleBeanFactory;
 import com.harmony.umbrella.log.Log;
 import com.harmony.umbrella.log.Logs;
 import com.harmony.umbrella.util.ClassFilter;
-import com.harmony.umbrella.util.ClassFilterFeature;
-import com.harmony.umbrella.util.Scanner;
+import com.harmony.umbrella.util.IOUtils;
 
 /**
  * 运行的应用的上下文
@@ -36,30 +45,28 @@ public abstract class ApplicationContext implements BeanFactory {
 
     protected static final ThreadLocal<CurrentContext> current = new InheritableThreadLocal<CurrentContext>();
 
-    private static final List<Class> classes = new Vector<Class>();
+    private static final List<ClassResource> classResources = new CopyOnWriteArrayList<>();
+
+    private static final List<DatabaseMetadata> databaseMetadatas = new CopyOnWriteArrayList<DatabaseMetadata>();
 
     private static ServerMetadata serverMetadata = ApplicationMetadata.EMPTY_SERVER_METADATA;
 
-    private static List<DatabaseMetadata> databaseMetadatas = new ArrayList<DatabaseMetadata>();
-
     private static ApplicationConfiguration applicationConfiguration;
 
-    private static final int STANDBY = 0;
-    private static final int STARTED = 1;
-    private static final int SHUTDOWN = -1;
+    protected static final int STANDBY = 0;
+    protected static final int STARTED = 1;
+    protected static final int SHUTDOWN = -1;
 
-    private static final Object applicationStatusLock = new Object();
+    protected static final Object applicationStatusLock = new Object();
 
     private static int applicationStatus;
 
-    private static boolean scaned;
-
-    public static void start(ApplicationConfiguration appConfig) {
+    public static void start(ApplicationConfiguration appConfig) throws ApplicationContextException {
         final ApplicationConfiguration cfg = ApplicationConfigurationBuilder.unmodifiableApplicationConfiguation(appConfig);
         synchronized (applicationStatusLock) {
             if (!isStandBy()) {
-                LOG.warn("application already started");
-                return;
+                // application not standby
+                throw new ApplicationContextException("unable start application, status not available " + applicationStatus);
             }
             ApplicationContextInitializer applicationInitializer = null;
             Class<? extends ApplicationContextInitializer> applicationInitializerClass = cfg.getApplicationContextInitializerClass();
@@ -69,7 +76,7 @@ public abstract class ApplicationContext implements BeanFactory {
             try {
                 applicationInitializer = applicationInitializerClass.newInstance();
             } catch (Exception e) {
-                throw new IllegalArgumentException("illegal application initializer class " + applicationInitializerClass);
+                throw new ApplicationContextException("illegal application initializer class " + applicationInitializerClass);
             }
             applicationInitializer.init(cfg);
             applicationConfiguration = cfg;
@@ -79,24 +86,34 @@ public abstract class ApplicationContext implements BeanFactory {
 
     public static void shutdown() {
         synchronized (applicationStatusLock) {
-            List<Runnable> hooks = null;
-            try {
-                hooks = getShutdownHooks();
-            } catch (Exception e) {
-                throw new ApplicationContextException("can't instance shutdown hooks", e);
+            if (!isStarted()) {
+                throw new ApplicationContextException("unable stop application, status not available " + applicationStatus);
             }
-            try {
-                for (Runnable runnable : hooks) {
-                    runnable.run();
+            ApplicationContext applicationContext = null;
+            boolean autowire = applicationConfiguration.getBooleanProperty(WebXmlConstant.APPLICATION_CFG_PROPERTIES_HOOK_AUTOWIRE);
+            boolean focus = applicationConfiguration.getBooleanProperty(WebXmlConstant.APPLICATION_CFG_PROPERTIES_FOCUS_SHUTDOWN);
+            Class<? extends Runnable>[] hooks = applicationConfiguration.getShutdownHooks();
+            if (hooks != null && hooks.length > 0) {
+                for (Class<? extends Runnable> hook : hooks) {
+                    try {
+                        Runnable runner = hook.newInstance();
+                        if (applicationContext == null) {
+                            applicationContext = ApplicationContext.getApplicationContext();
+                        }
+                        if (autowire) {
+                            applicationContext.autowrie(runner);
+                        }
+                        runner.run();
+                    } catch (Exception e) {
+                        if (!focus) {
+                            throw new ApplicationContextException("application shutdown failed", e);
+                        }
+                        LOG.error("can't run shutdown hook " + hook, e);
+                    }
                 }
-            } catch (Throwable e) {
-                if (!applicationConfiguration.getBooleanProperty(WebXmlConstant.APPLICATION_CFG_PROPERTIES_FOCUS_SHUTDOWN)) {
-                    throw e;
-                }
-                LOG.error("shutdown hooks mount fail", e);
             }
-            classes.clear();
             databaseMetadatas.clear();
+            classResources.clear();
             applicationConfiguration = null;
         }
     }
@@ -106,7 +123,7 @@ public abstract class ApplicationContext implements BeanFactory {
      * 
      * @return 初始化配置
      */
-    public static ApplicationConfiguration getApplicationConfiguration() {
+    public static ApplicationConfiguration getApplicationConfiguration() throws ApplicationContextException {
         checkApplicationState();
         return applicationConfiguration;
     }
@@ -143,7 +160,7 @@ public abstract class ApplicationContext implements BeanFactory {
      *
      * @return 应用上下文
      */
-    public static final ApplicationContext getApplicationContext() {
+    public static final ApplicationContext getApplicationContext() throws ApplicationContextException {
         checkApplicationState();
         ApplicationContext context = null;
         ServiceLoader<ApplicationContextProvider> providers = ServiceLoader.load(ApplicationContextProvider.class);
@@ -169,18 +186,7 @@ public abstract class ApplicationContext implements BeanFactory {
      * @return 用户环境
      */
     public static CurrentContext getCurrentContext() {
-        checkApplicationState();
         return current.get();
-    }
-
-    public static ServerMetadata getServerMetadata() {
-        checkApplicationState();
-        return serverMetadata;
-    }
-
-    public static DatabaseMetadata[] getDatabaseMetadatas() {
-        checkApplicationState();
-        return databaseMetadatas.toArray(new DatabaseMetadata[0]);
     }
 
     /**
@@ -190,61 +196,61 @@ public abstract class ApplicationContext implements BeanFactory {
      *            用户环境
      */
     static void setCurrentContext(CurrentContext cc) {
-        checkApplicationState();
         current.set(cc);
     }
 
-    static int getApplicationClassSize() {
+    public static ServerMetadata getServerMetadata() throws ApplicationContextException {
         checkApplicationState();
-        return scaned ? classes.size() : -1;
+        return serverMetadata;
     }
 
-    public static Class[] getApplicationClasses(ClassFilter filter) {
+    public static DatabaseMetadata[] getDatabaseMetadatas() throws ApplicationContextException {
         checkApplicationState();
-        if (scaned) {
-            return get(filter);
-        } else {
-            synchronized (classes) {
-                return get(filter);
-            }
+        return databaseMetadatas.toArray(new DatabaseMetadata[databaseMetadatas.size()]);
+    }
+
+    public static Class[] getApplicationClasses() throws ApplicationContextException {
+        return filterApplicationClasses(null);
+    }
+
+    public static Class[] getApplicationClasses(ClassFilter filter) throws ApplicationContextException {
+        if (filter == null) {
+            throw new IllegalArgumentException("class filter not allow null");
         }
+        return filterApplicationClasses(filter);
     }
 
-    private static Class[] get(ClassFilter filter) {
-        List<Class> result = new ArrayList<Class>();
-        for (Class c : classes) {
-            if (ClassFilterFeature.safetyAccess(filter, c)) {
-                result.add(c);
+    private static Class[] filterApplicationClasses(ClassFilter filter) {
+        Set<Class> result = new HashSet<>();
+        ClassResource[] resources = getApplicationClassResources();
+        for (ClassResource classResource : resources) {
+            Class<?> clazz = classResource.forClass();
+            if (clazz != null && (filter == null || filter.accept(clazz))) {
+                result.add(clazz);
             }
         }
         return result.toArray(new Class[result.size()]);
     }
 
-    protected static final void checkApplicationState() throws ApplicationContextException {
-        if (!isStarted()) {
-            throw new ApplicationContextException("application not started!");
-        }
-        if (isShutdown()) {
-            throw new ApplicationContextException("application is shutdown!");
-        }
+    public static ClassResource[] getApplicationClassResources() throws ApplicationContextException {
+        checkApplicationState();
+        return classResources.toArray(new ClassResource[classResources.size()]);
     }
 
-    private static List<Runnable> getShutdownHooks() throws Exception {
-        ApplicationContext applicationContext = null;
-        boolean autowire = applicationConfiguration.getBooleanProperty(WebXmlConstant.APPLICATION_CFG_PROPERTIES_HOOK_AUTOWIRE);
-        if (autowire) {
-            applicationContext = ApplicationContext.getApplicationContext();
+    static int getApplicationClassResourceSize() throws ApplicationContextException {
+        checkApplicationState();
+        return classResources.size();
+    }
+
+    /**
+     * 检查当前application是否是启动状态
+     * 
+     * @throws ApplicationContextException
+     */
+    protected static final void checkApplicationState() throws ApplicationContextException {
+        if (!isStarted()) {
+            throw new ApplicationContextException("application not started! " + applicationStatus);
         }
-        List<Runnable> result = new ArrayList<>();
-        Class<? extends Runnable>[] shutdownHooks = applicationConfiguration.getShutdownHooks();
-        for (Class<? extends Runnable> c : shutdownHooks) {
-            Runnable runnable = c.newInstance();
-            if (autowire) {
-                applicationContext.autowrie(runnable);
-            }
-            result.add(runnable);
-        }
-        return result;
     }
 
     // application bean scope
@@ -306,17 +312,17 @@ public abstract class ApplicationContext implements BeanFactory {
 
         private ApplicationConfiguration cfg;
 
-        public InternalApplicationInitializer(ApplicationConfiguration applicationConfiguration) {
+        InternalApplicationInitializer(ApplicationConfiguration applicationConfiguration) {
             this.cfg = applicationConfiguration;
         }
 
-        public void init() {
+        void init() {
 
             init_server();
 
             init_connection_sources();
 
-            init_application_classes();
+            init_application_class_resources();
 
         }
 
@@ -326,7 +332,7 @@ public abstract class ApplicationContext implements BeanFactory {
                 LOG.warn("servlet context not set, server metadata could not be initialized");
                 return;
             }
-            serverMetadata = ApplicationMetadata.getServerMetadata(servletContext);
+            ApplicationContext.serverMetadata = ApplicationMetadata.getServerMetadata(servletContext);
         }
 
         private void init_connection_sources() {
@@ -337,44 +343,179 @@ public abstract class ApplicationContext implements BeanFactory {
             }
             for (ConnectionSource cs : css) {
                 try {
-                    databaseMetadatas.add(ApplicationMetadata.getDatabaseMetadata(cs));
+                    ApplicationContext.databaseMetadatas.add(ApplicationMetadata.getDatabaseMetadata(cs));
                 } catch (SQLException e) {
                     LOG.error("initial database metadata failed", e);
                 }
             }
         }
 
-        private void init_application_classes() {
-            boolean async = cfg.getBooleanProperty(WebXmlConstant.APPLICATION_CFG_PROPERTIES_SCAN_ASYNC, true);
+        private void init_application_class_resources() {
+            ApplicationContext.classResources.clear();
 
-            if (async) {
-                new Thread(new Runnable() {
-
-                    @Override
-                    public void run() {
-                        scan();
+            Set<String> packages = cfg.getScanPackages();
+            Set<ClassResource> result = new HashSet<>();
+            ClassResourceScanner scanner = new ClassResourceScanner();
+            for (String pkg : packages) {
+                String path = ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX + pkg.replace(".", "/") + "/**/*.class";
+                try {
+                    result.addAll(scanner.scan(path));
+                } catch (IOException e) {
+                    LOG.warn("can't scan package {}, will skip this package");
+                    if (LOG.isDebugEnabled()) {
+                        LOG.warn(e);
                     }
-
-                }).start();
-            } else {
-                scan();
+                }
             }
+
+            ApplicationContext.classResources.addAll(result);
+            Collections.sort(ApplicationContext.classResources, new Comparator<ClassResource>() {
+
+                @Override
+                public int compare(ClassResource o1, ClassResource o2) {
+                    return o1.className.compareTo(o2.className);
+                }
+            });
 
         }
 
-        private void scan() {
-            synchronized (classes) {
-                classes.clear();
-                scaned = false;
+    }
 
-                Set<String> packages = cfg.getScanPackages();
-                boolean initialize = cfg.getBooleanProperty(WebXmlConstant.APPLICATION_CFG_PROPERTIES_SCAN_INIT);
+    public static class ClassResourceScanner {
 
-                Collections.addAll(classes, Scanner.scan(packages, initialize, true));
+        private ResourcePatternResolver loader;
 
-                scaned = true;
+        public ClassResourceScanner() {
+            this(new PathMatchingResourcePatternResolver());
+        }
+
+        public ClassResourceScanner(ResourcePatternResolver loader) {
+            this.loader = loader;
+        }
+
+        public List<ClassResource> scan(String path) throws IOException {
+            List<ClassResource> result = new ArrayList<>();
+            Resource[] resources = loader.getResources(path);
+            for (Resource resource : resources) {
+                ClassResource classResource = readAsClassResource(resource);
+                if (classResource != null) {
+                    result.add(classResource);
+                }
+            }
+            return result;
+        }
+
+        protected ClassResource readAsClassResource(Resource resource) {
+            final Set<String> interfaceNames;
+            final String superClassName;
+            final String className;
+
+            InputStream is = null;
+
+            try {
+                is = resource.getInputStream();
+                byte[] buf = IOUtils.toByteArray(is);
+                ClassReader reader = new ClassReader(buf);
+
+                className = formatClassName(reader.getClassName());
+                superClassName = formatClassName(reader.getSuperName());
+                interfaceNames = new HashSet<>();
+                for (String interfaceName : reader.getInterfaces()) {
+                    interfaceNames.add(formatClassName(interfaceName));
+                }
+                return new ClassResource(className, superClassName, interfaceNames, resource, loader.getClassLoader());
+            } catch (Exception e) {
+                return null;
+            } finally {
+                if (is != null) {
+                    try {
+                        is.close();
+                    } catch (IOException e) {
+                    }
+                }
             }
         }
+
+        private String formatClassName(String name) {
+            return name.replace("/", ".");
+        }
+
+    }
+
+    public static final class ClassResource {
+
+        private final ClassLoader classLoader;
+        private final Resource resource;
+        private final String className;
+        private final String superClassName;
+        private final Set<String> interfaceNames;
+
+        private ClassResource(String className, String superClassName, Set<String> interfaceNames, Resource resource, ClassLoader classLoader) {
+            this.classLoader = classLoader;
+            this.resource = resource;
+            this.className = className;
+            this.superClassName = superClassName;
+            this.interfaceNames = interfaceNames;
+        }
+
+        public Resource getResource() {
+            return resource;
+        }
+
+        public String getClassName() {
+            return className;
+        }
+
+        public String getSuperClassName() {
+            return superClassName;
+        }
+
+        public Set<String> getInterfaceNames() {
+            return Collections.unmodifiableSet(interfaceNames);
+        }
+
+        public Class<?> forClass() {
+            return forClass(classLoader);
+        }
+
+        public Class<?> forClass(ClassLoader loader) {
+            try {
+                return ClassUtils.forName(className, loader);
+            } catch (Throwable e) {
+            }
+            return null;
+        }
+
+        @Override
+        public int hashCode() {
+            final int prime = 31;
+            int result = 1;
+            result = prime * result + ((className == null) ? 0 : className.hashCode());
+            return result;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj)
+                return true;
+            if (obj == null)
+                return false;
+            if (getClass() != obj.getClass())
+                return false;
+            ClassResource other = (ClassResource) obj;
+            if (className == null) {
+                if (other.className != null)
+                    return false;
+            } else if (!className.equals(other.className))
+                return false;
+            return true;
+        }
+
+        @Override
+        public String toString() {
+            return className;
+        }
+
     }
 
     private static final class SimpleApplicationContext extends ApplicationContext {

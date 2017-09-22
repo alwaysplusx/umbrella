@@ -35,7 +35,6 @@ public class PropertiesFileJobFactory implements JobFactory {
         this.triggerFileLocation = triggerFileLocation;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public Class<? extends Job> getJobClass(String jobName) {
         try {

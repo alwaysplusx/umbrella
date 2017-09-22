@@ -29,7 +29,6 @@ public class JpaJobFactory implements JobFactory {
         this.em = em;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public Class<? extends Job> getJobClass(String jobName) {
         TypedQuery<JobEntity> query = em.createNamedQuery("JobEntity.findByJobName", JobEntity.class);

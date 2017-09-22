@@ -17,7 +17,6 @@ public abstract class AbstractJndiFormatter implements JndiFormatter {
 
     private static final Log log = Logs.getLog(AbstractJndiFormatter.class);
 
-    @SuppressWarnings("rawtypes")
     @Override
     public Collection<String> format(final Collection<String> beanNames, final Collection<Class> beanInterfaces) {
         List<String> result = new ArrayList<String>();

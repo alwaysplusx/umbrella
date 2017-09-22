@@ -10,7 +10,6 @@ import org.springframework.util.NumberUtils;
  * 
  * @author wuxii@foxmail.com
  */
-@SuppressWarnings("rawtypes")
 public class ListAccessor extends CheckedAccessor<List> {
 
     public ListAccessor() {
@@ -42,7 +41,6 @@ public class ListAccessor extends CheckedAccessor<List> {
     /**
      * {@inheritDoc}
      */
-    @SuppressWarnings("unchecked")
     @Override
     public void set(String name, List obj, Object val) {
         obj.set(Integer.valueOf(name), val);

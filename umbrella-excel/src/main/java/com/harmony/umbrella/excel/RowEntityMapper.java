@@ -42,14 +42,12 @@ public class RowEntityMapper<T> implements RowVisitor {
 
     private final List<T> result = new ArrayList<T>();
 
-    @SuppressWarnings("rawtypes")
     private final List<CellResolver> cellResolvers = new ArrayList<CellResolver>();
 
     private int startColumn = 0;
 
     private int endColumn = -1;
 
-    @SuppressWarnings("rawtypes")
     public RowEntityMapper(Class<T> entityClass, Map<Integer, String> headerIndexToFieldNameMap, List<CellResolver> cellResolvers) {
         this.entityClass = entityClass;
         this.cellResolvers.addAll(cellResolvers);
@@ -95,7 +93,6 @@ public class RowEntityMapper<T> implements RowVisitor {
         return result.toArray(array);
     }
 
-    @SuppressWarnings("rawtypes")
     private CellResolver<?> getCellResolver(Member member) {
         Field field = member.getField();
         ExcelColumn ann = null;
@@ -161,7 +158,6 @@ public class RowEntityMapper<T> implements RowVisitor {
      *            对象泛型
      * @return
      */
-    @SuppressWarnings("rawtypes")
     public static <T> RowEntityMapper<T> createByClass(Class<T> entityClass) {
         Map<Integer, String> headerIndexToFieldNameMap = new HashMap<Integer, String>();
         Field[] fields = entityClass.getDeclaredFields();
@@ -184,7 +180,6 @@ public class RowEntityMapper<T> implements RowVisitor {
      *            对象泛型
      * @return
      */
-    @SuppressWarnings("rawtypes")
     public static <T> RowEntityMapper<T> createByClass(Class<T> entityClass, List<CellResolver> cellResolvers) {
         Map<Integer, String> headerIndexToFieldNameMap = new HashMap<Integer, String>();
         Field[] fields = entityClass.getDeclaredFields();

@@ -16,7 +16,6 @@ import com.harmony.umbrella.util.PropertiesUtils;
  */
 public class SimplePropertyManager extends AbstractPropertyManager {
 
-    @SuppressWarnings("rawtypes")
     private Map properties = new HashMap();
 
     public SimplePropertyManager() {
@@ -40,7 +39,6 @@ public class SimplePropertyManager extends AbstractPropertyManager {
         return value == null ? null : new PropertyEntry(key, value.toString());
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public List<Property> getStartWith(String prefix) {
         List<Property> params = new ArrayList<Property>();
@@ -54,18 +52,15 @@ public class SimplePropertyManager extends AbstractPropertyManager {
         return params;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public void set(Property param) {
         properties.put(param.getKey(), param.getValue());
     }
 
-    @SuppressWarnings("rawtypes")
     public Map getProperties() {
         return properties;
     }
 
-    @SuppressWarnings("rawtypes")
     public void setProperties(Map properties) {
         this.properties = properties;
     }

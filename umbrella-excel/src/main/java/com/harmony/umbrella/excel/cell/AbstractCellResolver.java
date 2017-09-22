@@ -12,7 +12,6 @@ public abstract class AbstractCellResolver<T> implements CellResolver<T> {
 
     private Class<T> targetType;
 
-    @SuppressWarnings("unchecked")
     @Override
     public Class<T> targetType() {
         if (targetType == null) {

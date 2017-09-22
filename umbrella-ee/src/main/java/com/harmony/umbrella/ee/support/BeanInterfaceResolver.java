@@ -17,7 +17,6 @@ import com.harmony.umbrella.util.StringUtils;
 /**
  * @author wuxii@foxmail.com
  */
-@SuppressWarnings("rawtypes")
 public class BeanInterfaceResolver implements PartResolver<Class> {
 
     private static final Log log = Logs.getLog(BeanInterfaceResolver.class);

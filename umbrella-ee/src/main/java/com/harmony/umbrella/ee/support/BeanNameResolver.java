@@ -1,6 +1,7 @@
 package com.harmony.umbrella.ee.support;
 
 import java.lang.annotation.Annotation;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -9,11 +10,11 @@ import java.util.Map;
 import java.util.Set;
 
 import com.harmony.umbrella.context.ApplicationContext;
+import com.harmony.umbrella.context.ApplicationContext.ClassResource;
 import com.harmony.umbrella.ee.BeanDefinition;
 import com.harmony.umbrella.ee.util.EJBUtils;
 import com.harmony.umbrella.log.Log;
 import com.harmony.umbrella.log.Logs;
-import com.harmony.umbrella.util.ClassFilter;
 import com.harmony.umbrella.util.ClassFilterFeature;
 import com.harmony.umbrella.util.StringUtils;
 
@@ -35,18 +36,13 @@ public class BeanNameResolver implements PartResolver<String> {
     private Map<String, String> beanNameMapping = new HashMap<String, String>();
 
     /*
-     * 以下判定返回结果
-     * beanClass是session bean, 返回注解对应的name/mappedName
-     * beanClass非接口, 返回simpleName
+     * 以下判定返回结果 beanClass是session bean, 返回注解对应的name/mappedName beanClass非接口,
+     * 返回simpleName
      * 
-     * beanClass是接口或者remote接口
-     * 查找类路径下的接口的所有子类
-     * 添加子类的session bean注解名称, 或者simpleName
-     * +
-     * 通过配置猜测对应的beanName
+     * beanClass是接口或者remote接口 查找类路径下的接口的所有子类 添加子类的session bean注解名称, 或者simpleName
+     * + 通过配置猜测对应的beanName
      * 
      */
-    @SuppressWarnings({ "rawtypes" })
     @Override
     public Set<String> resolve(BeanDefinition bd) {
         Set<String> result = new HashSet<String>();
@@ -126,16 +122,22 @@ public class BeanNameResolver implements PartResolver<String> {
     }
 
     protected Class[] getSubClasses(Class<?> clazz) {
-        return ApplicationContext.getApplicationClasses(new ClassFilter() {
-            @Override
-            public boolean accept(Class<?> c) {
-                return c.isAssignableFrom(c) && c != clazz && ClassFilterFeature.NEWABLE.accept(c);
+        List<Class> result = new ArrayList<>();
+        ClassResource[] resource = ApplicationContext.getApplicationClassResources();
+        for (ClassResource res : resource) {
+            Class<?> c = res.forClass();
+            if (c != null //
+                    && c.isAssignableFrom(c)//
+                    && c != clazz //
+                    && ClassFilterFeature.NEWABLE.accept(c)) {
+                result.add(clazz);
             }
-        });
+        }
+        return result.toArray(new Class[result.size()]);
     }
 
     protected String getBeanName(Class<?> beanClass) {
-        // 1. @Stateless#name 
+        // 1. @Stateless#name
         // 2. @Stateless#mappedName
         Class[] seq = sequance != null ? sequance.toArray(new Class[sequance.size()]) : new Class[0];
         String beanName = EJBUtils.getName(beanClass, seq);
