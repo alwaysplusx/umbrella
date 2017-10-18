@@ -14,6 +14,7 @@ import org.springframework.data.domain.Page;
  * @author wuxii@foxmail.com
  */
 public interface QueryResult<T> {
+
     /**
      * 单实体结果查询
      * 
@@ -29,6 +30,13 @@ public interface QueryResult<T> {
     T getFirstResult();
 
     /**
+     * 获取特定范围结果集
+     * 
+     * @return 范围结果集
+     */
+    List<T> getRangeResult();
+
+    /**
      * 符合条件的结果集
      * 
      * <b>此结果集不分页, 即为所有符合条件的实体</b>
@@ -40,23 +48,16 @@ public interface QueryResult<T> {
     /**
      * 符合条件的分页结果集
      * 
-     * @return 符合条件的分页结果集
-     */
-    List<T> getRangeResultList();
-
-    /**
-     * 符合条件的分页结果集
-     * 
      * @return result page
      */
     Page<T> getResultPage();
 
     /**
-     * 符合条件的结果总数
+     * 统计符合条件的结果总数
      * 
      * @return 结果总数
      */
-    long getCountResult();
+    long countResult();
 
     /**
      * 获取列值并返回期待的类型
@@ -67,7 +68,7 @@ public interface QueryResult<T> {
      *            期待类型
      * @return resultType column result
      */
-    <E> E getColumnSingleResult(String column, Class<E> resultType);
+    <E> E getSingleResult(String column, Class<E> resultType);
 
     /**
      * 获取列值并返回期待的类型
@@ -78,7 +79,7 @@ public interface QueryResult<T> {
      *            期待类型
      * @return resultType column result
      */
-    <E> E getColumnSingleResult(String[] column, Class<E> resultType);
+    <E> E getSingleResult(String[] column, Class<E> resultType);
 
     /**
      * 获取列值并返回期待的类型
@@ -89,7 +90,7 @@ public interface QueryResult<T> {
      *            期待类型
      * @return resultType column result
      */
-    <E> List<E> getColumnResultList(String column, Class<E> resultType);
+    <E> List<E> getResultList(String column, Class<E> resultType);
 
     /**
      * 获取列值并返回期待的类型
@@ -100,7 +101,7 @@ public interface QueryResult<T> {
      *            期待类型
      * @return resultType column result
      */
-    <E> List<E> getColumnResultList(String[] column, Class<E> resultType);
+    <E> List<E> getResultList(String[] column, Class<E> resultType);
 
     /**
      * 分页的列值结果
@@ -111,7 +112,7 @@ public interface QueryResult<T> {
      *            期待类型
      * @return range column result
      */
-    <E> List<E> getColumnRangeResultList(String column, Class<E> resultType);
+    <E> List<E> getRangeResult(String column, Class<E> resultType);
 
     /**
      * 分页的列值结果
@@ -122,18 +123,7 @@ public interface QueryResult<T> {
      *            期待类型
      * @return range column result
      */
-    <E> List<E> getColumnRangeResultList(String[] column, Class<E> resultType);
-
-    /**
-     * 查询计算单列的function结果
-     * 
-     * @param function
-     *            function name
-     * @param column
-     *            column name
-     * @return column function result
-     */
-    <E> E getFunctionResult(String function, String column);
+    <E> List<E> getRangeResult(String[] column, Class<E> resultType);
 
     /**
      * 
@@ -193,7 +183,7 @@ public interface QueryResult<T> {
      *            期待结果类型
      * @return 分页结果集
      */
-    <E> List<E> getRangeResultList(Selections<T> selections, Class<E> resultType);
+    <E> List<E> getRangeResult(Selections<T> selections, Class<E> resultType);
 
     /**
      * 定制列的分页结果集

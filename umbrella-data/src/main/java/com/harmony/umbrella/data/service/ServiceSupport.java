@@ -76,7 +76,7 @@ public abstract class ServiceSupport<T, ID extends Serializable> implements Serv
 
     @Override
     public Page<T> findPage(QueryBundle<T> bundle) {
-        return getRepository().getResultPage(bundle);
+        return getRepository().getPageResult(bundle);
     }
 
     @Override
@@ -86,7 +86,7 @@ public abstract class ServiceSupport<T, ID extends Serializable> implements Serv
 
     @Override
     public long count(QueryBundle<T> bundle) {
-        return getRepository().getCountResult(bundle);
+        return getRepository().countResult(bundle);
     }
 
     @Override

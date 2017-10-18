@@ -265,6 +265,24 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
      * @return this
      */
     public T like(String name, Object value) {
+        return like(name, value, true);
+    }
+
+    /**
+     * like查询, 根据入参wild判断是否添加通配(如果值中已经含有通配%则不添加通配)
+     * 
+     * @param name
+     *            字段
+     * @param value
+     *            值
+     * @param wild
+     *            是否对值进行通配
+     * @return this
+     */
+    public T like(String name, Object value, boolean wild) {
+        if (wild) {
+            value = appendLikeWild(value);
+        }
         return addCondition(name, value, Operator.LIKE);
     }
 
@@ -278,6 +296,24 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
      * @return this
      */
     public T notLike(String name, Object value) {
+        return notLike(name, value, true);
+    }
+
+    /**
+     * 设置not like查询. 根据入参wild判断是否添加通配(如果值中已经含有通配%则不添加通配)
+     * 
+     * @param name
+     *            字段
+     * @param value
+     *            值
+     * @param wild
+     *            是否开启通配
+     * @return this
+     */
+    public T notLike(String name, Object value, boolean wild) {
+        if (wild) {
+            value = appendLikeWild(value);
+        }
         return addCondition(name, value, Operator.NOT_LIKE);
     }
 
@@ -1081,7 +1117,12 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
      * @return 符合条件的结果数
      */
     public long getCountResult() {
-        return execute().getCountResult();
+        return execute().countResult();
+    }
+
+    protected static String appendLikeWild(Object value) {
+        String val = value.toString();
+        return val.indexOf("%") != -1 ? val : "%" + val + "%";
     }
 
     public static final class FetchAttributes implements Serializable {

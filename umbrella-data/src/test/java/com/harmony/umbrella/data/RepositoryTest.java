@@ -62,7 +62,7 @@ public class RepositoryTest {
 
             @Override
             public String fetch(QueryResult<Model> result) {
-                return result.getColumnSingleResult("name", String.class);
+                return result.getSingleResult("name", String.class);
             }
 
         });

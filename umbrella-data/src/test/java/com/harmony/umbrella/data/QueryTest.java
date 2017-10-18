@@ -88,7 +88,7 @@ public class QueryTest {
 
     @Test
     public void testGrouping() {
-        List<String> v = builder.allowFullTableQuery().groupBy("content").execute().getColumnResultList("content", String.class);
+        List<String> v = builder.allowFullTableQuery().groupBy("content").execute().getResultList("content", String.class);
         assertEquals(1, v.size());
     }
 
@@ -99,20 +99,20 @@ public class QueryTest {
 
     @Test
     public void testVoQuery() {
-        ModelVo v = builder.equal("name", "wuxii").execute().getColumnSingleResult(new String[] { "name", "code", "content" }, ModelVo.class);
+        ModelVo v = builder.equal("name", "wuxii").execute().getSingleResult(new String[] { "name", "code", "content" }, ModelVo.class);
         assertEquals("wuxii", v.getName());
     }
 
     @Test
     public void testVoAndFunctionQuery() {
-        List<ModelVo> v = builder.allowFullTableQuery().groupBy("content").execute().getColumnResultList(new String[] { "max(id)", "content" }, ModelVo.class);
+        List<ModelVo> v = builder.allowFullTableQuery().groupBy("content").execute().getResultList(new String[] { "max(id)", "content" }, ModelVo.class);
         assertEquals(1, v.size());
         assertEquals(2, v.get(0).getSize());
     }
 
     @Test
     public void testDistinctQuery() {
-        List<String> v = builder.distinct().allowFullTableQuery().execute().getColumnResultList("content", String.class);
+        List<String> v = builder.distinct().allowFullTableQuery().execute().getResultList("content", String.class);
         assertEquals(1, v.size());
     }
 

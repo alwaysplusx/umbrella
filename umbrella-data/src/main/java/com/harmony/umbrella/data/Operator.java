@@ -283,9 +283,6 @@ public enum Operator implements ExpressionExplainer {
 
     private static String likeValue(Object y) {
         if (y instanceof String) {
-            if (((String) y).indexOf("%") == -1) {
-                y = "%" + y + "%";
-            }
             return (String) y;
         }
         throw new IllegalArgumentException("like value is not string");
