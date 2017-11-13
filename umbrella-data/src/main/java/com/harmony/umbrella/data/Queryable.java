@@ -12,13 +12,13 @@ public interface Queryable<T> {
 
     <M> QueryResult<M> query(QueryBundle<?> bundle, Class<M> entityClass);
 
-    <RESULT> RESULT query(QueryBundle<T> bundle, QueryResultFetcher<T, RESULT> fetcher);
+    <RESULT> RESULT query(QueryBundle<T> bundle, QueryResultConverter<T, RESULT> converter);
 
-    <M, RESULT> RESULT query(QueryBundle<?> bundle, Class<M> entityClass, QueryResultFetcher<M, RESULT> fetcher);
+    <M, RESULT> RESULT query(QueryBundle<?> bundle, Class<M> entityClass, QueryResultConverter<M, RESULT> converter);
 
-    public interface QueryResultFetcher<M, RESULT> {
+    public interface QueryResultConverter<M, RESULT> {
 
-        RESULT fetch(QueryResult<M> result);
+        RESULT convert(QueryResult<M> result);
 
     }
 }

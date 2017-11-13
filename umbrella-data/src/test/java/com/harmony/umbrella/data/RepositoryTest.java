@@ -21,7 +21,7 @@ import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import com.harmony.umbrella.data.Queryable.QueryResultFetcher;
+import com.harmony.umbrella.data.Queryable.QueryResultConverter;
 import com.harmony.umbrella.data.RepositoryTest.RepositoryConfig;
 import com.harmony.umbrella.data.entity.Model;
 import com.harmony.umbrella.data.entity.SubModel;
@@ -58,10 +58,10 @@ public class RepositoryTest {
 
     @Test
     public void testFetchResult() {
-        String name = repository.query(bundle, new QueryResultFetcher<Model, String>() {
+        String name = repository.query(bundle, new QueryResultConverter<Model, String>() {
 
             @Override
-            public String fetch(QueryResult<Model> result) {
+            public String convert(QueryResult<Model> result) {
                 return result.getSingleResult("name", String.class);
             }
 

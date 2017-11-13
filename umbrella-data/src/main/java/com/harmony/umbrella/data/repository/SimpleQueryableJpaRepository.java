@@ -56,6 +56,11 @@ public class SimpleQueryableJpaRepository<T, ID extends Serializable> extends Si
     }
 
     @Override
+    public List<T> getRangeResout(QueryBundle<T> bundle) {
+        return query(bundle).getRangeResult();
+    }
+
+    @Override
     public Page<T> getPageResult(QueryBundle<T> bundle) {
         return query(bundle).getResultPage();
     }
@@ -66,13 +71,13 @@ public class SimpleQueryableJpaRepository<T, ID extends Serializable> extends Si
     }
 
     @Override
-    public <RESULT> RESULT query(QueryBundle<T> bundle, QueryResultFetcher<T, RESULT> fetcher) {
-        return fetcher.fetch(query(bundle));
+    public <RESULT> RESULT query(QueryBundle<T> bundle, QueryResultConverter<T, RESULT> converter) {
+        return converter.convert(query(bundle));
     }
 
     @Override
-    public <M, RESULT> RESULT query(QueryBundle<?> bundle, Class<M> entityClass, QueryResultFetcher<M, RESULT> fetcher) {
-        return fetcher.fetch(query(bundle, entityClass));
+    public <M, RESULT> RESULT query(QueryBundle<?> bundle, Class<M> entityClass, QueryResultConverter<M, RESULT> converter) {
+        return converter.convert(query(bundle, entityClass));
     }
 
 }
