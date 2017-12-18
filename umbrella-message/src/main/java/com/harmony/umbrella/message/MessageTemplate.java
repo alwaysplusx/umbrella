@@ -4,16 +4,11 @@ import java.io.InputStream;
 import java.io.Serializable;
 import java.util.Map;
 
-import javax.jms.BytesMessage;
 import javax.jms.JMSException;
-import javax.jms.MapMessage;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageListener;
-import javax.jms.ObjectMessage;
 import javax.jms.Session;
-import javax.jms.StreamMessage;
-import javax.jms.TextMessage;
 
 /**
  * 消息管理模版, 包含一下基础功能
@@ -46,17 +41,6 @@ public interface MessageTemplate {
     void sendBytesMessage(byte[] buf) throws JMSException;
 
     /**
-     * 发送bytes消息
-     * 
-     * @param buf
-     *            消息内容
-     * @param appender
-     *            消息追加appender
-     * @throws JMSException
-     */
-    void sendBytesMessage(byte[] buf, MessageAppender<BytesMessage> appender) throws JMSException;
-
-    /**
      * 发送序列化消息
      * 
      * @param obj
@@ -64,17 +48,6 @@ public interface MessageTemplate {
      * @throws JMSException
      */
     void sendObjectMessage(Serializable obj) throws JMSException;
-
-    /**
-     * 发送序列化消息
-     * 
-     * @param obj
-     *            消息内容
-     * @param appender
-     *            消息追加appender
-     * @throws JMSException
-     */
-    void sendObjectMessage(Serializable obj, MessageAppender<ObjectMessage> appender) throws JMSException;
 
     /**
      * 发送map消息
@@ -97,30 +70,6 @@ public interface MessageTemplate {
     void sendMapMessage(Map map, boolean skipNotStatisfiedEntry) throws JMSException;
 
     /**
-     * 发送map消息
-     * 
-     * @param map
-     *            消息内容
-     * @param appender
-     *            消息追加appender
-     * @throws JMSException
-     */
-    void sendMapMessage(Map map, MessageAppender<MapMessage> appender) throws JMSException;
-
-    /**
-     * 发送map消息
-     * 
-     * @param map
-     *            消息内容
-     * @param skipNotStatisfiedEntry
-     *            是否忽略不满足序列化条件的消息entry
-     * @param appender
-     *            消息追加appender
-     * @throws JMSException
-     */
-    void sendMapMessage(Map map, boolean skipNotStatisfiedEntry, MessageAppender<MapMessage> appender) throws JMSException;
-
-    /**
      * 发送文本消息
      * 
      * @param text
@@ -128,17 +77,6 @@ public interface MessageTemplate {
      * @throws JMSException
      */
     void sendTextMessage(String text) throws JMSException;
-
-    /**
-     * 发送文本消息
-     * 
-     * @param text
-     *            消息内容
-     * @param appender
-     *            消息追加appender
-     * @throws JMSException
-     */
-    void sendTextMessage(String text, MessageAppender<TextMessage> appender) throws JMSException;
 
     /**
      * 发送stream消息
@@ -150,15 +88,13 @@ public interface MessageTemplate {
     void sendStreamMessage(InputStream is) throws JMSException;
 
     /**
-     * 发送stream消息
+     * 发送anyMessage, anyMessage会自动添加消息头在message
+     * header中其key为{@linkplain AnyMessage#ANY_MESSAGE_HEADER}其值为消息类型类名
      * 
-     * @param is
-     *            消息内容
-     * @param appender
-     *            消息追加appender
+     * @param msg
      * @throws JMSException
      */
-    void sendStreamMessage(InputStream is, MessageAppender<StreamMessage> appender) throws JMSException;
+    void sendAnyMessage(AnyMessage msg) throws JMSException;
 
     /**
      * 发送自定义消息
@@ -195,6 +131,14 @@ public interface MessageTemplate {
      *            message监听
      */
     void setMessageListener(MessageListener listener);
+
+    /**
+     * 消息事件监听(发送, 消费等事件)
+     * 
+     * @param eventListener
+     *            事件监听器
+     */
+    void setMessageEventListener(MessageEventListener eventListener);
 
     /**
      * 获取消息监听listener
@@ -236,15 +180,6 @@ public interface MessageTemplate {
      */
     public interface MessageCreator extends Serializable {
         Message message(Session session) throws JMSException;
-    }
-
-    /**
-     * 消息追加器,为消息添加属性等作用
-     * 
-     * @author wuxii@foxmail.com
-     */
-    public interface MessageAppender<T extends Message> extends Serializable {
-        void append(T message);
     }
 
 }

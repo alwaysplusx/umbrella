@@ -7,8 +7,6 @@ import javax.jms.JMSException;
 import javax.jms.Session;
 import javax.jms.StreamMessage;
 
-import com.harmony.umbrella.message.MessageTemplate.MessageAppender;
-
 /**
  * @author wuxii@foxmail.com
  */
@@ -20,8 +18,7 @@ public class StreamMessageCreator extends AbstractMessageCreator<StreamMessage> 
 
     private static final int DEFAULT_BUFFER_SIZE = 1024 * 4;
 
-    public StreamMessageCreator(InputStream is, MessageAppender<StreamMessage> appender) {
-        super(appender);
+    public StreamMessageCreator(InputStream is) {
         this.is = is;
     }
 

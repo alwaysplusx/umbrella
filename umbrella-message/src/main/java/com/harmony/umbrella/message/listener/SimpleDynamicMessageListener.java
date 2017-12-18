@@ -25,6 +25,10 @@ public class SimpleDynamicMessageListener implements DynamicMessageListener {
         this.jmsTemplate = jmsTemplate;
     }
 
+    public boolean isStarted() {
+        return jmsTemplate != null && jmsTemplate.isStarted();
+    }
+
     @Override
     public void start() throws JMSException {
         this.stop();

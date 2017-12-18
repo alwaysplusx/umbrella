@@ -7,16 +7,13 @@ import javax.jms.JMSException;
 import javax.jms.MapMessage;
 import javax.jms.Session;
 
-import com.harmony.umbrella.message.MessageTemplate.MessageAppender;
-
 public class MapMessageCreator extends AbstractMessageCreator<MapMessage> {
 
     private static final long serialVersionUID = 2091868113420068661L;
     private Map map;
     protected boolean skipNotSatisfiedEntry;
 
-    public MapMessageCreator(Map map, boolean skipNotStatisfiedEntry, MessageAppender<MapMessage> appender) {
-        super(appender);
+    public MapMessageCreator(Map map, boolean skipNotStatisfiedEntry) {
         this.map = map;
         this.skipNotSatisfiedEntry = skipNotStatisfiedEntry;
     }

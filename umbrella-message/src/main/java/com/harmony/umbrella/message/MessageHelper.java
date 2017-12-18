@@ -8,25 +8,21 @@ import javax.jms.BytesMessage;
 import javax.jms.ConnectionFactory;
 import javax.jms.Destination;
 import javax.jms.JMSException;
-import javax.jms.MapMessage;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageListener;
 import javax.jms.MessageProducer;
-import javax.jms.ObjectMessage;
 import javax.jms.Session;
-import javax.jms.StreamMessage;
-import javax.jms.TextMessage;
 
+import com.harmony.umbrella.message.MessageEventListener.DestinationType;
 import com.harmony.umbrella.message.MessageEventListener.EventPhase;
+import com.harmony.umbrella.message.MessageEventListener.MessageEvent;
 import com.harmony.umbrella.message.creator.BytesMessageCreator;
 import com.harmony.umbrella.message.creator.MapMessageCreator;
 import com.harmony.umbrella.message.creator.ObjectMessageCreator;
 import com.harmony.umbrella.message.creator.StreamMessageCreator;
 import com.harmony.umbrella.message.creator.TextMessageCreator;
-import com.harmony.umbrella.message.listener.PhaseMessageListener;
 import com.harmony.umbrella.message.listener.SimpleDynamicMessageListener;
-import com.harmony.umbrella.message.support.MessageEventListenerComposite;
 import com.harmony.umbrella.message.support.SimpleJmsTemplate;
 
 /**
@@ -61,89 +57,67 @@ public class MessageHelper implements MessageTemplate {
      */
     @Override
     public void sendBytesMessage(byte[] buf) throws JMSException {
-        sendBytesMessage(buf, null);
-    }
-
-    /**
-     * 发送bytes message
-     * 
-     * @param buf
-     *            bytes
-     * @param appender
-     *            消息appender
-     * @throws JMSException
-     */
-    @Override
-    public void sendBytesMessage(byte[] buf, MessageAppender<BytesMessage> appender) throws JMSException {
-        sendMessage(new BytesMessageCreator(buf, appender));
+        sendMessage(new BytesMessageCreator(buf));
     }
 
     @Override
     public void sendObjectMessage(Serializable obj) throws JMSException {
-        sendObjectMessage(obj, null);
-    }
-
-    @Override
-    public void sendObjectMessage(Serializable obj, MessageAppender<ObjectMessage> appender) throws JMSException {
-        sendMessage(new ObjectMessageCreator(obj, appender));
+        sendObjectMessage(new ObjectMessageCreator(obj));
     }
 
     @Override
     public void sendMapMessage(Map map) throws JMSException {
-        sendMapMessage(map, false, null);
+        sendMapMessage(map, false);
     }
 
     @Override
     public void sendMapMessage(Map map, boolean skipNotStatisfiedEntry) throws JMSException {
-        sendMapMessage(map, skipNotStatisfiedEntry, null);
-    }
-
-    @Override
-    public void sendMapMessage(Map map, MessageAppender<MapMessage> appender) throws JMSException {
-        sendMapMessage(map, false, appender);
-    }
-
-    @Override
-    public void sendMapMessage(Map map, boolean skipNotStatisfiedEntry, MessageAppender<MapMessage> appender) throws JMSException {
-        sendMessage(new MapMessageCreator(map, skipNotStatisfiedEntry, appender));
+        sendMessage(new MapMessageCreator(map, skipNotStatisfiedEntry));
     }
 
     @Override
     public void sendTextMessage(String text) throws JMSException {
-        sendTextMessage(text, null);
-    }
-
-    @Override
-    public void sendTextMessage(String text, MessageAppender<TextMessage> appender) throws JMSException {
-        sendMessage(new TextMessageCreator(text, appender));
+        sendMessage(new TextMessageCreator(text));
     }
 
     @Override
     public void sendStreamMessage(InputStream is) throws JMSException {
-        sendStreamMessage(is, null);
+        sendMessage(new StreamMessageCreator(is));
     }
 
     @Override
-    public void sendStreamMessage(InputStream is, MessageAppender<StreamMessage> appender) throws JMSException {
-        sendMessage(new StreamMessageCreator(is, appender));
+    public void sendAnyMessage(AnyMessage msg) throws JMSException {
+        sendMessage(new MessageCreator() {
+
+            private static final long serialVersionUID = -2000900025458386923L;
+
+            @Override
+            public Message message(Session session) throws JMSException {
+                BytesMessage message = session.createBytesMessage();
+                message.writeBytes(msg.getBufferArray());
+                message.setStringProperty(AnyMessage.ANY_MESSAGE_HEADER, msg.getType());
+                return message;
+            }
+
+        });
     }
 
     /**
-     * 发送消息, 通过定制的消息{@linkplain MessageCreator}configer来创建定制化的消息
+     * 发送消息, 通过定制的消息{@linkplain MessageCreator}creator来创建定制化的消息
      * 
-     * @param configer
+     * @param creator
      *            定制化消息创建器
      * @throws JMSException
      */
     @Override
-    public void sendMessage(MessageCreator configer) throws JMSException {
+    public void sendMessage(MessageCreator creator) throws JMSException {
         JmsTemplate jmsTemplate = getJmsTemplate();
         Message message = null;
         try {
             jmsTemplate.start();
             Session session = jmsTemplate.getSession();
             MessageProducer producer = jmsTemplate.getMessageProducer();
-            message = configer.message(session);
+            message = creator.message(session);
             message.setJMSDestination(jmsTemplate.getDestination());
             message.setJMSTimestamp(System.currentTimeMillis());
             fireEvent(message, EventPhase.BEFORE_SEND);
@@ -181,6 +155,9 @@ public class MessageHelper implements MessageTemplate {
 
     @Override
     public void setMessageListener(MessageListener listener) {
+        if (messageListener.isStarted()) {
+            throw new IllegalStateException("message listener already started");
+        }
         if (messageListener != null) {
             messageListener.setMessageListener(listener);
         } else {
@@ -193,6 +170,14 @@ public class MessageHelper implements MessageTemplate {
                 new IllegalStateException("can't start message listener " + messageListener, e);
             }
         }
+    }
+
+    @Override
+    public void setMessageEventListener(MessageEventListener eventListener) {
+        if (messageListener.isStarted()) {
+            throw new IllegalStateException("message listener already started");
+        }
+        this.messageEventListener = eventListener;
     }
 
     @Override
@@ -224,8 +209,8 @@ public class MessageHelper implements MessageTemplate {
         while (true) {
             if (result instanceof SimpleDynamicMessageListener) {
                 result = ((SimpleDynamicMessageListener) result).getMessageListener();
-            } else if (result instanceof PhaseMessageListener) {
-                result = ((PhaseMessageListener) result).getMessageListener();
+            } else if (result instanceof MessageEventListenerAdapter) {
+                result = ((MessageEventListenerAdapter) result).messageListener;
             } else {
                 break;
             }
@@ -235,6 +220,9 @@ public class MessageHelper implements MessageTemplate {
 
     @Override
     public JmsTemplate getJmsTemplate() {
+        if (connectionFactory == null || destination == null) {
+            throw new IllegalArgumentException("connection factory or destination is null");
+        }
         SimpleJmsTemplate jmsTemplate = new SimpleJmsTemplate(connectionFactory, destination);
         jmsTemplate.setUsername(username);
         jmsTemplate.setPassword(password);
@@ -244,15 +232,29 @@ public class MessageHelper implements MessageTemplate {
         return jmsTemplate;
     }
 
-    private void fireEvent(Message message, EventPhase evenPhase) {
-        // FIXME fire event
+    private void fireEvent(Message message, EventPhase phase) {
+        if (messageEventListener != null) {
+            try {
+                messageEventListener.onEvent(new MessageEventImpl(message, phase));
+            } catch (Throwable e) {
+            }
+        }
     }
 
+    /**
+     * 将消息监听包装成动态受监控的消息监听器
+     * 
+     * @param listener
+     *            消息监听器
+     * @return 动态受监控的消息监听器
+     */
     private SimpleDynamicMessageListener wrap(MessageListener listener) {
         JmsTemplate jmsTemplate = getJmsTemplate();
         if (messageEventListener != null) {
-            listener = new PhaseMessageListener(listener, new MessageEventListenerComposite(messageEventListener));
+            // 含有event listener则先包装为接受事件的消息监听器
+            listener = new MessageEventListenerAdapter(listener, messageEventListener);
         }
+        // 包装为可动态开关的消息监听器
         return new SimpleDynamicMessageListener(jmsTemplate, listener);
     }
 
@@ -322,6 +324,65 @@ public class MessageHelper implements MessageTemplate {
 
     public void setMessageListener(SimpleDynamicMessageListener messageListener) {
         this.messageListener = messageListener;
+    }
+
+    private static class MessageEventListenerAdapter implements MessageListener {
+
+        private MessageListener messageListener;
+        private MessageEventListener messageEventListener;
+
+        public MessageEventListenerAdapter(MessageListener messageListener, MessageEventListener messageEventListener) {
+            this.messageListener = messageListener;
+            this.messageEventListener = messageEventListener;
+        }
+
+        @Override
+        public void onMessage(Message message) {
+            try {
+                this.fireEvent(message, EventPhase.BEFORE_CONSUME);
+                messageListener.onMessage(message);
+                this.fireEvent(message, EventPhase.AFTER_CONSUME);
+            } catch (Exception e) {
+                this.fireEvent(message, EventPhase.CONSUME_FAILURE);
+                throw e;
+            }
+        }
+
+        protected void fireEvent(final Message message, EventPhase phase) {
+            try {
+                messageEventListener.onEvent(new MessageEventImpl(message, phase));
+            } catch (Throwable e) {
+            }
+        }
+    }
+
+    private static final class MessageEventImpl implements MessageEvent {
+
+        private Message message;
+        private EventPhase phase;
+        private DestinationType destType;
+
+        public MessageEventImpl(Message message, EventPhase phase) {
+            this.message = message;
+            this.phase = phase;
+            this.destType = DestinationType.forType(message.getClass());
+        }
+
+        @Override
+        public Message getMessage() {
+            return message;
+        }
+
+        @Override
+        public EventPhase getEventPhase() {
+            return phase;
+        }
+
+        @Override
+        public DestinationType getDestinationType() {
+            return destType;
+        }
+
     }
 
 }

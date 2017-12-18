@@ -35,11 +35,11 @@ public class MessageTemplateBuilder<T extends MessageTemplateBuilder<T>> {
     protected String destinationJNDI;
     protected Properties contextProperties = new Properties();
 
-    public static MessageTemplateBuilder createBuilder(ConnectionFactory connectionFactory, Destination destination) {
+    public static MessageTemplateBuilder newBuilder(ConnectionFactory connectionFactory, Destination destination) {
         return new MessageTemplateBuilder<>(connectionFactory, destination);
     }
 
-    public static MessageTemplateBuilder createBuilder() {
+    public static MessageTemplateBuilder newBuilder() {
         return new MessageTemplateBuilder<>();
     }
 
