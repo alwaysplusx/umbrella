@@ -1,10 +1,15 @@
 package com.harmony.umbrella.log.annotation;
 
-import static java.lang.annotation.ElementType.*;
-import static java.lang.annotation.RetentionPolicy.*;
+import static java.lang.annotation.ElementType.ANNOTATION_TYPE;
+import static java.lang.annotation.ElementType.METHOD;
+import static java.lang.annotation.ElementType.TYPE;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
+import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
+
+import javax.interceptor.InterceptorBinding;
 
 import com.harmony.umbrella.log.Level.StandardLevel;
 import com.harmony.umbrella.log.ProblemHandler;
@@ -14,7 +19,9 @@ import com.harmony.umbrella.log.ProblemHandler;
  * 
  * @author wuxii@foxmail.com
  */
-@Target({ METHOD })
+@Inherited
+@InterceptorBinding
+@Target({ METHOD, TYPE })
 @Retention(RUNTIME)
 public @interface Logging {
 
@@ -56,11 +63,11 @@ public @interface Logging {
     String message() default "";
 
     /**
-     * 匹配message中的表达式,增加message中的表达式的可配置项
+     * 于message中的表达式的相关绑定, 增加message中的表达式的可配置项
      * 
      * @return expression annotation
      */
-    Expression[] expressions() default {};
+    Expression[] binds() default {};
 
     /**
      * 日志级别
@@ -137,13 +144,6 @@ public @interface Logging {
          * @return scope
          */
         Scope scope() default Scope.OUT;
-
-        /**
-         * 表达式的切割符号
-         * 
-         * @return delimiter
-         */
-        String delimiter() default "";
 
     }
 

@@ -41,8 +41,7 @@ public class StringUtils extends org.springframework.util.StringUtils {
      *
      * @param str
      *            the CharSequence to check, may be null
-     * @return {@code true} if the CharSequence is not empty and not null and
-     *         not whitespace
+     * @return {@code true} if the CharSequence is not empty and not null and not whitespace
      */
     public static boolean isNotBlank(String str) {
         return hasText(str);

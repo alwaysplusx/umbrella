@@ -1,23 +1,20 @@
 package com.harmony.umbrella.fs.support;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Inet4Address;
 import java.util.Date;
 import java.util.Properties;
-import java.util.UUID;
 
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
-import org.springframework.core.io.WritableResource;
 
+import com.harmony.umbrella.context.metadata.ApplicationMetadata;
 import com.harmony.umbrella.fs.StorageMetadata;
-import com.harmony.umbrella.fs.StorageType;
-import com.harmony.umbrella.util.FileUtils;
-import com.harmony.umbrella.util.IOUtils;
-import com.harmony.umbrella.util.StringUtils;
+import com.harmony.umbrella.util.PropertiesUtils;
 import com.harmony.umbrella.util.TimeUtils;
 
 /**
@@ -25,9 +22,9 @@ import com.harmony.umbrella.util.TimeUtils;
  */
 public class FileSystemStorageManager extends AbstractStorageManager {
 
-    private static final long serialVersionUID = 1L;
+    public static final String STORAGE_TYPE = "server";
 
-    public static final String DEFAULT_FILE_STORAGE_PATH = File.separator + STORAGE_PATH;
+    public static final String FILE_SYSTEM_ROOT_DIR = ApplicationMetadata.getOperatingSystemMetadata().userHome + ROOT_DIR;
 
     private static final String HOST;
 
@@ -40,56 +37,62 @@ public class FileSystemStorageManager extends AbstractStorageManager {
         HOST = host;
     }
 
-    private final String storageDirectory;
+    private File rootDir;
 
     public FileSystemStorageManager() {
-        this(DEFAULT_FILE_STORAGE_PATH);
+        this(FILE_SYSTEM_ROOT_DIR);
     }
 
-    public FileSystemStorageManager(String storageDirectory) {
-        super(StorageType.SERVER);
-        this.storageDirectory = storageDirectory;
+    public FileSystemStorageManager(String rootDir) {
+        super(STORAGE_TYPE);
+        this.rootDir = new File(rootDir);
     }
 
     @Override
-    public StorageMetadata put(String name, Resource resource, Properties properties) throws IOException {
-        return put(name, resource, createWritableResource(FileUtils.getExtension(name)), properties);
-    }
-
-    public WritableResource createWritableResource(String extension) throws IOException {
-        // XXX 可扩展点, 服务器上的目录分割. 目标存储的文件名称
-        File dir = new File(storageDirectory, TimeUtils.parseText(new Date(), "yyyyMMdd"));
-        FileUtils.createDirectory(dir);
-        String fileName = UUID.randomUUID().toString() + (StringUtils.isBlank(extension) ? "" : extension);
-        return new FileSystemResource(new File(dir.getPath(), fileName));
-    }
-
-    public StorageMetadata put(String name, Resource source, WritableResource dest, Properties properties) throws IOException {
-        if (!source.getFile().isFile()) {
-            throw new IOException(source + " is not file");
+    public StorageMetadata put(Resource resource, String name, Properties properties) throws IOException {
+        if (properties == null) {
+            properties = new Properties();
         }
-        if (!dest.exists()) {
-            FileUtils.createFile(dest.getFile());
+        // XXX 扩展, 允许按不同的粒度来对parent进行切分
+        String datePattern = TimeUtils.formatText(new Date(), "yyyyMMdd");
+        File parent = new File(rootDir, datePattern);
+        if (!parent.isDirectory() && !parent.mkdirs()) {
+            throw new IOException("can't access directory " + parent.getPath());
         }
 
-        FileStorageMetadata fsm = new FileStorageMetadata(name, getResourcePath(source), storageType);
+        String destName = generateFileName(resource.getFile());
+        File dest = new File(parent, destName);
 
-        InputStream is = source.getInputStream();
-        OutputStream os = dest.getOutputStream();
+        // start upload
+        try (InputStream is = resource.getInputStream(); OutputStream os = new FileOutputStream(dest)) {
+            FileStorageMetadata fsm = new FileStorageMetadata(storageType);
+            fsm.contentLength = is.available();
+            fsm.name = destName;
+            fsm.path = datePattern;
+            // 保留输入
+            PropertiesUtils.apply(fsm.properties, properties);
+            fsm.properties.put("server.rootDir", rootDir.getPath());
+            fsm.properties.put("server.host", HOST);
+            fsm.properties.put("server.uploadTime", System.currentTimeMillis());
+            return fsm;
+        }
+    }
 
-        fsm.contentLength = is.available();
-        fsm.name = dest.getFilename();
-        fsm.path = dest.getFile().getAbsolutePath();
-        fsm.properties.putAll(properties);
-        fsm.properties.put("server.storageDirectory", storageDirectory);
-        fsm.properties.put("server.host", HOST);
+    @Override
+    public Resource get(StorageMetadata sm) throws IOException {
+        File file = new File(new File(rootDir, sm.getPath()), sm.getName());
+        if (!file.isFile()) {
+            throw new IOException("file not exists or not file " + sm);
+        }
+        return new FileSystemResource(file);
+    }
 
-        IOUtils.copy(is, os);
+    public File getRootDir() {
+        return rootDir;
+    }
 
-        is.close();
-        os.close();
-
-        return fsm;
+    public void setRootDir(File rootDir) {
+        this.rootDir = rootDir;
     }
 
 }

@@ -2,37 +2,29 @@ package com.harmony.umbrella.fs;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.Serializable;
 import java.util.Properties;
 
-import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 
 /**
  * @author wuxii@foxmail.com
  */
-public interface StorageManager extends Serializable {
+public interface StorageManager {
 
-    String STORAGE_PATH = "umberlla-ss";
+    String ROOT_DIR = File.separator + "upload";
 
-    StorageType getStorageType();
+    String getStorageType();
 
-    default StorageMetadata putFile(File file) throws IOException {
-        return putFile(file.getName(), file);
-    }
+    StorageMetadata putFile(File file) throws IOException;
 
-    default StorageMetadata putFile(String name, File file) throws IOException {
-        return put(name, new FileSystemResource(file));
-    }
+    StorageMetadata putFile(File file, String name) throws IOException;
 
-    default StorageMetadata put(Resource resource) throws IOException {
-        return put(resource.getFilename(), resource);
-    }
+    StorageMetadata put(Resource resource) throws IOException;
 
-    default StorageMetadata put(String name, Resource resource) throws IOException {
-        return put(name, resource, new Properties());
-    }
+    StorageMetadata put(Resource resource, String name) throws IOException;
 
-    StorageMetadata put(String name, Resource resource, Properties properties) throws IOException;
+    StorageMetadata put(Resource resource, Properties properties) throws IOException;
+
+    Resource get(StorageMetadata sm) throws IOException;
 
 }

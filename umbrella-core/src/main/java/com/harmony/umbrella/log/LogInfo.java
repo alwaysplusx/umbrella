@@ -14,88 +14,95 @@ import com.harmony.umbrella.log.Level.StandardLevel;
 public interface LogInfo extends Serializable {
 
     /**
+     * 日志的统一id
+     * 
+     * @return messageId
+     */
+    String getMessageId();
+
+    /**
      * 日志模块
      * 
-     * @return
+     * @return module
      */
     String getModule();
 
     /**
      * 操作名称
      * 
-     * @return
+     * @return action
      */
     String getAction();
 
     /**
      * 业务日志数据主键
      * 
-     * @return
+     * @return key
      */
     Object getKey();
 
     /**
      * 日志消息内容
      * 
-     * @return
+     * @return message
      */
     String getMessage();
 
     /**
      * 业务日志的结果
      * 
-     * @return
+     * @return result
      */
     Object getResult();
 
     /**
      * 记录开始事件
      * 
-     * @return
+     * @return request time
      */
     Date getRequestTime();
 
     /**
      * 记录结束事件
      * 
-     * @return
+     * @return response time
      */
     Date getResponseTime();
 
     /**
      * 日志的异常信息
      * 
-     * @return
+     * @return exception
      */
     Throwable getThrowable();
 
     /**
      * 日志级别
      * 
-     * @return
+     * @return level
      */
     StandardLevel getLevel();
 
     /**
      * 操作人
      * 
-     * @return
+     * @return username
      */
-    String getOperatorName();
+    String getUsername();
 
     /**
      * 操作人id
      * 
-     * @return
+     * @return userId
      */
-    Object getOperatorId();
+    Long getUserId();
 
     /**
-     * 所操作的客户端地址，如:IP
+     * 所操作的客户端Id，如:IP
      * 
-     * @return
+     * @return client id
      */
-    String getOperatorHost();
+    String getClientId();
 
     /**
      * 操作栈，操作位于程序的位置
@@ -107,14 +114,14 @@ public interface LogInfo extends Serializable {
     /**
      * 操作的线程
      * 
-     * @return
+     * @return thread
      */
     String getThreadName();
 
     /**
      * 日志context
      * 
-     * @return
+     * @return context
      */
     Map<String, Object> getContext();
 

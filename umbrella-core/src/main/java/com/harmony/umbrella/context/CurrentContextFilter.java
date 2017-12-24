@@ -1,6 +1,9 @@
 package com.harmony.umbrella.context;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -10,6 +13,11 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.springframework.util.AntPathMatcher;
+import org.springframework.util.PathMatcher;
+
+import com.harmony.umbrella.util.StringUtils;
 
 /**
  * add filter configuration in web.xml
@@ -29,28 +37,81 @@ import javax.servlet.http.HttpServletResponse;
  */
 public class CurrentContextFilter implements Filter {
 
+    private String ipHeader;
+    private Set<String> excludedPatterns;
+    protected PathMatcher pathMatcher;
+
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
+        String excludes = filterConfig.getInitParameter("excludes");
+        if (excludes != null) {
+            String[] arr = StringUtils.tokenizeToStringArray(excludes, ",");
+            excludedPatterns.addAll(Arrays.asList(arr));
+        }
+        ipHeader = filterConfig.getInitParameter("ipHeader");
     }
 
     @Override
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        CurrentContext occ = ApplicationContext.getCurrentContext();
-        try {
-            CurrentContext ncc = createCurrentContext(request, response);
-            ApplicationContext.setCurrentContext(ncc);
+    public void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain) throws IOException, ServletException {
+        HttpServletRequest request = (HttpServletRequest) req;
+        HttpServletResponse response = (HttpServletResponse) resp;
+        if (isExcludedRequest(request)) {
             chain.doFilter(request, response);
-        } finally {
-            ApplicationContext.setCurrentContext(occ);
+        } else {
+            CurrentContext occ = ApplicationContext.getCurrentContext();
+            try {
+                CurrentContext ncc = createCurrentContext(request, response);
+                ApplicationContext.setCurrentContext(ncc);
+                chain.doFilter(request, response);
+            } finally {
+                ApplicationContext.setCurrentContext(occ);
+            }
         }
     }
 
-    protected CurrentContext createCurrentContext(ServletRequest request, ServletResponse response) {
-        return new DefaultCurrentContext((HttpServletRequest) request, (HttpServletResponse) response);
+    protected CurrentContext createCurrentContext(HttpServletRequest request, HttpServletResponse response) {
+        return new HttpCurrentContext(request, response, ipHeader);
     }
 
     @Override
     public void destroy() {
+    }
+
+    protected boolean isExcludedRequest(HttpServletRequest request) {
+        if (excludedPatterns == null) {
+            return false;
+        }
+        PathMatcher pathMatcher = getPathMatcher();
+        String uri = getUri(request);
+        for (String pattern : excludedPatterns) {
+            if (pathMatcher.match(pattern, uri)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private PathMatcher getPathMatcher() {
+        if (pathMatcher == null) {
+            this.pathMatcher = new AntPathMatcher();
+        }
+        return pathMatcher;
+    }
+
+    public Set<String> getExcludedPatterns() {
+        if (excludedPatterns == null) {
+            excludedPatterns = new HashSet<>();
+        }
+        return excludedPatterns;
+    }
+
+    public void setExcludedPatterns(Set<String> excludedPatterns) {
+        this.excludedPatterns = excludedPatterns;
+    }
+
+    public static String getUri(HttpServletRequest request) {
+        String uri = request.getRequestURI();
+        return uri.substring(request.getContextPath().length());
     }
 
 }

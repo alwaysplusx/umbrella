@@ -1,31 +1,25 @@
 package com.harmony.umbrella.fs.support;
 
-import java.util.Properties;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.harmony.umbrella.fs.StorageMetadata;
-import com.harmony.umbrella.fs.StorageType;
 
 /**
  * @author wuxii@foxmail.com
  */
-public final class FileStorageMetadata implements StorageMetadata {
+final class FileStorageMetadata implements StorageMetadata {
 
     private static final long serialVersionUID = 1L;
 
     String name;
-    String originalName;
-
     String path;
-    String originalPath;
-
     long contentLength;
-    StorageType storageType;
+    String storageType;
+    Map<String, Object> properties = new HashMap<String, Object>();
 
-    Properties properties = new Properties();
-
-    FileStorageMetadata(String originalName, String originalPath, StorageType storageType) {
-        this.originalName = originalName;
-        this.originalPath = originalPath;
+    FileStorageMetadata(String storageType) {
         this.storageType = storageType;
     }
 
@@ -35,18 +29,8 @@ public final class FileStorageMetadata implements StorageMetadata {
     }
 
     @Override
-    public String getOriginalName() {
-        return originalName;
-    }
-
-    @Override
     public String getPath() {
         return path;
-    }
-
-    @Override
-    public String getOriginalPath() {
-        return originalPath;
     }
 
     @Override
@@ -55,15 +39,18 @@ public final class FileStorageMetadata implements StorageMetadata {
     }
 
     @Override
-    public StorageType getStorageType() {
+    public String getStorageType() {
         return storageType;
     }
 
     @Override
-    public Properties getProperties() {
-        Properties copy = new Properties();
-        copy.putAll(properties);
-        return copy;
+    public Map<String, Object> getProperties() {
+        return Collections.unmodifiableMap(properties);
+    }
+
+    @Override
+    public String toString() {
+        return "{name: " + name + ", path: " + path + ", type: " + storageType + "}";
     }
 
 }

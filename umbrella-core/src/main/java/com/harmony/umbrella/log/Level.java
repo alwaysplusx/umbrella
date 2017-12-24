@@ -9,7 +9,7 @@ import java.util.concurrent.ConcurrentMap;
  */
 public class Level implements Serializable {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 8868481942853595986L;
 
     private static final ConcurrentMap<String, Level> LEVELS = new ConcurrentHashMap<String, Level>();
 

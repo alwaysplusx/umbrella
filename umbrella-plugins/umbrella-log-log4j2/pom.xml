@@ -6,6 +6,7 @@
     <artifactId>umbrella-plugins</artifactId>
     <version>0.0.5-SNAPSHOT</version>
   </parent>
+  <groupId>com.harmony.umbrella.plugins</groupId>
   <name>Harmony Umbrella :: Log4j2 logger</name>
   <artifactId>umbrella-log-log4j2</artifactId>
   <dependencies>

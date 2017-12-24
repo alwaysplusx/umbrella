@@ -1,11 +1,8 @@
 package com.harmony.umbrella.context.metadata;
 
-import java.io.IOException;
 import java.sql.SQLException;
 
 import javax.servlet.ServletContext;
-
-import org.springframework.core.io.Resource;
 
 import com.harmony.umbrella.core.ConnectionSource;
 
@@ -34,26 +31,6 @@ public final class ApplicationMetadata {
 
     public static ServerMetadata getServerMetadata(ServletContext servletContext) {
         return new ServerMetadata(servletContext);
-    }
-
-    public static boolean isApplicationModuleResource(Resource resource) {
-        try {
-            return resource.getURL().getPath().endsWith("META-INF/MANIFEST.MF");
-        } catch (IOException e) {
-            return false;
-        }
-    }
-
-    public static String getApplicationModuleVendor(Class<?> clazz) {
-        return clazz.getPackage().getImplementationVendor();
-    }
-
-    public static String getApplicationModuleName(Class<?> clazz) {
-        return clazz.getPackage().getImplementationTitle();
-    }
-
-    public static String getApplicationModuleVersion(Class<?> clazz) {
-        return clazz.getPackage().getImplementationVersion();
     }
 
 }

@@ -5,11 +5,11 @@
     <artifactId>umbrella</artifactId>
     <version>0.0.5-SNAPSHOT</version>
   </parent>
+  <groupId>com.harmony.umbrella.plugins</groupId>
   <artifactId>umbrella-plugins</artifactId>
   <name>Harmony Umbrella :: Plugins</name>
   <packaging>pom</packaging>
   <modules>
-    <module>umbrella-log-plugin</module>
     <module>umbrella-log-log4j2</module>
   </modules>
 </project>

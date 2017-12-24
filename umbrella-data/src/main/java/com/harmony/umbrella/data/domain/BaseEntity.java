@@ -4,20 +4,16 @@ import java.io.Serializable;
 import java.util.Date;
 
 import javax.persistence.Column;
-import javax.persistence.EntityListeners;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
 import org.springframework.data.domain.Persistable;
 
-import com.harmony.umbrella.data.listener.OperationInfoInjectEntityListener;
-
 /**
  * @author wuxii@foxmail.com
  */
 @MappedSuperclass
-@EntityListeners(OperationInfoInjectEntityListener.class)
 public abstract class BaseEntity<ID extends Serializable> implements Persistable<ID> {
 
     private static final long serialVersionUID = -9098668260590791573L;

@@ -126,7 +126,7 @@ public class TimeUtils {
      *            时间模版
      * @return 时间文本
      */
-    public static String parseText(Date date, String pattern) {
+    public static String formatText(Date date, String pattern) {
         return Formats.createDateFormat(pattern).format(date);
     }
 
@@ -139,7 +139,7 @@ public class TimeUtils {
      *            时间模版
      * @return 时间文本
      */
-    public static String parseText(Calendar date, String pattern) {
+    public static String formatText(Calendar date, String pattern) {
         return Formats.createDateFormat(pattern).format(date);
     }
 

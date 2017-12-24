@@ -21,9 +21,9 @@ public class LogTest {
                 .key("1")//
                 .module("测试模块")//
                 .action("测试日志打印")//
-                .operatorHost("localhost")//
-                .operatorId("1")//
-                .operatorName("wuxii")//
+                .clientId("localhost")//
+                .userId(1l)//
+                .username("wuxii")//
                 .message("用户[{}]对日志进行打印操作, 打印的日志信息为[{}]", "wuxii", "Hello World!")//
                 .result("success")//
                 .currentStack()//

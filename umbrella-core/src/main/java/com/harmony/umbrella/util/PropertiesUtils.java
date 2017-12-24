@@ -260,9 +260,10 @@ public class PropertiesUtils {
      *            entry filter
      * @return
      */
-    public static Map<Object, Object> filter(Map<Object, Object> properties, EntryFilter entryFilter) {
+    public static Map filter(Map properties, EntryFilter entryFilter) {
         Map result = new LinkedHashMap<>();
-        for (Entry entry : properties.entrySet()) {
+        Set<Entry> entrySet = properties.entrySet();
+        for (Entry entry : entrySet) {
             if (entryFilter.accept(entry)) {
                 result.put(entry.getKey(), entry.getValue());
             }
@@ -271,13 +272,13 @@ public class PropertiesUtils {
     }
 
     /**
-     * 合并properties
+     * 合并properties(返回值为一个新的map对象)
      * 
      * @param properties
      *            属性组
      * @return 合并后的属性
      */
-    public static Map<Object, Object> mergeProperties(Map<Object, Object>... properties) {
+    public static Map mergeProperties(Map... properties) {
         Map<Object, Object> result = new HashMap<>();
         for (Map map : properties) {
             if (map != null) {
@@ -285,6 +286,24 @@ public class PropertiesUtils {
             }
         }
         return result;
+    }
+
+    public static Map apply(Map l, Map r) {
+        return apply(l, r, false);
+    }
+
+    public static Map applyIf(Map l, Map r) {
+        return apply(l, r, true);
+    }
+
+    public static Map apply(Map l, Map r, boolean ignoreExists) {
+        for (Object k : r.keySet()) {
+            if (ignoreExists && l.containsKey(k)) {
+                continue;
+            }
+            l.put(k, r.get(k));
+        }
+        return l;
     }
 
     /**

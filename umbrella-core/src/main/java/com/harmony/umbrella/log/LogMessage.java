@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 import com.harmony.umbrella.log.Level.StandardLevel;
 import com.harmony.umbrella.log.support.MessageFactoryFactoryBean;
@@ -26,6 +27,7 @@ public class LogMessage {
     private Log log;
     private MessageFactory messageFactory;
 
+    private final String id;
     private String module;
     private String action;
 
@@ -35,9 +37,9 @@ public class LogMessage {
     private Throwable throwable;
     private Level level;
 
-    private String operatorName;
-    private Object operatorId;
-    private String operatorHost;
+    private String username;
+    private Long userId;
+    private String clientId;
 
     private Object result;
 
@@ -52,6 +54,7 @@ public class LogMessage {
     public LogMessage(Log log, MessageFactory messageFactory) {
         this.log = log;
         this.messageFactory = messageFactory;
+        this.id = messageId();
     }
 
     public static LogMessage create(Log log) {
@@ -136,18 +139,18 @@ public class LogMessage {
      *            操作人名称
      * @return current logMessage
      */
-    public LogMessage operatorName(String username) {
-        this.operatorName = username;
+    public LogMessage username(String username) {
+        this.username = username;
         return this;
     }
 
-    public LogMessage operatorId(Object operatorId) {
-        this.operatorId = operatorId;
+    public LogMessage userId(Long userId) {
+        this.userId = userId;
         return this;
     }
 
-    public LogMessage operatorHost(String address) {
-        this.operatorHost = address;
+    public LogMessage clientId(String clientId) {
+        this.clientId = clientId;
         return this;
     }
 
@@ -312,6 +315,10 @@ public class LogMessage {
         }
     }
 
+    private static String messageId() {
+        return UUID.randomUUID().toString().replace("-", "");
+    }
+
     public LogInfo asInfo() {
         return new LogInfoImpl(this);
     }
@@ -320,6 +327,7 @@ public class LogMessage {
 
         private static final long serialVersionUID = 1L;
 
+        private String messageId;
         private String module;
         private String action;
         private String message;
@@ -328,9 +336,9 @@ public class LogMessage {
         private Object result;
         private long requestTime;
         private long responseTime;
-        private String operatorName;
-        private Object operatorId;
-        private String operatorHost;
+        private String username;
+        private Long userId;
+        private String clientId;
 
         private String stackLocation;
         private String threadName;
@@ -340,6 +348,7 @@ public class LogMessage {
         private Map<String, Object> contextMap;
 
         LogInfoImpl(LogMessage m) {
+            this.messageId = m.id;
             this.module = m.module;
             this.action = m.action;
             this.message = m.message == null ? null : m.message.getFormattedMessage();
@@ -348,13 +357,18 @@ public class LogMessage {
             this.result = m.result;
             this.requestTime = m.startTime;
             this.responseTime = m.finishTime;
-            this.operatorName = m.operatorName;
-            this.operatorId = m.operatorId;
-            this.operatorHost = m.operatorHost;
+            this.username = m.username;
+            this.userId = m.userId;
+            this.clientId = m.clientId;
             this.key = m.key;
             this.stackLocation = m.stack;
             this.threadName = m.threadName;
             this.contextMap = m.context;
+        }
+
+        @Override
+        public String getMessageId() {
+            return messageId;
         }
 
         @Override
@@ -403,18 +417,18 @@ public class LogMessage {
         }
 
         @Override
-        public String getOperatorName() {
-            return operatorName;
+        public String getUsername() {
+            return username;
         }
 
         @Override
-        public Object getOperatorId() {
-            return operatorId;
+        public Long getUserId() {
+            return userId;
         }
 
         @Override
-        public String getOperatorHost() {
-            return operatorHost;
+        public String getClientId() {
+            return clientId;
         }
 
         @Override
@@ -439,9 +453,9 @@ public class LogMessage {
             this.level = (StandardLevel) ois.readObject();
             this.message = ois.readUTF();
             this.module = ois.readUTF();
-            this.operatorHost = ois.readUTF();
-            this.operatorId = ois.readObject();
-            this.operatorName = ois.readUTF();
+            this.clientId = ois.readUTF();
+            this.userId = ois.readLong();
+            this.username = ois.readUTF();
             this.requestTime = ois.readLong();
             this.responseTime = ois.readLong();
             this.result = ois.readObject();
@@ -457,9 +471,9 @@ public class LogMessage {
             oos.writeObject(this.level);
             oos.writeUTF(this.message);
             oos.writeUTF(this.module);
-            oos.writeUTF(this.operatorHost);
-            oos.writeObject(this.operatorId);
-            oos.writeUTF(this.operatorName);
+            oos.writeUTF(this.clientId);
+            oos.writeObject(this.userId);
+            oos.writeUTF(this.username);
             oos.writeLong(this.requestTime);
             oos.writeLong(this.responseTime);
             oos.writeObject(this.result);
@@ -476,8 +490,8 @@ public class LogMessage {
                     .append("\n           key : ").append(key)//
                     .append("\n       message : ").append(message)//
                     .append("\n         level : ").append(level)//
-                    .append("\n  operatorName : ").append(operatorName)//
-                    .append("\n  operatorHost : ").append(operatorHost)//
+                    .append("\n      username : ").append(username)//
+                    .append("\n        client : ").append(clientId)//
                     .append("\n        result : ").append(result)//
                     .append("\n         stack : ").append(stackLocation)//
                     .append("\n           use : ").append(interval(requestTime, responseTime))//
