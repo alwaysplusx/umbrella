@@ -41,8 +41,17 @@ public class ScopeToken {
         return token.getToken();
     }
 
+    public KeyWord getKeyWord() {
+        return token.getKeyWord();
+    }
+
     public boolean isPlainText() {
         return token.isPlainText();
+    }
+
+    @Override
+    public String toString() {
+        return "(" + scope + ")" + token;
     }
 
 }

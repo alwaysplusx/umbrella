@@ -1,7 +1,5 @@
 package com.harmony.umbrella.log.template;
 
-import java.util.Set;
-
 import com.harmony.umbrella.log.annotation.Logging.Scope;
 
 /**
@@ -14,16 +12,16 @@ public interface KeyWord {
     /**
      * 关键字的别名
      * 
-     * @return
+     * @return 关键字的别名
      */
     String[] alias();
 
     /**
-     * 关键字可使用的scope
+     * 关键字的默认作用域
      * 
-     * @return
+     * @return 关键字的默认作用域
      */
-    Set<Scope> scopes();
+    Scope scope();
 
     /**
      * 找寻context对应的关键字对象

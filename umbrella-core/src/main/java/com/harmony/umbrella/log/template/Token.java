@@ -58,7 +58,7 @@ public class Token implements Iterable<String> {
     }
 
     Token(String token, boolean plainText) {
-        this(token, ".", plainText);
+        this(token, ".[]", plainText);
     }
 
     Token(String token, String delim, boolean plainText) {
@@ -118,9 +118,9 @@ public class Token implements Iterable<String> {
     }
 
     Scope getScope() {
-        return plainText || keyWord == null || keyWord.scopes() == null || keyWord.scopes().size() == 0 ? //
+        return plainText || keyWord == null || keyWord.scope() == null ? //
                 null : //
-                keyWord.scopes().iterator().next();
+                keyWord.scope();
     }
 
     @Override

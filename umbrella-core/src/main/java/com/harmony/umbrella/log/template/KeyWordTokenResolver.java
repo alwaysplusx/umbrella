@@ -20,12 +20,12 @@ public class KeyWordTokenResolver implements TokenResolver {
 
     @Override
     public boolean support(ScopeToken scopeToken) {
-        return findKeyWord(scopeToken.getTokenString()) instanceof KeyWord;
+        return scopeToken.getKeyWord() != null;
     }
 
     @Override
     public Object resolve(ScopeToken scopeToken, LoggingContext context) {
-        KeyWord keyWord = findKeyWord(scopeToken.getTokenString());
+        KeyWord keyWord = scopeToken.getKeyWord();
         Object keyObject = keyWord.resolve(context);
         Object resultObject = keyObject;
         List<String> items = scopeToken.getToken().getItems();
@@ -39,10 +39,6 @@ public class KeyWordTokenResolver implements TokenResolver {
             }
         }
         return resultObject;
-    }
-
-    protected KeyWord findKeyWord(String token) {
-        return KeyWords.find(token, false);
     }
 
     public MemberDetectors getMemberDetectors() {

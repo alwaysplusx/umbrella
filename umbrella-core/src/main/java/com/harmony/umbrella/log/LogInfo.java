@@ -98,11 +98,11 @@ public interface LogInfo extends Serializable {
     Long getUserId();
 
     /**
-     * 所操作的客户端Id，如:IP
+     * 用户所在的地址，如:IP
      * 
-     * @return client id
+     * @return user host
      */
-    String getClientId();
+    String getUserHost();
 
     /**
      * 操作栈，操作位于程序的位置

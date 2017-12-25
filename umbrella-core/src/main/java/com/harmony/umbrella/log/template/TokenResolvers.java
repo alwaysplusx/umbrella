@@ -36,7 +36,7 @@ public class TokenResolvers implements TokenResolver {
         if (resolver == null) {
             throw new LoggingException("unsupported scope tooken " + token);
         }
-        return resolve(token, loggingContext);
+        return resolver.resolve(token, loggingContext);
     }
 
     protected TokenResolver getTokenResolver(ScopeToken token) {

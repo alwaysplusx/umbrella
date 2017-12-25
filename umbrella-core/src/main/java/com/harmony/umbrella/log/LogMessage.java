@@ -39,7 +39,7 @@ public class LogMessage {
 
     private String username;
     private Long userId;
-    private String clientId;
+    private String userHost;
 
     private Object result;
 
@@ -149,8 +149,8 @@ public class LogMessage {
         return this;
     }
 
-    public LogMessage clientId(String clientId) {
-        this.clientId = clientId;
+    public LogMessage userHost(String userHost) {
+        this.userHost = userHost;
         return this;
     }
 
@@ -338,7 +338,7 @@ public class LogMessage {
         private long responseTime;
         private String username;
         private Long userId;
-        private String clientId;
+        private String userHost;
 
         private String stackLocation;
         private String threadName;
@@ -359,7 +359,7 @@ public class LogMessage {
             this.responseTime = m.finishTime;
             this.username = m.username;
             this.userId = m.userId;
-            this.clientId = m.clientId;
+            this.userHost = m.userHost;
             this.key = m.key;
             this.stackLocation = m.stack;
             this.threadName = m.threadName;
@@ -427,8 +427,8 @@ public class LogMessage {
         }
 
         @Override
-        public String getClientId() {
-            return clientId;
+        public String getUserHost() {
+            return userHost;
         }
 
         @Override
@@ -453,7 +453,7 @@ public class LogMessage {
             this.level = (StandardLevel) ois.readObject();
             this.message = ois.readUTF();
             this.module = ois.readUTF();
-            this.clientId = ois.readUTF();
+            this.userHost = ois.readUTF();
             this.userId = ois.readLong();
             this.username = ois.readUTF();
             this.requestTime = ois.readLong();
@@ -471,7 +471,7 @@ public class LogMessage {
             oos.writeObject(this.level);
             oos.writeUTF(this.message);
             oos.writeUTF(this.module);
-            oos.writeUTF(this.clientId);
+            oos.writeUTF(this.userHost);
             oos.writeObject(this.userId);
             oos.writeUTF(this.username);
             oos.writeLong(this.requestTime);
@@ -486,15 +486,15 @@ public class LogMessage {
         public String toString() {
             StringBuilder out = new StringBuilder();
             out.append("{\n        module : ").append(module)//
-                    .append("\n        action : ").append(action)//
-                    .append("\n           key : ").append(key)//
-                    .append("\n       message : ").append(message)//
                     .append("\n         level : ").append(level)//
-                    .append("\n      username : ").append(username)//
-                    .append("\n        client : ").append(clientId)//
+                    .append("\n           key : ").append(key)//
                     .append("\n        result : ").append(result)//
+                    .append("\n        action : ").append(action)//
+                    .append("\n       message : ").append(message)//
+                    .append("\n      userhost : ").append(userHost)//
+                    .append("\n      username : ").append(username)//
                     .append("\n         stack : ").append(stackLocation)//
-                    .append("\n           use : ").append(interval(requestTime, responseTime))//
+                    .append("\n           use : ").append(interval(requestTime, responseTime)).append("(ms)")//
                     .append("\n}");
             return out.toString();
         }

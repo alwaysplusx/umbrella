@@ -47,7 +47,9 @@ public class ContextHelper {
     public static CurrentContext getCurrentContext() {
         CurrentContext cc = ApplicationContext.getCurrentContext();
         if (cc == null) {
-            log.warn("application not contain current context, please see {} for more detail", CurrentContextFilter.class.getName());
+            if (log.isDebugEnabled()) {
+                log.warn("application not contain current context, please see {} for more detail", CurrentContextFilter.class.getName());
+            }
         }
         return cc;
     }

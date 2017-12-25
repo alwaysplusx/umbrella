@@ -1,23 +1,24 @@
 package com.harmony.umbrella.log.template;
 
+import java.io.Serializable;
+
 import com.harmony.umbrella.log.LogInfo;
-import com.harmony.umbrella.log.LogMessage;
 
 /**
  * @author wuxii@foxmail.com
  */
-public class LoggingResult {
+public class LoggingResult implements Serializable {
+
+    private static final long serialVersionUID = -3355298069576046273L;
 
     Object result;
     Throwable exception;
-    LogMessage logMessage;
+    LogInfo logMessage;
 
-    public LoggingResult() {
-    }
-
-    LoggingResult(Object result, Throwable exception, LogMessage logMessage) {
+    LoggingResult(Object result, Throwable exception, LogInfo logMessage) {
         this.result = result;
         this.exception = exception;
+        this.logMessage = logMessage;
     }
 
     public Object getResult() {
@@ -29,7 +30,7 @@ public class LoggingResult {
     }
 
     public LogInfo getLogMessage() {
-        return logMessage.asInfo();
+        return logMessage;
     }
 
 }

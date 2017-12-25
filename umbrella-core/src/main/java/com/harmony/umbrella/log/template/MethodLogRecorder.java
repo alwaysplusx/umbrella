@@ -1,6 +1,7 @@
 package com.harmony.umbrella.log.template;
 
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,6 +44,7 @@ public class MethodLogRecorder {
     private Map<Logging, LoggingTemplate> loggingTemplates = new ConcurrentHashMap<>();
 
     public MethodLogRecorder() {
+        this(new JavaObjectSerializer());
     }
 
     public MethodLogRecorder(ObjectSerializer serializer) {
@@ -65,6 +67,10 @@ public class MethodLogRecorder {
         return new MethodMonitor(context, loggingAnnotation);
     }
 
+    protected TemplateResolver newTemplateResolver(Logging loggingAnnotation) {
+        return newTemplateResolver(getTemplate(loggingAnnotation));
+    }
+
     protected TemplateResolver newTemplateResolver(LoggingTemplate template) {
         return new TemplateResolver(template);
     }
@@ -78,7 +84,7 @@ public class MethodLogRecorder {
         if (cc != null && cc.getUserId() != null) {
             logMessage.userId(cc.getUserId())//
                     .username(cc.getUsername())//
-                    .clientId(cc.getUserHost());
+                    .userHost(cc.getUserHost());
             return true;
         }
         return false;
@@ -133,7 +139,7 @@ public class MethodLogRecorder {
         ValueContext valueContext;
 
         Logging logging;
-        LoggingTemplate loggingTemplate;
+        TemplateResolver templateResolver;
 
         Method method;
         String methodId;
@@ -154,48 +160,47 @@ public class MethodLogRecorder {
             this.arguments = context.getArguments();
             this.methodId = StringUtils.getMethodId(context.getMethod());
             this.logging = logging;
-            this.loggingTemplate = getTemplate(logging);
             this.valueContext = context.getValueContext();
+            if (logging != null) {
+                this.templateResolver = newTemplateResolver(logging);
+            }
         }
 
         public final LoggingResult doIt() throws Exception {
             doPrepare();
             try {
                 result = context.proceed();
-                doFinish();
             } catch (Throwable e) {
                 exception = e;
                 doException();
-            } finally {
-                doLatest();
             }
-            return new LoggingResult(result, exception, logMessage);
+            doFinish();
+            return new LoggingResult(result, exception, logMessage.asInfo());
         }
 
         // for override
 
         protected void prepare() {
-            logMessage.start()//
-                    .module("");
+            logMessage.start();
             if (logging != null) {
-                logMessage.level(logging.level())//
-                        .action(logging.action());
+                logMessage.level(logging.level());
+                if (StringUtils.isNotBlank(logging.action())) {
+                    logMessage.action(logging.action());
+                }
             } else {
                 logMessage.level(Level.DEBUG);
             }
         }
 
         protected void finish() {
-            logMessage.result(result);
+            logMessage//
+                    .finish()//
+                    .result(result);
         }
 
         protected void exception() {
             logMessage.level(Level.ERROR)//
                     .exception(exception);
-        }
-
-        protected void latest() {
-            logMessage.finish();
         }
 
         // default
@@ -206,29 +211,31 @@ public class MethodLogRecorder {
                     .stack(methodId)//
                     .module(getModule())//
                     .currentThread();
-
             applied = applyUserContext(logMessage);
-            if (loggingTemplate != null) {
+            if (templateResolver != null) {
+                templateResolver.capture(Scope.IN, context);
                 ValueContextStack.push(valueContext);
             }
+            prepare();
         }
 
         private void doFinish() {
             finish();
+            if (!applied) {
+                applyUserContext(logMessage);
+            }
+            if (templateResolver != null) {
+                ValueContextStack.pop();
+                templateResolver.capture(Scope.OUT, context);
+                String message = templateResolver.getMessage(context);
+                logMessage.message(message);
+            } else {
+                logMessage.message("execute method {} input={}, output={}", methodId, Arrays.asList(context.getArguments()), result);
+            }
         }
 
         private void doException() {
             exception();
-        }
-
-        private void doLatest() {
-            latest();
-            if (loggingTemplate != null) {
-                ValueContextStack.pop();
-            }
-            if (!applied) {
-                applyUserContext(logMessage);
-            }
         }
 
         private String getModule() {
@@ -267,10 +274,10 @@ public class MethodLogRecorder {
                     o.append(token.getTokenString());
                 } else if (resolvedTokens.containsKey(token)) {
                     Object val = resolvedTokens.get(token);
-                    o.append(formatter.format(val));
+                    o.append(formatValue(val, false));
                 } else if (tokenResolvers.support(token)) {
                     Object val = tokenResolvers.resolve(token, context);
-                    o.append(formatter.format(serializer.serialize(val)));
+                    o.append(formatValue(val, true));
                 } else {
                     o.append("$unresolve");
                 }
@@ -282,6 +289,13 @@ public class MethodLogRecorder {
             ScopeToken token = loggingTemplate.getKeyToken();
             Object val = resolvedTokens.get(token);
             return val == null ? null : val.toString();
+        }
+
+        private String formatValue(Object val, boolean serial) {
+            if (val != null && serial) {
+                val = serializer.serialize(val);
+            }
+            return val == null ? null : formatter == null ? val.toString() : formatter.format(val);
         }
 
         protected void capture(Scope scope, LoggingContext context) {

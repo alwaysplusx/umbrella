@@ -1,12 +1,8 @@
 package com.harmony.umbrella.log.template;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -33,8 +29,7 @@ public class KeyWords {
 
     static KeyWord find(String name, boolean fullMatch) {
         for (KeyWord kw : allKeyWords) {
-            String[] aliases = kw.alias();
-            for (String alias : aliases) {
+            for (String alias : kw.alias()) {
                 if (fullMatch ? name.equals(alias) : name.startsWith(alias)) {
                     return kw;
                 }
@@ -50,7 +45,7 @@ public class KeyWords {
      */
     public enum TargetKeyWord implements KeyWord {
 
-        TARGET(Arrays.asList(Scope.IN, Scope.OUT), "target", "$") {
+        TARGET(Scope.IN, "target", "$") {
 
             @Override
             public Object resolve(LoggingContext context) {
@@ -58,14 +53,14 @@ public class KeyWords {
             }
 
         }, //
-        ARGS(Arrays.asList(Scope.IN, Scope.OUT), "args", "arg") {
+        ARGS(Scope.IN, "args", "arg") {
 
             @Override
             public Object resolve(LoggingContext context) {
                 return context.getArguments();
             }
         }, //
-        RESULT(Arrays.asList(Scope.OUT), "result") {
+        RESULT(Scope.OUT, "result") {
 
             @Override
             public Object resolve(LoggingContext context) {
@@ -73,7 +68,7 @@ public class KeyWords {
             }
 
         }, //
-        EXCEPTION(Arrays.asList(Scope.OUT), "exception", "ex") {
+        EXCEPTION(Scope.OUT, "exception", "ex") {
 
             @Override
             public Object resolve(LoggingContext context) {
@@ -83,11 +78,11 @@ public class KeyWords {
         };
 
         private String[] alias;
-        private Set<Scope> scopes;
+        private Scope scope;
 
-        private TargetKeyWord(Collection<Scope> scopes, String... alias) {
+        private TargetKeyWord(Scope scope, String... alias) {
             this.alias = alias;
-            this.scopes = Collections.unmodifiableSet(new HashSet<>(scopes));
+            this.scope = scope;
         }
 
         @Override
@@ -98,10 +93,9 @@ public class KeyWords {
         }
 
         @Override
-        public Set<Scope> scopes() {
-            return scopes;
+        public Scope scope() {
+            return scope;
         }
-
     }
 
     /**
@@ -111,35 +105,35 @@ public class KeyWords {
      */
     public enum HttpKeyWord implements KeyWord {
 
-        PARAMETER(Arrays.asList(Scope.IN), "parameter", "param") {
+        PARAMETER(Scope.IN, "parameter", "param") {
 
             @Override
             public Object resolve(LoggingContext context) {
                 return new ParameterMap(context.getHttpRequest());
             }
         }, //
-        REQUEST(Arrays.asList(Scope.IN, Scope.OUT), "req", "request", "attr") {
+        REQUEST(Scope.IN, "req", "request", "attr") {
 
             @Override
             public Object resolve(LoggingContext context) {
                 return new RequestAttributeMap(context.getHttpRequest());
             }
         }, //
-        RESPONSE(Arrays.asList(Scope.IN, Scope.OUT), "resp", "response") {
+        RESPONSE(Scope.OUT, "resp", "response") {
 
             @Override
             public Object resolve(LoggingContext context) {
                 return context.getHttpResponse();
             }
         }, //
-        SESSION(Arrays.asList(Scope.IN, Scope.OUT), "session") {
+        SESSION(Scope.IN, "session") {
 
             @Override
             public Object resolve(LoggingContext context) {
                 return new SessionAttributeMap(context.getHttpSession());
             }
         }, //
-        HEADER(Arrays.asList(Scope.IN, Scope.OUT), "header") {
+        HEADER(Scope.IN, "header") {
 
             @Override
             public Object resolve(LoggingContext context) {
@@ -148,11 +142,11 @@ public class KeyWords {
         };
 
         private String[] alias;
-        private Set<Scope> scopes;
+        private Scope scope;
 
-        private HttpKeyWord(Collection<Scope> scopes, String... alias) {
+        private HttpKeyWord(Scope scope, String... alias) {
             this.alias = alias;
-            this.scopes = Collections.unmodifiableSet(new HashSet<>(scopes));
+            this.scope = scope;
         }
 
         @Override
@@ -163,8 +157,8 @@ public class KeyWords {
         }
 
         @Override
-        public Set<Scope> scopes() {
-            return scopes;
+        public Scope scope() {
+            return scope;
         }
     }
 
