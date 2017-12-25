@@ -37,6 +37,23 @@ public class MessageBundle {
         return INSTANCE;
     }
 
+    public String getText(Locale locale, String name) {
+        return getLanguageBundle(locale).getText(name);
+    }
+
+    public String getText(Locale locale, String name, Object... args) {
+        return getLanguageBundle(locale).getText(name, args);
+    }
+
+    public LanguageBundle getLanguageBundle(Locale locale) {
+        return getLanguageBundle(locale, null);
+    }
+
+    public LanguageBundle getLanguageBundle(Locale locale, TextFormat format) {
+        LanguagePack pack = getLanguagePack(locale);
+        return new LanguageBundle(locale, pack, format == null ? TextFormatImpl.INSTANCE : format);
+    }
+
     public Set<Locale> getAvailableLanguages() {
         Set<Locale> results = new HashSet<>();
         for (LanguagePackProvider provider : providers) {
@@ -159,9 +176,52 @@ public class MessageBundle {
         );
     }
 
+    private static final class TextFormatImpl implements TextFormat {
+
+        private static final TextFormatImpl INSTANCE = new TextFormatImpl();
+
+        @Override
+        public String format(String pattern, Object... args) {
+            return args == null || args.length == 0 ? pattern : String.format(pattern, args);
+        }
+
+    }
+
     public interface TextFormat {
 
         String format(String pattern, Object... args);
+
+    }
+
+    public static final class LanguageBundle {
+
+        private Locale locale;
+        private TextFormat format;
+        private LanguagePack pack;
+
+        protected LanguageBundle(Locale locale, LanguagePack pack, TextFormat format) {
+            this.locale = locale;
+            this.pack = pack;
+            this.format = format;
+        }
+
+        public String getText(String name) {
+            return getText(name, (Object[]) null);
+        }
+
+        public String getText(String name, Object... args) {
+            String text = pack.getPack().get(name);
+            return format.format(text, args);
+        }
+
+        public Locale getLocale() {
+            return locale;
+        }
+
+        public boolean contains(String name) {
+            return false;
+        }
+
     }
 
     private static class SortableLanguagePackProvider implements LanguagePackProvider, Comparable<SortableLanguagePackProvider> {

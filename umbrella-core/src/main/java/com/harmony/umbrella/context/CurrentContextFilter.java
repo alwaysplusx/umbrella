@@ -16,8 +16,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.PathMatcher;
-
-import com.harmony.umbrella.util.StringUtils;
+import org.springframework.util.StringUtils;
 
 /**
  * add filter configuration in web.xml

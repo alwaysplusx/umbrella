@@ -52,7 +52,7 @@ public class LogMessage {
     private Map<String, Object> context;
 
     public LogMessage(Log log, MessageFactory messageFactory) {
-        this.log = log;
+        this.setLog(log);
         this.messageFactory = messageFactory;
         this.id = messageId();
     }
@@ -288,30 +288,37 @@ public class LogMessage {
     public void log(Level level) {
         this.level = level;
 
-        Log relative = log.relative(LOGMESSAGE_FQNC);
         LogInfo msg = asInfo();
 
         switch (level.standardLevel) {
         case ERROR:
-            relative.error(msg);
+            log.error(msg);
             break;
         case WARN:
-            relative.warn(msg);
+            log.warn(msg);
             break;
         case INFO:
-            relative.info(msg);
+            log.info(msg);
             break;
         case DEBUG:
-            relative.debug(msg);
+            log.debug(msg);
             break;
         case ALL:
         case TRACE:
-            relative.trace(msg);
+            log.trace(msg);
             break;
         case OFF:
             break;
         default:
             break;
+        }
+    }
+
+    protected void setLog(Log log) {
+        if (log instanceof AbstractLog) {
+            this.log = ((AbstractLog) log).relative(LOGMESSAGE_FQNC);
+        } else {
+            this.log = log;
         }
     }
 

@@ -75,7 +75,7 @@ public class RowEntityMapper<T> implements RowVisitor {
         for (int i = startColumn, max = getMaxColumnNumber(row); i < max; i++) {
             Cell cell = row.getCell(i);
             if (cell != null) {
-                Member member = MemberUtils.accessMember(entityClass, headerIndexToFieldNameMap.get(i));
+                Member member = MemberUtils.findMember(entityClass, headerIndexToFieldNameMap.get(i));
                 CellResolver<?> cellResolver = getCellResolver(member);
                 member.set(entity, cellResolver.resolve(cell.getRowIndex(), cell.getColumnIndex(), cell));
             }

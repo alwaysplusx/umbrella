@@ -23,9 +23,8 @@ public abstract class MemberPropertyFilter implements PropertyPreFilter {
         if (object == null) {
             return false;
         }
-        /* 
-         * 1. 需要全部满足(只要一个不满足即不接受)
-         * 2. 只需要满足一个
+        /*
+         * 1. 需要全部满足(只要一个不满足即不接受) 2. 只需要满足一个
          */
         Class<?> objectClass = object.getClass();
         Member member = getObjectMember(objectClass, name);
@@ -37,7 +36,7 @@ public abstract class MemberPropertyFilter implements PropertyPreFilter {
 
     protected Member getObjectMember(Class<?> targetClass, String name) {
         try {
-            return MemberUtils.accessMember(targetClass, name);
+            return MemberUtils.findMember(targetClass, name);
         } catch (Exception e) {
             return null;
         }

@@ -12,8 +12,10 @@ import com.harmony.umbrella.context.CurrentContext;
 import com.harmony.umbrella.core.ObjectFormatter;
 import com.harmony.umbrella.core.ObjectSerializer;
 import com.harmony.umbrella.log.Level;
+import com.harmony.umbrella.log.Log;
 import com.harmony.umbrella.log.LogMessage;
 import com.harmony.umbrella.log.Logs;
+import com.harmony.umbrella.log.ProblemHandler;
 import com.harmony.umbrella.log.annotation.Logging;
 import com.harmony.umbrella.log.annotation.Logging.Scope;
 import com.harmony.umbrella.log.annotation.Module;
@@ -24,6 +26,8 @@ import com.harmony.umbrella.util.StringUtils;
  * @author wuxii@foxmail.com
  */
 public class MethodLogRecorder {
+
+    private static final Log log = Logs.getLog(MethodLogRecorder.class);
 
     /**
      * 对日志所需要记录的对象序列化的序列化工具
@@ -150,7 +154,8 @@ public class MethodLogRecorder {
         Object result;
         Throwable exception;
 
-        private boolean applied;
+        boolean problemHandled = true;
+        boolean userInfoApplied;
 
         public MethodMonitor(LoggingContext context, Logging logging) {
             this.context = context;
@@ -175,7 +180,7 @@ public class MethodLogRecorder {
                 doException();
             }
             doFinish();
-            return new LoggingResult(result, exception, logMessage.asInfo());
+            return new LoggingResult(result, exception, logMessage.asInfo(), problemHandled);
         }
 
         // for override
@@ -211,7 +216,7 @@ public class MethodLogRecorder {
                     .stack(methodId)//
                     .module(getModule())//
                     .currentThread();
-            applied = applyUserContext(logMessage);
+            userInfoApplied = applyUserContext(logMessage);
             if (templateResolver != null) {
                 templateResolver.capture(Scope.IN, context);
                 ValueContextStack.push(valueContext);
@@ -221,7 +226,7 @@ public class MethodLogRecorder {
 
         private void doFinish() {
             finish();
-            if (!applied) {
+            if (!userInfoApplied) {
                 applyUserContext(logMessage);
             }
             if (templateResolver != null) {
@@ -232,9 +237,21 @@ public class MethodLogRecorder {
             } else {
                 logMessage.message("execute method {} input={}, output={}", methodId, Arrays.asList(context.getArguments()), result);
             }
+
+            if (exception != null && !problemHandled && logging != null && logging.handler() != ProblemHandler.class) {
+                Class<? extends ProblemHandler> handlerClass = logging.handler();
+                try {
+                    ProblemHandler handler = handlerClass.newInstance();
+                    handler.handle(exception, logMessage.asInfo());
+                    problemHandled = true;
+                } catch (Throwable e) {
+                    log.warn("unhandled method invoke problem", e);
+                }
+            }
         }
 
         private void doException() {
+            problemHandled = false;
             exception();
         }
 

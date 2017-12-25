@@ -1,7 +1,5 @@
 package com.harmony.umbrella.log;
 
-import java.lang.reflect.Method;
-
 /**
  * 异常处理工具
  * 
@@ -10,15 +8,13 @@ import java.lang.reflect.Method;
 public interface ProblemHandler {
 
     /**
-     * 处理异常
+     * 异常问题自定义处理
      * 
-     * @param logInfo
-     *            异常的消息
-     * @param method
-     *            出异常的方法
-     * @param target
-     *            出异常的对象
+     * @param exception
+     *            自定义处理异常
+     * @param info
+     *            异常的日志信息
      */
-    void handle(LogInfo logInfo, Method method, Object target);
+    void handle(Throwable problem, LogInfo info);
 
 }

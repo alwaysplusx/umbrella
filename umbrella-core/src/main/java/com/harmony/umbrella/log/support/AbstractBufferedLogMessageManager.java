@@ -1,8 +1,8 @@
 package com.harmony.umbrella.log.support;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
@@ -12,14 +12,14 @@ import com.harmony.umbrella.log.LogInfo;
 /**
  * @author wuxii@foxmail.com
  */
-public abstract class BufferedLogInfoManager implements LogInfoManager {
+public abstract class AbstractBufferedLogMessageManager implements LogMessageManager {
 
     protected final List<LogInfo> buffer;
     protected final int bufferSize;
 
-    public BufferedLogInfoManager(int bufferSize) {
+    public AbstractBufferedLogMessageManager(int bufferSize) {
         this.bufferSize = bufferSize;
-        this.buffer = new ArrayList<LogInfo>(bufferSize + 1);
+        this.buffer = new CopyOnWriteArrayList<LogInfo>();
     }
 
     /**

@@ -13,7 +13,6 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
 import com.harmony.umbrella.data.domain.BaseEntity;
-import com.harmony.umbrella.util.TimeUtils;
 
 /**
  * @author wuxii@foxmail.com
@@ -127,8 +126,7 @@ public class Model extends BaseEntity<Long> {
 
     @Override
     public String toString() {
-        return "Model: {id:" + id + ", name:" + name + ", code:" + code + ", content:" + content + ", ordinal:" + ordinal + ", createDate:"
-                + TimeUtils.parseText(createDate, "yyyy-MM-dd") + ", subModels:" + subModels + "}";
+        return "Model: {id:" + id + ", name:" + name + ", code:" + code + ", content:" + content + ", ordinal:" + ordinal + ", subModels:" + subModels + "}";
     }
 
 }

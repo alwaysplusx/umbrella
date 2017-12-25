@@ -67,7 +67,7 @@ public class CamelCaseNameProcessor implements ExtraProcessor {
                 o.append(c);
             }
         }
-        return MemberUtils.accessMember(type, name);
+        return MemberUtils.findMember(type, name);
     }
 
     public <T> T convertValue(Object fromValue, Class<T> type) throws IllegalArgumentException {

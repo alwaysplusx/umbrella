@@ -17,15 +17,6 @@ public interface Log {
     String getName();
 
     /**
-     * 通过一定的属性创建相关联的log
-     * 
-     * @param relativeProperties
-     *            log创建需要用到的相关属性
-     * @return relative log
-     */
-    Log relative(Object relativeProperties);
-
-    /**
      * 检测trace是否可用
      * 
      * @return true 可用
@@ -33,8 +24,7 @@ public interface Log {
     boolean isTraceEnabled();
 
     /**
-     * 记录trace级别的日志， msg使用{@linkplain Object#toString()}方式，如果msg为
-     * <code>null</code>直接记录"null"字符串
+     * 记录trace级别的日志， msg使用{@linkplain Object#toString()}方式，如果msg为 <code>null</code>直接记录"null"字符串
      * 
      * @param msg
      *            被记录的消息

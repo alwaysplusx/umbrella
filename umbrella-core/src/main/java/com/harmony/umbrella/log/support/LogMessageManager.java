@@ -15,7 +15,7 @@ import com.harmony.umbrella.log.LogInfo;
  * 
  * @author wuxii@foxmail.com
  */
-public interface LogInfoManager {
+public interface LogMessageManager {
 
     /**
      * 启动

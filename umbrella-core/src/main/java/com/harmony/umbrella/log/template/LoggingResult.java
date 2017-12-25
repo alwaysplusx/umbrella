@@ -14,11 +14,13 @@ public class LoggingResult implements Serializable {
     Object result;
     Throwable exception;
     LogInfo logMessage;
+    boolean problemHandled;
 
-    LoggingResult(Object result, Throwable exception, LogInfo logMessage) {
+    public LoggingResult(Object result, Throwable exception, LogInfo logMessage, boolean problemHandled) {
         this.result = result;
         this.exception = exception;
         this.logMessage = logMessage;
+        this.problemHandled = problemHandled;
     }
 
     public Object getResult() {
@@ -31,6 +33,10 @@ public class LoggingResult implements Serializable {
 
     public LogInfo getLogMessage() {
         return logMessage;
+    }
+
+    public boolean isProblemHandled() {
+        return problemHandled;
     }
 
 }

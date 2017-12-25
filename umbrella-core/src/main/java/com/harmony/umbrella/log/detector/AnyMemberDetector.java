@@ -18,7 +18,7 @@ public class AnyMemberDetector implements MemberDetector {
     @Override
     public Object get(String memberName, Object target) {
         try {
-            return MemberUtils.getValue(memberName, target);
+            return MemberUtils.getMemberValue(memberName, target);
         } catch (Exception e) {
             throw new MemberDetectorException(memberName + " member not found", e);
         }

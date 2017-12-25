@@ -56,6 +56,15 @@ public abstract class AbstractLog implements Log {
      */
     protected abstract void logMessage(Level level, LogInfo logInfo);
 
+    /**
+     * 通过一定的属性创建相关联的log
+     * 
+     * @param relativeProperties
+     *            log创建需要用到的相关属性
+     * @return relative log
+     */
+    protected abstract Log relative(Object relativeProperties);
+
     @Override
     public String getName() {
         return className;

@@ -40,10 +40,9 @@ public class MemberTest {
     }
 
     @Test
-    public void testAccess() {
-        Member member = MemberUtils.accessMember(Person.class, "brother.name");
-        
-        assertEquals("D", member.get(self));
+    public void test() {
+        Member member = MemberUtils.findMember(Person.class, "name");
+        assertEquals("Me", member.get(self));
     }
 
 }

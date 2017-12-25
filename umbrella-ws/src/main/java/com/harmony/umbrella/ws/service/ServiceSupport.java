@@ -21,8 +21,6 @@ import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 
 import com.harmony.umbrella.core.Member;
-import com.harmony.umbrella.i18n.MessageBundle;
-import com.harmony.umbrella.i18n.ResourceMessageBundle;
 import com.harmony.umbrella.log.Log;
 import com.harmony.umbrella.log.Logs;
 import com.harmony.umbrella.util.Exceptions;
@@ -49,8 +47,6 @@ public abstract class ServiceSupport {
     public static final String MESSAGE_ERROR = "{harmony.server.error}";
     public static final String MESSAGE_SUCCESS = "{harmony.server.success}";
     public static final String MESSAGE_FAILED = "{harmony.server.failed}";
-
-    private MessageBundle messageBundle;
 
     private Map<Class<?>, Member[]> keyAccessMemberCache = new HashMap<Class<?>, Member[]>();
 
@@ -319,30 +315,12 @@ public abstract class ServiceSupport {
     private Message buildMessage(String message, String type, Map<String, String> content) {
         message = message.trim();
         if (message.startsWith("{") && message.endsWith("}")) {
-            message = getText(message.substring(1, message.length() - 1));
+            // FIXME i18n message = getText(message.substring(1, message.length() - 1));
         }
         if (!extractContent) {
             return new Message(message, type, content);
         }
         return new Message(extractContentMessage(new StringBuilder(message), content), type);
-    }
-
-    /**
-     * 根据key获取国际化文本
-     *
-     * @param name
-     *            国际化文本key
-     * @return 国际化对应值
-     */
-    protected String getText(String name) {
-        return getMessageBundle().getString(name);
-    }
-
-    protected MessageBundle getMessageBundle() {
-        if (messageBundle == null) {
-            messageBundle = new ResourceMessageBundle("WsMessage", getLocale());
-        }
-        return messageBundle;
     }
 
     protected Locale getLocale() {

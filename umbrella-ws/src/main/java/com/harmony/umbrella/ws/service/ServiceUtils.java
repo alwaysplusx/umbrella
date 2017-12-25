@@ -8,7 +8,6 @@ import java.util.Comparator;
 import java.util.List;
 
 import com.harmony.umbrella.core.Member;
-import com.harmony.umbrella.util.MemberUtils;
 import com.harmony.umbrella.validator.Validators;
 import com.harmony.umbrella.ws.annotation.Key;
 
@@ -21,21 +20,22 @@ import com.harmony.umbrella.ws.annotation.Key;
 public class ServiceUtils {
 
     public static Member[] getKeyMembers(Class<?> targetClass) {
+        // FIXME 成员变量获取方法修改
         List<Member> result = new ArrayList<Member>();
-        // 配置有@Key的get方法
-        for (Method method : targetClass.getMethods()) {
-            Key ann = method.getAnnotation(Key.class);
-            if (ann != null && MemberUtils.isReadMethod(method)) {
-                result.add(MemberUtils.accessMember(targetClass, method));
-            }
-        }
-        // 配置有@Key的字段
-        for (Field field : targetClass.getDeclaredFields()) {
-            Key ann = field.getAnnotation(Key.class);
-            if (ann != null) {
-                result.add(MemberUtils.accessMember(targetClass, field));
-            }
-        }
+        // // 配置有@Key的get方法
+        // for (Method method : targetClass.getMethods()) {
+        // Key ann = method.getAnnotation(Key.class);
+        // if (ann != null && MemberUtils.isReadMethod(method)) {
+        // result.add(MemberUtils.findMember(targetClass, method));
+        // }
+        // }
+        // // 配置有@Key的字段
+        // for (Field field : targetClass.getDeclaredFields()) {
+        // Key ann = field.getAnnotation(Key.class);
+        // if (ann != null) {
+        // result.add(MemberUtils.findMember(targetClass, field));
+        // }
+        // }
         return result.toArray(new Member[result.size()]);
     }
 

@@ -57,7 +57,7 @@ public class TokenResolvers implements TokenResolver {
     }
 
     public static TokenResolvers defaultTokenResolvers() {
-        return new TokenResolvers(new KeyWordTokenResolver(MemberDetectors.allDetectors()));
+        return new TokenResolvers(new KeyWordTokenResolver(MemberDetectors.allDetectors()), new RuntimeTokenResolver());
     }
 
 }
