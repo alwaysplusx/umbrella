@@ -108,6 +108,14 @@ public class CurrentContextFilter implements Filter {
         this.excludedPatterns = excludedPatterns;
     }
 
+    public String getIpHeader() {
+        return ipHeader;
+    }
+
+    public void setIpHeader(String ipHeader) {
+        this.ipHeader = ipHeader;
+    }
+
     public static String getUri(HttpServletRequest request) {
         String uri = request.getRequestURI();
         return uri.substring(request.getContextPath().length());

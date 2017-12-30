@@ -1,0 +1,22 @@
+{"properties": [
+  {
+    "name": "harmony.web.enabled",
+    "type": "java.lang.String",
+    "description": "Enabled harmony web configuration"
+  },
+  {
+    "name": "harmony.log.enabled",
+    "type": "java.lang.String",
+    "description": "Enabled harmony log configuration"
+  },
+  {
+    "name": "harmony.ejb.enabled",
+    "type": "java.lang.String",
+    "description": "Enabled harmony ejb configuration"
+  },
+  {
+    "name": "harmony.log.interceptor.enabled",
+    "type": "java.lang.String",
+    "description": "Enabled harmony log interceptor configuration"
+  }
+]}

@@ -28,6 +28,8 @@ import org.springframework.util.StringUtils;
 
 import com.harmony.umbrella.context.ApplicationContext.ApplicationContextInitializer;
 import com.harmony.umbrella.core.ConnectionSource;
+import com.harmony.umbrella.core.PropertyManager;
+import com.harmony.umbrella.core.SimplePropertyManager;
 import com.harmony.umbrella.util.ClassFilterFeature;
 
 /**
@@ -50,12 +52,13 @@ public class ApplicationConfigurationBuilder {
     private ServletContext servletContext;
     private Class<? extends ApplicationContextInitializer> applicationContextInitializerClass;
 
+    private String applicationName;
     private final Set<String> scanPackages = new LinkedHashSet<>();
     private final Map properties = new LinkedHashMap<>();
     private final List<ConnectionSource> connectionSources = new ArrayList<>();
     private final List<Class<? extends Runnable>> shutdownHookClasses = new ArrayList<>();
 
-    public static ApplicationConfigurationBuilder create() {
+    public static ApplicationConfigurationBuilder newBuilder() {
         return new ApplicationConfigurationBuilder();
     }
 
@@ -68,6 +71,11 @@ public class ApplicationConfigurationBuilder {
     }
 
     protected ApplicationConfigurationBuilder() {
+    }
+
+    public ApplicationConfigurationBuilder setApplicationName(String appName) {
+        this.applicationName = appName;
+        return this;
     }
 
     public ApplicationConfigurationBuilder addScanPackage(String pkg) {
@@ -117,6 +125,7 @@ public class ApplicationConfigurationBuilder {
 
     public ApplicationConfiguration build() {
         AppConfig cfg = new AppConfig();
+        cfg.applicationName = this.applicationName;
         cfg.servletContext = this.servletContext;
         cfg.applicationContextInitializerClass = this.applicationContextInitializerClass;
         cfg.scanPackages = Collections.unmodifiableSet(this.scanPackages);
@@ -267,6 +276,11 @@ public class ApplicationConfigurationBuilder {
         }
 
         @Override
+        public String getApplicationName() {
+            return cfg.getApplicationName();
+        }
+
+        @Override
         public Set<String> getScanPackages() {
             return Collections.unmodifiableSet(cfg.getScanPackages());
         }
@@ -324,16 +338,27 @@ public class ApplicationConfigurationBuilder {
             return result;
         }
 
+        @Override
+        public PropertyManager getPropertyManager() {
+            return cfg.getPropertyManager();
+        }
+
     }
 
     private static class AppConfig implements ApplicationConfiguration {
 
+        private String applicationName;
         private ServletContext servletContext;
         private Class<? extends ApplicationContextInitializer> applicationContextInitializerClass;
         private Set<String> scanPackages = new LinkedHashSet<>();
         private Map properties = new LinkedHashMap<>();
         private List<ConnectionSource> connectionSources = new ArrayList<>();
         private List<Class<? extends Runnable>> shutdownHookClasses = new ArrayList<>();
+
+        @Override
+        public String getApplicationName() {
+            return applicationName;
+        }
 
         @Override
         public Set<String> getScanPackages() {
@@ -389,6 +414,11 @@ public class ApplicationConfigurationBuilder {
         @Override
         public Class<? extends Runnable>[] getShutdownHooks() {
             return shutdownHookClasses.toArray(new Class[shutdownHookClasses.size()]);
+        }
+
+        @Override
+        public PropertyManager getPropertyManager() {
+            return new SimplePropertyManager(properties);
         }
 
     }

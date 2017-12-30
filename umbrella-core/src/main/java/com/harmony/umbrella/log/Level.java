@@ -78,13 +78,20 @@ public class Level implements Serializable {
             return defaultLevel;
         }
         name = name.toUpperCase();
-
         Level level = LEVELS.get(name);
         if (level != null) {
             return level;
         }
-
         return defaultLevel;
+    }
+
+    static Level toLevel(StandardLevel level) {
+        for (Level l : LEVELS.values()) {
+            if (l.standardLevel.equals(level)) {
+                return null;
+            }
+        }
+        return null;
     }
 
     public static enum StandardLevel {

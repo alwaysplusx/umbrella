@@ -98,12 +98,20 @@ public class StringUtils extends org.springframework.util.StringUtils {
      */
     public static String getMethodId(Method method) {
         Assert.notNull(method, "method must not be null");
-        String args = arrayToDelimitedString(method.getParameterTypes(), ", ");
-        return new StringBuilder().append(method.getDeclaringClass().getName())//
-                .append("#")//
-                .append(method.getName())//
-                .append("(").append(args).append(")")//
-                .toString();
+        StringBuilder o = new StringBuilder();
+        o.append(method.getDeclaringClass().getName())//
+                .append("#").append(method.getName()).append("(");
+
+        Class<?>[] parameterTypes = method.getParameterTypes();
+        if (parameterTypes != null && parameterTypes.length > 0) {
+            for (int i = 0, max = parameterTypes.length; i < max; i++) {
+                o.append(parameterTypes[i].getName());
+                if (i < max - 1) {
+                    o.append(", ");
+                }
+            }
+        }
+        return o.append(")").toString();
     }
 
 }

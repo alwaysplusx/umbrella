@@ -8,6 +8,7 @@ import javax.servlet.ServletContext;
 
 import com.harmony.umbrella.context.ApplicationContext.ApplicationContextInitializer;
 import com.harmony.umbrella.core.ConnectionSource;
+import com.harmony.umbrella.core.PropertyManager;
 
 /**
  * 应用配置信息, 配置信息一旦创建就不允许更改
@@ -15,6 +16,8 @@ import com.harmony.umbrella.core.ConnectionSource;
  * @author wuxii@foxmail.com
  */
 public interface ApplicationConfiguration {
+
+    String getApplicationName();
 
     Set<String> getScanPackages();
 
@@ -37,5 +40,12 @@ public interface ApplicationConfiguration {
     Map<?, ?> getApplicationProperties();
 
     Class<? extends Runnable>[] getShutdownHooks();
+
+    /**
+     * read only property manager, 对property manager进行设置不影响其他配置
+     * 
+     * @return property manager
+     */
+    PropertyManager getPropertyManager();
 
 }

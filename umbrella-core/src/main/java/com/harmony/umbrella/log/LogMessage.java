@@ -46,8 +46,8 @@ public class LogMessage {
     private long startTime = -1;
     private long finishTime = -1;
 
-    private String stack;
-    private String threadName;
+    private String location;
+    private String thread;
 
     private Map<String, Object> context;
 
@@ -253,22 +253,27 @@ public class LogMessage {
     }
 
     public LogMessage currentStack() {
-        this.stack = Logs.fullyQualifiedClassName(LogMessage.LOGMESSAGE_FQNC, 1);
+        this.location = Logs.fullyQualifiedClassName(LogMessage.LOGMESSAGE_FQNC, 1);
         return this;
     }
 
     public LogMessage currentThread() {
-        this.threadName = Thread.currentThread().getName();
+        this.thread = Thread.currentThread().getName();
         return this;
     }
 
     public LogMessage stack(String stack) {
-        this.stack = stack;
+        this.location = stack;
         return this;
     }
 
-    public LogMessage threadName(String threadName) {
-        this.threadName = threadName;
+    public LogMessage thread(Thread thread) {
+        this.thread = thread.getName();
+        return this;
+    }
+
+    public LogMessage thread(String thread) {
+        this.thread = thread;
         return this;
     }
 
@@ -287,31 +292,7 @@ public class LogMessage {
      */
     public void log(Level level) {
         this.level = level;
-
-        LogInfo msg = asInfo();
-
-        switch (level.standardLevel) {
-        case ERROR:
-            log.error(msg);
-            break;
-        case WARN:
-            log.warn(msg);
-            break;
-        case INFO:
-            log.info(msg);
-            break;
-        case DEBUG:
-            log.debug(msg);
-            break;
-        case ALL:
-        case TRACE:
-            log.trace(msg);
-            break;
-        case OFF:
-            break;
-        default:
-            break;
-        }
+        log.log(asInfo());
     }
 
     protected void setLog(Log log) {
@@ -347,8 +328,8 @@ public class LogMessage {
         private Long userId;
         private String userHost;
 
-        private String stackLocation;
-        private String threadName;
+        private String location;
+        private String thread;
 
         private Object key;
 
@@ -368,8 +349,8 @@ public class LogMessage {
             this.userId = m.userId;
             this.userHost = m.userHost;
             this.key = m.key;
-            this.stackLocation = m.stack;
-            this.threadName = m.threadName;
+            this.location = m.location;
+            this.thread = m.thread;
             this.contextMap = m.context;
         }
 
@@ -439,13 +420,13 @@ public class LogMessage {
         }
 
         @Override
-        public String getStackLocation() {
-            return stackLocation;
+        public String getLocation() {
+            return location;
         }
 
         @Override
-        public String getThreadName() {
-            return threadName;
+        public String getThread() {
+            return thread;
         }
 
         @Override
@@ -466,8 +447,8 @@ public class LogMessage {
             this.requestTime = ois.readLong();
             this.responseTime = ois.readLong();
             this.result = ois.readObject();
-            this.stackLocation = ois.readUTF();
-            this.threadName = ois.readUTF();
+            this.location = ois.readUTF();
+            this.thread = ois.readUTF();
             this.throwable = (Throwable) ois.readObject();
         }
 
@@ -484,8 +465,8 @@ public class LogMessage {
             oos.writeLong(this.requestTime);
             oos.writeLong(this.responseTime);
             oos.writeObject(this.result);
-            oos.writeUTF(this.stackLocation);
-            oos.writeUTF(this.threadName);
+            oos.writeUTF(this.location);
+            oos.writeUTF(this.thread);
             oos.writeObject(this.throwable);
         }
 
@@ -500,7 +481,7 @@ public class LogMessage {
                     .append("\n       message : ").append(message)//
                     .append("\n      userhost : ").append(userHost)//
                     .append("\n      username : ").append(username)//
-                    .append("\n         stack : ").append(stackLocation)//
+                    .append("\n      location : ").append(location)//
                     .append("\n           use : ").append(interval(requestTime, responseTime)).append("(ms)")//
                     .append("\n}");
             return out.toString();

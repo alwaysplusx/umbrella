@@ -2,6 +2,8 @@ package com.harmony.umbrella.context;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -24,6 +26,8 @@ import org.springframework.util.ClassUtils;
 import com.harmony.umbrella.asm.ClassReader;
 import com.harmony.umbrella.context.metadata.ApplicationMetadata;
 import com.harmony.umbrella.context.metadata.DatabaseMetadata;
+import com.harmony.umbrella.context.metadata.JavaMetadata;
+import com.harmony.umbrella.context.metadata.OperatingSystemMetadata;
 import com.harmony.umbrella.context.metadata.ServerMetadata;
 import com.harmony.umbrella.core.BeanFactory;
 import com.harmony.umbrella.core.BeansException;
@@ -53,9 +57,13 @@ public abstract class ApplicationContext implements BeanFactory {
 
     private static ApplicationConfiguration applicationConfiguration;
 
+    // 应用上下文的生命周期状态 standby -(starting)-> started -(stopping)-> stopped
+
     protected static final int STANDBY = 0;
-    protected static final int STARTED = 1;
-    protected static final int SHUTDOWN = -1;
+    protected static final int STARTING = 1;
+    protected static final int STARTED = 2;
+    protected static final int STOPPING = 3;
+    protected static final int STOPPED = 4;
 
     protected static final Object applicationStatusLock = new Object();
 
@@ -64,57 +72,84 @@ public abstract class ApplicationContext implements BeanFactory {
     public static void start(ApplicationConfiguration appConfig) throws ApplicationContextException {
         final ApplicationConfiguration cfg = ApplicationConfigurationBuilder.unmodifiableApplicationConfiguation(appConfig);
         synchronized (applicationStatusLock) {
-            if (!isStandBy()) {
+            if (applicationStatus != STANDBY) {
                 // application not standby
-                throw new ApplicationContextException("unable start application, status not available " + applicationStatus);
-            }
-            ApplicationContextInitializer applicationInitializer = null;
-            Class<? extends ApplicationContextInitializer> applicationInitializerClass = cfg.getApplicationContextInitializerClass();
-            if (applicationInitializerClass == null) {
-                applicationInitializerClass = ApplicationContextInitializer.class;
+                throw new ApplicationContextException("start application failed, status not available " + applicationStatus);
             }
             try {
-                applicationInitializer = applicationInitializerClass.newInstance();
-            } catch (Exception e) {
-                throw new ApplicationContextException("illegal application initializer class " + applicationInitializerClass);
+                applicationStatus = STARTING;
+                ApplicationContextInitializer applicationInitializer = null;
+                Class<? extends ApplicationContextInitializer> applicationInitializerClass = cfg.getApplicationContextInitializerClass();
+                if (applicationInitializerClass == null) {
+                    applicationInitializerClass = ApplicationContextInitializer.class;
+                }
+                try {
+                    applicationInitializer = applicationInitializerClass.newInstance();
+                } catch (Exception e) {
+                    throw new ApplicationContextException("illegal application initializer class " + applicationInitializerClass);
+                }
+                applicationInitializer.init(cfg);
+                applicationConfiguration = cfg;
+                applicationStatus = STARTED;
+                if (cfg.getBooleanProperty(WebXmlConstant.APPLICATION_CFG_PROPERTIES_SHOW_INFO, false) //
+                        || Logs.getLog("com.harmony.umbrella.context").isDebugEnabled()) {
+                    printInfo(System.out);
+                }
+            } catch (Throwable e) {
+                applicationStatus = STANDBY;
+                throw e;
             }
-            applicationInitializer.init(cfg);
-            applicationConfiguration = cfg;
-            applicationStatus = STARTED;
         }
     }
 
-    public static void shutdown() {
+    /**
+     * 关闭应用上下文, 关闭方法调用后应用上下文状态总是成功更改的(就算是hooks有异常抛出状态依然更改为关闭).
+     */
+    public static void stop() {
+        stop(applicationConfiguration.getBooleanProperty(WebXmlConstant.APPLICATION_CFG_PROPERTIES_FOCUS_SHUTDOWN, true));
+    }
+
+    /**
+     * 关闭应用上下文, 关闭方法调用后应用上下文状态总是成功更改的(就算是hooks有异常抛出状态依然更改为关闭).
+     */
+    public static void stop(boolean focus) {
         synchronized (applicationStatusLock) {
-            if (!isStarted()) {
-                throw new ApplicationContextException("unable stop application, status not available " + applicationStatus);
+            if (applicationStatus != STARTED) {
+                throw new ApplicationContextException("stop application failed, status not available " + applicationStatus);
             }
-            ApplicationContext applicationContext = null;
-            boolean autowire = applicationConfiguration.getBooleanProperty(WebXmlConstant.APPLICATION_CFG_PROPERTIES_HOOK_AUTOWIRE);
-            boolean focus = applicationConfiguration.getBooleanProperty(WebXmlConstant.APPLICATION_CFG_PROPERTIES_FOCUS_SHUTDOWN);
-            Class<? extends Runnable>[] hooks = applicationConfiguration.getShutdownHooks();
-            if (hooks != null && hooks.length > 0) {
-                for (Class<? extends Runnable> hook : hooks) {
-                    try {
-                        Runnable runner = hook.newInstance();
-                        if (applicationContext == null) {
-                            applicationContext = ApplicationContext.getApplicationContext();
+            try {
+                // prepare property and get application context first
+                Class<? extends Runnable>[] hooks = applicationConfiguration.getShutdownHooks();
+                boolean autowire = applicationConfiguration.getBooleanProperty(WebXmlConstant.APPLICATION_CFG_PROPERTIES_HOOK_AUTOWIRE, false);
+                ApplicationContext applicationContext = null;
+                if (autowire && hooks != null && hooks.length > 0) {
+                    applicationContext = ApplicationContext.getApplicationContext();
+                }
+                // change status
+                applicationStatus = STOPPING;
+                // run hooks
+                if (hooks != null && hooks.length > 0) {
+                    for (Class<? extends Runnable> hook : hooks) {
+                        try {
+                            Runnable runner = hook.newInstance();
+                            if (autowire) {
+                                applicationContext.autowrie(runner);
+                            }
+                            runner.run();
+                        } catch (Throwable e) {
+                            if (!focus) {
+                                throw new ApplicationContextException("application shutdown failed", e);
+                            }
+                            LOG.error("can't run shutdown hook " + hook, e);
                         }
-                        if (autowire) {
-                            applicationContext.autowrie(runner);
-                        }
-                        runner.run();
-                    } catch (Exception e) {
-                        if (!focus) {
-                            throw new ApplicationContextException("application shutdown failed", e);
-                        }
-                        LOG.error("can't run shutdown hook " + hook, e);
                     }
                 }
+            } finally {
+                databaseMetadatas.clear();
+                classResources.clear();
+                applicationConfiguration = null;
+                applicationStatus = STOPPED;
             }
-            databaseMetadatas.clear();
-            classResources.clear();
-            applicationConfiguration = null;
         }
     }
 
@@ -139,24 +174,39 @@ public abstract class ApplicationContext implements BeanFactory {
         }
     }
 
-    public static boolean isStandBy() {
+    /**
+     * 判断应用是否未启动
+     * 
+     * @return true is stopped
+     */
+    public static boolean isStopped() {
         synchronized (applicationStatusLock) {
-            return applicationStatus == STANDBY;
+            return applicationStatus == STOPPED;
         }
     }
 
-    public static boolean isShutdown() {
-        synchronized (applicationStatusLock) {
-            return applicationStatus == SHUTDOWN;
-        }
+    /**
+     * 应用上下文正在启动判断, 不会对锁进行竞争只读取当前应用的状态
+     * 
+     * @return true is starting, false is not
+     */
+    public static boolean isStarting() {
+        return applicationStatus == STARTING;
+    }
+
+    /**
+     * 应用上下文正在停止判断, 不会对锁进行竞争只读取当前应用的状态
+     * 
+     * @return true is stopping, false is not
+     */
+    public static boolean isStopping() {
+        return applicationStatus == STOPPING;
     }
 
     /**
      * 获取当前应用的应用上下文
      * <p>
-     * 加载
-     * {@code META-INF/services/com.harmony.umbrella.context.ApplicationContextProvider}
-     * 文件中的实际类型来创建
+     * 加载 {@code META-INF/services/com.harmony.umbrella.context.ApplicationContextProvider} 文件中的实际类型来创建
      *
      * @return 应用上下文
      */
@@ -250,6 +300,63 @@ public abstract class ApplicationContext implements BeanFactory {
     protected static final void checkApplicationState() throws ApplicationContextException {
         if (!isStarted()) {
             throw new ApplicationContextException("application not started! " + applicationStatus);
+        }
+    }
+
+    protected static void printInfo(OutputStream o) {
+        StringBuilder out = new StringBuilder();
+        ApplicationConfiguration cfg = applicationConfiguration;
+        ServerMetadata sm = serverMetadata;
+        JavaMetadata jm = ApplicationMetadata.getJavaMetadata();
+        OperatingSystemMetadata osm = ApplicationMetadata.getOperatingSystemMetadata();
+        DatabaseMetadata[] dms = ApplicationContext.getDatabaseMetadatas();
+        out//
+                .append("\n############################################################")//
+                .append("\n#                   Application Information                #")//
+                .append("\n############################################################")//
+                .append("\n#                      cpu : ").append(osm.cpu)//
+                .append("\n#                  os name : ").append(osm.osName)//
+                .append("\n#                time zone : ").append(osm.timeZone)//
+                .append("\n#               os version : ").append(osm.osVersion)//
+                .append("\n#                user home : ").append(osm.userHome)//
+                .append("\n#            file encoding : ").append(osm.fileEncoding)//
+                .append("\n#")//
+                .append("\n#                 jvm name : ").append(jm.vmName)//
+                .append("\n#               jvm vendor : ").append(jm.vmVendor)//
+                .append("\n#              jvm version : ").append(jm.vmVersion)//
+                .append("\n#");//
+        for (DatabaseMetadata dm : dms) {
+            out//
+                    .append("\n#                 database : ").append(dm.productName)//
+                    .append("\n#             database url : ").append(dm.url)//
+                    .append("\n#            database user : ").append(dm.userName)//
+                    .append("\n#              driver name : ").append(dm.driverName)//
+                    .append("\n#           driver version : ").append(dm.driverVersion)//
+                    .append("\n#");//
+        }
+        out//
+                .append("\n#          app server type : ").append(sm.serverName)//
+                .append("\n#          app server name : ").append(sm.serverInfo)//
+                .append("\n#          servlet version : ").append(sm.servletVersion)//
+                .append("\n#")//
+                .append("\n#                spec name : ").append(jm.specificationName)//
+                .append("\n#             spec version : ").append(jm.specificationVersion)//
+                .append("\n#                java home : ").append(jm.javaHome)//
+                .append("\n#              java vendor : ").append(jm.javaVendor)//
+                .append("\n#             java version : ").append(jm.javaVersion)//
+                .append("\n#          runtime version : ").append(jm.runtimeVersion)//
+                .append("\n#")//
+                .append("\n#             app packages : ").append(cfg != null ? cfg.getScanPackages() : null)//
+                .append("\n#      class resource size : ").append(ApplicationContext.getApplicationClassResourceSize())//
+                .append("\n############################################################")//
+                .append("\n\n");
+        try {
+            OutputStreamWriter writer = new OutputStreamWriter(o);
+            writer.write(out.toString());
+            writer.flush();
+        } catch (IOException e) {
+            // ignore
+            e.printStackTrace();
         }
     }
 

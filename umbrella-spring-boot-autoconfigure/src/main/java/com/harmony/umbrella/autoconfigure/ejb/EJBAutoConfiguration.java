@@ -29,7 +29,7 @@ import com.harmony.umbrella.util.PropertiesUtils;
 @Configuration
 @ConditionalOnWebApplication
 @ConditionalOnClass(EJBApplicationContext.class)
-@ConditionalOnProperty(prefix = "harmony.ejb", name = "enabled", havingValue = "true", matchIfMissing = false)
+@ConditionalOnProperty(prefix = "harmony.ejb", value = "enabled", havingValue = "true", matchIfMissing = false)
 @EnableConfigurationProperties(EJBProperties.class)
 public class EJBAutoConfiguration {
 
@@ -37,19 +37,6 @@ public class EJBAutoConfiguration {
 
     public EJBAutoConfiguration(EJBProperties ejbProperties) {
         this.ejbProperties = ejbProperties;
-    }
-
-    @Bean
-    public PropertyManager propertyManager() throws IOException {
-        String location = ejbProperties.getContextPropertiesFileLocation();
-        Properties props = null;
-        if (location != null) {
-            props = PropertiesUtils.loadProperties(location);
-        }
-        if (ejbProperties.getContextProperties() != null) {
-            props.putAll(ejbProperties.getContextProperties());
-        }
-        return new SimplePropertyManager(props);
     }
 
     @Bean
@@ -82,6 +69,18 @@ public class EJBAutoConfiguration {
         CommonAnnotationBeanPostProcessor result = new CommonAnnotationBeanPostProcessor();
         result.setJndiFactory(ejbBeanFactory());
         return result;
+    }
+
+    PropertyManager propertyManager() throws IOException {
+        String location = ejbProperties.getContextPropertiesFileLocation();
+        Properties props = null;
+        if (location != null) {
+            props = PropertiesUtils.loadProperties(location);
+        }
+        if (ejbProperties.getContextProperties() != null) {
+            props.putAll(ejbProperties.getContextProperties());
+        }
+        return new SimplePropertyManager(props);
     }
 
     /**

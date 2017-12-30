@@ -27,7 +27,7 @@ public abstract class LoggingContext {
 
     protected abstract Throwable getException();
 
-    public abstract Object proceed() throws Exception;
+    public abstract Object proceed() throws Throwable;
 
     public HttpSession getHttpSession() {
         return ContextHelper.getHttpSession(false);

@@ -22,12 +22,6 @@ import com.harmony.umbrella.context.listener.ApplicationDestroyListener;
 import com.harmony.umbrella.context.listener.ApplicationEventListener;
 import com.harmony.umbrella.context.listener.ApplicationListener;
 import com.harmony.umbrella.context.listener.ApplicationStartListener;
-import com.harmony.umbrella.context.metadata.ApplicationMetadata;
-import com.harmony.umbrella.context.metadata.DatabaseMetadata;
-import com.harmony.umbrella.context.metadata.JavaMetadata;
-import com.harmony.umbrella.context.metadata.OperatingSystemMetadata;
-import com.harmony.umbrella.context.metadata.ServerMetadata;
-import com.harmony.umbrella.log.Logs;
 import com.harmony.umbrella.util.ClassFilter;
 import com.harmony.umbrella.util.ClassFilterFeature;
 
@@ -50,20 +44,18 @@ public class ApplicationServletContainerInitializer implements ServletContainerI
             classToUse.addAll(c);
         }
 
-        final ApplicationConfiguration cfg;
+        ApplicationConfiguration cfg;
         try {
-            cfg = buildApplicationConfiguration(servletContext);
+            cfg = (ApplicationConfiguration) servletContext.getAttribute(CONTAINER_CONTEXT_ATTRIBUTE_APP_CONFIG);
+            if (cfg == null) {
+                cfg = buildApplicationConfiguration(servletContext);
+            }
         } catch (Exception e) {
             throw new ServletException("build application configuration failure!", e);
         }
 
         // init application static first
         ApplicationContext.start(cfg);
-
-        if (cfg.getBooleanProperty(APPLICATION_CFG_PROPERTIES_SHOW_INFO) //
-                || Logs.getLog("com.harmony.umbrella.context").isDebugEnabled()) {
-            showApplicationInfo();
-        }
 
         // must after application started
         if (cfg.getBooleanProperty(APPLICATION_CFG_PROPERTIES_SCAN_HANDLES_TYPES) || ContextHelper.isWeblogic()) {
@@ -83,18 +75,13 @@ public class ApplicationServletContainerInitializer implements ServletContainerI
     }
 
     private ApplicationConfiguration buildApplicationConfiguration(ServletContext servletContext) throws Exception {
-        Object cfg = servletContext.getAttribute(CONTAINER_CONTEXT_ATTRIBUTE_APP_CONFIG);
-        if (cfg != null) {
-            return (ApplicationConfiguration) cfg;
-        }
-
         ApplicationConfigurationBuilder builder = null;
         String builderName = servletContext.getInitParameter(APPLICATION_CFG_PROPERTIES_CUSTOM_BUILDER);
         if (builderName != null) {
             Class<?> builderClass = ClassUtils.forName(builderName, ClassUtils.getDefaultClassLoader());
             builder = (ApplicationConfigurationBuilder) builderClass.newInstance();
         } else {
-            builder = ApplicationConfigurationBuilder.create();
+            builder = ApplicationConfigurationBuilder.newBuilder();
         }
         return builder.apply(servletContext).build();
     }
@@ -127,8 +114,7 @@ public class ApplicationServletContainerInitializer implements ServletContainerI
     }
 
     /*
-     * under weblogic just load @HandlesTypes in WEB-INF/lib/*.jar, so
-     * load @HandlesTypes manually
+     * under weblogic just load @HandlesTypes in WEB-INF/lib/*.jar, so load @HandlesTypes manually
      */
     protected Set<Class<?>> scanApplicationEventListeners() throws ServletException {
         Set<Class<?>> result = new HashSet<>();
@@ -145,56 +131,6 @@ public class ApplicationServletContainerInitializer implements ServletContainerI
 
         Collections.addAll(result, classes);
         return result;
-    }
-
-    protected void showApplicationInfo() {
-        StringBuilder out = new StringBuilder();
-        ApplicationConfiguration cfg = ApplicationContext.getApplicationConfiguration();
-        ServerMetadata serverMetadata = ApplicationContext.getServerMetadata();
-        JavaMetadata javaMetadata = ApplicationMetadata.getJavaMetadata();
-        OperatingSystemMetadata osMetadata = ApplicationMetadata.getOperatingSystemMetadata();
-        DatabaseMetadata[] dms = ApplicationContext.getDatabaseMetadatas();
-        out//
-                .append("\n############################################################")//
-                .append("\n#                   Application Information                #")//
-                .append("\n############################################################")//
-                .append("\n#                      cpu : ").append(osMetadata.cpu)//
-                .append("\n#                  os name : ").append(osMetadata.osName)//
-                .append("\n#                time zone : ").append(osMetadata.timeZone)//
-                .append("\n#               os version : ").append(osMetadata.osVersion)//
-                .append("\n#                user home : ").append(osMetadata.userHome)//
-                .append("\n#            file encoding : ").append(osMetadata.fileEncoding)//
-                .append("\n#")//
-                .append("\n#                 jvm name : ").append(javaMetadata.vmName)//
-                .append("\n#               jvm vendor : ").append(javaMetadata.vmVendor)//
-                .append("\n#              jvm version : ").append(javaMetadata.vmVersion)//
-                .append("\n#");//
-        for (DatabaseMetadata dm : dms) {
-            out//
-                    .append("\n#                 database : ").append(dm.productName)//
-                    .append("\n#             database url : ").append(dm.url)//
-                    .append("\n#            database user : ").append(dm.userName)//
-                    .append("\n#              driver name : ").append(dm.driverName)//
-                    .append("\n#           driver version : ").append(dm.driverVersion)//
-                    .append("\n#");//
-        }
-        out//
-                .append("\n#          app server type : ").append(serverMetadata.serverName)//
-                .append("\n#          app server name : ").append(serverMetadata.serverInfo)//
-                .append("\n#          servlet version : ").append(serverMetadata.servletVersion)//
-                .append("\n#")//
-                .append("\n#                spec name : ").append(javaMetadata.specificationName)//
-                .append("\n#             spec version : ").append(javaMetadata.specificationVersion)//
-                .append("\n#                java home : ").append(javaMetadata.javaHome)//
-                .append("\n#              java vendor : ").append(javaMetadata.javaVendor)//
-                .append("\n#             java version : ").append(javaMetadata.javaVersion)//
-                .append("\n#          runtime version : ").append(javaMetadata.runtimeVersion)//
-                .append("\n#")//
-                .append("\n#             app packages : ").append(cfg != null ? cfg.getScanPackages() : null)//
-                .append("\n#      class resource size : ").append(ApplicationContext.getApplicationClassResourceSize())//
-                .append("\n############################################################")//
-                .append("\n\n");
-        System.out.println(out.toString());
     }
 
     /**
@@ -239,7 +175,7 @@ public class ApplicationServletContainerInitializer implements ServletContainerI
             }
             if (ApplicationContext.isStarted()) {
                 // shutdown application context
-                ApplicationContext.shutdown();
+                ApplicationContext.stop();
             }
             servletContext.log("application stopped, use " + (System.currentTimeMillis() - s) + "ms");
         }

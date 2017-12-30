@@ -23,6 +23,8 @@ import com.harmony.umbrella.log.template.LoggingContext.ValueContext;
 import com.harmony.umbrella.util.StringUtils;
 
 /**
+ * FIXME 加入可配置选项, 对拦截方法的in/out bound是否进行积极统计
+ * 
  * @author wuxii@foxmail.com
  */
 public class MethodLogRecorder {
@@ -106,6 +108,22 @@ public class MethodLogRecorder {
         return template;
     }
 
+    protected String getModule(Logging logging, Class<?> targetClass) {
+        String name = null;
+        if (logging != null && StringUtils.isNotBlank(logging.module())) {
+            name = logging.module();
+        } else {
+            Module moduleAnn = targetClass.getAnnotation(Module.class);
+            if (moduleAnn != null && StringUtils.isNotBlank(moduleAnn.value())) {
+                name = moduleAnn.value();
+            }
+        }
+        if (name == null) {
+            name = targetClass.getSimpleName();
+        }
+        return name;
+    }
+
     public ObjectSerializer getObjectSerializer() {
         return serializer;
     }
@@ -132,7 +150,7 @@ public class MethodLogRecorder {
 
     protected static Logging getLoggingAnnotation(LoggingContext context) {
         Method method = context.getMethod();
-        return method.getAnnotation(Logging.class);
+        return method != null ? method.getAnnotation(Logging.class) : null;
     }
 
     public class MethodMonitor {
@@ -214,7 +232,7 @@ public class MethodLogRecorder {
             logMessage = LogMessage//
                     .create(Logs.getLog(targetClass))//
                     .stack(methodId)//
-                    .module(getModule())//
+                    .module(getModule(logging, targetClass))//
                     .currentThread();
             userInfoApplied = applyUserContext(logMessage);
             if (templateResolver != null) {
@@ -255,22 +273,6 @@ public class MethodLogRecorder {
             exception();
         }
 
-        private String getModule() {
-            String name = null;
-            if (logging != null && StringUtils.isNotBlank(logging.module())) {
-                name = logging.module();
-            } else {
-                Module moduleAnn = targetClass.getAnnotation(Module.class);
-                if (moduleAnn != null && StringUtils.isNotBlank(moduleAnn.value())) {
-                    name = moduleAnn.value();
-                }
-            }
-            if (name == null) {
-                name = targetClass.getSimpleName();
-            }
-            return name;
-        }
-
     }
 
     public class TemplateResolver {
@@ -287,17 +289,20 @@ public class MethodLogRecorder {
             StringBuffer o = new StringBuffer();
             ScopeToken[] tokens = loggingTemplate.getFormatedMessageTokens();
             for (ScopeToken token : tokens) {
-                if (token.isPlainText()) {
-                    o.append(token.getTokenString());
-                } else if (resolvedTokens.containsKey(token)) {
-                    Object val = resolvedTokens.get(token);
-                    o.append(formatValue(val, false));
-                } else if (tokenResolvers.support(token)) {
-                    Object val = tokenResolvers.resolve(token, context);
-                    o.append(formatValue(val, true));
-                } else {
-                    o.append("$unresolve");
+                String val = null;
+                try {
+                    if (token.isPlainText()) {
+                        val = token.getTokenString();
+                    } else if (resolvedTokens.containsKey(token)) {
+                        val = formatValue(resolvedTokens.get(token));
+                    } else if (tokenResolvers.support(token)) {
+                        Object value = tokenResolvers.resolve(token, context);
+                        val = formatValue(value);
+                    }
+                } catch (Exception e) {
+                    val = "$unresolve";
                 }
+                o.append(val);
             }
             return o.toString();
         }
@@ -308,10 +313,7 @@ public class MethodLogRecorder {
             return val == null ? null : val.toString();
         }
 
-        private String formatValue(Object val, boolean serial) {
-            if (val != null && serial) {
-                val = serializer.serialize(val);
-            }
+        protected String formatValue(Object val) {
             return val == null ? null : formatter == null ? val.toString() : formatter.format(val);
         }
 
@@ -319,8 +321,13 @@ public class MethodLogRecorder {
             List<ScopeToken> tokens = loggingTemplate.getAllTokens(scope);
             for (ScopeToken token : tokens) {
                 if (tokenResolvers.support(token)) {
-                    Object val = tokenResolvers.resolve(token, context);
-                    resolvedTokens.put(token, serializer.serialize(val));
+                    try {
+                        Object val = tokenResolvers.resolve(token, context);
+                        resolvedTokens.put(token, serializer.serialize(val));
+                    } catch (Throwable e) {
+                        // 避免解析中断
+                        log.warn("{} unresolved", token, e);
+                    }
                 }
             }
         }

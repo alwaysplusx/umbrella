@@ -12,6 +12,7 @@ import com.harmony.umbrella.data.query.JpaQueryBuilder;
 import com.harmony.umbrella.data.query.QueryBundle;
 import com.harmony.umbrella.data.query.QueryFeature;
 import com.harmony.umbrella.data.service.Service;
+import com.harmony.umbrella.web.Response;
 import com.harmony.umbrella.web.method.annotation.BundleQuery;
 
 /**

@@ -58,7 +58,7 @@ public class LoggingInterceptorTest {
     public static class LoggerBean implements LoggerRemote {
 
         @Interceptors(LoggingInterceptor.class)
-        @Logging(message = "say hi to user {args[0]}")
+        @Logging(message = "say hi to user {args[3]}")
         public String sayHi(String name) {
             return "Hi " + name;
         }

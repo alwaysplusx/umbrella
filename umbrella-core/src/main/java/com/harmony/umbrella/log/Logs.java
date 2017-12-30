@@ -7,11 +7,14 @@ import java.util.ServiceLoader;
 import org.springframework.util.ClassUtils;
 
 import com.harmony.umbrella.log.Level.StandardLevel;
-import com.harmony.umbrella.log.spi.CommonLogProvider;
+import com.harmony.umbrella.log.spi.CommonsLogProvider;
+import com.harmony.umbrella.log.spi.Log4j2LogProvider;
+import com.harmony.umbrella.log.spi.Log4jLogProvider;
 import com.harmony.umbrella.log.spi.Slf4jLogProvider;
 import com.harmony.umbrella.util.Environments;
 
 /**
+ * 自动分析当前类路径下的各个日志框架, 起到加载日志框架的作用, 其优先级别为 log4j2 > log4j > slf4j > common. 可以通过加入META-INF/service/
  * 
  * @author wuxii@foxmail.com
  */
@@ -21,19 +24,23 @@ public final class Logs {
     static final boolean LOG_FULL_NAME;
     static final StandardLevel LOG_LEVEL;
 
-    static final boolean Slf4jLoggerPresent;
-    static final boolean CommonLogPresent;
+    static final boolean SLF4J_PRESENT;
+    static final boolean COMMON_PRESENT;
+    static final boolean LOG4J_PRESENT;
+    static final boolean LOG4J2_PRESENT;
 
     static {
         LOG_FULL_NAME = Boolean.valueOf(Environments.getProperty("umbrella.log.fullname", "false"));
-        LOG_LEVEL = StandardLevel.valueOf(Environments.getProperty("umbrella.log.level", "DEBUG"));
-        Slf4jLoggerPresent = ClassUtils.isPresent("org.slf4j.LoggerFactory", Logs.class.getClassLoader());
-        CommonLogPresent = ClassUtils.isPresent("org.apache.commons.logging.Log", Logs.class.getClassLoader());
+        LOG_LEVEL = StandardLevel.valueOf(Environments.getProperty("umbrella.log.level", "ERROR"));
+
+        SLF4J_PRESENT = ClassUtils.isPresent("org.slf4j.LoggerFactory", Logs.class.getClassLoader());
+        COMMON_PRESENT = ClassUtils.isPresent("org.apache.commons.logging.Log", Logs.class.getClassLoader());
+        LOG4J_PRESENT = ClassUtils.isPresent("org.apache.log4j.LogManager", Logs.class.getClassLoader());
+        LOG4J2_PRESENT = ClassUtils.isPresent("org.apache.logging.log4j.LogManager", Logs.class.getClassLoader());
         flushProvider();
     }
 
-    public static void flushProvider() {
-
+    synchronized static void flushProvider() {
         try {
             ServiceLoader<LogProvider> providers = ServiceLoader.load(LogProvider.class);
             for (LogProvider provider : providers) {
@@ -42,12 +49,27 @@ public final class Logs {
             }
         } catch (Exception e) {
         }
-
         if (logProvider == null) {
-            logProvider = Slf4jLoggerPresent ? new Slf4jLogProvider() : CommonLogPresent ? new CommonLogProvider() : new SystemLogProvider();
+            if (LOG4J2_PRESENT) {
+                logProvider = new Log4j2LogProvider();
+            } else if (LOG4J_PRESENT) {
+                logProvider = new Log4jLogProvider();
+            } else if (SLF4J_PRESENT) {
+                logProvider = new Slf4jLogProvider();
+            } else if (COMMON_PRESENT) {
+                logProvider = new CommonsLogProvider();
+            } else {
+                logProvider = new SystemLogProvider();
+            }
         }
-
         StaticLogger.debug("Load log provider {}", logProvider);
+    }
+
+    public synchronized static void setLogProvider(LogProvider provider) {
+        if (provider == null) {
+            throw new IllegalArgumentException("provider must not null");
+        }
+        Logs.logProvider = provider;
     }
 
     /**
@@ -121,15 +143,16 @@ public final class Logs {
 
     }
 
-    static final class SystemLog extends AbstractLog {
+    public static final class SystemLog extends AbstractLog {
 
         private static final OutputStream out = System.out;
         private static final OutputStream err = System.err;
 
         private String caller;
         private boolean fullName;
+        private StandardLevel level;
 
-        public SystemLog(String className) {
+        SystemLog(String className) {
             this(className, LOG_LEVEL, LOG_FULL_NAME);
         }
 
@@ -137,16 +160,27 @@ public final class Logs {
             super(className);
             this.caller = AbstractLog.class.getName();
             this.fullName = fullName;
+            this.level = level;
         }
 
-        public SystemLog(String className, Object obj) {
-            super(className);
-            this.caller = (String) obj;
+        public void setLevel(StandardLevel level) {
+            if (level != null) {
+                this.level = level;
+            }
         }
 
         @Override
-        public Log relative(Object relativeProperties) {
-            return new SystemLog(caller, relativeProperties);
+        public boolean isEnabled(Level level) {
+            return level == null ? false : this.level.isLessSpecificThan(level.standardLevel);
+        }
+
+        @Override
+        protected Log relative(Object relativeProperties) {
+            SystemLog result = new SystemLog(caller);
+            result.caller = this.caller;
+            result.fullName = fullName;
+            result.level = level;
+            return result;
         }
 
         @Override

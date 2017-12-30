@@ -14,7 +14,7 @@ public class FileSystemStorageManagerTest {
 
     @Test
     public void upload() throws IOException {
-        FileSystemStorageManager fssm = new FileSystemStorageManager();
+        FileSystemStorageManager fssm = new FileSystemStorageManager("/upload");
         StorageMetadata sm = fssm.putFile(new File("./pom.xml"));
         System.out.println(sm);
     }

@@ -12,7 +12,6 @@ import java.util.Properties;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 
-import com.harmony.umbrella.context.metadata.ApplicationMetadata;
 import com.harmony.umbrella.fs.StorageMetadata;
 import com.harmony.umbrella.util.PropertiesUtils;
 import com.harmony.umbrella.util.TimeUtils;
@@ -23,8 +22,6 @@ import com.harmony.umbrella.util.TimeUtils;
 public class FileSystemStorageManager extends AbstractStorageManager {
 
     public static final String STORAGE_TYPE = "server";
-
-    public static final String FILE_SYSTEM_ROOT_DIR = ApplicationMetadata.getOperatingSystemMetadata().userHome + ROOT_DIR;
 
     private static final String HOST;
 
@@ -38,10 +35,6 @@ public class FileSystemStorageManager extends AbstractStorageManager {
     }
 
     private File rootDir;
-
-    public FileSystemStorageManager() {
-        this(FILE_SYSTEM_ROOT_DIR);
-    }
 
     public FileSystemStorageManager(String rootDir) {
         super(STORAGE_TYPE);

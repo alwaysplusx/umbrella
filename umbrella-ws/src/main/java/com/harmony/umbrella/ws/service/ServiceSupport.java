@@ -1,6 +1,7 @@
 package com.harmony.umbrella.ws.service;
 
-import static com.harmony.umbrella.ws.service.Message.*;
+import static com.harmony.umbrella.ws.service.Message.E;
+import static com.harmony.umbrella.ws.service.Message.S;
 
 import java.net.URL;
 import java.util.Collection;
@@ -23,7 +24,6 @@ import org.springframework.util.ClassUtils;
 import com.harmony.umbrella.core.Member;
 import com.harmony.umbrella.log.Log;
 import com.harmony.umbrella.log.Logs;
-import com.harmony.umbrella.util.Exceptions;
 import com.harmony.umbrella.util.StringUtils;
 import com.harmony.umbrella.validator.ValidVisitor;
 import com.harmony.umbrella.validator.Validators;
@@ -229,7 +229,7 @@ public abstract class ServiceSupport {
      * @see #error()
      */
     protected Message error(String message, Exception ex, Map<String, String> content) {
-        append(ex.getClass().getName(), Exceptions.getAllMessage(ex), content);
+        append(ex.getClass().getName(), ex.toString(), content);
         return error(message, content);
     }
 
@@ -279,7 +279,7 @@ public abstract class ServiceSupport {
      * @see #failed()
      */
     protected Message failed(String message, Exception ex, Map<String, String> content) {
-        append(ex.getClass().getName(), Exceptions.getAllMessage(ex), content);
+        append(ex.getClass().getName(), ex.toString(), content);
         return failed(message, content);
     }
 

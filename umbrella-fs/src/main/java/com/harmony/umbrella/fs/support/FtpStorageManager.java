@@ -6,6 +6,7 @@ import java.util.Properties;
 import org.springframework.core.io.Resource;
 
 import com.harmony.umbrella.fs.StorageMetadata;
+import com.harmony.umbrella.fs.util.FTPConfig;
 
 /**
  * @author wuxii@foxmail.com
@@ -13,6 +14,8 @@ import com.harmony.umbrella.fs.StorageMetadata;
 public class FtpStorageManager extends AbstractStorageManager {
 
     public static final String STORAGE_TYPE = "ftp";
+
+    FTPConfig ftpConfig;
 
     public FtpStorageManager() {
         super(STORAGE_TYPE);

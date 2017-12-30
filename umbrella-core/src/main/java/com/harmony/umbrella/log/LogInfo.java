@@ -105,18 +105,18 @@ public interface LogInfo extends Serializable {
     String getUserHost();
 
     /**
-     * 操作栈，操作位于程序的位置
+     * 日志发送的地点(方法栈)
      * 
-     * @return
+     * @return log location
      */
-    String getStackLocation();
+    String getLocation();
 
     /**
      * 操作的线程
      * 
      * @return thread
      */
-    String getThreadName();
+    String getThread();
 
     /**
      * 日志context

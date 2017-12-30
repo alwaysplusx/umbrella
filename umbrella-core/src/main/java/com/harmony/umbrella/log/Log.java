@@ -17,6 +17,15 @@ public interface Log {
     String getName();
 
     /**
+     * 检查日志级别是否可用
+     * 
+     * @param level
+     *            日志级别
+     * @return true is enabled, false is disabled
+     */
+    boolean isEnabled(Level level);
+
+    /**
      * 检测trace是否可用
      * 
      * @return true 可用
@@ -35,8 +44,6 @@ public interface Log {
 
     void trace(String msg, Throwable t);
 
-    void trace(LogInfo logInfo);
-
     boolean isDebugEnabled();
 
     void debug(Object msg);
@@ -44,8 +51,6 @@ public interface Log {
     void debug(String msg, Object... arguments);
 
     void debug(String msg, Throwable t);
-
-    void debug(LogInfo logInfo);
 
     boolean isInfoEnabled();
 
@@ -55,8 +60,6 @@ public interface Log {
 
     void info(String msg, Throwable t);
 
-    void info(LogInfo logInfo);
-
     boolean isWarnEnabled();
 
     void warn(Object msg);
@@ -64,8 +67,6 @@ public interface Log {
     void warn(String msg, Object... arguments);
 
     void warn(String msg, Throwable t);
-
-    void warn(LogInfo logInfo);
 
     boolean isErrorEnabled();
 
@@ -75,7 +76,7 @@ public interface Log {
 
     void error(String msg, Throwable t);
 
-    void error(LogInfo logInfo);
+    void log(LogInfo info);
 
     MessageFactory getMessageFactory();
 

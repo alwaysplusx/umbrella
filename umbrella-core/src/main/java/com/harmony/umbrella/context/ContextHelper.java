@@ -31,6 +31,20 @@ public class ContextHelper {
     private static final Log log = Logs.getLog(ContextHelper.class);
 
     /**
+     * 获取应用程序名称
+     * 
+     * @return 应用程序名称
+     */
+    public static String getApplicationName() {
+        try {
+            ApplicationConfiguration cfg = ApplicationContext.getApplicationConfiguration();
+            return cfg != null ? cfg.getApplicationName() : null;
+        } catch (ApplicationContextException e) {
+            return null;
+        }
+    }
+
+    /**
      * 获取应用的上下文
      * 
      * @return application context

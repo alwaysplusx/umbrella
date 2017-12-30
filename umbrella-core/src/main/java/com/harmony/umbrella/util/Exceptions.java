@@ -8,10 +8,6 @@ package com.harmony.umbrella.util;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.reflect.UndeclaredThrowableException;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
 
 /**
  * 关于异常的工具类.
@@ -34,23 +30,15 @@ public abstract class Exceptions {
     }
 
     /**
-     * 创建UncheckedException
-     */
-    public static RuntimeException unchecked(String message, Throwable ex) {
-        if (ex instanceof RuntimeException) {
-            return (RuntimeException) ex;
-        } else {
-            return new UndeclaredThrowableException(ex, message);
-        }
-    }
-
-    /**
      * 将ErrorStack转化为String.
      */
     public static String getStackTraceAsString(Throwable ex) {
-        StringWriter stringWriter = new StringWriter();
-        ex.printStackTrace(new PrintWriter(stringWriter));
-        return stringWriter.toString();
+        if (ex == null) {
+            return null;
+        }
+        StringWriter writer = new StringWriter();
+        ex.printStackTrace(new PrintWriter(writer));
+        return writer.toString();
     }
 
     /**
@@ -64,39 +52,4 @@ public abstract class Exceptions {
         return ex;
     }
 
-    /**
-     * 获取所有异常堆栈
-     *
-     * @param ex
-     *         异常
-     * @return 异常的Cause
-     */
-    public static Throwable[] getAllCause(Throwable ex) {
-        List<Throwable> result = new LinkedList<Throwable>();
-        result.add(ex);
-        while (ex.getCause() != null) {
-            ex = ex.getCause();
-            result.add(ex);
-        }
-        return result.toArray(new Throwable[result.size()]);
-    }
-
-    /**
-     * 获取所有异常的信息
-     *
-     * @param ex
-     *         异常
-     * @return 所有异常的信息
-     */
-    public static String getAllMessage(Throwable ex) {
-        StringBuilder buffer = new StringBuilder();
-        Iterator<Throwable> iterator = Arrays.asList(getAllCause(ex)).iterator();
-        while (iterator.hasNext()) {
-            buffer.append(iterator.next());
-            if (iterator.hasNext()) {
-                buffer.append("\n");
-            }
-        }
-        return buffer.toString();
-    }
 }

@@ -45,13 +45,14 @@
     <maven.compiler.source>${java.version}</maven.compiler.source>
     <maven.compiler.target>${java.version}</maven.compiler.target>
     <javax.ee.version>7.0</javax.ee.version>
-    <spring.dependencies.version>1.5.2.RELEASE</spring.dependencies.version>
+    <spring.dependencies.version>1.5.9.RELEASE</spring.dependencies.version>
     <apache.cxf.version>3.1.10</apache.cxf.version>
     <apache.openejb.version>4.7.1</apache.openejb.version>
     <apache.poi.version>3.14</apache.poi.version>
     <eclipselink.version>2.6.3</eclipselink.version>
     <fastjson.version>1.2.5</fastjson.version>
     <dozer.version>5.5.1</dozer.version>
+    <log4j.version>1.2.17</log4j.version>
   </properties>
 
   <dependencyManagement>
@@ -128,6 +129,11 @@
       <dependency>
         <groupId>com.harmony.umbrella</groupId>
         <artifactId>umbrella-spring</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.harmony.umbrella</groupId>
+        <artifactId>umbrella-log</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
@@ -231,25 +237,32 @@
         <artifactId>dozer</artifactId>
         <version>${dozer.version}</version>
       </dependency>
+      <dependency>
+        <groupId>log4j</groupId>
+        <artifactId>log4j</artifactId>
+        <version>${log4j.version}</version>
+      </dependency>
     </dependencies>
   </dependencyManagement>
   <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-source-plugin</artifactId>
+        <version>3.0.1</version>
+        <executions>
+          <execution>
+            <id>attach-sources</id>
+            <phase>verify</phase>
+            <goals>
+              <goal>jar-no-fork</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
     <pluginManagement>
       <plugins>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-source-plugin</artifactId>
-          <version>3.0.1</version>
-          <executions>
-            <execution>
-              <id>attach-sources</id>
-              <phase>verify</phase>
-              <goals>
-                <goal>jar-no-fork</goal>
-              </goals>
-            </execution>
-          </executions>
-        </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-javadoc-plugin</artifactId>

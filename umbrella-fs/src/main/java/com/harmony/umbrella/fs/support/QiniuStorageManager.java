@@ -7,6 +7,7 @@ import org.springframework.core.io.Resource;
 
 import com.harmony.umbrella.fs.StorageManager;
 import com.harmony.umbrella.fs.StorageMetadata;
+import com.qiniu.util.Auth;
 
 /**
  * @author wuxii@foxmail.com
@@ -14,6 +15,8 @@ import com.harmony.umbrella.fs.StorageMetadata;
 public class QiniuStorageManager extends AbstractStorageManager implements StorageManager {
 
     public static final String STORAGE_TYPE = "qiniu";
+
+    Auth auth;
 
     public QiniuStorageManager() {
         super(STORAGE_TYPE);
@@ -39,7 +42,8 @@ public class QiniuStorageManager extends AbstractStorageManager implements Stora
         // try {
         // Response response = uploadManager.put(localFilePath, key, upToken);
         // // 解析上传成功的结果
-        // DefaultPutRet putRet = new Gson().fromJson(response.bodyString(), DefaultPutRet.class);
+        // DefaultPutRet putRet = new Gson().fromJson(response.bodyString(),
+        // DefaultPutRet.class);
         // System.out.println(putRet.key);
         // System.out.println(putRet.hash);
         // } catch (QiniuException ex) {

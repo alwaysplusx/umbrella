@@ -5,6 +5,7 @@ import java.util.Properties;
 
 import org.springframework.core.io.Resource;
 
+import com.aliyun.oss.OSSClient;
 import com.harmony.umbrella.fs.StorageMetadata;
 
 /**
@@ -13,6 +14,8 @@ import com.harmony.umbrella.fs.StorageMetadata;
 public class AliyunStroageManager extends AbstractStorageManager {
 
     public static final String STORAGE_TYPE = "aliyun";
+
+    OSSClient client;
 
     public AliyunStroageManager() {
         super(STORAGE_TYPE);

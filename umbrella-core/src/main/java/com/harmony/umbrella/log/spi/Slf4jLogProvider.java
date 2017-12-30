@@ -30,6 +30,28 @@ public class Slf4jLogProvider implements LogProvider {
         }
 
         @Override
+        public boolean isEnabled(Level level) {
+            if (level == null) {
+                return false;
+            }
+            switch (level.getStandardLevel()) {
+            case ALL:
+            case TRACE:
+                return logger.isTraceEnabled();
+            case DEBUG:
+                return logger.isDebugEnabled();
+            case INFO:
+                return logger.isInfoEnabled();
+            case ERROR:
+                return logger.isErrorEnabled();
+            case WARN:
+                return logger.isWarnEnabled();
+            default:
+                return false;
+            }
+        }
+
+        @Override
         public Log relative(Object relativeProperties) {
             return this;
         }
@@ -45,16 +67,26 @@ public class Slf4jLogProvider implements LogProvider {
         }
 
         private void log(Level level, String message, Throwable t) {
-            if (Level.ERROR.equals(level)) {
-                logger.error(message, t);
-            } else if (Level.WARN.equals(level)) {
-                logger.warn(message, t);
-            } else if (Level.DEBUG.equals(level)) {
-                logger.debug(message, t);
-            } else if (Level.TRACE.equals(level)) {
-                logger.trace(message, t);
-            } else {
-                logger.info(message, t);
+            if (level != null) {
+                switch (level.getStandardLevel()) {
+                case ALL:
+                case TRACE:
+                    logger.trace(message, t);
+                    break;
+                case DEBUG:
+                    logger.debug(message, t);
+                    break;
+                case INFO:
+                    logger.info(message, t);
+                    break;
+                case ERROR:
+                    logger.error(message, t);
+                    break;
+                case WARN:
+                    logger.warn(message, t);
+                    break;
+                default:
+                }
             }
         }
 

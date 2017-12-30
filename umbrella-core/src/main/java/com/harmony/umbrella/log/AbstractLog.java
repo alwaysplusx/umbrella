@@ -14,12 +14,6 @@ public abstract class AbstractLog implements Log {
     protected final String className;
     protected final MessageFactory messageFactory;
 
-    protected boolean isTraceEnabled = false;
-    protected boolean isDebugEnabled = false;
-    protected boolean isInfoEnabled = true;
-    protected boolean isWarnEnabled = true;
-    protected boolean isErrorEnabled = true;
-
     public AbstractLog(String className) {
         this.className = className;
         this.messageFactory = MessageFactoryFactoryBean.getMessageFactory();
@@ -59,11 +53,11 @@ public abstract class AbstractLog implements Log {
     /**
      * 通过一定的属性创建相关联的log
      * 
-     * @param relativeProperties
+     * @param caller
      *            log创建需要用到的相关属性
      * @return relative log
      */
-    protected abstract Log relative(Object relativeProperties);
+    protected abstract Log relative(Object caller);
 
     @Override
     public String getName() {
@@ -72,73 +66,51 @@ public abstract class AbstractLog implements Log {
 
     @Override
     public boolean isTraceEnabled() {
-        return isTraceEnabled;
+        return isEnabled(Level.TRACE);
     }
 
     @Override
     public boolean isDebugEnabled() {
-        return isDebugEnabled;
+        return isEnabled(Level.DEBUG);
     }
 
     @Override
     public boolean isInfoEnabled() {
-        return isInfoEnabled;
+        return isEnabled(Level.INFO);
     }
 
     @Override
     public boolean isWarnEnabled() {
-        return isWarnEnabled;
+        return isEnabled(Level.WARN);
     }
 
     @Override
     public boolean isErrorEnabled() {
-        return isErrorEnabled;
+        return isEnabled(Level.ERROR);
     }
 
     protected void logIfEnable(Level level, LogInfo logInfo) {
-        if (isEnable(level)) {
+        if (isEnabled(level)) {
             logMessage(level, logInfo);
         }
     }
 
     protected void logIfEnable(Level level, String message, Object... params) {
-        if (isEnable(level)) {
+        if (isEnabled(level)) {
             Message msg = messageFactory.newMessage(message, params);
             logMessage(level, msg, msg.getThrowable());
         }
     }
 
     protected void logIfEnable(Level level, String message, Throwable t) {
-        if (isEnable(level)) {
+        if (isEnabled(level)) {
             logMessage(level, messageFactory.newMessage(message), t);
         }
     }
 
-    public boolean isEnable(Level level) {
-        if (level == null) {
-            return isInfoEnabled();
-        }
-        switch (level.getStandardLevel()) {
-        case ERROR:
-            return isErrorEnabled();
-        case WARN:
-            return isWarnEnabled();
-        case INFO:
-            return isInfoEnabled();
-        case ALL:
-        case TRACE:
-            return isTraceEnabled();
-        case DEBUG:
-            return isDebugEnabled();
-        case OFF:
-            return false;
-        }
-        return isInfoEnabled();
-    }
-
     @Override
     public void trace(Object msg) {
-        logIfEnable(Level.TRACE, String.valueOf(msg));
+        logIfEnable(Level.TRACE, msg == null ? null : msg.toString());
     }
 
     @Override
@@ -152,13 +124,8 @@ public abstract class AbstractLog implements Log {
     }
 
     @Override
-    public void trace(LogInfo logInfo) {
-        logIfEnable(Level.TRACE, logInfo);
-    }
-
-    @Override
     public void debug(Object msg) {
-        logIfEnable(Level.DEBUG, String.valueOf(msg));
+        logIfEnable(Level.DEBUG, msg == null ? null : msg.toString());
     }
 
     @Override
@@ -172,13 +139,8 @@ public abstract class AbstractLog implements Log {
     }
 
     @Override
-    public void debug(LogInfo logInfo) {
-        logIfEnable(Level.DEBUG, logInfo);
-    }
-
-    @Override
     public void info(Object msg) {
-        logIfEnable(Level.INFO, String.valueOf(msg));
+        logIfEnable(Level.INFO, msg == null ? null : msg.toString());
     }
 
     @Override
@@ -192,13 +154,8 @@ public abstract class AbstractLog implements Log {
     }
 
     @Override
-    public void info(LogInfo logInfo) {
-        logIfEnable(Level.INFO, logInfo);
-    }
-
-    @Override
     public void warn(Object msg) {
-        logIfEnable(Level.WARN, String.valueOf(msg));
+        logIfEnable(Level.WARN, msg == null ? null : msg.toString());
     }
 
     @Override
@@ -212,13 +169,8 @@ public abstract class AbstractLog implements Log {
     }
 
     @Override
-    public void warn(LogInfo logInfo) {
-        logIfEnable(Level.WARN, logInfo);
-    }
-
-    @Override
     public void error(Object msg) {
-        logIfEnable(Level.ERROR, String.valueOf(msg));
+        logIfEnable(Level.ERROR, msg == null ? null : msg.toString());
     }
 
     @Override
@@ -231,9 +183,8 @@ public abstract class AbstractLog implements Log {
         logIfEnable(Level.ERROR, msg, t);
     }
 
-    @Override
-    public void error(LogInfo logInfo) {
-        logIfEnable(Level.ERROR, logInfo);
+    public void log(LogInfo info) {
+        logIfEnable(Level.toLevel(info.getLevel()), info);
     }
 
     @Override

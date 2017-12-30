@@ -11,8 +11,6 @@ import org.springframework.core.io.Resource;
  */
 public interface StorageManager {
 
-    String ROOT_DIR = File.separator + "upload";
-
     String getStorageType();
 
     StorageMetadata putFile(File file) throws IOException;

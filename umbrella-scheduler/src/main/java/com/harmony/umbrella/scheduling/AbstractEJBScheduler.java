@@ -83,7 +83,7 @@ public abstract class AbstractEJBScheduler extends AbstractScheduler<AbstractEJB
             }
         } catch (Exception e) {
             log.error("", e);
-            jobInfo.lastExceptionMessage = Exceptions.getAllMessage(e);
+            jobInfo.lastExceptionMessage = Exceptions.getStackTraceAsString(e);
             jobInfo.lastExceptionTime = Calendar.getInstance();
             jobInfo.exceptionTimes++;
         }

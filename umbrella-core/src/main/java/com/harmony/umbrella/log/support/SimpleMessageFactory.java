@@ -15,7 +15,7 @@ public class SimpleMessageFactory implements MessageFactory {
         if (message instanceof Throwable) {
             return new SimpleMessage(null, message.toString(), null, (Throwable) message);
         }
-        return newMessage(String.valueOf(message));
+        return newMessage((String) message);
     }
 
     @Override

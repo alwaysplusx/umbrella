@@ -1,13 +1,27 @@
 debug: true
+spring:
+  application:
+    admin:
+      enabled: false
 harmony:
-  cfg:
+  app:
     properties:
       scan-init: true
       scan-async: true
       show-info: true
-#  ejb:
-#    contextProperties:
-#      java.naming.factory.initial: weblogic.jndi.WLInitialContextFactory
-#      java.naming.provider.url: t3://localhost:7001
-#      java.naming.security.principal: admin
-#      java.naming.security.credentials: admin
+  ejb:
+    enabled: true
+    contextProperties:
+      java.naming.factory.initial: weblogic.jndi.WLInitialContextFactory
+      java.naming.provider.url: t3://localhost:7001
+      java.naming.security.principal: admin
+      java.naming.security.credentials: admin
+  log:
+    type: log4j2
+    interceptor:
+      enabled: true
+      pointcut: execution(* com.harmony.meerkat.controller..*.*(..))
+  web:
+    enabled: false
+    current-context:
+      url-patterns: /*
