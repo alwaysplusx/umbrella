@@ -3,10 +3,8 @@ package com.harmony.umbrella.autoconfigure.log;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import com.harmony.umbrella.log.LogProvider;
-import com.harmony.umbrella.log.spi.CommonsLogProvider;
 import com.harmony.umbrella.log.spi.Log4j2LogProvider;
 import com.harmony.umbrella.log.spi.Log4jLogProvider;
-import com.harmony.umbrella.log.spi.Slf4jLogProvider;
 
 /**
  * @author wuxii@foxmail.com
@@ -47,7 +45,7 @@ public class LogProperties {
             public LogProvider provider() {
                 return new Log4j2LogProvider();
             }
-        },
+        }/*,
         slf4j {
 
             @Override
@@ -61,7 +59,7 @@ public class LogProperties {
             public LogProvider provider() {
                 return new CommonsLogProvider();
             }
-        };
+        }*/;
 
         public abstract LogProvider provider();
 

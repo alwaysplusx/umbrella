@@ -1,5 +1,6 @@
 package com.harmony.umbrella.message.creator;
 
+import javax.jms.JMSContext;
 import javax.jms.JMSException;
 import javax.jms.Session;
 import javax.jms.TextMessage;
@@ -24,6 +25,11 @@ public class TextMessageCreator extends AbstractMessageCreator<TextMessage> {
     @Override
     protected TextMessage createMessage(Session session) throws JMSException {
         return session.createTextMessage();
+    }
+
+    @Override
+    protected TextMessage createMessage(JMSContext jmsContext) throws JMSException {
+        return jmsContext.createTextMessage();
     }
 
 }

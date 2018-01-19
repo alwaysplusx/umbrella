@@ -25,3 +25,8 @@ harmony:
     enabled: false
     current-context:
       url-patterns: /*
+  message:
+    templates:
+    - auto-start-listener: true
+      connector: tcp://localhost:61616
+    - auto-start-listener: false

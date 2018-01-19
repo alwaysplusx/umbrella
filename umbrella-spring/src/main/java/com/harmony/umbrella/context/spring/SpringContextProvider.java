@@ -15,7 +15,7 @@ public class SpringContextProvider implements ApplicationContextProvider {
 
     @Override
     public ApplicationContext createApplicationContext(Map applicationProperties) {
-        return new SpringApplicationContext(SpringContextHolder.springApplication, null);
+        return new SpringApplicationContext(SpringContextHolder.springApplication);
     }
 
     public static class SpringContextHolder implements ApplicationContextAware {

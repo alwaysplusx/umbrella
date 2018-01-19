@@ -2,6 +2,7 @@ package com.harmony.umbrella.message.creator;
 
 import java.io.Serializable;
 
+import javax.jms.JMSContext;
 import javax.jms.JMSException;
 import javax.jms.ObjectMessage;
 import javax.jms.Session;
@@ -26,6 +27,11 @@ public class ObjectMessageCreator extends AbstractMessageCreator<ObjectMessage> 
     @Override
     protected ObjectMessage createMessage(Session session) throws JMSException {
         return session.createObjectMessage();
+    }
+
+    @Override
+    protected ObjectMessage createMessage(JMSContext jmsContext) throws JMSException {
+        return jmsContext.createObjectMessage();
     }
 
 }

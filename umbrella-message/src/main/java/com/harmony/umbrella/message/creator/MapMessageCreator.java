@@ -3,6 +3,7 @@ package com.harmony.umbrella.message.creator;
 import java.io.Serializable;
 import java.util.Map;
 
+import javax.jms.JMSContext;
 import javax.jms.JMSException;
 import javax.jms.MapMessage;
 import javax.jms.Session;
@@ -41,5 +42,10 @@ public class MapMessageCreator extends AbstractMessageCreator<MapMessage> {
 
     public void setSkipNotSatisfiedEntry(boolean skipNotSatisfiedEntry) {
         this.skipNotSatisfiedEntry = skipNotSatisfiedEntry;
+    }
+
+    @Override
+    protected MapMessage createMessage(JMSContext jmsContext) throws JMSException {
+        return jmsContext.createMapMessage();
     }
 }

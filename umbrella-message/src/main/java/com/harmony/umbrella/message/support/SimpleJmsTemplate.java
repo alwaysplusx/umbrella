@@ -3,6 +3,8 @@ package com.harmony.umbrella.message.support;
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.Destination;
+import javax.jms.ExceptionListener;
+import javax.jms.JMSContext;
 import javax.jms.JMSException;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
@@ -19,8 +21,9 @@ public class SimpleJmsTemplate implements JmsTemplate {
     protected String username;
     protected String password;
     protected boolean transacted;
-    protected int acknowledgeMode;
+    protected int sessionMode;
     protected boolean sessionAutoCommit;
+    protected ExceptionListener exceptionListener;
 
     protected ConnectionFactory connectionFactory;
     protected Destination destination;
@@ -59,17 +62,16 @@ public class SimpleJmsTemplate implements JmsTemplate {
         } else {
             this.connection = connectionFactory.createConnection();
         }
+        if (exceptionListener != null) {
+            this.connection.setExceptionListener(exceptionListener);
+        }
         this.connection.start();
     }
 
     @Override
-    public void stop() {
+    public void stop() throws JMSException {
         if (sessionAutoCommit && !sessionRrollbacked && !sessionCommited) {
-            try {
-                commit();
-            } catch (JMSException e) {
-                throw new IllegalStateException("session not commit", e);
-            }
+            commit();
         }
         if (messageConsumer != null) {
             try {
@@ -109,7 +111,7 @@ public class SimpleJmsTemplate implements JmsTemplate {
     @Override
     public Session getSession() throws JMSException {
         if (session == null) {
-            session = connection.createSession(transacted, acknowledgeMode);
+            session = connection.createSession(transacted, sessionMode);
         }
         return session;
     }
@@ -156,6 +158,17 @@ public class SimpleJmsTemplate implements JmsTemplate {
         }
     }
 
+    @Override
+    public JMSContext createJmsContext() {
+        JMSContext ctx = null;
+        if (username == null) {
+            ctx = connectionFactory.createContext(username, password, sessionMode);
+        } else {
+            ctx = connectionFactory.createContext(sessionMode);
+        }
+        return ctx;
+    }
+
     public String getUsername() {
         return username;
     }
@@ -180,12 +193,12 @@ public class SimpleJmsTemplate implements JmsTemplate {
         this.transacted = transacted;
     }
 
-    public int getAcknowledgeMode() {
-        return acknowledgeMode;
+    public int getSessionMode() {
+        return sessionMode;
     }
 
-    public void setAcknowledgeMode(int acknowledgeMode) {
-        this.acknowledgeMode = acknowledgeMode;
+    public void setSessionMode(int sessionMode) {
+        this.sessionMode = sessionMode;
     }
 
     public boolean isSessionAutoCommit() {
@@ -202,6 +215,14 @@ public class SimpleJmsTemplate implements JmsTemplate {
 
     public void setDestination(Destination destination) {
         this.destination = destination;
+    }
+
+    public ExceptionListener getExceptionListener() {
+        return exceptionListener;
+    }
+
+    public void setExceptionListener(ExceptionListener exceptionListener) {
+        this.exceptionListener = exceptionListener;
     }
 
 }

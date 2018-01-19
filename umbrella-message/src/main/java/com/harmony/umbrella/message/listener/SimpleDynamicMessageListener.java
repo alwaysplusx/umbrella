@@ -6,7 +6,6 @@ import javax.jms.MessageListener;
 
 import com.harmony.umbrella.message.DynamicMessageListener;
 import com.harmony.umbrella.message.JmsTemplate;
-import com.harmony.umbrella.message.MessageAbortException;
 
 /**
  * @author wuxii@foxmail.com
@@ -38,19 +37,17 @@ public class SimpleDynamicMessageListener implements DynamicMessageListener {
 
     @Override
     public void onMessage(Message message) {
-        Exception exception = null;
+        Throwable exception = null;
         try {
             this.messageListener.onMessage(message);
-        } catch (Exception e) {
+        } catch (Throwable e) {
             exception = e;
         }
-        if (exception == null || exception instanceof MessageAbortException) {
+        // FIXME XA support
+        if (exception == null) {
             try {
                 this.jmsTemplate.commit();
             } catch (JMSException e) {
-                if (exception != null) {
-                    exception.addSuppressed(e);
-                }
                 throw new IllegalStateException("commit failure", exception);
             }
         } else {

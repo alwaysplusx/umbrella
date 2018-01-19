@@ -3,6 +3,7 @@ package com.harmony.umbrella.message.creator;
 import java.io.IOException;
 import java.io.InputStream;
 
+import javax.jms.JMSContext;
 import javax.jms.JMSException;
 import javax.jms.Session;
 import javax.jms.StreamMessage;
@@ -39,6 +40,11 @@ public class StreamMessageCreator extends AbstractMessageCreator<StreamMessage> 
     @Override
     protected StreamMessage createMessage(Session session) throws JMSException {
         return session.createStreamMessage();
+    }
+
+    @Override
+    protected StreamMessage createMessage(JMSContext jmsContext) throws JMSException {
+        return jmsContext.createStreamMessage();
     }
 
 }

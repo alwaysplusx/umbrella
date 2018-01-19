@@ -13,8 +13,21 @@ import javax.naming.NamingException;
  */
 public interface BeanResolver {
 
+    /**
+     * 当前运行环境的jndi context
+     * 
+     * @return jndi context
+     * @throws NamingException
+     */
     Context getContext() throws NamingException;
 
+    /**
+     * 通过对bean的定义信息猜测可能的jndi名称
+     * 
+     * @param bd
+     *            bean definition
+     * @return jnids
+     */
     String[] guessNames(BeanDefinition bd);
 
     String[] guessNames(BeanDefinition bd, Annotation... ann);

@@ -6,6 +6,8 @@ import com.harmony.umbrella.context.ApplicationConfiguration;
 import com.harmony.umbrella.context.listener.ApplicationListener;
 
 /**
+ * FIXME activemq bootstrap
+ * 
  * @author wuxii@foxmail.com
  */
 public class ActiveMQBootstrap implements ApplicationListener {

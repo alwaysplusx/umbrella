@@ -41,15 +41,6 @@ public class EJBApplicationContext extends ApplicationContext implements EJBBean
     }
 
     @Override
-    public void init() {
-    }
-
-    @Override
-    public void autowrie(Object bean) throws BeansException {
-        beanFactory.autowrie(bean);
-    }
-
-    @Override
     public <T> T lookup(String jndi) throws BeansException {
         return beanFactory.lookup(jndi);
     }
@@ -67,10 +58,6 @@ public class EJBApplicationContext extends ApplicationContext implements EJBBean
     @Override
     public BeanFactory getBeanFactory() {
         return beanFactory;
-    }
-
-    @Override
-    public void destroy() {
     }
 
 }

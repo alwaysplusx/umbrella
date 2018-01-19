@@ -6,12 +6,11 @@ import javax.jms.Queue;
 import javax.jms.Topic;
 
 /**
- * 消息事件监听, 其{@linkplain #onEvent(MessageEvent)}的运行不会干扰的主业务方法,
- * 在代码层面其{@linkplain #onEvent(MessageEvent)}完全是运行在沙盒中
+ * 消息事件监听, 其{@linkplain #onEvent(MessageEvent)}的运行不会干扰的主业务方法, 在代码层面其{@linkplain #onEvent(MessageEvent)}完全是运行在沙盒中
  * 
  * @author wuxii@foxmail.com
  */
-public interface MessageEventListener {
+public interface MessageMonitor {
 
     void onEvent(MessageEvent event);
 
@@ -22,6 +21,8 @@ public interface MessageEventListener {
         EventPhase getEventPhase();
 
         DestinationType getDestinationType();
+
+        Throwable getException();
 
     }
 

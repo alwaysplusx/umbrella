@@ -7,17 +7,24 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
+import org.springframework.util.ClassUtils;
+
 /**
  * @author wuxii@foxmail.com
  */
 public class AnyMessage implements Serializable {
 
-    public static final String ANY_MESSAGE_HEADER = AnyMessage.class + ".type";
-
     private static final long serialVersionUID = -1157340487713663489L;
 
     private byte[] buf;
     private String type;
+
+    public AnyMessage() {
+    }
+
+    public AnyMessage(Serializable o) {
+        this.set(o);
+    }
 
     public Object get() {
         return get(Object.class);
@@ -37,7 +44,7 @@ public class AnyMessage implements Serializable {
         }
     }
 
-    public void set(Object o) {
+    public void set(Serializable o) {
         String oType = this.type;
         byte[] oBuf = this.buf;
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -56,8 +63,26 @@ public class AnyMessage implements Serializable {
         return type;
     }
 
-    public byte[] getBufferArray() {
-        return buf;
+    public byte[] toBufferArray() {
+        if (buf == null) {
+            return null;
+        }
+        byte[] o = new byte[buf.length];
+        System.arraycopy(buf, 0, o, 0, buf.length);
+        return o;
     }
 
+    public Class<?> forType() {
+        return forType(ClassUtils.getDefaultClassLoader());
+    }
+
+    public Class<?> forType(ClassLoader loader) {
+        if (type != null) {
+            try {
+                return Class.forName(type, false, loader);
+            } catch (Throwable e) {
+            }
+        }
+        return null;
+    }
 }

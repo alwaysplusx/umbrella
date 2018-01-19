@@ -4,10 +4,13 @@ import java.io.InputStream;
 import java.io.Serializable;
 import java.util.Map;
 
+import javax.jms.Destination;
+import javax.jms.JMSContext;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageListener;
+import javax.jms.MessageProducer;
 import javax.jms.Session;
 
 /**
@@ -23,13 +26,6 @@ import javax.jms.Session;
  * @author wuxii@foxmail.com
  */
 public interface MessageTemplate {
-
-    /**
-     * 获取消息资源管理template
-     * 
-     * @return jmsTemplate
-     */
-    JmsTemplate getJmsTemplate();
 
     /**
      * 发送bytes消息
@@ -88,22 +84,25 @@ public interface MessageTemplate {
     void sendStreamMessage(InputStream is) throws JMSException;
 
     /**
-     * 发送anyMessage, anyMessage会自动添加消息头在message
-     * header中其key为{@linkplain AnyMessage#ANY_MESSAGE_HEADER}其值为消息类型类名
-     * 
-     * @param msg
-     * @throws JMSException
-     */
-    void sendAnyMessage(AnyMessage msg) throws JMSException;
-
-    /**
      * 发送自定义消息
      * 
-     * @param configer
-     *            通过configer自定义构建消息主体
+     * @param messageCreator
+     *            通过creator自定义构建消息主体
      * @throws JMSException
      */
-    void sendMessage(MessageCreator configer) throws JMSException;
+    void sendMessage(MessageCreator messageCreator) throws JMSException;
+
+    /**
+     * 向置顶目的地发送消息
+     * 
+     * @param dest
+     *            目的地
+     * @param messageCreator
+     *            消息的创建者
+     * @param configure
+     *            消息生产者配置
+     */
+    void sendMessage(Destination destination, MessageCreator messageCreator, MessageProducerConfigure configure) throws JMSException;
 
     /**
      * 接收消息
@@ -133,12 +132,12 @@ public interface MessageTemplate {
     void setMessageListener(MessageListener listener);
 
     /**
-     * 消息事件监听(发送, 消费等事件)
+     * 消息事件监听(发送, 消费等事件), monitor运行在沙盒中, 其发生异常也不影响业务.
      * 
-     * @param eventListener
+     * @param monitor
      *            事件监听器
      */
-    void setMessageEventListener(MessageEventListener eventListener);
+    void setMessageMonitor(MessageMonitor monitor);
 
     /**
      * 获取消息监听listener
@@ -178,8 +177,23 @@ public interface MessageTemplate {
      * 
      * @author wuxii@foxmail.com
      */
-    public interface MessageCreator extends Serializable {
-        Message message(Session session) throws JMSException;
+    public interface MessageCreator {
+
+        Message newMessage(Session session) throws JMSException;
+
+        Message newMessage(JMSContext jmsContext) throws JMSException;
+
+    }
+
+    /**
+     * 消息生产配置
+     * 
+     * @author wuxii@foxmail.com
+     */
+    public interface MessageProducerConfigure {
+
+        void config(MessageProducer producer);
+
     }
 
 }

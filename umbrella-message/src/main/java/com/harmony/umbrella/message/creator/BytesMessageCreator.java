@@ -1,6 +1,7 @@
 package com.harmony.umbrella.message.creator;
 
 import javax.jms.BytesMessage;
+import javax.jms.JMSContext;
 import javax.jms.JMSException;
 import javax.jms.Session;
 
@@ -24,6 +25,11 @@ public class BytesMessageCreator extends AbstractMessageCreator<BytesMessage> {
     @Override
     protected BytesMessage createMessage(Session session) throws JMSException {
         return session.createBytesMessage();
+    }
+
+    @Override
+    protected BytesMessage createMessage(JMSContext jmsContext) throws JMSException {
+        return jmsContext.createBytesMessage();
     }
 
 }

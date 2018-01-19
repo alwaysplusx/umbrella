@@ -14,34 +14,34 @@ import com.harmony.umbrella.message.MessageTemplateBuilder;
  */
 public class ActiveMQMessageTemplateBuilder extends MessageTemplateBuilder<ActiveMQMessageTemplateBuilder> {
 
-    public static ActiveMQMessageTemplateBuilder createBuilder() {
+    public static ActiveMQMessageTemplateBuilder newBuilder() {
         return new ActiveMQMessageTemplateBuilder();
     }
 
-    public static ActiveMQMessageTemplateBuilder createBuilder(ConnectionFactory connectionFactory, Destination destination) {
-        return new ActiveMQMessageTemplateBuilder().connectionFactory(connectionFactory).destination(destination);
+    public static ActiveMQMessageTemplateBuilder newBuilder(ConnectionFactory connectionFactory, Destination destination) {
+        return new ActiveMQMessageTemplateBuilder().setConnectionFactory(connectionFactory).setDestination(destination);
     }
 
-    public static ActiveMQMessageTemplateBuilder createBuilder(String brokerUrl, String destinationName) {
-        return new ActiveMQMessageTemplateBuilder().connectionFactoryURL(brokerUrl).destinationName(destinationName);
+    public static ActiveMQMessageTemplateBuilder newBuilder(String brokerUrl, String destinationName) {
+        return new ActiveMQMessageTemplateBuilder().setConnectionFactoryURL(brokerUrl).setDestinationName(destinationName);
     }
 
-    public ActiveMQMessageTemplateBuilder connectionFactoryURL(String url) {
+    public ActiveMQMessageTemplateBuilder setConnectionFactoryURL(String url) {
         this.connectionFactory = new ActiveMQConnectionFactory(url);
         return this;
     }
 
-    public ActiveMQMessageTemplateBuilder queueName(String queueName) {
+    public ActiveMQMessageTemplateBuilder setQueueName(String queueName) {
         this.destination = new ActiveMQQueue(queueName);
         return this;
     }
 
-    public ActiveMQMessageTemplateBuilder topicName(String topicName) {
+    public ActiveMQMessageTemplateBuilder setTopicName(String topicName) {
         this.destination = new ActiveMQTopic(topicName);
         return this;
     }
 
-    public ActiveMQMessageTemplateBuilder destinationName(String destinationName) {
+    public ActiveMQMessageTemplateBuilder setDestinationName(String destinationName) {
         final Destination dest;
         if (destinationName.startsWith("topic://") && destinationName.length() > 8) {
             dest = new ActiveMQTopic(destinationName.substring(8));
