@@ -1,8 +1,12 @@
 package com.harmony.umbrella.util;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
+import java.util.ArrayList;
+import java.util.List;
+
+import com.harmony.umbrella.util.GenericUtils.GenericTree.Generic;
 
 /**
  * 泛型工具类
@@ -11,127 +15,302 @@ import java.lang.reflect.Type;
  */
 public class GenericUtils {
 
-    /**
-     * 获取字段指定index的泛型
-     * 
-     * @param field
-     *            字段
-     * @param index
-     *            泛型的index
-     * @return
-     */
-    public static Class<?> getFieldGeneric(Field field, int index) {
-        Type type = field.getGenericType();
-        if (type instanceof ParameterizedType) {
-            Type[] actualTypeArguments = ((ParameterizedType) type).getActualTypeArguments();
-            Type genericType = actualTypeArguments[index];
-            if (genericType instanceof Class) {
-                return (Class<?>) genericType;
-            }
-            throw new IllegalArgumentException(field.getName() + "[" + index + "]=" + genericType + " not class");
-        }
-        throw new IllegalArgumentException(field.getName() + " not have generic");
+    public static GenericTree parse(Class<?> clazz) {
+        GenericTree result = buildGenericTree(clazz, null);
+        recursiveBuild(result);
+        recursiveCalculateRelevance(result);
+        return result;
     }
 
-    public static boolean isJavaTypeGeneric(Field field, int index) {
-        Type type = field.getGenericType();
-        if (type instanceof ParameterizedType) {
-            Type[] actualTypeArguments = ((ParameterizedType) type).getActualTypeArguments();
-            Type genericType = actualTypeArguments[index];
-            if (genericType instanceof Class) {
-                return true;
-            }
+    private static GenericTree recursiveBuild(GenericTree type) {
+        Class<?> clazz = type.getJavaType();
+        if (clazz == null//
+                || clazz == Object.class) {
+            return type;
         }
-        return false;
-    }
 
-    /**
-     * 获取当前类的父类的指定index有效泛型
-     * 
-     * @param clazz
-     *            被查找的类
-     * @param index
-     *            泛型的index
-     * @return 有效泛型
-     * @throws IllegalArgumentException
-     *             泛型未找到或者不是有效的泛型
-     */
-    public static Class<?> getSuperGeneric(Class<?> clazz, int index) {
-        Class<?> superclass = clazz.getSuperclass();
-        if (superclass == null || superclass == Object.class) {
-            throw new IllegalArgumentException(clazz + "父类不包含任何父类");
+        if (!clazz.isInterface()) {
+            GenericTree superGenericTree = buildGenericTree(clazz.getSuperclass(), clazz.getGenericSuperclass());
+            recursiveBuild(superGenericTree);
+            superGenericTree.subOrImpl = type;
+            type.superGeneric = superGenericTree;
         }
-        return getTargetGeneric(clazz, superclass, index);
-    }
 
-    /**
-     * 获取类clazz的有继承或实现关系的类target的泛型
-     * 
-     * @param clazz
-     * @param target
-     * @return
-     */
-    public static Class<?> getTargetGeneric(Class<?> clazz, Class<?> target, int index) {
-        if (!target.isAssignableFrom(clazz) || clazz == target) {
-            throw new IllegalArgumentException("指定的target与原类型无继承或实现关系");
-        }
-        if (target == Object.class) {
-            throw new IllegalArgumentException("target class is Object.class");
-        }
-        if (target.isInterface()) {
-            return getInterfaceTargetGeneric(clazz, target, index);
-        }
-        return getClassTargetGeneric(clazz, target, index);
-    }
-
-    private static Class<?> getInterfaceTargetGeneric(Class<?> clazz, Class<?> target, int index) {
-        Type[] genericInterfaces = clazz.getGenericInterfaces();
-        if (genericInterfaces != null && genericInterfaces.length > 0) {
-            for (Type genericType : genericInterfaces) {
-                if (genericType instanceof ParameterizedType) {
-                    ParameterizedType ptype = (ParameterizedType) genericType;
-                    if (ptype.getRawType() == target) {
-                        // 找到了匹配的目标类型
-                        Type result = ptype.getActualTypeArguments()[index];
-                        if (result instanceof Class) {
-                            return (Class<?>) result;
-                        }
-                        throw new IllegalArgumentException(result + "不是有效的泛型类型");
-                    }
-                }
-            }
-        }
         Class<?>[] interfaces = clazz.getInterfaces();
-        for (Class<?> cls : interfaces) {
-            Class<?> result = getInterfaceTargetGeneric(cls, target, index);
-            if (result != null) {
-                return result;
-            }
+        Type[] genericInterfaces = clazz.getGenericInterfaces();
+        for (int i = 0, max = interfaces.length; i < max; i++) {
+            GenericTree interfaceGenericTree = buildGenericTree(interfaces[i], genericInterfaces[i]);
+            recursiveBuild(interfaceGenericTree);
+            interfaceGenericTree.subOrImpl = type;
+            type.interfacesGenerics.add(interfaceGenericTree);
         }
-        return null;
+
+        return type;
     }
 
-    private static Class<?> getClassTargetGeneric(Class<?> clazz, Class<?> target, int index) {
-        // 父类的泛型type
-        Type genericSuperclass = clazz.getGenericSuperclass();
-        if (genericSuperclass != null) {
-            if (genericSuperclass instanceof ParameterizedType) {
-                ParameterizedType ptype = (ParameterizedType) genericSuperclass;
-                if (ptype.getRawType() == target) {
-                    // 找到了匹配的目标类型
-                    Type result = ptype.getActualTypeArguments()[index];
-                    if (result instanceof Class) {
-                        return (Class<?>) result;
-                    }
-                    throw new IllegalArgumentException(result + "不是有效的泛型类型");
+    /**
+     * 构建类的泛型
+     * 
+     * @param clazz
+     *            class
+     * @param genericType
+     *            当前类包含泛型内容
+     * @return
+     */
+    private static GenericTree buildGenericTree(Class<?> clazz, Type genericType) {
+        GenericTree tree = new GenericTree(clazz);
+        List<Generic> generics = new ArrayList<>();
+        List<String> genericNames = genericNames(clazz);
+        if (genericType == null || genericType == clazz) {
+            // 无泛型通过类上的泛型文本解析得到泛型的名称(无法获得java类)
+            for (int i = 0, max = genericNames.size(); i < max; i++) {
+                generics.add(tree.new Generic(genericNames.get(i), i));
+            }
+        } else if (genericType instanceof ParameterizedType) {
+            // 类? 接口?
+            Type[] types = ((ParameterizedType) genericType).getActualTypeArguments();
+            for (int i = 0, max = types.length; i < max; i++) {
+                Type generic = types[i];
+                String name = generic instanceof TypeVariable ? ((TypeVariable) generic).getName() : genericNames.get(i);
+                generics.add(tree.new Generic(types[i], name, i));
+            }
+        }
+        tree.generics = generics;
+        return tree;
+    }
+
+    private static List<String> genericNames(Class<?> clazz) {
+        List<String> names = new ArrayList<>();
+        String genericString = clazz.toGenericString();
+        int index = genericString.indexOf("<");
+        if (index != -1) {
+            String[] array = genericString.substring(index + 1, genericString.length() - 1).split(",");
+            for (String s : array) {
+                names.add(s.trim());
+            }
+        }
+        return names;
+    }
+
+    private static void recursiveCalculateRelevance(GenericTree type) {
+
+        if (type.generics != null && !type.generics.isEmpty() //
+                && type.subOrImpl != null && type.subOrImpl.generics != null && !type.subOrImpl.generics.isEmpty()) {
+            for (Generic generic : type.generics) {
+                if (!generic.isResolved()) {
+                    generic.resolve(type.subOrImpl);
                 }
             }
         }
-        Class<?> superclass = clazz.getSuperclass();
-        if (superclass != Object.class) {
-            return getClassTargetGeneric(clazz.getSuperclass(), target, index);
+
+        if (!type.interfacesGenerics.isEmpty() && type.generics != null) {
+            for (GenericTree ig : type.interfacesGenerics) {
+                if (ig.generics == null || ig.generics.isEmpty()) {
+                    continue;
+                }
+                for (Generic generic : ig.generics) {
+                    if (!generic.isResolved()) {
+                        generic.resolve(type);
+                    }
+                }
+            }
         }
-        return null;
+
+        if (type.superGeneric != null) {
+            recursiveCalculateRelevance(type.superGeneric);
+        }
+
+        for (GenericTree ig : type.interfacesGenerics) {
+            recursiveCalculateRelevance(ig);
+        }
+
+    }
+
+    /**
+     * 类对应的泛型树
+     * 
+     * @author wuxii@foxmail.com
+     */
+    public static class GenericTree {
+
+        /**
+         * 当前类
+         */
+        private Class<?> type;
+        /**
+         * 当前类的父类
+         */
+        private GenericTree superGeneric;
+        /**
+         * 当前类的interface
+         */
+        private List<GenericTree> interfacesGenerics = new ArrayList<>();
+        /**
+         * 当前类的泛型
+         */
+        private List<Generic> generics;
+
+        private GenericTree subOrImpl;
+
+        private GenericTree(Class<?> type) {
+            this.type = type;
+        }
+
+        private GenericTree(Class<?> type, List<Generic> generics) {
+            this.type = type;
+            this.generics = generics;
+        }
+
+        public Class<?> getJavaType() {
+            return type;
+        }
+
+        public Class<?> getSuperClass() {
+            return type.getSuperclass();
+        }
+
+        public Class<?> getInterface(int index) {
+            return type.getInterfaces()[index];
+        }
+
+        public GenericTree getSuperGeneric() {
+            return superGeneric;
+        }
+
+        public GenericTree getInterfaceGeneric(int index) {
+            return interfacesGenerics.get(index);
+        }
+
+        public Generic[] getGenerics() {
+            return generics == null ? new Generic[0] : generics.toArray(new Generic[generics.size()]);
+        }
+
+        public Generic getGeneric(int index) {
+            return generics.get(index);
+        }
+
+        private Class<?> getGenericType(String name) {
+            if (generics != null) {
+                for (Generic generic : generics) {
+                    if (generic.name != null && generic.name.equals(name) //
+                            && generic.type != null && generic.type instanceof Class) {
+                        return (Class<?>) generic.type;
+                    }
+                }
+            }
+            return null;
+        }
+
+        private Class getGenericType(int index) {
+            if (generics != null) {
+                Generic generic = generics.get(index);
+                Type type = generic != null ? generic.type : null;
+                return type instanceof Class ? (Class) type : null;
+            }
+            return null;
+        }
+
+        public Generic getTargetGeneric(Class<?> target, int index) {
+            GenericTree targetGenericTree = findTargetGenericTree(this, target);
+            return targetGenericTree.getGeneric(index);
+        }
+
+        private GenericTree findTargetGenericTree(GenericTree source, Class<?> target) {
+            if (source.type == target) {
+                return source;
+            }
+            GenericTree result = null;
+            if (source.superGeneric != null) {
+                result = findTargetGenericTree(source.superGeneric, target);
+            }
+            if (result == null && source.interfacesGenerics != null && !source.interfacesGenerics.isEmpty()) {
+                for (GenericTree gt : source.interfacesGenerics) {
+                    result = findTargetGenericTree(gt, target);
+                    if (result != null) {
+                        break;
+                    }
+                }
+            }
+            return result;
+        }
+
+        @Override
+        public String toString() {
+            StringBuilder o = new StringBuilder();
+            if (generics != null && !generics.isEmpty()) {
+                o.append("<");
+                for (Generic g : generics) {
+                    o.append(g.type != null ? g.type.getTypeName() : g.name);
+                    o.append(", ");
+                }
+                o.delete(o.length() - 2, o.length());
+                o.append(">");
+            }
+            return type.getTypeName() + (o != null ? o.toString() : "");
+        }
+
+        private boolean isInterface() {
+            return getJavaType() != null && getJavaType().isInterface();
+        }
+
+        public class Generic {
+
+            private GenericTree owner;
+            private Type type;
+            private String name;
+            private int index;
+
+            private Generic(Type type, String name, int index) {
+                this.type = type;
+                this.name = name;
+                this.index = index;
+                this.owner = GenericTree.this;
+            }
+
+            private Generic(String name, int index) {
+                this.name = name;
+                this.index = index;
+            }
+
+            private boolean isResolved() {
+                return type instanceof Class;
+            }
+
+            private void resolve(GenericTree genericTree) {
+                Class<?> rawType = null;
+                if (owner.isInterface()) {
+                    // interface B<T>
+                    // class A<T> implements B<T>
+                    // 当前的GenericTree = B.class 当前的泛型属于接口, 通过注解对应的名称来解析
+                    rawType = genericTree.getGenericType(name);
+                } else {
+                    // class B<T extends Serializable> implements A<T>
+                    // class C extends B<String>
+                    // 需要在generic tree 中A的泛型类型定位为String
+                    rawType = genericTree.getGenericType(index);
+                }
+                if (rawType != null || this.type == null) {
+                    this.type = rawType;
+                }
+            }
+
+            public Type getType() {
+                return type;
+            }
+
+            public Class<?> getJavaType() {
+                return type instanceof Class ? (Class) type : null;
+            }
+
+            public String getName() {
+                return name;
+            }
+
+            public int getIndex() {
+                return index;
+            }
+
+        }
     }
 
 }

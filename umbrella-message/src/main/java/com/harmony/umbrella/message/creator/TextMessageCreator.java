@@ -11,7 +11,7 @@ import javax.jms.TextMessage;
 public class TextMessageCreator extends AbstractMessageCreator<TextMessage> {
 
     private static final long serialVersionUID = -2792527853518523027L;
-    private String text;
+    protected String text;
 
     public TextMessageCreator(String text) {
         this.text = text;

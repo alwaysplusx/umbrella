@@ -5,12 +5,8 @@ import java.util.Properties;
 import javax.jms.ConnectionFactory;
 import javax.jms.Destination;
 import javax.jms.ExceptionListener;
-import javax.jms.MessageListener;
-import javax.jms.Session;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
-
-import com.harmony.umbrella.util.ClassFilterFeature;
 
 /**
  * 
@@ -18,23 +14,8 @@ import com.harmony.umbrella.util.ClassFilterFeature;
  */
 public class MessageTemplateBuilder<T extends MessageTemplateBuilder<T>> {
 
-    protected ConnectionFactory connectionFactory;
-    protected Destination destination;
+    private JmsTemplate jmsTemplate;
 
-    protected String username;
-    protected String password;
-    protected boolean transacted = true;
-    protected int sessionMode = Session.AUTO_ACKNOWLEDGE;
-    protected boolean sessionAutoCommit = true;
-    protected boolean autoStartListener = true;
-
-    protected Class<? extends ExceptionListener> exceptionListenerClass;
-    protected ExceptionListener exceptionListener;
-
-    protected Class<? extends MessageListener> messageListenerClass;
-    protected MessageListener messageListener;
-
-    protected Class<? extends MessageMonitor> messageMonitorClass;
     protected MessageMonitor messageMonitor;
 
     protected String connectionFactoryJNDI;
@@ -49,41 +30,56 @@ public class MessageTemplateBuilder<T extends MessageTemplateBuilder<T>> {
         return new MessageTemplateBuilder<>();
     }
 
-    public MessageTemplateBuilder() {
+    protected MessageTemplateBuilder() {
+        this.jmsTemplate = new JmsTemplate();
     }
 
-    public MessageTemplateBuilder(ConnectionFactory connectionFactory, Destination destination) {
-        this.connectionFactory = connectionFactory;
-        this.destination = destination;
+    protected MessageTemplateBuilder(ConnectionFactory connectionFactory, Destination destination) {
+        this.jmsTemplate = new JmsTemplate(connectionFactory, destination);
     }
 
     public T setUsername(String username) {
-        this.username = username;
+        this.jmsTemplate.setUsername(username);
         return (T) this;
     }
 
     public T setPassword(String password) {
-        this.password = password;
+        this.jmsTemplate.setPassword(password);
         return (T) this;
     }
 
     public T setConnectionFactory(ConnectionFactory connectionFactory) {
-        this.connectionFactory = connectionFactory;
+        this.jmsTemplate.connectionFactory = connectionFactory;
         return (T) this;
     }
 
     public T setDestination(Destination destination) {
-        this.destination = destination;
+        this.jmsTemplate.destination = destination;
         return (T) this;
     }
 
     public T setTransacted(boolean transacted) {
-        this.transacted = transacted;
+        this.jmsTemplate.setTransacted(transacted);
         return (T) this;
     }
 
     public T setSessionMode(int sessionMode) {
-        this.sessionMode = sessionMode;
+        this.jmsTemplate.setSessionMode(sessionMode);
+        return (T) this;
+    }
+
+    public T setSessionAutoCommit(boolean sessionAutoCommit) {
+        this.jmsTemplate.setSessionAutoCommit(sessionAutoCommit);
+        return (T) this;
+    }
+
+    public T setExceptionListener(ExceptionListener listener) {
+        this.jmsTemplate.setExceptionListener(listener);
+        return (T) this;
+    }
+
+    public T setMessageSelector(String messageSelector) {
+        this.jmsTemplate.setMessageSelector(messageSelector);
         return (T) this;
     }
 
@@ -107,47 +103,21 @@ public class MessageTemplateBuilder<T extends MessageTemplateBuilder<T>> {
         return (T) this;
     }
 
-    public T setSessionAutoCommit(boolean sessionAutoCommit) {
-        this.sessionAutoCommit = sessionAutoCommit;
-        return (T) this;
-    }
-
-    public T setAutoStartListener(boolean autoStartListener) {
-        this.autoStartListener = autoStartListener;
-        return (T) this;
-    }
-
-    public T setMessageListener(Class<? extends MessageListener> messageListenerClass) {
-        if (!ClassFilterFeature.NEWABLE.accept(messageListenerClass)) {
-            throw new IllegalArgumentException("can't create message listener " + messageListenerClass);
-        }
-        this.messageListenerClass = messageListenerClass;
-        return (T) this;
-    }
-
-    public T setMessageListener(MessageListener messageListener) {
-        this.messageListener = messageListener;
-        return (T) this;
-    }
-
-    public T setExceptionListener(Class<? extends ExceptionListener> listenerClass) {
-        if (!ClassFilterFeature.NEWABLE.accept(listenerClass)) {
+    public T setExceptionListenerClass(Class<? extends ExceptionListener> listenerClass) {
+        try {
+            setExceptionListener(listenerClass.newInstance());
+        } catch (Throwable e) {
             throw new IllegalArgumentException("can't create exception listener " + listenerClass);
         }
-        this.exceptionListenerClass = listenerClass;
-        return (T) this;
-    }
-
-    public T setExceptionListener(ExceptionListener listener) {
-        this.exceptionListener = listener;
         return (T) this;
     }
 
     public T setMessageMonitorClass(Class<? extends MessageMonitor> monitorClass) {
-        if (!ClassFilterFeature.NEWABLE.accept(monitorClass)) {
+        try {
+            setMessageMonitor(monitorClass.newInstance());
+        } catch (Throwable e) {
             throw new IllegalArgumentException("can't create message monitor " + monitorClass);
         }
-        this.messageMonitorClass = monitorClass;
         return (T) this;
     }
 
@@ -157,34 +127,31 @@ public class MessageTemplateBuilder<T extends MessageTemplateBuilder<T>> {
     }
 
     public MessageTemplate build() {
-        final ConnectionFactory connectionFactory = getConnectionFactory();
-        final Destination destination = getDestination();
-
-        MessageHelper helper = new MessageHelper();
-        helper.connectionFactory = connectionFactory;
-        helper.destination = destination;
-        helper.sessionMode = sessionMode;
-        helper.transacted = transacted;
-        helper.username = this.username;
-        helper.password = this.password;
-        helper.sessionAutoCommit = this.sessionAutoCommit;
-        helper.autoStartListener = this.autoStartListener;
-        helper.messageMonitor = this.messageMonitor;
-        helper.exceptionListener = getExceptionMessageListener();
-
-        MessageListener listener = getMessageListener();
-        if (listener != null) {
-            helper.setMessageListener(listener);
-        }
-
+        JmsTemplate jmsTemplate = buildJmsTemplate();
+        MessageHelper helper = new MessageHelper(jmsTemplate);
+        helper.setMessageMonitor(messageMonitor);
         return helper;
+    }
+
+    public JmsTemplate buildJmsTemplate() {
+        JmsTemplate o = new JmsTemplate();
+        o.connectionFactory = getConnectionFactory();
+        o.destination = getDestination();
+        o.autoStart = jmsTemplate.autoStart;
+        o.username = jmsTemplate.username;
+        o.password = jmsTemplate.password;
+        o.transacted = jmsTemplate.transacted;
+        o.sessionMode = jmsTemplate.sessionMode;
+        o.sessionAutoCommit = jmsTemplate.sessionAutoCommit;
+        o.exceptionListener = jmsTemplate.exceptionListener;
+        return o;
     }
 
     // protected methods
 
     protected Destination getDestination() {
-        if (this.destination != null) {
-            return destination;
+        if (this.jmsTemplate.destination != null) {
+            return this.jmsTemplate.destination;
         }
         if (this.destinationJNDI == null) {
             throw new IllegalStateException("destinaction not set");
@@ -197,8 +164,8 @@ public class MessageTemplateBuilder<T extends MessageTemplateBuilder<T>> {
     }
 
     protected ConnectionFactory getConnectionFactory() {
-        if (connectionFactory != null) {
-            return connectionFactory;
+        if (this.jmsTemplate.connectionFactory != null) {
+            return this.jmsTemplate.connectionFactory;
         }
         if (connectionFactoryJNDI == null) {
             throw new IllegalStateException("connection factory not set");
@@ -208,42 +175,6 @@ public class MessageTemplateBuilder<T extends MessageTemplateBuilder<T>> {
             throw new IllegalStateException(cf + " not type of connection factory");
         }
         return (ConnectionFactory) cf;
-    }
-
-    protected MessageListener getMessageListener() {
-        MessageListener listener = this.messageListener;
-        if (listener == null && messageListenerClass != null) {
-            try {
-                listener = messageListenerClass.newInstance();
-            } catch (Throwable e) {
-                throw new IllegalArgumentException("message listener create failed, " + messageListenerClass, e);
-            }
-        }
-        return listener;
-    }
-
-    protected ExceptionListener getExceptionMessageListener() {
-        ExceptionListener listener = this.exceptionListener;
-        if (listener == null && exceptionListenerClass != null) {
-            try {
-                listener = exceptionListenerClass.newInstance();
-            } catch (Throwable e) {
-                throw new IllegalArgumentException("exception listener create failed, " + exceptionListenerClass, e);
-            }
-        }
-        return listener;
-    }
-
-    protected MessageMonitor getMessageMonitor() {
-        MessageMonitor monitor = this.messageMonitor;
-        if (monitor == null && messageMonitorClass != null) {
-            try {
-                monitor = messageMonitorClass.newInstance();
-            } catch (Throwable e) {
-                throw new IllegalArgumentException("message monitor create failed, " + messageMonitorClass, e);
-            }
-        }
-        return monitor;
     }
 
     protected Object lookup(String jndi) {

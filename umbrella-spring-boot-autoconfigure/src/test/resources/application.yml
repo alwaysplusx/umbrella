@@ -26,7 +26,14 @@ harmony:
     current-context:
       url-patterns: /*
   message:
-    templates:
-    - auto-start-listener: true
+    broker:
       connector: tcp://localhost:61616
-    - auto-start-listener: false
+      ssl: false
+      persistent: true
+      tmp-data-directory: ./target/activemq
+    queueTemplate:
+      connector: ${harmony.message.broker.connector}
+      queue: m3.queue
+      session-mode: 1
+      transacted: true
+      session-auto-commit: true

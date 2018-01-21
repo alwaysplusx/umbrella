@@ -6,26 +6,29 @@ import java.util.Map;
 
 import javax.jms.ConnectionFactory;
 import javax.jms.Destination;
-import javax.jms.ExceptionListener;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageListener;
 import javax.jms.MessageProducer;
-import javax.jms.Session;
+import javax.jms.ObjectMessage;
+
+import org.springframework.util.ReflectionUtils;
 
 import com.harmony.umbrella.log.Log;
 import com.harmony.umbrella.log.Logs;
-import com.harmony.umbrella.message.MessageMonitor.DestinationType;
+import com.harmony.umbrella.message.JmsTemplate.SessionPoint;
 import com.harmony.umbrella.message.MessageMonitor.EventPhase;
 import com.harmony.umbrella.message.MessageMonitor.MessageEvent;
+import com.harmony.umbrella.message.annotation.MessageSelector;
 import com.harmony.umbrella.message.creator.BytesMessageCreator;
 import com.harmony.umbrella.message.creator.MapMessageCreator;
 import com.harmony.umbrella.message.creator.ObjectMessageCreator;
 import com.harmony.umbrella.message.creator.StreamMessageCreator;
 import com.harmony.umbrella.message.creator.TextMessageCreator;
-import com.harmony.umbrella.message.listener.SimpleDynamicMessageListener;
-import com.harmony.umbrella.message.support.SimpleJmsTemplate;
+import com.harmony.umbrella.message.support.MonitorMessageListener;
+import com.harmony.umbrella.message.support.SimpleDynamicMessageListener;
+import com.harmony.umbrella.util.StringUtils;
 
 /**
  * 消息发送helper
@@ -36,58 +39,49 @@ public class MessageHelper implements MessageTemplate {
 
     private static final Log log = Logs.getLog(MessageHelper.class);
 
-    ConnectionFactory connectionFactory;
-    Destination destination;
-
-    String username;
-    String password;
-    boolean transacted;
-    int sessionMode;
-
-    MessageMonitor messageMonitor;
-    SimpleDynamicMessageListener messageListener;
-    ExceptionListener exceptionListener;
-
-    boolean sessionAutoCommit;
-    boolean autoStartListener;
+    private JmsTemplate jmsTemplate;
+    private MessageMonitor messageMonitor;
 
     public MessageHelper() {
+    }
+
+    public MessageHelper(JmsTemplate jmsTemplate) {
+        this.jmsTemplate = jmsTemplate;
     }
 
     /**
      * 发送bytes message
      * 
      * @param buf
-     *            bytes
-     * @throws JMSException
+     *            bytes @
      */
     @Override
-    public void sendBytesMessage(byte[] buf) throws JMSException {
+    public void sendBytesMessage(byte[] buf) {
         sendMessage(new BytesMessageCreator(buf));
     }
 
     @Override
-    public void sendObjectMessage(Serializable obj) throws JMSException {
-        sendObjectMessage(new ObjectMessageCreator(obj));
+    public void sendObjectMessage(Serializable obj) {
+        sendMessage(new InternalObjectMessageCreator(obj));
     }
 
     @Override
-    public void sendMapMessage(Map map) throws JMSException {
+    public void sendMapMessage(Map map) {
         sendMapMessage(map, false);
     }
 
     @Override
-    public void sendMapMessage(Map map, boolean skipNotStatisfiedEntry) throws JMSException {
+    public void sendMapMessage(Map map, boolean skipNotStatisfiedEntry) {
         sendMessage(new MapMessageCreator(map, skipNotStatisfiedEntry));
     }
 
     @Override
-    public void sendTextMessage(String text) throws JMSException {
+    public void sendTextMessage(String text) {
         sendMessage(new TextMessageCreator(text));
     }
 
     @Override
-    public void sendStreamMessage(InputStream is) throws JMSException {
+    public void sendStreamMessage(InputStream is) {
         sendMessage(new StreamMessageCreator(is));
     }
 
@@ -95,27 +89,24 @@ public class MessageHelper implements MessageTemplate {
      * 发送消息, 通过定制的消息{@linkplain MessageCreator}creator来创建定制化的消息
      * 
      * @param creator
-     *            定制化消息创建器
-     * @throws JMSException
+     *            定制化消息创建器 @
      */
     @Override
-    public void sendMessage(MessageCreator messageCreator) throws JMSException {
+    public void sendMessage(MessageCreator messageCreator) {
         sendMessage(null, messageCreator, null);
     }
 
     @Override
-    public void sendMessage(Destination destination, MessageCreator messageCreator, MessageProducerConfigure configure) throws JMSException {
-        JmsTemplate jmsTemplate = getJmsTemplate();
+    public void sendMessage(Destination destination, MessageCreator messageCreator, MessageProducerConfigure configure) {
+        SessionPoint session = jmsTemplate.newSession();
         Message message = null;
-        destination = destination == null ? jmsTemplate.getDestination() : destination;
+        destination = destination == null ? session.getDestination() : destination;
         try {
-            jmsTemplate.start();
-            Session session = jmsTemplate.getSession();
-            message = messageCreator.newMessage(session);
+            message = messageCreator.newMessage(session.getSession());
             message.setJMSDestination(destination);
             message.setJMSTimestamp(System.currentTimeMillis());
 
-            MessageProducer producer = jmsTemplate.getMessageProducer();
+            MessageProducer producer = session.getMessageProducer();
             if (configure != null) {
                 configure.config(producer);
             }
@@ -125,51 +116,34 @@ public class MessageHelper implements MessageTemplate {
             fireEvent(message, EventPhase.AFTER_SEND);
 
         } catch (Throwable e) {
-            fireEvent(message, EventPhase.SEND_FAILURE);
-            jmsTemplate.rollback();
-            throw e;
+            fireEvent(message, EventPhase.SEND_FAILURE, e);
+            session.rollback();
+            if (e instanceof JMSException) {
+                throw new MessageException("send message failed", e);
+            }
+            ReflectionUtils.rethrowRuntimeException(e);
         } finally {
-            jmsTemplate.stop();
+            session.release();
         }
     }
 
     @Override
-    public Message receiveMessage() throws JMSException {
+    public Message receiveMessage() {
         return receiveMessage(-1);
     }
 
     @Override
-    public Message receiveMessage(long timeout) throws JMSException {
-        JmsTemplate jmsTemplate = getJmsTemplate();
+    public Message receiveMessage(long timeout) {
+        SessionPoint session = jmsTemplate.newSession();
         try {
-            jmsTemplate.start();
-            MessageConsumer consumer = jmsTemplate.getMessageConsumer();
+            MessageConsumer consumer = session.getMessageConsumer();
             Message message = timeout < 0 ? consumer.receiveNoWait() : consumer.receive(timeout);
             return message;
         } catch (JMSException e) {
-            jmsTemplate.rollback();
-            throw e;
+            session.rollback();
+            throw new MessageException("receive message failed", e);
         } finally {
-            jmsTemplate.stop();
-        }
-    }
-
-    @Override
-    public void setMessageListener(MessageListener listener) {
-        if (messageListener != null && messageListener.isStarted()) {
-            throw new IllegalStateException("message listener already started");
-        }
-        if (messageListener != null) {
-            messageListener.setMessageListener(listener);
-        } else {
-            messageListener = wrap(listener);
-        }
-        if (autoStartListener) {
-            try {
-                startMessageListener();
-            } catch (JMSException e) {
-                new IllegalStateException("can't start message listener " + messageListener, e);
-            }
+            session.release();
         }
     }
 
@@ -179,67 +153,42 @@ public class MessageHelper implements MessageTemplate {
     }
 
     @Override
-    public void startMessageListener() throws JMSException {
-        if (messageListener == null) {
-            throw new IllegalStateException("message listener not set");
-        }
-        this.messageListener.start();
+    public MessageMonitor getMessageMonitor() {
+        return messageMonitor;
     }
 
     @Override
-    public void stopMessageListener() throws JMSException {
-        stopMessageListener(false);
-    }
-
-    @Override
-    public void stopMessageListener(boolean remove) throws JMSException {
-        if (messageListener != null) {
-            messageListener.stop();
-            if (remove) {
-                messageListener = null;
+    public DynamicMessageListener startMessageListener(MessageListener listener) {
+        String messageSelector = null;
+        if (listener instanceof TypedMessageListener) {
+            messageSelector = OBJECT_TYPE_MESSAGE_SELECTOR_KEY + " = '" + ((TypedMessageListener) listener).getType().getName() + "'";
+        } else if (listener.getClass().getAnnotation(MessageSelector.class) != null) {
+            MessageSelector ann = listener.getClass().getAnnotation(MessageSelector.class);
+            if (StringUtils.isNotBlank(ann.value())) {
+                messageSelector = ann.value();
+            } else if (ann.type() != Void.class) {
+                messageSelector = ann.type().getName();
             }
+            if (messageSelector != null) {
+                messageSelector = OBJECT_TYPE_MESSAGE_SELECTOR_KEY + " = '" + messageSelector + "'";
+            }
+        } else {
+            messageSelector = jmsTemplate.getMessageSelector();
         }
+        return startMessageListener(messageSelector, listener);
     }
 
     @Override
-    public MessageListener getMessageListener() {
-        MessageListener result = messageListener;
-        while (true) {
-            if (result instanceof SimpleDynamicMessageListener) {
-                result = ((SimpleDynamicMessageListener) result).getMessageListener();
-            } else if (result instanceof MessageListenerMonitorAdapter) {
-                result = ((MessageListenerMonitorAdapter) result).messageListener;
-            } else {
-                break;
-            }
+    public DynamicMessageListener startMessageListener(String messageSelector, MessageListener listener) {
+        SessionPoint session = jmsTemplate.newSession(jmsTemplate.getDestination(), messageSelector);
+        SimpleDynamicMessageListener dml = new SimpleDynamicMessageListener(session);
+        dml.setSessionAutoCommit(jmsTemplate.isSessionAutoCommit());
+        if (messageMonitor != null) {
+            listener = new MonitorMessageListener(listener, messageMonitor);
         }
-        return result;
-    }
-
-    public JmsTemplate getJmsTemplate() {
-        if (connectionFactory == null || destination == null) {
-            throw new IllegalArgumentException("connection factory or destination is null");
-        }
-        SimpleJmsTemplate jmsTemplate = new SimpleJmsTemplate(connectionFactory, destination);
-        jmsTemplate.setUsername(username);
-        jmsTemplate.setPassword(password);
-        jmsTemplate.setSessionAutoCommit(sessionAutoCommit);
-        jmsTemplate.setTransacted(transacted);
-        jmsTemplate.setSessionMode(sessionMode);
-        jmsTemplate.setExceptionListener(exceptionListener);
-        return jmsTemplate;
-    }
-
-    /**
-     * 将消息监听包装成动态受监控的消息监听器
-     * 
-     * @param listener
-     *            消息监听器
-     * @return 动态受监控的消息监听器
-     */
-    private SimpleDynamicMessageListener wrap(MessageListener listener) {
-        JmsTemplate jmsTemplate = getJmsTemplate();
-        return new SimpleDynamicMessageListener(jmsTemplate, new MessageListenerMonitorAdapter(listener));
+        dml.setMessageListener(listener);
+        dml.start();
+        return dml;
     }
 
     private void fireEvent(Message message, EventPhase phase) {
@@ -248,14 +197,9 @@ public class MessageHelper implements MessageTemplate {
 
     private void fireEvent(Message message, EventPhase phase, Throwable exception) {
         if (messageMonitor != null) {
-            MessageEventImpl event = null;
+            MessageEvent event = null;
             try {
-                Destination dest = message.getJMSDestination();
-                DestinationType destType = null;
-                if (dest != null) {
-                    destType = DestinationType.forType(dest.getClass());
-                }
-                event = new MessageEventImpl(message, destType, phase, exception);
+                event = MessageUtils.createMessageEvent(message, phase, exception);
                 messageMonitor.onEvent(event);
             } catch (Throwable e) {
                 log.debug("fire message failed, event {}", event);
@@ -263,128 +207,35 @@ public class MessageHelper implements MessageTemplate {
         }
     }
 
-    public ConnectionFactory getConnectionFactory() {
-        return connectionFactory;
+    @Override
+    public JmsTemplate getJmsTemplate() {
+        return jmsTemplate;
     }
 
-    public void setConnectionFactory(ConnectionFactory connectionFactory) {
-        this.connectionFactory = connectionFactory;
+    public void setJmsTemplate(JmsTemplate jmsTemplate) {
+        this.jmsTemplate = jmsTemplate;
     }
 
     public Destination getDestination() {
-        return destination;
+        return jmsTemplate.getDestination();
     }
 
-    public void setDestination(Destination destination) {
-        this.destination = destination;
+    public ConnectionFactory getConnectionFactory() {
+        return jmsTemplate.getConnectionFactory();
     }
 
-    public String getUsername() {
-        return username;
-    }
+    private static final class InternalObjectMessageCreator extends ObjectMessageCreator {
 
-    public void setUsername(String username) {
-        this.username = username;
-    }
+        private static final long serialVersionUID = 8358533485060344548L;
 
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public boolean isTransacted() {
-        return transacted;
-    }
-
-    public void setTransacted(boolean transacted) {
-        this.transacted = transacted;
-    }
-
-    public int getSessionMode() {
-        return sessionMode;
-    }
-
-    public void setSessionMode(int sessionMode) {
-        this.sessionMode = sessionMode;
-    }
-
-    public boolean isSessionAutoCommit() {
-        return sessionAutoCommit;
-    }
-
-    public void setSessionAutoCommit(boolean sessionAutoCommit) {
-        this.sessionAutoCommit = sessionAutoCommit;
-    }
-
-    public boolean isAutoStartListener() {
-        return autoStartListener;
-    }
-
-    public void setAutoStartListener(boolean autoStartListener) {
-        this.autoStartListener = autoStartListener;
-    }
-
-    public void setMessageListener(SimpleDynamicMessageListener messageListener) {
-        this.messageListener = messageListener;
-    }
-
-    private class MessageListenerMonitorAdapter implements MessageListener {
-
-        private MessageListener messageListener;
-
-        public MessageListenerMonitorAdapter(MessageListener messageListener) {
-            this.messageListener = messageListener;
+        public InternalObjectMessageCreator(Serializable object) {
+            super(object);
         }
 
         @Override
-        public void onMessage(Message message) {
-            try {
-                fireEvent(message, EventPhase.BEFORE_CONSUME);
-                messageListener.onMessage(message);
-                fireEvent(message, EventPhase.AFTER_CONSUME);
-            } catch (Throwable e) {
-                fireEvent(message, EventPhase.CONSUME_FAILURE, e);
-                throw e;
-            }
-        }
-
-    }
-
-    private static final class MessageEventImpl implements MessageEvent {
-
-        private Message message;
-        private EventPhase phase;
-        private DestinationType destType;
-        private Throwable exception;
-
-        public MessageEventImpl(Message message, DestinationType destType, EventPhase phase, Throwable exception) {
-            this.message = message;
-            this.phase = phase;
-            this.destType = destType;
-            this.exception = exception;
-        }
-
-        @Override
-        public Message getMessage() {
-            return message;
-        }
-
-        @Override
-        public EventPhase getEventPhase() {
-            return phase;
-        }
-
-        @Override
-        public DestinationType getDestinationType() {
-            return destType;
-        }
-
-        @Override
-        public Throwable getException() {
-            return exception;
+        protected void doMapping(ObjectMessage message) throws JMSException {
+            super.doMapping(message);
+            message.setStringProperty(OBJECT_TYPE_MESSAGE_SELECTOR_KEY, object.getClass().getName());
         }
 
     }

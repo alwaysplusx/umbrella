@@ -11,7 +11,7 @@ import javax.jms.Session;
 public class BytesMessageCreator extends AbstractMessageCreator<BytesMessage> {
 
     private static final long serialVersionUID = 3410905359933302863L;
-    private byte[] buf;
+    protected byte[] buf;
 
     public BytesMessageCreator(byte[] buf) {
         this.buf = buf;

@@ -27,18 +27,15 @@ public class ActiveMQMessageTemplateBuilder extends MessageTemplateBuilder<Activ
     }
 
     public ActiveMQMessageTemplateBuilder setConnectionFactoryURL(String url) {
-        this.connectionFactory = new ActiveMQConnectionFactory(url);
-        return this;
+        return setConnectionFactory(new ActiveMQConnectionFactory(url));
     }
 
     public ActiveMQMessageTemplateBuilder setQueueName(String queueName) {
-        this.destination = new ActiveMQQueue(queueName);
-        return this;
+        return setDestination(new ActiveMQQueue(queueName));
     }
 
     public ActiveMQMessageTemplateBuilder setTopicName(String topicName) {
-        this.destination = new ActiveMQTopic(topicName);
-        return this;
+        return setDestination(new ActiveMQTopic(topicName));
     }
 
     public ActiveMQMessageTemplateBuilder setDestinationName(String destinationName) {
@@ -50,8 +47,7 @@ public class ActiveMQMessageTemplateBuilder extends MessageTemplateBuilder<Activ
         } else {
             dest = new ActiveMQQueue(destinationName);
         }
-        this.destination = dest;
-        return this;
+        return setDestination(dest);
     }
 
 }

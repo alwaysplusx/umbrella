@@ -13,7 +13,7 @@ import javax.jms.Session;
 public class ObjectMessageCreator extends AbstractMessageCreator<ObjectMessage> {
 
     private static final long serialVersionUID = -4357148380966416521L;
-    private Serializable object;
+    protected Serializable object;
 
     public ObjectMessageCreator(Serializable object) {
         this.object = object;

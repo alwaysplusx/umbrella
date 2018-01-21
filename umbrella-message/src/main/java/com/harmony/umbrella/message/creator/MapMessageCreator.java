@@ -11,7 +11,7 @@ import javax.jms.Session;
 public class MapMessageCreator extends AbstractMessageCreator<MapMessage> {
 
     private static final long serialVersionUID = 2091868113420068661L;
-    private Map map;
+    protected Map map;
     protected boolean skipNotSatisfiedEntry;
 
     public MapMessageCreator(Map map, boolean skipNotStatisfiedEntry) {
@@ -36,7 +36,7 @@ public class MapMessageCreator extends AbstractMessageCreator<MapMessage> {
         return session.createMapMessage();
     }
 
-    public boolean isSkipNotSatisfiedEntry() {
+    public boolean isSkipNotSatisfiedEntry() throws JMSException {
         return skipNotSatisfiedEntry;
     }
 
@@ -45,7 +45,7 @@ public class MapMessageCreator extends AbstractMessageCreator<MapMessage> {
     }
 
     @Override
-    protected MapMessage createMessage(JMSContext jmsContext) throws JMSException {
+    protected MapMessage createMessage(JMSContext jmsContext) {
         return jmsContext.createMapMessage();
     }
 }

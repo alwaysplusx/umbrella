@@ -59,7 +59,7 @@ public class ActiveMQBrokerServiceBuilder {
         return this;
     }
 
-    public ActiveMQBrokerServiceBuilder setPpersistent(boolean persistent) {
+    public ActiveMQBrokerServiceBuilder setPersistent(boolean persistent) {
         brokerService.setPersistent(persistent);
         return this;
     }
@@ -83,6 +83,10 @@ public class ActiveMQBrokerServiceBuilder {
         brokerService.setDataDirectoryFile(directory);
         return this;
     }
+
+    // public ActiveMQBrokerServiceBuilder setTrustedPackages(String... trustedPackages) {
+    // return null;
+    // }
 
     public BrokerService start() {
         try {

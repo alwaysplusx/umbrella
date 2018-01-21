@@ -15,7 +15,7 @@ public class StreamMessageCreator extends AbstractMessageCreator<StreamMessage> 
 
     private static final long serialVersionUID = -1513563775655520426L;
 
-    private InputStream is;
+    protected InputStream is;
 
     private static final int DEFAULT_BUFFER_SIZE = 1024 * 4;
 
