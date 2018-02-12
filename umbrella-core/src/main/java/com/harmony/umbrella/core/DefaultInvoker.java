@@ -3,8 +3,6 @@ package com.harmony.umbrella.core;
 import java.io.Serializable;
 import java.lang.reflect.Method;
 
-import com.harmony.umbrella.util.Exceptions;
-
 /**
  * 默认反射执行工具
  * 
@@ -33,8 +31,7 @@ public class DefaultInvoker implements Invoker, Serializable {
         try {
             return method.invoke(obj, args);
         } catch (Exception e) {
-            Throwable cause = Exceptions.getRootCause(e);
-            throw new InvokeException(cause.getMessage(), cause);
+            throw new InvokeException(e.getMessage(), e);
         }
     }
 

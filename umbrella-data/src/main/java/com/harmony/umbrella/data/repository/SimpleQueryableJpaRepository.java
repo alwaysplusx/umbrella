@@ -27,12 +27,12 @@ public class SimpleQueryableJpaRepository<T, ID extends Serializable> extends Si
     }
 
     protected <E> JpaQueryBuilder<E> queryWith(Class<E> entityClass) {
-        return new JpaQueryBuilder<E>(entityManager).from(entityClass);
+        return JpaQueryBuilder.<E> newBuilder().withEntityManager(entityManager).from(entityClass);
     }
 
     @Override
     public QueryResult<T> query(QueryBundle<T> bundle) {
-        return queryWith(domainClass).unbundle(bundle).execute();
+        return query(bundle, domainClass);
     }
 
     @Override

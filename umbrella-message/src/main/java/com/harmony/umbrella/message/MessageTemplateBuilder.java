@@ -8,6 +8,8 @@ import javax.jms.ExceptionListener;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
+import com.harmony.umbrella.message.MessageTemplateFactory.TemplateConfig;
+
 /**
  * 
  * @author wuxii@foxmail.com
@@ -126,6 +128,46 @@ public class MessageTemplateBuilder<T extends MessageTemplateBuilder<T>> {
         return (T) this;
     }
 
+    public T apply(TemplateConfig cfg) {
+        return apply(cfg, true);
+    }
+
+    public T applyIfAbsent(TemplateConfig cfg) {
+        return apply(cfg, false);
+    }
+
+    protected T apply(TemplateConfig cfg, boolean replace) {
+        JmsTemplate o = this.jmsTemplate;
+        // apply to jms template
+        if (replace || o.username == null) {
+            o.username = cfg.getUsername();
+        }
+        if (replace || o.password == null) {
+            o.password = cfg.getPassword();
+        }
+        if (replace || o.transacted != cfg.isTransacted()) {
+            o.transacted = cfg.isTransacted();
+        }
+        if (replace || o.sessionAutoCommit != cfg.isSessionAutoCommit()) {
+            o.sessionAutoCommit = cfg.isSessionAutoCommit();
+        }
+        if (replace || o.exceptionListener == null) {
+            o.exceptionListener = cfg.getExceptionListener();
+        }
+        if (replace || messageMonitor == null) {
+            this.messageMonitor = cfg.getMessageMonitor();
+        }
+        if (replace || (connectionFactoryJNDI == null && o.connectionFactory == null)) {
+            o.connectionFactory = cfg.getConnectionFactory();
+            connectionFactoryJNDI = null;
+        }
+        if (replace || (destinationJNDI == null && o.destination == null)) {
+            o.destination = cfg.getDestination();
+            this.destinationJNDI = null;
+        }
+        return (T) this;
+    }
+
     public MessageTemplate build() {
         JmsTemplate jmsTemplate = buildJmsTemplate();
         MessageHelper helper = new MessageHelper(jmsTemplate);
@@ -137,7 +179,6 @@ public class MessageTemplateBuilder<T extends MessageTemplateBuilder<T>> {
         JmsTemplate o = new JmsTemplate();
         o.connectionFactory = getConnectionFactory();
         o.destination = getDestination();
-        o.autoStart = jmsTemplate.autoStart;
         o.username = jmsTemplate.username;
         o.password = jmsTemplate.password;
         o.transacted = jmsTemplate.transacted;

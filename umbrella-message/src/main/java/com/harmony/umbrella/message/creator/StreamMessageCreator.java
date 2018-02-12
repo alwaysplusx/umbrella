@@ -3,10 +3,10 @@ package com.harmony.umbrella.message.creator;
 import java.io.IOException;
 import java.io.InputStream;
 
-import javax.jms.JMSContext;
 import javax.jms.JMSException;
-import javax.jms.Session;
 import javax.jms.StreamMessage;
+
+import com.harmony.umbrella.message.MessageType;
 
 /**
  * @author wuxii@foxmail.com
@@ -20,6 +20,7 @@ public class StreamMessageCreator extends AbstractMessageCreator<StreamMessage> 
     private static final int DEFAULT_BUFFER_SIZE = 1024 * 4;
 
     public StreamMessageCreator(InputStream is) {
+        super(MessageType.StreamMessage);
         this.is = is;
     }
 
@@ -35,16 +36,6 @@ public class StreamMessageCreator extends AbstractMessageCreator<StreamMessage> 
         } catch (IOException e) {
             throw new IllegalStateException(e);
         }
-    }
-
-    @Override
-    protected StreamMessage createMessage(Session session) throws JMSException {
-        return session.createStreamMessage();
-    }
-
-    @Override
-    protected StreamMessage createMessage(JMSContext jmsContext) throws JMSException {
-        return jmsContext.createStreamMessage();
     }
 
 }

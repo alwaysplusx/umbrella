@@ -3,6 +3,10 @@ package com.harmony.umbrella.util;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.Serializable;
+import java.nio.file.CopyOption;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.UUID;
 
 /**
@@ -12,22 +16,117 @@ import java.util.UUID;
  */
 public class FileUtils {
 
+    public static Path toPath(File file) {
+        return file.toPath().normalize();
+    }
+
+    public static File getDefaultTmpDir() throws IOException {
+        String tmpdir = System.getProperty("harmony.io.tmpdir");
+        File dir = tmpdir == null ? new File(System.getProperty("java.io.tmpdir"), "harmony") : new File(tmpdir);
+        if (!dir.exists() && !createDir(dir)) {
+            throw new IOException("tmp dir not found " + dir);
+        }
+        return dir;
+    }
+
     /**
-     * 修改文件名称，文件目录不变
+     * 修改文件名称
      * 
-     * @param file
+     * @param src
      *            源文件
      * @param newName
      *            新文件名
      * @return 新文件
      */
-    public static File rename(File file, String newName) throws IOException {
-        File newFile = new File(file.getParent(), newName);
-        createDirectory(newFile.getParent());
-        if (!file.renameTo(newFile)) {
-            throw new IOException("file can't rename to " + newName);
+    public static File renameTo(String src, String to, CopyOption... opts) throws IOException {
+        return renameTo(new File(src), new File(to), opts);
+    }
+
+    /**
+     * 修改文件名称
+     * 
+     * @param src
+     *            源文件
+     * @param newName
+     *            新文件名
+     * @return 新文件
+     */
+    public static File renameTo(File src, File to, CopyOption... opts) throws IOException {
+        if (!to.exists() && !createFile(to)) {
+            throw new IOException("rename failed failed, " + to + " file create failed");
         }
-        return newFile;
+        Files.move(toPath(src), toPath(to), opts);
+        return to;
+    }
+
+    /**
+     * 移动文件到指定目录
+     * 
+     * @param src
+     *            源文件
+     * @param to
+     *            目标文件夹
+     * @return 在目标文件夹中的文件
+     * @throws IOException
+     */
+    public static File moveTo(String src, String to, CopyOption... opts) throws IOException {
+        return moveTo(new File(src), new File(to), opts);
+    }
+
+    /**
+     * 移动文件到指定目录
+     * 
+     * @param src
+     *            源文件
+     * @param to
+     *            目标文件夹
+     * @return 在目标文件夹中的文件
+     * @throws IOException
+     */
+    public static File moveTo(File src, File to, CopyOption... opts) throws IOException {
+        if (!to.isDirectory() && !createDir(to)) {
+            throw new IOException("move file failed, " + to + " dir create failed");
+        }
+        File result = new File(to, src.getName());
+        Files.move(toPath(src), toPath(result), opts);
+        return result;
+    }
+
+    /**
+     * 拷贝文件到指定目录
+     * 
+     * @param src
+     *            源文件
+     * @param to
+     *            目标文件夹
+     * @param opts
+     *            拷贝选项
+     * @return 目标文件夹中的文件
+     * @throws IOException
+     */
+    public static File copyTo(String src, String to, CopyOption... opts) throws IOException {
+        return copyTo(new File(src), new File(to), opts);
+    }
+
+    /**
+     * 拷贝文件到指定目录
+     * 
+     * @param src
+     *            源文件
+     * @param to
+     *            目标文件夹
+     * @param opts
+     *            拷贝选项
+     * @return 目标文件夹中的文件
+     * @throws IOException
+     */
+    public static File copyTo(File src, File to, CopyOption... opts) throws IOException {
+        if (!to.isDirectory() && !createDir(to)) {
+            throw new IOException("copy file failed, " + to + " dir create failed");
+        }
+        File result = new File(to, src.getName());
+        Files.copy(toPath(src), toPath(result), opts);
+        return result;
     }
 
     /**
@@ -59,7 +158,7 @@ public class FileUtils {
      *            文件路径
      * @return
      */
-    public static boolean isDirectory(String pathname) {
+    public static boolean isDir(String pathname) {
         return new File(pathname).isDirectory();
     }
 
@@ -95,15 +194,17 @@ public class FileUtils {
     }
 
     /**
-     * 创建文件, 如果文件为深层次目录下的文件则根据输入的cascade标志判断是否级联创建
+     * 创建文件
      *
      * @param pathname
-     *            待创建的文件或文件夹
+     *            待创建的文件
      * @throws IOException
      */
     public static File createFile(String pathname) throws IOException {
         File file = new File(pathname);
-        createFile(file);
+        if (!createFile(file)) {
+            throw new IOException(pathname + " create failed");
+        }
         return file;
     }
 
@@ -114,17 +215,14 @@ public class FileUtils {
      *            待创建的文件
      * @throws IOException
      */
-    public static void createFile(File file) throws IOException {
-        file = new File(file.getAbsolutePath());
-        if (!file.exists()) {
-            File parentFile = file.getParentFile();
-            if (parentFile.exists() && parentFile.isFile()) {
-                throw new IOException(parentFile.getAbsolutePath() + "file parent not directory");
-            }
-            if (!parentFile.exists()) {
-                parentFile.mkdirs();
-            }
-            file.createNewFile();
+    public static boolean createFile(File file) {
+        if (file.isDirectory()) {
+            return false;
+        }
+        try {
+            return createParentDir(file) && (file.isFile() || file.createNewFile());
+        } catch (IOException e) {
+            return false;
         }
     }
 
@@ -136,9 +234,11 @@ public class FileUtils {
      * @throws IOException
      * @see {@linkplain File#mkdirs()}
      */
-    public static File createDirectory(String pathname) throws IOException {
+    public static File createDir(String pathname) throws IOException {
         File dir = new File(pathname);
-        createDirectory(dir);
+        if (!createDir(dir)) {
+            throw new IOException(pathname + " mkdirs failed");
+        }
         return dir;
     }
 
@@ -150,87 +250,69 @@ public class FileUtils {
      * @throws IOException
      * @see {@linkplain File#mkdirs()}
      */
-    public static void createDirectory(File file) throws IOException {
-        if (file.exists() && !file.isDirectory()) {
-            throw new IOException(file.getAbsolutePath() + " already exists and not a directory");
-        }
-        file.mkdirs();
+    public static boolean createDir(File file) {
+        return file.isDirectory() || file.mkdirs();
+    }
+
+    static boolean createParentDir(File file) {
+        File parent = getParentFile(file);
+        return parent == null || createDir(parent);
+    }
+
+    static File getParentFile(File file) {
+        File parent = file.getParentFile();
+        return parent == null ? file.getAbsoluteFile().getParentFile() : parent;
+    }
+
+    static Path getParentPath(File file) {
+        Path path = file.toPath();
+        Path parent = path.getParent();
+        return parent == null ? path.toAbsolutePath().getParent() : parent;
+    }
+
+    public static File createTmpFile() throws IOException {
+        String prefix = System.getProperty("harmony.tmp.prefix", "harmony_");
+        String suffix = System.getProperty("harmony.tmp.suffix", ".tmp");
+        return File.createTempFile(prefix, suffix, getDefaultTmpDir());
     }
 
     /**
-     * 通过uuid命名文件加在临时目录中创建一个临时文件夹
+     * 创建一个自定义名称的临时文件(此文件通过临时一个上层目录来使得当前的文件名可进行自定义)
+     * 
+     * @param name
+     *            临时文件的名称
+     * @return 临时文件
+     * @throws IOException
+     *             i/o error
+     */
+    public static File createTmpFile(String name) throws IOException {
+        return createTmpDir().getTmpFile(name);
+    }
+
+    /**
+     * 通过uuid命名文件夹在临时目录中创建一个临时文件夹
      * 
      * @return 临时目录下的临时文件夹
      * @throws IOException
      */
-
-    public static File createTempDirectory() throws IOException {
-        return createTempDirectory(UUID.randomUUID().toString());
+    public static TmpDir createTmpDir() throws IOException {
+        return createTmpDir(UUID.randomUUID().toString());
     }
 
     /**
-     * 通过指定名称在临时目录下创建临时目录
+     * 在临时目录下建立一个特定名称的目录
      * 
      * @param pathname
      *            目录
      * @return 临时目录
      * @throws IOException
      */
-    public static File createTempDirectory(String pathname) throws IOException {
-        File dir = new File(System.getProperty("java.io.tmpdir"), pathname);
-        if (dir.exists()) {
-            throw new IOException("temp directory " + dir.getAbsolutePath() + " already exists");
+    public static TmpDir createTmpDir(String pathname) throws IOException {
+        File dir = new File(getDefaultTmpDir(), pathname);
+        if (!createDir(dir)) {
+            throw new IOException(pathname + " tmp dir create failed");
         }
-        createDirectory(dir);
-        return dir;
-    }
-
-    /**
-     * 在指定的临时目录下创建临时文件
-     * 
-     * @param directory
-     *            临时目录
-     * @return 临时文件
-     * @throws IOException
-     */
-    public static File createTempFile(String directory) throws IOException {
-        return createTempFile("", ".tmp", createTempDirectory(directory), false);
-    }
-
-    /**
-     * 创建临时文件
-     * 
-     * @param prefix
-     *            临时文件前缀
-     * @param directory
-     *            临时目录下的目录
-     * @return 临时文件
-     * @throws IOException
-     */
-    public static File createTempFile(String prefix, File directory) throws IOException {
-        return createTempFile(prefix, ".tmp", directory, false);
-    }
-
-    /**
-     * 创建临时文件
-     * 
-     * @param prefix
-     *            临时文件前缀
-     * @param suffix
-     *            临时文件后缀
-     * @param directory
-     *            临时目录下的目录
-     * @param deleteOnExit
-     *            是否jvm退出时候删除
-     * @return 临时文件
-     * @throws IOException
-     */
-    public static File createTempFile(String prefix, String suffix, File directory, boolean deleteOnExit) throws IOException {
-        File tempFile = File.createTempFile(prefix, suffix, directory);
-        if (deleteOnExit) {
-            tempFile.deleteOnExit();
-        }
-        return tempFile;
+        return new TmpDir(dir);
     }
 
     /**
@@ -311,6 +393,35 @@ public class FileUtils {
                 is.close();
             }
         }
+    }
+
+    /**
+     * 临时目录
+     * 
+     * @author wuxii@foxmail.com
+     */
+    public static class TmpDir implements Serializable {
+
+        private static final long serialVersionUID = 3757424787193302679L;
+
+        private final File dir;
+
+        private TmpDir(File dir) {
+            this.dir = dir;
+        }
+
+        public boolean exists(String pathname) {
+            return getTmpFile(pathname).exists();
+        }
+
+        public File getTmpFile(String pathname) {
+            return new File(dir, pathname);
+        }
+
+        public File getTmpDir() {
+            return dir;
+        }
+
     }
 
 }

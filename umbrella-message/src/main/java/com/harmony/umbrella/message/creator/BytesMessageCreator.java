@@ -1,9 +1,9 @@
 package com.harmony.umbrella.message.creator;
 
 import javax.jms.BytesMessage;
-import javax.jms.JMSContext;
 import javax.jms.JMSException;
-import javax.jms.Session;
+
+import com.harmony.umbrella.message.MessageType;
 
 /**
  * @author wuxii@foxmail.com
@@ -14,22 +14,13 @@ public class BytesMessageCreator extends AbstractMessageCreator<BytesMessage> {
     protected byte[] buf;
 
     public BytesMessageCreator(byte[] buf) {
+        super(MessageType.BytesMessage);
         this.buf = buf;
     }
 
     @Override
     protected void doMapping(BytesMessage message) throws JMSException {
         message.writeBytes(buf);
-    }
-
-    @Override
-    protected BytesMessage createMessage(Session session) throws JMSException {
-        return session.createBytesMessage();
-    }
-
-    @Override
-    protected BytesMessage createMessage(JMSContext jmsContext) throws JMSException {
-        return jmsContext.createBytesMessage();
     }
 
 }

@@ -3,8 +3,6 @@ package com.harmony.umbrella.core;
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 通过类的反射{@linkplain Class#newInstance()}来创建Bean
@@ -14,8 +12,6 @@ import java.util.concurrent.ConcurrentHashMap;
 public class SimpleBeanFactory extends AbstractBeanFactory implements Serializable {
 
     private static final long serialVersionUID = 1L;
-
-    protected final Map<Class<?>, Object> beans = new ConcurrentHashMap<Class<?>, Object>();
 
     public static final SimpleBeanFactory INSTANCE = new SimpleBeanFactory();
 

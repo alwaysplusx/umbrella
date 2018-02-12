@@ -2,7 +2,7 @@ package com.harmony.umbrella.ws.cxf.log;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import com.harmony.umbrella.util.Exceptions;
+import com.harmony.umbrella.util.StringUtils;
 
 /**
  * @author wuxii@foxmail.com
@@ -129,7 +129,7 @@ public class CXFLogMessage {
 
         if (isException()) {
             buffer.append("\nException: ");
-            buffer.append(Exceptions.getRootCause(exception));
+            buffer.append(StringUtils.getExceptionStackTrace(exception));
         }
 
         if (payload.length() > 0) {

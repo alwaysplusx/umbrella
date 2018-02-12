@@ -11,13 +11,17 @@ import javax.jms.JMSException;
 import javax.jms.MapMessage;
 import javax.jms.Message;
 import javax.jms.ObjectMessage;
+import javax.jms.Session;
 import javax.jms.StreamMessage;
 import javax.jms.TextMessage;
+
+import com.harmony.umbrella.message.MessageTemplate.MessageCreator;
 
 /**
  * @author wuxii@foxmail.com
  */
-public enum MessageType implements MessageSerializer, MessageDeserialize {
+public enum MessageType implements MessageSerializer, MessageDeserialize, MessageCreator {
+
     BytesMessage(javax.jms.BytesMessage.class) {
 
         @Override
@@ -42,6 +46,11 @@ public enum MessageType implements MessageSerializer, MessageDeserialize {
             BytesMessage bytesMessage = (BytesMessage) message;
             bytesMessage.writeBytes(o);
         }
+
+        @Override
+        public Message createMessage(Session session) throws JMSException {
+            return session.createBytesMessage();
+        }
     },
     TextMessage(javax.jms.TextMessage.class) {
 
@@ -54,6 +63,11 @@ public enum MessageType implements MessageSerializer, MessageDeserialize {
         public void deserialize(Message message, Serializable content) throws JMSException {
             ((TextMessage) message).setText((String) content);
         }
+
+        @Override
+        public Message createMessage(Session session) throws JMSException {
+            return session.createTextMessage();
+        }
     }, //
     ObjectMessage(javax.jms.ObjectMessage.class) {
 
@@ -65,6 +79,11 @@ public enum MessageType implements MessageSerializer, MessageDeserialize {
         @Override
         public void deserialize(Message message, Serializable content) throws JMSException {
             ((ObjectMessage) message).setObject(content);
+        }
+
+        @Override
+        public Message createMessage(Session session) throws JMSException {
+            return session.createObjectMessage();
         }
     }, //
     StreamMessage(javax.jms.StreamMessage.class) {
@@ -91,6 +110,11 @@ public enum MessageType implements MessageSerializer, MessageDeserialize {
             StreamMessage streamMessage = (StreamMessage) message;
             streamMessage.writeBytes(o);
         }
+
+        @Override
+        public Message createMessage(Session session) throws JMSException {
+            return session.createStreamMessage();
+        }
     }, //
     MapMessage(javax.jms.MapMessage.class) {
 
@@ -113,6 +137,11 @@ public enum MessageType implements MessageSerializer, MessageDeserialize {
             for (Object name : map.keySet()) {
                 mapMessage.setObject((String) name, map.get(name));
             }
+        }
+
+        @Override
+        public Message createMessage(Session session) throws JMSException {
+            return session.createMapMessage();
         }
     };
 

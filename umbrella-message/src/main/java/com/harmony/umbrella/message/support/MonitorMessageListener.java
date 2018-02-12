@@ -31,7 +31,7 @@ public class MonitorMessageListener implements MessageListener {
             this.fireEvent(message, EventPhase.BEFORE_CONSUME);
             listener.onMessage(message);
             this.fireEvent(message, EventPhase.AFTER_CONSUME);
-        } catch (Exception e) {
+        } catch (Throwable e) {
             this.fireEvent(message, EventPhase.CONSUME_FAILURE, e);
             throw e;
         }

@@ -5,11 +5,11 @@ import java.util.List;
 
 import org.springframework.data.domain.Page;
 
+import com.harmony.umbrella.data.query.JpaQueryBuilder;
 import com.harmony.umbrella.data.query.QueryBundle;
 import com.harmony.umbrella.data.repository.QueryableRepository;
 
 /**
- * FIXME 补充完成
  * 
  * @author wuxii@foxmail.com
  */
@@ -19,16 +19,6 @@ public abstract class ServiceSupport<T, ID extends Serializable> implements Serv
 
     @Override
     public T saveOrUpdate(T entity) {
-        return getRepository().save(entity);
-    }
-
-    @Override
-    public T save(T entity) {
-        return getRepository().save(entity);
-    }
-
-    @Override
-    public T update(T entity) {
         return getRepository().save(entity);
     }
 
@@ -97,6 +87,14 @@ public abstract class ServiceSupport<T, ID extends Serializable> implements Serv
     @Override
     public void deleteAll() {
         getRepository().deleteAllInBatch();
+    }
+
+    protected JpaQueryBuilder<T> queryWith() {
+        return queryWith((Class<T>) null);
+    }
+
+    protected <M> JpaQueryBuilder<M> queryWith(Class<M> domainClass) {
+        return JpaQueryBuilder.<M> newBuilder().from(domainClass);
     }
 
 }

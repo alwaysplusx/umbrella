@@ -15,7 +15,7 @@ public abstract class AbstractCellResolver<T> implements CellResolver<T> {
     @Override
     public Class<T> targetType() {
         if (targetType == null) {
-            targetType = (Class<T>) GenericUtils.getTargetGeneric(getClass(), AbstractCellResolver.class, 0);
+            targetType = (Class<T>) GenericUtils.parse(getClass()).getTargetGeneric(AbstractCellResolver.class, 0).getJavaType();
         }
         return targetType;
     }

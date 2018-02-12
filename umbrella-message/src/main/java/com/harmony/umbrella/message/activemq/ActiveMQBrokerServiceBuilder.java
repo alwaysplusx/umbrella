@@ -27,7 +27,7 @@ public class ActiveMQBrokerServiceBuilder {
         this.brokerService = ssl ? new SslBrokerService() : new BrokerService();
     }
 
-    public ActiveMQBrokerServiceBuilder setConnector(String address) {
+    public ActiveMQBrokerServiceBuilder setBrokerUrl(String address) {
         try {
             brokerService.addConnector(address);
         } catch (Exception e) {

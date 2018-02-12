@@ -14,7 +14,6 @@ import org.springframework.util.Assert;
 import com.harmony.umbrella.core.Invoker;
 import com.harmony.umbrella.log.Log;
 import com.harmony.umbrella.log.Logs;
-import com.harmony.umbrella.util.Exceptions;
 import com.harmony.umbrella.ws.Context;
 import com.harmony.umbrella.ws.Metadata;
 import com.harmony.umbrella.ws.ProxyExecutorSupport;
@@ -58,7 +57,7 @@ public class JaxWsCXFExecutor extends ProxyExecutorSupport implements JaxWsExecu
         } catch (Throwable e) {
             // 执行失败时候移除缓存的代理服务
             this.removeProxy(context.getServiceInterface());
-            throw new WebServiceException("执行交互失败", Exceptions.getRootCause(e));
+            throw new WebServiceException("执行交互失败", e);
         }
         return result;
     }

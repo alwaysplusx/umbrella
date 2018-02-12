@@ -3,10 +3,10 @@ package com.harmony.umbrella.message.creator;
 import java.io.Serializable;
 import java.util.Map;
 
-import javax.jms.JMSContext;
 import javax.jms.JMSException;
 import javax.jms.MapMessage;
-import javax.jms.Session;
+
+import com.harmony.umbrella.message.MessageType;
 
 public class MapMessageCreator extends AbstractMessageCreator<MapMessage> {
 
@@ -15,6 +15,7 @@ public class MapMessageCreator extends AbstractMessageCreator<MapMessage> {
     protected boolean skipNotSatisfiedEntry;
 
     public MapMessageCreator(Map map, boolean skipNotStatisfiedEntry) {
+        super(MessageType.MapMessage);
         this.map = map;
         this.skipNotSatisfiedEntry = skipNotStatisfiedEntry;
     }
@@ -31,11 +32,6 @@ public class MapMessageCreator extends AbstractMessageCreator<MapMessage> {
         }
     }
 
-    @Override
-    protected MapMessage createMessage(Session session) throws JMSException {
-        return session.createMapMessage();
-    }
-
     public boolean isSkipNotSatisfiedEntry() throws JMSException {
         return skipNotSatisfiedEntry;
     }
@@ -44,8 +40,4 @@ public class MapMessageCreator extends AbstractMessageCreator<MapMessage> {
         this.skipNotSatisfiedEntry = skipNotSatisfiedEntry;
     }
 
-    @Override
-    protected MapMessage createMessage(JMSContext jmsContext) {
-        return jmsContext.createMapMessage();
-    }
 }

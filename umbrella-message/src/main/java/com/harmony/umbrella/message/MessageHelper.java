@@ -20,7 +20,6 @@ import com.harmony.umbrella.log.Logs;
 import com.harmony.umbrella.message.JmsTemplate.SessionPoint;
 import com.harmony.umbrella.message.MessageMonitor.EventPhase;
 import com.harmony.umbrella.message.MessageMonitor.MessageEvent;
-import com.harmony.umbrella.message.annotation.MessageSelector;
 import com.harmony.umbrella.message.creator.BytesMessageCreator;
 import com.harmony.umbrella.message.creator.MapMessageCreator;
 import com.harmony.umbrella.message.creator.ObjectMessageCreator;
@@ -28,7 +27,6 @@ import com.harmony.umbrella.message.creator.StreamMessageCreator;
 import com.harmony.umbrella.message.creator.TextMessageCreator;
 import com.harmony.umbrella.message.support.MonitorMessageListener;
 import com.harmony.umbrella.message.support.SimpleDynamicMessageListener;
-import com.harmony.umbrella.util.StringUtils;
 
 /**
  * 消息发送helper
@@ -56,33 +54,33 @@ public class MessageHelper implements MessageTemplate {
      *            bytes @
      */
     @Override
-    public void sendBytesMessage(byte[] buf) {
-        sendMessage(new BytesMessageCreator(buf));
+    public String sendBytesMessage(byte[] buf) {
+        return sendMessage(new BytesMessageCreator(buf));
     }
 
     @Override
-    public void sendObjectMessage(Serializable obj) {
-        sendMessage(new InternalObjectMessageCreator(obj));
+    public String sendObjectMessage(Serializable obj) {
+        return sendMessage(new InternalObjectMessageCreator(obj));
     }
 
     @Override
-    public void sendMapMessage(Map map) {
-        sendMapMessage(map, false);
+    public String sendMapMessage(Map map) {
+        return sendMapMessage(map, false);
     }
 
     @Override
-    public void sendMapMessage(Map map, boolean skipNotStatisfiedEntry) {
-        sendMessage(new MapMessageCreator(map, skipNotStatisfiedEntry));
+    public String sendMapMessage(Map map, boolean skipNotStatisfiedEntry) {
+        return sendMessage(new MapMessageCreator(map, skipNotStatisfiedEntry));
     }
 
     @Override
-    public void sendTextMessage(String text) {
-        sendMessage(new TextMessageCreator(text));
+    public String sendTextMessage(String text) {
+        return sendMessage(new TextMessageCreator(text));
     }
 
     @Override
-    public void sendStreamMessage(InputStream is) {
-        sendMessage(new StreamMessageCreator(is));
+    public String sendStreamMessage(InputStream is) {
+        return sendMessage(new StreamMessageCreator(is));
     }
 
     /**
@@ -92,17 +90,18 @@ public class MessageHelper implements MessageTemplate {
      *            定制化消息创建器 @
      */
     @Override
-    public void sendMessage(MessageCreator messageCreator) {
-        sendMessage(null, messageCreator, null);
+    public String sendMessage(MessageCreator messageCreator) {
+        return sendMessage(null, messageCreator, null);
     }
 
     @Override
-    public void sendMessage(Destination destination, MessageCreator messageCreator, MessageProducerConfigure configure) {
+    public String sendMessage(Destination destination, MessageCreator messageCreator, MessageProducerConfigure configure) {
         SessionPoint session = jmsTemplate.newSession();
         Message message = null;
+        String messageId = null;
         destination = destination == null ? session.getDestination() : destination;
         try {
-            message = messageCreator.newMessage(session.getSession());
+            message = messageCreator.createMessage(session.getSession());
             message.setJMSDestination(destination);
             message.setJMSTimestamp(System.currentTimeMillis());
 
@@ -110,7 +109,14 @@ public class MessageHelper implements MessageTemplate {
             if (configure != null) {
                 configure.config(producer);
             }
+            // set custom message id
+            messageId = message.getStringProperty(TEMPLATE_MESSAGE_ID);
+            if (messageId == null) {
+                messageId = nextMessageId();
+                message.setStringProperty(TEMPLATE_MESSAGE_ID, messageId);
+            }
 
+            // fire event
             fireEvent(message, EventPhase.BEFORE_SEND);
             producer.send(destination, message);
             fireEvent(message, EventPhase.AFTER_SEND);
@@ -125,6 +131,7 @@ public class MessageHelper implements MessageTemplate {
         } finally {
             session.release();
         }
+        return messageId;
     }
 
     @Override
@@ -133,11 +140,37 @@ public class MessageHelper implements MessageTemplate {
     }
 
     @Override
+    public Message receiveMessage(String messageId) {
+        return receiveMessage(messageId, -1, false);
+    }
+
+    @Override
+    public Message receiveMessage(String messageId, long timeout) {
+        return receiveMessage(messageId, timeout, false);
+    }
+
+    @Override
     public Message receiveMessage(long timeout) {
-        SessionPoint session = jmsTemplate.newSession();
+        return receiveMessage(null, timeout, true);
+    }
+
+    @Override
+    public Message receiveMessage(long timeout, boolean quiet) {
+        return receiveMessage(null, timeout, quiet);
+    }
+
+    protected Message receiveMessage(String messageId, long timeout, boolean quiet) {
+        String messageSelector = null;
+        if (messageId != null) {
+            messageSelector = TEMPLATE_MESSAGE_ID + " = '" + messageId + "'";
+        }
+        SessionPoint session = jmsTemplate.newSession(messageSelector);
         try {
             MessageConsumer consumer = session.getMessageConsumer();
             Message message = timeout < 0 ? consumer.receiveNoWait() : consumer.receive(timeout);
+            if (message != null && !quiet) {
+                this.fireEvent(message, EventPhase.AFTER_CONSUME);
+            }
             return message;
         } catch (JMSException e) {
             session.rollback();
@@ -159,20 +192,8 @@ public class MessageHelper implements MessageTemplate {
 
     @Override
     public DynamicMessageListener startMessageListener(MessageListener listener) {
-        String messageSelector = null;
-        if (listener instanceof TypedMessageListener) {
-            messageSelector = OBJECT_TYPE_MESSAGE_SELECTOR_KEY + " = '" + ((TypedMessageListener) listener).getType().getName() + "'";
-        } else if (listener.getClass().getAnnotation(MessageSelector.class) != null) {
-            MessageSelector ann = listener.getClass().getAnnotation(MessageSelector.class);
-            if (StringUtils.isNotBlank(ann.value())) {
-                messageSelector = ann.value();
-            } else if (ann.type() != Void.class) {
-                messageSelector = ann.type().getName();
-            }
-            if (messageSelector != null) {
-                messageSelector = OBJECT_TYPE_MESSAGE_SELECTOR_KEY + " = '" + messageSelector + "'";
-            }
-        } else {
+        String messageSelector = MessageUtils.getMessageSelector(listener.getClass());
+        if (messageSelector == null) {
             messageSelector = jmsTemplate.getMessageSelector();
         }
         return startMessageListener(messageSelector, listener);
@@ -191,6 +212,10 @@ public class MessageHelper implements MessageTemplate {
         return dml;
     }
 
+    protected String nextMessageId() {
+        return MessageUtils.newMessageId();
+    }
+
     private void fireEvent(Message message, EventPhase phase) {
         fireEvent(message, phase, null);
     }
@@ -202,7 +227,10 @@ public class MessageHelper implements MessageTemplate {
                 event = MessageUtils.createMessageEvent(message, phase, exception);
                 messageMonitor.onEvent(event);
             } catch (Throwable e) {
-                log.debug("fire message failed, event {}", event);
+                log.warn("fire message failed {}, event {}", e.getMessage(), event);
+                if (log.isDebugEnabled()) {
+                    log.warn("", e);
+                }
             }
         }
     }
@@ -235,7 +263,7 @@ public class MessageHelper implements MessageTemplate {
         @Override
         protected void doMapping(ObjectMessage message) throws JMSException {
             super.doMapping(message);
-            message.setStringProperty(OBJECT_TYPE_MESSAGE_SELECTOR_KEY, object.getClass().getName());
+            message.setStringProperty(TEMPLATE_MESSAGE_OBJECT_TYPE, object.getClass().getName());
         }
 
     }

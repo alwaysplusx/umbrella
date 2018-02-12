@@ -14,10 +14,6 @@ public interface Service<T, ID extends Serializable> {
 
     T saveOrUpdate(T entity);
 
-    T save(T entity);
-
-    T update(T entity);
-
     void delete(T entity);
 
     void delete(ID id);

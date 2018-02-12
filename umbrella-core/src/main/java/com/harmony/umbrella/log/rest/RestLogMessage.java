@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 import com.harmony.umbrella.context.ContextHelper;
 import com.harmony.umbrella.log.LogInfo;
-import com.harmony.umbrella.util.Exceptions;
+import com.harmony.umbrella.util.StringUtils;
 
 /**
  * @author wuxii@foxmail.com
@@ -187,7 +187,7 @@ public class RestLogMessage implements Serializable {
         o.responseTime = info.getResponseTime() != null ? info.getResponseTime().getTime() : -1;
         o.result = info.getResult() != null ? info.getResult().toString() : null;
         o.thread = info.getThread();
-        o.throwable = Exceptions.getStackTraceAsString(info.getThrowable());
+        o.throwable = StringUtils.getExceptionStackTrace(info.getThrowable());
         o.userHost = info.getUserHost();
         o.userId = info.getUserId();
         o.username = info.getUsername();

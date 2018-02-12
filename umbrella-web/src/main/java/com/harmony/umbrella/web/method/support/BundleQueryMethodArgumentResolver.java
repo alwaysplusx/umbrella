@@ -31,13 +31,13 @@ public class BundleQueryMethodArgumentResolver implements HandlerMethodArgumentR
 
     @Override
     public boolean supportsParameter(MethodParameter parameter) {
-        Class<?> rowType = parameter.getParameterType();
-        return rowType == QueryBundle.class || QueryBuilder.class == rowType || JpaQueryBuilder.class == rowType;
+        Class<?> type = parameter.getParameterType();
+        return QueryBundle.class.isAssignableFrom(type) || QueryBuilder.class.isAssignableFrom(type);
     }
 
     @Override
-    public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer,
-            NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
+    public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer, NativeWebRequest webRequest,
+            WebDataBinderFactory binderFactory) throws Exception {
         Class<?> domainClass = getDomainType(parameter);
         BundleQueryAnnotation ann = getBundleQueryAnnotation(parameter);
         WebDataBinder binder = binderFactory.createBinder(webRequest, null, null);
@@ -48,11 +48,11 @@ public class BundleQueryMethodArgumentResolver implements HandlerMethodArgumentR
     }
 
     public final Class<?> getDomainType(MethodParameter parameter) {
-        Class<?> rowType = parameter.getParameterType();
+        Class<?> rawType = parameter.getParameterType();
         int gIndex = -1;
-        if (QueryBundle.class.equals(rowType) || JpaQueryBuilder.class.equals(rowType)) {
+        if (QueryBundle.class.isAssignableFrom(rawType)) {
             gIndex = 0;
-        } else if (QueryBuilder.class.equals(rowType)) {
+        } else if (QueryBuilder.class.equals(rawType)) {
             gIndex = 1;
         }
         if (gIndex != -1) {
@@ -100,8 +100,8 @@ public class BundleQueryMethodArgumentResolver implements HandlerMethodArgumentR
         public final List<String> desc;
         public final List<QueryFeature> feature;
 
-        private BundleQueryAnnotation(String prefix, String separator, int page, int size, List<String> grouping,
-                List<String> asc, List<String> desc, List<QueryFeature> feature) {
+        private BundleQueryAnnotation(String prefix, String separator, int page, int size, List<String> grouping, List<String> asc, List<String> desc,
+                List<QueryFeature> feature) {
             this.prefix = prefix;
             this.separator = separator;
             this.page = page;

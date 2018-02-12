@@ -4,18 +4,23 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import java.util.Collection;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 import org.springframework.core.annotation.AliasFor;
-import org.springframework.data.domain.Page;
 
 import com.alibaba.fastjson.serializer.SerializeFilter;
 import com.alibaba.fastjson.serializer.SerializerFeature;
-import com.harmony.umbrella.data.domain.BaseEntity;
-import com.harmony.umbrella.web.method.support.ViewFragment;
+import com.harmony.umbrella.json.KeyStyle;
+import com.harmony.umbrella.json.SerializerConfigBuilder;
+import com.harmony.umbrella.web.method.support.BundleViewMethodProcessor;
 
 /**
+ * 配合{@linkplain BundleViewMethodProcessor}使用, 来达到注解配置式序列化返回值.
+ * 
  * @author wuxii@foxmail.com
+ * @see BundleViewMethodProcessor
+ * @see SerializerConfigBuilder
  */
 @Target({ ElementType.METHOD, ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
@@ -45,13 +50,6 @@ public @interface BundleView {
     String[] includes() default {};
 
     /**
-     * view进行序列化的特性
-     * 
-     * @return 序列化特性
-     */
-    SerializerFeature[] features() default {};
-
-    /**
      * 序列化自定义filters
      * 
      * @return filters
@@ -59,172 +57,73 @@ public @interface BundleView {
     Class<? extends SerializeFilter>[] filters() default {};
 
     /**
-     * 是否序列化lazy属性
+     * view进行序列化的特性
      * 
-     * @return fetchLazy
+     * @return 序列化特性
      */
-    boolean fetchLazy() default true;
+    SerializerFeature[] features() default {};
 
     /**
-     * 序列化的时候是否尝试lazy属性
+     * key style
      * 
-     * @return safeFetch
+     * @return key style
      */
-    boolean safeFetch() default true;
-
-    /**
-     * 序列化到web前台时候的content-type
-     * 
-     * @return content-type
-     */
-    String contentType() default "";
-
-    /**
-     * 是否对{@linkplain org.springframework.data.domain.Page Page}进行自动封装
-     * 
-     * @return 自动封装page
-     */
-    boolean wrappage() default true;
+    KeyStyle style() default KeyStyle.ORIGIN;
 
     /**
      * 对内容类型的序列化行为
      * 
      * @return 序列化内容的类型行为
      */
-    BehaviorType behavior() default BehaviorType.AUTO;
+    Behavior behavior() default Behavior.AUTO;
 
     /**
-     * 渲染到web前台的内容字符集
+     * 序列化中的{@linkplain #includes()} & {@linkplain #excludes()}中的特性
      * 
-     * @return 渲染的字符集
+     * @return
      */
-    String encoding() default "";
-
-    /**
-     * 内容类型序列化行为自定义类
-     * 
-     * @return 内容序列化自定义类
-     */
-    Class<? extends BundleViewBehavior> behaviorClass() default BundleViewBehavior.class;
-
-    /**
-     * 序列化字段的转换器
-     * 
-     * @return 序列化字段转化器
-     */
-    Class<? extends PatternConverter> converter() default PatternConverter.class;
+    Class<? extends PatternBehavior> patternBehavoirClass() default PatternBehavior.class;
 
     /**
      * 对内容类型序列化的行为设置
      * 
      * @author wuxii@foxmail.com
      */
-    public enum BehaviorType implements PatternConverter, BundleViewBehavior {
+    public enum Behavior implements PatternBehavior {
 
-        AUTO {
+        AUTO(""), //
+        ARRAY("[*]."), //
+        PAGE("items[*]."), //
+        NONE("");
 
-            @Override
-            public String[] convert(String[] patterns) {
-                throw new UnsupportedOperationException();
-            }
+        private String prefix;
 
-            @Override
-            public void apply(ViewFragment viewFragment) {
-                throw new UnsupportedOperationException();
-            }
-
-        },
-        PAGE {
-
-            @Override
-            public String[] convert(String[] patterns) {
-                String[] result = new String[patterns.length];
-                for (int i = 0; i < patterns.length; i++) {
-                    String p = patterns[i];
-                    if (p.startsWith("$.")) {
-                        result[i] = p.substring(2);
-                    } else {
-                        result[i] = "content[*]." + p;
-                    }
-                }
-                return result;
-            }
-
-            @Override
-            public void apply(ViewFragment viewFragment) {
-                viewFragment.excludes(PAGE, DEFAULT_EXCLUDES);
-            }
-        },
-        ARRAY {
-
-            @Override
-            public String[] convert(String[] patterns) {
-                String[] result = new String[patterns.length];
-                for (int i = 0; i < patterns.length; i++) {
-                    String p = patterns[i];
-                    if (p.startsWith("$.")) {
-                        result[i] = p.substring(2);
-                    } else {
-                        result[i] = "[*]." + p;
-                    }
-                }
-                return result;
-            }
-
-            @Override
-            public void apply(ViewFragment viewFragment) {
-                viewFragment.excludes(ARRAY, DEFAULT_EXCLUDES);
-            }
-        },
-        ENTITY {
-
-            @Override
-            public String[] convert(String[] patterns) {
-                String[] result = new String[patterns.length];
-                System.arraycopy(patterns, 0, result, 0, patterns.length);
-                return result;
-            }
-
-            @Override
-            public void apply(ViewFragment viewFragment) {
-                viewFragment.excludes(ENTITY, DEFAULT_EXCLUDES);
-            }
-        },
-        NONE {
-
-            @Override
-            public String[] convert(String[] patterns) {
-                return BehaviorType.ENTITY.convert(patterns);
-            }
-
-            @Override
-            public void apply(ViewFragment viewFragment) {
-            }
-        };
-
-        private static final String[] DEFAULT_EXCLUDES = { "**.id", "**.new" };
-
-        public static BehaviorType convert(Class<?> type) {
-            if (Page.class.isAssignableFrom(type)) {
-                return PAGE;
-            } else if (Collection.class.isAssignableFrom(type) || type.isArray()) {
-                return ARRAY;
-            } else if (BaseEntity.class.isAssignableFrom(type)) {
-                return BehaviorType.ENTITY;
-            }
-            return NONE;
+        private Behavior(String prefix) {
+            this.prefix = prefix;
         }
+
+        protected String convert(String s) {
+            return prefix + s;
+        }
+
+        @Override
+        public Set<String> convert(String[] patterns) {
+            Set<String> result = new LinkedHashSet<>();
+            for (String s : patterns) {
+                if (s.startsWith("$.")) {
+                    result.add(s.substring(2));
+                } else {
+                    result.add(prefix + s);
+                }
+            }
+            return result;
+        }
+
     }
 
-    public interface PatternConverter {
+    public interface PatternBehavior {
 
-        String[] convert(String[] patterns);
-
-    }
-
-    public interface BundleViewBehavior {
-
-        void apply(ViewFragment viewFragment);
+        Set<String> convert(String[] patterns);
 
     }
 

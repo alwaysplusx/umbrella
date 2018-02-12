@@ -35,7 +35,8 @@ public class BundleModelMethodArgumentResolver implements HandlerMethodArgumentR
         BundleModel ann = parameter.getParameterAnnotation(BundleModel.class);
         String name = "".equals(ann.model()) ? Conventions.getVariableNameForParameter(parameter) : ann.model();
 
-        Object attribute = (mavContainer.containsAttribute(name) ? mavContainer.getModel().get(name)
+        Object attribute = (mavContainer.containsAttribute(name) //
+                ? mavContainer.getModel().get(name)//
                 : createAttribute(name, parameter, binderFactory, webRequest));
 
         WebDataBinder binder = binderFactory.createBinder(webRequest, attribute, name);

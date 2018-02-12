@@ -365,14 +365,12 @@ public abstract class ApplicationContext implements BeanFactory {
     protected ApplicationContext() {
     }
 
-    public abstract BeanFactory getBeanFactory();
+    protected abstract BeanFactory getBeanFactory();
 
     public void init() {
-
     }
 
     public void destroy() {
-
     }
 
     @Override
@@ -635,7 +633,7 @@ public abstract class ApplicationContext implements BeanFactory {
         }
 
         @Override
-        public BeanFactory getBeanFactory() {
+        protected BeanFactory getBeanFactory() {
             return beanFactory;
         }
 

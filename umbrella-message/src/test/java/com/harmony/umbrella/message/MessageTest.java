@@ -1,5 +1,7 @@
 package com.harmony.umbrella.message;
 
+import static org.junit.Assert.*;
+
 import java.io.Serializable;
 import java.util.concurrent.CountDownLatch;
 
@@ -29,7 +31,6 @@ public class MessageTest {
     private static MessageTemplate messageTemplate;
     private static BrokerService brokerService;
 
-    private static DynamicMessageListener textMessageListener;
     private static DynamicMessageListener stringMessageListener;
     private static DynamicMessageListener integerMessageListener;
 
@@ -37,14 +38,16 @@ public class MessageTest {
 
     @BeforeClass
     public static void beforeClass() {
+        // start activemq server
         brokerService = ActiveMQBrokerServiceBuilder//
                 .newBuilder()//
                 .setPersistenceAdapter(new MemoryPersistenceAdapter())//
                 .setTmpDataDirectory("target/activemq")//
-                .setConnector(url)//
+                .setBrokerUrl(url)//
                 .start();
+        // create message template
         messageTemplate = new ActiveMQMessageTemplateBuilder()//
-                .setConnectionFactoryURL(url)//
+                .setBrokerUrl(url)//
                 .setQueueName("queue")//
                 .setSessionAutoCommit(true)//
                 .setMessageMonitor(event -> {
@@ -52,16 +55,10 @@ public class MessageTest {
                 })//
                 .build();
 
-        // ActiveMQ listener 的启动顺序与默认onMessage有关, 如果在没有设置MessageSelector的情况下 就按顺序进行接收消息.
+        // start message listeners
+        // ActiveMQ listener 的启动顺序与默认onMessage有关, 如果在没有设置MessageSelector的情况下
+        // 就按顺序进行接收消息.
         integerMessageListener = messageTemplate.startMessageListener(new IntegerMessageListener());
-
-        textMessageListener = messageTemplate.startMessageListener(m -> {
-            try {
-                System.out.println("text message listener consume message: " + ((TextMessage) m).getText());
-            } catch (JMSException e) {
-            }
-            listenerConsumeLatch.countDown();
-        });
 
         stringMessageListener = messageTemplate.startMessageListener(new StringMessageListener());
 
@@ -69,15 +66,28 @@ public class MessageTest {
 
     @Test
     public void test() throws JMSException, InterruptedException {
-        messageTemplate.sendTextMessage("Text Message");
         messageTemplate.sendObjectMessage(new Integer(100));
         messageTemplate.sendObjectMessage("String Message");
         listenerConsumeLatch.await();
     }
 
+    @Test
+    public void testCustomReceiveMessage() throws JMSException {
+        String messageId = messageTemplate.sendTextMessage("Custom Message");
+        Message message = messageTemplate.receiveMessage(messageId, 200);
+        assertEquals("Custom Message", ((TextMessage) message).getText());
+        // send message two
+        messageId = messageTemplate.sendTextMessage("Custom Message1");
+        // receive with random message id
+        message = messageTemplate.receiveMessage(MessageUtils.newMessageId(), 200);
+        assertNull(message);
+        // message id
+        message = messageTemplate.receiveMessage(messageId, 200);
+        assertEquals("Custom Message1", ((TextMessage) message).getText());
+    }
+
     @AfterClass
     public static void afterClass() throws Exception {
-        textMessageListener.stop();
         stringMessageListener.stop();
         integerMessageListener.stop();
         brokerService.stop();

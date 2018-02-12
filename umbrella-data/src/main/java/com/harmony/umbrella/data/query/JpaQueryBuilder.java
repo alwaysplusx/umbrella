@@ -28,6 +28,14 @@ public class JpaQueryBuilder<M> extends QueryBuilder<JpaQueryBuilder<M>, M> {
 
     private static final Log log = Logs.getLog();
 
+    public static <T> JpaQueryBuilder<T> newBuilder() {
+        return new JpaQueryBuilder<>();
+    }
+
+    public static <T> JpaQueryBuilder<T> newBuilder(Class<T> domainClass) {
+        return new JpaQueryBuilder<>(domainClass);
+    }
+
     public JpaQueryBuilder() {
     }
 

@@ -10,11 +10,11 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
 import org.springframework.http.server.ServletServerHttpResponse;
 import org.springframework.web.servlet.View;
 
-import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.serializer.SerializeFilter;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.harmony.umbrella.json.Json;
@@ -22,8 +22,11 @@ import com.harmony.umbrella.json.SerializerConfigBuilder;
 import com.harmony.umbrella.log.Log;
 import com.harmony.umbrella.log.Logs;
 import com.harmony.umbrella.util.IOUtils;
-import com.harmony.umbrella.util.StringUtils;
-import com.harmony.umbrella.web.method.annotation.BundleView.PatternConverter;
+import com.harmony.umbrella.web.Response;
+import com.harmony.umbrella.web.method.annotation.BundleView.Behavior;
+import com.harmony.umbrella.web.method.annotation.BundleView.PatternBehavior;
+import com.harmony.umbrella.web.util.WebUtils;
+import com.harmony.umbrella.web.util.WebUtils.PageImpl;
 
 /**
  * 待渲染的视图片段(用于配置视图)
@@ -38,76 +41,51 @@ public class ViewFragment {
      * ModelAndViewContainer中的key
      */
     public static final String VIEW_FRAGMENT = "viewFragment";
-
     public static final String ENCODING = "UTF-8";
-    public static final String CONTENT_TYPE = MediaType.APPLICATION_JSON_UTF8_VALUE;
 
-    protected SerializerConfigBuilder serializer;
+    protected SerializerConfigBuilder serializerBuilder;
     protected final Map<String, List<String>> headers;
-    protected String contentType;
-    protected boolean wrappage;
-    protected String encoding;
+    protected String encoding = ENCODING;
+    protected String contentType = MediaType.APPLICATION_JSON_UTF8_VALUE;
+    private Behavior behavior;
 
     protected ViewFragment() {
         this.headers = new LinkedHashMap<>();
-        this.serializer = SerializerConfigBuilder.create();
+        this.serializerBuilder = SerializerConfigBuilder.newBuilder();
     }
 
-    public ViewFragment encoding(String encoding) {
+    public ViewFragment setEncoding(String encoding) {
         this.encoding = encoding;
         return this;
     }
 
-    public ViewFragment contentType(String contentType) {
-        this.contentType = contentType;
+    public ViewFragment addExcludes(String... patterns) {
+        this.serializerBuilder.addExcludePatterns(patterns);
         return this;
     }
 
-    public ViewFragment wrappage(boolean wrappage) {
-        this.wrappage = wrappage;
+    public ViewFragment addIncludes(String... patterns) {
+        this.serializerBuilder.addIncludePatterns(patterns);
         return this;
     }
 
-    public ViewFragment camelCase(boolean camelCase) {
-        serializer.camelCase(camelCase);
+    public ViewFragment addExcludes(PatternBehavior converter, String... patterns) {
+        this.serializerBuilder.addExcludePatterns(converter.convert(patterns));
         return this;
     }
 
-    public ViewFragment safeFetch(boolean safeFetch) {
-        serializer.safeFetch(safeFetch);
+    public ViewFragment addIncludes(PatternBehavior converter, String... patterns) {
+        this.serializerBuilder.addIncludePatterns(converter.convert(patterns));
         return this;
     }
 
-    public ViewFragment fetchLazy(boolean fetchLazy) {
-        serializer.fetchLazyAttribute(fetchLazy);
+    public ViewFragment addFilters(SerializeFilter... filters) {
+        this.serializerBuilder.addFilters(filters);
         return this;
     }
 
-    public ViewFragment excludes(String... patterns) {
-        serializer.excludePatterns(patterns);
-        return this;
-    }
-
-    public ViewFragment excludes(PatternConverter converter, String... patterns) {
-        return excludes(converter.convert(patterns));
-    }
-
-    public ViewFragment includes(String... patterns) {
-        serializer.includePatterns(patterns);
-        return this;
-    }
-
-    public ViewFragment includes(PatternConverter converter, String... patterns) {
-        return includes(converter.convert(patterns));
-    }
-
-    public ViewFragment filters(SerializeFilter... filters) {
-        serializer.withFilter(filters);
-        return this;
-    }
-
-    public ViewFragment features(SerializerFeature... features) {
-        serializer.withFeature(features);
+    public ViewFragment addFeatures(SerializerFeature... features) {
+        serializerBuilder.addFeatures(features);
         return this;
     }
 
@@ -131,6 +109,11 @@ public class ViewFragment {
         return this;
     }
 
+    public ViewFragment setRenderBehavior(Behavior behavior) {
+        this.behavior = behavior;
+        return this;
+    }
+
     public ViewFragment disableCaching() {
         setHeader("Pragma", "no-cache");
         setHeader("Cache-Control", "no-cache, no-store, max-age=0");
@@ -145,11 +128,21 @@ public class ViewFragment {
         return this;
     }
 
+    protected ViewFragment setContentType(String contentType) {
+        this.contentType = contentType;
+        return this;
+    }
+
     public void reset() {
-        this.serializer = SerializerConfigBuilder.create();
+        this.serializerBuilder = SerializerConfigBuilder.newBuilder();
         this.headers.clear();
-        this.wrappage = true;
-        this.contentType = null;
+        this.behavior = null;
+        this.contentType = MediaType.APPLICATION_JSON_UTF8_VALUE;
+        this.encoding = ENCODING;
+    }
+
+    public SerializerConfigBuilder getSerializerConfigBuilder() {
+        return this.serializerBuilder;
     }
 
     private List<String> getRowHeader(String name) {
@@ -165,60 +158,37 @@ public class ViewFragment {
     }
 
     protected void render(Object o, HttpServletResponse response) throws IOException {
-        String type = contentType == null ? MediaType.APPLICATION_JSON_UTF8_VALUE : contentType;
-        render(o, type, createOutputMessage(response));
+        render(o, contentType, createOutputMessage(response));
     }
 
     private void render(Object o, String contentType, ServletServerHttpResponse outputMessage) throws IOException {
-        String encoding = StringUtils.isBlank(this.encoding) ? ENCODING : this.encoding;
         outputMessage.getHeaders().putAll(headers);
         HttpServletResponse response = outputMessage.getServletResponse();
         response.setContentType(contentType);
-        if (response.getCharacterEncoding() == null) {
-            response.setCharacterEncoding(encoding);
-        } else if (!response.getCharacterEncoding().equalsIgnoreCase(encoding)) {
-            log.warn("response charset encoding already set, expect set to {} but actual is {}", encoding, response.getCharacterEncoding());
+
+        String originEncoding = response.getCharacterEncoding();
+        response.setCharacterEncoding(encoding);
+        if (originEncoding != null && !originEncoding.equalsIgnoreCase(encoding)) {
+            log.warn("response charset encoding already been set, expect set to {} but actual is {}", encoding, response.getCharacterEncoding());
         }
-        if (o instanceof org.springframework.data.domain.Page && wrappage) {
-            o = new Page((org.springframework.data.domain.Page) o);
+
+        if (o instanceof Page //
+                && !(o instanceof PageImpl)//
+                && Behavior.PAGE.equals(behavior)) {
+            o = WebUtils.frontendPage((Page<?>) o);
         }
-        String text = Json.toJson(o, serializer.build());
+
+        if (o instanceof Response) {
+            o = ((Response) o).toJson();
+        }
+
+        String text = o instanceof String ? (String) o : Json.toJson(o, serializerBuilder.build());
         IOUtils.write(text.getBytes(encoding), outputMessage.getBody());
         outputMessage.flush();
     }
 
-    protected static ServletServerHttpResponse createOutputMessage(HttpServletResponse response) {
+    protected ServletServerHttpResponse createOutputMessage(HttpServletResponse response) {
         return new ServletServerHttpResponse(response);
-    }
-
-    private static final class Page {
-
-        private org.springframework.data.domain.Page<?> page;
-
-        private Page(org.springframework.data.domain.Page<?> page) {
-            this.page = page;
-        }
-
-        @JSONField(ordinal = 4)
-        public List<?> getContent() {
-            return page.getContent();
-        }
-
-        @JSONField(ordinal = 1)
-        public int getPage() {
-            return page.getNumber() + 1;
-        }
-
-        @JSONField(ordinal = 2)
-        public int getSize() {
-            return page.getSize();
-        }
-
-        @JSONField(ordinal = 3)
-        public long getTotal() {
-            return page.getTotalElements();
-        }
-
     }
 
     private final class BundleView implements View {
@@ -231,12 +201,12 @@ public class ViewFragment {
 
         @Override
         public String getContentType() {
-            return MediaType.APPLICATION_JSON_UTF8_VALUE;
+            return contentType;
         }
 
         @Override
         public void render(Map<String, ?> model, HttpServletRequest request, HttpServletResponse response) throws Exception {
-            ViewFragment.this.render(obj, getContentType(), createOutputMessage(response));
+            ViewFragment.this.render(obj, response);
         }
 
     }

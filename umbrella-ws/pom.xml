@@ -28,6 +28,10 @@
       <artifactId>umbrella-data</artifactId>
     </dependency>
     <dependency>
+      <groupId>com.harmony.umbrella</groupId>
+      <artifactId>umbrella-message</artifactId>
+    </dependency>
+    <dependency>
       <groupId>net.sf.dozer</groupId>
       <artifactId>dozer</artifactId>
     </dependency>

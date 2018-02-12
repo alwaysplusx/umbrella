@@ -23,7 +23,6 @@ import com.harmony.umbrella.log.template.LoggingContext.ValueContext;
 import com.harmony.umbrella.util.StringUtils;
 
 /**
- * FIXME 加入可配置选项, 对拦截方法的in/out bound是否进行积极统计
  * 
  * @author wuxii@foxmail.com
  */

@@ -11,7 +11,7 @@ import javax.ejb.TimerService;
 
 import org.springframework.util.Assert;
 
-import com.harmony.umbrella.util.Exceptions;
+import com.harmony.umbrella.util.StringUtils;
 
 /**
  * 基于EJB定时任务的抽象类
@@ -83,7 +83,7 @@ public abstract class AbstractEJBScheduler extends AbstractScheduler<AbstractEJB
             }
         } catch (Exception e) {
             log.error("", e);
-            jobInfo.lastExceptionMessage = Exceptions.getStackTraceAsString(e);
+            jobInfo.lastExceptionMessage = StringUtils.getExceptionStackTrace(e);
             jobInfo.lastExceptionTime = Calendar.getInstance();
             jobInfo.exceptionTimes++;
         }

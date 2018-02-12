@@ -2,14 +2,10 @@ package com.harmony.umbrella.json.serializer;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
-
-import org.springframework.util.AntPathMatcher;
-import org.springframework.util.PathMatcher;
 
 import com.alibaba.fastjson.serializer.JSONSerializer;
-import com.harmony.umbrella.json.FilterMode;
+import com.harmony.umbrella.util.FilterMode;
+import com.harmony.umbrella.util.PathFilterMode;
 
 /**
  * 对需要json格式化的对象进行字段的过滤，默认filterMode = EXCLUDE
@@ -18,87 +14,34 @@ import com.harmony.umbrella.json.FilterMode;
  */
 public class SimplePatternFilter extends PropertyPathFilter {
 
-    private PathMatcher pathMatcher = new AntPathMatcher(".");
-
-    /**
-     * 过滤的模版
-     */
-    protected final Set<String> patterns = new HashSet<String>();
-
-    /**
-     * 过滤模式
-     */
-    protected final boolean include;
+    private FilterMode<String, String> filterMode;
 
     public SimplePatternFilter() {
-        this(new String[0], FilterMode.EXCLUDE);
     }
 
-    public SimplePatternFilter(FilterMode mode) {
-        this(new String[0], mode);
+    public SimplePatternFilter(String... excludes) {
+        this(Arrays.asList(excludes));
     }
 
-    public SimplePatternFilter(String... patterns) {
-        this(patterns, FilterMode.EXCLUDE);
+    public SimplePatternFilter(Collection<String> excludes) {
+        this(new PathFilterMode(excludes));
     }
 
-    public SimplePatternFilter(String[] patterns, FilterMode mode) {
-        this(Arrays.asList(patterns), mode);
+    public SimplePatternFilter(FilterMode<String, String> filterMode) {
+        this.filterMode = filterMode;
     }
 
-    public SimplePatternFilter(Collection<String> patterns, FilterMode mode) {
-        this.include = (FilterMode.INCLUDE == mode);
-        this.patterns.addAll(patterns);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public boolean accept(JSONSerializer serializer, Object source, String name) {
-        if (patterns.isEmpty()) {
-            return !include;
-        }
-        if (patterns.contains(name)) {
-            return include;
-        }
-        if (include) {
-            // 只有符合条件 = true
-            for (String pattern : patterns) {
-                if (pattern.startsWith(name) || pathMatcher.match(pattern, name)) {
-                    return true;
-                }
-            }
-        } else {
-            // 只有不符合条件 = true
-            for (String pattern : patterns) {
-                if (pathMatcher.match(pattern, name)) {
-                    return false;
-                }
-            }
-        }
-        return !include;
+        return name != null && filterMode.accept(name);
     }
 
-    public Set<String> getPatterns() {
-        return patterns;
+    protected FilterMode<String, String> getFilterMode() {
+        return filterMode;
     }
 
-    public PathMatcher getPathMatcher() {
-        return pathMatcher;
-    }
-
-    public void setPathMatcher(PathMatcher pathMatcher) {
-        this.pathMatcher = pathMatcher;
-    }
-
-    public FilterMode getFilterMode() {
-        return include ? FilterMode.INCLUDE : FilterMode.EXCLUDE;
-    }
-
-    public void setPatterns(Collection<String> patterns) {
-        this.patterns.clear();
-        this.patterns.addAll(patterns);
+    protected void setFilterMode(FilterMode<String, String> filterMode) {
+        this.filterMode = filterMode;
     }
 
 }

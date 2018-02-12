@@ -1,5 +1,7 @@
 package com.harmony.umbrella.util;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.lang.reflect.Method;
 
 import org.springframework.util.Assert;
@@ -112,6 +114,18 @@ public class StringUtils extends org.springframework.util.StringUtils {
             }
         }
         return o.append(")").toString();
+    }
+
+    /**
+     * 将ErrorStack转化为String.
+     */
+    public static String getExceptionStackTrace(Throwable ex) {
+        if (ex == null) {
+            return null;
+        }
+        StringWriter writer = new StringWriter();
+        ex.printStackTrace(new PrintWriter(writer));
+        return writer.toString();
     }
 
 }

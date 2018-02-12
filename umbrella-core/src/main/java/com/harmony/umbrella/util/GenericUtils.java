@@ -1,5 +1,6 @@
 package com.harmony.umbrella.util;
 
+import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
@@ -14,6 +15,34 @@ import com.harmony.umbrella.util.GenericUtils.GenericTree.Generic;
  * @author wuxii@foxmail.com
  */
 public class GenericUtils {
+
+    // FIXME 方法的泛型解析
+    public static GenericTree[] parseMethod(Method method) {
+        return parseMethod(method, method.getDeclaringClass());
+    }
+
+    public static GenericTree[] parseMethod(Method method, Class<?> origin) {
+        Type[] types = method.getGenericParameterTypes();
+        List<GenericTree> result = new ArrayList<>(types.length);
+        for (Type type : types) {
+            GenericTree tmp = null;
+            if (type instanceof Class) {
+                tmp = buildGenericTree((Class) type, null);
+            } else if (type instanceof ParameterizedType) {
+                Type rawType = ((ParameterizedType) type).getRawType();
+                tmp = buildGenericTree((Class) rawType, type);
+            } else if (type instanceof TypeVariable) {
+                ((TypeVariable) type).getBounds();
+                ((TypeVariable) type).getName();
+            } else {
+                throw new IllegalArgumentException("");
+            }
+            recursiveBuild(tmp);
+            recursiveCalculateRelevance(tmp);
+            result.add(tmp);
+        }
+        return result.toArray(new GenericTree[result.size()]);
+    }
 
     public static GenericTree parse(Class<?> clazz) {
         GenericTree result = buildGenericTree(clazz, null);
@@ -211,8 +240,11 @@ public class GenericUtils {
         }
 
         public Generic getTargetGeneric(Class<?> target, int index) {
-            GenericTree targetGenericTree = findTargetGenericTree(this, target);
-            return targetGenericTree.getGeneric(index);
+            return getTargetGenericTree(target).getGeneric(index);
+        }
+
+        public GenericTree getTargetGenericTree(Class<?> target) {
+            return findTargetGenericTree(this, target);
         }
 
         private GenericTree findTargetGenericTree(GenericTree source, Class<?> target) {

@@ -26,8 +26,6 @@ public class JmsTemplate {
 
     private final Map<Integer, SessionPoint> sessions = new Hashtable<>();
 
-    protected boolean autoStart = true;
-
     // setup
     protected String username;
     protected String password;
@@ -100,12 +98,13 @@ public class JmsTemplate {
         return newSession(destination, messageSelector);
     }
 
+    public SessionPoint newSession(String messageSelector) {
+        return newSession(destination, messageSelector);
+    }
+
     public SessionPoint newSession(Destination destination, String messageSelector) {
-        if (connection == null && autoStart) {
-            start();
-        }
         if (connection == null) {
-            throw new MessageException("jms template not start yet");
+            start();
         }
         try {
             Session session = connection.createSession(transacted, sessionMode);
@@ -139,10 +138,6 @@ public class JmsTemplate {
 
     // configuration
 
-    public boolean isAutoStart() {
-        return autoStart;
-    }
-
     public String getUsername() {
         return username;
     }
@@ -169,10 +164,6 @@ public class JmsTemplate {
 
     public String getMessageSelector() {
         return messageSelector;
-    }
-
-    void setAutoStart(boolean autoStart) {
-        this.autoStart = autoStart;
     }
 
     void setUsername(String username) {

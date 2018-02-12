@@ -5,7 +5,7 @@ import java.io.Serializable;
 import java.util.Map;
 
 import javax.jms.Destination;
-import javax.jms.JMSContext;
+import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageListener;
@@ -27,9 +27,19 @@ import javax.jms.Session;
 public interface MessageTemplate {
 
     /**
+     * 使用模版发送的消息中会自动带入对应的消息头, 此为消息头对应的前缀
+     */
+    String TEMPLATE_MESSAGE_PREFIX = "TemplateMessage";
+
+    /**
      * {@link #sendObjectMessage(Serializable)}发送Object Message时候带入的消息头. 便于JMS MessageSelector识别选取消费的消息
      */
-    String OBJECT_TYPE_MESSAGE_SELECTOR_KEY = "ObjectMessageType";
+    String TEMPLATE_MESSAGE_OBJECT_TYPE = TEMPLATE_MESSAGE_PREFIX + "ObjectType";
+
+    /**
+     * 定制的模版消息id
+     */
+    String TEMPLATE_MESSAGE_ID = TEMPLATE_MESSAGE_PREFIX + "Id";
 
     /**
      * 发送bytes消息
@@ -37,26 +47,27 @@ public interface MessageTemplate {
      * @param buf
      *            消息内容
      * 
+     * @return messageId
      */
-    void sendBytesMessage(byte[] buf);
+    String sendBytesMessage(byte[] buf);
 
     /**
      * 发送序列化消息
      * 
      * @param obj
      *            消息内容
-     * 
+     * @return messageId
      */
-    void sendObjectMessage(Serializable obj);
+    String sendObjectMessage(Serializable obj);
 
     /**
      * 发送map消息
      * 
      * @param map
      *            消息内容
-     * 
+     * @return messageId
      */
-    void sendMapMessage(Map map);
+    String sendMapMessage(Map map);
 
     /**
      * 发送map消息
@@ -65,36 +76,36 @@ public interface MessageTemplate {
      *            消息内容
      * @param skipNotStatisfiedEntry
      *            是否忽略不满足序列化条件的消息entry
-     * 
+     * @return messageId
      */
-    void sendMapMessage(Map map, boolean skipNotStatisfiedEntry);
+    String sendMapMessage(Map map, boolean skipNotStatisfiedEntry);
 
     /**
      * 发送文本消息
      * 
      * @param text
      *            消息内容
-     * 
+     * @return messageId
      */
-    void sendTextMessage(String text);
+    String sendTextMessage(String text);
 
     /**
      * 发送stream消息
      * 
      * @param is
      *            消息内容
-     * 
+     * @return messageId
      */
-    void sendStreamMessage(InputStream is);
+    String sendStreamMessage(InputStream is);
 
     /**
      * 发送自定义消息
      * 
      * @param messageCreator
      *            通过creator自定义构建消息主体
-     * 
+     * @return messageId
      */
-    void sendMessage(MessageCreator messageCreator);
+    String sendMessage(MessageCreator messageCreator);
 
     /**
      * 向置顶目的地发送消息
@@ -105,8 +116,9 @@ public interface MessageTemplate {
      *            消息的创建者
      * @param configure
      *            消息生产者配置
+     * @return messageId
      */
-    void sendMessage(Destination destination, MessageCreator messageCreator, MessageProducerConfigure configure);
+    String sendMessage(Destination destination, MessageCreator messageCreator, MessageProducerConfigure configure);
 
     /**
      * 接收消息
@@ -115,6 +127,26 @@ public interface MessageTemplate {
      * 
      */
     Message receiveMessage();
+
+    /**
+     * 接收指定id的消息
+     * 
+     * @param messageId
+     *            message id
+     * @return message
+     */
+    Message receiveMessage(String messageId);
+
+    /**
+     * 接收置顶id的消息
+     * 
+     * @param messageId
+     *            message id
+     * @param timeout
+     *            timeout
+     * @return message
+     */
+    Message receiveMessage(String messageId, long timeout);
 
     /**
      * 接收消息, 如果timeout<0则使用{@linkplain MessageConsumer#receiveNoWait()}.
@@ -126,6 +158,17 @@ public interface MessageTemplate {
      * 
      */
     Message receiveMessage(long timeout);
+
+    /**
+     * 接收消息
+     * 
+     * @param timeout
+     *            接收超时事件
+     * @param quiet
+     *            安静模式, true则不触发对应的messageMonitor
+     * @return message
+     */
+    Message receiveMessage(long timeout, boolean quiet);
 
     /**
      * 消息事件监听(发送, 消费等事件), monitor运行在沙盒中, 其发生异常也不影响业务.
@@ -160,9 +203,7 @@ public interface MessageTemplate {
      */
     public interface MessageCreator {
 
-        Message newMessage(Session session);
-
-        Message newMessage(JMSContext jmsContext);
+        Message createMessage(Session session) throws JMSException;
 
     }
 

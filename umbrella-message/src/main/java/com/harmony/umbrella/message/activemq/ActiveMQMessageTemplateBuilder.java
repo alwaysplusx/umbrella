@@ -23,10 +23,10 @@ public class ActiveMQMessageTemplateBuilder extends MessageTemplateBuilder<Activ
     }
 
     public static ActiveMQMessageTemplateBuilder newBuilder(String brokerUrl, String destinationName) {
-        return new ActiveMQMessageTemplateBuilder().setConnectionFactoryURL(brokerUrl).setDestinationName(destinationName);
+        return new ActiveMQMessageTemplateBuilder().setBrokerUrl(brokerUrl).setDestinationName(destinationName);
     }
 
-    public ActiveMQMessageTemplateBuilder setConnectionFactoryURL(String url) {
+    public ActiveMQMessageTemplateBuilder setBrokerUrl(String url) {
         return setConnectionFactory(new ActiveMQConnectionFactory(url));
     }
 
@@ -40,9 +40,9 @@ public class ActiveMQMessageTemplateBuilder extends MessageTemplateBuilder<Activ
 
     public ActiveMQMessageTemplateBuilder setDestinationName(String destinationName) {
         final Destination dest;
-        if (destinationName.startsWith("topic://") && destinationName.length() > 8) {
+        if (destinationName.length() > 8 && destinationName.startsWith("topic://")) {
             dest = new ActiveMQTopic(destinationName.substring(8));
-        } else if (destinationName.startsWith("queue://") && destinationName.length() > 8) {
+        } else if (destinationName.length() > 8 && destinationName.startsWith("queue://")) {
             dest = new ActiveMQQueue(destinationName.substring(8));
         } else {
             dest = new ActiveMQQueue(destinationName);
