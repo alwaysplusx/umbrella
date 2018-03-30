@@ -4,7 +4,6 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Predicate;
 
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.data.jpa.domain.Specifications;
 
 /**
  * Enum for the composition types for {@link Predicate}s.
@@ -17,7 +16,7 @@ public enum CompositionType {
 
         @Override
         public <T> Specification<T> combine(Specification<T> lhs, Specification<T> rhs) {
-            return Specifications.where(lhs).and(rhs);
+            return Specification.where(lhs).and(rhs);
         }
 
         @Override
@@ -31,7 +30,7 @@ public enum CompositionType {
 
         @Override
         public <T> Specification<T> combine(Specification<T> lhs, Specification<T> rhs) {
-            return Specifications.where(lhs).or(rhs);
+            return Specification.where(lhs).or(rhs);
         }
 
         @Override

@@ -1,17 +1,19 @@
 package com.harmony.umbrella.web.persistence;
 
+import java.io.Serializable;
+
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-import com.harmony.umbrella.data.domain.BaseEntity;
+import org.springframework.data.domain.Persistable;
 
 /**
  * @author wuxii@foxmail.com
  */
 @Entity
 @Table(name = "TEST_USER")
-public class User extends BaseEntity<String> {
+public class User implements Serializable, Persistable<String> {
 
     private static final long serialVersionUID = -4683677790918841843L;
 
@@ -19,6 +21,11 @@ public class User extends BaseEntity<String> {
     private String username;
     private String password;
     private int age;
+
+    @Override
+    public boolean isNew() {
+        return getId() == null;
+    }
 
     @Override
     public String getId() {

@@ -2,6 +2,7 @@ package com.harmony.umbrella.data.service;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 
@@ -28,13 +29,13 @@ public abstract class ServiceSupport<T, ID extends Serializable> implements Serv
     }
 
     @Override
-    public void delete(ID id) {
-        getRepository().delete(id);
+    public void deleteById(ID id) {
+        getRepository().deleteById(id);
     }
 
     @Override
     public T getAndDelete(ID id) {
-        T entity = findOne(id);
+        T entity = findById(id);
         getRepository().delete(entity);
         return entity;
     }
@@ -45,8 +46,9 @@ public abstract class ServiceSupport<T, ID extends Serializable> implements Serv
     }
 
     @Override
-    public T findOne(ID id) {
-        return getRepository().findOne(id);
+    public T findById(ID id) {
+        Optional<T> o = getRepository().findById(id);
+        return o.isPresent() ? o.get() : null;
     }
 
     @Override
@@ -90,11 +92,11 @@ public abstract class ServiceSupport<T, ID extends Serializable> implements Serv
     }
 
     protected JpaQueryBuilder<T> queryWith() {
-        return queryWith((Class<T>) null);
+        return queryWith((Class<T>) null).withEntityManager(getRepository().getEntityManager());
     }
 
     protected <M> JpaQueryBuilder<M> queryWith(Class<M> domainClass) {
-        return JpaQueryBuilder.<M> newBuilder().from(domainClass);
+        return JpaQueryBuilder.<M> newBuilder().from(domainClass).withEntityManager(getRepository().getEntityManager());
     }
 
 }

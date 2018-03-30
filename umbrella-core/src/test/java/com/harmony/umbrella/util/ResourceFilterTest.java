@@ -7,11 +7,11 @@ import org.junit.Test;
 /**
  * @author wuxii@foxmail.com
  */
-public class FilterModeTest {
+public class ResourceFilterTest {
 
     @Test
     public void testMode() {
-        PathFilterMode filter = new PathFilterMode();
+        PatternResourceFilter filter = new PatternResourceFilter();
         filter.addExcludes("**/test/*.*");
         filter.addIncludes("**/*.txt");
 

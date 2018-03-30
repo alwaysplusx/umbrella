@@ -25,7 +25,7 @@ import com.harmony.umbrella.util.MemberUtils;
 /**
  * @author wuxii@foxmail.com
  */
-public class JpaMappingAttributeFilter implements PropertyPreFilter {
+public class JpaMappingPropertyPreFilter implements PropertyPreFilter {
 
     /**
      * 需要被懒加载处理的注解
@@ -46,10 +46,10 @@ public class JpaMappingAttributeFilter implements PropertyPreFilter {
      */
     private boolean tryFetch;
 
-    public JpaMappingAttributeFilter() {
+    public JpaMappingPropertyPreFilter() {
     }
 
-    public JpaMappingAttributeFilter(boolean tryFetch) {
+    public JpaMappingPropertyPreFilter(boolean tryFetch) {
         this.tryFetch = tryFetch;
     }
 

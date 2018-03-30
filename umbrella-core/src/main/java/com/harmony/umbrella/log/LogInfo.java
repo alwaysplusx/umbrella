@@ -93,16 +93,16 @@ public interface LogInfo extends Serializable {
     /**
      * 操作人id
      * 
-     * @return userId
+     * @return user id
      */
-    Long getUserId();
+    Object getUserId();
 
     /**
      * 用户所在的地址，如:IP
      * 
      * @return user host
      */
-    String getUserHost();
+    String getHost();
 
     /**
      * 日志发送的地点(方法栈)

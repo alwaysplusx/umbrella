@@ -5,7 +5,7 @@ import static org.junit.Assert.*;
 import org.junit.Test;
 
 import com.alibaba.fastjson.JSON;
-import com.harmony.umbrella.json.serializer.SimplePatternFilter;
+import com.harmony.umbrella.json.serializer.SimplePatternPropertyPreFilter;
 import com.harmony.umbrella.json.vo.Person;
 
 /**
@@ -15,7 +15,7 @@ public class FilterTest {
 
     @Test
     public void excludeTest() {
-        SimplePatternFilter filter = new SimplePatternFilter();
+        SimplePatternPropertyPreFilter filter = new SimplePatternPropertyPreFilter();
         assertEquals("{}", JSON.toJSONString(Person.me, filter));
     }
 

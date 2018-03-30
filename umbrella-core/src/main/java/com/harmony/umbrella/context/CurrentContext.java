@@ -1,69 +1,34 @@
 package com.harmony.umbrella.context;
 
-import java.io.Serializable;
-import java.util.Enumeration;
+import java.util.List;
 import java.util.Locale;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.springframework.util.Assert;
+
 /**
  * 用户所能操作信息以及用户的信息将会在保存在{@linkplain CurrentContext}中
  *
  * @author wuxii@foxmail.com
  */
-public interface CurrentContext extends Serializable {
+public interface CurrentContext {
 
     /**
-     * key:用户id
-     */
-    String USER_ID = CurrentContext.class.getName() + ".USER_ID";
-
-    /**
-     * key:用户的名称
-     */
-    String USER_NAME = CurrentContext.class.getName() + ".USER_NAME";
-
-    /**
-     * key:用户别名
-     */
-    String USER_NICKNAME = CurrentContext.class.getName() + ".USER_NICKNAME";
-
-    /**
-     * 用户id
-     *
-     * @return 用户id
-     */
-    <T> T getUserId();
-
-    /**
-     * 用户名
-     *
-     * @return 用户名
-     */
-    String getUsername();
-
-    /**
-     * 用户别名
+     * 用户凭证
      * 
-     * @return 用户别名
+     * @return 用户凭证
      */
-    String getNickname();
+    Principals getPrincipals();
 
     /**
      * 用户端的ip
      * 
      * @return
      */
-    String getUserHost();
-
-    /**
-     * 验证是否登录授权
-     * 
-     * @return true已经登录
-     */
-    boolean isAuthenticated();
+    String getHost();
 
     /**
      * 客户端的本地化
@@ -79,40 +44,6 @@ public interface CurrentContext extends Serializable {
     void setLocale(Locale locale);
 
     /**
-     * 用户上下文中是否包含对应的值
-     *
-     * @param name
-     *            key of value
-     */
-    boolean containsKey(String name);
-
-    /**
-     * 获取{@code name}对应的值， 如果不存在返回{@code null}
-     *
-     * @param name
-     *            key of value
-     * @return if not exists return {@code null}
-     */
-    <T> T get(String name);
-
-    /**
-     * 对当前的用户环境设置值
-     *
-     * @param name
-     *            key of value
-     * @param o
-     *            value
-     */
-    void put(String name, Object o);
-
-    /**
-     * 当前用户环境中包含的key
-     *
-     * @return 值的枚举类
-     */
-    Enumeration<String> getCurrentNames();
-
-    /**
      * 当前的字符集
      *
      * @return 字符集
@@ -120,47 +51,83 @@ public interface CurrentContext extends Serializable {
     String getCharacterEncoding();
 
     /**
-     * 当前的http请求
-     *
-     * @return http-request
-     */
-    HttpServletRequest getHttpRequest();
-
-    /**
-     * 当前的http应答
-     *
-     * @return http-response
-     */
-    HttpServletResponse getHttpResponse();
-
-    /**
-     * 当前环境中是否已经创建了http-session
-     *
-     * @return if {@code true} has been created
-     */
-    boolean doesHttpSessionCreated();
-
-    /**
-     * 获取当前的http-session
-     *
-     * @return http-session
-     */
-    HttpSession getHttpSession();
-
-    /**
-     * Returns the current HttpSession associated with this request or, if there
-     * is no current session and create is true, returns a new session.
+     * 获取当前请求的http上下文
      * 
-     * @param create
-     * @return
-     * @see HttpServletRequest#getSession(boolean)
+     * @return http context
      */
-    HttpSession getHttpSession(boolean create);
+    HttpContext getHttpContext();
 
     /**
-     * 获取session的id
-     *
-     * @return session id
+     * 当前系统的登录主体
+     * 
+     * @author wuxii@foxmail.com
      */
-    String getHttpSessionId();
+    public interface Principals extends Iterable<Object> {
+
+        <T> T getPrincipal(Class<T> type);
+
+        Object getPrincipal(String name);
+
+        List<Object> getPrincipalKeys();
+
+    }
+
+    /**
+     * http context
+     * 
+     * @author wuxii@foxmail.com
+     */
+    public static final class HttpContext {
+
+        private final HttpServletRequest request;
+        private final HttpServletResponse response;
+
+        public HttpContext(HttpServletRequest request, HttpServletResponse response) {
+            Assert.notNull(request, "request must not null");
+            Assert.notNull(response, "response must not null");
+            this.request = request;
+            this.response = response;
+        }
+
+        /**
+         * http request
+         *
+         * @return http-request
+         */
+        public HttpServletRequest getHttpRequest() {
+            return request;
+        }
+
+        /**
+         * http response
+         *
+         * @return http-response
+         */
+        public HttpServletResponse getHttpResponse() {
+            return response;
+        }
+
+        /**
+         * http session
+         *
+         * @return http-session
+         */
+        public HttpSession getHttpSession() {
+            return getHttpSession(true);
+        }
+
+        /**
+         * Returns the current HttpSession associated with this request or, if there is no current session and create is
+         * true, returns a new session.
+         * 
+         * @param create
+         * @return
+         * @see HttpServletRequest#getSession(boolean)
+         */
+        public HttpSession getHttpSession(boolean create) {
+            return request.getSession(create);
+        }
+
+    }
+
 }

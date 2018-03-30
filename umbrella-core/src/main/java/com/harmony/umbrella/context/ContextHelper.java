@@ -1,21 +1,15 @@
 package com.harmony.umbrella.context;
 
-import static com.harmony.umbrella.context.CurrentContext.USER_ID;
-import static com.harmony.umbrella.context.CurrentContext.USER_NAME;
-import static com.harmony.umbrella.context.CurrentContext.USER_NICKNAME;
-
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Map.Entry;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import org.springframework.util.Assert;
-
+import com.harmony.umbrella.context.CurrentContext.HttpContext;
+import com.harmony.umbrella.context.CurrentContext.Principals;
 import com.harmony.umbrella.context.metadata.ApplicationMetadata;
 import com.harmony.umbrella.context.metadata.ServerMetadata;
 import com.harmony.umbrella.log.Log;
@@ -54,21 +48,6 @@ public class ContextHelper {
     }
 
     /**
-     * 获取用户环境的上下文
-     * 
-     * @return user current context
-     */
-    public static CurrentContext getCurrentContext() {
-        CurrentContext cc = ApplicationContext.getCurrentContext();
-        if (cc == null) {
-            if (log.isDebugEnabled()) {
-                log.warn("application not contain current context, please see {} for more detail", CurrentContextFilter.class.getName());
-            }
-        }
-        return cc;
-    }
-
-    /**
      * 获取当前服务器的元信息
      * 
      * @return server metadata
@@ -81,14 +60,41 @@ public class ContextHelper {
         }
     }
 
+    // current scope
+
+    /**
+     * 获取用户环境的上下文
+     * 
+     * @return user current context
+     */
+    public static CurrentContext getCurrentContext() {
+        CurrentContext cc = ApplicationContext.getCurrentContext();
+        if (cc == null) {
+            if (log.isDebugEnabled()) {
+                log.warn("application not contain current context, please see {} for more detail", AbstractCurrentContextFilter.class.getName());
+            }
+        }
+        return cc;
+    }
+
+    public static HttpContext getHttpContext() {
+        CurrentContext cc = getCurrentContext();
+        return cc != null ? cc.getHttpContext() : null;
+    }
+
+    public static Principals getUserPrincipal() {
+        CurrentContext cc = getCurrentContext();
+        return cc == null ? null : cc.getPrincipals();
+    }
+
     /**
      * 获取用户线程的http request, 如果未找到用户context返回null
      * 
      * @return user http request
      */
     public static HttpServletRequest getHttpRequest() {
-        CurrentContext cc = getCurrentContext();
-        return cc != null ? cc.getHttpRequest() : null;
+        HttpContext hc = getHttpContext();
+        return hc != null ? hc.getHttpRequest() : null;
     }
 
     /**
@@ -97,8 +103,8 @@ public class ContextHelper {
      * @return user http response
      */
     public static HttpServletResponse getHttpResponse() {
-        CurrentContext cc = getCurrentContext();
-        return cc != null ? cc.getHttpResponse() : null;
+        HttpContext hc = getHttpContext();
+        return hc != null ? hc.getHttpResponse() : null;
     }
 
     /**
@@ -118,71 +124,20 @@ public class ContextHelper {
      * @return http session
      */
     public static HttpSession getHttpSession(boolean create) {
-        CurrentContext cc = getCurrentContext();
-        return cc != null ? cc.getHttpSession(create) : null;
+        HttpContext hc = getHttpContext();
+        return hc != null ? hc.getHttpSession(create) : null;
     }
 
-    /**
-     * 获取当前线程范围的登录用户用户名
-     * 
-     * @return user name
-     */
-    public static String getUsername() {
-        CurrentContext cc = getCurrentContext();
-        return cc != null ? cc.getUsername() : null;
+    public static String getRequestUrl() {
+        HttpServletRequest request = getHttpRequest();
+        return request != null ? getRequestUrl(request) : null;
     }
 
-    /**
-     * 获取当前线程的用户昵称
-     * 
-     * @return user nickname
-     */
-    public static String getNickname() {
-        CurrentContext cc = getCurrentContext();
-        return cc != null ? cc.getNickname() : null;
-    }
+    // util methods
 
-    /**
-     * 获取当前线程的用户id
-     * 
-     * @return user id
-     */
-    public static Long getUserId() {
-        CurrentContext cc = getCurrentContext();
-        return cc != null ? (Long) cc.getUserId() : null;
-    }
-
-    public static String getUserHost() {
-        CurrentContext cc = getCurrentContext();
-        return cc != null ? cc.getUserHost() : null;
-    }
-
-    public static UserInfo getUserInfo() {
-        HttpSession session = getHttpSession();
-        if (session == null) {
-            throw new ApplicationContextException("not http request, can't get http session");
-        }
-        Map<String, Object> properties = new LinkedHashMap<>();
-        Enumeration<String> attributeNames = session.getAttributeNames();
-        while (attributeNames.hasMoreElements()) {
-            String attrName = attributeNames.nextElement();
-            properties.put(attrName, session.getAttribute(attrName));
-        }
-        return new UserInfo(getUserId(), getUsername(), getNickname(), properties);
-    }
-
-    public static void applyToSession(UserInfo userInfo) throws ApplicationContextException {
-        Assert.notNull(userInfo, "user info not allow null");
-        HttpSession session = getHttpSession();
-        if (session == null) {
-            throw new ApplicationContextException("not http request, can't get http session");
-        }
-        for (Entry<String, Object> entry : userInfo.properties.entrySet()) {
-            session.setAttribute(entry.getKey(), entry.getValue());
-        }
-        session.setAttribute(USER_ID, userInfo.userId);
-        session.setAttribute(USER_NAME, userInfo.username);
-        session.setAttribute(USER_NICKNAME, userInfo.nickname);
+    public static String getRequestUrl(HttpServletRequest request) {
+        String uri = request.getRequestURI();
+        return uri.substring(request.getContextPath().length());
     }
 
     public static boolean isUnknowServer() {
@@ -213,39 +168,53 @@ public class ContextHelper {
         return getServerMetadata().serverType == ServerMetadata.TOMCAT;
     }
 
-    public static final class UserInfo {
+    public interface SessionContext {
 
-        protected final Long userId;
-        protected final String username;
-        protected final String nickname;
-        protected final Map<String, Object> properties;
+        Object get(String name);
 
-        public UserInfo(Long userId, String username, String nickname) {
-            this(userId, username, nickname, null);
+        void put(String name, Object val);
+
+        Object remove(String name);
+
+        List<String> getKeys();
+
+    }
+
+    public static class HttpSessionContext implements SessionContext {
+
+        private HttpSession session;
+
+        public HttpSessionContext(HttpSession session) {
+            this.session = session;
         }
 
-        public UserInfo(Long userId, String username, String nickname, Map<String, Object> properties) {
-            this.userId = userId;
-            this.username = username;
-            this.nickname = nickname;
-            this.properties = properties == null ? Collections.emptyMap() : Collections.unmodifiableMap(properties);
+        @Override
+        public Object get(String name) {
+            return session.getAttribute(name);
         }
 
-        public Long getUserId() {
-            return userId;
+        @Override
+        public void put(String name, Object val) {
+            session.setAttribute(name, val);
         }
 
-        public String getUsername() {
-            return username;
+        @Override
+        public Object remove(String name) {
+            Object val = session.getAttribute(name);
+            session.removeAttribute(name);
+            return val;
         }
 
-        public String getNickname() {
-            return nickname;
-        }
-
-        public Map<String, Object> getProperties() {
-            return properties;
+        @Override
+        public List<String> getKeys() {
+            List<String> result = new ArrayList<>();
+            Enumeration<String> names = session.getAttributeNames();
+            while (names.hasMoreElements()) {
+                result.add(names.nextElement());
+            }
+            return result;
         }
 
     }
+
 }

@@ -8,7 +8,7 @@ import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.alibaba.fastjson.serializer.SerializeFilter;
 import com.alibaba.fastjson.serializer.SerializerFeature;
-import com.harmony.umbrella.json.serializer.SimplePatternFilter;
+import com.harmony.umbrella.json.serializer.SimplePatternPropertyPreFilter;
 
 /**
  * json序列化工具
@@ -119,7 +119,7 @@ public class Json {
      * @return 格式化后的json文本
      */
     public static String toJson(Object object, String[] excludeProperties, SerializerFeature... features) {
-        return toJson(object, new SerializeFilter[] { new SimplePatternFilter(excludeProperties) }, features);
+        return toJson(object, new SerializeFilter[] { new SimplePatternPropertyPreFilter(excludeProperties) }, features);
     }
 
     public static String toJson(Object object, SerializerConfig cfg) {

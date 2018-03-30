@@ -135,6 +135,9 @@ public abstract class QueryUtils {
     public static <T> Specification<T> all(Specification<T>... specs) {
         Assert.notEmpty(specs, "spec not allow empty");
         return new Specification<T>() {
+
+            private static final long serialVersionUID = -8700405582932703459L;
+
             @Override
             public Predicate toPredicate(Root<T> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
                 Predicate predicate = null;
@@ -176,8 +179,8 @@ public abstract class QueryUtils {
     }
 
     /**
-     * Returns whether the given {@code propertyPathModel} requires the creation
-     * of a join. This is the case if we find a non-optional association.
+     * Returns whether the given {@code propertyPathModel} requires the creation of a join. This is the case if we find
+     * a non-optional association.
      * 
      * @param propertyPathModel
      *            must not be {@literal null}.
@@ -221,8 +224,7 @@ public abstract class QueryUtils {
     }
 
     /**
-     * Returns an existing join for the given attribute if one already exists or
-     * creates a new one if not.
+     * Returns an existing join for the given attribute if one already exists or creates a new one if not.
      * 
      * @param from
      *            the {@link From} to get the current joins from.
@@ -241,8 +243,7 @@ public abstract class QueryUtils {
     }
 
     /**
-     * Return whether the given {@link From} contains a fetch declaration for
-     * the attribute with the given name.
+     * Return whether the given {@link From} contains a fetch declaration for the attribute with the given name.
      * 
      * @param from
      *            the {@link From} to check for fetches.
@@ -262,6 +263,7 @@ public abstract class QueryUtils {
 
     private static final class SignalSpecification<T> implements Specification<T> {
 
+        private static final long serialVersionUID = 2258226830302979842L;
         private boolean signal;
 
         private SignalSpecification(boolean signal) {

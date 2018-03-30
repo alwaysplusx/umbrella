@@ -17,6 +17,7 @@ import com.harmony.umbrella.data.query.QueryResult.Selections;
  */
 public class SelectionSpecification<T> implements Specification<T> {
 
+    private static final long serialVersionUID = -8372941951177254159L;
     private final Selections<T> selections;
 
     public SelectionSpecification(Selections<T> selections) {

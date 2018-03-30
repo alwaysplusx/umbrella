@@ -5,6 +5,10 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.springframework.http.MediaType;
+import org.springframework.web.servlet.View;
 
 import com.harmony.umbrella.context.ContextHelper;
 import com.harmony.umbrella.json.Json;
@@ -99,7 +103,7 @@ public final class Response implements Serializable {
             resp.put("trace", trace);
         }
         if (request != null) {
-            resp.put("request", "");
+            resp.put("request", request);
         }
         return Json.toJson(resp);
     }
@@ -166,6 +170,9 @@ public final class Response implements Serializable {
             return result;
         }
 
+        public View toView() {
+            return new ResposeView(build());
+        }
     }
 
     public static final class OKResponseBuilder {
@@ -212,6 +219,32 @@ public final class Response implements Serializable {
             response.code = OK;
             response.data = data != null ? data : params;
             return response;
+        }
+
+        public View toView() {
+            return new ResposeView(build());
+        }
+
+    }
+
+    private static class ResposeView implements View {
+
+        private Response response;
+
+        public ResposeView(Response response) {
+            this.response = response;
+        }
+
+        @Override
+        public String getContentType() {
+            return MediaType.APPLICATION_JSON_UTF8_VALUE;
+        }
+
+        @Override
+        public void render(Map<String, ?> model, HttpServletRequest request, HttpServletResponse response) throws Exception {
+            String responseText = this.response.toJson();
+            response.setContentType(getContentType());
+            response.getWriter().write(responseText);
         }
 
     }

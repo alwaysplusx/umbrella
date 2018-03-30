@@ -334,7 +334,7 @@ public class Zip {
             /**
              * 路径过滤器(可以设置需要排除或者include的文件或者目录)
              */
-            private PathFilterMode filterMode;
+            private PatternResourceFilter<String> resourceFilter;
 
             /**
              * 压缩的目录
@@ -376,22 +376,22 @@ public class Zip {
             }
 
             public DirZipConfigBuilder addExcludes(String... excludes) {
-                this.getFilterMode().addExcludes(excludes);
+                this.getResourceFilter().addExcludes(excludes);
                 return this;
             }
 
             public DirZipConfigBuilder setExcludes(Set<String> excludes) {
-                this.getFilterMode().setExcludes(excludes);
+                this.getResourceFilter().setExcludes(excludes);
                 return this;
             }
 
             public DirZipConfigBuilder addIncludes(String... includes) {
-                this.getFilterMode().addIncludes(includes);
+                this.getResourceFilter().addIncludes(includes);
                 return this;
             }
 
             public DirZipConfigBuilder setIncludes(Set<String> includes) {
-                this.getFilterMode().setIncludes(includes);
+                this.getResourceFilter().setIncludes(includes);
                 return this;
             }
 
@@ -468,23 +468,23 @@ public class Zip {
                 // include == null, exclude == null: 全量接收模式
                 // include != null, exclude == null: 纯include模式
                 // include != null, exclude != null: 取并集
-                if (filterMode != null) {
+                if (resourceFilter != null) {
                     // 构建include/exclude计算所需要的路径
                     String path = file.getPath().substring(dir.getPath().length());
                     if (path.startsWith(File.separator)) {
                         path = path.substring(1);
                     }
-                    return StringUtils.isBlank(path) || filterMode.accept(path);
+                    return StringUtils.isBlank(path) || resourceFilter.accept(path);
                 }
 
                 return true;
             }
 
-            private PathFilterMode getFilterMode() {
-                if (filterMode == null) {
-                    this.filterMode = new PathFilterMode("/");
+            private PatternResourceFilter<String> getResourceFilter() {
+                if (resourceFilter == null) {
+                    this.resourceFilter = new PatternResourceFilter<>();
                 }
-                return filterMode;
+                return resourceFilter;
             }
 
         }

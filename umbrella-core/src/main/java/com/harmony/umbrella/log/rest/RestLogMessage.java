@@ -25,7 +25,7 @@ public class RestLogMessage implements Serializable {
     private String level;
 
     private String username;
-    private Long userId;
+    private Object userId;
     private String userHost;
 
     private String result;
@@ -108,7 +108,7 @@ public class RestLogMessage implements Serializable {
         this.username = username;
     }
 
-    public Long getUserId() {
+    public Object getUserId() {
         return userId;
     }
 
@@ -188,7 +188,7 @@ public class RestLogMessage implements Serializable {
         o.result = info.getResult() != null ? info.getResult().toString() : null;
         o.thread = info.getThread();
         o.throwable = StringUtils.getExceptionStackTrace(info.getThrowable());
-        o.userHost = info.getUserHost();
+        o.userHost = info.getHost();
         o.userId = info.getUserId();
         o.username = info.getUsername();
         return o;

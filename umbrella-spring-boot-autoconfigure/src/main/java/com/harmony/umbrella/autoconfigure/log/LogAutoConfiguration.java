@@ -29,15 +29,8 @@ import com.harmony.umbrella.log.support.LogWriter;
 @EnableConfigurationProperties(LogProperties.class)
 public class LogAutoConfiguration {
 
-    private LogProperties logProperties;
-
-    public LogAutoConfiguration(LogProperties logProperties) {
-        this.logProperties = logProperties;
-    }
-
-    @Autowired
-    void setLogProvider() {
-        LoggerType type = logProperties.getType();
+    @Autowired(required = false)
+    void setLogProvider(LoggerType type) {
         if (type != null) {
             Logs.setLogProvider(type.provider());
         }

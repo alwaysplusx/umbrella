@@ -41,7 +41,7 @@ public class SpecificationAssembler<T> {
             return null;
         }
         Sort sort = bundle.getSort();
-        return sort == null ? new PageRequest(page, size) : new PageRequest(page, size, sort);
+        return sort == null ? PageRequest.of(page, size) : PageRequest.of(page, size, sort);
     }
 
     public boolean isEnable(QueryFeature feature) {

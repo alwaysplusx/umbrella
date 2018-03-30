@@ -26,6 +26,11 @@ public class SimpleQueryableJpaRepository<T, ID extends Serializable> extends Si
         this.domainClass = domainClass;
     }
 
+    @Override
+    public EntityManager getEntityManager() {
+        return entityManager;
+    }
+
     protected <E> JpaQueryBuilder<E> queryWith(Class<E> entityClass) {
         return JpaQueryBuilder.<E> newBuilder().withEntityManager(entityManager).from(entityClass);
     }

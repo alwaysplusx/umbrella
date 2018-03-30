@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.harmony.umbrella</groupId>
   <artifactId>umbrella</artifactId>
@@ -45,7 +44,7 @@
     <maven.compiler.source>${java.version}</maven.compiler.source>
     <maven.compiler.target>${java.version}</maven.compiler.target>
     <javax.ee.version>7.0</javax.ee.version>
-    <spring.dependencies.version>1.5.9.RELEASE</spring.dependencies.version>
+    <spring.dependencies.version>2.0.0.RELEASE</spring.dependencies.version>
     <apache.cxf.version>3.1.10</apache.cxf.version>
     <apache.openejb.version>4.7.1</apache.openejb.version>
     <apache.poi.version>3.14</apache.poi.version>

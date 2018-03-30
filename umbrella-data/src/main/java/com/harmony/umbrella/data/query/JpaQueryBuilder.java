@@ -227,6 +227,11 @@ public class JpaQueryBuilder<M> extends QueryBuilder<JpaQueryBuilder<M>, M> {
                 log.warn("Subquery not support grouping/orderBy/fetch/join");
             }
             return (JpaQueryBuilder<M>) parentQueryBuilder.addSpecication(new Specification<M>() {
+                /**
+                 * 
+                 */
+                private static final long serialVersionUID = -7179840312915716364L;
+
                 @Override
                 public Predicate toPredicate(Root<M> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
                     Subquery<R> subquery = query.subquery(entityClass);

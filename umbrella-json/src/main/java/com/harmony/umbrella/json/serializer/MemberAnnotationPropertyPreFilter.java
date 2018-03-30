@@ -6,13 +6,13 @@ import java.util.Set;
 import com.alibaba.fastjson.serializer.JSONSerializer;
 import com.alibaba.fastjson.serializer.PropertyPreFilter;
 import com.harmony.umbrella.core.Member;
-import com.harmony.umbrella.util.FilterMode;
+import com.harmony.umbrella.util.ResourceFilter;
 import com.harmony.umbrella.util.MemberUtils;
 
 /**
  * @author wuxii@foxmail.com
  */
-public class MemberAnnotationPropertyFilter extends FilterMode<Member, Class<? extends Annotation>> implements PropertyPreFilter {
+public class MemberAnnotationPropertyPreFilter extends ResourceFilter<Member, Class<? extends Annotation>> implements PropertyPreFilter {
 
     @Override
     public boolean apply(JSONSerializer serializer, Object object, String name) {

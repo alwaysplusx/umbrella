@@ -26,7 +26,7 @@ import com.harmony.umbrella.web.Response;
 import com.harmony.umbrella.web.method.annotation.BundleView.Behavior;
 import com.harmony.umbrella.web.method.annotation.BundleView.PatternBehavior;
 import com.harmony.umbrella.web.util.WebUtils;
-import com.harmony.umbrella.web.util.WebUtils.PageImpl;
+import com.harmony.umbrella.web.util.WebUtils.PageWrapper;
 
 /**
  * 待渲染的视图片段(用于配置视图)
@@ -173,7 +173,7 @@ public class ViewFragment {
         }
 
         if (o instanceof Page //
-                && !(o instanceof PageImpl)//
+                && !(o instanceof PageWrapper)//
                 && Behavior.PAGE.equals(behavior)) {
             o = WebUtils.frontendPage((Page<?>) o);
         }

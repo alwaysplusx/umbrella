@@ -3,6 +3,9 @@ package com.harmony.umbrella.util;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 import org.springframework.util.Assert;
 
@@ -128,4 +131,15 @@ public class StringUtils extends org.springframework.util.StringUtils {
         return writer.toString();
     }
 
+    public static Set<String> asSet(String... s) {
+        return new LinkedHashSet<>(Arrays.asList(s));
+    }
+
+    public static Set<String> tokenizeToStringSet(String str, String delimiters) {
+        return asSet(tokenizeToStringArray(str, delimiters));
+    }
+
+    public static Set<String> tokenizeToStringSet(String str, String delimiters, boolean trimTokens, boolean ignoreEmptyTokens) {
+        return asSet(tokenizeToStringArray(str, delimiters, trimTokens, ignoreEmptyTokens));
+    }
 }

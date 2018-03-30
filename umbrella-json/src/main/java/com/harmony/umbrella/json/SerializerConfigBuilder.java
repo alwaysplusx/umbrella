@@ -10,14 +10,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.springframework.util.AntPathMatcher;
+
 import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.alibaba.fastjson.serializer.SerializeFilter;
 import com.alibaba.fastjson.serializer.SerializerFeature;
-import com.harmony.umbrella.json.serializer.JpaMappingAttributeFilter;
-import com.harmony.umbrella.json.serializer.MemberAnnotationPropertyFilter;
+import com.harmony.umbrella.json.serializer.JpaMappingPropertyPreFilter;
+import com.harmony.umbrella.json.serializer.MemberAnnotationPropertyPreFilter;
 import com.harmony.umbrella.json.serializer.NameMappingNameFilter;
-import com.harmony.umbrella.json.serializer.SimplePatternFilter;
-import com.harmony.umbrella.util.PathFilterMode;
+import com.harmony.umbrella.json.serializer.SimplePatternPropertyPreFilter;
+import com.harmony.umbrella.util.PatternResourceFilter;
 
 /**
  * 序列化配置类
@@ -45,9 +47,9 @@ public class SerializerConfigBuilder {
      */
     private SerializeConfig fastjsonSerializeConfig;
 
-    private PathFilterMode pathFilterMode;
+    private PatternResourceFilter<String> resourceFilter;
 
-    private MemberAnnotationPropertyFilter memberAnnotationPropertyFilter;
+    private MemberAnnotationPropertyPreFilter memberAnnotationPropertyFilter;
 
     private KeyStyle keyStyle;
 
@@ -111,32 +113,32 @@ public class SerializerConfigBuilder {
      * @return this builder
      */
     public SerializerConfigBuilder setIncludePatterns(Collection<String> patterns) {
-        getPathFilterMode().setIncludes(patterns);
+        getResourceFilter().setIncludes(patterns);
         return this;
     }
 
     public SerializerConfigBuilder addIncludePatterns(Collection<String> patterns) {
-        getPathFilterMode().addIncludes(patterns);
+        getResourceFilter().addIncludes(patterns);
         return this;
     }
 
     public SerializerConfigBuilder addIncludePatterns(String... patterns) {
-        getPathFilterMode().addIncludes(patterns);
+        getResourceFilter().addIncludes(patterns);
         return this;
     }
 
     public SerializerConfigBuilder setExcludePatterns(Collection<String> patterns) {
-        getPathFilterMode().setExcludes(patterns);
+        getResourceFilter().setExcludes(patterns);
         return this;
     }
 
     public SerializerConfigBuilder addExcludePatterns(Collection<String> patterns) {
-        getPathFilterMode().addExcludes(patterns);
+        getResourceFilter().addExcludes(patterns);
         return this;
     }
 
     public SerializerConfigBuilder addExcludePatterns(String... patterns) {
-        getPathFilterMode().addExcludes(patterns);
+        getResourceFilter().addExcludes(patterns);
         return this;
     }
 
@@ -220,8 +222,8 @@ public class SerializerConfigBuilder {
 
     public SerializerConfig build() {
         final List<SerializeFilter> filters = new ArrayList<>();
-        if (pathFilterMode != null) {
-            filters.add(new SimplePatternFilter(pathFilterMode));
+        if (resourceFilter != null) {
+            filters.add(new SimplePatternPropertyPreFilter(resourceFilter));
         }
         if (memberAnnotationPropertyFilter != null) {
             filters.add(memberAnnotationPropertyFilter);
@@ -230,7 +232,7 @@ public class SerializerConfigBuilder {
             filters.addAll(this.filters);
         }
         if (jpaSupport) {
-            filters.add(new JpaMappingAttributeFilter(jpaPositive));
+            filters.add(new JpaMappingPropertyPreFilter(jpaPositive));
         }
         if (nameMappingNameFilter != null && !nameMappingNameFilter.getNameMappings().isEmpty()) {
             filters.add(nameMappingNameFilter);
@@ -241,16 +243,16 @@ public class SerializerConfigBuilder {
         return new SerializerConfigImpl(filters, features, fastjsonSerializeConfig);
     }
 
-    private PathFilterMode getPathFilterMode() {
-        if (pathFilterMode == null) {
-            pathFilterMode = new PathFilterMode(".");
+    private PatternResourceFilter<String> getResourceFilter() {
+        if (resourceFilter == null) {
+            resourceFilter = new PatternResourceFilter<>(new AntPathMatcher("."));
         }
-        return pathFilterMode;
+        return resourceFilter;
     }
 
-    private MemberAnnotationPropertyFilter getMemberAnnotationPropertyFilter() {
+    private MemberAnnotationPropertyPreFilter getMemberAnnotationPropertyFilter() {
         if (this.memberAnnotationPropertyFilter == null) {
-            this.memberAnnotationPropertyFilter = new MemberAnnotationPropertyFilter();
+            this.memberAnnotationPropertyFilter = new MemberAnnotationPropertyPreFilter();
         }
         return memberAnnotationPropertyFilter;
     }

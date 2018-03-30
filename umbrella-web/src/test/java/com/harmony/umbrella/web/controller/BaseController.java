@@ -42,7 +42,7 @@ public abstract class BaseController<T, ID extends Serializable> {
         if (id == null) {
             id = paramId;
         }
-        return getService().findOne(id);
+        return getService().findById(id);
     }
 
     @RequestMapping("/page/{no}")

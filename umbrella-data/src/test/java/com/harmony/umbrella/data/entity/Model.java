@@ -1,5 +1,6 @@
 package com.harmony.umbrella.data.entity;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
@@ -12,14 +13,14 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
-import com.harmony.umbrella.data.domain.BaseEntity;
+import org.springframework.data.domain.Persistable;
 
 /**
  * @author wuxii@foxmail.com
  */
 @Entity
 @Table(name = "TEST_MODEL")
-public class Model extends BaseEntity<Long> {
+public class Model implements Serializable, Persistable<Long> {
 
     private static final long serialVersionUID = 1L;
 
@@ -55,6 +56,11 @@ public class Model extends BaseEntity<Long> {
         this.code = code;
         this.content = content;
         this.setSubModels(Arrays.asList(e));
+    }
+
+    @Override
+    public boolean isNew() {
+        return getId() == null;
     }
 
     public Long getId() {

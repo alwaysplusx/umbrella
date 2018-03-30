@@ -72,7 +72,7 @@ public abstract class ApplicationContext implements BeanFactory {
     public static void start(ApplicationConfiguration appConfig) throws ApplicationContextException {
         final ApplicationConfiguration cfg = ApplicationConfigurationBuilder.unmodifiableApplicationConfiguation(appConfig);
         synchronized (applicationStatusLock) {
-            if (applicationStatus != STANDBY) {
+            if (applicationStatus != STANDBY && applicationStatus != STOPPED) {
                 // application not standby
                 throw new ApplicationContextException("start application failed, status not available " + applicationStatus);
             }

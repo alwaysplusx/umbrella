@@ -43,19 +43,19 @@ import com.harmony.umbrella.log.Logs;
  * 
  * @author wuxii@foxmail.com
  */
-public abstract class PropertyPathFilter implements PropertyPreFilter {
+public abstract class PathPropertyPreFilter implements PropertyPreFilter {
 
     public static final int DEFAULT_MAX_HIERARCHICAL_LEVEL = 10;
 
-    private static final Log log = Logs.getLog(PropertyPathFilter.class);
+    private static final Log log = Logs.getLog(PathPropertyPreFilter.class);
 
     protected final int maxHierarchicalLevel;
 
-    public PropertyPathFilter() {
+    public PathPropertyPreFilter() {
         this(DEFAULT_MAX_HIERARCHICAL_LEVEL);
     }
 
-    public PropertyPathFilter(int maxHierarchicalLevel) {
+    public PathPropertyPreFilter(int maxHierarchicalLevel) {
         Assert.isTrue(maxHierarchicalLevel > 5, "max hierarchical must be great than 5");
         this.maxHierarchicalLevel = maxHierarchicalLevel;
     }

@@ -1,19 +1,21 @@
 package com.harmony.umbrella.data.entity;
 
+import java.io.Serializable;
+
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
-import com.harmony.umbrella.data.domain.BaseEntity;
+import org.springframework.data.domain.Persistable;
 
 /**
  * @author wuxii@foxmail.com
  */
 @Entity
 @Table(name = "TEST_SUBMODEL")
-public class SubModel extends BaseEntity<String> {
+public class SubModel implements Serializable, Persistable<String> {
 
     private static final long serialVersionUID = 1L;
 
@@ -31,6 +33,11 @@ public class SubModel extends BaseEntity<String> {
     public SubModel(String id, String name) {
         this.id = id;
         this.name = name;
+    }
+
+    @Override
+    public boolean isNew() {
+        return getId() == null;
     }
 
     public String getId() {

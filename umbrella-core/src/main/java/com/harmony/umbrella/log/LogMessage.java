@@ -37,9 +37,9 @@ public class LogMessage {
     private Throwable throwable;
     private Level level;
 
+    private Object userId;
     private String username;
-    private Long userId;
-    private String userHost;
+    private String host;
 
     private Object result;
 
@@ -144,13 +144,13 @@ public class LogMessage {
         return this;
     }
 
-    public LogMessage userId(Long userId) {
+    public LogMessage userId(Object userId) {
         this.userId = userId;
         return this;
     }
 
-    public LogMessage userHost(String userHost) {
-        this.userHost = userHost;
+    public LogMessage host(String host) {
+        this.host = host;
         return this;
     }
 
@@ -325,8 +325,8 @@ public class LogMessage {
         private long requestTime;
         private long responseTime;
         private String username;
-        private Long userId;
-        private String userHost;
+        private Object userId;
+        private String host;
 
         private String location;
         private String thread;
@@ -347,7 +347,7 @@ public class LogMessage {
             this.responseTime = m.finishTime;
             this.username = m.username;
             this.userId = m.userId;
-            this.userHost = m.userHost;
+            this.host = m.host;
             this.key = m.key;
             this.location = m.location;
             this.thread = m.thread;
@@ -410,13 +410,13 @@ public class LogMessage {
         }
 
         @Override
-        public Long getUserId() {
+        public Object getUserId() {
             return userId;
         }
 
         @Override
-        public String getUserHost() {
-            return userHost;
+        public String getHost() {
+            return host;
         }
 
         @Override
@@ -441,8 +441,8 @@ public class LogMessage {
             this.level = (StandardLevel) ois.readObject();
             this.message = ois.readUTF();
             this.module = ois.readUTF();
-            this.userHost = ois.readUTF();
-            this.userId = ois.readLong();
+            this.host = ois.readUTF();
+            this.userId = ois.readObject();
             this.username = ois.readUTF();
             this.requestTime = ois.readLong();
             this.responseTime = ois.readLong();
@@ -459,7 +459,7 @@ public class LogMessage {
             oos.writeObject(this.level);
             oos.writeUTF(this.message);
             oos.writeUTF(this.module);
-            oos.writeUTF(this.userHost);
+            oos.writeUTF(this.host);
             oos.writeObject(this.userId);
             oos.writeUTF(this.username);
             oos.writeLong(this.requestTime);
@@ -479,7 +479,7 @@ public class LogMessage {
                     .append("\n        result : ").append(result)//
                     .append("\n        action : ").append(action)//
                     .append("\n       message : ").append(message)//
-                    .append("\n      userhost : ").append(userHost)//
+                    .append("\n      userhost : ").append(host)//
                     .append("\n      username : ").append(username)//
                     .append("\n      location : ").append(location)//
                     .append("\n           use : ").append(interval(requestTime, responseTime)).append("(ms)")//

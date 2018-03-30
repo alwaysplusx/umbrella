@@ -16,13 +16,13 @@ public interface Service<T, ID extends Serializable> {
 
     void delete(T entity);
 
-    void delete(ID id);
+    void deleteById(ID id);
 
     T getAndDelete(ID id);
 
     T findOne(QueryBundle<T> bundle);
 
-    T findOne(ID id);
+    T findById(ID id);
 
     T findFirst(QueryBundle<T> bundle);
 

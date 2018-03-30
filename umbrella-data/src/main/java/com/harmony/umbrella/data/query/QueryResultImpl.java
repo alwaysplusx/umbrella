@@ -4,6 +4,7 @@ import static com.harmony.umbrella.data.query.QueryFeature.*;
 import static com.harmony.umbrella.data.util.QueryUtils.*;
 
 import java.util.List;
+import java.util.function.LongSupplier;
 
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
@@ -18,7 +19,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.repository.support.PageableExecutionUtils;
-import org.springframework.data.repository.support.PageableExecutionUtils.TotalSupplier;
 
 import com.harmony.umbrella.data.query.SpecificationAssembler.SpecificationType;
 import com.harmony.umbrella.data.util.QueryUtils;
@@ -114,7 +114,7 @@ public class QueryResultImpl<T> implements QueryResult<T> {
 
     @Override
     public <E> E getFirstResult(Selections<T> selections, Class<E> resultType) {
-        List<E> list = getRangeList(selections, new PageRequest(0, 1), resultType);
+        List<E> list = getRangeList(selections, PageRequest.of(0, 1), resultType);
         if (list.isEmpty()) {
             throw new NoResultException("can't found first result");
         }
@@ -135,9 +135,9 @@ public class QueryResultImpl<T> implements QueryResult<T> {
     @Override
     public <E> Page<E> getResultPage(Selections<T> selections, Class<E> resultType) {
         Pageable pageable = assembler.getPageable();
-        return PageableExecutionUtils.getPage(getRangeList(selections, pageable, resultType), pageable, new TotalSupplier() {
+        return PageableExecutionUtils.getPage(getRangeList(selections, pageable, resultType), pageable, new LongSupplier() {
             @Override
-            public long get() {
+            public long getAsLong() {
                 return countResult();
             }
         });
@@ -179,10 +179,10 @@ public class QueryResultImpl<T> implements QueryResult<T> {
             return entityManager.createQuery(query).getResultList();
         }
 
-        private <T> List<T> getRange(int offset, int size, Specification spec, Class<T> resultClass) {
+        private <T> List<T> getRange(long offset, int size, Specification spec, Class<T> resultClass) {
             CriteriaQuery<T> criteriaQuery = createCriteriaQuery(spec, resultClass);
             TypedQuery<T> query = entityManager.createQuery(criteriaQuery);
-            query.setFirstResult(offset);
+            query.setFirstResult((int) offset);
             query.setMaxResults(size);
             return query.getResultList();
         }

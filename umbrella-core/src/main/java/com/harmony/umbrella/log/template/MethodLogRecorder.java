@@ -85,13 +85,17 @@ public class MethodLogRecorder {
     }
 
     protected boolean applyUserContext(LogMessage logMessage) {
-        CurrentContext cc = getCurrentContext();
-        if (cc != null && cc.getUserId() != null) {
-            logMessage.userId(cc.getUserId())//
-                    .username(cc.getUsername())//
-                    .userHost(cc.getUserHost());
-            return true;
-        }
+        // FIXME user context设置
+        // CurrentContext cc = getCurrentContext();
+        // if (cc != null) {
+        // logMessage.host(cc.getHost());
+        // if (cc.getUserPrincipal() != null && cc.getUserPrincipal() != null) {
+        // UserPrincipal up = cc.getUserPrincipal();
+        // logMessage.userId(up.getIdentity())//
+        // .username(up.getUsername());
+        // return true;
+        // }
+        // }
         return false;
     }
 

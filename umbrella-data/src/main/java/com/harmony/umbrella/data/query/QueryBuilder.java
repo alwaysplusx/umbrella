@@ -72,8 +72,7 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
     /**
      * 当前查询条件与上个查询条件的连接条件, 当前查询条件被添加完成后将被清空
      * <p>
-     * 清空的情况包括: 1. {@linkplain #addSpecication(Specification)} 2.
-     * {@linkplain #start(CompositionType)}
+     * 清空的情况包括: 1. {@linkplain #addSpecication(Specification)} 2. {@linkplain #start(CompositionType)}
      * 
      */
     protected CompositionType assembleType;
@@ -611,8 +610,7 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
     }
 
     /**
-     * 在全局条件中增加一条查询条件, 当前的条件与前查询条件的连接类型为{@linkplain #assembleType}.
-     * 在添加完成后将清空暂存的连接类型
+     * 在全局条件中增加一条查询条件, 当前的条件与前查询条件的连接类型为{@linkplain #assembleType}. 在添加完成后将清空暂存的连接类型
      * 
      * @param spec
      *            条件
@@ -798,7 +796,7 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
      */
     public T orderBy(Order... order) {
         if (order.length > 0) {
-            this.sort = (this.sort == null) ? new Sort(order) : this.sort.and(new Sort(order));
+            this.sort = (this.sort == null) ? Sort.by(order) : this.sort.and(Sort.by(order));
         }
         return (T) this;
     }
