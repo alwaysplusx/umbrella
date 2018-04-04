@@ -45,7 +45,8 @@ public class WebCurrentContextFilter extends AbstractCurrentContextFilter {
 
     @Override
     protected CurrentContext createCurrentContext(HttpServletRequest request, HttpServletResponse response) {
-        return new HttpCurrentContext(request, response, ipHeader);
+        // return new HttpCurrentContext(request, response, ipHeader);
+        return null;
     }
 
     @Override

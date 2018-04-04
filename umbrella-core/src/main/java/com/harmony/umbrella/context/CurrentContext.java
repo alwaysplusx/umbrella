@@ -1,13 +1,6 @@
 package com.harmony.umbrella.context;
 
-import java.util.List;
 import java.util.Locale;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-
-import org.springframework.util.Assert;
 
 /**
  * 用户所能操作信息以及用户的信息将会在保存在{@linkplain CurrentContext}中
@@ -17,16 +10,16 @@ import org.springframework.util.Assert;
 public interface CurrentContext {
 
     /**
-     * 用户凭证
+     * 当前用户所对应的用户主体
      * 
-     * @return 用户凭证
+     * @return 用户主体
      */
-    Principals getPrincipals();
+    Object getPrincipals();
 
     /**
-     * 用户端的ip
+     * 用户端的host
      * 
-     * @return
+     * @return request host
      */
     String getHost();
 
@@ -51,83 +44,19 @@ public interface CurrentContext {
     String getCharacterEncoding();
 
     /**
-     * 获取当前请求的http上下文
+     * 当前context对应的请求信息, 如http请求: <code>
+     *  HttpServletRequest request = cc.getRequest(HttpServletRequest.class);
+     * </code>
      * 
-     * @return http context
+     * @return current request
      */
-    HttpContext getHttpContext();
+    <T> T getRequest(Class<T> type);
 
     /**
-     * 当前系统的登录主体
+     * 当前context对应的应答信息, 如http请求的应答: {@code HttpServletResponse response = cc.getResponse(HttpServletResponse.class)}
      * 
-     * @author wuxii@foxmail.com
+     * @return current resposne
      */
-    public interface Principals extends Iterable<Object> {
-
-        <T> T getPrincipal(Class<T> type);
-
-        Object getPrincipal(String name);
-
-        List<Object> getPrincipalKeys();
-
-    }
-
-    /**
-     * http context
-     * 
-     * @author wuxii@foxmail.com
-     */
-    public static final class HttpContext {
-
-        private final HttpServletRequest request;
-        private final HttpServletResponse response;
-
-        public HttpContext(HttpServletRequest request, HttpServletResponse response) {
-            Assert.notNull(request, "request must not null");
-            Assert.notNull(response, "response must not null");
-            this.request = request;
-            this.response = response;
-        }
-
-        /**
-         * http request
-         *
-         * @return http-request
-         */
-        public HttpServletRequest getHttpRequest() {
-            return request;
-        }
-
-        /**
-         * http response
-         *
-         * @return http-response
-         */
-        public HttpServletResponse getHttpResponse() {
-            return response;
-        }
-
-        /**
-         * http session
-         *
-         * @return http-session
-         */
-        public HttpSession getHttpSession() {
-            return getHttpSession(true);
-        }
-
-        /**
-         * Returns the current HttpSession associated with this request or, if there is no current session and create is
-         * true, returns a new session.
-         * 
-         * @param create
-         * @return
-         * @see HttpServletRequest#getSession(boolean)
-         */
-        public HttpSession getHttpSession(boolean create) {
-            return request.getSession(create);
-        }
-
-    }
+    <T> T getResponse(Class<T> type);
 
 }

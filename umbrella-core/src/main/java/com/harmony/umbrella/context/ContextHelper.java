@@ -1,15 +1,9 @@
 package com.harmony.umbrella.context;
 
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.List;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import com.harmony.umbrella.context.CurrentContext.HttpContext;
-import com.harmony.umbrella.context.CurrentContext.Principals;
 import com.harmony.umbrella.context.metadata.ApplicationMetadata;
 import com.harmony.umbrella.context.metadata.ServerMetadata;
 import com.harmony.umbrella.log.Log;
@@ -77,24 +71,14 @@ public class ContextHelper {
         return cc;
     }
 
-    public static HttpContext getHttpContext() {
-        CurrentContext cc = getCurrentContext();
-        return cc != null ? cc.getHttpContext() : null;
-    }
-
-    public static Principals getUserPrincipal() {
-        CurrentContext cc = getCurrentContext();
-        return cc == null ? null : cc.getPrincipals();
-    }
-
     /**
      * 获取用户线程的http request, 如果未找到用户context返回null
      * 
      * @return user http request
      */
     public static HttpServletRequest getHttpRequest() {
-        HttpContext hc = getHttpContext();
-        return hc != null ? hc.getHttpRequest() : null;
+        CurrentContext cc = getCurrentContext();
+        return cc != null ? cc.getRequest(HttpServletRequest.class) : null;
     }
 
     /**
@@ -103,8 +87,8 @@ public class ContextHelper {
      * @return user http response
      */
     public static HttpServletResponse getHttpResponse() {
-        HttpContext hc = getHttpContext();
-        return hc != null ? hc.getHttpResponse() : null;
+        CurrentContext cc = getCurrentContext();
+        return cc != null ? cc.getResponse(HttpServletResponse.class) : null;
     }
 
     /**
@@ -124,8 +108,8 @@ public class ContextHelper {
      * @return http session
      */
     public static HttpSession getHttpSession(boolean create) {
-        HttpContext hc = getHttpContext();
-        return hc != null ? hc.getHttpSession(create) : null;
+        HttpServletRequest request = getHttpRequest();
+        return request != null ? request.getSession(create) : null;
     }
 
     public static String getRequestUrl() {
@@ -166,55 +150,6 @@ public class ContextHelper {
 
     public static boolean isTomcate() {
         return getServerMetadata().serverType == ServerMetadata.TOMCAT;
-    }
-
-    public interface SessionContext {
-
-        Object get(String name);
-
-        void put(String name, Object val);
-
-        Object remove(String name);
-
-        List<String> getKeys();
-
-    }
-
-    public static class HttpSessionContext implements SessionContext {
-
-        private HttpSession session;
-
-        public HttpSessionContext(HttpSession session) {
-            this.session = session;
-        }
-
-        @Override
-        public Object get(String name) {
-            return session.getAttribute(name);
-        }
-
-        @Override
-        public void put(String name, Object val) {
-            session.setAttribute(name, val);
-        }
-
-        @Override
-        public Object remove(String name) {
-            Object val = session.getAttribute(name);
-            session.removeAttribute(name);
-            return val;
-        }
-
-        @Override
-        public List<String> getKeys() {
-            List<String> result = new ArrayList<>();
-            Enumeration<String> names = session.getAttributeNames();
-            while (names.hasMoreElements()) {
-                result.add(names.nextElement());
-            }
-            return result;
-        }
-
     }
 
 }
