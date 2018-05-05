@@ -16,7 +16,6 @@
 
   <modules>
     <module>umbrella-core</module>
-    <module>umbrella-cache</module>
     <module>umbrella-ee</module>
     <module>umbrella-json</module>
     <module>umbrella-message</module>
