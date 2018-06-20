@@ -43,7 +43,7 @@
     <maven.compiler.source>${java.version}</maven.compiler.source>
     <maven.compiler.target>${java.version}</maven.compiler.target>
     <javax.ee.version>7.0</javax.ee.version>
-    <spring.dependencies.version>2.0.0.RELEASE</spring.dependencies.version>
+    <spring.boot.dependencies.version>2.0.0.RELEASE</spring.boot.dependencies.version>
     <apache.cxf.version>3.1.10</apache.cxf.version>
     <apache.openejb.version>4.7.1</apache.openejb.version>
     <apache.poi.version>3.14</apache.poi.version>
@@ -58,7 +58,7 @@
       <dependency>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-dependencies</artifactId>
-        <version>${spring.dependencies.version}</version>
+        <version>${spring.boot.dependencies.version}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
