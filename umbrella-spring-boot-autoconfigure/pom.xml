@@ -18,9 +18,8 @@
       <optional>true</optional>
     </dependency>
     <dependency>
-      <groupId>org.apache.zookeeper</groupId>
-      <artifactId>zookeeper</artifactId>
-      <version>3.4.12</version>
+      <groupId>javax.servlet</groupId>
+      <artifactId>javax.servlet-api</artifactId>
       <optional>true</optional>
     </dependency>
     <dependency>
@@ -32,6 +31,12 @@
       <groupId>com.harmony.umbrella</groupId>
       <artifactId>umbrella-web</artifactId>
       <optional>true</optional>
+      <exclusions>
+        <exclusion>
+          <groupId>com.harmony.umbrella</groupId>
+          <artifactId>umbrella-data</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>com.harmony.umbrella</groupId>
@@ -39,9 +44,8 @@
       <optional>true</optional>
     </dependency>
     <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-webmvc</artifactId>
-      <optional>true</optional>
+      <groupId>log4j</groupId>
+      <artifactId>log4j</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apache.logging.log4j</groupId>
@@ -53,10 +57,11 @@
       <artifactId>log4j-core</artifactId>
       <optional>true</optional>
     </dependency>
+    <!-- starter -->
     <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-log4j12</artifactId>
-      <scope>provided</scope>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-web</artifactId>
+      <optional>true</optional>
     </dependency>
     <!-- test scope -->
     <dependency>

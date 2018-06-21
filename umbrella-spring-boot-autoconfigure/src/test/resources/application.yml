@@ -1,4 +1,4 @@
-debug: true
+#debug: true
 spring:
   application:
     admin:
@@ -9,13 +9,13 @@ harmony:
       scan-init: true
       scan-async: true
       show-info: true
-  ejb:
-    enabled: true
-    contextProperties:
-      java.naming.factory.initial: weblogic.jndi.WLInitialContextFactory
-      java.naming.provider.url: t3://localhost:7001
-      java.naming.security.principal: admin
-      java.naming.security.credentials: admin
+#  ejb:
+#    enabled: true
+#    contextProperties:
+#      java.naming.factory.initial: weblogic.jndi.WLInitialContextFactory
+#      java.naming.provider.url: t3://localhost:7001
+#      java.naming.security.principal: admin
+#      java.naming.security.credentials: admin
   log:
     type: log4j2
     interceptor:
@@ -23,17 +23,22 @@ harmony:
       pointcut: execution(* com.harmony.meerkat.controller..*.*(..))
   web:
     enabled: false
-    current-context:
+    current-filter:
       url-patterns: /*
-  message:
-    broker:
-      connector: tcp://localhost:61616
-      ssl: false
-      persistent: true
-      tmp-data-directory: ./target/activemq
-    queueTemplate:
-      connector: ${harmony.message.broker.connector}
-      queue: m3.queue
-      session-mode: 1
-      transacted: true
-      session-auto-commit: true
+#  lock:
+#    type: zookeeper
+#    zookeeper:
+#      address: localhost:9092
+#      auto-start: false
+#  message:
+#    broker:
+#      connector: tcp://localhost:61616
+#      ssl: false
+#      persistent: true
+#      tmp-data-directory: ./target/activemq
+#    queueTemplate:
+#      connector: ${harmony.message.broker.connector}
+#      queue: m3.queue
+#      session-mode: 1
+#      transacted: true
+#      session-auto-commit: true

@@ -4,6 +4,7 @@ import org.apache.log4j.LogManager;
 import org.apache.logging.log4j.core.Logger;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.Configurator;
+import org.slf4j.LoggerFactory;
 import org.springframework.aop.PointcutAdvisor;
 import org.springframework.aop.aspectj.AspectJExpressionPointcut;
 import org.springframework.aop.support.DefaultPointcutAdvisor;
@@ -69,6 +70,8 @@ public class LogAutoConfiguration {
     @ConditionalOnClass(org.apache.logging.log4j.core.LoggerContext.class)
     public static class Log4J2WriterConfiguration {
 
+        private static final org.slf4j.Logger log = LoggerFactory.getLogger(Log4J2WriterConfiguration.class);
+
         private LogProperties logProperties;
 
         public Log4J2WriterConfiguration(LogProperties logProperties) {
@@ -78,7 +81,11 @@ public class LogAutoConfiguration {
         @Autowired
         void setRootLoggerLevel() {
             org.apache.logging.log4j.Level level = org.apache.logging.log4j.Level.toLevel(logProperties.getLevel());
-            Configurator.setRootLevel(level);
+            try {
+                Configurator.setRootLevel(level);
+            } catch (Exception e) {
+                log.warn("Unable set log4j2 root level, {}", e.toString());
+            }
         }
 
         @Autowired(required = false)

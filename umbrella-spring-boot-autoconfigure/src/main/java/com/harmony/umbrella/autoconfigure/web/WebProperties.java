@@ -8,7 +8,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public class WebProperties {
 
     private String ipHeader;
-    private CurrentContextProperties currentContext;
+    private CurrentFilter currentFilter;
     private boolean bundle;
 
     public WebProperties() {
@@ -22,12 +22,12 @@ public class WebProperties {
         this.ipHeader = ipHeader;
     }
 
-    public CurrentContextProperties getCurrentContext() {
-        return currentContext;
+    public CurrentFilter getCurrentFilter() {
+        return currentFilter;
     }
 
-    public void setCurrentContext(CurrentContextProperties currentContext) {
-        this.currentContext = currentContext;
+    public void setCurrentFilter(CurrentFilter currentFilter) {
+        this.currentFilter = currentFilter;
     }
 
     public boolean isBundle() {
@@ -38,7 +38,7 @@ public class WebProperties {
         this.bundle = bundle;
     }
 
-    public static class CurrentContextProperties {
+    public static class CurrentFilter {
 
         private boolean enabled;
         private Set<String> urlPatterns;

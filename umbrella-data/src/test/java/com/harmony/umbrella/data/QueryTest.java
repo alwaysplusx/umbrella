@@ -16,12 +16,12 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.springframework.data.domain.Page;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.harmony.umbrella.data.entity.Model;
 import com.harmony.umbrella.data.query.JpaQueryBuilder;
 import com.harmony.umbrella.data.query.JpaQueryBuilder.OneTimeColumn;
 import com.harmony.umbrella.data.vo.ModelVo;
-import com.harmony.umbrella.json.Json;
 
 /**
  * @author wuxii@foxmail.com
@@ -71,7 +71,7 @@ public class QueryTest {
     @Test
     public void testResultPage() {
         Page<Model> v = builder.paging(0, 20).getResultPage();
-        System.out.println(Json.toJson(v, SerializerFeature.PrettyFormat));
+        System.out.println(JSON.toJSONString(v, SerializerFeature.PrettyFormat));
     }
 
     @Test
