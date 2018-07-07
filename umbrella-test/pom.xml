@@ -37,5 +37,10 @@
       <groupId>com.harmony.umbrella</groupId>
       <artifactId>umbrella-ee</artifactId>
     </dependency>
+    <dependency>
+      <groupId>javax</groupId>
+      <artifactId>javaee-api</artifactId>
+      <scope>provided</scope>
+    </dependency>
   </dependencies>
 </project>

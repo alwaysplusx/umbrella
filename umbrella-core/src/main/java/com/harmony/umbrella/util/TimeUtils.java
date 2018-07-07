@@ -235,8 +235,8 @@ public class TimeUtils {
      *            时间
      * @return 秒数
      */
-    public static int getSecond(Date date) {
-        return getSecond(toCalendar(date));
+    public static int getSeconds(Date date) {
+        return getSeconds(toCalendar(date));
     }
 
     // java.util.Calendar 时间截取
@@ -331,7 +331,7 @@ public class TimeUtils {
      *            时间
      * @return 秒数
      */
-    public static int getSecond(Calendar date) {
+    public static int getSeconds(Calendar date) {
         return get(date, Calendar.SECOND);
     }
 
@@ -369,7 +369,7 @@ public class TimeUtils {
      *            时间
      * @return 秒数
      */
-    public static long second(Date date) {
+    public static long toSeconds(Date date) {
         return TimeUnit.MILLISECONDS.toSeconds(date.getTime());
     }
 
@@ -380,7 +380,7 @@ public class TimeUtils {
      *            时间
      * @return 秒数
      */
-    public static long second(Calendar date) {
+    public static long toSeconds(Calendar date) {
         return TimeUnit.MILLISECONDS.toSeconds(date.getTimeInMillis());
     }
 
@@ -391,7 +391,7 @@ public class TimeUtils {
      *            时间
      * @return 毫秒数
      */
-    public static long millisecond(Date date) {
+    public static long toMillis(Date date) {
         return date.getTime();
     }
 
@@ -402,7 +402,7 @@ public class TimeUtils {
      *            时间
      * @return 毫秒数
      */
-    public static long millisecond(Calendar date) {
+    public static long toMillis(Calendar date) {
         return date.getTimeInMillis();
     }
 
@@ -417,7 +417,7 @@ public class TimeUtils {
      *            结束时间
      * @return 时间秒数
      */
-    public static long intervalSecond(Date begin, Date end) {
+    public static long intervalSeconds(Date begin, Date end) {
         return interval(begin, end, TimeUnit.SECONDS);
     }
 
@@ -430,7 +430,7 @@ public class TimeUtils {
      *            结束时间
      * @return 时间毫秒数
      */
-    public static long intervalMilliseconds(Date begin, Date end) {
+    public static long intervalMillis(Date begin, Date end) {
         return interval(begin, end, TimeUnit.SECONDS);
     }
 
@@ -546,7 +546,7 @@ public class TimeUtils {
      * @param amount
      *            增加或减少的时间
      */
-    public static void addSecond(Date date, int amount) {
+    public static void addSeconds(Date date, int amount) {
         add(date, Calendar.SECOND, amount);
     }
 
@@ -558,20 +558,11 @@ public class TimeUtils {
      * @param amount
      *            增加或减少的时间
      */
-    public static void addMillisecond(Date date, int amount) {
+    public static void addMillis(Date date, int amount) {
         add(date, Calendar.MILLISECOND, amount);
     }
 
-    /**
-     * 给当前时间加/减(加为正,减为负)对应的指定数
-     * 
-     * @param date
-     *            当前时间
-     * @param amount
-     *            增加或减少的时间
-     * @see Calendar#add(int, int)
-     */
-    public static void add(Date date, int field, int amount) {
+    private static void add(Date date, int field, int amount) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(date);
         add(calendar, field, amount);
@@ -661,7 +652,7 @@ public class TimeUtils {
      *            增加或减少的时间
      */
 
-    public static void addSecond(Calendar date, int amount) {
+    public static void addSeconds(Calendar date, int amount) {
         add(date, Calendar.SECOND, amount);
     }
 
@@ -673,7 +664,7 @@ public class TimeUtils {
      * @param amount
      *            增加或减少的时间
      */
-    public static void addMillisecond(Calendar date, int amount) {
+    public static void addMillis(Calendar date, int amount) {
         add(date, Calendar.MILLISECOND, amount);
     }
 
@@ -685,7 +676,7 @@ public class TimeUtils {
      * @param amount
      *            增加或减少的时间
      */
-    public static void add(Calendar date, int field, int amount) {
+    private static void add(Calendar date, int field, int amount) {
         date.add(field, amount);
     }
 
