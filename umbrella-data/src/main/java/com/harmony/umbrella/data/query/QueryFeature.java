@@ -2,7 +2,7 @@ package com.harmony.umbrella.data.query;
 
 /**
  * 查询特性
- * 
+ *
  * @author wuxii@foxmail.com
  */
 public enum QueryFeature {
@@ -18,11 +18,7 @@ public enum QueryFeature {
     /**
      * 当无查询条件时采用conjunction为默认条件
      */
-    CONJUNCTION,
-    /**
-     * 当无查询条件时候采用disjunction为默认条件
-     */
-    DISJUNCTION;
+    CONJUNCTION;
 
     private QueryFeature() {
         mask = (1 << ordinal());
@@ -42,19 +38,12 @@ public enum QueryFeature {
         return (features & feature.getMask()) != 0;
     }
 
-    public static boolean isEnabled(int features, int fieaturesB, QueryFeature feature) {
-        int mask = feature.getMask();
-
-        return (features & mask) != 0 || (fieaturesB & mask) != 0;
-    }
-
     public static int config(int features, QueryFeature feature, boolean state) {
         if (state) {
             features |= feature.getMask();
         } else {
             features &= ~feature.getMask();
         }
-
         return features;
     }
 

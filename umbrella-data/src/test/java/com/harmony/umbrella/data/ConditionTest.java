@@ -136,7 +136,7 @@ public class ConditionTest {
 
     @Test
     public void testExpression() {
-        List<Model> v = builder.addExpressionCodition("code", "content", Operator.EQUAL).getResultList();
+        List<Model> v = builder.addExpressionCondition("code", "content", Operator.EQUAL).getResultList();
         assertEquals(1, v.size());
     }
 

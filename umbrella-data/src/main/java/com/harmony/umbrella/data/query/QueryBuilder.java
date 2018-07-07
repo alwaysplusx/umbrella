@@ -1,20 +1,11 @@
 package com.harmony.umbrella.data.query;
 
-import static com.harmony.umbrella.data.CompositionType.*;
-
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.Stack;
-
-import javax.persistence.EntityManager;
-import javax.persistence.criteria.JoinType;
-
+import com.harmony.umbrella.data.CompositionType;
+import com.harmony.umbrella.data.ExpressionExplainer;
+import com.harmony.umbrella.data.Operator;
+import com.harmony.umbrella.data.query.specs.ConditionSpecification;
+import com.harmony.umbrella.data.query.specs.ExpressionSpecification;
+import com.harmony.umbrella.data.util.QueryUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -24,12 +15,13 @@ import org.springframework.data.domain.Sort.Order;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.util.Assert;
 
-import com.harmony.umbrella.data.CompositionType;
-import com.harmony.umbrella.data.ExpressionExplainer;
-import com.harmony.umbrella.data.Operator;
-import com.harmony.umbrella.data.query.specs.ConditionSpecification;
-import com.harmony.umbrella.data.query.specs.ExperssionSpecification;
-import com.harmony.umbrella.data.util.QueryUtils;
+import javax.persistence.EntityManager;
+import javax.persistence.criteria.JoinType;
+import java.io.Serializable;
+import java.util.*;
+
+import static com.harmony.umbrella.data.CompositionType.AND;
+import static com.harmony.umbrella.data.CompositionType.OR;
 
 /**
  * 查询构建builder
@@ -37,18 +29,18 @@ import com.harmony.umbrella.data.util.QueryUtils;
  * exampel:需要构建如下的sql/jpql
  * <p>
  * select * from User where name='foo' or nickname like '%foo';
- * 
+ *
  * <pre>
- * 
- * User user = new QueryBuilder()//
- *         .equal("name", "foo")//
- *         .or()//
- *         .like("nickname", "%foo")//
- *         .getSingleResult();//
+ *
+ * User user = new QueryBuilder()
+ *         .equal("name", "foo")
+ *         .or()
+ *         .like("nickname", "%foo")
+ *         .getSingleResult();
  * </pre>
- * <p>
+ *
  * <b>注意: 在构建查询时builder有严格的顺序性</b>
- * 
+ *
  * @author wuxii@foxmail.com
  */
 public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializable {
@@ -58,11 +50,11 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
     /**
      * 查询条件栈, 一个括号内的查询条件即为一个栈值
      */
-    private final transient Stack<Bind> queryStack = new Stack<Bind>();
+    private final transient Stack<Bind> queryStack = new Stack<>();
     /**
      * 一个括号内暂存的组合查询条件, 在括号结束后将情况temp中的查询条件
      */
-    private final transient List<CompositionSpecification> temp = new ArrayList<CompositionSpecification>();
+    private final transient List<CompositionSpecification> temp = new ArrayList<>();
 
     protected transient EntityManager entityManager;
 
@@ -72,8 +64,7 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
     /**
      * 当前查询条件与上个查询条件的连接条件, 当前查询条件被添加完成后将被清空
      * <p>
-     * 清空的情况包括: 1. {@linkplain #addSpecication(Specification)} 2. {@linkplain #start(CompositionType)}
-     * 
+     * 清空的情况包括: 1. {@linkplain #addSpecification(Specification)} 2. {@linkplain #start(CompositionType)}
      */
     protected CompositionType assembleType;
 
@@ -88,7 +79,7 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
     protected JoinAttributes joinAttributes;
     protected Specification<M> condition;
 
-    protected int queryFeature = 0;
+    protected int queryFeature = QueryFeature.config(0, QueryFeature.FULL_TABLE_QUERY, false);
 
     // query property
 
@@ -110,9 +101,8 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
 
     /**
      * 设置jpa entityManager
-     * 
-     * @param entityManager
-     *            entity manager
+     *
+     * @param entityManager entity manager
      * @return this
      */
     public T withEntityManager(EntityManager entityManager) {
@@ -122,9 +112,8 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
 
     /**
      * 设置查询条件, 通过此方法设置条件后前所有条件将会被清除
-     * 
-     * @param condition
-     *            查询条件
+     *
+     * @param condition 查询条件
      * @return this
      */
     public T withCondition(Specification<M> condition) {
@@ -136,9 +125,8 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
 
     /**
      * 设置分页条件, 设置后将清除原排序条件
-     * 
-     * @param pageable
-     *            分页条件
+     *
+     * @param pageable 分页条件
      * @return this
      */
     public T withPageable(Pageable pageable) {
@@ -150,7 +138,7 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
 
     /**
      * 启用/禁用自动匹配括号, default is enabled
-     * 
+     *
      * @return this
      */
     public T autoEnclose(boolean flag) {
@@ -160,9 +148,8 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
 
     /**
      * 启用/禁用查询严格校验模式, 严格模式用于校验当前的assembleType
-     * 
-     * @param strictMode
-     *            严格校验模式flag
+     *
+     * @param strictMode 严格校验模式flag
      * @return true is strictMode
      */
     public T strictMode(boolean strictMode) {
@@ -172,9 +159,8 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
 
     /**
      * 设置查询entity(表)
-     * 
-     * @param entityClass
-     *            实体
+     *
+     * @param entityClass 实体
      * @return this
      */
     public T from(Class<M> entityClass) {
@@ -186,7 +172,7 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
 
     /**
      * 将查询条件打包
-     * 
+     *
      * @return 查询条件包
      */
     public QueryBundle<M> bundle() {
@@ -207,9 +193,8 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
 
     /**
      * 恢复查询条件
-     * 
-     * @param bundle
-     *            查询条件包
+     *
+     * @param bundle 查询条件包
      * @return this
      */
     public T unbundle(QueryBundle<M> bundle) {
@@ -230,11 +215,9 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
 
     /**
      * 设置equal查询条件
-     * 
-     * @param name
-     *            字段
-     * @param value
-     *            值
+     *
+     * @param name  字段
+     * @param value 值
      * @return this
      */
     public T equal(String name, Object value) {
@@ -243,11 +226,9 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
 
     /**
      * 设置not equal查询条件
-     * 
-     * @param name
-     *            字段
-     * @param value
-     *            值
+     *
+     * @param name  字段
+     * @param value 值
      * @return this
      */
     public T notEqual(String name, Object value) {
@@ -256,11 +237,9 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
 
     /**
      * 设置like查询条件
-     * 
-     * @param name
-     *            字段
-     * @param value
-     *            值
+     *
+     * @param name  字段
+     * @param value 值
      * @return this
      */
     public T like(String name, Object value) {
@@ -269,13 +248,10 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
 
     /**
      * like查询, 根据入参wild判断是否添加通配(如果值中已经含有通配%则不添加通配)
-     * 
-     * @param name
-     *            字段
-     * @param value
-     *            值
-     * @param wild
-     *            是否对值进行通配
+     *
+     * @param name  字段
+     * @param value 值
+     * @param wild  是否对值进行通配
      * @return this
      */
     public T like(String name, Object value, boolean wild) {
@@ -287,11 +263,9 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
 
     /**
      * 设置not like查询条件
-     * 
-     * @param name
-     *            字段
-     * @param value
-     *            值
+     *
+     * @param name  字段
+     * @param value 值
      * @return this
      */
     public T notLike(String name, Object value) {
@@ -300,13 +274,10 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
 
     /**
      * 设置not like查询. 根据入参wild判断是否添加通配(如果值中已经含有通配%则不添加通配)
-     * 
-     * @param name
-     *            字段
-     * @param value
-     *            值
-     * @param wild
-     *            是否开启通配
+     *
+     * @param name  字段
+     * @param value 值
+     * @param wild  是否开启通配
      * @return this
      */
     public T notLike(String name, Object value, boolean wild) {
@@ -318,11 +289,9 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
 
     /**
      * 设置in查询条件
-     * 
-     * @param name
-     *            字段
-     * @param value
-     *            值
+     *
+     * @param name  字段
+     * @param value 值
      * @return this
      */
     public T in(String name, Object value) {
@@ -331,11 +300,9 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
 
     /**
      * 设置in查询条件
-     * 
-     * @param name
-     *            字段
-     * @param value
-     *            值
+     *
+     * @param name  字段
+     * @param value 值
      * @return this
      */
     public T in(String name, Collection<?> value) {
@@ -344,11 +311,9 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
 
     /**
      * 设置in查询条件
-     * 
-     * @param name
-     *            字段
-     * @param value
-     *            值
+     *
+     * @param name  字段
+     * @param value 值
      * @return this
      */
     public T in(String name, Object... value) {
@@ -357,11 +322,9 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
 
     /**
      * 设置not in查询条件
-     * 
-     * @param name
-     *            字段
-     * @param value
-     *            值
+     *
+     * @param name  字段
+     * @param value 值
      * @return this
      */
     public T notIn(String name, Object value) {
@@ -370,11 +333,9 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
 
     /**
      * 设置not in查询条件
-     * 
-     * @param name
-     *            字段
-     * @param value
-     *            值
+     *
+     * @param name  字段
+     * @param value 值
      * @return this
      */
     public T notIn(String name, Collection<?> value) {
@@ -383,11 +344,9 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
 
     /**
      * 设置not in查询条件
-     * 
-     * @param name
-     *            字段
-     * @param value
-     *            值
+     *
+     * @param name  字段
+     * @param value 值
      * @return this
      */
     public T notIn(String name, Object... value) {
@@ -396,13 +355,10 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
 
     /**
      * 设置between查询条件
-     * 
-     * @param name
-     *            字段
-     * @param left
-     *            最小值
-     * @param right
-     *            最大值
+     *
+     * @param name  字段
+     * @param left  最小值
+     * @param right 最大值
      * @return this
      */
     public T between(String name, Object left, Object right) {
@@ -414,13 +370,10 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
 
     /**
      * 设置not between查询条件
-     * 
-     * @param name
-     *            字段
-     * @param left
-     *            最小值
-     * @param right
-     *            最大值
+     *
+     * @param name  字段
+     * @param left  最小值
+     * @param right 最大值
      * @return this
      */
     public T notBetween(String name, Object left, Object right) {
@@ -432,11 +385,9 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
 
     /**
      * 设置大于条件
-     * 
-     * @param name
-     *            字段
-     * @param value
-     *            值
+     *
+     * @param name  字段
+     * @param value 值
      * @return this
      */
     public T greatThen(String name, Object value) {
@@ -445,11 +396,9 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
 
     /**
      * 设置大于等于条件
-     * 
-     * @param name
-     *            字段
-     * @param value
-     *            值
+     *
+     * @param name  字段
+     * @param value 值
      * @return this
      */
     public T greatEqual(String name, Object value) {
@@ -458,11 +407,9 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
 
     /**
      * 设置小于条件
-     * 
-     * @param name
-     *            字段
-     * @param value
-     *            值
+     *
+     * @param name  字段
+     * @param value 值
      * @return this
      */
     public T lessThen(String name, Object value) {
@@ -471,11 +418,9 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
 
     /**
      * 设置小于等于条件
-     * 
-     * @param name
-     *            字段
-     * @param value
-     *            值
+     *
+     * @param name  字段
+     * @param value 值
      * @return this
      */
     public T lessEqual(String name, Object value) {
@@ -484,9 +429,8 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
 
     /**
      * 设置is null条件
-     * 
-     * @param name
-     *            字段
+     *
+     * @param name 字段
      * @return this
      */
     public T isNull(String name) {
@@ -495,9 +439,8 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
 
     /**
      * 设置is not null条件
-     * 
-     * @param name
-     *            字段
+     *
+     * @param name 字段
      * @return this
      */
     public T isNotNull(String name) {
@@ -506,11 +449,9 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
 
     /**
      * 设置size of条件
-     * 
-     * @param name
-     *            字段
-     * @param size
-     *            size
+     *
+     * @param name 字段
+     * @param size size
      * @return this
      */
     public T sizeOf(String name, long size) {
@@ -519,11 +460,9 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
 
     /**
      * 设置not size of条件
-     * 
-     * @param name
-     *            字段
-     * @param size
-     *            size
+     *
+     * @param name 字段
+     * @param size size
      * @return
      */
     public T notSizeOf(String name, long size) {
@@ -532,7 +471,7 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
 
     /**
      * 设置条件的连接条件and
-     * 
+     *
      * @return this
      */
     public T and() {
@@ -542,7 +481,7 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
 
     /**
      * 设置条件的连接条件or
-     * 
+     *
      * @return this
      */
     public T or() {
@@ -552,23 +491,20 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
 
     public T and(Specification<T> spec) {
         this.assembleType = AND;
-        return addSpecication(spec, AND);
+        return addSpecification(spec, AND);
     }
 
     public T or(Specification<T> spec) {
         this.assembleType = OR;
-        return addSpecication(spec, OR);
+        return addSpecification(spec, OR);
     }
 
     /**
      * 增加查询条件
-     * 
-     * @param name
-     *            字段
-     * @param value
-     *            值
-     * @param operator
-     *            条件类型
+     *
+     * @param name     字段
+     * @param value    值
+     * @param operator 条件类型
      * @return this
      */
     public T addCondition(String name, Object value, Operator operator) {
@@ -577,13 +513,10 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
 
     /**
      * 添加查询条件
-     * 
-     * @param name
-     *            字段
-     * @param value
-     *            值
-     * @param operator
-     *            条件类型
+     *
+     * @param name     字段
+     * @param value    值
+     * @param operator 条件类型
      * @return this
      */
     public T addCondition(String name, Object value, ExpressionExplainer operator) {
@@ -591,41 +524,37 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
     }
 
     protected T addCondition(String name, Object value, ExpressionExplainer operator, boolean autoJoin) {
-        return (T) addSpecication(new ConditionSpecification<>(name, value, operator, autoJoin));
+        return (T) addSpecification(new ConditionSpecification<>(name, value, operator, autoJoin));
     }
 
     /**
      * 增加表达式的查询条件
-     * 
-     * @param left
-     *            字段1
-     * @param right
-     *            字段2
-     * @param operator
-     *            条件类型
+     *
+     * @param left     字段1
+     * @param right    字段2
+     * @param operator 条件类型
      * @return this
      */
-    public T addExpressionCodition(String left, String right, Operator operator) {
-        return (T) addSpecication(new ExperssionSpecification<>(left, right, operator));
+    public T addExpressionCondition(String left, String right, Operator operator) {
+        return (T) addSpecification(new ExpressionSpecification<>(left, right, operator));
     }
 
     /**
      * 在全局条件中增加一条查询条件, 当前的条件与前查询条件的连接类型为{@linkplain #assembleType}. 在添加完成后将清空暂存的连接类型
-     * 
-     * @param spec
-     *            条件
+     *
+     * @param spec 条件
      * @return this
      */
-    public T addSpecication(Specification spec) {
+    public T addSpecification(Specification spec) {
         final CompositionType type = assembleType;
         this.assembleType = null;
         if (type == null && strictMode) {
             throw new IllegalStateException("assemble type not set, or disabled statict mode");
         }
-        return addSpecication(spec, type == null ? AND : type);
+        return addSpecification(spec, type == null ? AND : type);
     }
 
-    protected final T addSpecication(Specification spec, CompositionType type) {
+    protected final T addSpecification(Specification spec, CompositionType type) {
         if (type == null) {
             throw new IllegalStateException("assemble type not set, or disabled statict mode");
         }
@@ -635,7 +564,7 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
 
     /**
      * 获取查询条件栈中的查询条件. (同一个括号内的查询条件)
-     * 
+     *
      * @return Bind
      */
     protected final Bind currentBind() {
@@ -658,15 +587,9 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
             }
         }
         if (condition == null) {
-            if (QueryFeature.DISJUNCTION.isEnable(queryFeature) && QueryFeature.CONJUNCTION.isEnable(queryFeature)) {
-                throw new IllegalStateException("confusion default condition, " + queryFeature);
-            }
-            if (QueryFeature.DISJUNCTION.isEnable(queryFeature)) {
-                this.condition = QueryUtils.disjunction();
-            }
-            if (QueryFeature.CONJUNCTION.isEnable(queryFeature)) {
-                this.condition = QueryUtils.conjunction();
-            }
+            this.condition = QueryFeature.isEnabled(queryFeature, QueryFeature.CONJUNCTION)
+                    ? QueryUtils.conjunction()
+                    : QueryUtils.disjunction();
         }
     }
 
@@ -674,11 +597,9 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
 
     /**
      * 设置分页条件
-     * 
-     * @param pageNumber
-     *            页码
-     * @param pageSize
-     *            页面条数
+     *
+     * @param pageNumber 页码
+     * @param pageSize   页面条数
      * @return this
      */
     public T paging(int pageNumber, int pageSize) {
@@ -688,11 +609,11 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
     }
 
     // sort
+
     /**
      * 设置排序条件
-     * 
-     * @param sort
-     *            排序条件
+     *
+     * @param sort 排序条件
      * @return this
      */
     public T sort(Sort sort) {
@@ -706,9 +627,8 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
 
     /**
      * 设置升序排序条件
-     * 
-     * @param name
-     *            排序的字段
+     *
+     * @param name 排序的字段
      * @return this
      */
     public T asc(String... name) {
@@ -717,9 +637,8 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
 
     /**
      * 设置升序排序条件
-     * 
-     * @param name
-     *            排序的字段
+     *
+     * @param name 排序的字段
      * @return this
      */
     public T asc(List<String> name) {
@@ -732,9 +651,8 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
 
     /**
      * 设置降序排序条件
-     * 
-     * @param name
-     *            排序字段
+     *
+     * @param name 排序字段
      * @return this
      */
     public T desc(String... name) {
@@ -743,9 +661,8 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
 
     /**
      * 设置降序排序条件
-     * 
-     * @param name
-     *            排序字段
+     *
+     * @param name 排序字段
      * @return this
      */
     public T desc(List<String> name) {
@@ -754,11 +671,9 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
 
     /**
      * 设置排序条件
-     * 
-     * @param dir
-     *            排序方向
-     * @param name
-     *            排序字段
+     *
+     * @param dir  排序方向
+     * @param name 排序字段
      * @return this
      */
     public T orderBy(Direction dir, String... name) {
@@ -771,11 +686,9 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
 
     /**
      * 设置排序条件
-     * 
-     * @param dir
-     *            排序方向
-     * @param name
-     *            排序字段
+     *
+     * @param dir  排序方向
+     * @param name 排序字段
      * @return this
      */
     public T orderBy(Direction dir, List<String> name) {
@@ -788,9 +701,8 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
 
     /**
      * 设置排序条件
-     * 
-     * @param order
-     *            排序条件
+     *
+     * @param order 排序条件
      * @return this
      * @see Order
      */
@@ -805,7 +717,7 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
 
     /**
      * 设置查询的distinct属性为启用
-     * 
+     *
      * @return this
      */
     public T distinct() {
@@ -814,7 +726,7 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
 
     /**
      * 设置查询的distinct属性为禁用
-     * 
+     *
      * @return this
      */
     public T notDistinct() {
@@ -823,9 +735,8 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
 
     /**
      * 设置查询的distinct属性
-     * 
-     * @param distinct
-     *            设置状态位
+     *
+     * @param distinct 设置状态位
      * @return this
      */
     public T distinct(boolean distinct) {
@@ -833,30 +744,10 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
     }
 
     /**
-     * 设置允许空条件的list查询
-     * 
-     * @return this
-     */
-    public T allowFullTableQuery() {
-        return enable(QueryFeature.FULL_TABLE_QUERY);
-    }
-
-    /**
-     * 设置禁止空条件的list查询
-     * 
-     * @return this
-     */
-    public T forbidFullTableQuery() {
-        return disable(QueryFeature.FULL_TABLE_QUERY);
-    }
-
-    /**
      * 配置查询属性
-     * 
-     * @param feature
-     *            查询属性
-     * @param flag
-     *            属性状态
+     *
+     * @param feature 查询属性
+     * @param flag    属性状态
      * @return this
      */
     public T config(QueryFeature feature, boolean flag) {
@@ -866,9 +757,8 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
 
     /**
      * 启用查询属性
-     * 
-     * @param feature
-     *            查询属性
+     *
+     * @param feature 查询属性
      * @return this
      */
     public T enable(QueryFeature... feature) {
@@ -880,9 +770,8 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
 
     /**
      * 启用查询属性
-     * 
-     * @param feature
-     *            查询属性
+     *
+     * @param feature 查询属性
      * @return this
      */
     public T enable(Collection<QueryFeature> feature) {
@@ -894,9 +783,8 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
 
     /**
      * 禁用查询属性
-     * 
-     * @param feature
-     *            查询属性
+     *
+     * @param feature 查询属性
      * @return this
      */
     public T disable(QueryFeature... feature) {
@@ -908,9 +796,8 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
 
     /**
      * 设置fetch的字段
-     * 
-     * @param names
-     *            fetch attr
+     *
+     * @param names fetch attr
      * @return this
      */
     public T fetch(String... names) {
@@ -922,11 +809,9 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
 
     /**
      * 设置fetch的字段
-     * 
-     * @param joinType
-     *            fetch type
-     * @param names
-     *            fetch attr
+     *
+     * @param name     fetch attr
+     * @param joinType fetch type
      * @return this
      */
     public T fetch(String name, JoinType joinType) {
@@ -939,9 +824,8 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
 
     /**
      * 设置查询时候需要join的表
-     * 
-     * @param names
-     *            join tables
+     *
+     * @param names join tables
      * @return this
      */
     public T join(String... names) {
@@ -953,11 +837,9 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
 
     /**
      * 设置查询所需要join的表
-     * 
-     * @param joinType
-     *            join type
-     * @param names
-     *            join tables
+     *
+     * @param name     join tables
+     * @param joinType join type
      * @return this
      */
     public T join(String name, JoinType joinType) {
@@ -972,9 +854,8 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
 
     /**
      * 添加分组条件
-     * 
-     * @param names
-     *            分组的字段
+     *
+     * @param names 分组的字段
      * @return this
      */
     public T groupBy(String... names) {
@@ -983,9 +864,8 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
 
     /**
      * 添加分组条件
-     * 
-     * @param names
-     *            分组的字段
+     *
+     * @param names 分组的字段
      * @return this
      */
     public T groupBy(Collection<String> names) {
@@ -1000,7 +880,7 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
 
     /**
      * 匹配括号的开始
-     * 
+     *
      * @return this
      */
     public T start() {
@@ -1009,9 +889,8 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
 
     /**
      * 匹配括号的开始
-     * 
-     * @param compositionType
-     *            与上个查询条件的连接条件
+     *
+     * @param compositionType 与上个查询条件的连接条件
      * @return this
      */
     public T start(CompositionType compositionType) {
@@ -1022,7 +901,7 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
 
     /**
      * 匹配括号的结束
-     * 
+     *
      * @return this
      */
     public T end() {
@@ -1065,7 +944,7 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
 
     /**
      * 执行查询获取查询结果
-     * 
+     *
      * @return 查询结果
      */
     public QueryResult<M> execute() {
@@ -1075,7 +954,7 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
 
     /**
      * 执行查询获取符合条件的单个结果
-     * 
+     *
      * @return 查询结果
      */
     public M getSingleResult() {
@@ -1084,7 +963,7 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
 
     /**
      * 执行查询获取第一个符合条件的结果
-     * 
+     *
      * @return 符合条件的第一个结果
      */
     public M getFirstResult() {
@@ -1093,7 +972,7 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
 
     /**
      * 执行查询获取符合条件的所有结果集
-     * 
+     *
      * @return 符合条件的结果集
      */
     public List<M> getResultList() {
@@ -1102,7 +981,7 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
 
     /**
      * 执行查询获取分页查询结果
-     * 
+     *
      * @return 分页结果集
      */
     public Page<M> getResultPage() {
@@ -1111,7 +990,7 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
 
     /**
      * 执行查询获取符合条件的结果数
-     * 
+     *
      * @return 符合条件的结果数
      */
     public long getCountResult() {

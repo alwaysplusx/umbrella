@@ -16,7 +16,7 @@ import com.harmony.umbrella.data.util.QueryUtils;
 /**
  * @author wuxii@foxmail.com
  */
-public class ExperssionSpecification<T> implements Specification<T>, Serializable {
+public class ExpressionSpecification<T> implements Specification<T>, Serializable {
 
     private static final long serialVersionUID = 1171738576029238894L;
 
@@ -24,7 +24,7 @@ public class ExperssionSpecification<T> implements Specification<T>, Serializabl
     private String y;
     private Operator operator;
 
-    public ExperssionSpecification(String x, String y, Operator operator) {
+    public ExpressionSpecification(String x, String y, Operator operator) {
         this.x = x;
         this.y = y;
         this.operator = operator;

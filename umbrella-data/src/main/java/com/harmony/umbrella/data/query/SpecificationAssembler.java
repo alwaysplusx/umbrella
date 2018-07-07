@@ -62,7 +62,7 @@ public class SpecificationAssembler<T> {
             specs.add(new SelectionSpecification<>(selections));
         }
         if (assemblyList.contains(CONDITION)) {
-            if (!addSpec(specs, conditonSpec())) {
+            if (!addSpec(specs, conditionSpec())) {
                 log.warn("query condition not found");
             }
         }
@@ -104,7 +104,7 @@ public class SpecificationAssembler<T> {
         return bundle.getGrouping() == null ? null : new GrouppingSpecification<>(select(bundle.getGrouping()));
     }
 
-    private Specification<T> conditonSpec() {
+    private Specification<T> conditionSpec() {
         return bundle.getCondition();
     }
 

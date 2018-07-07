@@ -61,7 +61,7 @@ public class SimpleQueryableJpaRepository<T, ID extends Serializable> extends Si
     }
 
     @Override
-    public List<T> getRangeResout(QueryBundle<T> bundle) {
+    public List<T> getRangeResult(QueryBundle<T> bundle) {
         return query(bundle).getRangeResult();
     }
 

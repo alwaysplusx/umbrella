@@ -21,6 +21,7 @@ import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.harmony.umbrella.data.entity.Model;
 import com.harmony.umbrella.data.query.JpaQueryBuilder;
 import com.harmony.umbrella.data.query.JpaQueryBuilder.OneTimeColumn;
+import com.harmony.umbrella.data.query.QueryFeature;
 import com.harmony.umbrella.data.vo.ModelVo;
 
 /**
@@ -76,21 +77,21 @@ public class QueryTest {
 
     @Test
     public void testAsc() {
-        List<Model> v = builder.asc("id").allowFullTableQuery().getResultList();
+        List<Model> v = builder.asc("id").enable(QueryFeature.FULL_TABLE_QUERY).getResultList();
         assertEquals(1l, v.get(0).getId().longValue());
         assertEquals(2l, v.get(1).getId().longValue());
     }
 
     @Test
     public void testDesc() {
-        List<Model> v = builder.desc("id").allowFullTableQuery().getResultList();
+        List<Model> v = builder.desc("id").enable(QueryFeature.FULL_TABLE_QUERY).getResultList();
         assertEquals(2l, v.get(0).getId().longValue());
         assertEquals(1l, v.get(1).getId().longValue());
     }
 
     @Test
     public void testGrouping() {
-        List<String> v = builder.allowFullTableQuery().groupBy("content").execute().getResultList("content", String.class);
+        List<String> v = builder.enable(QueryFeature.FULL_TABLE_QUERY).groupBy("content").execute().getResultList("content", String.class);
         assertEquals(1, v.size());
     }
 
@@ -107,14 +108,14 @@ public class QueryTest {
 
     @Test
     public void testVoAndFunctionQuery() {
-        List<ModelVo> v = builder.allowFullTableQuery().groupBy("content").execute().getResultList(new String[] { "max(id)", "content" }, ModelVo.class);
+        List<ModelVo> v = builder.enable(QueryFeature.FULL_TABLE_QUERY).groupBy("content").execute().getResultList(new String[] { "max(id)", "content" }, ModelVo.class);
         assertEquals(1, v.size());
         assertEquals(2, v.get(0).getSize());
     }
 
     @Test
     public void testDistinctQuery() {
-        List<String> v = builder.distinct().allowFullTableQuery().execute().getResultList("content", String.class);
+        List<String> v = builder.distinct().enable(QueryFeature.FULL_TABLE_QUERY).execute().getResultList("content", String.class);
         assertEquals(1, v.size());
     }
 

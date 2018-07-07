@@ -169,7 +169,7 @@ public class JpaQueryBuilder<M> extends QueryBuilder<JpaQueryBuilder<M>, M> {
             if (!this.added) {
                 parent.assembleType = composition;
                 if (val instanceof JpaQueryBuilder.OneTimeColumn) {
-                    parent.addExpressionCodition(name, ((OneTimeColumn) val).name, operator);
+                    parent.addExpressionCondition(name, ((OneTimeColumn) val).name, operator);
                 } else {
                     parent.addCondition(name, val, operator);
                 }
@@ -226,7 +226,7 @@ public class JpaQueryBuilder<M> extends QueryBuilder<JpaQueryBuilder<M>, M> {
                     || this.joinAttributes != null) {
                 log.warn("Subquery not support grouping/orderBy/fetch/join");
             }
-            return (JpaQueryBuilder<M>) parentQueryBuilder.addSpecication(new Specification<M>() {
+            return (JpaQueryBuilder<M>) parentQueryBuilder.addSpecification(new Specification<M>() {
                 /**
                  * 
                  */

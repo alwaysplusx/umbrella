@@ -27,6 +27,7 @@ import com.harmony.umbrella.data.entity.Model;
 import com.harmony.umbrella.data.entity.SubModel;
 import com.harmony.umbrella.data.query.JpaQueryBuilder;
 import com.harmony.umbrella.data.query.QueryBundle;
+import com.harmony.umbrella.data.query.QueryFeature;
 import com.harmony.umbrella.data.query.QueryResult;
 import com.harmony.umbrella.data.repository.ModelRepository;
 import com.harmony.umbrella.data.repository.support.QueryableRepositoryFactoryBean;
@@ -71,7 +72,7 @@ public class RepositoryTest {
 
     @Test
     public void testRowQuery() {
-        QueryBundle<SubModel> bundle = new JpaQueryBuilder<>(SubModel.class).allowFullTableQuery().bundle();
+        QueryBundle<SubModel> bundle = new JpaQueryBuilder<>(SubModel.class).enable(QueryFeature.FULL_TABLE_QUERY).bundle();
         List<SubModel> v = repository.query(bundle, SubModel.class).getResultList();
         assertEquals(1, v.size());
     }

@@ -22,7 +22,6 @@
     <module>umbrella-validator</module>
     <module>umbrella-monitor</module>
     <module>umbrella-ws</module>
-    <module>umbrella-plugins</module>
     <module>umbrella-xml</module>
     <module>umbrella-test</module>
     <module>umbrella-data</module>
