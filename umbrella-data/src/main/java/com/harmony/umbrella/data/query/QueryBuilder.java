@@ -68,7 +68,7 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
      */
     protected CompositionType assembleType;
 
-    protected Class<M> entityClass;
+    protected Class<M> domainClass;
 
     protected Sort sort;
     protected int pageNumber = -1;
@@ -79,15 +79,15 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
     protected JoinAttributes joinAttributes;
     protected Specification<M> condition;
 
-    protected int queryFeature = QueryFeature.config(0, QueryFeature.FULL_TABLE_QUERY, false);
+    protected int queryFeature = 0;
 
     // query property
 
     public QueryBuilder() {
     }
 
-    public QueryBuilder(Class<M> entityClass) {
-        this.entityClass = entityClass;
+    public QueryBuilder(Class<M> domainClass) {
+        this.domainClass = domainClass;
     }
 
     public QueryBuilder(EntityManager entityManager) {
@@ -95,7 +95,7 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
     }
 
     public QueryBuilder(Class<M> entityClass, EntityManager entityManager) {
-        this.entityClass = entityClass;
+        this.domainClass = entityClass;
         this.entityManager = entityManager;
     }
 
@@ -164,7 +164,7 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
      * @return this
      */
     public T from(Class<M> entityClass) {
-        this.entityClass = entityClass;
+        this.domainClass = entityClass;
         return (T) this;
     }
 
@@ -179,7 +179,7 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
         finishQuery();
         final QueryBundleImpl<M> o = new QueryBundleImpl<M>();
         final QueryBuilder b = this;
-        o.entityClass = b.entityClass;
+        o.entityClass = b.domainClass;
         o.pageNumber = b.pageNumber;
         o.pageSize = b.pageSize;
         o.sort = b.sort;
@@ -199,7 +199,7 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
      */
     public T unbundle(QueryBundle<M> bundle) {
         clear();
-        this.entityClass = bundle.getEntityClass();
+        this.domainClass = bundle.getEntityClass();
         this.pageNumber = bundle.getPageNumber();
         this.pageSize = bundle.getPageSize();
         this.sort = bundle.getSort();
@@ -587,9 +587,15 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
             }
         }
         if (condition == null) {
-            this.condition = QueryFeature.isEnabled(queryFeature, QueryFeature.CONJUNCTION)
-                    ? QueryUtils.conjunction()
-                    : QueryUtils.disjunction();
+            if (QueryFeature.DISJUNCTION.isEnable(queryFeature) && QueryFeature.CONJUNCTION.isEnable(queryFeature)) {
+                throw new IllegalStateException("confusion default condition, " + queryFeature);
+            }
+            if (QueryFeature.DISJUNCTION.isEnable(queryFeature)) {
+                this.condition = QueryUtils.disjunction();
+            }
+            if (QueryFeature.CONJUNCTION.isEnable(queryFeature)) {
+                this.condition = QueryUtils.conjunction();
+            }
         }
     }
 
@@ -934,7 +940,7 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
         joinAttributes = null;
         condition = null;
         sort = null;
-        entityClass = null;
+        domainClass = null;
         pageNumber = 0;
         pageSize = 0;
         queryFeature = 0;
@@ -1006,7 +1012,7 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
 
         private static final long serialVersionUID = 1L;
 
-        public final List<Attribute> attrs = new ArrayList<Attribute>();
+        public final List<Attribute> attrs = new ArrayList<>();
 
         private FetchAttributes() {
         }
@@ -1020,7 +1026,7 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
 
         private static final long serialVersionUID = 1L;
 
-        public final List<Attribute> attrs = new ArrayList<Attribute>();
+        public final List<Attribute> attrs = new ArrayList<>();
 
         private JoinAttributes() {
         }

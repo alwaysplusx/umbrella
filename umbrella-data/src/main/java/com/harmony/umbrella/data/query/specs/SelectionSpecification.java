@@ -10,7 +10,7 @@ import javax.persistence.criteria.Root;
 
 import org.springframework.data.jpa.domain.Specification;
 
-import com.harmony.umbrella.data.query.QueryResult.Selections;
+import com.harmony.umbrella.data.query.Selections;
 
 /**
  * @author wuxii@foxmail.com
@@ -26,7 +26,7 @@ public class SelectionSpecification<T> implements Specification<T> {
 
     @Override
     public Predicate toPredicate(Root<T> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
-        List<Expression<?>> selectionList = selections.selection(root, cb);
+        List<Expression<?>> selectionList = selections.select(root, query, cb);
         if (selectionList.size() == 1) {
             query.select((Expression) selectionList.get(0));
         } else {

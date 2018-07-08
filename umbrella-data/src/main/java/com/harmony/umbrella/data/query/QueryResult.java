@@ -1,12 +1,8 @@
 package com.harmony.umbrella.data.query;
 
-import java.util.List;
-
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.Expression;
-import javax.persistence.criteria.Root;
-
 import org.springframework.data.domain.Page;
+
+import java.util.List;
 
 /**
  * 查询结果. 该查询结果通过QueryBuilder来构建查询条件, 然后通过解析构建的查询条件得出查询结果.
@@ -169,15 +165,5 @@ public interface QueryResult<T> {
      * @return 分页结果集
      */
     <E> Page<E> getResultPage(Selections<T> selections, Class<E> resultType);
-
-    /**
-     * 定制查询列
-     *
-     * @author wuxii@foxmail.com
-     */
-    public interface Selections<T> {
-
-        List<Expression<?>> selection(Root<T> root, CriteriaBuilder cb);
-    }
 
 }

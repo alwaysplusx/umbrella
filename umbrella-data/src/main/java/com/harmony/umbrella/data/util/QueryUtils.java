@@ -6,8 +6,6 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Member;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -37,8 +35,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.util.Assert;
 
-import com.harmony.umbrella.data.query.QueryResult.Selections;
-
 /**
  * 查询工具类
  * 
@@ -62,26 +58,6 @@ public abstract class QueryUtils {
      * Private constructor to prevent instantiation.
      */
     private QueryUtils() {
-    }
-
-    public static <T> Selections<T> select(Collection<String> names) {
-        return new ColumnSelections(names);
-    }
-
-    public static <T> Selections<T> select(String... names) {
-        return new ColumnSelections(names);
-    }
-
-    public static <T> Selections<T> select(String function, String column) {
-        return new FunctionSelections(function, column);
-    }
-
-    public static <T> Selections<T> count(boolean distinct) {
-        return new CountSelections(null, distinct);
-    }
-
-    public static <T> Selections<T> count(String name, boolean distinct) {
-        return new CountSelections(name, distinct);
     }
 
     public static <T> Specification<T> conjunction() {
@@ -254,6 +230,7 @@ public abstract class QueryUtils {
     private static boolean isAlreadyFetched(From<?, ?> from, String attribute) {
         for (Fetch<?, ?> f : from.getFetches()) {
             boolean sameName = f.getAttribute().getName().equals(attribute);
+            // FIXME if set set join type not equal, do what?
             if (sameName && f.getJoinType().equals(JoinType.LEFT)) {
                 return true;
             }
@@ -277,63 +254,4 @@ public abstract class QueryUtils {
 
     }
 
-    private static final class ColumnSelections<T> implements Selections<T> {
-
-        private final List<String> columns;
-
-        public ColumnSelections(Collection<String> columns) {
-            this.columns = Collections.unmodifiableList(new ArrayList<>(columns));
-        }
-
-        public ColumnSelections(String... columns) {
-            this.columns = Arrays.asList(columns);
-        }
-
-        @Override
-        public List<Expression<?>> selection(Root<T> root, CriteriaBuilder cb) {
-            List<Expression<?>> cs = new ArrayList<>();
-            for (String c : columns) {
-                cs.add(QueryUtils.parseExpression(c, root, cb));
-            }
-            return cs;
-        }
-
-    }
-
-    private static final class FunctionSelections<T> implements Selections<T> {
-
-        private final String function;
-        private final String column;
-
-        public FunctionSelections(String function, String column) {
-            this.function = function;
-            this.column = column;
-        }
-
-        @Override
-        public List<Expression<?>> selection(Root<T> root, CriteriaBuilder cb) {
-            List<Expression<?>> result = new ArrayList<>();
-            result.add(cb.function(function, null, QueryUtils.toExpressionRecursively(root, column)));
-            return result;
-        }
-
-    }
-
-    private static final class CountSelections<T> implements Selections<T> {
-
-        private final String column;
-        private final boolean distinct;
-
-        public CountSelections(String column, boolean distinct) {
-            this.column = column;
-            this.distinct = distinct;
-        }
-
-        @Override
-        public List<Expression<?>> selection(Root<T> root, CriteriaBuilder cb) {
-            Expression exp = column == null ? root : toExpressionRecursively(root, column);
-            return new ArrayList<>(Arrays.asList(distinct ? cb.countDistinct(exp) : cb.count(exp)));
-        }
-
-    }
 }

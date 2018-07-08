@@ -1,23 +1,14 @@
 package com.harmony.umbrella.data.query;
 
-import java.util.List;
-
-import javax.persistence.EntityManager;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Expression;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
-import javax.persistence.criteria.Subquery;
-
-import org.springframework.data.jpa.domain.Specification;
-
 import com.harmony.umbrella.data.CompositionType;
 import com.harmony.umbrella.data.Operator;
-import com.harmony.umbrella.data.query.QueryResult.Selections;
-import com.harmony.umbrella.data.util.QueryUtils;
 import com.harmony.umbrella.log.Log;
 import com.harmony.umbrella.log.Logs;
+import org.springframework.data.jpa.domain.Specification;
+
+import javax.persistence.EntityManager;
+import javax.persistence.criteria.*;
+import java.util.List;
 
 /**
  * @author wuxii@foxmail.com
@@ -76,7 +67,7 @@ public class JpaQueryBuilder<M> extends QueryBuilder<JpaQueryBuilder<M>, M> {
 
     /**
      * 用于创建列条件, 当条件创建后则无法修改或者再使用当前的column来创建新条件
-     * 
+     *
      * @author wuxii@foxmail.com
      */
     public final class OneTimeColumn {
@@ -192,28 +183,28 @@ public class JpaQueryBuilder<M> extends QueryBuilder<JpaQueryBuilder<M>, M> {
         protected SubqueryBuilder(Class<R> entityClass, QueryBuilder parent) {
             super(parent.entityManager);
             this.parentQueryBuilder = parent;
-            this.entityClass = entityClass;
+            this.domainClass = entityClass;
             this.assembleType = parentQueryBuilder.assembleType;
             this.autoEnclose = parentQueryBuilder.autoEnclose;
             this.strictMode = parentQueryBuilder.strictMode;
         }
 
         public SubqueryBuilder<R> select(String column) {
-            this.subSelections = QueryUtils.select(column);
+            this.subSelections = Selections.of(column);
             return this;
         }
 
         public SubqueryBuilder<R> selectFunction(String function, String column) {
-            this.subSelections = QueryUtils.select(function, column);
+            this.subSelections = Selections.function(function, column);
             return this;
         }
 
         public JpaQueryBuilder<M> apply(final String function, final String parentColumn, Operator operator) {
-            return apply(QueryUtils.select(function, parentColumn), operator);
+            return apply(Selections.function(function, parentColumn), operator);
         }
 
         public JpaQueryBuilder<M> apply(final String parentColumn, final Operator operator) {
-            return apply(QueryUtils.select(parentColumn), operator);
+            return apply(Selections.of(parentColumn), operator);
         }
 
         private JpaQueryBuilder<M> apply(final Selections parentSelections, final Operator operator) {
@@ -228,17 +219,17 @@ public class JpaQueryBuilder<M> extends QueryBuilder<JpaQueryBuilder<M>, M> {
             }
             return (JpaQueryBuilder<M>) parentQueryBuilder.addSpecification(new Specification<M>() {
                 /**
-                 * 
+                 *
                  */
                 private static final long serialVersionUID = -7179840312915716364L;
 
                 @Override
                 public Predicate toPredicate(Root<M> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
-                    Subquery<R> subquery = query.subquery(entityClass);
-                    Root<R> subRoot = subquery.from(entityClass);
+                    Subquery<R> subquery = query.subquery(domainClass);
+                    Root<R> subRoot = subquery.from(domainClass);
                     subquery.where(subCondition.toPredicate(subRoot, null, cb));
-                    List<Expression> subs = subSelections.selection(subRoot, cb);
-                    List<Expression> parents = parentSelections.selection(root, cb);
+                    List<Expression> subs = subSelections.select(subRoot, query, cb);
+                    List<Expression> parents = parentSelections.select(root, query, cb);
                     return operator.explain(parents.get(0), cb, subs.get(0));
                 }
             });

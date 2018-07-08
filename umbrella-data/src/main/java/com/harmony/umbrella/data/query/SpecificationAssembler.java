@@ -1,7 +1,6 @@
 package com.harmony.umbrella.data.query;
 
 import static com.harmony.umbrella.data.query.SpecificationAssembler.SpecificationType.*;
-import static com.harmony.umbrella.data.util.QueryUtils.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -12,7 +11,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 
-import com.harmony.umbrella.data.query.QueryResult.Selections;
 import com.harmony.umbrella.data.query.specs.FetchSpecification;
 import com.harmony.umbrella.data.query.specs.GrouppingSpecification;
 import com.harmony.umbrella.data.query.specs.JoinSpecification;
@@ -61,11 +59,6 @@ public class SpecificationAssembler<T> {
         if (selections != null) {
             specs.add(new SelectionSpecification<>(selections));
         }
-        if (assemblyList.contains(CONDITION)) {
-            if (!addSpec(specs, conditionSpec())) {
-                log.warn("query condition not found");
-            }
-        }
         if (assemblyList.contains(FETCH)) {
             if (!addSpec(specs, fetchSpec())) {
                 log.debug("query fetch attribute not found");
@@ -86,6 +79,11 @@ public class SpecificationAssembler<T> {
                 log.debug("query grouping not found");
             }
         }
+        if (assemblyList.contains(CONDITION)) {
+            if (!addSpec(specs, conditionSpec())) {
+                log.warn("query condition not found");
+            }
+        }
         if (specs.isEmpty()) {
             return null;
         }
@@ -101,7 +99,7 @@ public class SpecificationAssembler<T> {
     }
 
     private Specification<T> groupingSpec() {
-        return bundle.getGrouping() == null ? null : new GrouppingSpecification<>(select(bundle.getGrouping()));
+        return bundle.getGrouping() == null ? null : new GrouppingSpecification<>(bundle.getGrouping());
     }
 
     private Specification<T> conditionSpec() {

@@ -18,9 +18,13 @@ public enum QueryFeature {
     /**
      * 当无查询条件时采用conjunction为默认条件
      */
-    CONJUNCTION;
+    CONJUNCTION,
+    /**
+     * 当无查询条件时候采用disjunction为默认条件
+     */
+    DISJUNCTION;
 
-    private QueryFeature() {
+    QueryFeature() {
         mask = (1 << ordinal());
     }
 
@@ -51,13 +55,10 @@ public enum QueryFeature {
         if (features == null) {
             return 0;
         }
-
         int value = 0;
-
         for (QueryFeature feature : features) {
             value |= feature.getMask();
         }
-
         return value;
     }
 }

@@ -1,10 +1,12 @@
 package com.harmony.umbrella.data.query;
 
-import static com.harmony.umbrella.data.query.QueryFeature.*;
-import static com.harmony.umbrella.data.util.QueryUtils.*;
-
-import java.util.List;
-import java.util.function.LongSupplier;
+import com.harmony.umbrella.data.query.SpecificationAssembler.SpecificationType;
+import com.harmony.umbrella.data.util.QueryUtils;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.repository.support.PageableExecutionUtils;
 
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
@@ -13,15 +15,11 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import java.util.List;
+import java.util.function.LongSupplier;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.data.repository.support.PageableExecutionUtils;
-
-import com.harmony.umbrella.data.query.SpecificationAssembler.SpecificationType;
-import com.harmony.umbrella.data.util.QueryUtils;
+import static com.harmony.umbrella.data.query.QueryFeature.DISTINCT;
+import static com.harmony.umbrella.data.query.QueryFeature.FULL_TABLE_QUERY;
 
 /**
  * @author wuxii@foxmail.com
@@ -66,44 +64,44 @@ public class QueryResultImpl<T> implements QueryResult<T> {
 
     @Override
     public long countResult() {
-        return getSingleResult(count(assembler.isEnable(DISTINCT)), Long.class);
+        return getSingleResult(Selections.count(assembler.isEnable(DISTINCT)), Long.class);
     }
 
     @Override
     public <E> E getSingleResult(String column, Class<E> resultType) {
-        return getSingleResult(select(column), resultType);
+        return getSingleResult(Selections.of(column), resultType);
     }
 
     @Override
     public <E> E getSingleResult(String[] column, Class<E> resultType) {
-        return getSingleResult(select(column), resultType);
+        return getSingleResult(Selections.of(column), resultType);
     }
 
     @Override
     public <E> List<E> getResultList(String column, Class<E> resultType) {
-        return getResultList(select(column), resultType);
+        return getResultList(Selections.of(column), resultType);
     }
 
     @Override
     public <E> List<E> getResultList(String[] column, Class<E> resultType) {
-        return getResultList(select(column), resultType);
+        return getResultList(Selections.of(column), resultType);
     }
 
     @Override
     public <E> List<E> getRangeResult(String column, Class<E> resultType) {
         Pageable pageable = assembler.getPageable();
-        return getRangeList(select(column), pageable, resultType);
+        return getRangeList(Selections.of(column), pageable, resultType);
     }
 
     @Override
     public <E> List<E> getRangeResult(String[] column, Class<E> resultType) {
         Pageable pageable = assembler.getPageable();
-        return getRangeList(select(column), pageable, resultType);
+        return getRangeList(Selections.of(column), pageable, resultType);
     }
 
     @Override
     public <E> E getFunctionResult(String function, String column, Class<E> resultType) {
-        return getSingleResult(select(function, column), resultType);
+        return getSingleResult(Selections.function(function, column), resultType);
     }
 
     @Override
