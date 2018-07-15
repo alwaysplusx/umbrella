@@ -82,7 +82,7 @@ public abstract class ProxyExecutorSupport implements ProxyExecutor {
 
             @Override
             public T call() throws Exception {
-                LOG.info("start other thread execute context {}", context);
+                LOG.info("begin other thread execute context {}", context);
                 return execute(context, resultType);
             }
         });

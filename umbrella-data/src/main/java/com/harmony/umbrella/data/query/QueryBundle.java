@@ -20,14 +20,14 @@ public interface QueryBundle<M> {
      * 
      * @return entity class
      */
-    Class<M> getEntityClass();
+    Class<M> getDomainClass();
 
     /**
      * 查询的条件
      * 
      * @return 查询条件
      */
-    Specification<M> getCondition();
+    Specification<M> getSpecification();
 
     /**
      * 查询的特性

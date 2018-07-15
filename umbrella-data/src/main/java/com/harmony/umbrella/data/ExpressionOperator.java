@@ -6,22 +6,19 @@ import javax.persistence.criteria.Predicate;
 
 /**
  * 表达式释义
- * 
+ *
  * @author wuxii@foxmail.com
  */
-public interface ExpressionExplainer {
+public interface ExpressionOperator {
 
     /**
      * 根据自定义的内容对表达式进行释义
-     * 
-     * @param x
-     *            表达式左值
-     * @param cb
-     *            CriteriaBuilder
-     * @param y
-     *            表达式右值
+     *
+     * @param x  表达式左值
+     * @param y  表达式右值
+     * @param cb CriteriaBuilder
      * @return 条件断言
      */
-    Predicate explain(Expression x, CriteriaBuilder cb, Object y);
+    Predicate explain(Expression x, Object y, CriteriaBuilder cb);
 
 }

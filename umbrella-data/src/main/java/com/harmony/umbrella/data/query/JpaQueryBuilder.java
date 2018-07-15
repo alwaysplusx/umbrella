@@ -53,7 +53,7 @@ public class JpaQueryBuilder<M> extends QueryBuilder<JpaQueryBuilder<M>, M> {
     }
 
     public OneTimeColumn start(String name) {
-        start(assembleType == null ? CompositionType.AND : assembleType);
+        begin(compositionType == null ? CompositionType.AND : compositionType);
         return new OneTimeColumn(name, CompositionType.AND);
     }
 
@@ -158,15 +158,15 @@ public class JpaQueryBuilder<M> extends QueryBuilder<JpaQueryBuilder<M>, M> {
 
         private JpaQueryBuilder<M> addCondition(Object val, Operator operator) {
             if (!this.added) {
-                parent.assembleType = composition;
+                parent.compositionType = composition;
                 if (val instanceof JpaQueryBuilder.OneTimeColumn) {
-                    parent.addExpressionCondition(name, ((OneTimeColumn) val).name, operator);
+                    // parent.addExpressionCondition(name, ((OneTimeColumn) val).name, operator);
                 } else {
                     parent.addCondition(name, val, operator);
                 }
                 this.added = true;
             } else {
-                throw new IllegalStateException("one time column just allow build only one condition");
+                throw new IllegalStateException("one time column just allow build only one specification");
             }
             return parent;
         }
@@ -184,8 +184,7 @@ public class JpaQueryBuilder<M> extends QueryBuilder<JpaQueryBuilder<M>, M> {
             super(parent.entityManager);
             this.parentQueryBuilder = parent;
             this.domainClass = entityClass;
-            this.assembleType = parentQueryBuilder.assembleType;
-            this.autoEnclose = parentQueryBuilder.autoEnclose;
+            this.compositionType = parentQueryBuilder.compositionType;
             this.strictMode = parentQueryBuilder.strictMode;
         }
 
@@ -209,7 +208,7 @@ public class JpaQueryBuilder<M> extends QueryBuilder<JpaQueryBuilder<M>, M> {
 
         private JpaQueryBuilder<M> apply(final Selections parentSelections, final Operator operator) {
             this.finishQuery();
-            final Specification subCondition = this.condition;
+            final Specification subCondition = this.specification;
             final Selections subSelections = this.subSelections;
             if (this.grouping != null && !this.grouping.isEmpty() //
                     || this.sort != null //
@@ -230,7 +229,7 @@ public class JpaQueryBuilder<M> extends QueryBuilder<JpaQueryBuilder<M>, M> {
                     subquery.where(subCondition.toPredicate(subRoot, null, cb));
                     List<Expression> subs = subSelections.select(subRoot, query, cb);
                     List<Expression> parents = parentSelections.select(root, query, cb);
-                    return operator.explain(parents.get(0), cb, subs.get(0));
+                    return operator.explain(parents.get(0), subs.get(0), cb);
                 }
             });
         }

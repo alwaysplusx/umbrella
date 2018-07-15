@@ -8,14 +8,12 @@ import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
-import org.springframework.data.jpa.domain.Specification;
-
 import com.harmony.umbrella.data.query.Selections;
 
 /**
  * @author wuxii@foxmail.com
  */
-public class SelectionSpecification<T> implements Specification<T> {
+public class SelectionSpecification<T> implements NullableSpecification<T> {
 
     private static final long serialVersionUID = -8372941951177254159L;
     private final Selections<T> selections;

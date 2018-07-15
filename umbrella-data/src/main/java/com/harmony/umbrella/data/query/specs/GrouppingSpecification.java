@@ -8,15 +8,13 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
-import org.springframework.data.jpa.domain.Specification;
-
 import com.harmony.umbrella.data.query.Selections;
 
 /**
  * 
  * @author wuxii@foxmail.com
  */
-public class GrouppingSpecification<T> implements Specification<T>, Serializable {
+public class GrouppingSpecification<T> implements NullableSpecification<T>, Serializable {
 
     private static final long serialVersionUID = 5937892268297805525L;
     private Selections<T> selections;

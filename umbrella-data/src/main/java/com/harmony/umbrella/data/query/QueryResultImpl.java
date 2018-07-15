@@ -31,7 +31,7 @@ public class QueryResultImpl<T> implements QueryResult<T> {
     private SpecificationAssembler assembler;
 
     public QueryResultImpl(EntityManager entityManager, QueryBundle<T> bundle) {
-        this.domainClass = bundle.getEntityClass();
+        this.domainClass = bundle.getDomainClass();
         this.executor = new SpecificationExecutor(bundle, entityManager);
         this.assembler = new SpecificationAssembler<>(bundle);
     }
@@ -156,7 +156,7 @@ public class QueryResultImpl<T> implements QueryResult<T> {
         private SpecificationExecutor(QueryBundle<?> bundle, EntityManager entityManager) {
             this.entityManager = entityManager;
             this.builder = entityManager.getCriteriaBuilder();
-            this.domainClass = bundle.getEntityClass();
+            this.domainClass = bundle.getDomainClass();
             this.queryFeature = bundle.getQueryFeature();
         }
 
@@ -172,7 +172,7 @@ public class QueryResultImpl<T> implements QueryResult<T> {
         private <T> List<T> getAll(Specification spec, Class<T> resultClass) {
             CriteriaQuery<T> query = createCriteriaQuery(spec, resultClass);
             if (!QueryUtils.hasRestriction(query) && !FULL_TABLE_QUERY.isEnable(queryFeature)) {
-                throw new IllegalStateException("not allow empty condition full table query");
+                throw new IllegalStateException("not allow empty specification full table query");
             }
             return entityManager.createQuery(query).getResultList();
         }

@@ -14,7 +14,7 @@ import org.springframework.util.Assert;
 
 import com.harmony.umbrella.util.StringUtils;
 
-public enum Operator implements ExpressionExplainer {
+public enum Operator implements ExpressionOperator {
 
     EQUAL("=", "EQ") {
 
@@ -24,7 +24,7 @@ public enum Operator implements ExpressionExplainer {
         }
 
         @Override
-        public Predicate explain(Expression x, CriteriaBuilder cb, Object y) {
+        public Predicate explain(Expression x, Object y, CriteriaBuilder cb) {
             return y instanceof Expression ? cb.equal(x, (Expression) y) : cb.equal(x, y);
         }
 
@@ -37,7 +37,7 @@ public enum Operator implements ExpressionExplainer {
         }
 
         @Override
-        public Predicate explain(Expression x, CriteriaBuilder cb, Object y) {
+        public Predicate explain(Expression x, Object y, CriteriaBuilder cb) {
             return y instanceof Expression ? cb.notEqual(x, (Expression) y) : cb.notEqual(x, y);
         }
 
@@ -50,7 +50,7 @@ public enum Operator implements ExpressionExplainer {
         }
 
         @Override
-        public Predicate explain(Expression x, CriteriaBuilder cb, Object y) {
+        public Predicate explain(Expression x, Object y, CriteriaBuilder cb) {
             return y instanceof Expression ? cb.lessThan(x, (Expression) y) : cb.lessThan(x, (Comparable) y);
         }
 
@@ -63,7 +63,7 @@ public enum Operator implements ExpressionExplainer {
         }
 
         @Override
-        public Predicate explain(Expression x, CriteriaBuilder cb, Object y) {
+        public Predicate explain(Expression x, Object y, CriteriaBuilder cb) {
             return y instanceof Expression ? cb.lessThanOrEqualTo(x, (Expression) y) : cb.lessThanOrEqualTo(x, (Comparable) y);
         }
 
@@ -76,7 +76,7 @@ public enum Operator implements ExpressionExplainer {
         }
 
         @Override
-        public Predicate explain(Expression x, CriteriaBuilder cb, Object y) {
+        public Predicate explain(Expression x, Object y, CriteriaBuilder cb) {
             return y instanceof Expression ? cb.greaterThan(x, (Expression) y) : cb.greaterThan(x, (Comparable) y);
         }
 
@@ -89,7 +89,7 @@ public enum Operator implements ExpressionExplainer {
         }
 
         @Override
-        public Predicate explain(Expression x, CriteriaBuilder cb, Object y) {
+        public Predicate explain(Expression x, Object y, CriteriaBuilder cb) {
             return y instanceof Expression ? cb.greaterThanOrEqualTo(x, (Expression) y) : cb.greaterThanOrEqualTo(x, (Comparable) y);
         }
 
@@ -102,7 +102,7 @@ public enum Operator implements ExpressionExplainer {
         }
 
         @Override
-        public Predicate explain(Expression x, CriteriaBuilder cb, Object y) {
+        public Predicate explain(Expression x, Object y, CriteriaBuilder cb) {
             if (y instanceof Expression) {
                 return x.in((Expression) y);
             }
@@ -124,7 +124,7 @@ public enum Operator implements ExpressionExplainer {
         }
 
         @Override
-        public Predicate explain(Expression x, CriteriaBuilder cb, Object y) {
+        public Predicate explain(Expression x, Object y, CriteriaBuilder cb) {
             if (y instanceof Expression) {
                 return x.in((Expression) y);
             }
@@ -146,7 +146,7 @@ public enum Operator implements ExpressionExplainer {
         }
 
         @Override
-        public Predicate explain(Expression x, CriteriaBuilder cb, Object y) {
+        public Predicate explain(Expression x, Object y, CriteriaBuilder cb) {
             if (y instanceof Expression) {
                 return cb.like(x, (Expression) y);
             }
@@ -162,7 +162,7 @@ public enum Operator implements ExpressionExplainer {
         }
 
         @Override
-        public Predicate explain(Expression x, CriteriaBuilder cb, Object y) {
+        public Predicate explain(Expression x, Object y, CriteriaBuilder cb) {
             if (y instanceof Expression) {
                 return cb.notLike(x, (Expression) y);
             }
@@ -178,7 +178,7 @@ public enum Operator implements ExpressionExplainer {
         }
 
         @Override
-        public Predicate explain(Expression x, CriteriaBuilder cb, Object y) {
+        public Predicate explain(Expression x, Object y, CriteriaBuilder cb) {
             return cb.isNull(x);
         }
 
@@ -191,7 +191,7 @@ public enum Operator implements ExpressionExplainer {
         }
 
         @Override
-        public Predicate explain(Expression x, CriteriaBuilder cb, Object y) {
+        public Predicate explain(Expression x, Object y, CriteriaBuilder cb) {
             return cb.isNotNull(x);
         }
 
@@ -204,7 +204,7 @@ public enum Operator implements ExpressionExplainer {
         }
 
         @Override
-        public Predicate explain(Expression x, CriteriaBuilder cb, Object y) {
+        public Predicate explain(Expression x, Object y, CriteriaBuilder cb) {
             return cb.isTrue(x);
         }
 
@@ -217,7 +217,7 @@ public enum Operator implements ExpressionExplainer {
         }
 
         @Override
-        public Predicate explain(Expression x, CriteriaBuilder cb, Object y) {
+        public Predicate explain(Expression x, Object y, CriteriaBuilder cb) {
             return cb.isFalse(x);
         }
 
@@ -230,7 +230,7 @@ public enum Operator implements ExpressionExplainer {
         }
 
         @Override
-        public Predicate explain(Expression x, CriteriaBuilder cb, Object y) {
+        public Predicate explain(Expression x, Object y, CriteriaBuilder cb) {
             return y instanceof Expression ? cb.equal(cb.size(x), (Expression) y) : cb.equal(cb.size(x), y);
         }
 
@@ -243,7 +243,7 @@ public enum Operator implements ExpressionExplainer {
         }
 
         @Override
-        public Predicate explain(Expression x, CriteriaBuilder cb, Object y) {
+        public Predicate explain(Expression x, Object y, CriteriaBuilder cb) {
             return y instanceof Expression ? cb.notEqual(cb.size(x), (Expression) y) : cb.notEqual(cb.size(x), y);
         }
 

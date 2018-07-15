@@ -8,13 +8,12 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.query.QueryUtils;
 
 /**
  * @author wuxii@foxmail.com
  */
-public class SortSpecification<T> implements Specification<T>, Serializable {
+public class SortSpecification<T> implements NullableSpecification<T>, Serializable {
 
     private static final long serialVersionUID = 430336683524432193L;
     private final Sort sort;

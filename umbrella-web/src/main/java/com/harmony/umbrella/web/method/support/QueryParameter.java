@@ -44,7 +44,7 @@ public final class QueryParameter {
         }
         builder.addCondition(name, value, getOperatorType());
         if (params != null && !params.isEmpty()) {
-            builder.start();
+            builder.begin();
             for (QueryParameter param : params) {
                 param.apply(builder);
             }

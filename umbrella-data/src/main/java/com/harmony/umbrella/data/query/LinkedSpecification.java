@@ -19,13 +19,13 @@ import com.harmony.umbrella.data.CompositionType;
  * 
  * @author wuxii@foxmail.com
  */
-class Bind<T> implements CompositionSpecification<T>, Serializable {
+class LinkedSpecification<T> implements CompositionSpecification<T>, Serializable {
 
     private static final long serialVersionUID = -9083093297662256433L;
     private CompositionType compositionType;
     private List<CompositionSpecification> items = new ArrayList<CompositionSpecification>();
 
-    public Bind(CompositionType compositionType) {
+    public LinkedSpecification(CompositionType compositionType) {
         Assert.notNull(compositionType, "composition type is null");
         this.compositionType = compositionType;
     }

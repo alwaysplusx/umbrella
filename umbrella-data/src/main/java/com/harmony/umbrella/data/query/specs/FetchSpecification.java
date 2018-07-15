@@ -10,14 +10,12 @@ import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
-import org.springframework.data.jpa.domain.Specification;
-
 import com.harmony.umbrella.data.query.QueryBuilder.Attribute;
 
 /**
  * @author wuxii@foxmail.com
  */
-public class FetchSpecification<T> implements Specification<T>, Serializable {
+public class FetchSpecification<T> implements NullableSpecification<T>, Serializable {
 
     private static final long serialVersionUID = -6845664868430573972L;
     private List<Attribute> attrs;

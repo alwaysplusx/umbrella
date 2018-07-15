@@ -10,7 +10,7 @@ import javax.persistence.criteria.Root;
 
 import org.springframework.data.jpa.domain.Specification;
 
-import com.harmony.umbrella.data.ExpressionExplainer;
+import com.harmony.umbrella.data.ExpressionOperator;
 import com.harmony.umbrella.data.util.QueryUtils;
 
 /**
@@ -22,24 +22,18 @@ public class ConditionSpecification<T> implements Specification<T>, Serializable
 
     private String x;
     private Object y;
-    private ExpressionExplainer operator;
-    private boolean autoJoin;
+    private ExpressionOperator operator;
 
-    public ConditionSpecification(String x, Object y, ExpressionExplainer operator) {
-        this(x, y, operator, true);
-    }
-
-    public ConditionSpecification(String x, Object y, ExpressionExplainer operator, boolean autoJoin) {
+    public ConditionSpecification(String x, Object y, ExpressionOperator operator) {
         this.x = x;
         this.y = y;
         this.operator = operator;
-        this.autoJoin = autoJoin;
     }
 
     @Override
     public Predicate toPredicate(Root<T> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
-        Expression<?> expression = QueryUtils.parseExpression(x, root, cb, autoJoin);
-        return operator.explain(expression, cb, y);
+        Expression<?> expression = QueryUtils.parseExpression(x, root, cb);
+        return operator.explain(expression, y, cb);
     }
 
     @Override

@@ -81,7 +81,7 @@ public class SpecificationAssembler<T> {
         }
         if (assemblyList.contains(CONDITION)) {
             if (!addSpec(specs, conditionSpec())) {
-                log.warn("query condition not found");
+                log.warn("query specification not found");
             }
         }
         if (specs.isEmpty()) {
@@ -103,7 +103,7 @@ public class SpecificationAssembler<T> {
     }
 
     private Specification<T> conditionSpec() {
-        return bundle.getCondition();
+        return bundle.getSpecification();
     }
 
     private Specification<T> sortSpec() {

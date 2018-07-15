@@ -39,8 +39,8 @@ public class QueryBundleImpl<M> implements QueryBundle<M>, Serializable {
     }
 
     public QueryBundleImpl(QueryBundle bundle) {
-        this.entityClass = bundle.getEntityClass();
-        this.condition = bundle.getCondition();
+        this.entityClass = bundle.getDomainClass();
+        this.condition = bundle.getSpecification();
         this.fetchAttributes = bundle.getFetchAttributes();
         this.joinAttributes = bundle.getJoinAttributes();
         this.grouping = bundle.getGrouping();
@@ -51,7 +51,7 @@ public class QueryBundleImpl<M> implements QueryBundle<M>, Serializable {
     }
 
     @Override
-    public Class<M> getEntityClass() {
+    public Class<M> getDomainClass() {
         return entityClass;
     }
 
@@ -71,7 +71,7 @@ public class QueryBundleImpl<M> implements QueryBundle<M>, Serializable {
     }
 
     @Override
-    public Specification getCondition() {
+    public Specification getSpecification() {
         return condition;
     }
 

@@ -1,11 +1,19 @@
 package com.harmony.umbrella.data.query;
 
-import com.harmony.umbrella.data.CompositionType;
-import com.harmony.umbrella.data.ExpressionExplainer;
-import com.harmony.umbrella.data.Operator;
-import com.harmony.umbrella.data.query.specs.ConditionSpecification;
-import com.harmony.umbrella.data.query.specs.ExpressionSpecification;
-import com.harmony.umbrella.data.util.QueryUtils;
+import static com.harmony.umbrella.data.CompositionType.*;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.Stack;
+
+import javax.persistence.EntityManager;
+import javax.persistence.criteria.JoinType;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -15,13 +23,11 @@ import org.springframework.data.domain.Sort.Order;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.util.Assert;
 
-import javax.persistence.EntityManager;
-import javax.persistence.criteria.JoinType;
-import java.io.Serializable;
-import java.util.*;
-
-import static com.harmony.umbrella.data.CompositionType.AND;
-import static com.harmony.umbrella.data.CompositionType.OR;
+import com.harmony.umbrella.data.CompositionType;
+import com.harmony.umbrella.data.ExpressionOperator;
+import com.harmony.umbrella.data.Operator;
+import com.harmony.umbrella.data.query.specs.ConditionSpecification;
+import com.harmony.umbrella.data.util.QueryUtils;
 
 /**
  * 查询构建builder
@@ -50,7 +56,7 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
     /**
      * 查询条件栈, 一个括号内的查询条件即为一个栈值
      */
-    private final transient Stack<Bind> queryStack = new Stack<>();
+    private final transient Stack<LinkedSpecification> queryStack = new Stack<>();
     /**
      * 一个括号内暂存的组合查询条件, 在括号结束后将情况temp中的查询条件
      */
@@ -58,15 +64,14 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
 
     protected transient EntityManager entityManager;
 
-    protected boolean autoEnclose = true;
     protected boolean strictMode;
 
     /**
      * 当前查询条件与上个查询条件的连接条件, 当前查询条件被添加完成后将被清空
      * <p>
-     * 清空的情况包括: 1. {@linkplain #addSpecification(Specification)} 2. {@linkplain #start(CompositionType)}
+     * 清空的情况包括: 1. {@linkplain #addSpecification(Specification)} 2. {@linkplain #begin(CompositionType)}
      */
-    protected CompositionType assembleType;
+    protected CompositionType compositionType;
 
     protected Class<M> domainClass;
 
@@ -77,7 +82,7 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
     protected Set<String> grouping;
     protected FetchAttributes fetchAttributes;
     protected JoinAttributes joinAttributes;
-    protected Specification<M> condition;
+    protected Specification<M> specification;
 
     protected int queryFeature = 0;
 
@@ -113,13 +118,13 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
     /**
      * 设置查询条件, 通过此方法设置条件后前所有条件将会被清除
      *
-     * @param condition 查询条件
+     * @param specification 查询条件
      * @return this
      */
-    public T withCondition(Specification<M> condition) {
+    public T withSpecification(Specification<M> specification) {
         this.queryStack.clear();
         this.temp.clear();
-        this.condition = condition;
+        this.specification = specification;
         return (T) this;
     }
 
@@ -133,16 +138,6 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
         this.pageNumber = pageable.getPageNumber();
         this.pageSize = pageable.getPageSize();
         this.sort = pageable.getSort();
-        return (T) this;
-    }
-
-    /**
-     * 启用/禁用自动匹配括号, default is enabled
-     *
-     * @return this
-     */
-    public T autoEnclose(boolean flag) {
-        this.autoEnclose = flag;
         return (T) this;
     }
 
@@ -183,7 +178,7 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
         o.pageNumber = b.pageNumber;
         o.pageSize = b.pageSize;
         o.sort = b.sort;
-        o.condition = b.condition;
+        o.condition = b.specification;
         o.fetchAttributes = b.fetchAttributes;
         o.joinAttributes = b.joinAttributes;
         o.queryFeature = b.queryFeature;
@@ -199,19 +194,19 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
      */
     public T unbundle(QueryBundle<M> bundle) {
         clear();
-        this.domainClass = bundle.getEntityClass();
+        this.domainClass = bundle.getDomainClass();
         this.pageNumber = bundle.getPageNumber();
         this.pageSize = bundle.getPageSize();
         this.sort = bundle.getSort();
-        this.condition = bundle.getCondition();
+        this.specification = bundle.getSpecification();
         this.fetchAttributes = bundle.getFetchAttributes();
         this.joinAttributes = bundle.getJoinAttributes();
         this.queryFeature = bundle.getQueryFeature();
-        this.grouping = new LinkedHashSet<>(bundle.getGrouping() == null ? Collections.emptyList() : bundle.getGrouping());
+        this.grouping = bundle.getGrouping() == null ? null : new LinkedHashSet<>(bundle.getGrouping());
         return (T) this;
     }
 
-    // query condition method
+    // query specification method
 
     /**
      * 设置equal查询条件
@@ -362,9 +357,10 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
      * @return this
      */
     public T between(String name, Object left, Object right) {
-        return start(assembleType == null ? AND : assembleType)//
-                .addCondition(name, left, Operator.GREATER_THAN_OR_EQUAL)//
-                .addCondition(name, right, Operator.LESS_THAN_OR_EQUAL)//
+        return begin(getAndResetCompositionType())//
+                .addCondition(name, left, Operator.GREATER_THAN_OR_EQUAL)
+                .and()
+                .addCondition(name, right, Operator.LESS_THAN_OR_EQUAL)
                 .end();
     }
 
@@ -377,8 +373,9 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
      * @return this
      */
     public T notBetween(String name, Object left, Object right) {
-        return start(assembleType == null ? AND : assembleType)//
+        return begin(getAndResetCompositionType())//
                 .addCondition(name, left, Operator.LESS_THAN)//
+                .and()
                 .addCondition(name, right, Operator.GREATER_THAN)//
                 .end();
     }
@@ -455,7 +452,7 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
      * @return this
      */
     public T sizeOf(String name, long size) {
-        return addCondition(name, size, Operator.SIZE_OF, false);
+        return addCondition(name, size, Operator.SIZE_OF);
     }
 
     /**
@@ -466,7 +463,7 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
      * @return
      */
     public T notSizeOf(String name, long size) {
-        return addCondition(name, size, Operator.NOT_SIZE_OF, false);
+        return addCondition(name, size, Operator.NOT_SIZE_OF);
     }
 
     /**
@@ -475,7 +472,7 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
      * @return this
      */
     public T and() {
-        this.assembleType = AND;
+        this.compositionType = AND;
         return (T) this;
     }
 
@@ -485,30 +482,16 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
      * @return this
      */
     public T or() {
-        this.assembleType = OR;
+        this.compositionType = OR;
         return (T) this;
     }
 
     public T and(Specification<T> spec) {
-        this.assembleType = AND;
-        return addSpecification(spec, AND);
+        return and().addSpecification(spec);
     }
 
     public T or(Specification<T> spec) {
-        this.assembleType = OR;
-        return addSpecification(spec, OR);
-    }
-
-    /**
-     * 增加查询条件
-     *
-     * @param name     字段
-     * @param value    值
-     * @param operator 条件类型
-     * @return this
-     */
-    public T addCondition(String name, Object value, Operator operator) {
-        return addCondition(name, value, (ExpressionExplainer) operator);
+        return or().addSpecification(spec);
     }
 
     /**
@@ -519,46 +502,18 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
      * @param operator 条件类型
      * @return this
      */
-    public T addCondition(String name, Object value, ExpressionExplainer operator) {
-        return (T) addCondition(name, value, operator, true);
-    }
-
-    protected T addCondition(String name, Object value, ExpressionExplainer operator, boolean autoJoin) {
-        return (T) addSpecification(new ConditionSpecification<>(name, value, operator, autoJoin));
+    public T addCondition(String name, Object value, ExpressionOperator operator) {
+        return (T) addSpecification(new ConditionSpecification<>(name, value, operator));
     }
 
     /**
-     * 增加表达式的查询条件
-     *
-     * @param left     字段1
-     * @param right    字段2
-     * @param operator 条件类型
-     * @return this
-     */
-    public T addExpressionCondition(String left, String right, Operator operator) {
-        return (T) addSpecification(new ExpressionSpecification<>(left, right, operator));
-    }
-
-    /**
-     * 在全局条件中增加一条查询条件, 当前的条件与前查询条件的连接类型为{@linkplain #assembleType}. 在添加完成后将清空暂存的连接类型
+     * 在全局条件中增加一条查询条件, 当前的条件与前查询条件的连接类型为{@linkplain #compositionType}. 在添加完成后将清空暂存的连接类型
      *
      * @param spec 条件
      * @return this
      */
     public T addSpecification(Specification spec) {
-        final CompositionType type = assembleType;
-        this.assembleType = null;
-        if (type == null && strictMode) {
-            throw new IllegalStateException("assemble type not set, or disabled statict mode");
-        }
-        return addSpecification(spec, type == null ? AND : type);
-    }
-
-    protected final T addSpecification(Specification spec, CompositionType type) {
-        if (type == null) {
-            throw new IllegalStateException("assemble type not set, or disabled statict mode");
-        }
-        currentBind().add(spec, type);
+        getCurrentSpecification().add(spec, getAndResetCompositionType());
         return (T) this;
     }
 
@@ -567,11 +522,21 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
      *
      * @return Bind
      */
-    protected final Bind currentBind() {
+    protected final LinkedSpecification getCurrentSpecification() {
         if (queryStack.isEmpty()) {
-            start();
+            begin();
         }
         return queryStack.peek();
+    }
+
+    protected final CompositionType getAndResetCompositionType() {
+        // TODO 确保多次获取的type
+        if (this.compositionType == null && strictMode && !queryStack.isEmpty() && !queryStack.get(0).isEmpty()) {
+            throw new QueryException("composition type not set, or disabled strict mode");
+        }
+        CompositionType type = this.compositionType == null ? CompositionType.AND : this.compositionType;
+        this.compositionType = null;
+        return type;
     }
 
     /**
@@ -579,22 +544,17 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
      */
     protected final void finishQuery() {
         if (!queryStack.isEmpty()) {
-            if (!autoEnclose) {
-                throw new IllegalStateException("query not finish, please turn enclosed on");
-            }
-            for (int i = 0, max = queryStack.size(); i < max; i++) {
-                end();
-            }
+            endAll();
         }
-        if (condition == null) {
+        if (specification == null) {
             if (QueryFeature.DISJUNCTION.isEnable(queryFeature) && QueryFeature.CONJUNCTION.isEnable(queryFeature)) {
-                throw new IllegalStateException("confusion default condition, " + queryFeature);
+                throw new IllegalStateException("confusion default specification, " + queryFeature);
             }
             if (QueryFeature.DISJUNCTION.isEnable(queryFeature)) {
-                this.condition = QueryUtils.disjunction();
+                this.specification = QueryUtils.disjunction();
             }
             if (QueryFeature.CONJUNCTION.isEnable(queryFeature)) {
-                this.condition = QueryUtils.conjunction();
+                this.specification = QueryUtils.conjunction();
             }
         }
     }
@@ -889,8 +849,8 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
      *
      * @return this
      */
-    public T start() {
-        return start(assembleType == null ? AND : assembleType);
+    public T begin() {
+        return begin(getAndResetCompositionType());
     }
 
     /**
@@ -899,9 +859,8 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
      * @param compositionType 与上个查询条件的连接条件
      * @return this
      */
-    public T start(CompositionType compositionType) {
-        queryStack.push(new Bind(compositionType));
-        assembleType = null;
+    public T begin(CompositionType compositionType) {
+        queryStack.push(new LinkedSpecification(compositionType));
         return (T) this;
     }
 
@@ -911,7 +870,7 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
      * @return this
      */
     public T end() {
-        Bind bind = queryStack.pop();
+        LinkedSpecification bind = queryStack.pop();
         if (!bind.isEmpty()) {
             temp.add(bind);
         }
@@ -920,8 +879,20 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
             temp.clear();
             for (int i = css.length; i > 0; i--) {
                 CompositionSpecification cs = css[i - 1];
-                condition = cs.getCompositionType().combine(condition, cs);
+                specification = cs.getCompositionType().combine(specification, cs);
             }
+        }
+        return (T) this;
+    }
+
+    /**
+     * 关闭所有打开的括号
+     *
+     * @return this
+     */
+    public T endAll() {
+        while (!queryStack.isEmpty()) {
+            end();
         }
         return (T) this;
     }
@@ -935,10 +906,10 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
         if (grouping != null) {
             grouping.clear();
         }
-        assembleType = null;
+        compositionType = null;
         fetchAttributes = null;
         joinAttributes = null;
-        condition = null;
+        specification = null;
         sort = null;
         domainClass = null;
         pageNumber = 0;

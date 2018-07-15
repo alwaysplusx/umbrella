@@ -210,8 +210,7 @@ public abstract class QueryUtils {
      */
     private static Join<?, ?> getOrCreateJoin(From<?, ?> from, String attribute) {
         for (Join<?, ?> join : from.getJoins()) {
-            boolean sameName = join.getAttribute().getName().equals(attribute);
-            if (sameName && join.getJoinType().equals(JoinType.LEFT)) {
+            if (join.getAttribute().getName().equals(attribute)) {
                 return join;
             }
         }

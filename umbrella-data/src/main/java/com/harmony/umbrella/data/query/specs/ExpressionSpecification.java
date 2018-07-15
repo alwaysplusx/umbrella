@@ -32,7 +32,7 @@ public class ExpressionSpecification<T> implements Specification<T>, Serializabl
 
     @Override
     public Predicate toPredicate(Root<T> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
-        return operator.explain(toExpression(x, root, cb), cb, toExpression(y, root, cb));
+        return operator.explain(toExpression(x, root, cb), toExpression(y, root, cb), cb);
     }
 
     @Override

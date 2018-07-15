@@ -134,10 +134,4 @@ public class ConditionTest {
         assertEquals(1, v.size());
     }
 
-    @Test
-    public void testExpression() {
-        List<Model> v = builder.addExpressionCondition("code", "content", Operator.EQUAL).getResultList();
-        assertEquals(1, v.size());
-    }
-
 }
