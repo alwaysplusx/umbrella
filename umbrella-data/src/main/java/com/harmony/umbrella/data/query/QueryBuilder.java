@@ -1,19 +1,9 @@
 package com.harmony.umbrella.data.query;
 
-import static com.harmony.umbrella.data.CompositionType.*;
-
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.Stack;
-
-import javax.persistence.EntityManager;
-import javax.persistence.criteria.JoinType;
-
+import com.harmony.umbrella.data.CompositionType;
+import com.harmony.umbrella.data.ExpressionOperator;
+import com.harmony.umbrella.data.Operator;
+import com.harmony.umbrella.data.query.specs.GeneralSpecification;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -23,11 +13,13 @@ import org.springframework.data.domain.Sort.Order;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.util.Assert;
 
-import com.harmony.umbrella.data.CompositionType;
-import com.harmony.umbrella.data.ExpressionOperator;
-import com.harmony.umbrella.data.Operator;
-import com.harmony.umbrella.data.query.specs.ConditionSpecification;
-import com.harmony.umbrella.data.util.QueryUtils;
+import javax.persistence.EntityManager;
+import javax.persistence.criteria.JoinType;
+import java.io.Serializable;
+import java.util.*;
+
+import static com.harmony.umbrella.data.CompositionType.AND;
+import static com.harmony.umbrella.data.CompositionType.OR;
 
 /**
  * 查询构建builder
@@ -142,7 +134,7 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
     }
 
     /**
-     * 启用/禁用查询严格校验模式, 严格模式用于校验当前的assembleType
+     * 启用/禁用查询严格校验模式, 严格模式用于校验当前的{@linkplain QueryBuilder#compositionType}
      *
      * @param strictMode 严格校验模式flag
      * @return true is strictMode
@@ -356,12 +348,8 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
      * @param right 最大值
      * @return this
      */
-    public T between(String name, Object left, Object right) {
-        return begin(getAndResetCompositionType())//
-                .addCondition(name, left, Operator.GREATER_THAN_OR_EQUAL)
-                .and()
-                .addCondition(name, right, Operator.LESS_THAN_OR_EQUAL)
-                .end();
+    public T between(String name, Comparable left, Comparable right) {
+        return addSpecification(GeneralSpecification.between(name, left, right));
     }
 
     /**
@@ -372,12 +360,8 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
      * @param right 最大值
      * @return this
      */
-    public T notBetween(String name, Object left, Object right) {
-        return begin(getAndResetCompositionType())//
-                .addCondition(name, left, Operator.LESS_THAN)//
-                .and()
-                .addCondition(name, right, Operator.GREATER_THAN)//
-                .end();
+    public T notBetween(String name, Comparable left, Comparable right) {
+        return addSpecification(GeneralSpecification.notBetween(name, left, right));
     }
 
     /**
@@ -387,7 +371,7 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
      * @param value 值
      * @return this
      */
-    public T greatThen(String name, Object value) {
+    public T greatThen(String name, Comparable value) {
         return addCondition(name, value, Operator.GREATER_THAN);
     }
 
@@ -398,7 +382,7 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
      * @param value 值
      * @return this
      */
-    public T greatEqual(String name, Object value) {
+    public T greatEqual(String name, Comparable value) {
         return addCondition(name, value, Operator.GREATER_THAN_OR_EQUAL);
     }
 
@@ -409,7 +393,7 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
      * @param value 值
      * @return this
      */
-    public T lessThen(String name, Object value) {
+    public T lessThen(String name, Comparable value) {
         return addCondition(name, value, Operator.LESS_THAN);
     }
 
@@ -420,7 +404,7 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
      * @param value 值
      * @return this
      */
-    public T lessEqual(String name, Object value) {
+    public T lessEqual(String name, Comparable value) {
         return addCondition(name, value, Operator.LESS_THAN_OR_EQUAL);
     }
 
@@ -467,6 +451,26 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
     }
 
     /**
+     * 设置is true条件
+     *
+     * @param name 字段
+     * @return
+     */
+    public T isTrue(String name) {
+        return addCondition(name, null, Operator.TRUE);
+    }
+
+    /**
+     * 设置is false条件
+     *
+     * @param name 字段
+     * @return
+     */
+    public T isFalse(String name) {
+        return (T) addCondition(name, null, Operator.FALSE);
+    }
+
+    /**
      * 设置条件的连接条件and
      *
      * @return this
@@ -503,7 +507,7 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
      * @return this
      */
     public T addCondition(String name, Object value, ExpressionOperator operator) {
-        return (T) addSpecification(new ConditionSpecification<>(name, value, operator));
+        return (T) addSpecification(GeneralSpecification.of(name, value, operator));
     }
 
     /**
@@ -545,17 +549,6 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
     protected final void finishQuery() {
         if (!queryStack.isEmpty()) {
             endAll();
-        }
-        if (specification == null) {
-            if (QueryFeature.DISJUNCTION.isEnable(queryFeature) && QueryFeature.CONJUNCTION.isEnable(queryFeature)) {
-                throw new IllegalStateException("confusion default specification, " + queryFeature);
-            }
-            if (QueryFeature.DISJUNCTION.isEnable(queryFeature)) {
-                this.specification = QueryUtils.disjunction();
-            }
-            if (QueryFeature.CONJUNCTION.isEnable(queryFeature)) {
-                this.specification = QueryUtils.conjunction();
-            }
         }
     }
 
@@ -611,6 +604,13 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
         return orderBy(Direction.ASC, name);
     }
 
+    /**
+     * 降序排序
+     *
+     * @param name         需要排序的字段
+     * @param nullHandling 空处理方式
+     * @return this
+     */
     public T desc(String name, NullHandling nullHandling) {
         return orderBy(new Order(Direction.DESC, name, nullHandling));
     }
@@ -957,6 +957,15 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
     }
 
     /**
+     * 获取符合条件的所有结果集(不分页)
+     *
+     * @return 符合条件的所有结果集
+     */
+    public List<M> getAllResult() {
+        return execute().getAllResult();
+    }
+
+    /**
      * 执行查询获取分页查询结果
      *
      * @return 分页结果集
@@ -971,7 +980,7 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
      * @return 符合条件的结果数
      */
     public long getCountResult() {
-        return execute().countResult();
+        return execute().count();
     }
 
     protected static String appendLikeWild(Object value) {
@@ -979,7 +988,7 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
         return val.indexOf("%") != -1 ? val : "%" + val + "%";
     }
 
-    public static final class FetchAttributes implements Serializable {
+    public static final class FetchAttributes implements Serializable, Iterable<Attribute> {
 
         private static final long serialVersionUID = 1L;
 
@@ -991,9 +1000,14 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
         public List<Attribute> getAttributes() {
             return attrs;
         }
+
+        @Override
+        public Iterator<Attribute> iterator() {
+            return attrs.iterator();
+        }
     }
 
-    public static final class JoinAttributes implements Serializable {
+    public static final class JoinAttributes implements Serializable, Iterable<Attribute> {
 
         private static final long serialVersionUID = 1L;
 
@@ -1004,6 +1018,11 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
 
         public List<Attribute> getAttributes() {
             return attrs;
+        }
+
+        @Override
+        public Iterator<Attribute> iterator() {
+            return attrs.iterator();
         }
 
     }

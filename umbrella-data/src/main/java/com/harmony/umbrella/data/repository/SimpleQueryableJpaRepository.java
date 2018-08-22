@@ -1,16 +1,14 @@
 package com.harmony.umbrella.data.repository;
 
-import java.io.Serializable;
-import java.util.List;
-
-import javax.persistence.EntityManager;
-
-import org.springframework.data.domain.Page;
-import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
-
 import com.harmony.umbrella.data.query.JpaQueryBuilder;
 import com.harmony.umbrella.data.query.QueryBundle;
 import com.harmony.umbrella.data.query.QueryResult;
+import org.springframework.data.domain.Page;
+import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
+
+import javax.persistence.EntityManager;
+import java.io.Serializable;
+import java.util.List;
 
 /**
  * @author wuxii@foxmail.com
@@ -32,7 +30,7 @@ public class SimpleQueryableJpaRepository<T, ID extends Serializable> extends Si
     }
 
     protected <E> JpaQueryBuilder<E> queryWith(Class<E> entityClass) {
-        return JpaQueryBuilder.<E> newBuilder().withEntityManager(entityManager).from(entityClass);
+        return JpaQueryBuilder.<E>newBuilder().withEntityManager(entityManager).from(entityClass);
     }
 
     @Override
@@ -61,8 +59,8 @@ public class SimpleQueryableJpaRepository<T, ID extends Serializable> extends Si
     }
 
     @Override
-    public List<T> getRangeResult(QueryBundle<T> bundle) {
-        return query(bundle).getRangeResult();
+    public List<T> getAllResult(QueryBundle<T> bundle) {
+        return query(bundle).getAllResult();
     }
 
     @Override
@@ -72,7 +70,7 @@ public class SimpleQueryableJpaRepository<T, ID extends Serializable> extends Si
 
     @Override
     public long countResult(QueryBundle<T> bundle) {
-        return query(bundle).countResult();
+        return query(bundle).count();
     }
 
     @Override

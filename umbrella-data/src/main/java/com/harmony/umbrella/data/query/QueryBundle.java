@@ -18,7 +18,7 @@ public interface QueryBundle<M> {
     /**
      * 查询的实体
      * 
-     * @return entity class
+     * @return domain class
      */
     Class<M> getDomainClass();
 

@@ -1,14 +1,22 @@
 package com.harmony.umbrella.data.query;
 
-import com.harmony.umbrella.data.CompositionType;
-import com.harmony.umbrella.data.Operator;
-import com.harmony.umbrella.log.Log;
-import com.harmony.umbrella.log.Logs;
-import org.springframework.data.jpa.domain.Specification;
+import java.util.List;
 
 import javax.persistence.EntityManager;
-import javax.persistence.criteria.*;
-import java.util.List;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Expression;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+import javax.persistence.criteria.Subquery;
+
+import org.springframework.data.jpa.domain.Specification;
+
+import com.harmony.umbrella.data.CompositionType;
+import com.harmony.umbrella.data.Operator;
+import com.harmony.umbrella.data.model.SelectionModel;
+import com.harmony.umbrella.log.Log;
+import com.harmony.umbrella.log.Logs;
 
 /**
  * @author wuxii@foxmail.com
@@ -173,12 +181,17 @@ public class JpaQueryBuilder<M> extends QueryBuilder<JpaQueryBuilder<M>, M> {
 
     }
 
+    /**
+     * TODO 子查询修改
+     *
+     * @param <R>
+     */
     public final class SubqueryBuilder<R> extends QueryBuilder<SubqueryBuilder<R>, R> {
 
         private static final long serialVersionUID = -7997630445529853487L;
 
         protected final QueryBuilder parentQueryBuilder;
-        protected Selections subSelections;
+        protected SelectionModel subSelections;
 
         protected SubqueryBuilder(Class<R> entityClass, QueryBuilder parent) {
             super(parent.entityManager);
@@ -189,27 +202,28 @@ public class JpaQueryBuilder<M> extends QueryBuilder<JpaQueryBuilder<M>, M> {
         }
 
         public SubqueryBuilder<R> select(String column) {
-            this.subSelections = Selections.of(column);
+            this.subSelections = SelectionModel.of(column);
             return this;
         }
 
         public SubqueryBuilder<R> selectFunction(String function, String column) {
-            this.subSelections = Selections.function(function, column);
+            // this.subSelections = SelectionModel.function(function, column);
             return this;
         }
 
         public JpaQueryBuilder<M> apply(final String function, final String parentColumn, Operator operator) {
-            return apply(Selections.function(function, parentColumn), operator);
+            // return apply(SelectionModel.function(function, parentColumn), operator);
+            return null;
         }
 
         public JpaQueryBuilder<M> apply(final String parentColumn, final Operator operator) {
-            return apply(Selections.of(parentColumn), operator);
+            return apply(SelectionModel.of(parentColumn), operator);
         }
 
-        private JpaQueryBuilder<M> apply(final Selections parentSelections, final Operator operator) {
+        private JpaQueryBuilder<M> apply(final SelectionModel parentSelections, final Operator operator) {
             this.finishQuery();
             final Specification subCondition = this.specification;
-            final Selections subSelections = this.subSelections;
+            final SelectionModel subSelections = this.subSelections;
             if (this.grouping != null && !this.grouping.isEmpty() //
                     || this.sort != null //
                     || this.fetchAttributes != null //
@@ -229,7 +243,8 @@ public class JpaQueryBuilder<M> extends QueryBuilder<JpaQueryBuilder<M>, M> {
                     subquery.where(subCondition.toPredicate(subRoot, null, cb));
                     List<Expression> subs = subSelections.select(subRoot, query, cb);
                     List<Expression> parents = parentSelections.select(root, query, cb);
-                    return operator.explain(parents.get(0), subs.get(0), cb);
+                    // return operator.explain(parents.get(0), subs.get(0), cb);
+                    return null;
                 }
             });
         }

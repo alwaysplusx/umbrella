@@ -1,7 +1,8 @@
 package com.harmony.umbrella.data;
 
+import com.harmony.umbrella.data.model.ExpressionModel;
+
 import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Predicate;
 
 /**
@@ -19,6 +20,6 @@ public interface ExpressionOperator {
      * @param cb CriteriaBuilder
      * @return 条件断言
      */
-    Predicate explain(Expression x, Object y, CriteriaBuilder cb);
+    Predicate explain(ExpressionModel x, Object y, CriteriaBuilder cb);
 
 }

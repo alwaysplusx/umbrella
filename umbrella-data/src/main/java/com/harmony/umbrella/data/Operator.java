@@ -1,250 +1,255 @@
 package com.harmony.umbrella.data;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
+import com.harmony.umbrella.data.model.ExpressionModel;
+import com.harmony.umbrella.util.StringUtils;
+import org.springframework.util.Assert;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Predicate;
-
-import org.springframework.util.Assert;
-
-import com.harmony.umbrella.util.StringUtils;
+import java.util.*;
 
 public enum Operator implements ExpressionOperator {
 
     EQUAL("=", "EQ") {
-
         @Override
         public Operator negated() {
             return NOT_EQUAL;
         }
 
         @Override
-        public Predicate explain(Expression x, Object y, CriteriaBuilder cb) {
-            return y instanceof Expression ? cb.equal(x, (Expression) y) : cb.equal(x, y);
+        public Predicate explain(ExpressionModel x, Object y, CriteriaBuilder cb) {
+            Expression xExp = x.toExpression();
+            return y instanceof Expression
+                    ? cb.equal(xExp, (Expression) y)
+                    : cb.equal(xExp, y);
         }
 
     },
     NOT_EQUAL("<>", "NE") {
-
         @Override
         public Operator negated() {
             return EQUAL;
         }
 
         @Override
-        public Predicate explain(Expression x, Object y, CriteriaBuilder cb) {
-            return y instanceof Expression ? cb.notEqual(x, (Expression) y) : cb.notEqual(x, y);
+        public Predicate explain(ExpressionModel x, Object y, CriteriaBuilder cb) {
+            Expression xExp = x.toExpression();
+            return y instanceof Expression
+                    ? cb.notEqual(xExp, (Expression) y)
+                    : cb.notEqual(xExp, y);
         }
 
     },
     LESS_THAN("<", "LT") {
-
         @Override
         public Operator negated() {
             return GREATER_THAN_OR_EQUAL;
         }
 
         @Override
-        public Predicate explain(Expression x, Object y, CriteriaBuilder cb) {
-            return y instanceof Expression ? cb.lessThan(x, (Expression) y) : cb.lessThan(x, (Comparable) y);
+        public Predicate explain(ExpressionModel x, Object y, CriteriaBuilder cb) {
+            Expression xExp = x.toExpression();
+            return y instanceof Expression
+                    ? cb.lessThan(xExp, (Expression) y)
+                    : cb.lessThan(xExp, (Comparable) y);
         }
 
     },
     LESS_THAN_OR_EQUAL("<=", "LE") {
-
         @Override
         public Operator negated() {
             return GREATER_THAN;
         }
 
         @Override
-        public Predicate explain(Expression x, Object y, CriteriaBuilder cb) {
-            return y instanceof Expression ? cb.lessThanOrEqualTo(x, (Expression) y) : cb.lessThanOrEqualTo(x, (Comparable) y);
+        public Predicate explain(ExpressionModel x, Object y, CriteriaBuilder cb) {
+            Expression xExp = x.toExpression();
+            return y instanceof Expression
+                    ? cb.lessThanOrEqualTo(xExp, (Expression) y)
+                    : cb.lessThanOrEqualTo(xExp, (Comparable) y);
         }
 
     },
     GREATER_THAN(">", "GT") {
-
         @Override
         public Operator negated() {
             return LESS_THAN_OR_EQUAL;
         }
 
         @Override
-        public Predicate explain(Expression x, Object y, CriteriaBuilder cb) {
-            return y instanceof Expression ? cb.greaterThan(x, (Expression) y) : cb.greaterThan(x, (Comparable) y);
+        public Predicate explain(ExpressionModel x, Object y, CriteriaBuilder cb) {
+            Expression xExp = x.toExpression();
+            return y instanceof Expression
+                    ? cb.greaterThan(xExp, (Expression) y)
+                    : cb.greaterThan(xExp, (Comparable) y);
         }
 
     },
     GREATER_THAN_OR_EQUAL(">=", "GE") {
-
         @Override
         public Operator negated() {
             return LESS_THAN;
         }
 
         @Override
-        public Predicate explain(Expression x, Object y, CriteriaBuilder cb) {
-            return y instanceof Expression ? cb.greaterThanOrEqualTo(x, (Expression) y) : cb.greaterThanOrEqualTo(x, (Comparable) y);
+        public Predicate explain(ExpressionModel x, Object y, CriteriaBuilder cb) {
+            Expression xExp = x.toExpression();
+            return y instanceof Expression
+                    ? cb.greaterThanOrEqualTo(xExp, (Expression) y)
+                    : cb.greaterThanOrEqualTo(xExp, (Comparable) y);
         }
 
     },
     IN("in", "IN") {
-
         @Override
         public Operator negated() {
             return NOT_IN;
         }
 
         @Override
-        public Predicate explain(Expression x, Object y, CriteriaBuilder cb) {
+        public Predicate explain(ExpressionModel x, Object y, CriteriaBuilder cb) {
+            Expression xExp = x.toExpression();
             if (y instanceof Expression) {
-                return x.in((Expression) y);
+                return xExp.in((Expression) y);
             }
             List<Collection> v = cuttingBySize(inValue(y), 999);
             Iterator<Collection> it = v.iterator();
-            Predicate predicate = x.in(it.next());
-            for (; it.hasNext();) {
-                predicate = cb.or(predicate, x.in(it.next()));
+            Predicate predicate = xExp.in(it.next());
+            for (; it.hasNext(); ) {
+                predicate = cb.or(predicate, xExp.in(it.next()));
             }
             return predicate;
         }
 
     },
     NOT_IN("not in", "NOTIN") {
-
         @Override
         public Operator negated() {
             return IN;
         }
 
         @Override
-        public Predicate explain(Expression x, Object y, CriteriaBuilder cb) {
+        public Predicate explain(ExpressionModel x, Object y, CriteriaBuilder cb) {
+            Expression xExp = x.toExpression();
             if (y instanceof Expression) {
-                return x.in((Expression) y);
+                return xExp.in((Expression) y);
             }
             List<Collection> v = cuttingBySize(inValue(y), 999);
             Iterator<Collection> it = v.iterator();
-            Predicate predicate = x.in(it.next()).not();
-            for (; it.hasNext();) {
-                predicate = cb.and(predicate, x.in(it.next()).not());
+            Predicate predicate = xExp.in(it.next()).not();
+            for (; it.hasNext(); ) {
+                predicate = cb.and(predicate, xExp.in(it.next()).not());
             }
             return predicate;
         }
 
     },
     LIKE("like", "LIKE") {
-
         @Override
         public Operator negated() {
             return NOT_LIKE;
         }
 
         @Override
-        public Predicate explain(Expression x, Object y, CriteriaBuilder cb) {
-            if (y instanceof Expression) {
-                return cb.like(x, (Expression) y);
-            }
-            return cb.like(x, likeValue(y));
+        public Predicate explain(ExpressionModel x, Object y, CriteriaBuilder cb) {
+            Expression xExp = x.toExpression();
+            return y instanceof Expression
+                    ? cb.like(xExp, (Expression) y)
+                    : cb.like(xExp, String.valueOf(y));
         }
 
     },
     NOT_LIKE("not like", "NOTLIKE") {
-
         @Override
         public Operator negated() {
             return LIKE;
         }
 
         @Override
-        public Predicate explain(Expression x, Object y, CriteriaBuilder cb) {
-            if (y instanceof Expression) {
-                return cb.notLike(x, (Expression) y);
-            }
-            return cb.notLike(x, likeValue(y));
+        public Predicate explain(ExpressionModel x, Object y, CriteriaBuilder cb) {
+            Expression xExp = x.toExpression();
+            return y instanceof Expression
+                    ? cb.notLike(xExp, (Expression) y)
+                    : cb.notLike(xExp, String.valueOf(y));
         }
 
     },
     NULL("is null", "NULL") {
-
         @Override
         public Operator negated() {
             return NOT_NULL;
         }
 
         @Override
-        public Predicate explain(Expression x, Object y, CriteriaBuilder cb) {
-            return cb.isNull(x);
+        public Predicate explain(ExpressionModel x, Object y, CriteriaBuilder cb) {
+            return cb.isNull(x.toExpression());
         }
 
     },
     NOT_NULL("is not null", "NOTNULL") {
-
         @Override
         public Operator negated() {
             return NULL;
         }
 
         @Override
-        public Predicate explain(Expression x, Object y, CriteriaBuilder cb) {
-            return cb.isNotNull(x);
+        public Predicate explain(ExpressionModel x, Object y, CriteriaBuilder cb) {
+            return cb.isNotNull(x.toExpression());
         }
 
     },
     TRUE("is true", "TRUE") {
-
         @Override
         public Operator negated() {
             return FALSE;
         }
 
         @Override
-        public Predicate explain(Expression x, Object y, CriteriaBuilder cb) {
-            return cb.isTrue(x);
+        public Predicate explain(ExpressionModel x, Object y, CriteriaBuilder cb) {
+            return cb.isTrue(x.toExpression());
         }
 
     },
     FALSE("is false", "FALSE") {
-
         @Override
         public Operator negated() {
             return TRUE;
         }
 
         @Override
-        public Predicate explain(Expression x, Object y, CriteriaBuilder cb) {
-            return cb.isFalse(x);
+        public Predicate explain(ExpressionModel x, Object y, CriteriaBuilder cb) {
+            return cb.isFalse(x.toExpression());
         }
 
     },
     SIZE_OF("size", "SIZE") {
-
         @Override
         public Operator negated() {
             return NOT_SIZE_OF;
         }
 
         @Override
-        public Predicate explain(Expression x, Object y, CriteriaBuilder cb) {
-            return y instanceof Expression ? cb.equal(cb.size(x), (Expression) y) : cb.equal(cb.size(x), y);
+        public Predicate explain(ExpressionModel x, Object y, CriteriaBuilder cb) {
+            Expression xExp = cb.size(x.toExpression());
+            return y instanceof Expression
+                    ? cb.equal(xExp, (Expression) y)
+                    : cb.equal(xExp, y);
         }
 
     },
     NOT_SIZE_OF("not size", "NOTSIZE") {
-
         @Override
         public Operator negated() {
             return SIZE_OF;
         }
 
         @Override
-        public Predicate explain(Expression x, Object y, CriteriaBuilder cb) {
-            return y instanceof Expression ? cb.notEqual(cb.size(x), (Expression) y) : cb.notEqual(cb.size(x), y);
+        public Predicate explain(ExpressionModel x, Object y, CriteriaBuilder cb) {
+            Expression xExp = cb.size(x.toExpression());
+            return y instanceof Expression
+                    ? cb.notEqual(xExp, (Expression) y)
+                    : cb.notEqual(xExp, y);
         }
 
     };
@@ -255,8 +260,8 @@ public enum Operator implements ExpressionOperator {
             return Arrays.asList(v);
         }
         Object[] array = v.toArray();
-        List<Collection> result = new ArrayList<Collection>((length / size) + 1);
-        for (int start = 0, end = size; start < length;) {
+        List<Collection> result = new ArrayList<>((length / size) + 1);
+        for (int start = 0, end = size; start < length; ) {
             final int copyLength = end - start;
             Object[] tmp = new Object[copyLength];
             System.arraycopy(array, start, tmp, 0, copyLength);
@@ -281,13 +286,6 @@ public enum Operator implements ExpressionOperator {
         throw new IllegalArgumentException("in value is not object array/string/collection");
     }
 
-    private static String likeValue(Object y) {
-        if (y instanceof String) {
-            return (String) y;
-        }
-        throw new IllegalArgumentException("like value is not string");
-    }
-
     private String symbol;
     private String qualifiedName;
 
@@ -298,14 +296,14 @@ public enum Operator implements ExpressionOperator {
 
     /**
      * 对当前的Operator取反
-     * 
+     *
      * @return 当前Operator的反义
      */
     public abstract Operator negated();
 
     /**
      * sql对应的操作符
-     * 
+     *
      * @return 操作符
      */
     public String symbol() {
@@ -314,7 +312,7 @@ public enum Operator implements ExpressionOperator {
 
     /**
      * 限定名
-     * 
+     *
      * @return 限定名
      */
     public String qualifiedName() {
@@ -336,5 +334,6 @@ public enum Operator implements ExpressionOperator {
         }
         throw new IllegalArgumentException(qualifiedName + " not found!");
     }
+
 
 }

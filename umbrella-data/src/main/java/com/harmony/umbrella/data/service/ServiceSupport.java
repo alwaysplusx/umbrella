@@ -1,22 +1,22 @@
 package com.harmony.umbrella.data.service;
 
+import com.harmony.umbrella.data.query.JpaQueryBuilder;
+import com.harmony.umbrella.data.query.QueryBundle;
+import com.harmony.umbrella.data.repository.QueryableRepository;
+import org.springframework.data.domain.Page;
+
 import java.io.Serializable;
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.data.domain.Page;
-
-import com.harmony.umbrella.data.query.JpaQueryBuilder;
-import com.harmony.umbrella.data.query.QueryBundle;
-import com.harmony.umbrella.data.repository.QueryableRepository;
-
 /**
- * 
  * @author wuxii@foxmail.com
  */
 public abstract class ServiceSupport<T, ID extends Serializable> implements Service<T, ID> {
 
     protected abstract QueryableRepository<T, ID> getRepository();
+
+    protected abstract Class<T> getDomainClass();
 
     @Override
     public T saveOrUpdate(T entity) {
@@ -47,8 +47,7 @@ public abstract class ServiceSupport<T, ID extends Serializable> implements Serv
 
     @Override
     public T findById(ID id) {
-        Optional<T> o = getRepository().findById(id);
-        return o.isPresent() ? o.get() : null;
+        return getRepository().findById(id).orElse(null);
     }
 
     @Override
@@ -92,11 +91,12 @@ public abstract class ServiceSupport<T, ID extends Serializable> implements Serv
     }
 
     protected JpaQueryBuilder<T> queryWith() {
-        return queryWith((Class<T>) null).withEntityManager(getRepository().getEntityManager());
+        return queryWith((Class<T>) getDomainClass());
     }
 
+
     protected <M> JpaQueryBuilder<M> queryWith(Class<M> domainClass) {
-        return JpaQueryBuilder.<M> newBuilder().from(domainClass).withEntityManager(getRepository().getEntityManager());
+        return JpaQueryBuilder.<M>newBuilder().from(domainClass).withEntityManager(getRepository().getEntityManager());
     }
 
 }
