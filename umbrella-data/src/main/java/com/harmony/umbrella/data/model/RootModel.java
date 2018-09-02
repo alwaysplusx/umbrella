@@ -36,10 +36,6 @@ public class RootModel<T> {
 
     private CriteriaBuilder cb;
 
-    public RootModel(Root<T> root) {
-        this.root = root;
-    }
-
     public RootModel(Root<T> root, CriteriaBuilder cb) {
         this.root = root;
         this.cb = cb;
@@ -83,7 +79,7 @@ public class RootModel<T> {
     }
 
     protected StringExpression toStringExpression(String s) {
-        return QueryUtils.parse(s);
+        return QueryUtils.toStringExpression(s);
     }
 
     private static final Map<Attribute.PersistentAttributeType, Class<? extends Annotation>> ASSOCIATION_TYPES;

@@ -60,7 +60,7 @@ public class MemberUtils {
      * 
      * @param clazz
      *            目标类
-     * @param field
+     * @param fieldName
      *            字段名称
      * @return 字段对应的getter方法
      */
@@ -80,7 +80,7 @@ public class MemberUtils {
      * 
      * @param clazz
      *            目标类
-     * @param field
+     * @param fieldName
      *            字段名称
      * @return 字段对应的setter方法
      * @throws NoSuchMethodException

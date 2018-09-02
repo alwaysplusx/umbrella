@@ -52,4 +52,5 @@ public class FunctionExpressionModel implements ExpressionModel {
     public boolean canJoin() {
         return false;
     }
+
 }

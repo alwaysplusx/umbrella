@@ -1,8 +1,10 @@
 package com.harmony.umbrella.data.query;
 
+import com.harmony.umbrella.data.result.SelectionAndResult;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
+import java.util.function.Function;
 
 /**
  * 查询结果. 该查询结果通过QueryBuilder来构建查询条件, 然后通过解析构建的查询条件得出查询结果.
@@ -45,7 +47,7 @@ public interface QueryResult<T> {
     Page<T> getResultPage();
 
     /**
-     * 定制列的单结果查询
+     * 定制列的单结果查询, 需要resultClass有满足字段的构造函数
      *
      * @param selections  定制查询列
      * @param resultClass 期待结果类型
@@ -54,7 +56,7 @@ public interface QueryResult<T> {
     <E> E getSingleResult(Selections<T> selections, Class<E> resultClass);
 
     /**
-     * 定制列的符合条件的首个结果
+     * 定制列的符合条件的首个结果, 需要resultClass有满足字段的构造函数
      *
      * @param selections  定制查询列
      * @param resultClass 期待结果类型
@@ -63,7 +65,7 @@ public interface QueryResult<T> {
     <E> E getFirstResult(Selections<T> selections, Class<E> resultClass);
 
     /**
-     * 定制列的结果集查询
+     * 定制列的结果集查询, 需要resultClass有满足字段的构造函数
      *
      * <b>此结果集不含分页信息</b>
      *
@@ -74,7 +76,7 @@ public interface QueryResult<T> {
     <E> List<E> getResultList(Selections<T> selections, Class<E> resultClass);
 
     /**
-     * 获取符合条件的所有结果集
+     * 获取符合条件的所有结果集, 需要resultClass有满足字段的构造函数
      *
      * @param selections  定制列
      * @param resultClass 期待的结果类型
@@ -83,26 +85,13 @@ public interface QueryResult<T> {
      */
     <E> List<E> getAllResult(Selections<T> selections, Class<E> resultClass);
 
-    /**
-     * 定制列的分页结果集
-     *
-     * @param countName   进行统计的count name
-     * @param selections  定制列
-     * @param resultClass 期待结果类型
-     * @return 分页结果集
-     */
-    <E> Page<E> getResultPage(String countName, Selections<T> selections, Class<E> resultClass);
+    <E> E getSingleResult(Selections<T> selections, Function<SelectionAndResult, E> converter);
 
-    /**
-     * 获取指定列的分页结果集(统计字段带入distinct)
-     *
-     * @param countName   统计的countName
-     * @param selections  结果选取的字段
-     * @param resultClass 结果类型
-     * @param <E>         结果集
-     * @return
-     */
-    <E> Page<E> getDistinctResultPage(String countName, Selections<T> selections, Class<E> resultClass);
+    <E> E getFirstResult(Selections<T> selections, Function<SelectionAndResult, E> converter);
+
+    <E> List<E> getResultList(Selections<T> selections, Function<SelectionAndResult, E> converter);
+
+    <E> List<E> getAllResult(Selections<T> selections, Function<SelectionAndResult, E> converter);
 
     /**
      * 统计符合条件的结果总数

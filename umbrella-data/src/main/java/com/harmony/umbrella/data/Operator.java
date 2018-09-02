@@ -1,8 +1,8 @@
 package com.harmony.umbrella.data;
 
 import com.harmony.umbrella.data.model.ExpressionModel;
-import com.harmony.umbrella.util.StringUtils;
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Expression;

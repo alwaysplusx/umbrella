@@ -68,15 +68,15 @@ public class StringExpressionModel implements ExpressionModel {
     }
 
     public ExpressionModel next(String name, JoinType joinType) {
-        return new StringExpressionModel(this, toJoinExpression(), cb, name);
+        return new StringExpressionModel(this, toJoinExpression(joinType), cb, name);
     }
 
     public FunctionExpressionModel asFunction(String function) {
-        return new FunctionExpressionModel(this, (Path) toExpression(), function, cb);
+        return new FunctionExpressionModel(this, toExpression(), function, cb);
     }
 
     public FunctionExpressionModel asFunction(String function, JoinType joinType) {
-        return new FunctionExpressionModel(this, (Path) toJoinExpression(joinType), function, cb);
+        return new FunctionExpressionModel(this, toJoinExpression(joinType), function, cb);
     }
 
     @Override

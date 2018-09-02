@@ -1,6 +1,8 @@
 package com.harmony.umbrella.data.query;
 
+import com.harmony.umbrella.data.model.ExpressionModel;
 import com.harmony.umbrella.data.model.RootModel;
+import com.harmony.umbrella.data.result.SelectionAndResult;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -15,6 +17,10 @@ import javax.persistence.TypedQuery;
 import javax.persistence.criteria.*;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import static com.harmony.umbrella.data.util.QueryUtils.toSelectionAndResult;
 
 /**
  * @author wuxii@foxmail.com
@@ -39,11 +45,7 @@ public class QueryResultImpl<T> implements QueryResult<T> {
     public T getSingleResult() {
         try {
             return newAssembler()
-                    .applyGrouping()
-                    .applySpecification()
-                    .applySort()
-                    .applyJoin()
-                    .applyFetch()
+                    .applyForSingle()
                     .build()
                     .getSingleResult();
         } catch (NoResultException e) {
@@ -54,7 +56,7 @@ public class QueryResultImpl<T> implements QueryResult<T> {
     @Override
     public T getFirstResult() {
         return newAssembler()
-                .applyAll()
+                .applyForFirst()
                 .build(0, 1)
                 .getResultList()
                 .stream()
@@ -64,34 +66,35 @@ public class QueryResultImpl<T> implements QueryResult<T> {
 
     @Override
     public List<T> getResultList() {
-        return newAssembler()
-                .applyAll()
-                .build(true)
-                .getResultList();
+        return getResultList(newPageRequest());
     }
 
     @Override
     public List<T> getAllResult() {
         return newAssembler()
-                .applyAll()
+                .applyForList()
                 .build()
                 .getResultList();
     }
 
     @Override
     public Page<T> getResultPage() {
-        return PageableExecutionUtils.getPage(getResultList(), newPageRequest(), () -> count());
+        PageRequest pageRequest = newPageRequest();
+        return PageableExecutionUtils.getPage(getResultList(pageRequest), pageRequest, () -> count());
+    }
+
+    protected List<T> getResultList(Pageable pageable) {
+        return newAssembler()
+                .applyForList()
+                .build(pageable)
+                .getResultList();
     }
 
     @Override
     public <E> E getSingleResult(Selections<T> selections, Class<E> resultClass) {
         try {
             return newAssembler(resultClass)
-                    .applyGrouping()
-                    .applySpecification()
-                    .applySort()
-                    .applyJoin()
-                    .applyFetch()
+                    .applyForSingle()
                     .applySelections(selections)
                     .build()
                     .getSingleResult();
@@ -103,7 +106,7 @@ public class QueryResultImpl<T> implements QueryResult<T> {
     @Override
     public <E> E getFirstResult(Selections<T> selections, Class<E> resultClass) {
         return newAssembler(resultClass)
-                .applyAll()
+                .applyForFirst()
                 .applySelections(selections)
                 .build(0, 1)
                 .getResultList()
@@ -115,29 +118,81 @@ public class QueryResultImpl<T> implements QueryResult<T> {
     @Override
     public <E> List<E> getResultList(Selections<T> selections, Class<E> resultClass) {
         return newAssembler(resultClass)
-                .applyAll()
+                .applyForList()
                 .applySelections(selections)
-                .build(true)
+                .buildPagingQuery()
                 .getResultList();
     }
 
     @Override
     public <E> List<E> getAllResult(Selections<T> selections, Class<E> resultClass) {
         return newAssembler(resultClass)
-                .applyAll()
+                .applyForList()
                 .applySelections(selections)
                 .build()
                 .getResultList();
     }
 
     @Override
-    public <E> Page<E> getResultPage(String countName, Selections<T> selections, Class<E> resultClass) {
-        return PageableExecutionUtils.getPage(getResultList(selections, resultClass), newPageRequest(), () -> count(countName));
+    public <E> E getSingleResult(Selections<T> selections, Function<SelectionAndResult, E> converter) {
+        QueryAssembler<Object> assembler = newAssembler(Object.class);
+        List<Selection> columns = assembler.toSelectionList(selections);
+        try {
+            Object result = assembler
+                    .applyForSingle()
+                    .applySelections(columns)
+                    .build()
+                    .getSingleResult();
+            return result == null ? null : converter.apply(toSelectionAndResult(columns, result));
+        } catch (NoResultException e) {
+            return null;
+        }
     }
 
     @Override
-    public <E> Page<E> getDistinctResultPage(String countName, Selections<T> selections, Class<E> resultClass) {
-        return PageableExecutionUtils.getPage(getResultList(selections, resultClass), newPageRequest(), () -> countDistinct(countName));
+    public <E> E getFirstResult(Selections<T> selections, Function<SelectionAndResult, E> converter) {
+        QueryAssembler<Object> assembler = newAssembler(Object.class);
+        List<Selection> columns = assembler.toSelectionList(selections);
+        return assembler
+                .applyForFirst()
+                .applySelections(columns)
+                .build(0, 1)
+                .getResultList()
+                .stream()
+                .findFirst()
+                .map(e -> toSelectionAndResult(columns, e))
+                .map(converter)
+                .orElse(null);
+    }
+
+    @Override
+    public <E> List<E> getResultList(Selections<T> selections, Function<SelectionAndResult, E> converter) {
+        QueryAssembler<Object> assembler = newAssembler(Object.class);
+        List<Selection> columns = assembler.toSelectionList(selections);
+        return assembler
+                .applyForList()
+                .applySelections(columns)
+                .buildPagingQuery()
+                .getResultList()
+                .stream()
+                .map(e -> toSelectionAndResult(columns, e))
+                .map(converter)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public <E> List<E> getAllResult(Selections<T> selections, Function<SelectionAndResult, E> converter) {
+        QueryAssembler<Object> assembler = newAssembler(Object.class);
+        List<Selection> columns = assembler.toSelectionList(selections);
+        return assembler
+                .applyForList()
+                .applySelections(columns)
+                .build()
+                .getResultList()
+                .stream()
+                .map(e -> toSelectionAndResult(columns, e))
+                .map(converter)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -157,8 +212,7 @@ public class QueryResultImpl<T> implements QueryResult<T> {
 
     protected long count(Selections<T> selections) {
         return newAssembler(Long.class)
-                .applySpecification()
-                .applyGrouping()
+                .applyForCount()
                 .applySelections(selections)
                 .build()
                 .getSingleResult();
@@ -194,20 +248,46 @@ public class QueryResultImpl<T> implements QueryResult<T> {
             this.rootModel = RootModel.of(root, builder);
         }
 
-        public QueryAssembler<M> applySelections(Selections<T> selections) {
-            List<Selection> columns = selections.select(root, query, builder);
-            if (columns.isEmpty()) {
-                throw new QueryException();
-            }
-            if (columns.size() > 1) {
-                query.multiselect(columns.toArray(new Selection[columns.size()]));
+        public QueryAssembler<M> applySelections(final List<Selection> selections) {
+            Selection[] cleanSelections = toCleanSelections(selections);
+            if (cleanSelections.length > 1) {
+                query.multiselect(cleanSelections);
             } else {
-                query.select(columns.get(0));
+                query.select(cleanSelections[0]);
             }
             return this;
         }
 
-        public QueryAssembler<M> applyAll() {
+        private Selection[] toCleanSelections(List<Selection> selections) {
+            Selection[] result = new Selection[selections.size()];
+            for (int i = 0, max = selections.size(); i < max; i++) {
+                Selection selection = selections.get(i);
+                result[i] = selection instanceof ExpressionModel ? ((ExpressionModel) selection).toExpression() : selection;
+            }
+            return result;
+        }
+
+        public QueryAssembler<M> applySelections(Selections<T> selections) {
+            return applySelections(toSelectionList(selections));
+        }
+
+        // quick methods
+
+        public QueryAssembler<M> applyForCount() {
+            return applySpecification()
+                    .applyJoin()
+                    .applyGrouping()
+                    .applyFetch();
+        }
+
+        public QueryAssembler<M> applyForSingle() {
+            return applySpecification()
+                    .applyFetch()
+                    .applyGrouping()
+                    .applyJoin();
+        }
+
+        public QueryAssembler<M> applyForFirst() {
             return applySpecification()
                     .applyFetch()
                     .applyGrouping()
@@ -215,6 +295,15 @@ public class QueryResultImpl<T> implements QueryResult<T> {
                     .applySort();
         }
 
+        public QueryAssembler<M> applyForList() {
+            return applySpecification()
+                    .applyFetch()
+                    .applyGrouping()
+                    .applyJoin()
+                    .applySort();
+        }
+
+        //
 
         public QueryAssembler<M> applySpecification() {
             if (specification != null) {
@@ -280,6 +369,14 @@ public class QueryResultImpl<T> implements QueryResult<T> {
                     .anyMatch(e -> e.getJoinType().equals(joinType));
         }
 
+        public List<Selection> toSelectionList(Selections<T> selections) {
+            List<Selection> columns = selections.select(root, query, builder);
+            if (columns.isEmpty()) {
+                throw new QueryException("not selection column found");
+            }
+            return columns;
+        }
+
         protected boolean isAlreadyJoin(String name, JoinType joinType) {
             return root
                     .getJoins()
@@ -288,13 +385,8 @@ public class QueryResultImpl<T> implements QueryResult<T> {
                     .anyMatch(e -> e.getJoinType().equals(joinType));
         }
 
-        public TypedQuery<M> build(boolean paging) {
-            return paging ? build(newPageRequest()) : build();
-        }
-
-
         public TypedQuery<M> buildPagingQuery() {
-            return build(true);
+            return build(newPageRequest());
         }
 
         public TypedQuery<M> build(int page, int size) {

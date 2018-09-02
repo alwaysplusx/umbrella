@@ -5,6 +5,8 @@ import com.harmony.umbrella.data.domain.Student;
 import com.harmony.umbrella.data.model.SelectionModel;
 import com.harmony.umbrella.data.query.JpaQueryBuilder;
 import com.harmony.umbrella.data.query.QueryFeature;
+import com.harmony.umbrella.data.result.ColumnResult;
+import com.harmony.umbrella.data.result.ResultConverter;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -13,7 +15,9 @@ import org.junit.Test;
 import javax.persistence.EntityManager;
 import javax.persistence.Persistence;
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author wuxii
@@ -162,6 +166,48 @@ public class QueryBuilderTest {
                 .notIn("name", "Haney", "Mary")
                 .getAllResult();
         System.out.println(students);
+    }
+
+    @Test
+    public void testDisposableColumn() {
+        List<Student> students = studentQueryBuilder.begin("name").equal("foo").getAllResult();
+        System.out.println(students);
+    }
+
+    @Test
+    public void testSelection() {
+        List<Map<String, Object>> result = studentQueryBuilder
+                .execute()
+                .getAllResult(SelectionModel.of("name", "gender", "birthday"), (sr) -> {
+                    Map<String, Object> map = new HashMap<>();
+                    for (ColumnResult cr : sr) {
+                        map.put(cr.getName(), cr.getResult());
+                    }
+                    return map;
+                });
+        System.out.println(result);
+    }
+
+    @Test
+    public void testSelectManyPart() {
+        List<Map<String, Object>> result = classRoomQueryBuilder
+                .execute()
+                .getAllResult(SelectionModel.of("grade", "room", "students.name"), (sr) -> {
+                    Map<String, Object> map = new HashMap<>();
+                    for (ColumnResult cr : sr) {
+                        map.put(cr.getName(), cr.getResult());
+                    }
+                    return map;
+                });
+        System.out.println(result);
+    }
+
+    @Test
+    public void testResultConverter() {
+        List<Student> result = studentQueryBuilder
+                .execute()
+                .getAllResult(SelectionModel.of("gender", "classRoom.room", "name"), new ResultConverter<Student>(Student.class));
+        System.out.println(result);
     }
 
     private static ClassRoom newClassRoom(String grade, String room) {

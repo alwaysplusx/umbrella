@@ -1,22 +1,8 @@
 package com.harmony.umbrella.data.query;
 
-import java.util.List;
+import com.harmony.umbrella.data.CompositionType;
 
 import javax.persistence.EntityManager;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Expression;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
-import javax.persistence.criteria.Subquery;
-
-import org.springframework.data.jpa.domain.Specification;
-
-import com.harmony.umbrella.data.CompositionType;
-import com.harmony.umbrella.data.Operator;
-import com.harmony.umbrella.data.model.SelectionModel;
-import com.harmony.umbrella.log.Log;
-import com.harmony.umbrella.log.Logs;
 
 /**
  * @author wuxii@foxmail.com
@@ -24,8 +10,6 @@ import com.harmony.umbrella.log.Logs;
 public class JpaQueryBuilder<M> extends QueryBuilder<JpaQueryBuilder<M>, M> {
 
     private static final long serialVersionUID = 1L;
-
-    private static final Log log = Logs.getLog();
 
     public static <T> JpaQueryBuilder<T> newBuilder() {
         return new JpaQueryBuilder<>();
@@ -38,39 +22,28 @@ public class JpaQueryBuilder<M> extends QueryBuilder<JpaQueryBuilder<M>, M> {
     public JpaQueryBuilder() {
     }
 
-    public JpaQueryBuilder(Class<M> entityClass) {
-        super(entityClass);
+    public JpaQueryBuilder(Class<M> domainClass) {
+        super(domainClass);
     }
 
-    public JpaQueryBuilder(Class<M> entityClass, EntityManager entityManager) {
-        super(entityClass, entityManager);
+    public JpaQueryBuilder(Class<M> domainClass, EntityManager entityManager) {
+        super(domainClass, entityManager);
     }
 
     public JpaQueryBuilder(EntityManager entityManager) {
         super(entityManager);
     }
 
-    // subquery
-
-    public <R> SubqueryBuilder<R> subquery(Class<R> clazz) {
-        return this.new SubqueryBuilder<R>(clazz, this);
+    public DisposableColumn begin(String name) {
+        return this.begin().and(name);
     }
 
-    public OneTimeColumn column(String name) {
-        return new OneTimeColumn(name, CompositionType.AND);
+    public DisposableColumn and(String name) {
+        return new DisposableColumn(name, CompositionType.AND);
     }
 
-    public OneTimeColumn start(String name) {
-        begin(compositionType == null ? CompositionType.AND : compositionType);
-        return new OneTimeColumn(name, CompositionType.AND);
-    }
-
-    public OneTimeColumn and(String name) {
-        return new OneTimeColumn(name, CompositionType.AND);
-    }
-
-    public OneTimeColumn or(String name) {
-        return new OneTimeColumn(name, CompositionType.OR);
+    public DisposableColumn or(String name) {
+        return new DisposableColumn(name, CompositionType.OR);
     }
 
     /**
@@ -78,176 +51,94 @@ public class JpaQueryBuilder<M> extends QueryBuilder<JpaQueryBuilder<M>, M> {
      *
      * @author wuxii@foxmail.com
      */
-    public final class OneTimeColumn {
+    public final class DisposableColumn {
 
-        private JpaQueryBuilder<M> parent;
-
-        private boolean added;
+        private boolean done;
 
         private String name;
-        private CompositionType composition;
+        private CompositionType compositionType;
+        private JpaQueryBuilder<M> builder;
 
-        private OneTimeColumn(String name, CompositionType composition) {
+        private DisposableColumn(String name, CompositionType compositionType) {
             this.name = name;
-            this.composition = composition;
-            this.parent = JpaQueryBuilder.this;
+            this.compositionType = compositionType;
+            this.builder = JpaQueryBuilder.this;
         }
 
         public JpaQueryBuilder<M> equal(Object val) {
-            return addCondition(val, Operator.EQUAL);
+            return prepare().equal(name, val);
         }
 
         public JpaQueryBuilder<M> notEqual(Object val) {
-            return addCondition(val, Operator.NOT_EQUAL);
+            return prepare().notEqual(name, val);
         }
 
         public JpaQueryBuilder<M> like(Object val) {
-            return addCondition(val, Operator.LIKE);
+            return prepare().like(name, val);
         }
 
         public JpaQueryBuilder<M> notLike(Object val) {
-            return addCondition(val, Operator.NOT_LIKE);
+            return prepare().notLike(name, val);
         }
 
         public JpaQueryBuilder<M> in(Object val) {
-            return addCondition(val, Operator.IN);
+            return prepare().in(name, val);
         }
 
         public JpaQueryBuilder<M> notIn(Object val) {
-            return addCondition(val, Operator.NOT_IN);
+            return prepare().notIn(name, val);
         }
 
-        // between and notBewteen 需要添加两个条件, 添加一条后将临时变量置为false
-        public JpaQueryBuilder<M> between(Object left, Object right) {
-            greatEqual(left);
-            this.added = false;
-            lessEqual(right);
-            return parent;
+        public JpaQueryBuilder<M> between(Comparable left, Comparable right) {
+            return prepare().between(name, left, right);
         }
 
-        public JpaQueryBuilder<M> notBetween(Object left, Object right) {
-            lessThen(left);
-            this.added = false;
-            greatThen(right);
-            return parent;
+        public JpaQueryBuilder<M> notBetween(Comparable left, Comparable right) {
+            return prepare().notBetween(name, left, right);
         }
 
-        public JpaQueryBuilder<M> greatThen(Object val) {
-            return addCondition(val, Operator.GREATER_THAN);
+        public JpaQueryBuilder<M> greatThen(Comparable val) {
+            return prepare().greatThen(name, val);
         }
 
-        public JpaQueryBuilder<M> greatEqual(Object val) {
-            return addCondition(val, Operator.GREATER_THAN_OR_EQUAL);
+        public JpaQueryBuilder<M> greatEqual(Comparable val) {
+            return prepare().greatEqual(name, val);
         }
 
-        public JpaQueryBuilder<M> lessThen(Object val) {
-            return addCondition(val, Operator.LESS_THAN);
+        public JpaQueryBuilder<M> lessThen(Comparable val) {
+            return prepare().lessThen(name, val);
         }
 
-        public JpaQueryBuilder<M> lessEqual(Object val) {
-            return addCondition(val, Operator.LESS_THAN_OR_EQUAL);
+        public JpaQueryBuilder<M> lessEqual(Comparable val) {
+            return prepare().lessEqual(name, val);
         }
 
         public JpaQueryBuilder<M> isNull() {
-            return addCondition(null, Operator.NULL);
+            return prepare().isNull(name);
         }
 
         public JpaQueryBuilder<M> isNotNull() {
-            return addCondition(null, Operator.NOT_NULL);
+            return prepare().isNotNull(name);
         }
 
-        public JpaQueryBuilder<M> sizeOf(int size) {
-            return addCondition(size, Operator.SIZE_OF);
+        public JpaQueryBuilder<M> sizeOf(long size) {
+            return prepare().sizeOf(name, size);
         }
 
-        public JpaQueryBuilder<M> notSizeOf(int size) {
-            return addCondition(size, Operator.NOT_SIZE_OF);
+        public JpaQueryBuilder<M> notSizeOf(long size) {
+            return prepare().notSizeOf(name, size);
         }
 
-        private JpaQueryBuilder<M> addCondition(Object val, Operator operator) {
-            if (!this.added) {
-                parent.compositionType = composition;
-                if (val instanceof JpaQueryBuilder.OneTimeColumn) {
-                    // parent.addExpressionCondition(name, ((OneTimeColumn) val).name, operator);
-                } else {
-                    parent.addCondition(name, val, operator);
-                }
-                this.added = true;
-            } else {
+        private JpaQueryBuilder<M> prepare() {
+            if (done) {
                 throw new IllegalStateException("one time column just allow build only one specification");
             }
-            return parent;
+            done = true;
+            return compositionType != CompositionType.OR
+                    ? builder.and()
+                    : builder.or();
         }
 
     }
 
-    /**
-     * TODO 子查询修改
-     *
-     * @param <R>
-     */
-    public final class SubqueryBuilder<R> extends QueryBuilder<SubqueryBuilder<R>, R> {
-
-        private static final long serialVersionUID = -7997630445529853487L;
-
-        protected final QueryBuilder parentQueryBuilder;
-        protected SelectionModel subSelections;
-
-        protected SubqueryBuilder(Class<R> entityClass, QueryBuilder parent) {
-            super(parent.entityManager);
-            this.parentQueryBuilder = parent;
-            this.domainClass = entityClass;
-            this.compositionType = parentQueryBuilder.compositionType;
-            this.strictMode = parentQueryBuilder.strictMode;
-        }
-
-        public SubqueryBuilder<R> select(String column) {
-            this.subSelections = SelectionModel.of(column);
-            return this;
-        }
-
-        public SubqueryBuilder<R> selectFunction(String function, String column) {
-            // this.subSelections = SelectionModel.function(function, column);
-            return this;
-        }
-
-        public JpaQueryBuilder<M> apply(final String function, final String parentColumn, Operator operator) {
-            // return apply(SelectionModel.function(function, parentColumn), operator);
-            return null;
-        }
-
-        public JpaQueryBuilder<M> apply(final String parentColumn, final Operator operator) {
-            return apply(SelectionModel.of(parentColumn), operator);
-        }
-
-        private JpaQueryBuilder<M> apply(final SelectionModel parentSelections, final Operator operator) {
-            this.finishQuery();
-            final Specification subCondition = this.specification;
-            final SelectionModel subSelections = this.subSelections;
-            if (this.grouping != null && !this.grouping.isEmpty() //
-                    || this.sort != null //
-                    || this.fetchAttributes != null //
-                    || this.joinAttributes != null) {
-                log.warn("Subquery not support grouping/orderBy/fetch/join");
-            }
-            return (JpaQueryBuilder<M>) parentQueryBuilder.addSpecification(new Specification<M>() {
-                /**
-                 *
-                 */
-                private static final long serialVersionUID = -7179840312915716364L;
-
-                @Override
-                public Predicate toPredicate(Root<M> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
-                    Subquery<R> subquery = query.subquery(domainClass);
-                    Root<R> subRoot = subquery.from(domainClass);
-                    subquery.where(subCondition.toPredicate(subRoot, null, cb));
-                    List<Expression> subs = subSelections.select(subRoot, query, cb);
-                    List<Expression> parents = parentSelections.select(root, query, cb);
-                    // return operator.explain(parents.get(0), subs.get(0), cb);
-                    return null;
-                }
-            });
-        }
-
-    }
 }

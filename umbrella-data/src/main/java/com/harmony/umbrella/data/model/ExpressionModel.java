@@ -3,11 +3,13 @@ package com.harmony.umbrella.data.model;
 import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Root;
+import javax.persistence.criteria.Selection;
+import java.util.List;
 
 /**
  * @author wuxii
  */
-public interface ExpressionModel {
+public interface ExpressionModel extends Selection {
 
     default String getPath() {
         if (!hasPrevious()) {
@@ -39,6 +41,31 @@ public interface ExpressionModel {
 
     default boolean isRoot() {
         return getFrom() instanceof Root;
+    }
+
+    @Override
+    default Selection alias(String name) {
+        return toExpression().alias(name);
+    }
+
+    @Override
+    default boolean isCompoundSelection() {
+        return toExpression().isCompoundSelection();
+    }
+
+    @Override
+    default List<Selection<?>> getCompoundSelectionItems() {
+        return toExpression().getCompoundSelectionItems();
+    }
+
+    @Override
+    default Class getJavaType() {
+        return toExpression().getJavaType();
+    }
+
+    @Override
+    default String getAlias() {
+        return toExpression().getAlias();
     }
 
 }
