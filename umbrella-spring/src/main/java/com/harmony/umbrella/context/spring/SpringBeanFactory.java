@@ -17,7 +17,7 @@ public class SpringBeanFactory implements BeanFactory {
     }
 
     @Override
-    public void autowrie(Object existingBean) throws BeansException {
+    public void autowire(Object existingBean) throws BeansException {
         springContext.getAutowireCapableBeanFactory().autowireBean(existingBean);
     }
 

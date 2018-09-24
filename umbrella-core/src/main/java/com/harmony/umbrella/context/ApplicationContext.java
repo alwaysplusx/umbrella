@@ -133,7 +133,7 @@ public abstract class ApplicationContext implements BeanFactory {
                         try {
                             Runnable runner = hook.newInstance();
                             if (autowire) {
-                                applicationContext.autowrie(runner);
+                                applicationContext.autowire(runner);
                             }
                             runner.run();
                         } catch (Throwable e) {
@@ -374,8 +374,8 @@ public abstract class ApplicationContext implements BeanFactory {
     }
 
     @Override
-    public void autowrie(Object bean) throws BeansException {
-        getBeanFactory().autowrie(bean);
+    public void autowire(Object bean) throws BeansException {
+        getBeanFactory().autowire(bean);
     }
 
     @Override

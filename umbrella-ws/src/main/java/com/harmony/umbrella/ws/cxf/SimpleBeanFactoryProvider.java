@@ -63,8 +63,8 @@ public class SimpleBeanFactoryProvider implements BeanFactoryProvider {
     }
 
     @Override
-    public void autowrie(Object bean) throws BeansException {
-        beanFactory.autowrie(bean);
+    public void autowire(Object bean) throws BeansException {
+        beanFactory.autowire(bean);
     }
 
     @Override

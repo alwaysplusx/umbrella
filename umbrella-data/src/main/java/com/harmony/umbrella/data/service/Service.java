@@ -1,11 +1,11 @@
 package com.harmony.umbrella.data.service;
 
-import java.io.Serializable;
-import java.util.List;
-
+import com.harmony.umbrella.data.query.QueryBundle;
 import org.springframework.data.domain.Page;
 
-import com.harmony.umbrella.data.query.QueryBundle;
+import java.io.Serializable;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * @author wuxii@foxmail.com
@@ -18,13 +18,13 @@ public interface Service<T, ID extends Serializable> {
 
     void deleteById(ID id);
 
-    T getAndDelete(ID id);
+    Optional<T> getAndDelete(ID id);
 
-    T findOne(QueryBundle<T> bundle);
+    Optional<T> findOne(QueryBundle<T> bundle);
 
-    T findById(ID id);
+    Optional<T> findById(ID id);
 
-    T findFirst(QueryBundle<T> bundle);
+    Optional<T> findFirst(QueryBundle<T> bundle);
 
     List<T> findList(QueryBundle<T> bundle);
 

@@ -10,11 +10,11 @@ public interface BeanFactory {
     /**
      * 为bean自动注入所需要的依赖
      * 
-     * @param bean
+     * @param existingBean
      *            bean
      * @throws BeansException
      */
-    void autowrie(Object existingBean) throws BeansException;
+    void autowire(Object existingBean) throws BeansException;
 
     /**
      * 根据bean的名称加载指定bean，默认获取单例的bean

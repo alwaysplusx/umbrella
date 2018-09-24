@@ -47,7 +47,7 @@
     <apache.openejb.version>4.7.1</apache.openejb.version>
     <apache.poi.version>3.14</apache.poi.version>
     <eclipselink.version>2.6.3</eclipselink.version>
-    <fastjson.version>1.2.5</fastjson.version>
+    <fastjson.version>1.2.49</fastjson.version>
     <dozer.version>5.5.1</dozer.version>
     <log4j.version>1.2.17</log4j.version>
   </properties>
@@ -288,16 +288,4 @@
       </plugins>
     </pluginManagement>
   </build>
-  <reporting>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-project-info-reports-plugin</artifactId>
-        <version>2.9</version>
-        <configuration>
-          <dependencyLocationsEnabled>false</dependencyLocationsEnabled>
-        </configuration>
-      </plugin>
-    </plugins>
-  </reporting>
 </project>

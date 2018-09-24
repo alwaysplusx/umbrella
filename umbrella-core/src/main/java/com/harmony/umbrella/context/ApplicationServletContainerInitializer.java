@@ -101,7 +101,7 @@ public class ApplicationServletContainerInitializer implements ServletContainerI
                     if (applicationContext == null) {
                         applicationContext = ApplicationContext.getApplicationContext();
                     }
-                    applicationContext.autowrie(listener);
+                    applicationContext.autowire(listener);
                 }
                 eventListeners.add(listener);
             } catch (Throwable e) {

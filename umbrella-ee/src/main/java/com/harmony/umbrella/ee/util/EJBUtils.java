@@ -1,35 +1,25 @@
 package com.harmony.umbrella.ee.util;
 
-import java.lang.annotation.Annotation;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import javax.ejb.Local;
-import javax.ejb.Remote;
-import javax.ejb.Singleton;
-import javax.ejb.Stateful;
-import javax.ejb.Stateless;
-
+import com.harmony.umbrella.util.StringUtils;
 import org.springframework.core.annotation.AnnotationUtils;
 
-import com.harmony.umbrella.util.StringUtils;
+import javax.ejb.*;
+import java.lang.annotation.Annotation;
+import java.util.*;
 
 /**
  * @author wuxii@foxmail.com
  */
 public class EJBUtils {
 
-    private static final Class<? extends Annotation>[] SESSION_ANNOTATIONS;
+    private static final Class[] SESSION_ANNOTATIONS;
 
     static {
         List<Class<? extends Annotation>> annCls = new ArrayList<Class<? extends Annotation>>();
         annCls.add(Stateless.class);
         annCls.add(Stateful.class);
         annCls.add(Singleton.class);
-        SESSION_ANNOTATIONS = annCls.toArray(new Class[annCls.size()]);
+        SESSION_ANNOTATIONS = annCls.toArray(new Class[0]);
     }
 
     public static boolean isStateless(Class<?> clazz) {
@@ -45,7 +35,7 @@ public class EJBUtils {
     }
 
     public static boolean isSessionBean(Class<?> clazz) {
-        for (Class<? extends Annotation> annCls : SESSION_ANNOTATIONS) {
+        for (Class annCls : SESSION_ANNOTATIONS) {
             if (clazz.getAnnotation(annCls) != null) {
                 return true;
             }
@@ -61,22 +51,22 @@ public class EJBUtils {
         return clazz.isInterface() && clazz.getAnnotation(Local.class) != null;
     }
 
-    public static String getName(Class<?> beanClass, Class<? extends Annotation>... seqance) {
-        Object value = getProperty(beanClass, "name", seqance);
-        return (value != null && value instanceof String && StringUtils.isNotBlank((String) value)) ? (String) value : null;
+    public static String getName(Class<?> beanClass, Class<? extends Annotation>... sequence) {
+        Object value = getProperty(beanClass, "name", sequence);
+        return (value instanceof String && StringUtils.isNotBlank((String) value)) ? (String) value : null;
     }
 
-    public static String getMappedName(Class<?> beanClass, Class<? extends Annotation>... seqance) {
-        Object value = getProperty(beanClass, "mappedName", seqance);
-        return (value != null && value instanceof String && StringUtils.isNotBlank((String) value)) ? (String) value : null;
+    public static String getMappedName(Class<?> beanClass, Class<? extends Annotation>... sequence) {
+        Object value = getProperty(beanClass, "mappedName", sequence);
+        return (value instanceof String && StringUtils.isNotBlank((String) value)) ? (String) value : null;
     }
 
-    public static Object getProperty(Class<?> clazz, String name, Class<? extends Annotation>... seqance) {
-        if (seqance == null || seqance.length == 0) {
-            seqance = SESSION_ANNOTATIONS;
+    private static Object getProperty(Class<?> clazz, String name, Class<? extends Annotation>... sequence) {
+        if (sequence == null || sequence.length == 0) {
+            sequence = SESSION_ANNOTATIONS;
         }
         Object value = null;
-        for (Class<? extends Annotation> req : seqance) {
+        for (Class<? extends Annotation> req : sequence) {
             Annotation resp = clazz.getAnnotation(req);
             value = AnnotationUtils.getValue(resp, name);
             if (value != null) {
@@ -87,7 +77,7 @@ public class EJBUtils {
     }
 
     public static Set<String> asSet(String text, String delimiter) {
-        Set<String> result = new HashSet<String>();
+        Set<String> result = new HashSet<>();
         if (text != null) {
             Collections.addAll(result, StringUtils.tokenizeToStringArray(text, delimiter));
         }

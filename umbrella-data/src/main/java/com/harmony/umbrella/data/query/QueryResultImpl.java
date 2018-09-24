@@ -2,7 +2,6 @@ package com.harmony.umbrella.data.query;
 
 import com.harmony.umbrella.data.model.ExpressionModel;
 import com.harmony.umbrella.data.model.RootModel;
-import com.harmony.umbrella.data.result.SelectionAndResult;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -16,11 +15,9 @@ import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.*;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.stream.Collectors;
-
-import static com.harmony.umbrella.data.util.QueryUtils.toSelectionAndResult;
 
 /**
  * @author wuxii@foxmail.com
@@ -42,26 +39,31 @@ public class QueryResultImpl<T> implements QueryResult<T> {
     }
 
     @Override
-    public T getSingleResult() {
+    public QueryBundle<T> getQueryBundle() {
+        return bundle;
+    }
+
+    @Override
+    public Optional<T> getSingleResult() {
         try {
-            return newAssembler()
+            T result = newAssembler()
                     .applyForSingle()
                     .build()
                     .getSingleResult();
+            return Optional.ofNullable(result);
         } catch (NoResultException e) {
-            return null;
+            return Optional.empty();
         }
     }
 
     @Override
-    public T getFirstResult() {
+    public Optional<T> getFirstResult() {
         return newAssembler()
                 .applyForFirst()
                 .build(0, 1)
                 .getResultList()
                 .stream()
-                .findFirst()
-                .orElse(null);
+                .findFirst();
     }
 
     @Override
@@ -78,9 +80,10 @@ public class QueryResultImpl<T> implements QueryResult<T> {
     }
 
     @Override
-    public Page<T> getResultPage() {
-        PageRequest pageRequest = newPageRequest();
-        return PageableExecutionUtils.getPage(getResultList(pageRequest), pageRequest, () -> count());
+    public Page<T> getResultPage(int page, int size) {
+        // TODO 排序条件
+        PageRequest pageRequest = PageRequest.of(page, size);
+        return PageableExecutionUtils.getPage(getResultList(pageRequest), pageRequest, this::count);
     }
 
     protected List<T> getResultList(Pageable pageable) {
@@ -91,66 +94,24 @@ public class QueryResultImpl<T> implements QueryResult<T> {
     }
 
     @Override
-    public <E> E getSingleResult(Selections<T> selections, Class<E> resultClass) {
-        try {
-            return newAssembler(resultClass)
-                    .applyForSingle()
-                    .applySelections(selections)
-                    .build()
-                    .getSingleResult();
-        } catch (NoResultException e) {
-            return null;
-        }
-    }
-
-    @Override
-    public <E> E getFirstResult(Selections<T> selections, Class<E> resultClass) {
-        return newAssembler(resultClass)
-                .applyForFirst()
-                .applySelections(selections)
-                .build(0, 1)
-                .getResultList()
-                .stream()
-                .findFirst()
-                .orElse(null);
-    }
-
-    @Override
-    public <E> List<E> getResultList(Selections<T> selections, Class<E> resultClass) {
-        return newAssembler(resultClass)
-                .applyForList()
-                .applySelections(selections)
-                .buildPagingQuery()
-                .getResultList();
-    }
-
-    @Override
-    public <E> List<E> getAllResult(Selections<T> selections, Class<E> resultClass) {
-        return newAssembler(resultClass)
-                .applyForList()
-                .applySelections(selections)
-                .build()
-                .getResultList();
-    }
-
-    @Override
-    public <E> E getSingleResult(Selections<T> selections, Function<SelectionAndResult, E> converter) {
+    public Optional<Result> getSingleResult(Selections<T> selections) {
         QueryAssembler<Object> assembler = newAssembler(Object.class);
         List<Selection> columns = assembler.toSelectionList(selections);
+        Result result = null;
         try {
-            Object result = assembler
+            Object value = assembler
                     .applyForSingle()
                     .applySelections(columns)
                     .build()
                     .getSingleResult();
-            return result == null ? null : converter.apply(toSelectionAndResult(columns, result));
+            result = toResult(columns, value);
         } catch (NoResultException e) {
-            return null;
         }
+        return Optional.ofNullable(result);
     }
 
     @Override
-    public <E> E getFirstResult(Selections<T> selections, Function<SelectionAndResult, E> converter) {
+    public Optional<Result> getFirstResult(Selections<T> selections) {
         QueryAssembler<Object> assembler = newAssembler(Object.class);
         List<Selection> columns = assembler.toSelectionList(selections);
         return assembler
@@ -160,39 +121,42 @@ public class QueryResultImpl<T> implements QueryResult<T> {
                 .getResultList()
                 .stream()
                 .findFirst()
-                .map(e -> toSelectionAndResult(columns, e))
-                .map(converter)
-                .orElse(null);
+                .map(e -> toResult(columns, e));
     }
 
     @Override
-    public <E> List<E> getResultList(Selections<T> selections, Function<SelectionAndResult, E> converter) {
+    public ResultList getResultList(Selections<T> selections) {
         QueryAssembler<Object> assembler = newAssembler(Object.class);
         List<Selection> columns = assembler.toSelectionList(selections);
-        return assembler
+        List<Result> result = assembler
                 .applyForList()
                 .applySelections(columns)
                 .buildPagingQuery()
                 .getResultList()
                 .stream()
-                .map(e -> toSelectionAndResult(columns, e))
-                .map(converter)
+                .map(e -> toResult(columns, e))
                 .collect(Collectors.toList());
+        return toResultList(result);
     }
 
     @Override
-    public <E> List<E> getAllResult(Selections<T> selections, Function<SelectionAndResult, E> converter) {
+    public ResultList getAllResult(Selections<T> selections) {
         QueryAssembler<Object> assembler = newAssembler(Object.class);
         List<Selection> columns = assembler.toSelectionList(selections);
-        return assembler
+        List<Result> result = assembler
                 .applyForList()
                 .applySelections(columns)
                 .build()
                 .getResultList()
                 .stream()
-                .map(e -> toSelectionAndResult(columns, e))
-                .map(converter)
+                .map(e -> toResult(columns, e))
                 .collect(Collectors.toList());
+        return toResultList(result);
+    }
+
+    @Override
+    public ResultPage getPageResult(Selections<T> selections) {
+        return null;
     }
 
     @Override
@@ -404,6 +368,31 @@ public class QueryResultImpl<T> implements QueryResult<T> {
                     .setMaxResults(pageable.getPageSize());
         }
 
+    }
+
+    private static ResultList toResultList(List<Result> results) {
+        return new ResultList(results);
+    }
+
+    public static Result toResult(List<Selection> selections, Object value) {
+        if (value == null) {
+            return Result.empty();
+        }
+        Result result = new Result();
+
+        Object[] valueArray = value.getClass().isArray()
+                ? Object[].class.cast(value)
+                : new Object[]{value};
+
+        if (selections.size() != valueArray.length) {
+            throw new QueryException("select result not match " + selections.size());
+        }
+
+        for (int i = 0, max = valueArray.length; i < max; i++) {
+            RowResult rowResult = new RowResult(i, selections.get(i), valueArray[i]);
+            result.add(rowResult);
+        }
+        return result;
     }
 
 }

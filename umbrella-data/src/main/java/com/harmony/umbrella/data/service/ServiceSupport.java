@@ -7,6 +7,7 @@ import org.springframework.data.domain.Page;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @author wuxii@foxmail.com
@@ -33,24 +34,24 @@ public abstract class ServiceSupport<T, ID extends Serializable> implements Serv
     }
 
     @Override
-    public T getAndDelete(ID id) {
-        T entity = findById(id);
-        getRepository().delete(entity);
-        return entity;
+    public Optional<T> getAndDelete(ID id) {
+        Optional<T> entityOpt = findById(id);
+        entityOpt.ifPresent(t -> getRepository().delete(t));
+        return entityOpt;
     }
 
     @Override
-    public T findOne(QueryBundle<T> bundle) {
+    public Optional<T> findOne(QueryBundle<T> bundle) {
         return getRepository().getSingleResult(bundle);
     }
 
     @Override
-    public T findById(ID id) {
-        return getRepository().findById(id).orElse(null);
+    public Optional<T> findById(ID id) {
+        return getRepository().findById(id);
     }
 
     @Override
-    public T findFirst(QueryBundle<T> bundle) {
+    public Optional<T> findFirst(QueryBundle<T> bundle) {
         return getRepository().getFirstResult(bundle);
     }
 
@@ -90,9 +91,8 @@ public abstract class ServiceSupport<T, ID extends Serializable> implements Serv
     }
 
     protected JpaQueryBuilder<T> queryWith() {
-        return queryWith((Class<T>) getDomainClass());
+        return queryWith(getDomainClass());
     }
-
 
     protected <M> JpaQueryBuilder<M> queryWith(Class<M> domainClass) {
         return JpaQueryBuilder.<M>newBuilder().from(domainClass).withEntityManager(getRepository().getEntityManager());

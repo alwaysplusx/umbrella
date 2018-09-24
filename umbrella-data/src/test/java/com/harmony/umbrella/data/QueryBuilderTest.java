@@ -5,8 +5,8 @@ import com.harmony.umbrella.data.domain.Student;
 import com.harmony.umbrella.data.model.SelectionModel;
 import com.harmony.umbrella.data.query.JpaQueryBuilder;
 import com.harmony.umbrella.data.query.QueryFeature;
-import com.harmony.umbrella.data.result.ColumnResult;
-import com.harmony.umbrella.data.result.ResultConverter;
+import com.harmony.umbrella.data.query.ResultList;
+import com.harmony.umbrella.data.query.RowResult;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -18,6 +18,8 @@ import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * @author wuxii
@@ -78,21 +80,21 @@ public class QueryBuilderTest {
 
     @Test
     public void testEqual() {
-        Student student = studentQueryBuilder
+        Optional<Student> result = studentQueryBuilder
                 .equal("name", "Mary")
                 .getSingleResult();
-        Assert.assertNotNull("student named Mary not found", student);
-        Assert.assertEquals("Mary", student.getName());
+        Assert.assertTrue(result.isPresent());
+        Assert.assertEquals("Mary", result.get().getName());
     }
 
     @Test
     public void testSizeOf() {
-        List<Long> result = classRoomQueryBuilder
+        ResultList results = classRoomQueryBuilder
                 .sizeOf("students", 3)
                 .groupBy("id")
                 .execute()
-                .getAllResult(SelectionModel.of("id"), Long.class);
-        Assert.assertEquals(2, result.size());
+                .getAllResult(SelectionModel.of("id"));
+        Assert.assertEquals(2, results.size());
     }
 
     @Test
@@ -178,13 +180,15 @@ public class QueryBuilderTest {
     public void testSelection() {
         List<Map<String, Object>> result = studentQueryBuilder
                 .execute()
-                .getAllResult(SelectionModel.of("name", "gender", "birthday"), (sr) -> {
+                .getAllResult(SelectionModel.of("name", "gender", "birthday"))
+                .stream()
+                .map((sr) -> {
                     Map<String, Object> map = new HashMap<>();
-                    for (ColumnResult cr : sr) {
-                        map.put(cr.getName(), cr.getResult());
+                    for (RowResult cr : sr) {
+                        map.put(cr.getName(), cr.getValue());
                     }
                     return map;
-                });
+                }).collect(Collectors.toList());
         System.out.println(result);
     }
 
@@ -192,13 +196,15 @@ public class QueryBuilderTest {
     public void testSelectManyPart() {
         List<Map<String, Object>> result = classRoomQueryBuilder
                 .execute()
-                .getAllResult(SelectionModel.of("grade", "room", "students.name"), (sr) -> {
+                .getAllResult(SelectionModel.of("grade", "room", "students.name"))
+                .stream()
+                .map((sr) -> {
                     Map<String, Object> map = new HashMap<>();
-                    for (ColumnResult cr : sr) {
-                        map.put(cr.getName(), cr.getResult());
+                    for (RowResult cr : sr) {
+                        map.put(cr.getName(), cr.getValue());
                     }
                     return map;
-                });
+                }).collect(Collectors.toList());
         System.out.println(result);
     }
 
@@ -206,7 +212,8 @@ public class QueryBuilderTest {
     public void testResultConverter() {
         List<Student> result = studentQueryBuilder
                 .execute()
-                .getAllResult(SelectionModel.of("gender", "classRoom.room", "name"), new ResultConverter<Student>(Student.class));
+                .getAllResult(SelectionModel.of("gender", "classRoom.room", "name"))
+                .convert(Student.class);
         System.out.println(result);
     }
 

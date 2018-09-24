@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
 import javax.persistence.EntityManager;
 import java.io.Serializable;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @author wuxii@foxmail.com
@@ -18,9 +19,9 @@ public class SimpleQueryableJpaRepository<T, ID extends Serializable> extends Si
     private Class<T> domainClass;
     private EntityManager entityManager;
 
-    public SimpleQueryableJpaRepository(Class<T> domainClass, EntityManager em) {
-        super(domainClass, em);
-        this.entityManager = em;
+    public SimpleQueryableJpaRepository(Class<T> domainClass, EntityManager entityManager) {
+        super(domainClass, entityManager);
+        this.entityManager = entityManager;
         this.domainClass = domainClass;
     }
 
@@ -44,12 +45,12 @@ public class SimpleQueryableJpaRepository<T, ID extends Serializable> extends Si
     }
 
     @Override
-    public T getSingleResult(QueryBundle<T> bundle) {
+    public Optional<T> getSingleResult(QueryBundle<T> bundle) {
         return query(bundle).getSingleResult();
     }
 
     @Override
-    public T getFirstResult(QueryBundle<T> bundle) {
+    public Optional<T> getFirstResult(QueryBundle<T> bundle) {
         return query(bundle).getFirstResult();
     }
 
@@ -71,16 +72,6 @@ public class SimpleQueryableJpaRepository<T, ID extends Serializable> extends Si
     @Override
     public long countResult(QueryBundle<T> bundle) {
         return query(bundle).count();
-    }
-
-    @Override
-    public <RESULT> RESULT query(QueryBundle<T> bundle, QueryResultConverter<T, RESULT> converter) {
-        return converter.convert(query(bundle));
-    }
-
-    @Override
-    public <M, RESULT> RESULT query(QueryBundle<?> bundle, Class<M> entityClass, QueryResultConverter<M, RESULT> converter) {
-        return converter.convert(query(bundle, entityClass));
     }
 
 }

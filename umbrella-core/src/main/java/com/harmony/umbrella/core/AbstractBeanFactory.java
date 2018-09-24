@@ -25,7 +25,7 @@ public abstract class AbstractBeanFactory implements BeanFactory {
     protected abstract Object getBean(Method method);
 
     @Override
-    public void autowrie(Object existingBean) throws BeansException {
+    public void autowire(Object existingBean) throws BeansException {
         if (existingBean == null) {
             return;
         }

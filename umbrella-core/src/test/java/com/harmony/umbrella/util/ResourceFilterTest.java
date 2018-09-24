@@ -11,7 +11,7 @@ public class ResourceFilterTest {
 
     @Test
     public void testMode() {
-        PatternResourceFilter filter = new PatternResourceFilter();
+        PatternResourceFilter<String> filter = new PatternResourceFilter();
         filter.addExcludes("**/test/*.*");
         filter.addIncludes("**/*.txt");
 

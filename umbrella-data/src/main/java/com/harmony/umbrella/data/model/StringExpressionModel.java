@@ -14,7 +14,7 @@ public class StringExpressionModel implements ExpressionModel {
     private Path from;
     private String name;
 
-    StringExpressionModel(ExpressionModel parent, CriteriaBuilder cb, String name) {
+    private StringExpressionModel(ExpressionModel parent, CriteriaBuilder cb, String name) {
         this(parent, (Path) parent.toExpression(), cb, name);
     }
 

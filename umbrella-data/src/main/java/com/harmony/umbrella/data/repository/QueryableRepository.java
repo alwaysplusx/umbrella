@@ -10,6 +10,7 @@ import org.springframework.data.repository.NoRepositoryBean;
 import javax.persistence.EntityManager;
 import java.io.Serializable;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @author wuxii@foxmail.com
@@ -17,9 +18,9 @@ import java.util.List;
 @NoRepositoryBean
 public interface QueryableRepository<T, ID extends Serializable> extends JpaRepository<T, ID>, JpaSpecificationExecutor<T>, Queryable<T> {
 
-    T getSingleResult(QueryBundle<T> bundle);
+    Optional<T> getSingleResult(QueryBundle<T> bundle);
 
-    T getFirstResult(QueryBundle<T> bundle);
+    Optional<T> getFirstResult(QueryBundle<T> bundle);
 
     List<T> getResultList(QueryBundle<T> bundle);
 

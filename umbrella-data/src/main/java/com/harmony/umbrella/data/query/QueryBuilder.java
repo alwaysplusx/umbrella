@@ -4,7 +4,6 @@ import com.harmony.umbrella.data.CompositionType;
 import com.harmony.umbrella.data.ExpressionOperator;
 import com.harmony.umbrella.data.Operator;
 import com.harmony.umbrella.data.query.specs.GeneralSpecification;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
@@ -934,7 +933,7 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
      *
      * @return 查询结果
      */
-    public M getSingleResult() {
+    public Optional<M> getSingleResult() {
         return execute().getSingleResult();
     }
 
@@ -943,7 +942,7 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
      *
      * @return 符合条件的第一个结果
      */
-    public M getFirstResult() {
+    public Optional<M> getFirstResult() {
         return execute().getFirstResult();
     }
 
@@ -963,15 +962,6 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
      */
     public List<M> getAllResult() {
         return execute().getAllResult();
-    }
-
-    /**
-     * 执行查询获取分页查询结果
-     *
-     * @return 分页结果集
-     */
-    public Page<M> getResultPage() {
-        return execute().getResultPage();
     }
 
     /**

@@ -65,7 +65,7 @@ public class SerializerConfigBuilder {
     /**
      * 添加序列化特性
      * 
-     * @param feature
+     * @param features
      *            序列化特性
      * @return this
      */
@@ -84,7 +84,7 @@ public class SerializerConfigBuilder {
     /**
      * 添加序列化过滤器
      * 
-     * @param filter
+     * @param filters
      *            序列化过滤器
      * @return this
      */
@@ -145,7 +145,7 @@ public class SerializerConfigBuilder {
     /**
      * 使用指定的过滤模式来过滤带有特定注解的attribute
      * 
-     * @param annCls
+     * @param annClasses
      *            需要过滤的注解
      * @return this
      */

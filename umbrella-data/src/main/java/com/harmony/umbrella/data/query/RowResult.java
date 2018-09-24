@@ -1,46 +1,42 @@
-package com.harmony.umbrella.data.util;
+package com.harmony.umbrella.data.query;
 
 import com.harmony.umbrella.data.model.ExpressionModel;
-import com.harmony.umbrella.data.result.ColumnResult;
 
 import javax.persistence.criteria.Selection;
 
-class ColumnResultImpl implements ColumnResult {
+public class RowResult {
 
     private int index;
     private Selection<?> selection;
     private Object value;
 
-    public ColumnResultImpl(int index, Selection<?> selection, Object value) {
+    public RowResult(int index, Selection<?> selection, Object value) {
         this.index = index;
         this.selection = selection;
         this.value = value;
     }
 
-    @Override
     public Selection<?> getSelection() {
         return selection;
     }
 
-    @Override
-    public Object getResult() {
-        return value;
+    public int getIndex() {
+        return index;
     }
 
-    @Override
-    public Class<?> getJavaType() {
-        return value == null ? null : value.getClass();
-    }
-
-    @Override
     public String getName() {
         return selection instanceof ExpressionModel
                 ? ((ExpressionModel) selection).getPath()
                 : selection.getAlias();
     }
 
-    @Override
-    public int getIndex() {
-        return index;
+    public Object getValue() {
+        return value;
     }
+
+    public Class<?> getJavaType() {
+        return value == null ? null : value.getClass();
+    }
+
+
 }
