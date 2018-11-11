@@ -12,27 +12,27 @@ import java.util.function.Function;
  */
 class ResultConverter<T> implements Function<Result, T> {
 
-    public static final <T> ResultConverter<T> convertFor(Class<T> resultClass) {
+    static <T> ResultConverter<T> convertFor(Class<T> resultClass) {
         return new ResultConverter<>(resultClass);
     }
 
     private final Class<T> resultClass;
 
-    public ResultConverter(Class<T> resultClass) {
+    private ResultConverter(Class<T> resultClass) {
         this.resultClass = resultClass;
     }
 
     @Override
     public T apply(Result result) {
         Map<String, Object> map = new HashMap<>();
-        for (RowResult row : result) {
+        for (CellResult row : result) {
             String name = row.getName();
             applyValue(map, name, row.getValue());
         }
         return JSON.toJavaObject(new JSONObject(map), resultClass);
     }
 
-    protected void applyValue(Map<String, Object> map, String path, Object value) {
+    private void applyValue(Map<String, Object> map, String path, Object value) {
         String[] names = path.split("\\.");
         Map<String, Object> current = map;
         for (int i = 0; i < names.length - 1; i++) {

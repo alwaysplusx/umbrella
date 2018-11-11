@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.aop.PointcutAdvisor;
 import org.springframework.aop.aspectj.AspectJExpressionPointcut;
 import org.springframework.aop.support.DefaultPointcutAdvisor;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -38,10 +39,10 @@ public class LogAutoConfiguration {
     }
 
     @Configuration
-    @ConditionalOnClass({ //
-            com.harmony.umbrella.log.interceptor.LoggingInterceptor.class, //
-            org.springframework.aop.support.DefaultPointcutAdvisor.class, //
-            org.springframework.aop.aspectj.AspectJExpressionPointcut.class//
+    @ConditionalOnClass({
+            com.harmony.umbrella.log.interceptor.LoggingInterceptor.class,
+            org.springframework.aop.support.DefaultPointcutAdvisor.class,
+            org.springframework.aop.aspectj.AspectJExpressionPointcut.class
     })
     @EnableConfigurationProperties(LogInterceptorProperties.class)
     @ConditionalOnProperty(prefix = "harmony.log.interceptor", value = "enabled", havingValue = "true", matchIfMissing = true)
@@ -124,7 +125,6 @@ public class LogAutoConfiguration {
         @Autowired(required = false)
         @ConditionalOnBean(name = "logWriter")
         void addWriterAppender(@Autowired LogWriter logWriter) {
-            LogManager.getRootLogger().addAppender(new com.harmony.umbrella.log.log4j.LogWriterAppender(logWriter));
         }
 
     }

@@ -74,7 +74,7 @@ class ZookeeperLockAutoConfiguration {
         return new ZookeeperLockRegistry(curatorFramework);
     }
 
-    RetryPolicy retryPolicy() {
+    private RetryPolicy retryPolicy() {
         RetryPolicy retryPolicy = null;
         Retry retry = lockProperties.getZookeeper().getRetry();
         try {

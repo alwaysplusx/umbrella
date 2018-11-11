@@ -30,6 +30,11 @@ public class SimpleQueryableJpaRepository<T, ID extends Serializable> extends Si
         return entityManager;
     }
 
+    @Override
+    public Class<T> getDomainClass() {
+        return domainClass;
+    }
+
     protected <E> JpaQueryBuilder<E> queryWith(Class<E> entityClass) {
         return JpaQueryBuilder.<E>newBuilder().withEntityManager(entityManager).from(entityClass);
     }
@@ -40,8 +45,8 @@ public class SimpleQueryableJpaRepository<T, ID extends Serializable> extends Si
     }
 
     @Override
-    public <M> QueryResult<M> query(QueryBundle<?> bundle, Class<M> entityClass) {
-        return queryWith(entityClass).unbundle((QueryBundle) bundle).from(entityClass).execute();
+    public <M> QueryResult<M> query(QueryBundle<?> bundle, Class<M> domainClass) {
+        return queryWith(domainClass).unbundle((QueryBundle) bundle).from(domainClass).execute();
     }
 
     @Override

@@ -10,6 +10,6 @@ public interface Queryable<T> {
 
     QueryResult<T> query(QueryBundle<T> bundle);
 
-    <M> QueryResult<M> query(QueryBundle<?> bundle, Class<M> entityClass);
+    <M> QueryResult<M> query(QueryBundle<?> bundle, Class<M> domainClass);
 
 }

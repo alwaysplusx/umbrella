@@ -165,7 +165,7 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
         finishQuery();
         final QueryBundleImpl<M> o = new QueryBundleImpl<M>();
         final QueryBuilder b = this;
-        o.entityClass = b.domainClass;
+        o.domainClass = b.domainClass;
         o.pageNumber = b.pageNumber;
         o.pageSize = b.pageSize;
         o.sort = b.sort;
@@ -975,14 +975,14 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
 
     protected static String appendLikeWild(Object value) {
         String val = value.toString();
-        return val.indexOf("%") != -1 ? val : "%" + val + "%";
+        return val.contains("%") ? val : "%" + val + "%";
     }
 
     public static final class FetchAttributes implements Serializable, Iterable<Attribute> {
 
         private static final long serialVersionUID = 1L;
 
-        public final List<Attribute> attrs = new ArrayList<>();
+        private final List<Attribute> attrs = new ArrayList<>();
 
         private FetchAttributes() {
         }
@@ -1001,7 +1001,7 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
 
         private static final long serialVersionUID = 1L;
 
-        public final List<Attribute> attrs = new ArrayList<>();
+        private final List<Attribute> attrs = new ArrayList<>();
 
         private JoinAttributes() {
         }
@@ -1021,8 +1021,8 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
 
         private static final long serialVersionUID = 1L;
 
-        public final String name;
-        public final JoinType joniType;
+        private final String name;
+        private final JoinType joniType;
 
         private Attribute(String name, JoinType joniType) {
             this.name = name;

@@ -1,6 +1,7 @@
 package com.harmony.umbrella.autoconfigure.core;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 
@@ -17,7 +18,7 @@ public class AppProperties {
     private String name;
     private Class<? extends ApplicationContextInitializer> initializer;
     private List<String> datasources;
-    private List<String> packages = Arrays.asList("com.harmony");
+    private List<String> packages = Collections.singletonList("com.harmony");
     private List<Class<? extends Runnable>> shutdownHooks;
     private Properties properties;
 

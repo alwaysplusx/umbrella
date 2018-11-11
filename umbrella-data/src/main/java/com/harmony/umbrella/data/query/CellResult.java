@@ -4,13 +4,22 @@ import com.harmony.umbrella.data.model.ExpressionModel;
 
 import javax.persistence.criteria.Selection;
 
-public class RowResult {
+/**
+ * 行记录中的列值
+ *
+ * @author wuxii
+ */
+public class CellResult {
+
+    public static String stringValue(CellResult cellResult) {
+        return cellResult.value == null ? null : cellResult.value.toString();
+    }
 
     private int index;
     private Selection<?> selection;
     private Object value;
 
-    public RowResult(int index, Selection<?> selection, Object value) {
+    public CellResult(int index, Selection<?> selection, Object value) {
         this.index = index;
         this.selection = selection;
         this.value = value;
@@ -37,6 +46,5 @@ public class RowResult {
     public Class<?> getJavaType() {
         return value == null ? null : value.getClass();
     }
-
 
 }

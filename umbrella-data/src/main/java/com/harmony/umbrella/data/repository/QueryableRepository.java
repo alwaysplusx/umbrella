@@ -32,4 +32,6 @@ public interface QueryableRepository<T, ID extends Serializable> extends JpaRepo
 
     EntityManager getEntityManager();
 
+    Class<T> getDomainClass();
+
 }

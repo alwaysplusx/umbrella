@@ -5,9 +5,15 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 
 /**
+ * 查询的行记录
+ *
  * @author wuxii
  */
-public class Result implements Iterable<RowResult> {
+public class Result implements Iterable<CellResult> {
+
+    public static CellResult firstCellResult(Result result) {
+        return result.stream().findFirst().orElse(null);
+    }
 
     private static final Result EMPTY = new Result(Collections.emptyList());
 
@@ -15,14 +21,14 @@ public class Result implements Iterable<RowResult> {
         return EMPTY;
     }
 
-    final List<RowResult> rowResults;
+    final List<CellResult> cellResults;
 
     Result() {
         this(new ArrayList<>());
     }
 
-    Result(List<RowResult> results) {
-        this.rowResults = results;
+    Result(List<CellResult> results) {
+        this.cellResults = results;
     }
 
     public <T> Optional<T> convert(Class<T> resultClass) {
@@ -30,22 +36,22 @@ public class Result implements Iterable<RowResult> {
     }
 
     public <T> Optional<T> convert(Function<Result, T> converter) {
-        return rowResults.isEmpty()
+        return cellResults.isEmpty()
                 ? Optional.empty()
                 : Optional.of(converter.apply(this));
     }
 
     @Override
-    public Iterator<RowResult> iterator() {
-        return rowResults.iterator();
+    public Iterator<CellResult> iterator() {
+        return cellResults.iterator();
     }
 
-    public Stream<RowResult> stream() {
-        return null;
+    public Stream<CellResult> stream() {
+        return cellResults.stream();
     }
 
-    Result add(RowResult rowResult) {
-        this.rowResults.add(rowResult);
+    Result add(CellResult cellResult) {
+        this.cellResults.add(cellResult);
         return this;
     }
 

@@ -6,7 +6,7 @@ import com.harmony.umbrella.data.model.SelectionModel;
 import com.harmony.umbrella.data.query.JpaQueryBuilder;
 import com.harmony.umbrella.data.query.QueryFeature;
 import com.harmony.umbrella.data.query.ResultList;
-import com.harmony.umbrella.data.query.RowResult;
+import com.harmony.umbrella.data.query.CellResult;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -184,7 +184,7 @@ public class QueryBuilderTest {
                 .stream()
                 .map((sr) -> {
                     Map<String, Object> map = new HashMap<>();
-                    for (RowResult cr : sr) {
+                    for (CellResult cr : sr) {
                         map.put(cr.getName(), cr.getValue());
                     }
                     return map;
@@ -200,7 +200,7 @@ public class QueryBuilderTest {
                 .stream()
                 .map((sr) -> {
                     Map<String, Object> map = new HashMap<>();
-                    for (RowResult cr : sr) {
+                    for (CellResult cr : sr) {
                         map.put(cr.getName(), cr.getValue());
                     }
                     return map;

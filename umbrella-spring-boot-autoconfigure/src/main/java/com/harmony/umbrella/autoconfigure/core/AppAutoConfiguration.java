@@ -66,9 +66,7 @@ public class AppAutoConfiguration {
 
         Properties properties = appProperties.getProperties();
         if (properties != null) {
-            Iterator<Entry<Object, Object>> it = properties.entrySet().iterator();
-            while (it.hasNext()) {
-                Entry<Object, Object> entry = it.next();
+            for (Entry<Object, Object> entry : properties.entrySet()) {
                 builder.addProperty(WebXmlConstant.APPLICATION_CFG_PROPERTIES + "." + entry.getKey().toString(), entry.getValue());
             }
         }
@@ -97,17 +95,12 @@ public class AppAutoConfiguration {
     ServletContextInitializer webAppInitializer() throws NamingException, ServletException {
         WebApplicationSpringInitializer initializer = new WebApplicationSpringInitializer();
         initializer.setApplicationConfiguration(appConfig());
-        return new ServletContextInitializer() {
-
-            @Override
-            public void onStartup(ServletContext servletContext) throws ServletException {
-                // shutdown first
-                if (ApplicationContext.isStarted()) {
-                    ApplicationContext.stop(true);
-                }
-                initializer.onStartup(servletContext);
+        return servletContext -> {
+            // shutdown first
+            if (ApplicationContext.isStarted()) {
+                ApplicationContext.stop(true);
             }
-
+            initializer.onStartup(servletContext);
         };
     }
 

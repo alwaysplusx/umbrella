@@ -63,9 +63,9 @@ public interface QueryResult<T> {
      * @param selections 需要获取的列
      * @return
      */
-    Optional<Result> getSingleResult(Selections<T> selections);
+    Result getSingleResult(Selections<T> selections);
 
-    Optional<Result> getFirstResult(Selections<T> selections);
+    Result getFirstResult(Selections<T> selections);
 
     ResultList getResultList(Selections<T> selections);
 

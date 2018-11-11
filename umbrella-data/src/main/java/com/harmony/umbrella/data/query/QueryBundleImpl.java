@@ -17,7 +17,7 @@ public class QueryBundleImpl<M> implements QueryBundle<M>, Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    Class<M> entityClass;
+    Class<M> domainClass;
 
     Specification condition;
 
@@ -39,7 +39,7 @@ public class QueryBundleImpl<M> implements QueryBundle<M>, Serializable {
     }
 
     public QueryBundleImpl(QueryBundle bundle) {
-        this.entityClass = bundle.getDomainClass();
+        this.domainClass = bundle.getDomainClass();
         this.condition = bundle.getSpecification();
         this.fetchAttributes = bundle.getFetchAttributes();
         this.joinAttributes = bundle.getJoinAttributes();
@@ -52,7 +52,7 @@ public class QueryBundleImpl<M> implements QueryBundle<M>, Serializable {
 
     @Override
     public Class<M> getDomainClass() {
-        return entityClass;
+        return domainClass;
     }
 
     @Override
@@ -98,7 +98,7 @@ public class QueryBundleImpl<M> implements QueryBundle<M>, Serializable {
     @Override
     public String toString() {
         StringBuilder out = new StringBuilder();
-        out.append("select * from ").append(entityClass != null ? entityClass.getSimpleName() : "UnknowType");
+        out.append("select * from ").append(domainClass != null ? domainClass.getSimpleName() : "UnknowType");
         if (condition != null) {
             out.append(" where ").append(condition);
         }

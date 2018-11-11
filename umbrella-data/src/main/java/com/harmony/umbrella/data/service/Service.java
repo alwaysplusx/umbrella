@@ -1,5 +1,6 @@
 package com.harmony.umbrella.data.service;
 
+import com.harmony.umbrella.data.query.JpaQueryBuilder;
 import com.harmony.umbrella.data.query.QueryBundle;
 import org.springframework.data.domain.Page;
 
@@ -39,5 +40,4 @@ public interface Service<T, ID extends Serializable> {
     void deleteInBatch(List<T> entities);
 
     void deleteAll();
-
 }

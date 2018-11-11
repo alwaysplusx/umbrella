@@ -94,10 +94,10 @@ public class QueryResultImpl<T> implements QueryResult<T> {
     }
 
     @Override
-    public Optional<Result> getSingleResult(Selections<T> selections) {
+    public Result getSingleResult(Selections<T> selections) {
         QueryAssembler<Object> assembler = newAssembler(Object.class);
         List<Selection> columns = assembler.toSelectionList(selections);
-        Result result = null;
+        Result result = Result.empty();
         try {
             Object value = assembler
                     .applyForSingle()
@@ -107,11 +107,11 @@ public class QueryResultImpl<T> implements QueryResult<T> {
             result = toResult(columns, value);
         } catch (NoResultException e) {
         }
-        return Optional.ofNullable(result);
+        return result;
     }
 
     @Override
-    public Optional<Result> getFirstResult(Selections<T> selections) {
+    public Result getFirstResult(Selections<T> selections) {
         QueryAssembler<Object> assembler = newAssembler(Object.class);
         List<Selection> columns = assembler.toSelectionList(selections);
         return assembler
@@ -121,7 +121,8 @@ public class QueryResultImpl<T> implements QueryResult<T> {
                 .getResultList()
                 .stream()
                 .findFirst()
-                .map(e -> toResult(columns, e));
+                .map(e -> toResult(columns, e))
+                .orElse(Result.empty());
     }
 
     @Override
@@ -389,8 +390,8 @@ public class QueryResultImpl<T> implements QueryResult<T> {
         }
 
         for (int i = 0, max = valueArray.length; i < max; i++) {
-            RowResult rowResult = new RowResult(i, selections.get(i), valueArray[i]);
-            result.add(rowResult);
+            CellResult cellResult = new CellResult(i, selections.get(i), valueArray[i]);
+            result.add(cellResult);
         }
         return result;
     }
