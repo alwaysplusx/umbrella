@@ -1,41 +1,60 @@
 package com.harmony.umbrella.data.query;
 
-import com.harmony.umbrella.data.model.RootModel;
+import com.harmony.umbrella.data.query.select.ColumnBuilder;
+import com.harmony.umbrella.data.query.select.CountBuilder;
+import com.harmony.umbrella.data.query.select.SelectionBuilder;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
-import javax.persistence.criteria.Selection;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author wuxii
  */
-public interface Selections<T> {
+public class Selections {
 
-    List<Selection> select(Root<T> root, CriteriaQuery<?> query, CriteriaBuilder cb);
-
-    static <T> Selections<T> root() {
-        return (root, query, cb) -> new ArrayList<>(Collections.singletonList(root));
+    public static Selections countRoot() {
+        return new Selections().count();
     }
 
-    static <T> Selections<T> count() {
-        return (r, q, cb) -> Collections.singletonList(cb.count(r));
+    private List<SelectionBuilder> builders = new ArrayList<>();
+
+    public Selections root() {
+        return this;
     }
 
-    static <T> Selections<T> count(String name) {
-        return (r, q, cb) -> Collections.singletonList(cb.count(RootModel.of(r, cb).get(name).toExpression()));
+    public Selections count() {
+        return null;
     }
 
-    static <T> Selections<T> countDistinct() {
-        return (r, q, cb) -> Collections.singletonList(cb.countDistinct(r));
+    public Selections columns(String... names) {
+        Stream.of(names).forEach(this::column);
+        return this;
     }
 
-    static <T> Selections<T> countDistinct(String name) {
-        return (r, q, cb) -> Collections.singletonList(cb.countDistinct(RootModel.of(r, cb).get(name).toExpression()));
+    public CountBuilder count(String name) {
+        return apply(new CountBuilder(name));
+    }
+
+    public ColumnBuilder column(String name) {
+        return apply(new ColumnBuilder(name));
+    }
+
+    public ColumnBuilder column() {
+        return apply(new ColumnBuilder());
+    }
+
+    public <X extends SelectionBuilder> X apply(X builder) {
+        builders.add(builder);
+        return builder;
+    }
+
+    protected <X> List<Column> generate(Root<X> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+        return builders.stream().map(e -> e.generate(root, query, cb)).collect(Collectors.toList());
     }
 
 }

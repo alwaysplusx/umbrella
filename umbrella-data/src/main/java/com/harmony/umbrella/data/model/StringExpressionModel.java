@@ -84,11 +84,6 @@ public class StringExpressionModel implements ExpressionModel {
         return false;
     }
 
-    @Override
-    public boolean canJoin() {
-        return canJoin(from);
-    }
-
     private boolean canJoin(Expression exp) {
         return exp instanceof From && requiresJoin((From<?, ?>) exp, name);
     }

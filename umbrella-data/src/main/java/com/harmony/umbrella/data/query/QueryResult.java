@@ -63,15 +63,15 @@ public interface QueryResult<T> {
      * @param selections 需要获取的列
      * @return
      */
-    Result getSingleResult(Selections<T> selections);
+    Result getSingleResult(Selections selections);
 
-    Result getFirstResult(Selections<T> selections);
+    Result getFirstResult(Selections selections);
 
-    ResultList getResultList(Selections<T> selections);
+    ResultList getResultList(Selections selections);
 
-    ResultList getAllResult(Selections<T> selections);
+    ResultList getAllResult(Selections selections);
 
-    ResultPage getPageResult(Selections<T> selections);
+    ResultPage getPageResult(Selections selections);
 
     /**
      * 统计符合条件的结果总数

@@ -94,7 +94,7 @@ public class QueryResultImpl<T> implements QueryResult<T> {
     }
 
     @Override
-    public Result getSingleResult(Selections<T> selections) {
+    public Result getSingleResult(Selections selections) {
         QueryAssembler<Object> assembler = newAssembler(Object.class);
         List<Selection> columns = assembler.toSelectionList(selections);
         Result result = Result.empty();
@@ -111,7 +111,7 @@ public class QueryResultImpl<T> implements QueryResult<T> {
     }
 
     @Override
-    public Result getFirstResult(Selections<T> selections) {
+    public Result getFirstResult(Selections selections) {
         QueryAssembler<Object> assembler = newAssembler(Object.class);
         List<Selection> columns = assembler.toSelectionList(selections);
         return assembler
@@ -126,7 +126,7 @@ public class QueryResultImpl<T> implements QueryResult<T> {
     }
 
     @Override
-    public ResultList getResultList(Selections<T> selections) {
+    public ResultList getResultList(Selections selections) {
         QueryAssembler<Object> assembler = newAssembler(Object.class);
         List<Selection> columns = assembler.toSelectionList(selections);
         List<Result> result = assembler
@@ -141,7 +141,7 @@ public class QueryResultImpl<T> implements QueryResult<T> {
     }
 
     @Override
-    public ResultList getAllResult(Selections<T> selections) {
+    public ResultList getAllResult(Selections selections) {
         QueryAssembler<Object> assembler = newAssembler(Object.class);
         List<Selection> columns = assembler.toSelectionList(selections);
         List<Result> result = assembler
@@ -156,26 +156,31 @@ public class QueryResultImpl<T> implements QueryResult<T> {
     }
 
     @Override
-    public ResultPage getPageResult(Selections<T> selections) {
+    public ResultPage getPageResult(Selections selections) {
         return null;
     }
 
     @Override
     public long count() {
-        return count(Selections.count());
+        return count(Selections.countRoot());
     }
 
     @Override
     public long count(String countName) {
-        return count(Selections.count(countName));
+        Selections selections = new Selections();
+        selections.count(countName);
+        return count(selections);
     }
 
     @Override
     public long countDistinct(String countName) {
-        return count(Selections.countDistinct(countName));
+        Selections selections = new Selections();
+        selections.count(countName)
+                .setDistinct(true);
+        return count(selections);
     }
 
-    protected long count(Selections<T> selections) {
+    protected long count(Selections selections) {
         return newAssembler(Long.class)
                 .applyForCount()
                 .applySelections(selections)
@@ -232,7 +237,7 @@ public class QueryResultImpl<T> implements QueryResult<T> {
             return result;
         }
 
-        public QueryAssembler<M> applySelections(Selections<T> selections) {
+        public QueryAssembler<M> applySelections(Selections selections) {
             return applySelections(toSelectionList(selections));
         }
 
@@ -334,12 +339,13 @@ public class QueryResultImpl<T> implements QueryResult<T> {
                     .anyMatch(e -> e.getJoinType().equals(joinType));
         }
 
-        public List<Selection> toSelectionList(Selections<T> selections) {
-            List<Selection> columns = selections.select(root, query, builder);
+        public List<Selection> toSelectionList(Selections selections) {
+            List<Column> columns = selections.generate(root, query, builder);
+            // List<Selection> columns = selections.select(root, query, builder);
             if (columns.isEmpty()) {
                 throw new QueryException("not selection column found");
             }
-            return columns;
+            return columns.stream().map(Column::getSelection).collect(Collectors.toList());
         }
 
         protected boolean isAlreadyJoin(String name, JoinType joinType) {

@@ -45,9 +45,4 @@ public class RootExpressionModel implements ExpressionModel {
         return false;
     }
 
-    @Override
-    public boolean canJoin() {
-        return true;
-    }
-
 }

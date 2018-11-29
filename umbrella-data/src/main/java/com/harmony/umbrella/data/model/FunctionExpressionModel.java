@@ -48,9 +48,4 @@ public class FunctionExpressionModel implements ExpressionModel {
         return true;
     }
 
-    @Override
-    public boolean canJoin() {
-        return false;
-    }
-
 }
