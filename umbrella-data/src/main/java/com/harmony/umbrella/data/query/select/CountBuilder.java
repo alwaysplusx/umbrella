@@ -3,8 +3,7 @@ package com.harmony.umbrella.data.query.select;
 import com.harmony.umbrella.data.query.Column;
 
 import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Root;
+import javax.persistence.criteria.Expression;
 
 /**
  * @author wuxii
@@ -12,7 +11,6 @@ import javax.persistence.criteria.Root;
 public class CountBuilder<X> extends SelectionBuilder<X, CountBuilder<X>> {
 
     private String name;
-
     private boolean distinct;
 
     public CountBuilder() {
@@ -23,8 +21,11 @@ public class CountBuilder<X> extends SelectionBuilder<X, CountBuilder<X>> {
     }
 
     @Override
-    public Column generate(Root<X> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
-        return null;
+    protected Column build(QueryModel model) {
+        Expression expression = name == null ? model.getRoot() : model.get(name);
+        CriteriaBuilder cb = model.getCriteriaBuilder();
+        Expression<Long> countExpression = distinct ? cb.countDistinct(expression) : cb.count(expression);
+        return new Column(name, alias, countExpression);
     }
 
     public CountBuilder setName(String name) {

@@ -3,8 +3,7 @@ package com.harmony.umbrella.data.query.select;
 import com.harmony.umbrella.data.query.Column;
 
 import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Root;
+import javax.persistence.criteria.Expression;
 
 /**
  * @author wuxii
@@ -23,8 +22,11 @@ public class FunctionBuilder<X> extends SelectionBuilder<X, FunctionBuilder<X>> 
     }
 
     @Override
-    public Column generate(Root<X> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
-        return null;
+    protected Column build(QueryModel model) {
+        CriteriaBuilder cb = model.getCriteriaBuilder();
+        Expression expression = model.get(name);
+        Expression<Object> functionExpression = cb.function(functionName, Object.class, expression);
+        return new Column(name, alias, functionExpression);
     }
 
     public FunctionBuilder setFunctionName(String functionName) {
@@ -36,5 +38,6 @@ public class FunctionBuilder<X> extends SelectionBuilder<X, FunctionBuilder<X>> 
         this.name = name;
         return this;
     }
+
 
 }

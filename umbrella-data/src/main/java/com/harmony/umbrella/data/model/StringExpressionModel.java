@@ -15,7 +15,7 @@ public class StringExpressionModel implements ExpressionModel {
     private String name;
 
     private StringExpressionModel(ExpressionModel parent, CriteriaBuilder cb, String name) {
-        this(parent, (Path) parent.toExpression(), cb, name);
+        this(parent, (Path) parent.getExpression(), cb, name);
     }
 
     StringExpressionModel(ExpressionModel parent, Path from, CriteriaBuilder cb, String name) {
@@ -36,12 +36,8 @@ public class StringExpressionModel implements ExpressionModel {
     }
 
     @Override
-    public Path<?> toExpression() {
+    public Path<?> getExpression() {
         return from.get(name);
-    }
-
-    public Join<?, ?> toJoinExpression() {
-        return toJoinExpression(null);
     }
 
     public Join<?, ?> toJoinExpression(JoinType joinType) {
@@ -72,11 +68,7 @@ public class StringExpressionModel implements ExpressionModel {
     }
 
     public FunctionExpressionModel asFunction(String function) {
-        return new FunctionExpressionModel(this, toExpression(), function, cb);
-    }
-
-    public FunctionExpressionModel asFunction(String function, JoinType joinType) {
-        return new FunctionExpressionModel(this, toJoinExpression(joinType), function, cb);
+        return new FunctionExpressionModel(this, getExpression(), function, cb);
     }
 
     @Override

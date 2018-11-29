@@ -19,7 +19,7 @@ public enum Operator implements ExpressionOperator {
 
         @Override
         public Predicate explain(ExpressionModel x, Object y, CriteriaBuilder cb) {
-            Expression xExp = x.toExpression();
+            Expression xExp = x.getExpression();
             return y instanceof Expression
                     ? cb.equal(xExp, (Expression) y)
                     : cb.equal(xExp, y);
@@ -34,7 +34,7 @@ public enum Operator implements ExpressionOperator {
 
         @Override
         public Predicate explain(ExpressionModel x, Object y, CriteriaBuilder cb) {
-            Expression xExp = x.toExpression();
+            Expression xExp = x.getExpression();
             return y instanceof Expression
                     ? cb.notEqual(xExp, (Expression) y)
                     : cb.notEqual(xExp, y);
@@ -49,7 +49,7 @@ public enum Operator implements ExpressionOperator {
 
         @Override
         public Predicate explain(ExpressionModel x, Object y, CriteriaBuilder cb) {
-            Expression xExp = x.toExpression();
+            Expression xExp = x.getExpression();
             return y instanceof Expression
                     ? cb.lessThan(xExp, (Expression) y)
                     : cb.lessThan(xExp, (Comparable) y);
@@ -64,7 +64,7 @@ public enum Operator implements ExpressionOperator {
 
         @Override
         public Predicate explain(ExpressionModel x, Object y, CriteriaBuilder cb) {
-            Expression xExp = x.toExpression();
+            Expression xExp = x.getExpression();
             return y instanceof Expression
                     ? cb.lessThanOrEqualTo(xExp, (Expression) y)
                     : cb.lessThanOrEqualTo(xExp, (Comparable) y);
@@ -79,7 +79,7 @@ public enum Operator implements ExpressionOperator {
 
         @Override
         public Predicate explain(ExpressionModel x, Object y, CriteriaBuilder cb) {
-            Expression xExp = x.toExpression();
+            Expression xExp = x.getExpression();
             return y instanceof Expression
                     ? cb.greaterThan(xExp, (Expression) y)
                     : cb.greaterThan(xExp, (Comparable) y);
@@ -94,7 +94,7 @@ public enum Operator implements ExpressionOperator {
 
         @Override
         public Predicate explain(ExpressionModel x, Object y, CriteriaBuilder cb) {
-            Expression xExp = x.toExpression();
+            Expression xExp = x.getExpression();
             return y instanceof Expression
                     ? cb.greaterThanOrEqualTo(xExp, (Expression) y)
                     : cb.greaterThanOrEqualTo(xExp, (Comparable) y);
@@ -109,7 +109,7 @@ public enum Operator implements ExpressionOperator {
 
         @Override
         public Predicate explain(ExpressionModel x, Object y, CriteriaBuilder cb) {
-            Expression xExp = x.toExpression();
+            Expression xExp = x.getExpression();
             if (y instanceof Expression) {
                 return xExp.in((Expression) y);
             }
@@ -131,7 +131,7 @@ public enum Operator implements ExpressionOperator {
 
         @Override
         public Predicate explain(ExpressionModel x, Object y, CriteriaBuilder cb) {
-            Expression xExp = x.toExpression();
+            Expression xExp = x.getExpression();
             if (y instanceof Expression) {
                 return xExp.in((Expression) y);
             }
@@ -153,7 +153,7 @@ public enum Operator implements ExpressionOperator {
 
         @Override
         public Predicate explain(ExpressionModel x, Object y, CriteriaBuilder cb) {
-            Expression xExp = x.toExpression();
+            Expression xExp = x.getExpression();
             return y instanceof Expression
                     ? cb.like(xExp, (Expression) y)
                     : cb.like(xExp, String.valueOf(y));
@@ -168,7 +168,7 @@ public enum Operator implements ExpressionOperator {
 
         @Override
         public Predicate explain(ExpressionModel x, Object y, CriteriaBuilder cb) {
-            Expression xExp = x.toExpression();
+            Expression xExp = x.getExpression();
             return y instanceof Expression
                     ? cb.notLike(xExp, (Expression) y)
                     : cb.notLike(xExp, String.valueOf(y));
@@ -183,7 +183,7 @@ public enum Operator implements ExpressionOperator {
 
         @Override
         public Predicate explain(ExpressionModel x, Object y, CriteriaBuilder cb) {
-            return cb.isNull(x.toExpression());
+            return cb.isNull(x.getExpression());
         }
 
     },
@@ -195,7 +195,7 @@ public enum Operator implements ExpressionOperator {
 
         @Override
         public Predicate explain(ExpressionModel x, Object y, CriteriaBuilder cb) {
-            return cb.isNotNull(x.toExpression());
+            return cb.isNotNull(x.getExpression());
         }
 
     },
@@ -207,7 +207,7 @@ public enum Operator implements ExpressionOperator {
 
         @Override
         public Predicate explain(ExpressionModel x, Object y, CriteriaBuilder cb) {
-            return cb.isTrue(x.toExpression());
+            return cb.isTrue(x.getExpression());
         }
 
     },
@@ -219,7 +219,7 @@ public enum Operator implements ExpressionOperator {
 
         @Override
         public Predicate explain(ExpressionModel x, Object y, CriteriaBuilder cb) {
-            return cb.isFalse(x.toExpression());
+            return cb.isFalse(x.getExpression());
         }
 
     },
@@ -231,7 +231,7 @@ public enum Operator implements ExpressionOperator {
 
         @Override
         public Predicate explain(ExpressionModel x, Object y, CriteriaBuilder cb) {
-            Expression xExp = cb.size(x.toExpression());
+            Expression xExp = cb.size(x.getExpression());
             return y instanceof Expression
                     ? cb.equal(xExp, (Expression) y)
                     : cb.equal(xExp, y);
@@ -246,7 +246,7 @@ public enum Operator implements ExpressionOperator {
 
         @Override
         public Predicate explain(ExpressionModel x, Object y, CriteriaBuilder cb) {
-            Expression xExp = cb.size(x.toExpression());
+            Expression xExp = cb.size(x.getExpression());
             return y instanceof Expression
                     ? cb.notEqual(xExp, (Expression) y)
                     : cb.notEqual(xExp, y);

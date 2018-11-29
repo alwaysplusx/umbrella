@@ -25,11 +25,11 @@ public interface GeneralSpecification<T> extends Specification<T> {
     }
 
     static <T> GeneralSpecification<T> between(String name, Comparable left, Comparable right) {
-        return (root, query, builder) -> builder.between(root.get(name).toExpression(), left, right);
+        return (root, query, builder) -> builder.between(root.get(name).getExpression(), left, right);
     }
 
     static <T> GeneralSpecification<T> notBetween(String name, Comparable left, Comparable right) {
-        return (root, query, builder) -> builder.between(root.get(name).toExpression(), left, right).not();
+        return (root, query, builder) -> builder.between(root.get(name).getExpression(), left, right).not();
     }
 
 }

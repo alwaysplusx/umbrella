@@ -206,6 +206,11 @@ public class QueryResultImpl<T> implements QueryResult<T> {
         return bundle.getPageNumber() >= 0 && bundle.getPageSize() > 0;
     }
 
+    /**
+     * 查询装配器
+     *
+     * @param <M>
+     */
     public class QueryAssembler<M> {
 
         private Root<T> root;
@@ -232,7 +237,7 @@ public class QueryResultImpl<T> implements QueryResult<T> {
             Selection[] result = new Selection[selections.size()];
             for (int i = 0, max = selections.size(); i < max; i++) {
                 Selection selection = selections.get(i);
-                result[i] = selection instanceof ExpressionModel ? ((ExpressionModel) selection).toExpression() : selection;
+                result[i] = selection instanceof ExpressionModel ? ((ExpressionModel) selection).getExpression() : selection;
             }
             return result;
         }
@@ -317,7 +322,7 @@ public class QueryResultImpl<T> implements QueryResult<T> {
             Set<String> grouping = bundle.getGrouping();
             if (grouping != null && !grouping.isEmpty()) {
                 for (String name : grouping) {
-                    query.groupBy(rootModel.get(name).toExpression());
+                    query.groupBy(rootModel.get(name).getExpression());
                 }
             }
             return this;

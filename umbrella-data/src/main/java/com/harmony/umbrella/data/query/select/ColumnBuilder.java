@@ -1,12 +1,8 @@
 package com.harmony.umbrella.data.query.select;
 
-import com.harmony.umbrella.data.model.ExpressionModel;
-import com.harmony.umbrella.data.model.RootModel;
 import com.harmony.umbrella.data.query.Column;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Root;
+import javax.persistence.criteria.Expression;
 
 /**
  * @author wuxii
@@ -23,15 +19,14 @@ public class ColumnBuilder<X> extends SelectionBuilder<X, ColumnBuilder<X>> {
     }
 
     @Override
-    public Column generate(Root<X> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
-        ExpressionModel expression = RootModel.of(root, cb).get(name);
-        return new Column(name, alias, expression.toExpression());
+    protected Column build(QueryModel model) {
+        Expression expression = model.get(name);
+        return new Column(name, alias, expression);
     }
 
     public ColumnBuilder setName(String name) {
         this.name = name;
         return this;
     }
-
 
 }

@@ -2,6 +2,7 @@ package com.harmony.umbrella.data.query;
 
 import com.harmony.umbrella.data.query.select.ColumnBuilder;
 import com.harmony.umbrella.data.query.select.CountBuilder;
+import com.harmony.umbrella.data.query.select.RootBuilder;
 import com.harmony.umbrella.data.query.select.SelectionBuilder;
 
 import javax.persistence.criteria.CriteriaBuilder;
@@ -24,11 +25,13 @@ public class Selections {
     private List<SelectionBuilder> builders = new ArrayList<>();
 
     public Selections root() {
+        apply(new RootBuilder());
         return this;
     }
 
     public Selections count() {
-        return null;
+        apply(new CountBuilder());
+        return this;
     }
 
     public Selections columns(String... names) {

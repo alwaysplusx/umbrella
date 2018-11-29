@@ -29,7 +29,7 @@ public class FunctionExpressionModel implements ExpressionModel {
     }
 
     @Override
-    public Expression<?> toExpression() {
+    public Expression<?> getExpression() {
         return cb.function(function, null, from);
     }
 

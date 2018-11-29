@@ -26,7 +26,7 @@ public class RootExpressionModel implements ExpressionModel {
     }
 
     @Override
-    public Expression<?> toExpression() {
+    public Expression<?> getExpression() {
         return root;
     }
 
