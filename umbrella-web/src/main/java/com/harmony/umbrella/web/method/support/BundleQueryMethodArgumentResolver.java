@@ -14,10 +14,10 @@ import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
-import com.harmony.umbrella.data.query.JpaQueryBuilder;
-import com.harmony.umbrella.data.query.QueryBuilder;
-import com.harmony.umbrella.data.query.QueryBundle;
-import com.harmony.umbrella.data.query.QueryFeature;
+import com.harmony.umbrella.data.JpaQueryBuilder;
+import com.harmony.umbrella.data.QueryBuilder;
+import com.harmony.umbrella.data.QueryBundle;
+import com.harmony.umbrella.data.QueryFeature;
 import com.harmony.umbrella.util.StringUtils;
 import com.harmony.umbrella.web.method.annotation.BundleQuery;
 

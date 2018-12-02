@@ -1,7 +1,7 @@
 package com.harmony.umbrella.data.repository;
 
 import com.harmony.umbrella.data.Queryable;
-import com.harmony.umbrella.data.query.QueryBundle;
+import com.harmony.umbrella.data.QueryBundle;
 import org.springframework.data.domain.Page;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;

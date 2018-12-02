@@ -1,19 +1,23 @@
 package com.harmony.umbrella.data.model;
 
+import com.harmony.umbrella.data.QueryException;
+
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Expression;
-import javax.persistence.criteria.Path;
 
+/**
+ * 函数表达式模型
+ *
+ * @author wuxii
+ */
 public class FunctionExpressionModel implements ExpressionModel {
 
     private ExpressionModel parent;
-    private Path from;
     private CriteriaBuilder cb;
     private String function;
 
-    FunctionExpressionModel(ExpressionModel parent, Path from, String function, CriteriaBuilder cb) {
+    FunctionExpressionModel(ExpressionModel parent, String function, CriteriaBuilder cb) {
         this.parent = parent;
-        this.from = from;
         this.function = function;
         this.cb = cb;
     }
@@ -24,13 +28,8 @@ public class FunctionExpressionModel implements ExpressionModel {
     }
 
     @Override
-    public Path<?> getFrom() {
-        return from;
-    }
-
-    @Override
     public Expression<?> getExpression() {
-        return cb.function(function, null, from);
+        return cb.function(function, null, parent.getExpression());
     }
 
     @Override
@@ -40,7 +39,7 @@ public class FunctionExpressionModel implements ExpressionModel {
 
     @Override
     public ExpressionModel next(String name) {
-        return null;
+        throw new QueryException("function not have next expression");
     }
 
     @Override

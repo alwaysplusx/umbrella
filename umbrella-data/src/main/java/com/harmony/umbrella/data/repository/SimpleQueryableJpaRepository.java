@@ -1,8 +1,8 @@
 package com.harmony.umbrella.data.repository;
 
-import com.harmony.umbrella.data.query.JpaQueryBuilder;
-import com.harmony.umbrella.data.query.QueryBundle;
-import com.harmony.umbrella.data.query.QueryResult;
+import com.harmony.umbrella.data.JpaQueryBuilder;
+import com.harmony.umbrella.data.QueryBundle;
+import com.harmony.umbrella.data.QueryResult;
 import org.springframework.data.domain.Page;
 import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
 

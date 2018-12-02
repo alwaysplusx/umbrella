@@ -2,7 +2,6 @@ package com.harmony.umbrella.data.model;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Expression;
-import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Root;
 
 public class RootExpressionModel implements ExpressionModel {
@@ -21,11 +20,6 @@ public class RootExpressionModel implements ExpressionModel {
     }
 
     @Override
-    public Path<?> getFrom() {
-        return root;
-    }
-
-    @Override
     public Expression<?> getExpression() {
         return root;
     }
@@ -37,7 +31,7 @@ public class RootExpressionModel implements ExpressionModel {
 
     @Override
     public ExpressionModel next(String name) {
-        return new StringExpressionModel(this, root, cb, name);
+        return new StringExpressionModel(this, cb, name);
     }
 
     @Override

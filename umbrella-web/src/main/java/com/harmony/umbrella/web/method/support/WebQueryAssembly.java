@@ -18,8 +18,8 @@ import org.springframework.web.context.request.NativeWebRequest;
 
 import com.harmony.umbrella.data.CompositionType;
 import com.harmony.umbrella.data.Operator;
-import com.harmony.umbrella.data.query.JpaQueryBuilder;
-import com.harmony.umbrella.data.query.QueryFeature;
+import com.harmony.umbrella.data.JpaQueryBuilder;
+import com.harmony.umbrella.data.QueryFeature;
 import com.harmony.umbrella.json.Json;
 import com.harmony.umbrella.log.Log;
 import com.harmony.umbrella.log.Logs;

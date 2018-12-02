@@ -12,7 +12,7 @@ import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 
-import com.harmony.umbrella.data.query.JpaQueryBuilder;
+import com.harmony.umbrella.data.JpaQueryBuilder;
 import com.harmony.umbrella.json.Json;
 import com.harmony.umbrella.util.IOUtils;
 import com.harmony.umbrella.web.method.support.QueryParameter;

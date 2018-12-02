@@ -1,7 +1,6 @@
 package com.harmony.umbrella.data.model;
 
 import javax.persistence.criteria.Expression;
-import javax.persistence.criteria.Path;
 
 /**
  * @author wuxii
@@ -29,13 +28,6 @@ public interface ExpressionModel {
      * @return 链路中的某个节点名称
      */
     String getName();
-
-    /**
-     * 表达式的模型的父JPA Path
-     *
-     * @return
-     */
-    Path<?> getFrom();
 
     /**
      * 查询字段的jpa表达式

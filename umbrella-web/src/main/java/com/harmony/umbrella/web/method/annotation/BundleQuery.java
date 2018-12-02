@@ -7,7 +7,7 @@ import java.lang.annotation.Target;
 
 import org.springframework.core.annotation.AliasFor;
 
-import com.harmony.umbrella.data.query.QueryFeature;
+import com.harmony.umbrella.data.QueryFeature;
 
 /**
  * web查询请求的配置注解, 可配置项:

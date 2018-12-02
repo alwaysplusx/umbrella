@@ -4,7 +4,7 @@ import java.util.List;
 
 import com.harmony.umbrella.data.CompositionType;
 import com.harmony.umbrella.data.Operator;
-import com.harmony.umbrella.data.query.JpaQueryBuilder;
+import com.harmony.umbrella.data.JpaQueryBuilder;
 
 /**
  * web 查询参数一体化处理

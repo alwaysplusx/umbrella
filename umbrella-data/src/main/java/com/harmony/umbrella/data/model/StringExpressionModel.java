@@ -1,26 +1,24 @@
 package com.harmony.umbrella.data.model;
 
-import com.harmony.umbrella.data.query.QueryException;
+import com.harmony.umbrella.data.QueryException;
 
 import javax.persistence.criteria.*;
-
-import static com.harmony.umbrella.data.model.RootModel.requiresJoin;
 
 public class StringExpressionModel implements ExpressionModel {
 
     private ExpressionModel parent;
-    private CriteriaBuilder cb;
+    private JoinType defaultJoinType;
 
-    private Path from;
+    private CriteriaBuilder cb;
     private String name;
 
-    private StringExpressionModel(ExpressionModel parent, CriteriaBuilder cb, String name) {
-        this(parent, (Path) parent.getExpression(), cb, name);
+    StringExpressionModel(ExpressionModel parent, CriteriaBuilder cb, String name) {
+        this(parent, JoinType.LEFT, cb, name);
     }
 
-    StringExpressionModel(ExpressionModel parent, Path from, CriteriaBuilder cb, String name) {
+    private StringExpressionModel(ExpressionModel parent, JoinType defaultJoinType, CriteriaBuilder cb, String name) {
         this.parent = parent;
-        this.from = from;
+        this.defaultJoinType = defaultJoinType;
         this.cb = cb;
         this.name = name;
     }
@@ -31,17 +29,14 @@ public class StringExpressionModel implements ExpressionModel {
     }
 
     @Override
-    public Path<?> getFrom() {
-        return from;
-    }
-
-    @Override
     public Path<?> getExpression() {
-        return from.get(name);
+        return getFrom().get(name);
     }
 
-    public Join<?, ?> toJoinExpression(JoinType joinType) {
-        if (!canJoin(from)) {
+    public Join<?, ?> getJoinExpression(JoinType joinType) {
+        Path<?> from = getFrom();
+        if (!(from instanceof From)
+                || !QueryModel.requiresJoin((From<?, ?>) from, name)) {
             throw new QueryException("Can't join " + from);
         }
         return ((From<?, ?>) from)
@@ -60,15 +55,11 @@ public class StringExpressionModel implements ExpressionModel {
 
     @Override
     public ExpressionModel next(String name) {
-        return new StringExpressionModel(this, cb, name);
+        return next(name, defaultJoinType);
     }
 
     public ExpressionModel next(String name, JoinType joinType) {
-        return new StringExpressionModel(this, toJoinExpression(joinType), cb, name);
-    }
-
-    public FunctionExpressionModel asFunction(String function) {
-        return new FunctionExpressionModel(this, getExpression(), function, cb);
+        return new StringExpressionModel(this, joinType, cb, name);
     }
 
     @Override
@@ -76,8 +67,18 @@ public class StringExpressionModel implements ExpressionModel {
         return false;
     }
 
-    private boolean canJoin(Expression exp) {
-        return exp instanceof From && requiresJoin((From<?, ?>) exp, name);
+    private Path<?> getFrom() {
+        Path from;
+        if (parent instanceof StringExpressionModel) {
+            from = ((StringExpressionModel) parent).getJoinExpression(defaultJoinType);
+        } else {
+            Expression expression = parent.getExpression();
+            if (!(expression instanceof Path)) {
+                throw new QueryException("parent model expression not path");
+            }
+            from = (Path) expression;
+        }
+        return from;
     }
 
 }

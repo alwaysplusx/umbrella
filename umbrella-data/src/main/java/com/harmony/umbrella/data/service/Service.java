@@ -1,7 +1,6 @@
 package com.harmony.umbrella.data.service;
 
-import com.harmony.umbrella.data.query.JpaQueryBuilder;
-import com.harmony.umbrella.data.query.QueryBundle;
+import com.harmony.umbrella.data.QueryBundle;
 import org.springframework.data.domain.Page;
 
 import java.io.Serializable;
