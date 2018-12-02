@@ -10,8 +10,8 @@
   <description>Basic function library for developer</description>
 
   <scm>
-    <url>https://git.oschina.net/wuxii/umbrella.git</url>
-    <connection>scm:git:https://git.oschina.net/wuxii/umbrella.git</connection>
+    <url>git@github.com:wuxii/umbrella.git</url>
+    <connection>scm:git:git@github.com:wuxii/umbrella.git</connection>
   </scm>
 
   <modules>
