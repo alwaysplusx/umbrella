@@ -5,6 +5,8 @@ import org.springframework.util.Assert;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 /**
@@ -16,6 +18,10 @@ public class RowResult implements Iterable<CellResult> {
 
     public static RowResult empty() {
         return EMPTY;
+    }
+
+    public static CellResult firstCellResult(RowResult row) {
+        return row.cellResults.isEmpty() ? null : row.get(0);
     }
 
     private List<CellResult> cellResults;
@@ -40,6 +46,14 @@ public class RowResult implements Iterable<CellResult> {
 
     public boolean isPresent() {
         return !cellResults.isEmpty();
+    }
+
+    public <T> Optional<T> mapTo(Class<T> resultClass) {
+        return map(ResultConverter.convertFor(resultClass));
+    }
+
+    public <T> Optional<T> map(Function<RowResult, T> fun) {
+        return Optional.ofNullable(fun.apply(this));
     }
 
 }

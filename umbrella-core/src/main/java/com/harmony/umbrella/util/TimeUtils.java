@@ -1,15 +1,40 @@
 package com.harmony.umbrella.util;
 
 import java.text.ParseException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 public class TimeUtils {
 
+    public static Date toDate(LocalDate localDate) {
+        return toDate(localDate, ZoneId.systemDefault());
+    }
+
+    public static Date toDate(LocalDate localDate, ZoneId zoneId) {
+        if (localDate == null) {
+            return null;
+        }
+        return Date.from(localDate.atStartOfDay(zoneId == null ? ZoneId.systemDefault() : zoneId).toInstant());
+    }
+
+    public static Date toDate(LocalDateTime localDateTime) {
+        return toDate(localDateTime, ZoneId.systemDefault());
+    }
+
+    public static Date toDate(LocalDateTime localDateTime, ZoneId zoneId) {
+        if (localDateTime == null) {
+            return null;
+        }
+        return Date.from(localDateTime.atZone(zoneId == null ? ZoneId.systemDefault() : zoneId).toInstant());
+    }
+
     /**
      * 按系统指定的格式化模版组合格式化日志
-     * 
+     *
      * @param text
      * @return
      * @throws ParseException
@@ -37,14 +62,11 @@ public class TimeUtils {
 
     /**
      * 将时间文本按格式转化为时间对象
-     * 
-     * @param text
-     *            时间文本
-     * @param pattern
-     *            格式
+     *
+     * @param text    时间文本
+     * @param pattern 格式
      * @return 时间对象 {@linkplain java.util.Date}
-     * @throws ParseException
-     *             文本与格式不匹配
+     * @throws ParseException 文本与格式不匹配
      */
     public static Date toDate(String text, String pattern) throws ParseException {
         return Formats.createDateFormat(pattern).parseDate(text);
@@ -52,9 +74,8 @@ public class TimeUtils {
 
     /**
      * {@linkplain Calendar}转换为{@linkplain Date}
-     * 
-     * @param date
-     *            calendar
+     *
+     * @param date calendar
      * @return date
      */
     public static Date toDate(Calendar date) {
@@ -66,9 +87,8 @@ public class TimeUtils {
 
     /**
      * 将时间与1970, 00:00:00 GMT毫秒间隔转化为时间对象
-     * 
-     * @param time
-     *            毫秒
+     *
+     * @param time 毫秒
      * @return Date
      */
     public static Date toDate(long time) {
@@ -77,14 +97,11 @@ public class TimeUtils {
 
     /**
      * 将时间文本按格式转化为时间对象Calendar
-     * 
-     * @param text
-     *            时间文本
-     * @param pattern
-     *            格式
+     *
+     * @param text    时间文本
+     * @param pattern 格式
      * @return 时间对象 {@linkplain java.util.Date}
-     * @throws ParseException
-     *             文本与格式不匹配
+     * @throws ParseException 文本与格式不匹配
      */
     public static Calendar toCalendar(String text, String pattern) throws ParseException {
         return Formats.createDateFormat(pattern).parseCalendar(text);
@@ -92,9 +109,8 @@ public class TimeUtils {
 
     /**
      * Date -> Calendar
-     * 
-     * @param date
-     *            Date
+     *
+     * @param date Date
      * @return Calendar
      */
     public static Calendar toCalendar(Date date) {
@@ -106,9 +122,8 @@ public class TimeUtils {
 
     /**
      * 毫秒->Calendar
-     * 
-     * @param time
-     *            毫秒数
+     *
+     * @param time 毫秒数
      * @return Calendar
      */
     public static Calendar toCalendar(long time) {
@@ -119,11 +134,9 @@ public class TimeUtils {
 
     /**
      * 按时间格式模版转化为文本事件
-     * 
-     * @param date
-     *            时间
-     * @param pattern
-     *            时间模版
+     *
+     * @param date    时间
+     * @param pattern 时间模版
      * @return 时间文本
      */
     public static String formatText(Date date, String pattern) {
@@ -132,11 +145,9 @@ public class TimeUtils {
 
     /**
      * 按时间格式模版转化为文本事件
-     * 
-     * @param date
-     *            时间
-     * @param pattern
-     *            时间模版
+     *
+     * @param date    时间
+     * @param pattern 时间模版
      * @return 时间文本
      */
     public static String formatText(Calendar date, String pattern) {
@@ -144,11 +155,11 @@ public class TimeUtils {
     }
 
     // java.util.Date 时间截取
+
     /**
      * 截取时间的年份
-     * 
-     * @param date
-     *            时间
+     *
+     * @param date 时间
      * @return 年份
      */
     public static int getYear(Date date) {
@@ -157,9 +168,8 @@ public class TimeUtils {
 
     /**
      * 截取时间的月份
-     * 
-     * @param date
-     *            时间
+     *
+     * @param date 时间
      * @return 月份
      */
     public static int getMonth(Date date) {
@@ -168,9 +178,8 @@ public class TimeUtils {
 
     /**
      * 获取时间按是一年中的第几天
-     * 
-     * @param date
-     *            时间
+     *
+     * @param date 时间
      * @return day of year
      */
     public static int getDayOfYear(Date date) {
@@ -179,9 +188,8 @@ public class TimeUtils {
 
     /**
      * 获取时间是一个月的第几天
-     * 
-     * @param date
-     *            时间
+     *
+     * @param date 时间
      * @return day of month
      */
     public static int getDayOfMonth(Date date) {
@@ -190,16 +198,15 @@ public class TimeUtils {
 
     /**
      * 获取时间是一周中的第几天
-     * 
+     *
      * <pre>
      * 星期一 = 1
      * 星期二 = 2
      * ...
      * 星期天 = 7
      * </pre>
-     * 
-     * @param date
-     *            时间
+     *
+     * @param date 时间
      * @return 星期几
      */
     public static int getDayOfWeek(Date date) {
@@ -208,9 +215,8 @@ public class TimeUtils {
 
     /**
      * 获取时间的小时部分, 24小时制
-     * 
-     * @param date
-     *            时间
+     *
+     * @param date 时间
      * @return 小时时间24小时制
      */
     public static int getHour(Date date) {
@@ -219,9 +225,8 @@ public class TimeUtils {
 
     /**
      * 截取时间的分钟
-     * 
-     * @param date
-     *            时间
+     *
+     * @param date 时间
      * @return 分钟
      */
     public static int getMinute(Date date) {
@@ -230,9 +235,8 @@ public class TimeUtils {
 
     /**
      * 截取时间的秒数
-     * 
-     * @param date
-     *            时间
+     *
+     * @param date 时间
      * @return 秒数
      */
     public static int getSeconds(Date date) {
@@ -240,11 +244,11 @@ public class TimeUtils {
     }
 
     // java.util.Calendar 时间截取
+
     /**
      * 截取时间的年份
-     * 
-     * @param date
-     *            时间
+     *
+     * @param date 时间
      * @return 年份
      */
     public static int getYear(Calendar date) {
@@ -253,9 +257,8 @@ public class TimeUtils {
 
     /**
      * 截取时间的月份
-     * 
-     * @param date
-     *            时间
+     *
+     * @param date 时间
      * @return 月份
      */
     public static int getMonth(Calendar date) {
@@ -264,9 +267,8 @@ public class TimeUtils {
 
     /**
      * 获取时间按是一年中的第几天
-     * 
-     * @param date
-     *            时间
+     *
+     * @param date 时间
      * @return day of year
      */
     public static int getDayOfYear(Calendar date) {
@@ -275,9 +277,8 @@ public class TimeUtils {
 
     /**
      * 获取时间是一个月的第几天
-     * 
-     * @param date
-     *            时间
+     *
+     * @param date 时间
      * @return day of month
      */
     public static int getDayOfMonth(Calendar date) {
@@ -286,16 +287,15 @@ public class TimeUtils {
 
     /**
      * 获取时间是一周中的第几天
-     * 
+     *
      * <pre>
      * 星期一 = 1
      * 星期二 = 2
      * ...
      * 星期天 = 7
      * </pre>
-     * 
-     * @param date
-     *            时间
+     *
+     * @param date 时间
      * @return 星期几
      */
     public static int getDayOfWeek(Calendar date) {
@@ -304,9 +304,8 @@ public class TimeUtils {
 
     /**
      * 获取时间的小时部分, 24小时制
-     * 
-     * @param date
-     *            时间
+     *
+     * @param date 时间
      * @return 小时时间24小时制
      */
     public static int getHour(Calendar date) {
@@ -315,9 +314,8 @@ public class TimeUtils {
 
     /**
      * 截取时间的分钟
-     * 
-     * @param date
-     *            时间
+     *
+     * @param date 时间
      * @return 分钟
      */
     public static int getMinute(Calendar date) {
@@ -326,9 +324,8 @@ public class TimeUtils {
 
     /**
      * 截取时间的秒数
-     * 
-     * @param date
-     *            时间
+     *
+     * @param date 时间
      * @return 秒数
      */
     public static int getSeconds(Calendar date) {
@@ -337,9 +334,8 @@ public class TimeUtils {
 
     /**
      * 截取时间的指定值
-     * 
-     * @param date
-     *            时间
+     *
+     * @param date 时间
      * @return 时间指定值
      * @see Calendar#get(int)
      */
@@ -351,9 +347,8 @@ public class TimeUtils {
 
     /**
      * 截取时间的指定值
-     * 
-     * @param date
-     *            时间
+     *
+     * @param c 时间
      * @return 时间指定值
      * @see Calendar#get(int)
      */
@@ -362,11 +357,11 @@ public class TimeUtils {
     }
 
     // 时间转换
+
     /**
      * 将时间转为秒数, 秒数为与 January 1, 1970, 00:00:00 时间间隔
-     * 
-     * @param date
-     *            时间
+     *
+     * @param date 时间
      * @return 秒数
      */
     public static long toSeconds(Date date) {
@@ -375,9 +370,8 @@ public class TimeUtils {
 
     /**
      * 将时间转为秒数, 秒数为与 January 1, 1970, 00:00:00 时间间隔
-     * 
-     * @param date
-     *            时间
+     *
+     * @param date 时间
      * @return 秒数
      */
     public static long toSeconds(Calendar date) {
@@ -386,9 +380,8 @@ public class TimeUtils {
 
     /**
      * 将时间转为毫秒数, 毫秒数为与 January 1, 1970, 00:00:00 时间间隔
-     * 
-     * @param date
-     *            时间
+     *
+     * @param date 时间
      * @return 毫秒数
      */
     public static long toMillis(Date date) {
@@ -397,9 +390,8 @@ public class TimeUtils {
 
     /**
      * 将时间转为毫秒数, 毫秒数为与 January 1, 1970, 00:00:00 时间间隔
-     * 
-     * @param date
-     *            时间
+     *
+     * @param date 时间
      * @return 毫秒数
      */
     public static long toMillis(Calendar date) {
@@ -410,11 +402,9 @@ public class TimeUtils {
 
     /**
      * 计算两个时间的时间间隔秒数
-     * 
-     * @param begin
-     *            开始时间
-     * @param end
-     *            结束时间
+     *
+     * @param begin 开始时间
+     * @param end   结束时间
      * @return 时间秒数
      */
     public static long intervalSeconds(Date begin, Date end) {
@@ -423,11 +413,9 @@ public class TimeUtils {
 
     /**
      * 计算两个时间的时间间隔毫秒数
-     * 
-     * @param begin
-     *            开始时间
-     * @param end
-     *            结束时间
+     *
+     * @param begin 开始时间
+     * @param end   结束时间
      * @return 时间毫秒数
      */
     public static long intervalMillis(Date begin, Date end) {
@@ -436,13 +424,10 @@ public class TimeUtils {
 
     /**
      * 计算时间的时间间隔, 间隔的单位为指定的TimeUnit
-     * 
-     * @param begin
-     *            开始时间
-     * @param end
-     *            结束时间
-     * @param timeUnit
-     *            时间单位
+     *
+     * @param begin    开始时间
+     * @param end      结束时间
+     * @param timeUnit 时间单位
      * @return 间隔时间
      */
     public static long interval(Date begin, Date end, TimeUnit timeUnit) {
@@ -451,13 +436,10 @@ public class TimeUtils {
 
     /**
      * 计算时间的时间间隔, 间隔的单位为指定的TimeUnit
-     * 
-     * @param begin
-     *            开始时间
-     * @param end
-     *            结束时间
-     * @param timeUnit
-     *            时间单位
+     *
+     * @param begin    开始时间
+     * @param end      结束时间
+     * @param timeUnit 时间单位
      * @return 间隔时间
      */
     public static long interval(Calendar begin, Calendar end, TimeUnit timeUnit) {
@@ -468,216 +450,185 @@ public class TimeUtils {
 
     /**
      * 给当前时间加/减(加为正,减为负)年份
-     * 
-     * @param date
-     *            当前时间
-     * @param amount
-     *            增加或减少的时间
+     *
+     * @param date   当前时间
+     * @param amount 增加或减少的时间
      */
-    public static void addYear(Date date, int amount) {
-        add(date, Calendar.YEAR, amount);
+    public static Date addYear(Date date, int amount) {
+        return add(date, Calendar.YEAR, amount);
     }
 
     /**
      * 给当前时间加/减(加为正,减为负)月份
-     * 
-     * @param date
-     *            当前时间
-     * @param amount
-     *            增加或减少的时间
+     *
+     * @param date   当前时间
+     * @param amount 增加或减少的时间
      */
-    public static void addMonth(Date date, int amount) {
-        add(date, Calendar.MONTH, amount);
+    public static Date addMonth(Date date, int amount) {
+        return add(date, Calendar.MONTH, amount);
     }
 
     /**
      * 给当前时间加/减(加为正,减为负)周
-     * 
-     * @param date
-     *            当前时间
-     * @param amount
-     *            增加或减少的时间
+     *
+     * @param date   当前时间
+     * @param amount 增加或减少的时间
      */
-    public static void addWeek(Date date, int amount) {
-        add(date, Calendar.WEEK_OF_YEAR, amount);
+    public static Date addWeek(Date date, int amount) {
+        return add(date, Calendar.WEEK_OF_YEAR, amount);
     }
 
     /**
      * 给当前时间加/减(加为正,减为负)天
-     * 
-     * @param date
-     *            当前时间
-     * @param amount
-     *            增加或减少的时间
+     *
+     * @param date   当前时间
+     * @param amount 增加或减少的时间
      */
-    public static void addDay(Date date, int amount) {
-        add(date, Calendar.DAY_OF_YEAR, amount);
+    public static Date addDay(Date date, int amount) {
+        return add(date, Calendar.DAY_OF_YEAR, amount);
     }
 
     /**
      * 给当前时间加/减(加为正,减为负)小时
-     * 
-     * @param date
-     *            当前时间
-     * @param amount
-     *            增加或减少的时间
+     *
+     * @param date   当前时间
+     * @param amount 增加或减少的时间
      */
-    public static void addHour(Date date, int amount) {
-        add(date, Calendar.HOUR_OF_DAY, amount);
+    public static Date addHour(Date date, int amount) {
+        return add(date, Calendar.HOUR_OF_DAY, amount);
     }
 
     /**
      * 给当前时间加/减(加为正,减为负)分钟
-     * 
-     * @param date
-     *            当前时间
-     * @param amount
-     *            增加或减少的时间
+     *
+     * @param date   当前时间
+     * @param amount 增加或减少的时间
      */
-    public static void addMinute(Date date, int amount) {
-        add(date, Calendar.MINUTE, amount);
+    public static Date addMinute(Date date, int amount) {
+        return add(date, Calendar.MINUTE, amount);
     }
 
     /**
      * 给当前时间加/减(加为正,减为负)秒数
-     * 
-     * @param date
-     *            当前时间
-     * @param amount
-     *            增加或减少的时间
+     *
+     * @param date   当前时间
+     * @param amount 增加或减少的时间
      */
-    public static void addSeconds(Date date, int amount) {
-        add(date, Calendar.SECOND, amount);
+    public static Date addSeconds(Date date, int amount) {
+        return add(date, Calendar.SECOND, amount);
     }
 
     /**
      * 给当前时间加/减(加为正,减为负)毫秒数
-     * 
-     * @param date
-     *            当前时间
-     * @param amount
-     *            增加或减少的时间
+     *
+     * @param date   当前时间
+     * @param amount 增加或减少的时间
      */
-    public static void addMillis(Date date, int amount) {
-        add(date, Calendar.MILLISECOND, amount);
+    public static Date addMillis(Date date, int amount) {
+        return add(date, Calendar.MILLISECOND, amount);
     }
 
-    private static void add(Date date, int field, int amount) {
+    private static Date add(final Date date, int field, int amount) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(date);
         add(calendar, field, amount);
-        date.setTime(calendar.getTimeInMillis());
+        return new Date(calendar.getTimeInMillis());
     }
 
     // calendar
+
     /**
      * 给当前时间加/减(加为正,减为负)年份
-     * 
-     * @param date
-     *            当前时间
-     * @param amount
-     *            增加或减少的时间
+     *
+     * @param date   当前时间
+     * @param amount 增加或减少的时间
      */
-    public static void addYear(Calendar date, int amount) {
-        add(date, Calendar.YEAR, amount);
+    public static Calendar addYear(Calendar date, int amount) {
+        return add(date, Calendar.YEAR, amount);
     }
 
     /**
      * 给当前时间加/减(加为正,减为负)月份
-     * 
-     * @param date
-     *            当前时间
-     * @param amount
-     *            增加或减少的时间
+     *
+     * @param date   当前时间
+     * @param amount 增加或减少的时间
      */
-    public static void addMonth(Calendar date, int amount) {
-        add(date, Calendar.MONTH, amount);
+    public static Calendar addMonth(Calendar date, int amount) {
+        return add(date, Calendar.MONTH, amount);
     }
 
     /**
      * 给当前时间加/减(加为正,减为负)周
-     * 
-     * @param date
-     *            当前时间
-     * @param amount
-     *            增加或减少的时间
+     *
+     * @param date   当前时间
+     * @param amount 增加或减少的时间
      */
-    public static void addWeek(Calendar date, int amount) {
-        add(date, Calendar.WEEK_OF_YEAR, amount);
+    public static Calendar addWeek(Calendar date, int amount) {
+        return add(date, Calendar.WEEK_OF_YEAR, amount);
     }
 
     /**
      * 给当前时间加/减(加为正,减为负)天
-     * 
-     * @param date
-     *            当前时间
-     * @param amount
-     *            增加或减少的时间
+     *
+     * @param date   当前时间
+     * @param amount 增加或减少的时间
      */
-    public static void addDay(Calendar date, int amount) {
-        add(date, Calendar.DAY_OF_YEAR, amount);
+    public static Calendar addDay(Calendar date, int amount) {
+        return add(date, Calendar.DAY_OF_YEAR, amount);
     }
 
     /**
      * 给当前时间加/减(加为正,减为负)小时
-     * 
-     * @param date
-     *            当前时间
-     * @param amount
-     *            增加或减少的时间
+     *
+     * @param date   当前时间
+     * @param amount 增加或减少的时间
      */
-    public static void addHour(Calendar date, int amount) {
-        add(date, Calendar.HOUR_OF_DAY, amount);
+    public static Calendar addHour(Calendar date, int amount) {
+        return add(date, Calendar.HOUR_OF_DAY, amount);
     }
 
     /**
      * 给当前时间加/减(加为正,减为负)分钟
-     * 
-     * @param date
-     *            当前时间
-     * @param amount
-     *            增加或减少的时间
+     *
+     * @param date   当前时间
+     * @param amount 增加或减少的时间
      */
 
-    public static void addMinute(Calendar date, int amount) {
-        add(date, Calendar.MINUTE, amount);
+    public static Calendar addMinute(Calendar date, int amount) {
+        return add(date, Calendar.MINUTE, amount);
     }
 
     /**
      * 给当前时间加/减(加为正,减为负)秒数
-     * 
-     * @param date
-     *            当前时间
-     * @param amount
-     *            增加或减少的时间
+     *
+     * @param date   当前时间
+     * @param amount 增加或减少的时间
      */
 
-    public static void addSeconds(Calendar date, int amount) {
-        add(date, Calendar.SECOND, amount);
+    public static Calendar addSeconds(Calendar date, int amount) {
+        return add(date, Calendar.SECOND, amount);
     }
 
     /**
      * 给当前时间加/减(加为正,减为负)毫秒数
-     * 
-     * @param date
-     *            当前时间
-     * @param amount
-     *            增加或减少的时间
+     *
+     * @param date   当前时间
+     * @param amount 增加或减少的时间
      */
-    public static void addMillis(Calendar date, int amount) {
-        add(date, Calendar.MILLISECOND, amount);
+    public static Calendar addMillis(Calendar date, int amount) {
+        return add(date, Calendar.MILLISECOND, amount);
     }
 
     /**
      * 给当前时间加/减(加为正,减为负)年份
-     * 
-     * @param date
-     *            当前时间
-     * @param amount
-     *            增加或减少的时间
+     *
+     * @param date   当前时间
+     * @param amount 增加或减少的时间
      */
-    private static void add(Calendar date, int field, int amount) {
-        date.add(field, amount);
+    private static Calendar add(Calendar date, int field, int amount) {
+        Calendar c = Calendar.getInstance();
+        c.setTimeInMillis(date.getTimeInMillis());
+        return c;
     }
 
 }
