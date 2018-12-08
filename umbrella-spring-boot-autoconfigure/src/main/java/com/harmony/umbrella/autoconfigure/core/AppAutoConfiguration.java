@@ -1,13 +1,12 @@
 package com.harmony.umbrella.autoconfigure.core;
 
-import java.util.Iterator;
-import java.util.Map.Entry;
-import java.util.Properties;
-
-import javax.naming.NamingException;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-
+import com.harmony.umbrella.context.ApplicationConfiguration;
+import com.harmony.umbrella.context.ApplicationConfigurationBuilder;
+import com.harmony.umbrella.context.ApplicationContext;
+import com.harmony.umbrella.context.WebXmlConstant;
+import com.harmony.umbrella.web.context.WebApplicationSpringInitializer;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
@@ -16,17 +15,18 @@ import org.springframework.boot.web.servlet.ServletContextInitializer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import com.harmony.umbrella.context.ApplicationConfiguration;
-import com.harmony.umbrella.context.ApplicationConfigurationBuilder;
-import com.harmony.umbrella.context.ApplicationContext;
-import com.harmony.umbrella.context.WebXmlConstant;
-import com.harmony.umbrella.web.context.WebApplicationSpringInitializer;
+import javax.naming.NamingException;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
+import javax.sql.DataSource;
+import java.util.Map.Entry;
+import java.util.Properties;
 
 /**
  * @author wuxii@foxmail.com
  */
 @Configuration
-@ConditionalOnClass({ ApplicationContext.class, ApplicationConfiguration.class })
+@ConditionalOnClass({ApplicationContext.class, ApplicationConfiguration.class})
 @EnableConfigurationProperties(AppProperties.class)
 public class AppAutoConfiguration {
 
@@ -34,16 +34,21 @@ public class AppAutoConfiguration {
 
     private final AppProperties appProperties;
     private final ServletContext servletContext;
+    private final DataSource dataSource;
 
-    public AppAutoConfiguration(AppProperties appProperties, ServletContext servletContext) {
+    public AppAutoConfiguration(AppProperties appProperties, ServletContext servletContext, @Autowired(required = false) DataSource dataSource) {
         this.servletContext = servletContext;
         this.appProperties = appProperties;
+        this.dataSource = dataSource;
     }
 
     private ApplicationConfiguration appConfig() throws NamingException, ServletException {
         ApplicationConfigurationBuilder builder = ApplicationConfigurationBuilder.newBuilder();
         if (servletContext != null) {
             builder.apply(servletContext);
+        }
+        if (dataSource != null) {
+            builder.addDataSource(dataSource);
         }
         if (appProperties.getDatasources() != null) {
             for (String jndi : appProperties.getDatasources()) {
@@ -74,19 +79,19 @@ public class AppAutoConfiguration {
         return builder.build();
     }
 
-    @Bean
     @ConditionalOnMissingClass(WEB_APPLICATION_SPRING_INITIALIZER)
-    Object $applicationContextAutoStarted() {
-        try {
-            // shutdown first
-            if (ApplicationContext.isStarted()) {
-                ApplicationContext.stop(true);
+    ApplicationRunner applicationContextAutoRestartRunner() {
+        return args -> {
+            try {
+                // shutdown first
+                if (ApplicationContext.isStarted()) {
+                    ApplicationContext.stop(true);
+                }
+                ApplicationContext.start(appConfig());
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-            ApplicationContext.start(appConfig());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
+        };
     }
 
     @Bean

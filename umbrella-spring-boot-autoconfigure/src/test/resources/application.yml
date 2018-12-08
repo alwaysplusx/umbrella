@@ -3,6 +3,13 @@ spring:
   application:
     admin:
       enabled: false
+  datasource:
+    url: jdbc:h2:file:~/.h2/test
+    username: root
+    password: null
+  h2:
+    console:
+      path: /h2
 harmony:
   app:
     properties:
