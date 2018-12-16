@@ -8,7 +8,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties(prefix = "harmony.log")
 public class LogProperties {
 
-    private String type;
     private String level;
 
     private Interceptor interceptor = new Interceptor();
@@ -19,14 +18,6 @@ public class LogProperties {
 
     public void setInterceptor(Interceptor interceptor) {
         this.interceptor = interceptor;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
     }
 
     public String getLevel() {

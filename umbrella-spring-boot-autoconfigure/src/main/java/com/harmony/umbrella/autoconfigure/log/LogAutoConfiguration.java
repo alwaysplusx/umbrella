@@ -32,24 +32,6 @@ import org.springframework.context.annotation.Import;
 @Import({LogAutoConfiguration.InterceptorConfiguration.class, LogAutoConfiguration.LogConfiguration.class})
 public class LogAutoConfiguration {
 
-    @Bean
-    CommandLineRunner logInitRunner(LogProperties logProperties) {
-        return args -> {
-            String type = logProperties.getType();
-            switch (type) {
-                case "log4j":
-                    Logs.setLogProvider(new Log4jLogProvider());
-                    break;
-                case "log4j2":
-                    Logs.setLogProvider(new Log4j2LogProvider());
-                    break;
-                default:
-                    StaticLogger.warn("unsupport log type " + type);
-            }
-
-        };
-    }
-
     @ConditionalOnClass({
             com.harmony.umbrella.log.interceptor.LoggingInterceptor.class,
             org.springframework.aop.support.DefaultPointcutAdvisor.class,
@@ -101,6 +83,7 @@ public class LogAutoConfiguration {
                         StaticLogger.warn("Unable set log4j2 root level.", e);
                     }
 
+                    Logs.setLogProvider(new Log4jLogProvider());
 
                     try {
                         if (logWriter != null) {
@@ -142,6 +125,8 @@ public class LogAutoConfiguration {
                     } catch (Exception e) {
                         StaticLogger.warn("Unable set log4j level.", e);
                     }
+
+                    Logs.setLogProvider(new Log4j2LogProvider());
                 };
             }
 
