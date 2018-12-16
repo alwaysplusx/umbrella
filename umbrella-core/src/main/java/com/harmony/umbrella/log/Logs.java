@@ -1,21 +1,20 @@
 package com.harmony.umbrella.log;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.ServiceLoader;
-
-import org.springframework.util.ClassUtils;
-
 import com.harmony.umbrella.log.Level.StandardLevel;
 import com.harmony.umbrella.log.spi.CommonsLogProvider;
 import com.harmony.umbrella.log.spi.Log4j2LogProvider;
 import com.harmony.umbrella.log.spi.Log4jLogProvider;
 import com.harmony.umbrella.log.spi.Slf4jLogProvider;
 import com.harmony.umbrella.util.Environments;
+import org.springframework.util.ClassUtils;
+
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.ServiceLoader;
 
 /**
  * 自动分析当前类路径下的各个日志框架, 起到加载日志框架的作用, 其优先级别为 log4j2 > log4j > slf4j > common. 可以通过加入META-INF/service/
- * 
+ *
  * @author wuxii@foxmail.com
  */
 public final class Logs {
@@ -31,7 +30,7 @@ public final class Logs {
 
     static {
         LOG_FULL_NAME = Boolean.valueOf(Environments.getProperty("umbrella.log.fullname", "false"));
-        LOG_LEVEL = StandardLevel.valueOf(Environments.getProperty("umbrella.log.level", "ERROR"));
+        LOG_LEVEL = StandardLevel.valueOf(Environments.getProperty("umbrella.log.level", "WARN"));
 
         SLF4J_PRESENT = ClassUtils.isPresent("org.slf4j.LoggerFactory", Logs.class.getClassLoader());
         COMMON_PRESENT = ClassUtils.isPresent("org.apache.commons.logging.Log", Logs.class.getClassLoader());
@@ -74,7 +73,7 @@ public final class Logs {
 
     /**
      * 从调用栈中找到上层类名的log
-     * 
+     *
      * @return log
      */
     public static Log getLog() {
@@ -84,9 +83,8 @@ public final class Logs {
 
     /**
      * 通过类名创建对应的log
-     * 
-     * @param clazz
-     *            log的类名
+     *
+     * @param clazz log的类名
      * @return log
      */
     public static Log getLog(Class<?> clazz) {
@@ -95,9 +93,8 @@ public final class Logs {
 
     /**
      * 通过名称创建对应的log
-     * 
-     * @param className
-     *            log名称
+     *
+     * @param className log名称
      * @return log
      */
     public static Log getLog(String className) {
@@ -115,7 +112,7 @@ public final class Logs {
 
     /**
      * 在当前线程中查找对应类的stackTraceElement
-     * 
+     *
      * @param className
      * @param reversal
      * @return

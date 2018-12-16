@@ -8,7 +8,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties(prefix = "harmony.team.git")
 public class GitVersionProperties {
 
-    private String path;
+    private String path = "/git/version";
+    private String location = "META-INF/git.properties";
 
     public String getPath() {
         return path;
@@ -16,5 +17,13 @@ public class GitVersionProperties {
 
     public void setPath(String path) {
         this.path = path;
+    }
+
+    public String getLocation() {
+        return location;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
     }
 }

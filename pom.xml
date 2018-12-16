@@ -32,6 +32,7 @@
     <module>umbrella-excel</module>
     <module>umbrella-fs</module>
     <module>umbrella-spring-boot-autoconfigure</module>
+    <module>umbrella-weixin</module>
   </modules>
 
   <properties>
@@ -100,6 +101,11 @@
       </dependency>
       <dependency>
         <groupId>com.harmony.umbrella</groupId>
+        <artifactId>umbrella-weixin</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.harmony.umbrella</groupId>
         <artifactId>umbrella-validator</artifactId>
         <version>${project.version}</version>
       </dependency>
@@ -126,11 +132,6 @@
       <dependency>
         <groupId>com.harmony.umbrella</groupId>
         <artifactId>umbrella-spring</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.harmony.umbrella</groupId>
-        <artifactId>umbrella-log</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>

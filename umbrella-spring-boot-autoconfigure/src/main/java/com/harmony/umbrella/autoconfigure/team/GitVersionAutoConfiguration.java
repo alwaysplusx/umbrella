@@ -1,14 +1,26 @@
 package com.harmony.umbrella.autoconfigure.team;
 
+import org.springframework.boot.autoconfigure.AutoConfigureBefore;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnResource;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
+import org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.servlet.DispatcherServlet;
+
+import javax.servlet.Servlet;
 
 /**
  * @author wuxii
  */
 @Configuration
-//@ConditionalOnResource(resources = "${harmony.team.git.location:/META-INF/git.properties}")
+@ConditionalOnWebApplication
+@ConditionalOnClass({Servlet.class, DispatcherServlet.class})
+@ConditionalOnResource(resources = "${harmony.team.git.location:/META-INF/git.properties}")
+@AutoConfigureBefore(WebMvcAutoConfiguration.class)
 @EnableConfigurationProperties(GitVersionProperties.class)
 public class GitVersionAutoConfiguration {
 
@@ -18,46 +30,10 @@ public class GitVersionAutoConfiguration {
         this.gitVersionProperties = gitVersionProperties;
     }
 
-    @ConditionalOnMissingBean
-    VersionController gitVersionController() {
-        System.err.println(gitVersionProperties);
-        return null;
+    @Bean
+    @ConditionalOnMissingBean(VersionController.class)
+    public VersionController versionController() {
+        return new GitVersionController(gitVersionProperties);
     }
-
-//    @Controller
-//    @RequestMapping("${meow.git.version.path:/version}")
-//    public static class GitVersionController implements VersionController {
-//
-//        private static final Logger logger = LoggerFactory.getLogger(GitVersionController.class);
-//
-//        private Properties gitProperties;
-//
-//        private String location;
-//
-//        public GitVersionController(String location) {
-//            this.location = location;
-//        }
-//
-//        @Override
-//        public Properties getVersionProperties() {
-//            if (gitProperties == null) {
-//                this.gitProperties = loadGitProperties();
-//            }
-//            return gitProperties;
-//        }
-//
-//        private Properties loadGitProperties() {
-//            Properties properties = new Properties();
-//            ClassLoader loader = Thread.currentThread().getContextClassLoader();
-//            try (InputStream is = loader.getResourceAsStream(location)) {
-//                if (is != null) {
-//                    properties.load(is);
-//                }
-//            } catch (IOException e) {
-//                logger.warn("no git properties found");
-//            }
-//            return properties;
-//        }
-//    }
 
 }

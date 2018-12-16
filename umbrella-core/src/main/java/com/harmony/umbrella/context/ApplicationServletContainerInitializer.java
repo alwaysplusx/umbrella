@@ -28,11 +28,11 @@ import com.harmony.umbrella.util.ClassFilterFeature;
 /**
  * @author wuxii@foxmail.com
  */
-@HandlesTypes({ //
-        ApplicationEventListener.class, //
-        ApplicationStartListener.class, //
-        ApplicationDestroyListener.class, //
-        ApplicationListener.class //
+@HandlesTypes({
+        ApplicationEventListener.class,
+        ApplicationStartListener.class,
+        ApplicationDestroyListener.class,
+        ApplicationListener.class
 })
 public class ApplicationServletContainerInitializer implements ServletContainerInitializer {
 
@@ -135,7 +135,7 @@ public class ApplicationServletContainerInitializer implements ServletContainerI
 
     /**
      * 内部动态servlet context listener
-     * 
+     *
      * @author wuxii@foxmail.com
      */
     private static final class ApplicationServletContextListener implements ServletContextListener {

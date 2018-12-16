@@ -8,6 +8,7 @@ import com.harmony.umbrella.web.context.WebApplicationSpringInitializer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -36,10 +37,44 @@ public class AppAutoConfiguration {
     private final ServletContext servletContext;
     private final DataSource dataSource;
 
-    public AppAutoConfiguration(AppProperties appProperties, ServletContext servletContext, @Autowired(required = false) DataSource dataSource) {
+    public AppAutoConfiguration(AppProperties appProperties,
+                                @Autowired(required = false) ServletContext servletContext,
+                                @Autowired(required = false) DataSource dataSource) {
         this.servletContext = servletContext;
         this.appProperties = appProperties;
         this.dataSource = dataSource;
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(name = WEB_APPLICATION_SPRING_INITIALIZER)
+    @ConditionalOnMissingClass(WEB_APPLICATION_SPRING_INITIALIZER)
+    ApplicationRunner appInitializer() {
+        return args -> {
+            try {
+                // shutdown first
+                if (ApplicationContext.isStarted()) {
+                    ApplicationContext.stop(true);
+                }
+                ApplicationContext.start(appConfig());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        };
+    }
+
+    @Bean(name = WEB_APPLICATION_SPRING_INITIALIZER)
+    @ConditionalOnWebApplication
+    @ConditionalOnClass(name = WEB_APPLICATION_SPRING_INITIALIZER)
+    ServletContextInitializer webAppInitializer() throws NamingException, ServletException {
+        WebApplicationSpringInitializer initializer = new WebApplicationSpringInitializer();
+        initializer.setApplicationConfiguration(appConfig());
+        return servletContext -> {
+            // shutdown first
+            if (ApplicationContext.isStarted()) {
+                ApplicationContext.stop(true);
+            }
+            initializer.onStartup(servletContext);
+        };
     }
 
     private ApplicationConfiguration appConfig() throws NamingException, ServletException {
@@ -79,34 +114,5 @@ public class AppAutoConfiguration {
         return builder.build();
     }
 
-    @ConditionalOnMissingClass(WEB_APPLICATION_SPRING_INITIALIZER)
-    ApplicationRunner applicationContextAutoRestartRunner() {
-        return args -> {
-            try {
-                // shutdown first
-                if (ApplicationContext.isStarted()) {
-                    ApplicationContext.stop(true);
-                }
-                ApplicationContext.start(appConfig());
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        };
-    }
-
-    @Bean
-    @ConditionalOnWebApplication
-    @ConditionalOnClass(name = WEB_APPLICATION_SPRING_INITIALIZER)
-    ServletContextInitializer webAppInitializer() throws NamingException, ServletException {
-        WebApplicationSpringInitializer initializer = new WebApplicationSpringInitializer();
-        initializer.setApplicationConfiguration(appConfig());
-        return servletContext -> {
-            // shutdown first
-            if (ApplicationContext.isStarted()) {
-                ApplicationContext.stop(true);
-            }
-            initializer.onStartup(servletContext);
-        };
-    }
 
 }

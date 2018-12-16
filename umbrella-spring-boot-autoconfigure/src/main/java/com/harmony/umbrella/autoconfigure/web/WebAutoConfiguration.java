@@ -1,25 +1,25 @@
 package com.harmony.umbrella.autoconfigure.web;
 
-import java.util.List;
-
-import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.http.converter.HttpMessageConverter;
-import org.springframework.web.method.support.HandlerMethodArgumentResolver;
-import org.springframework.web.method.support.HandlerMethodReturnValueHandler;
-import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-
 import com.alibaba.fastjson.support.spring.FastJsonHttpMessageConverter;
 import com.harmony.umbrella.web.method.support.BundleModelMethodArgumentResolver;
 import com.harmony.umbrella.web.method.support.BundleParamMethodArgumentResolver;
 import com.harmony.umbrella.web.method.support.BundleQueryMethodArgumentResolver;
 import com.harmony.umbrella.web.method.support.BundleViewMethodProcessor;
 import com.harmony.umbrella.web.servlet.handler.ModelFragmentInterceptor;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
+import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.web.method.support.HandlerMethodArgumentResolver;
+import org.springframework.web.method.support.HandlerMethodReturnValueHandler;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+import java.util.List;
 
 /**
  * @author wuxii@foxmail.com
@@ -27,16 +27,10 @@ import com.harmony.umbrella.web.servlet.handler.ModelFragmentInterceptor;
 @Configuration
 @ConditionalOnWebApplication
 @ConditionalOnProperty(prefix = "harmony.web", value = "enabled", matchIfMissing = true)
-// @ConditionalOnClass(CurrentContextFilter.class)
 @EnableConfigurationProperties(WebProperties.class)
+@Import(WebAutoConfiguration.WebBundleConfiguration.class)
 public class WebAutoConfiguration {
-
-    // private WebProperties webContextProperties;
-
-    public WebAutoConfiguration() {
-        // this.webContextProperties = webContextProperties;
-    }
-
+    
     // @Bean
     // @ConditionalOnProperty(name = "harmony.web.current-context.enabled", havingValue = "true", matchIfMissing = true)
     // FilterRegistrationBean currentContextFilter() {
@@ -58,12 +52,12 @@ public class WebAutoConfiguration {
     // }
 
     @ConditionalOnProperty(name = "harmony.web.bundle", matchIfMissing = true)
-    @ConditionalOnClass({ //
-            BundleParamMethodArgumentResolver.class, BundleModelMethodArgumentResolver.class, //
-            BundleQueryMethodArgumentResolver.class, BundleViewMethodProcessor.class, //
-            ModelFragmentInterceptor.class //
+    @ConditionalOnClass({
+            BundleParamMethodArgumentResolver.class, BundleModelMethodArgumentResolver.class,
+            BundleQueryMethodArgumentResolver.class, BundleViewMethodProcessor.class,
+            ModelFragmentInterceptor.class
     })
-    public static class WebBundleConfigurer {
+    public static class WebBundleConfiguration {
 
         @Bean
         WebMvcConfigurer webMvcConfigurer() {

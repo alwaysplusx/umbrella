@@ -2,13 +2,15 @@ package com.harmony.umbrella.autoconfigure.lock;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
+import java.time.Duration;
+
 /**
  * @author wuxii@foxmail.com
  */
 @ConfigurationProperties(prefix = "harmony.lock")
 public class LockProperties {
 
-    private LockType type;
+    private String type;
 
     private Zookeeper zookeeper = new Zookeeper();
 
@@ -16,11 +18,11 @@ public class LockProperties {
 
     private Jdbc jdbc = new Jdbc();
 
-    public LockType getType() {
+    public String getType() {
         return type;
     }
 
-    public void setType(LockType type) {
+    public void setType(String type) {
         this.type = type;
     }
 
@@ -57,7 +59,6 @@ public class LockProperties {
         private Integer maxCloseWait;
         private String namespace;
         private String aclProvider;
-        private boolean autoStart;
 
         public String getAddress() {
             return address;
@@ -115,17 +116,29 @@ public class LockProperties {
             this.aclProvider = aclProvider;
         }
 
-        public boolean isAutoStart() {
-            return autoStart;
-        }
-
-        public void setAutoStart(boolean autoStart) {
-            this.autoStart = autoStart;
-        }
-
     }
 
     public static class Redis {
+
+        private String registryKey = "spring-lock-registry";
+
+        private Duration expireAfter = Duration.ofSeconds(60);
+
+        public String getRegistryKey() {
+            return registryKey;
+        }
+
+        public void setRegistryKey(String registryKey) {
+            this.registryKey = registryKey;
+        }
+
+        public Duration getExpireAfter() {
+            return expireAfter;
+        }
+
+        public void setExpireAfter(Duration expireAfter) {
+            this.expireAfter = expireAfter;
+        }
     }
 
     public static class Jdbc {

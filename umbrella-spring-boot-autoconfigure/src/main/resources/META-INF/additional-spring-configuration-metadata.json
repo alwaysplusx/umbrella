@@ -19,10 +19,5 @@
       "name": "harmony.log.interceptor.enabled",
       "type": "java.lang.String",
       "description": "Enabled harmony log interceptor configuration"
-    },
-    {
-      "name": "harmony.lock.enabled",
-      "type": "java.lang.String",
-      "description": "Description for harmony.lock.enabled."
-  }
+    }
 ]}

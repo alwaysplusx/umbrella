@@ -1,13 +1,11 @@
 package com.harmony.umbrella.autoconfigure.core;
 
-import java.util.Arrays;
+import com.harmony.umbrella.context.ApplicationContext.ApplicationContextInitializer;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
-
-import org.springframework.boot.context.properties.ConfigurationProperties;
-
-import com.harmony.umbrella.context.ApplicationContext.ApplicationContextInitializer;
 
 /**
  * @author wuxii@foxmail.com

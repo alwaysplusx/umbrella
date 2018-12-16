@@ -2,24 +2,30 @@ package com.harmony.umbrella.autoconfigure.log;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
-import com.harmony.umbrella.log.LogProvider;
-import com.harmony.umbrella.log.spi.Log4j2LogProvider;
-import com.harmony.umbrella.log.spi.Log4jLogProvider;
-
 /**
  * @author wuxii@foxmail.com
  */
 @ConfigurationProperties(prefix = "harmony.log")
 public class LogProperties {
 
-    private LoggerType type;
+    private String type;
     private String level;
 
-    public LoggerType getType() {
+    private Interceptor interceptor = new Interceptor();
+
+    public Interceptor getInterceptor() {
+        return interceptor;
+    }
+
+    public void setInterceptor(Interceptor interceptor) {
+        this.interceptor = interceptor;
+    }
+
+    public String getType() {
         return type;
     }
 
-    public void setType(LoggerType type) {
+    public void setType(String type) {
         this.type = type;
     }
 
@@ -31,38 +37,37 @@ public class LogProperties {
         this.level = level;
     }
 
-    public static enum LoggerType {
-        log4j {
+    public static class Interceptor {
 
-            @Override
-            public LogProvider provider() {
-                return new Log4jLogProvider();
-            }
-        },
-        log4j2 {
+        /**
+         * 日志拦截的切点
+         */
+        String pointcut;
+        /**
+         * 只拦截含有{@linkplain com.harmony.umbrella.log.annotation.Logging}注解的方法模式
+         */
+        boolean annotationMode;
 
-            @Override
-            public LogProvider provider() {
-                return new Log4j2LogProvider();
-            }
-        }/*,
-        slf4j {
+        // Class<?> serializer;
 
-            @Override
-            public LogProvider provider() {
-                return new Slf4jLogProvider();
-            }
-        },
-        commons_log {
+        // Class<?> formatter;
 
-            @Override
-            public LogProvider provider() {
-                return new CommonsLogProvider();
-            }
-        }*/;
 
-        public abstract LogProvider provider();
+        public String getPointcut() {
+            return pointcut;
+        }
 
+        public void setPointcut(String pointcut) {
+            this.pointcut = pointcut;
+        }
+
+        public boolean isAnnotationMode() {
+            return annotationMode;
+        }
+
+        public void setAnnotationMode(boolean annotationMode) {
+            this.annotationMode = annotationMode;
+        }
     }
 
 }

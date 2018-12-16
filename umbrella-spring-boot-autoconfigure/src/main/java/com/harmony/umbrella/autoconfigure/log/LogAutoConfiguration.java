@@ -1,62 +1,73 @@
 package com.harmony.umbrella.autoconfigure.log;
 
+import com.harmony.umbrella.log.Logs;
+import com.harmony.umbrella.log.StaticLogger;
+import com.harmony.umbrella.log.interceptor.LoggingInterceptor;
+import com.harmony.umbrella.log.log4j2.LogWriterAppender;
+import com.harmony.umbrella.log.spi.Log4j2LogProvider;
+import com.harmony.umbrella.log.spi.Log4jLogProvider;
+import com.harmony.umbrella.log.support.LogWriter;
 import org.apache.log4j.LogManager;
 import org.apache.logging.log4j.core.Logger;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.Configurator;
-import org.slf4j.LoggerFactory;
 import org.springframework.aop.PointcutAdvisor;
 import org.springframework.aop.aspectj.AspectJExpressionPointcut;
 import org.springframework.aop.support.DefaultPointcutAdvisor;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import com.harmony.umbrella.autoconfigure.log.LogProperties.LoggerType;
-import com.harmony.umbrella.log.Logs;
-import com.harmony.umbrella.log.interceptor.LoggingInterceptor;
-import com.harmony.umbrella.log.log4j2.LogWriterAppender;
-import com.harmony.umbrella.log.support.LogWriter;
+import org.springframework.context.annotation.Import;
 
 /**
  * @author wuxii@foxmail.com
  */
 @Configuration
 @ConditionalOnProperty(prefix = "harmony.log", value = "enabled", havingValue = "true", matchIfMissing = true)
-@EnableConfigurationProperties(LogProperties.class)
+@EnableConfigurationProperties({LogProperties.class})
+@Import({LogAutoConfiguration.InterceptorConfiguration.class, LogAutoConfiguration.LogConfiguration.class})
 public class LogAutoConfiguration {
 
-    @Autowired(required = false)
-    void setLogProvider(LoggerType type) {
-        if (type != null) {
-            Logs.setLogProvider(type.provider());
-        }
+    @Bean
+    CommandLineRunner logInitRunner(LogProperties logProperties) {
+        return args -> {
+            String type = logProperties.getType();
+            switch (type) {
+                case "log4j":
+                    Logs.setLogProvider(new Log4jLogProvider());
+                    break;
+                case "log4j2":
+                    Logs.setLogProvider(new Log4j2LogProvider());
+                    break;
+                default:
+                    StaticLogger.warn("unsupport log type " + type);
+            }
+
+        };
     }
 
-    @Configuration
     @ConditionalOnClass({
             com.harmony.umbrella.log.interceptor.LoggingInterceptor.class,
             org.springframework.aop.support.DefaultPointcutAdvisor.class,
             org.springframework.aop.aspectj.AspectJExpressionPointcut.class
     })
-    @EnableConfigurationProperties(LogInterceptorProperties.class)
     @ConditionalOnProperty(prefix = "harmony.log.interceptor", value = "enabled", havingValue = "true", matchIfMissing = true)
-    public static class InterceptorConfiguration {
+    static class InterceptorConfiguration {
 
-        private LogInterceptorProperties interceptorProps;
+        private final LogProperties logProperties;
 
-        public InterceptorConfiguration(LogInterceptorProperties interceptorProps) {
-            this.interceptorProps = interceptorProps;
+        public InterceptorConfiguration(LogProperties logProperties) {
+            this.logProperties = logProperties;
         }
 
         @Bean
         @ConditionalOnProperty(prefix = "harmony.log.interceptor", name = "pointcut")
         PointcutAdvisor loggingAdvisor() {
+            LogProperties.Interceptor interceptorProps = logProperties.getInterceptor();
             LoggingInterceptor advisor = new LoggingInterceptor();
             AspectJExpressionPointcut pointcut = new AspectJExpressionPointcut();
             pointcut.setExpression(interceptorProps.getPointcut());
@@ -67,66 +78,76 @@ public class LogAutoConfiguration {
     }
 
     @Configuration
-    @ConditionalOnProperty(prefix = "harmony.log", value = "type", havingValue = "log4j2", matchIfMissing = true)
-    @ConditionalOnClass(org.apache.logging.log4j.core.LoggerContext.class)
-    public static class Log4J2WriterConfiguration {
+    @Import({LogConfiguration.Log4j2.class, LogConfiguration.Log4j.class})
+    static class LogConfiguration {
 
-        private static final org.slf4j.Logger log = LoggerFactory.getLogger(Log4J2WriterConfiguration.class);
+        @ConditionalOnProperty(prefix = "harmony.log", value = "type", havingValue = "log4j2", matchIfMissing = true)
+        @ConditionalOnClass(org.apache.logging.log4j.core.LoggerContext.class)
+        static class Log4j2 {
 
-        private LogProperties logProperties;
+            private LogProperties logProperties;
 
-        public Log4J2WriterConfiguration(LogProperties logProperties) {
-            this.logProperties = logProperties;
-        }
-
-        @Autowired
-        void setRootLoggerLevel() {
-            org.apache.logging.log4j.Level level = org.apache.logging.log4j.Level.toLevel(logProperties.getLevel());
-            try {
-                Configurator.setRootLevel(level);
-            } catch (Exception e) {
-                log.warn("Unable set log4j2 root level, {}", e.toString());
+            public Log4j2(LogProperties logProperties) {
+                this.logProperties = logProperties;
             }
+
+            @Bean
+            CommandLineRunner log4j2InitRunner(@Autowired(required = false) LogWriter logWriter) {
+                return args -> {
+                    org.apache.logging.log4j.Level level = org.apache.logging.log4j.Level.toLevel(logProperties.getLevel());
+                    try {
+                        Configurator.setRootLevel(level);
+                    } catch (Exception e) {
+                        StaticLogger.warn("Unable set log4j2 root level.", e);
+                    }
+
+
+                    try {
+                        if (logWriter != null) {
+                            setWriterAppender(logWriter, LoggerContext.getContext());
+                            setWriterAppender(logWriter, LoggerContext.getContext(false));
+                        }
+                    } catch (Exception e) {
+                        StaticLogger.warn("Unable set log4j2 logWriter.", e);
+                    }
+
+                };
+            }
+
+            private void setWriterAppender(LogWriter writer, LoggerContext ctx) {
+                org.apache.logging.log4j.core.config.Configuration cfg = ctx.getConfiguration();
+                Logger logger = ctx.getRootLogger();
+                cfg.addLoggerAppender(logger, new LogWriterAppender(writer));
+                ctx.updateLoggers();
+            }
+
         }
 
-        @Autowired(required = false)
-        @ConditionalOnBean(name = "logWriter")
-        void addWriterAppender(@Autowired LogWriter logWriter) {
-            setWriterAppender(logWriter, LoggerContext.getContext());
-            setWriterAppender(logWriter, LoggerContext.getContext(false));
-        }
+        @ConditionalOnProperty(prefix = "harmony.log", value = "type", havingValue = "log4j", matchIfMissing = true)
+        @ConditionalOnClass(org.apache.log4j.LogManager.class)
+        static class Log4j {
 
-        private void setWriterAppender(LogWriter writer, LoggerContext ctx) {
-            org.apache.logging.log4j.core.config.Configuration cfg = ctx.getConfiguration();
-            Logger logger = ctx.getRootLogger();
-            cfg.addLoggerAppender(logger, new LogWriterAppender(writer));
-            ctx.updateLoggers();
+            private LogProperties logProperties;
+
+            public Log4j(LogProperties logProperties) {
+                this.logProperties = logProperties;
+            }
+
+            @Bean
+            CommandLineRunner log4jInitRunner() {
+                return args -> {
+                    try {
+                        org.apache.log4j.Level level = org.apache.log4j.Level.toLevel(logProperties.getLevel());
+                        LogManager.getRootLogger().setLevel(level);
+                    } catch (Exception e) {
+                        StaticLogger.warn("Unable set log4j level.", e);
+                    }
+                };
+            }
+
         }
 
     }
 
-    @Configuration
-    @ConditionalOnProperty(prefix = "harmony.log", value = "type", havingValue = "log4j")
-    @ConditionalOnClass(org.apache.log4j.LogManager.class)
-    public static class Log4jWriterConfiguration {
-
-        private LogProperties logProperties;
-
-        public Log4jWriterConfiguration(LogProperties logProperties) {
-            this.logProperties = logProperties;
-        }
-
-        @Autowired
-        void setRootLoggerLevel() {
-            org.apache.log4j.Level level = org.apache.log4j.Level.toLevel(logProperties.getLevel());
-            LogManager.getRootLogger().setLevel(level);
-        }
-
-        @Autowired(required = false)
-        @ConditionalOnBean(name = "logWriter")
-        void addWriterAppender(@Autowired LogWriter logWriter) {
-        }
-
-    }
 
 }
