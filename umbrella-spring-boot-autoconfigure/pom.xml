@@ -49,6 +49,16 @@
       <optional>true</optional>
     </dependency>
     <dependency>
+      <groupId>com.harmony.umbrella</groupId>
+      <artifactId>umbrella-jwt</artifactId>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>com.harmony.umbrella</groupId>
+      <artifactId>umbrella-test</artifactId>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
       <groupId>log4j</groupId>
       <artifactId>log4j</artifactId>
       <optional>true</optional>

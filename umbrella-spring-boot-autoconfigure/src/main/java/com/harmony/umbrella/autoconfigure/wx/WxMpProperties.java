@@ -1,5 +1,6 @@
 package com.harmony.umbrella.autoconfigure.wx;
 
+import com.harmony.umbrella.wx.mp.WxMpInRedisConfigStorage;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
@@ -19,8 +20,8 @@ public class WxMpProperties {
     private String tempDirFile;
     private int leadingSeconds;
 
+    private Redis redis = new Redis();
     private Proxy proxy;
-    private Redis redis;
     private HttpClient httpClient;
 
     public String getAppId() {
@@ -137,7 +138,7 @@ public class WxMpProperties {
 
     public static class Redis {
 
-        private String prefix = "weixin:mp:tokens:";
+        private String prefix = WxMpInRedisConfigStorage.DEFAULT_REDIS_KEY_PREFIX;
         private boolean clearFirst;
 
         public String getPrefix() {

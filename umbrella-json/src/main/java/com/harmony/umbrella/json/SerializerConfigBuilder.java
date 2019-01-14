@@ -1,17 +1,5 @@
 package com.harmony.umbrella.json;
 
-import java.lang.annotation.Annotation;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import org.springframework.util.AntPathMatcher;
-
 import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.alibaba.fastjson.serializer.SerializeFilter;
 import com.alibaba.fastjson.serializer.SerializerFeature;
@@ -20,10 +8,14 @@ import com.harmony.umbrella.json.serializer.MemberAnnotationPropertyPreFilter;
 import com.harmony.umbrella.json.serializer.NameMappingNameFilter;
 import com.harmony.umbrella.json.serializer.SimplePatternPropertyPreFilter;
 import com.harmony.umbrella.util.PatternResourceFilter;
+import org.springframework.util.AntPathMatcher;
+
+import java.lang.annotation.Annotation;
+import java.util.*;
 
 /**
  * 序列化配置类
- * 
+ *
  * @author wuxii@foxmail.com
  */
 public class SerializerConfigBuilder {
@@ -45,7 +37,7 @@ public class SerializerConfigBuilder {
     /**
      * fastjson序列化配置
      */
-    private SerializeConfig fastjsonSerializeConfig;
+    private SerializeConfig fastjsonSerializeConfig = SerializeConfig.getGlobalInstance();
 
     private PatternResourceFilter<String> resourceFilter;
 
@@ -59,14 +51,27 @@ public class SerializerConfigBuilder {
 
     private NameMappingNameFilter nameMappingNameFilter;
 
+    private String dateFormat;
+
+    private int defaultSerializerFeature;
+
     protected SerializerConfigBuilder() {
+    }
+
+    public SerializerConfigBuilder setDateFormat(String dateFormat) {
+        this.dateFormat = dateFormat;
+        return this;
+    }
+
+    public SerializerConfigBuilder setDefaultSerializerFeature(int defaultSerializerFeature) {
+        this.defaultSerializerFeature = defaultSerializerFeature;
+        return this;
     }
 
     /**
      * 添加序列化特性
-     * 
-     * @param features
-     *            序列化特性
+     *
+     * @param features 序列化特性
      * @return this
      */
     public SerializerConfigBuilder addFeatures(SerializerFeature... features) {
@@ -83,9 +88,8 @@ public class SerializerConfigBuilder {
 
     /**
      * 添加序列化过滤器
-     * 
-     * @param filters
-     *            序列化过滤器
+     *
+     * @param filters 序列化过滤器
      * @return this
      */
     public SerializerConfigBuilder addFilters(SerializeFilter... filters) {
@@ -107,9 +111,8 @@ public class SerializerConfigBuilder {
 
     /**
      * 使用指定的过滤模式过滤属性
-     * 
-     * @param patterns
-     *            带过滤的属性
+     *
+     * @param patterns 带过滤的属性
      * @return this builder
      */
     public SerializerConfigBuilder setIncludePatterns(Collection<String> patterns) {
@@ -144,9 +147,8 @@ public class SerializerConfigBuilder {
 
     /**
      * 使用指定的过滤模式来过滤带有特定注解的attribute
-     * 
-     * @param annClasses
-     *            需要过滤的注解
+     *
+     * @param annClasses 需要过滤的注解
      * @return this
      */
     public SerializerConfigBuilder setIncludeAnnotations(Collection<Class<? extends Annotation>> annClasses) {
@@ -196,9 +198,8 @@ public class SerializerConfigBuilder {
      * <li>2 - PascalCase: AccessToken
      * <li>3 - 下划线: access_token
      * </ul>
-     * 
-     * @param style
-     *            key style
+     *
+     * @param style key style
      * @return this builder
      */
     public SerializerConfigBuilder setKeyStyle(KeyStyle style) {
@@ -237,10 +238,12 @@ public class SerializerConfigBuilder {
         if (nameMappingNameFilter != null && !nameMappingNameFilter.getNameMappings().isEmpty()) {
             filters.add(nameMappingNameFilter);
         }
-        if (keyStyle != null) {
+        if (keyStyle != null && keyStyle.namingStrategy() != null) {
+            fastjsonSerializeConfig.setPropertyNamingStrategy(keyStyle.namingStrategy());
+        } else if (keyStyle != null) {
             filters.add(keyStyle);
         }
-        return new SerializerConfigImpl(filters, features, fastjsonSerializeConfig);
+        return new SerializerConfigImpl(filters, features, fastjsonSerializeConfig, dateFormat, defaultSerializerFeature);
     }
 
     private PatternResourceFilter<String> getResourceFilter() {
@@ -291,16 +294,21 @@ public class SerializerConfigBuilder {
 
     }
 
-    private static final class SerializerConfigImpl implements SerializerConfig {
+    private static class SerializerConfigImpl implements SerializerConfig {
 
         private SerializeFilter[] filters;
         private SerializerFeature[] features;
+        private String dateFormat;
         private SerializeConfig fastjsonConfig;
+        private int defaultSerializerFeature;
 
-        public SerializerConfigImpl(Collection<SerializeFilter> filters, Collection<SerializerFeature> features, SerializeConfig fastjsonConfig) {
-            this.filters = filters.toArray(new SerializeFilter[filters.size()]);
-            this.features = features.toArray(new SerializerFeature[features.size()]);
+        private SerializerConfigImpl(Collection<SerializeFilter> filters, Collection<SerializerFeature> features,
+                                     SerializeConfig fastjsonConfig, String dateFormat, int defaultSerializerFeature) {
+            this.filters = filters.toArray(new SerializeFilter[0]);
+            this.features = features.toArray(new SerializerFeature[0]);
             this.fastjsonConfig = fastjsonConfig;
+            this.dateFormat = dateFormat;
+            this.defaultSerializerFeature = defaultSerializerFeature;
         }
 
         @Override
@@ -316,6 +324,16 @@ public class SerializerConfigBuilder {
         @Override
         public SerializeConfig getFastjsonSerializeConfig() {
             return fastjsonConfig;
+        }
+
+        @Override
+        public String getDateFormat() {
+            return dateFormat;
+        }
+
+        @Override
+        public int getDefaultSerializerFeature() {
+            return defaultSerializerFeature;
         }
 
     }

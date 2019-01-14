@@ -1,8 +1,5 @@
 package com.harmony.umbrella.json;
 
-import java.util.List;
-import java.util.Map;
-
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.serializer.SerializeConfig;
@@ -10,9 +7,12 @@ import com.alibaba.fastjson.serializer.SerializeFilter;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.harmony.umbrella.json.serializer.SimplePatternPropertyPreFilter;
 
+import java.util.List;
+import java.util.Map;
+
 /**
  * json序列化工具
- * 
+ *
  * @author wuxii@foxmail.com
  */
 public class Json {
@@ -25,9 +25,8 @@ public class Json {
 
     /**
      * 将Object对象序列化为json文本
-     * 
-     * @param object
-     *            待序列化的对象
+     *
+     * @param object 待序列化的对象
      * @return json文本
      */
     public static String toJson(Object object) {
@@ -43,11 +42,9 @@ public class Json {
      * <li>PrettyFormat:格式化输出
      * <li>...
      * </ul>
-     * 
-     * @param object
-     *            待序列化对象
-     * @param features
-     *            序列化特性
+     *
+     * @param object   待序列化对象
+     * @param features 序列化特性
      * @return json文本
      * @see SerializerFeature
      */
@@ -57,13 +54,10 @@ public class Json {
 
     /**
      * 将Object序列化输出为json文本
-     * 
-     * @param object
-     *            待序列化对象
-     * @param filters
-     *            序列化过滤工具
+     *
+     * @param object  待序列化对象
+     * @param filters 序列化过滤工具
      * @return json文本
-     * 
      * @see com.alibaba.fastjson.serializer.SerializeFilter
      * @see com.alibaba.fastjson.serializer.BeforeFilter
      * @see com.alibaba.fastjson.serializer.AfterFilter
@@ -78,15 +72,11 @@ public class Json {
 
     /**
      * 将Object序列化输出为json文本
-     * 
-     * @param object
-     *            待序列化对象
-     * @param features
-     *            序列化特性
-     * @param filters
-     *            序列化过滤工具
+     *
+     * @param object   待序列化对象
+     * @param features 序列化特性
+     * @param filters  序列化过滤工具
      * @return json文本
-     * 
      * @see #toJson(Object, SerializeFilter...)
      * @see #toJson(Object, SerializerFeature...)
      */
@@ -96,11 +86,9 @@ public class Json {
 
     /**
      * 将Object序列化为Json文本， 并对列出的{@code excludes}不在json中显示出来
-     * 
-     * @param object
-     *            待序列化对象
-     * @param excludeProperties
-     *            object中被忽略的字段名称
+     *
+     * @param object            待序列化对象
+     * @param excludeProperties object中被忽略的字段名称
      * @return json文本
      */
     public static String toJson(Object object, String... excludeProperties) {
@@ -109,33 +97,35 @@ public class Json {
 
     /**
      * 格式化输出json文本， 并带有排除字段选项，以及格式换特性
-     * 
-     * @param object
-     *            待序列化对象
-     * @param excludeProperties
-     *            格式化所排除的字段
-     * @param features
-     *            序列化特性
+     *
+     * @param object            待序列化对象
+     * @param excludeProperties 格式化所排除的字段
+     * @param features          序列化特性
      * @return 格式化后的json文本
      */
     public static String toJson(Object object, String[] excludeProperties, SerializerFeature... features) {
-        return toJson(object, new SerializeFilter[] { new SimplePatternPropertyPreFilter(excludeProperties) }, features);
+        return toJson(object, new SerializeFilter[]{new SimplePatternPropertyPreFilter(excludeProperties)}, features);
     }
 
     public static String toJson(Object object, SerializerConfig cfg) {
-        SerializeFilter[] filters = cfg.getFilters();
-        SerializerFeature[] features = cfg.getFeatures();
-        SerializeConfig scfg = cfg.getFastjsonSerializeConfig();
-        return scfg == null ? JSON.toJSONString(object, filters, features) : JSON.toJSONString(object, scfg, filters, features);
+        return JSON.toJSONString(
+                object,
+                cfg.getFastjsonSerializeConfig() == null
+                        ? SerializeConfig.getGlobalInstance()
+                        : cfg.getFastjsonSerializeConfig(),
+                cfg.getFilters(),
+                cfg.getDateFormat(),
+                JSON.DEFAULT_GENERATE_FEATURE,
+                cfg.getFeatures()
+        );
     }
 
     // deserialize
 
     /**
      * 将json文本转为map对象
-     * 
-     * @param json
-     *            json文本
+     *
+     * @param json json文本
      * @return map
      */
     public static Map<String, Object> parseMap(String json) {
@@ -144,9 +134,8 @@ public class Json {
 
     /**
      * 将json文本转为map对象
-     * 
-     * @param json
-     *            json文本
+     *
+     * @param json json文本
      * @return map
      */
     public static Map<String, Object> parseMap(String json, Feature... features) {
@@ -155,9 +144,8 @@ public class Json {
 
     /**
      * 将array格式的json文本转为list对象
-     * 
-     * @param json
-     *            json文本
+     *
+     * @param json json文本
      * @return list
      */
     public static List<Object> parseArray(String json) {
@@ -173,9 +161,8 @@ public class Json {
 
     /**
      * 将json文本转为对象
-     * 
-     * @param json
-     *            json文本
+     *
+     * @param json json文本
      * @return object
      */
     public static Object parse(String json) {
@@ -184,11 +171,9 @@ public class Json {
 
     /**
      * 将json文本转为java对象
-     * 
-     * @param json
-     *            json文本
-     * @param clazz
-     *            需要转化的目标类
+     *
+     * @param json  json文本
+     * @param clazz 需要转化的目标类
      * @return target obejct
      */
     public static <T> T parse(String json, Class<T> clazz) {

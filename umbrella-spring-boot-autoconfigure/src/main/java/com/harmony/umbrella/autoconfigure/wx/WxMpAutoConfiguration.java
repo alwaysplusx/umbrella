@@ -45,7 +45,7 @@ public class WxMpAutoConfiguration {
     static class WxMpConfigStorageConfiguration {
 
         @Order(1)
-        @ConditionalOnClass(StringRedisTemplate.class)
+        @ConditionalOnBean(StringRedisTemplate.class)
         @ConditionalOnMissingBean(WxMpConfigStorage.class)
         static class Redis {
 
@@ -54,11 +54,13 @@ public class WxMpAutoConfiguration {
                 WxMpApp wxMpApp = buildWxMpApp(wxMpProperties);
                 WxHttpProxy httpProxy = buildWxHttpProxy(wxMpProperties.getProxy());
                 WxMpProperties.Redis redis = wxMpProperties.getRedis();
-                String prefix = redis == null ? WxMpInRedisConfigStorage.DEFAULT_REDIS_KEY_PREFIX : redis.getPrefix();
-                int leadingSeconds = wxMpProperties.getLeadingSeconds();
-                WxMpInRedisConfigStorage storage = new WxMpInRedisConfigStorage(wxMpApp, prefix, leadingSeconds, stringRedisTemplate);
+                WxMpInRedisConfigStorage storage = new WxMpInRedisConfigStorage(wxMpApp,
+                        redis.getPrefix(),
+                        wxMpProperties.getLeadingSeconds(),
+                        stringRedisTemplate
+                );
                 storage.setHttpProxy(httpProxy);
-                if (redis != null && redis.isClearFirst()) {
+                if (redis.isClearFirst()) {
                     storage.clear();
                 }
                 return storage;
@@ -84,7 +86,7 @@ public class WxMpAutoConfiguration {
 
     }
 
-    static WxHttpProxy buildWxHttpProxy(WxMpProperties.Proxy proxy) {
+    private static WxHttpProxy buildWxHttpProxy(WxMpProperties.Proxy proxy) {
         if (proxy == null) {
             return new WxHttpProxy();
         }
@@ -96,7 +98,7 @@ public class WxMpAutoConfiguration {
                 .build();
     }
 
-    static WxMpApp buildWxMpApp(WxMpProperties wxMpProps) {
+    private static WxMpApp buildWxMpApp(WxMpProperties wxMpProps) {
         return WxMpApp.builder()
                 .appId(wxMpProps.getAppId())
                 .secret(wxMpProps.getSecret())

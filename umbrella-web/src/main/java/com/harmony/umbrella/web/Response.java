@@ -21,13 +21,9 @@ public final class Response<T> implements Serializable {
     /**
      * 返回正常的code
      */
-    public static final int OK = 200;
+    public static final int OK = 0;
 
-    public static final int ERROR = 500;
-
-    public static final int NOT_FOUND = 404;
-
-    public static final int UNKNOW = 0;
+    public static final int ERROR = -1;
 
     /**
      * 返回编码
@@ -130,6 +126,10 @@ public final class Response<T> implements Serializable {
 
     public static Response error(int code, String msg) {
         return errorBuilder().code(code).msg(msg).build();
+    }
+
+    public static Response error(String msg) {
+        return errorBuilder().code(ERROR).msg(msg).build();
     }
 
     public static OKResponseBuilder okBuilder() {

@@ -528,13 +528,6 @@ public class TimeUtils {
         return add(date, Calendar.MILLISECOND, amount);
     }
 
-    private static Date add(final Date date, int field, int amount) {
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(date);
-        add(calendar, field, amount);
-        return new Date(calendar.getTimeInMillis());
-    }
-
     // calendar
 
     /**
@@ -619,16 +612,17 @@ public class TimeUtils {
         return add(date, Calendar.MILLISECOND, amount);
     }
 
-    /**
-     * 给当前时间加/减(加为正,减为负)年份
-     *
-     * @param date   当前时间
-     * @param amount 增加或减少的时间
-     */
     private static Calendar add(Calendar date, int field, int amount) {
         Calendar c = Calendar.getInstance();
         c.setTimeInMillis(date.getTimeInMillis());
+        c.add(field, amount);
         return c;
     }
 
+    private static Date add(final Date date, int field, int amount) {
+        Calendar c = Calendar.getInstance();
+        c.setTime(date);
+        c.add(field, amount);
+        return c.getTime();
+    }
 }

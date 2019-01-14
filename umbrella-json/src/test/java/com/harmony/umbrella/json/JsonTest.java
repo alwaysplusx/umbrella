@@ -32,7 +32,7 @@ public class JsonTest {
     public void testNameMapped() {
         SerializerConfigBuilder builder = SerializerConfigBuilder.newBuilder();
         builder//
-                .setKeyStyle(KeyStyle.UNDER_LINE)//
+                .setKeyStyle(KeyStyle.SNAKE_CASE)//
                 .addFeatures(SerializerFeature.PrettyFormat)//
                 .setNameMapping(Person.class)//
                 .addMapping("personId", "userId");//

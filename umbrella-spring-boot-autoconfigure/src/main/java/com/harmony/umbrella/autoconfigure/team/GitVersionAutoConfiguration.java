@@ -33,7 +33,7 @@ public class GitVersionAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean(VersionController.class)
     public VersionController versionController() {
-        return new GitVersionController(gitVersionProperties);
+        return new GitVersionController(gitVersionProperties.getLocation());
     }
 
 }

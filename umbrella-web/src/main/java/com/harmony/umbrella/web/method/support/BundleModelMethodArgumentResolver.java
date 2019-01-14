@@ -1,7 +1,6 @@
 package com.harmony.umbrella.web.method.support;
 
-import javax.servlet.ServletRequest;
-
+import com.harmony.umbrella.web.method.annotation.BundleModel;
 import org.springframework.beans.BeanUtils;
 import org.springframework.core.Conventions;
 import org.springframework.core.MethodParameter;
@@ -12,14 +11,14 @@ import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
-import com.harmony.umbrella.web.method.annotation.BundleModel;
+import javax.servlet.ServletRequest;
 
 /**
  * http request model param argument resolver
- * 
+ *
+ * @author wuxii@foxmail.com
  * @author wuxii@foxmail.com
  * @see BundleModel
- * @author wuxii@foxmail.com
  */
 public class BundleModelMethodArgumentResolver implements HandlerMethodArgumentResolver {
 
@@ -29,8 +28,8 @@ public class BundleModelMethodArgumentResolver implements HandlerMethodArgumentR
     }
 
     @Override
-    public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer, NativeWebRequest webRequest,
-            WebDataBinderFactory binderFactory) throws Exception {
+    public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer,
+                                  NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
 
         BundleModel ann = parameter.getParameterAnnotation(BundleModel.class);
         String name = "".equals(ann.model()) ? Conventions.getVariableNameForParameter(parameter) : ann.model();

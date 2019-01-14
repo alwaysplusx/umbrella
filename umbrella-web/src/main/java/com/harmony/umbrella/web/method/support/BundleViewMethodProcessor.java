@@ -1,12 +1,11 @@
 package com.harmony.umbrella.web.method.support;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
-
-import javax.servlet.http.HttpServletResponse;
-
+import com.alibaba.fastjson.serializer.SerializeFilter;
+import com.harmony.umbrella.json.KeyStyle;
+import com.harmony.umbrella.json.SerializerConfigBuilder;
+import com.harmony.umbrella.web.method.annotation.BundleView;
+import com.harmony.umbrella.web.method.annotation.BundleView.Behavior;
+import com.harmony.umbrella.web.method.annotation.BundleView.PatternBehavior;
 import org.springframework.core.MethodParameter;
 import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.data.domain.Page;
@@ -17,38 +16,25 @@ import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.HandlerMethodReturnValueHandler;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
-import com.alibaba.fastjson.serializer.SerializeFilter;
-import com.harmony.umbrella.json.KeyStyle;
-import com.harmony.umbrella.json.SerializerConfigBuilder;
-import com.harmony.umbrella.log.Log;
-import com.harmony.umbrella.log.Logs;
-import com.harmony.umbrella.web.method.annotation.BundleController;
-import com.harmony.umbrella.web.method.annotation.BundleView;
-import com.harmony.umbrella.web.method.annotation.BundleView.Behavior;
-import com.harmony.umbrella.web.method.annotation.BundleView.PatternBehavior;
+import javax.servlet.http.HttpServletResponse;
+import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.Method;
+import java.util.*;
 
 /**
  * http request & response method processor
- * 
+ *
  * @author wuxii@foxmail.com
  * @see BundleView
  */
 public class BundleViewMethodProcessor implements HandlerMethodReturnValueHandler, HandlerMethodArgumentResolver {
 
-    private static final Log log = Logs.getLog(BundleViewMethodProcessor.class);
+    private int defaultSerializerFeatures;
+    private String dateFormat;
+    private KeyStyle keyStyle;
 
-    public static final String[] DEFAULT_EXCLUDES = { "**.id", "**.new" };
-
-    private Set<String> includes;
-    private Set<String> excludes;
-
-    public BundleViewMethodProcessor() {
-        this(new HashSet<>(Arrays.asList(DEFAULT_EXCLUDES)));
-    }
-
-    public BundleViewMethodProcessor(Set<String> defaultExcludes) {
-        this.excludes = defaultExcludes;
-    }
+    private final Set<String> globalExcludeFields = new HashSet<>();
+    private final Set<String> globalIncludeFields = new HashSet<>();
 
     @Override
     public boolean supportsParameter(MethodParameter parameter) {
@@ -56,10 +42,10 @@ public class BundleViewMethodProcessor implements HandlerMethodReturnValueHandle
     }
 
     @Override
-    public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer, NativeWebRequest webRequest,
-            WebDataBinderFactory binderFactory) throws Exception {
-        final ViewFragment viewFragment = getOrCreateViewFragment(mavContainer, true);
-        fillViewFragment(parameter, viewFragment);
+    public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer,
+                                  NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
+        ViewFragment viewFragment = createViewFragment(parameter);
+        mavContainer.addAttribute(ViewFragment.VIEW_FRAGMENT, viewFragment);
         return viewFragment;
     }
 
@@ -70,138 +56,115 @@ public class BundleViewMethodProcessor implements HandlerMethodReturnValueHandle
     }
 
     @Override
-    public void handleReturnValue(Object returnValue, MethodParameter returnType, ModelAndViewContainer mavContainer, NativeWebRequest webRequest)
-            throws Exception {
+    public void handleReturnValue(Object returnValue, MethodParameter returnType, ModelAndViewContainer mavContainer,
+                                  NativeWebRequest webRequest) throws Exception {
         mavContainer.setRequestHandled(true);
-        boolean viewFragmentCreated = mavContainer.containsAttribute(ViewFragment.VIEW_FRAGMENT);
-        ViewFragment viewFragment = getOrCreateViewFragment(mavContainer, false);
-        if (!viewFragmentCreated) {
-            fillViewFragment(returnType, viewFragment);
+        ViewFragment viewFragment = (ViewFragment) mavContainer.getModel().get(ViewFragment.VIEW_FRAGMENT);
+        if (viewFragment == null) {
+            viewFragment = createViewFragment(returnType);
         }
         viewFragment.render(returnValue, webRequest.getNativeResponse(HttpServletResponse.class));
     }
 
-    /**
-     * 获取view fragment, 在mavContainer中获取view fragment. 如果未找到则直接创建
-     * 
-     * @param mavContainer
-     *            mav container
-     * @param addAttribute
-     *            如果是新创建的情况是否直接添加到mav container中
-     * @return view fragment
-     */
-    protected final ViewFragment getOrCreateViewFragment(ModelAndViewContainer mavContainer, boolean addAttribute) {
-        Object o = mavContainer.getModel().get(ViewFragment.VIEW_FRAGMENT);
-        if (o != null && !(o instanceof ViewFragment)) {
-            throw new IllegalArgumentException("model attribute viewFragment not instance " + ViewFragment.class);
+    protected ViewFragment createViewFragment(MethodParameter parameter) throws Exception {
+        ViewFragment viewFragment = new ViewFragment();
+
+        BundleView viewConfig = getBundleViewConfig(parameter);
+        if (viewConfig != null) {
+            SerializerConfigBuilder scb = viewFragment.getSerializerConfigBuilder();
+            KeyStyle keyStyle = getViewKeyStyle(viewConfig);
+            scb.addFeatures(viewConfig.features())
+                    .addFilters(instanceFilters(viewConfig.filters()))
+                    .setKeyStyle(keyStyle);
+
+            Behavior behavior = viewConfig.behavior();
+            if (Behavior.AUTO == behavior) {
+                behavior = findTypeBehavior(parameter.getMethod());
+            }
+            viewFragment.setRenderBehavior(behavior);
+
+            PatternBehavior patternBehavior = behavior;
+            if (viewConfig.patternBehaviorClass() != PatternBehavior.class) {
+                patternBehavior = viewConfig.patternBehaviorClass().newInstance();
+            }
+
+            merge(this.globalIncludeFields, viewConfig.includes())
+                    .stream()
+                    .map(e -> keyStyle.namingStrategy().translate(e))
+                    .map(patternBehavior::convert)
+                    .forEach(scb::addIncludePatterns);
+
+            merge(this.globalExcludeFields, viewConfig.excludes())
+                    .stream()
+                    .map(e -> keyStyle.namingStrategy().translate(e))
+                    .map(patternBehavior::convert)
+                    .forEach(scb::addExcludePatterns);
         }
-        final ViewFragment viewFragment = (o == null) ? new ViewFragment() : (ViewFragment) o;
-        if (addAttribute) {
-            mavContainer.addAttribute(ViewFragment.VIEW_FRAGMENT, viewFragment);
-        }
+
         return viewFragment;
     }
 
-    /**
-     * 根据方法上注有的{@code BundleView}注解来配置默认的{@code ViewFragment}
-     * 
-     * @param parameter
-     *            方法参数
-     * @param viewFragment
-     *            viewFragment
-     * @throws Exception
-     *             can't create PatternConverter
-     */
-    protected void fillViewFragment(MethodParameter parameter, ViewFragment viewFragment) throws Exception {
-        BundleView ann = parameter.getMethodAnnotation(BundleView.class);
-        if (ann == null) {
-            ann = BundleController.class.getAnnotation(BundleView.class);
-        }
-        if (ann == null) {
-            log.info("{} no default bundle view", parameter);
-            return;
-        }
-
-        SerializerConfigBuilder scb = viewFragment.getSerializerConfigBuilder();
-
-        scb.addFeatures(ann.features());
-        Class<? extends SerializeFilter>[] filtersClasses = ann.filters();
-        for (Class<? extends SerializeFilter> c : filtersClasses) {
-            scb.addFilters(c.newInstance());
-        }
-
-        // find behavior and set to view fragment
-        Behavior behavior = ann.behavior();
-        if (Behavior.AUTO.equals(behavior)) {
-            Class<?> returnType = parameter.getMethod().getReturnType();
-            behavior = findTypeBehavior(returnType);
-        }
-        viewFragment.setRenderBehavior(behavior);
-
-        // configuration serializer include/exclude patterns
-        PatternBehavior patterbBehavior = behavior;
-        if (ann.patternBehavoirClass() != PatternBehavior.class) {
-            patterbBehavior = ann.patternBehavoirClass().newInstance();
-        }
-
-        Set<String> excludes = asSet(ann.excludes());
-        Set<String> includes = asSet(ann.includes());
-
-        if (this.includes != null) {
-            for (String s : this.includes) {
-                if (!excludes.contains(s)) {
-                    includes.add(s);
-                }
-            }
-        }
-
-        if (this.excludes != null) {
-            for (String s : this.excludes) {
-                if (!includes.contains(s)) {
-                    excludes.add(s);
-                }
-            }
-        }
-
-        scb.addExcludePatterns(patterbBehavior.convert(excludes.toArray(new String[excludes.size()])))//
-                .addIncludePatterns(patterbBehavior.convert(includes.toArray(new String[includes.size()])));
-
-        KeyStyle style = ann.style();
-        if (!KeyStyle.ORIGIN.equals(style)) {
-            scb.setKeyStyle(style);
-        }
-
+    private KeyStyle getViewKeyStyle(BundleView viewConfig) {
+        KeyStyle keyStyle = viewConfig.style();
+        return keyStyle == KeyStyle.NONE ? this.keyStyle : keyStyle;
     }
 
-    protected Set<String> asSet(String... ss) {
-        return new HashSet<>(Arrays.asList(ss));
+    private Collection<SerializeFilter> instanceFilters(Class<? extends SerializeFilter>[] filterClasses)
+            throws IllegalAccessException, InstantiationException {
+        List<SerializeFilter> filters = new ArrayList<>();
+        for (Class<? extends SerializeFilter> filterClass : filterClasses) {
+            filters.add(filterClass.newInstance());
+        }
+        return filters;
     }
 
-    protected Behavior findTypeBehavior(Class<?> type) {
-        if (Page.class.isAssignableFrom(type)) {
+    private BundleView getBundleViewConfig(MethodParameter methodParameter) {
+        BundleView bundleView = methodParameter.getMethodAnnotation(BundleView.class);
+        if (bundleView == null) {
+            AnnotatedElement annotatedElement = methodParameter.getAnnotatedElement();
+            bundleView = AnnotatedElementUtils.getMergedAnnotation(annotatedElement, BundleView.class);
+        }
+        return bundleView;
+    }
+
+    private Set<String> merge(Set<String> set, String... ss) {
+        Set<String> result = new HashSet<>(set);
+        result.addAll(Arrays.asList(ss));
+        return result;
+    }
+
+    private Behavior findTypeBehavior(Method method) {
+        if (method == null) {
+            return Behavior.NONE;
+        }
+        Class<?> returnType = method.getReturnType();
+        if (Page.class.isAssignableFrom(returnType)) {
             return Behavior.PAGE;
-        } else if (Collection.class.isAssignableFrom(type) || type.isArray()) {
+        } else if (Collection.class.isAssignableFrom(returnType) || returnType.isArray()) {
             return Behavior.ARRAY;
-        } else if (Persistable.class.isAssignableFrom(type)) {
+        } else if (Persistable.class.isAssignableFrom(returnType)) {
             return Behavior.AUTO;
         }
         return Behavior.NONE;
     }
 
-    protected Set<String> getIncludes() {
-        return includes;
+    public void setKeyStyle(KeyStyle keyStyle) {
+        this.keyStyle = keyStyle;
     }
 
-    protected void setIncludes(Set<String> includes) {
-        this.includes = includes;
+    public Set<String> getGlobalExcludeFields() {
+        return globalExcludeFields;
     }
 
-    protected Set<String> getExcludes() {
-        return excludes;
+    public Set<String> getGlobalIncludeFields() {
+        return globalIncludeFields;
     }
 
-    protected void setExcludes(Set<String> excludes) {
-        this.excludes = excludes;
+    public void setDefaultSerializerFeatures(int defaultSerializerFeatures) {
+        this.defaultSerializerFeatures = defaultSerializerFeatures;
     }
 
+    public void setDateFormat(String dateFormat) {
+        this.dateFormat = dateFormat;
+    }
 }

@@ -30,7 +30,7 @@ import java.util.List;
 @EnableConfigurationProperties(WebProperties.class)
 @Import(WebAutoConfiguration.WebBundleConfiguration.class)
 public class WebAutoConfiguration {
-    
+
     // @Bean
     // @ConditionalOnProperty(name = "harmony.web.current-context.enabled", havingValue = "true", matchIfMissing = true)
     // FilterRegistrationBean currentContextFilter() {
@@ -41,7 +41,7 @@ public class WebAutoConfiguration {
     // Collection<String> urlPatterns = null;
     //
     // if (currentContextProps != null) {
-    // filter.setExcludedPatterns(currentContextProps.getExcludes());
+    // filter.setExcludedPatterns(currentContextProps.getGlobalIncludeFields());
     // urlPatterns = currentContextProps.getUrlPatterns();
     // }
     //
@@ -51,7 +51,6 @@ public class WebAutoConfiguration {
     // return registrationBean;
     // }
 
-    @ConditionalOnProperty(name = "harmony.web.bundle", matchIfMissing = true)
     @ConditionalOnClass({
             BundleParamMethodArgumentResolver.class, BundleModelMethodArgumentResolver.class,
             BundleQueryMethodArgumentResolver.class, BundleViewMethodProcessor.class,
@@ -59,11 +58,26 @@ public class WebAutoConfiguration {
     })
     public static class WebBundleConfiguration {
 
+        private final WebProperties webProperties;
+
+        public WebBundleConfiguration(WebProperties webProperties) {
+            this.webProperties = webProperties;
+        }
+
         @Bean
-        WebMvcConfigurer webMvcConfigurer() {
-
+        BundleViewMethodProcessor bundleViewMethodProcessor() {
+            WebProperties.View view = webProperties.getView();
             BundleViewMethodProcessor bundleViewMethodProcessor = new BundleViewMethodProcessor();
+            bundleViewMethodProcessor.setKeyStyle(view.getKeyStyle());
+            bundleViewMethodProcessor.setDateFormat(view.getDateFormat());
+            bundleViewMethodProcessor.setDefaultSerializerFeatures(view.getDefaultSerializerFeatures());
+            bundleViewMethodProcessor.getGlobalExcludeFields().addAll(view.getGlobalExcludeFields());
+            bundleViewMethodProcessor.getGlobalIncludeFields().addAll(view.getGlobalIncludeFields());
+            return bundleViewMethodProcessor;
+        }
 
+        @Bean
+        WebMvcConfigurer webMvcConfigurer(BundleViewMethodProcessor bundleViewMethodProcessor) {
             return new WebMvcConfigurer() {
 
                 @Override
@@ -91,6 +105,7 @@ public class WebAutoConfiguration {
 
             };
         }
+
     }
 
 }

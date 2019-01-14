@@ -14,11 +14,11 @@ import com.harmony.umbrella.web.method.annotation.BundleParam;
 
 /**
  * 模型数据处理器
- * 
+ *
  * @author wuxii@foxmail.com
  * @see ModelFragment
- * @see ModelResourceView
- * @see ModelFragmentInterceptor
+ * @see com.harmony.umbrella.web.servlet.view.ModelResourceView
+ * @see com.harmony.umbrella.web.servlet.handler.ModelFragmentInterceptor
  */
 public class BundleParamMethodArgumentResolver implements HandlerMethodArgumentResolver {
 
@@ -29,7 +29,7 @@ public class BundleParamMethodArgumentResolver implements HandlerMethodArgumentR
 
     @Override
     public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer, NativeWebRequest webRequest,
-            WebDataBinderFactory binderFactory) throws Exception {
+                                  WebDataBinderFactory binderFactory) throws Exception {
         WebDataBinder binder = binderFactory.createBinder(webRequest, null, null);
         Class<?> rowType = parameter.getParameterType();
         ModelFragment fragment = getFragment(mavContainer, rowType);
@@ -52,7 +52,7 @@ public class BundleParamMethodArgumentResolver implements HandlerMethodArgumentR
     protected void applyParams(String[] names, NativeWebRequest webRequest, ModelFragment fragment) {
         for (String param : names) {
             String[] values = webRequest.getParameterValues(param);
-            fragment.setData(param, values.length == 1 ? values[0] : values);
+            fragment.setData(param, values != null && values.length == 1 ? values[0] : values);
         }
     }
 

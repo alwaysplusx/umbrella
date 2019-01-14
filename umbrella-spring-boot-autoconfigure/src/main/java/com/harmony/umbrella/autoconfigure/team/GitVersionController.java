@@ -15,19 +15,17 @@ import java.util.Properties;
  * @author wuxii
  */
 @Controller
-@RequestMapping("${harmony.team.git.path:/git/version}")
+@RequestMapping("${harmony.team.git.url-pattern:/git/version}")
 public class GitVersionController implements VersionController {
 
     private static final Logger logger = LoggerFactory.getLogger(GitVersionController.class);
 
-    private final String path;
     private final String location;
 
     private Properties gitProperties;
 
-    public GitVersionController(GitVersionProperties gitVersionProperties) {
-        this.path = gitVersionProperties.getPath();
-        this.location = gitVersionProperties.getLocation();
+    public GitVersionController(String location) {
+        this.location = location;
     }
 
     @ResponseBody
