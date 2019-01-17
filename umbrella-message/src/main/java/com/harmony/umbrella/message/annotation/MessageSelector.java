@@ -23,8 +23,8 @@ import javax.jms.Session;
 @Documented
 public @interface MessageSelector {
 
-    public String value() default "";
+    String value() default "";
 
-    public Class<?> type() default Void.class;
+    Class<?> type() default Void.class;
 
 }
