@@ -7,7 +7,6 @@ import org.springframework.data.domain.Page;
 
 import java.io.Serializable;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * @author wuxii@foxmail.com
@@ -34,24 +33,23 @@ public abstract class ServiceSupport<T, ID extends Serializable> implements Serv
     }
 
     @Override
-    public Optional<T> getAndDelete(ID id) {
-        Optional<T> entityOpt = findById(id);
-        entityOpt.ifPresent(t -> getRepository().delete(t));
-        return entityOpt;
+    public T getAndDelete(ID id) {
+        // TODO update optional
+        return null;
     }
 
     @Override
-    public Optional<T> findOne(QueryBundle<T> bundle) {
+    public T findOne(QueryBundle<T> bundle) {
         return getRepository().getSingleResult(bundle);
     }
 
     @Override
-    public Optional<T> findById(ID id) {
-        return getRepository().findById(id);
+    public T findById(ID id) {
+        return getRepository().findById(id).orElse(null);
     }
 
     @Override
-    public Optional<T> findFirst(QueryBundle<T> bundle) {
+    public T findFirst(QueryBundle<T> bundle) {
         return getRepository().getFirstResult(bundle);
     }
 

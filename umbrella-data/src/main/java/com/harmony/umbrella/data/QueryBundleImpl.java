@@ -1,14 +1,11 @@
 package com.harmony.umbrella.data;
 
-import java.io.Serializable;
-import java.util.Iterator;
-import java.util.Set;
-
+import com.harmony.umbrella.data.QueryBuilder.FetchAttributes;
+import com.harmony.umbrella.data.QueryBuilder.JoinAttributes;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 
-import com.harmony.umbrella.data.QueryBuilder.FetchAttributes;
-import com.harmony.umbrella.data.QueryBuilder.JoinAttributes;
+import java.io.Serializable;
 
 /**
  * @author wuxii@foxmail.com
@@ -25,7 +22,7 @@ public class QueryBundleImpl<M> implements QueryBundle<M>, Serializable {
 
     JoinAttributes joinAttributes;
 
-    Set<String> grouping;
+    Selections grouping;
 
     int queryFeature;
 
@@ -91,26 +88,19 @@ public class QueryBundleImpl<M> implements QueryBundle<M>, Serializable {
     }
 
     @Override
-    public Set<String> getGrouping() {
+    public Selections getGrouping() {
         return grouping;
     }
 
     @Override
     public String toString() {
         StringBuilder out = new StringBuilder();
-        out.append("select * from ").append(domainClass != null ? domainClass.getSimpleName() : "UnknowType");
+        out.append("select * from ").append(domainClass != null ? domainClass.getSimpleName() : "UnknownType");
         if (condition != null) {
             out.append(" where ").append(condition);
         }
-        if (grouping != null && !grouping.isEmpty()) {
-            out.append(" group by ");
-            Iterator<String> it = grouping.iterator();
-            while (it.hasNext()) {
-                out.append(it.next());
-                if (it.hasNext()) {
-                    out.append(", ");
-                }
-            }
+        if (grouping != null) {
+            out.append(" group by ").append(grouping);
         }
         return out.toString();
     }

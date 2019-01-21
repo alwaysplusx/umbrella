@@ -1,10 +1,6 @@
 package com.harmony.umbrella.data.result;
 
 import com.harmony.umbrella.data.*;
-import com.harmony.umbrella.data.model.QueryModel;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -16,10 +12,8 @@ import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.*;
-import java.util.ArrayList;
+import javax.persistence.criteria.Selection;
 import java.util.List;
-import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -27,238 +21,132 @@ import java.util.stream.Collectors;
  *
  * @author wuxii@foxmail.com
  */
-public class QueryResultImpl<T> implements QueryResult<T> {
-
-    private static final Logger log = LoggerFactory.getLogger(QueryResultImpl.class);
-
-    private final QueryBundle<T> bundle;
-    private final Class<T> domainClass;
-    private final Specification<T> specification;
+public class QueryResultImpl<T> extends AbstractQueryResult<T> {
 
     private final EntityManager entityManager;
     private final CriteriaBuilder criteriaBuilder;
 
     public QueryResultImpl(EntityManager entityManager, QueryBundle<T> bundle) {
-        this.bundle = bundle;
-        this.domainClass = bundle.getDomainClass();
-        this.specification = bundle.getSpecification();
+        super(bundle);
         this.entityManager = entityManager;
         this.criteriaBuilder = entityManager.getCriteriaBuilder();
     }
 
     @Override
-    public Optional<T> getSingleResult() {
+    public RowResult getSingleResult(Selections selections) {
         try {
-            T result = newBuilder()
+            TypedQueryBuilder<Object> builder = newBuilder(selections, Object.class);
+            Object value = builder
                     .applyForSingle()
                     .build()
                     .getSingleResult();
-            return Optional.ofNullable(result);
+            return new RowResult(builder.columns, value);
         } catch (NoResultException e) {
-            return Optional.empty();
-        }
-    }
-
-    @Override
-    public Optional<T> getFirstResult() {
-        return newBuilder()
-                .applyForFirst()
-                .build(0, 1)
-                .getResultList()
-                .stream()
-                .findFirst();
-    }
-
-    @Override
-    public List<T> getResultList() {
-        return getResultList(newPageRequest());
-    }
-
-    @Override
-    public List<T> getAllResult() {
-        return newBuilder()
-                .applyForList()
-                .build()
-                .getResultList();
-    }
-
-    @Override
-    public Page<T> getResultPage() {
-        // TODO 分页结果
-        return null;
-    }
-
-    @Override
-    public Page<T> getResultPage(int page, int size) {
-        // TODO 排序条件
-        PageRequest pageRequest = PageRequest.of(page, size);
-        return PageableExecutionUtils.getPage(getResultList(pageRequest), pageRequest, this::count);
-    }
-
-    @Override
-    public RowResult getSingleResult(Selections selections) {
-        QueryAssemblerBuilder<Object> builder = newBuilder(Object.class);
-        List<Column> columns = builder.resolveSelections(selections);
-
-        TypedQuery typedQuery = builder
-                .applyForSingle()
-                .applySelections(columns)
-                .build();
-        try {
-            Object value = typedQuery.getSingleResult();
-            return toRowResult(columns, value);
-        } catch (NoResultException e) {
-            // ignore
             return RowResult.empty();
         }
     }
 
     @Override
     public RowResult getFirstResult(Selections selections) {
-        QueryAssemblerBuilder<Object> builder = newBuilder(Object.class);
-        List<Column> columns = builder.resolveSelections(selections);
-        // build query
-        TypedQuery<Object> typedQuery = builder
-                .applyForFirst()
-                .applySelections(columns)
-                .build(0, 1);
         try {
-            Object value = typedQuery.getSingleResult();
-            return toRowResult(columns, value);
+            TypedQueryBuilder<Object> builder = newBuilder(selections, Object.class);
+            Object value = builder
+                    .applyForFirst()
+                    .build(PageRequest.of(0, 1))
+                    .getSingleResult();
+            return new RowResult(builder.columns, value);
         } catch (NoResultException e) {
             return RowResult.empty();
         }
     }
 
     @Override
-    public ResultList getResultList(Selections selections) {
-        QueryAssemblerBuilder<Object> builder = newBuilder(Object.class);
-        List<Column> columns = builder.resolveSelections(selections);
+    public ListResult getListResult(Selections selections) {
+        List<RowResult> rowList = getRowList(selections, newPageable());
+        return new ListResult(rowList);
+    }
 
-        TypedQuery<Object> typedQuery = builder
+    @Override
+    public ListResult getAllResult(Selections selections) {
+        TypedQueryBuilder<Object> builder = newBuilder(selections, Object.class);
+        List<Object> values = builder
                 .applyForList()
-                .applySelections(columns)
-                .buildPagingQuery();
-
-        List<Object> values = typedQuery.getResultList();
-        return toResultList(columns, values);
+                .build()
+                .getResultList();
+        return new ListResult(builder.columns, values);
     }
 
     @Override
-    public ResultList getAllResult(Selections selections) {
-        QueryAssemblerBuilder<Object> builder = newBuilder(Object.class);
-        List<Column> columns = builder.resolveSelections(selections);
-
-        TypedQuery<Object> typedQuery = builder
-                .applyForList()
-                .applySelections(columns)
-                .build();
-
-        List<Object> values = typedQuery.getResultList();
-        return toResultList(columns, values);
+    public PageResult getPageResult(Selections selections, Pageable pageable) {
+        List<RowResult> rowList = getRowList(selections, pageable);
+        return new PageResult(PageableExecutionUtils.getPage(rowList, pageable, this::count));
     }
 
     @Override
-    public ResultPage getResultPage(int page, int size, Selections selections) {
-        // TODO page result
-        return null;
-    }
-
-    @Override
-    public long count() {
-        // TODO selection root distinct
-        return count(new Selections().countRoot(false));
-    }
-
-    @Override
-    public long count(String name) {
-        return count(new Selections().count(name));
-    }
-
-    @Override
-    public long countDistinct(String name) {
-        return count(new Selections().countDistinct(name));
-    }
-
-    protected long count(Selections selections) {
-        return newBuilder(Long.class)
+    public long count(Selections selections) {
+        return newBuilder(selections, Long.class)
                 .applyForCount()
-                .applySelections(selections)
                 .build()
                 .getSingleResult();
     }
 
-    protected List<T> getResultList(Pageable pageable) {
-        return newBuilder()
+    protected List<RowResult> getRowList(Selections selections, Pageable pageable) {
+        TypedQueryBuilder<Object> builder = newBuilder(selections, Object.class);
+        List<Column> columns = builder.columns;
+        List<Object> values = builder
                 .applyForList()
                 .build(pageable)
                 .getResultList();
+        return values.stream().map(v -> new RowResult(columns, v)).collect(Collectors.toList());
     }
 
-    protected PageRequest newPageRequest() {
-        return isValidPaging()
-                ? PageRequest.of(bundle.getPageNumber(), bundle.getPageSize())
-                : PageRequest.of(0, 20);
-    }
-
-    protected QueryAssemblerBuilder<T> newBuilder() {
-        return newBuilder(domainClass);
-    }
-
-    protected <M> QueryAssemblerBuilder<M> newBuilder(Class<M> resultClass) {
-        return new QueryAssemblerBuilder<>(resultClass);
-    }
-
-    protected boolean isValidPaging() {
-        return bundle.getPageNumber() >= 0 && bundle.getPageSize() > 0;
+    protected <R> TypedQueryBuilder<R> newBuilder(Selections selections, Class<R> resultClass) {
+        return new TypedQueryBuilder<>(selections, resultClass);
     }
 
     /**
-     * 查询装配器
+     * 查询构建器, 同时也是criteriaQuery的Holder
      *
      * @param <M>
      */
-    public class QueryAssemblerBuilder<M> {
+    class TypedQueryBuilder<M> {
 
-        private Root<T> root;
-        private CriteriaQuery<M> query;
-        private QueryModel queryModel;
+        private final Root<T> root;
+        private final CriteriaQuery<M> query;
+        private final List<Column> columns;
+        private final List<Selection<?>> expressions;
 
-        protected QueryAssemblerBuilder(Class<M> resultClass) {
+        TypedQueryBuilder(Selections selections, Class<M> resultClass) {
             this.query = criteriaBuilder.createQuery(resultClass);
-            this.root = query.from(bundle.getDomainClass());
-            this.queryModel = new QueryModel(root, query, criteriaBuilder);
+            this.root = query.from(domainClass);
+            this.columns = selections.generate(root, query, criteriaBuilder);
+            this.expressions = columns.stream().map(Column::getExpression).collect(Collectors.toList());
         }
 
-        public QueryAssemblerBuilder<M> applySelections(Selections selections) {
-            return applySelections(resolveSelections(selections));
+        // build methods
+
+        public TypedQuery<M> build() {
+            return build(null);
         }
 
-        public QueryAssemblerBuilder<M> applySelections(List<Column> columns) {
-            List<javax.persistence.criteria.Selection> selections = columns
-                    .stream()
-                    .map(Column::getSelection)
-                    .collect(Collectors.toList());
-            if (selections.isEmpty()) {
-                log.info("selections return empty selection column. {}", selections);
-                return this;
+        public TypedQuery<M> build(Pageable pageable) {
+            if (expressions.isEmpty()) {
+                throw new QueryException("select fields not found.");
             }
-            if (selections.size() > 1) {
-                query.multiselect(selections.toArray(new javax.persistence.criteria.Selection[0]));
+            if (expressions.size() == 1) {
+                query.select((javax.persistence.criteria.Selection) expressions.get(0));
             } else {
-                query.select(selections.get(0));
+                query.multiselect(expressions);
             }
-            return this;
-        }
-
-        /**
-         * 解析selection, 依赖当前查询构建的root, query来解析当前的selections
-         *
-         * @param selections 需要查询的字段
-         * @return
-         */
-        protected List<Column> resolveSelections(Selections selections) {
-            return selections.generate(root, query, criteriaBuilder);
+            if (pageable != null) {
+                query.orderBy(QueryUtils.toOrders(pageable.getSort(), root, criteriaBuilder));
+            }
+            TypedQuery typedQuery = entityManager.createQuery(query);
+            if (pageable != null) {
+                typedQuery.setFirstResult((int) pageable.getOffset())
+                        .setMaxResults(pageable.getPageSize());
+            }
+            return typedQuery;
         }
 
         // quick methods
@@ -266,7 +154,7 @@ public class QueryResultImpl<T> implements QueryResult<T> {
         /**
          * 构建统计查询
          */
-        public QueryAssemblerBuilder<M> applyForCount() {
+        public TypedQueryBuilder<M> applyForCount() {
             return applySpecification()
                     .applyJoin()
                     .applyGrouping()
@@ -276,7 +164,7 @@ public class QueryResultImpl<T> implements QueryResult<T> {
         /**
          * 构建单结果查询
          */
-        public QueryAssemblerBuilder<M> applyForSingle() {
+        public TypedQueryBuilder<M> applyForSingle() {
             return applySpecification()
                     .applyFetch()
                     .applyGrouping()
@@ -286,18 +174,14 @@ public class QueryResultImpl<T> implements QueryResult<T> {
         /**
          * 构建首个结果查询
          */
-        public QueryAssemblerBuilder<M> applyForFirst() {
-            return applySpecification()
-                    .applyFetch()
-                    .applyGrouping()
-                    .applyJoin()
-                    .applySort();
+        public TypedQueryBuilder<M> applyForFirst() {
+            return applyForSingle().applySort();
         }
 
         /**
          * 构建列表结果集查询
          */
-        public QueryAssemblerBuilder<M> applyForList() {
+        public TypedQueryBuilder<M> applyForList() {
             return applySpecification()
                     .applyFetch()
                     .applyGrouping()
@@ -305,14 +189,10 @@ public class QueryResultImpl<T> implements QueryResult<T> {
                     .applySort();
         }
 
-        //
+        // apply methods
 
-        /**
-         * 设置查询参数
-         *
-         * @see QueryBundle#getSpecification()
-         */
-        public QueryAssemblerBuilder<M> applySpecification() {
+        public TypedQueryBuilder<M> applySpecification() {
+            Specification<T> specification = bundle.getSpecification();
             if (specification != null) {
                 Predicate predicate = specification.toPredicate(root, query, criteriaBuilder);
                 if (predicate != null) {
@@ -322,12 +202,7 @@ public class QueryResultImpl<T> implements QueryResult<T> {
             return this;
         }
 
-        /**
-         * 设置join参数
-         *
-         * @see QueryBundle#getJoinAttributes()
-         */
-        public QueryAssemblerBuilder<M> applyJoin() {
+        public TypedQueryBuilder<M> applyJoin() {
             QueryBuilder.JoinAttributes joinAttr = bundle.getJoinAttributes();
             if (joinAttr != null && !joinAttr.getAttributes().isEmpty()) {
                 for (QueryBuilder.Attribute attr : joinAttr) {
@@ -341,12 +216,7 @@ public class QueryResultImpl<T> implements QueryResult<T> {
             return this;
         }
 
-        /**
-         * 设置fetch参数
-         *
-         * @see QueryBundle#getFetchAttributes()
-         */
-        public QueryAssemblerBuilder<M> applyFetch() {
+        public TypedQueryBuilder<M> applyFetch() {
             QueryBuilder.FetchAttributes fetchAttr = bundle.getFetchAttributes();
             if (fetchAttr != null && !fetchAttr.getAttributes().isEmpty()) {
                 for (QueryBuilder.Attribute attr : fetchAttr) {
@@ -360,27 +230,15 @@ public class QueryResultImpl<T> implements QueryResult<T> {
             return this;
         }
 
-        /**
-         * 设置grouping参数
-         *
-         * @see QueryBundle#getGrouping()
-         */
-        public QueryAssemblerBuilder<M> applyGrouping() {
-            Set<String> grouping = bundle.getGrouping();
-            if (grouping != null && !grouping.isEmpty()) {
-                for (String name : grouping) {
-                    query.groupBy(queryModel.get(name));
-                }
+        public TypedQueryBuilder<M> applyGrouping() {
+            Selections grouping = bundle.getGrouping();
+            if (grouping != null) {
+                query.groupBy(grouping.generateExpressions(root, query, criteriaBuilder));
             }
             return this;
         }
 
-        /**
-         * 设置排序参数
-         *
-         * @see QueryBundle#getSort()
-         */
-        public QueryAssemblerBuilder<M> applySort() {
+        public TypedQueryBuilder<M> applySort() {
             Sort sort = bundle.getSort();
             if (sort != null) {
                 query.orderBy(QueryUtils.toOrders(sort, root, criteriaBuilder));
@@ -388,7 +246,7 @@ public class QueryResultImpl<T> implements QueryResult<T> {
             return this;
         }
 
-        protected boolean isAlreadyFetch(String name, JoinType joinType) {
+        private boolean isAlreadyFetch(String name, JoinType joinType) {
             return root
                     .getFetches()
                     .stream()
@@ -396,7 +254,7 @@ public class QueryResultImpl<T> implements QueryResult<T> {
                     .anyMatch(e -> e.getJoinType().equals(joinType));
         }
 
-        protected boolean isAlreadyJoin(String name, JoinType joinType) {
+        private boolean isAlreadyJoin(String name, JoinType joinType) {
             return root
                     .getJoins()
                     .stream()
@@ -404,56 +262,6 @@ public class QueryResultImpl<T> implements QueryResult<T> {
                     .anyMatch(e -> e.getJoinType().equals(joinType));
         }
 
-        // build result TypedQuery
-
-        public TypedQuery<M> buildPagingQuery() {
-            return build(newPageRequest());
-        }
-
-        public TypedQuery<M> build(int page, int size) {
-            return build(PageRequest.of(page, size));
-        }
-
-        public TypedQuery<M> build() {
-            return entityManager.createQuery(query);
-        }
-
-        public TypedQuery<M> build(Pageable pageable) {
-            return entityManager
-                    .createQuery(query)
-                    .setFirstResult((int) pageable.getOffset())
-                    .setMaxResults(pageable.getPageSize());
-        }
-
-    }
-
-    public static ResultList toResultList(List<Column> columns, List<Object> values) {
-        // @formatter:off
-        List<RowResult> rows = values.stream()
-                                     .map(e -> toRowResult(columns, e))
-                                     .collect(Collectors.toList());
-        // @formatter:on
-        return new ResultList(rows);
-    }
-
-    public static RowResult toRowResult(List<Column> columns, Object value) {
-        if (value == null) {
-            return RowResult.empty();
-        }
-
-        Object[] valueArray = value.getClass().isArray()
-                ? Object[].class.cast(value)
-                : new Object[]{value};
-
-        if (columns.size() != valueArray.length) {
-            throw new QueryException("select result not match " + columns.size());
-        }
-
-        List<CellResult> cells = new ArrayList<>();
-        for (int i = 0, max = valueArray.length; i < max; i++) {
-            cells.add(new CellResult(i, columns.get(i), valueArray[i]));
-        }
-        return new RowResult(cells);
     }
 
 }

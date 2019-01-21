@@ -32,6 +32,22 @@ public class Selections {
         return new Selections().column(names);
     }
 
+    public static Selections ofRoot() {
+        return Selections.of().root();
+    }
+
+    public static Selections ofCount() {
+        return ofCount(false);
+    }
+
+    public static Selections ofCount(boolean distinct) {
+        return Selections.of().countRoot(distinct);
+    }
+
+    public static Selections ofCount(String name, boolean distinct) {
+        return Selections.of().count(name, distinct);
+    }
+
     //
 
     private final List<Selection> selections = new ArrayList<>();
@@ -59,6 +75,10 @@ public class Selections {
 
     public Selections countDistinct(String name) {
         return countSelection().setDistinct(true).setName(name).and();
+    }
+
+    public Selections count(String name, boolean distinct) {
+        return countSelection().setName(name).setDistinct(distinct).and();
     }
 
     // other aggregate functions
@@ -108,8 +128,16 @@ public class Selections {
 
     // final generate
 
-    public List<Column> generate(Root<?> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+    public final List<Column> generate(Root<?> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
         return selections.stream().map(e -> e.generate(root, query, cb)).collect(Collectors.toList());
+    }
+
+    public final List<javax.persistence.criteria.Expression<?>> generateExpressions(Root<?> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+        return selections
+                .stream()
+                .map(e -> e.generate(root, query, cb))
+                .map(Column::getExpression)
+                .collect(Collectors.toList());
     }
 
     protected static class FunctionSelection<X> extends SelectionBuilder<FunctionSelection<X>> {

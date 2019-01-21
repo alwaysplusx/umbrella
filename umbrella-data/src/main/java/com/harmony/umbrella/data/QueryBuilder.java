@@ -2,6 +2,7 @@ package com.harmony.umbrella.data;
 
 import com.harmony.umbrella.data.result.QueryResultImpl;
 import com.harmony.umbrella.data.specs.GeneralSpecification;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
@@ -42,6 +43,13 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
 
     private static final long serialVersionUID = 1L;
 
+    private static Pageable defaultPageable = PageRequest.of(0, 20);
+
+    public static void setDefaultPageable(Pageable pageable) {
+        Assert.notNull(pageable, "default page not allow null");
+        defaultPageable = pageable;
+    }
+
     /**
      * 查询条件栈, 一个括号内的查询条件即为一个栈值
      */
@@ -65,10 +73,10 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
     protected Class<M> domainClass;
 
     protected Sort sort;
-    protected int pageNumber = -1;
-    protected int pageSize = -1;
+    protected int pageNumber = defaultPageable.getPageNumber();
+    protected int pageSize = defaultPageable.getPageSize();
 
-    protected Set<String> grouping;
+    protected Selections grouping;
     protected FetchAttributes fetchAttributes;
     protected JoinAttributes joinAttributes;
     protected Specification<M> specification;
@@ -191,7 +199,7 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
         this.fetchAttributes = bundle.getFetchAttributes();
         this.joinAttributes = bundle.getJoinAttributes();
         this.queryFeature = bundle.getQueryFeature();
-        this.grouping = bundle.getGrouping() == null ? null : new LinkedHashSet<>(bundle.getGrouping());
+        this.grouping = bundle.getGrouping();
         return (T) this;
     }
 
@@ -816,26 +824,28 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
     // group by
 
     /**
-     * 添加分组条件
+     * 设置分组条件
      *
      * @param names 分组的字段
      * @return this
      */
     public T groupBy(String... names) {
-        return (T) groupBy(Arrays.asList(names));
+        return groupBy(Arrays.asList(names));
     }
 
     /**
-     * 添加分组条件
+     * 设置分组条件
      *
      * @param names 分组的字段
      * @return this
      */
     public T groupBy(Collection<String> names) {
-        if (this.grouping == null) {
-            this.grouping = new LinkedHashSet<>();
-        }
-        this.grouping.addAll(names);
+        this.grouping = Selections.of(names.toArray(new String[0]));
+        return (T) this;
+    }
+
+    public T groupBy(Selections selections) {
+        this.grouping = selections;
         return (T) this;
     }
 
@@ -900,17 +910,15 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
     public void clear() {
         queryStack.clear();
         temp.clear();
-        if (grouping != null) {
-            grouping.clear();
-        }
+        grouping = null;
         compositionType = null;
         fetchAttributes = null;
         joinAttributes = null;
         specification = null;
         sort = null;
         domainClass = null;
-        pageNumber = 0;
-        pageSize = 0;
+        pageNumber = defaultPageable.getPageNumber();
+        pageSize = defaultPageable.getPageSize();
         queryFeature = 0;
     }
 
@@ -923,7 +931,7 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
      */
     public QueryResult<M> execute() {
         Assert.notNull(entityManager, "Can't execute query, because entity manager not exists! Please set entity manager before execute.");
-        return new QueryResultImpl<M>(entityManager, bundle());
+        return new QueryResultImpl<>(entityManager, bundle());
     }
 
     /**
@@ -931,7 +939,7 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
      *
      * @return 查询结果
      */
-    public Optional<M> getSingleResult() {
+    public M getSingleResult() {
         return execute().getSingleResult();
     }
 
@@ -940,7 +948,7 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
      *
      * @return 符合条件的第一个结果
      */
-    public Optional<M> getFirstResult() {
+    public M getFirstResult() {
         return execute().getFirstResult();
     }
 
@@ -950,7 +958,7 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
      * @return 符合条件的结果集
      */
     public List<M> getResultList() {
-        return execute().getResultList();
+        return execute().getListResult();
     }
 
     /**

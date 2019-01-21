@@ -1,22 +1,22 @@
 package com.harmony.umbrella.data;
 
-import javax.persistence.criteria.Selection;
+import javax.persistence.criteria.Expression;
 
 /**
  * @author wuxii
  */
 public class Column {
 
-    private String alias;
-    private Selection<?> selection;
+    private final String alias;
+    private final Expression<?> expression;
 
-    public Column(String alias, Selection<?> selection) {
+    public Column(String alias, Expression<?> expression) {
         this.alias = alias;
-        this.selection = selection;
+        this.expression = expression;
     }
 
-    public Selection<?> getSelection() {
-        return selection;
+    public Expression<?> getExpression() {
+        return expression;
     }
 
     public String getAlias() {

@@ -2,8 +2,8 @@ package com.harmony.umbrella.data;
 
 import com.harmony.umbrella.data.domain.ClassRoom;
 import com.harmony.umbrella.data.domain.Student;
-import com.harmony.umbrella.data.result.CellResult;
-import com.harmony.umbrella.data.result.ResultList;
+import com.harmony.umbrella.data.result.CellValue;
+import com.harmony.umbrella.data.result.ListResult;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -15,7 +15,6 @@ import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -77,16 +76,15 @@ public class QueryBuilderTest {
 
     @Test
     public void testEqual() {
-        Optional<Student> result = studentQueryBuilder
+        Student result = studentQueryBuilder
                 .equal("name", "Mary")
                 .getSingleResult();
-        Assert.assertTrue(result.isPresent());
-        Assert.assertEquals("Mary", result.get().getName());
+        Assert.assertEquals("Mary", result.getName());
     }
 
     @Test
     public void testSizeOf() {
-        ResultList results = classRoomQueryBuilder
+        ListResult results = classRoomQueryBuilder
                 .sizeOf("students", 3)
                 .groupBy("id")
                 .execute()
@@ -133,7 +131,7 @@ public class QueryBuilderTest {
         long count = classRoomQueryBuilder
                 .equal("room", "一班")
                 .execute()
-                .countDistinct("students.id");
+                .count(Selections.ofCount("students.id", true));
         Assert.assertEquals("class 一班 students count isn't 3", 3l, count);
     }
 
@@ -183,7 +181,7 @@ public class QueryBuilderTest {
                 .stream()
                 .map((sr) -> {
                     Map<String, Object> map = new HashMap<>();
-                    for (CellResult cr : sr) {
+                    for (CellValue cr : sr) {
                         map.put(cr.getName(), cr.getValue());
                     }
                     return map;
@@ -199,7 +197,7 @@ public class QueryBuilderTest {
                 .stream()
                 .map((sr) -> {
                     Map<String, Object> map = new HashMap<>();
-                    for (CellResult cr : sr) {
+                    for (CellValue cr : sr) {
                         map.put(cr.getName(), cr.getValue());
                     }
                     return map;
@@ -212,7 +210,7 @@ public class QueryBuilderTest {
         List<Student> result = studentQueryBuilder
                 .execute()
                 .getAllResult(Selections.of("gender", "classRoom.room", "name"))
-                .mapRows(Student.class);
+                .toList(Student.class);
         System.out.println(result);
     }
 

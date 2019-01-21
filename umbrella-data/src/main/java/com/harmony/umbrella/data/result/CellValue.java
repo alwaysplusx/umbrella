@@ -2,37 +2,43 @@ package com.harmony.umbrella.data.result;
 
 import com.harmony.umbrella.data.Column;
 
+import javax.persistence.criteria.Selection;
+
 /**
  * 行记录中的列值
  *
  * @author wuxii
  */
-public class CellResult {
+public class CellValue {
 
-    public static String stringValue(CellResult cellResult) {
-        return cellResult.value == null ? null : cellResult.value.toString();
+    public static String stringValue(CellValue cellValue) {
+        return cellValue.value == null ? null : cellValue.value.toString();
     }
 
     private final int index;
-    private final Column column;
     private final Object value;
+    private final Column column;
 
-    public CellResult(int index, Column column, Object value) {
+    public CellValue(int index, Column column, Object value) {
         this.index = index;
-        this.column = column;
         this.value = value;
-    }
-
-    public int getIndex() {
-        return index;
+        this.column = column;
     }
 
     public String getName() {
         return column.getAlias();
     }
 
+    public Selection<?> getSelection() {
+        return column.getExpression();
+    }
+
     public Column getColumn() {
         return column;
+    }
+
+    public int getIndex() {
+        return index;
     }
 
     public Object getValue() {

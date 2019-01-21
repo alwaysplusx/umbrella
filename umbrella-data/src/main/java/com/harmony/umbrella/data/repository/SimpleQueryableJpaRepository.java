@@ -9,7 +9,6 @@ import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
 import javax.persistence.EntityManager;
 import java.io.Serializable;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * @author wuxii@foxmail.com
@@ -50,18 +49,18 @@ public class SimpleQueryableJpaRepository<T, ID extends Serializable> extends Si
     }
 
     @Override
-    public Optional<T> getSingleResult(QueryBundle<T> bundle) {
+    public T getSingleResult(QueryBundle<T> bundle) {
         return query(bundle).getSingleResult();
     }
 
     @Override
-    public Optional<T> getFirstResult(QueryBundle<T> bundle) {
+    public T getFirstResult(QueryBundle<T> bundle) {
         return query(bundle).getFirstResult();
     }
 
     @Override
     public List<T> getResultList(QueryBundle<T> bundle) {
-        return query(bundle).getResultList();
+        return query(bundle).getListResult();
     }
 
     @Override
@@ -71,7 +70,7 @@ public class SimpleQueryableJpaRepository<T, ID extends Serializable> extends Si
 
     @Override
     public Page<T> getPageResult(QueryBundle<T> bundle) {
-        return query(bundle).getResultPage();
+        return query(bundle).getPageResult();
     }
 
     @Override

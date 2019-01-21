@@ -20,7 +20,7 @@ public abstract class SelectionBuilder<T extends SelectionBuilder> implements Se
     private final Selections selections;
 
     protected SelectionBuilder(Selections selections) {
-        Assert.notNull(selections, "selections not allow null");
+        Assert.notNull(selections, "generateExpressions not allow null");
         this.selections = selections;
     }
 
