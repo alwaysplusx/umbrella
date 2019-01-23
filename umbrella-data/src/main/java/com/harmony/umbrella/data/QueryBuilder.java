@@ -939,7 +939,7 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
      *
      * @return 查询结果
      */
-    public M getSingleResult() {
+    public Optional<M> getSingleResult() {
         return execute().getSingleResult();
     }
 
@@ -948,7 +948,7 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
      *
      * @return 符合条件的第一个结果
      */
-    public M getFirstResult() {
+    public Optional<M> getFirstResult() {
         return execute().getFirstResult();
     }
 
@@ -957,7 +957,7 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
      *
      * @return 符合条件的结果集
      */
-    public List<M> getResultList() {
+    public List<M> getListResult() {
         return execute().getListResult();
     }
 
@@ -975,11 +975,17 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
      *
      * @return 符合条件的结果数
      */
-    public long getCountResult() {
+    public long count() {
         return execute().count();
     }
 
-    protected static String appendLikeWild(Object value) {
+    /**
+     * 对字符串进行通配连接
+     *
+     * @param value
+     * @return
+     */
+    static String appendLikeWild(Object value) {
         String val = value.toString();
         return val.contains("%") ? val : "%" + val + "%";
     }

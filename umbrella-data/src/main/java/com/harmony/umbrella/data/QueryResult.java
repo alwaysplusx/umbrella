@@ -7,6 +7,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * 查询结果. 该查询结果通过QueryBuilder来构建查询条件, 然后通过解析构建的查询条件得出查询结果.
@@ -18,14 +19,14 @@ public interface QueryResult<T> {
     /**
      * 单实体结果查询
      */
-    T getSingleResult();
+    Optional<T> getSingleResult();
 
     /**
      * 符合查询条件的首个实体
      *
      * @return 符合条件的首个结果
      */
-    T getFirstResult();
+    Optional<T> getFirstResult();
 
     /**
      * 符合条件的分页结果集
@@ -65,6 +66,11 @@ public interface QueryResult<T> {
         return count(Selections.ofCount());
     }
 
+    /**
+     * root distinct count
+     *
+     * @return
+     */
     default long countDistinct() {
         return count(Selections.ofCount(true));
     }
@@ -117,5 +123,4 @@ public interface QueryResult<T> {
      * @return 结果总数
      */
     long count(Selections selections);
-
 }

@@ -8,6 +8,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @author wuxii
@@ -27,13 +28,13 @@ public abstract class AbstractQueryResult<T> implements QueryResult<T> {
     }
 
     @Override
-    public T getSingleResult() {
-        return getSingleResult(Selections.ofRoot()).toEntity(domainClass);
+    public Optional<T> getSingleResult() {
+        return Optional.ofNullable(getSingleResult(Selections.ofRoot()).toEntity(domainClass));
     }
 
     @Override
-    public T getFirstResult() {
-        return getFirstResult(Selections.ofRoot()).toEntity(domainClass);
+    public Optional<T> getFirstResult() {
+        return Optional.ofNullable(getFirstResult(Selections.ofRoot()).toEntity(domainClass));
     }
 
     @Override

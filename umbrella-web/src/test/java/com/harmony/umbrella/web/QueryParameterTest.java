@@ -56,7 +56,7 @@ public class QueryParameterTest {
 
         parameter.apply(builder);
 
-        System.out.println(builder.getResultList());
+        System.out.println(builder.getListResult());
     }
 
 }

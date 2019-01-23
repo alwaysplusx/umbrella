@@ -16,6 +16,10 @@ import java.util.function.Function;
  */
 public class RowResult implements Streamable<CellValue> {
 
+    public static <T> Function<RowResult, T> defaultRowResultConverter(Class<T> targetClass) {
+        return new RowResultMapper<>(targetClass);
+    }
+
     private static final RowResult EMPTY = new RowResult();
 
     public static RowResult empty() {
@@ -53,11 +57,11 @@ public class RowResult implements Streamable<CellValue> {
     }
 
     public <T> T toEntity(Class<T> resultClass) {
-        return toEntity(new RowResultMapper<>(resultClass));
+        return hasCellResult() ? defaultRowResultConverter(resultClass).apply(this) : null;
     }
 
-    public <T> T toEntity(Function<RowResult, T> fun) {
-        return fun.apply(this);
+    public <T> Optional<T> mapToEntity(Class<T> resultClass) {
+        return Optional.ofNullable(toEntity(resultClass));
     }
 
     public boolean hasCellResult() {

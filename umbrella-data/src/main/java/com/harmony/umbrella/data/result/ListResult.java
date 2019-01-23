@@ -6,6 +6,7 @@ import org.springframework.util.Assert;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -33,7 +34,8 @@ public class ListResult implements Streamable<RowResult> {
     }
 
     public <T> List<T> toList(Class<T> resultClass) {
-        return this.stream().map(e -> e.toEntity(resultClass)).collect(Collectors.toList());
+        Function<RowResult, T> converter = RowResult.defaultRowResultConverter(resultClass);
+        return this.stream().map(converter).collect(Collectors.toList());
     }
 
     @Override

@@ -18,13 +18,13 @@ public interface Service<T, ID extends Serializable> {
 
     void deleteById(ID id);
 
-    T getAndDelete(ID id);
+    Optional<T> getAndDelete(ID id);
 
-    T findOne(QueryBundle<T> bundle);
+    Optional<T> findOne(QueryBundle<T> bundle);
 
-    T findById(ID id);
+    Optional<T> findById(ID id);
 
-    T findFirst(QueryBundle<T> bundle);
+    Optional<T> findFirst(QueryBundle<T> bundle);
 
     List<T> findList(QueryBundle<T> bundle);
 

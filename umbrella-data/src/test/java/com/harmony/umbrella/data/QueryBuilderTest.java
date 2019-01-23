@@ -15,6 +15,7 @@ import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -70,16 +71,17 @@ public class QueryBuilderTest {
 
     @Test
     public void testCount() {
-        long countResult = studentQueryBuilder.getCountResult();
+        long countResult = studentQueryBuilder.count();
         Assert.assertEquals(6, countResult);
     }
 
     @Test
     public void testEqual() {
-        Student result = studentQueryBuilder
+        Optional<Student> student = studentQueryBuilder
                 .equal("name", "Mary")
                 .getSingleResult();
-        Assert.assertEquals("Mary", result.getName());
+        Assert.assertTrue("student is null", student.isPresent());
+        Assert.assertEquals("Mary", student.get().getName());
     }
 
     @Test
