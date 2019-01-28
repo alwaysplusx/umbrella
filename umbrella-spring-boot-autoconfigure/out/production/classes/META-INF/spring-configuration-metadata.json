@@ -1,0 +1,427 @@
+{
+  "hints": [],
+  "groups": [
+    {
+      "sourceType": "com.harmony.umbrella.autoconfigure.core.AppProperties",
+      "name": "harmony.app",
+      "type": "com.harmony.umbrella.autoconfigure.core.AppProperties"
+    },
+    {
+      "sourceType": "com.harmony.umbrella.autoconfigure.jwt.JwtAuthenticationProperties",
+      "name": "harmony.jwt",
+      "type": "com.harmony.umbrella.autoconfigure.jwt.JwtAuthenticationProperties"
+    },
+    {
+      "sourceType": "com.harmony.umbrella.autoconfigure.lock.LockProperties",
+      "name": "harmony.lock",
+      "type": "com.harmony.umbrella.autoconfigure.lock.LockProperties"
+    },
+    {
+      "sourceType": "com.harmony.umbrella.autoconfigure.lock.LockProperties",
+      "name": "harmony.lock.jdbc",
+      "sourceMethod": "getJdbc()",
+      "type": "com.harmony.umbrella.autoconfigure.lock.LockProperties$Jdbc"
+    },
+    {
+      "sourceType": "com.harmony.umbrella.autoconfigure.lock.LockProperties",
+      "name": "harmony.lock.redis",
+      "sourceMethod": "getRedis()",
+      "type": "com.harmony.umbrella.autoconfigure.lock.LockProperties$Redis"
+    },
+    {
+      "sourceType": "com.harmony.umbrella.autoconfigure.lock.LockProperties",
+      "name": "harmony.lock.zookeeper",
+      "sourceMethod": "getZookeeper()",
+      "type": "com.harmony.umbrella.autoconfigure.lock.LockProperties$Zookeeper"
+    },
+    {
+      "sourceType": "com.harmony.umbrella.autoconfigure.lock.LockProperties$Zookeeper",
+      "name": "harmony.lock.zookeeper.retry",
+      "sourceMethod": "getRetry()",
+      "type": "com.harmony.umbrella.autoconfigure.lock.LockProperties$Retry"
+    },
+    {
+      "sourceType": "com.harmony.umbrella.autoconfigure.log.LogProperties",
+      "name": "harmony.log",
+      "type": "com.harmony.umbrella.autoconfigure.log.LogProperties"
+    },
+    {
+      "sourceType": "com.harmony.umbrella.autoconfigure.log.LogProperties",
+      "name": "harmony.log.interceptor",
+      "sourceMethod": "getInterceptor()",
+      "type": "com.harmony.umbrella.autoconfigure.log.LogProperties$Interceptor"
+    },
+    {
+      "sourceType": "com.harmony.umbrella.autoconfigure.team.GitVersionProperties",
+      "name": "harmony.team.git",
+      "type": "com.harmony.umbrella.autoconfigure.team.GitVersionProperties"
+    },
+    {
+      "sourceType": "com.harmony.umbrella.autoconfigure.web.WebProperties",
+      "name": "harmony.web",
+      "type": "com.harmony.umbrella.autoconfigure.web.WebProperties"
+    },
+    {
+      "sourceType": "com.harmony.umbrella.autoconfigure.web.WebProperties",
+      "name": "harmony.web.current-filter",
+      "sourceMethod": "getCurrentFilter()",
+      "type": "com.harmony.umbrella.autoconfigure.web.WebProperties$CurrentFilter"
+    },
+    {
+      "sourceType": "com.harmony.umbrella.autoconfigure.web.WebProperties",
+      "name": "harmony.web.fastjson",
+      "sourceMethod": "getFastjson()",
+      "type": "com.harmony.umbrella.autoconfigure.web.WebProperties$Fastjson"
+    },
+    {
+      "sourceType": "com.harmony.umbrella.autoconfigure.web.WebProperties",
+      "name": "harmony.web.view",
+      "sourceMethod": "getView()",
+      "type": "com.harmony.umbrella.autoconfigure.web.WebProperties$View"
+    },
+    {
+      "sourceType": "com.harmony.umbrella.autoconfigure.wx.WxMpProperties",
+      "name": "weixin.mp",
+      "type": "com.harmony.umbrella.autoconfigure.wx.WxMpProperties"
+    },
+    {
+      "sourceType": "com.harmony.umbrella.autoconfigure.wx.WxMpProperties",
+      "name": "weixin.mp.http-client",
+      "sourceMethod": "getHttpClient()",
+      "type": "com.harmony.umbrella.autoconfigure.wx.WxMpProperties$HttpClient"
+    },
+    {
+      "sourceType": "com.harmony.umbrella.autoconfigure.wx.WxMpProperties",
+      "name": "weixin.mp.proxy",
+      "sourceMethod": "getProxy()",
+      "type": "com.harmony.umbrella.autoconfigure.wx.WxMpProperties$Proxy"
+    },
+    {
+      "sourceType": "com.harmony.umbrella.autoconfigure.wx.WxMpProperties",
+      "name": "weixin.mp.redis",
+      "sourceMethod": "getRedis()",
+      "type": "com.harmony.umbrella.autoconfigure.wx.WxMpProperties$Redis"
+    }
+  ],
+  "properties": [
+    {
+      "sourceType": "com.harmony.umbrella.autoconfigure.core.AppProperties",
+      "name": "harmony.app.datasources",
+      "type": "java.util.List<java.lang.String>"
+    },
+    {
+      "sourceType": "com.harmony.umbrella.autoconfigure.core.AppProperties",
+      "name": "harmony.app.initializer",
+      "type": "java.lang.Class<? extends com.harmony.umbrella.context.ApplicationContext.ApplicationContextInitializer>"
+    },
+    {
+      "sourceType": "com.harmony.umbrella.autoconfigure.core.AppProperties",
+      "name": "harmony.app.name",
+      "type": "java.lang.String"
+    },
+    {
+      "sourceType": "com.harmony.umbrella.autoconfigure.core.AppProperties",
+      "defaultValue": "com.harmony",
+      "name": "harmony.app.packages",
+      "type": "java.util.List<java.lang.String>"
+    },
+    {
+      "sourceType": "com.harmony.umbrella.autoconfigure.core.AppProperties",
+      "name": "harmony.app.properties",
+      "type": "java.util.Properties"
+    },
+    {
+      "sourceType": "com.harmony.umbrella.autoconfigure.core.AppProperties",
+      "name": "harmony.app.shutdown-hooks",
+      "type": "java.util.List<java.lang.Class<? extends java.lang.Runnable>>"
+    },
+    {
+      "sourceType": "com.harmony.umbrella.autoconfigure.jwt.JwtAuthenticationProperties",
+      "defaultValue": "7200s",
+      "name": "harmony.jwt.expires-in",
+      "type": "java.time.Duration"
+    },
+    {
+      "sourceType": "com.harmony.umbrella.autoconfigure.jwt.JwtAuthenticationProperties",
+      "name": "harmony.jwt.issuer",
+      "type": "java.lang.String"
+    },
+    {
+      "sourceType": "com.harmony.umbrella.autoconfigure.jwt.JwtAuthenticationProperties",
+      "name": "harmony.jwt.signature",
+      "type": "java.lang.String"
+    },
+    {
+      "sourceType": "com.harmony.umbrella.autoconfigure.jwt.JwtAuthenticationProperties",
+      "defaultValue": false,
+      "name": "harmony.jwt.strict-mode",
+      "type": "java.lang.Boolean"
+    },
+    {
+      "sourceType": "com.harmony.umbrella.autoconfigure.lock.LockProperties$Redis",
+      "defaultValue": "60s",
+      "name": "harmony.lock.redis.expire-after",
+      "type": "java.time.Duration"
+    },
+    {
+      "sourceType": "com.harmony.umbrella.autoconfigure.lock.LockProperties$Redis",
+      "defaultValue": "spring-lock-registry",
+      "name": "harmony.lock.redis.registry-key",
+      "type": "java.lang.String"
+    },
+    {
+      "sourceType": "com.harmony.umbrella.autoconfigure.lock.LockProperties",
+      "name": "harmony.lock.type",
+      "type": "java.lang.String"
+    },
+    {
+      "sourceType": "com.harmony.umbrella.autoconfigure.lock.LockProperties$Zookeeper",
+      "name": "harmony.lock.zookeeper.acl-provider",
+      "type": "java.lang.String"
+    },
+    {
+      "sourceType": "com.harmony.umbrella.autoconfigure.lock.LockProperties$Zookeeper",
+      "defaultValue": "localhost:9092",
+      "name": "harmony.lock.zookeeper.address",
+      "type": "java.lang.String"
+    },
+    {
+      "sourceType": "com.harmony.umbrella.autoconfigure.lock.LockProperties$Zookeeper",
+      "name": "harmony.lock.zookeeper.connection-timeout",
+      "type": "java.lang.Integer"
+    },
+    {
+      "sourceType": "com.harmony.umbrella.autoconfigure.lock.LockProperties$Zookeeper",
+      "name": "harmony.lock.zookeeper.max-close-wait",
+      "type": "java.lang.Integer"
+    },
+    {
+      "sourceType": "com.harmony.umbrella.autoconfigure.lock.LockProperties$Zookeeper",
+      "name": "harmony.lock.zookeeper.namespace",
+      "type": "java.lang.String"
+    },
+    {
+      "sourceType": "com.harmony.umbrella.autoconfigure.lock.LockProperties$Retry",
+      "defaultValue": 100,
+      "name": "harmony.lock.zookeeper.retry.interval",
+      "type": "java.lang.Integer"
+    },
+    {
+      "sourceType": "com.harmony.umbrella.autoconfigure.lock.LockProperties$Retry",
+      "defaultValue": 0,
+      "name": "harmony.lock.zookeeper.retry.max-elapsed-time",
+      "type": "java.lang.Integer"
+    },
+    {
+      "sourceType": "com.harmony.umbrella.autoconfigure.lock.LockProperties$Retry",
+      "defaultValue": 5,
+      "name": "harmony.lock.zookeeper.retry.times",
+      "type": "java.lang.Integer"
+    },
+    {
+      "sourceType": "com.harmony.umbrella.autoconfigure.lock.LockProperties$Retry",
+      "name": "harmony.lock.zookeeper.retry.type",
+      "description": "Forever, NTimes, UntilElapsed",
+      "type": "java.lang.String"
+    },
+    {
+      "sourceType": "com.harmony.umbrella.autoconfigure.lock.LockProperties$Zookeeper",
+      "name": "harmony.lock.zookeeper.session-timeout",
+      "type": "java.lang.Integer"
+    },
+    {
+      "sourceType": "com.harmony.umbrella.autoconfigure.log.LogProperties$Interceptor",
+      "defaultValue": false,
+      "name": "harmony.log.interceptor.annotation-mode",
+      "description": "只拦截含有{@linkplain com.harmony.umbrella.log.annotation.Logging}注解的方法模式",
+      "type": "java.lang.Boolean"
+    },
+    {
+      "sourceType": "com.harmony.umbrella.autoconfigure.log.LogProperties$Interceptor",
+      "name": "harmony.log.interceptor.pointcut",
+      "description": "日志拦截的切点",
+      "type": "java.lang.String"
+    },
+    {
+      "sourceType": "com.harmony.umbrella.autoconfigure.log.LogProperties",
+      "name": "harmony.log.level",
+      "type": "java.lang.String"
+    },
+    {
+      "sourceType": "com.harmony.umbrella.autoconfigure.team.GitVersionProperties",
+      "defaultValue": "\/META-INF\/git.properties",
+      "name": "harmony.team.git.location",
+      "type": "java.lang.String"
+    },
+    {
+      "sourceType": "com.harmony.umbrella.autoconfigure.team.GitVersionProperties",
+      "defaultValue": "\/git\/version",
+      "name": "harmony.team.git.url-pattern",
+      "type": "java.lang.String"
+    },
+    {
+      "sourceType": "com.harmony.umbrella.autoconfigure.web.WebProperties",
+      "defaultValue": false,
+      "name": "harmony.web.bundle",
+      "type": "java.lang.Boolean"
+    },
+    {
+      "sourceType": "com.harmony.umbrella.autoconfigure.web.WebProperties$CurrentFilter",
+      "defaultValue": false,
+      "name": "harmony.web.current-filter.enabled",
+      "type": "java.lang.Boolean"
+    },
+    {
+      "sourceType": "com.harmony.umbrella.autoconfigure.web.WebProperties$CurrentFilter",
+      "name": "harmony.web.current-filter.excludes",
+      "type": "java.util.Set<java.lang.String>"
+    },
+    {
+      "sourceType": "com.harmony.umbrella.autoconfigure.web.WebProperties$CurrentFilter",
+      "name": "harmony.web.current-filter.url-patterns",
+      "type": "java.util.Set<java.lang.String>"
+    },
+    {
+      "sourceType": "com.harmony.umbrella.autoconfigure.web.WebProperties$Fastjson",
+      "defaultValue": "utf-8",
+      "name": "harmony.web.fastjson.charset",
+      "type": "java.lang.String"
+    },
+    {
+      "sourceType": "com.harmony.umbrella.autoconfigure.web.WebProperties$Fastjson",
+      "name": "harmony.web.fastjson.date-format",
+      "type": "java.lang.String"
+    },
+    {
+      "sourceType": "com.harmony.umbrella.autoconfigure.web.WebProperties$Fastjson",
+      "defaultValue": false,
+      "name": "harmony.web.fastjson.enabled",
+      "type": "java.lang.Boolean"
+    },
+    {
+      "sourceType": "com.harmony.umbrella.autoconfigure.web.WebProperties$Fastjson",
+      "name": "harmony.web.fastjson.property-naming-strategy",
+      "type": "com.alibaba.fastjson.PropertyNamingStrategy"
+    },
+    {
+      "sourceType": "com.harmony.umbrella.autoconfigure.web.WebProperties$Fastjson",
+      "name": "harmony.web.fastjson.serializer-features",
+      "type": "java.util.List<com.alibaba.fastjson.serializer.SerializerFeature>"
+    },
+    {
+      "sourceType": "com.harmony.umbrella.autoconfigure.web.WebProperties$Fastjson",
+      "defaultValue": true,
+      "name": "harmony.web.fastjson.write-content-length",
+      "type": "java.lang.Boolean"
+    },
+    {
+      "sourceType": "com.harmony.umbrella.autoconfigure.web.WebProperties",
+      "name": "harmony.web.ip-header",
+      "type": "java.lang.String"
+    },
+    {
+      "sourceType": "com.harmony.umbrella.autoconfigure.web.WebProperties$View",
+      "name": "harmony.web.view.date-format",
+      "type": "java.lang.String"
+    },
+    {
+      "sourceType": "com.harmony.umbrella.autoconfigure.web.WebProperties$View",
+      "name": "harmony.web.view.default-serializer-features",
+      "type": "java.lang.Integer"
+    },
+    {
+      "sourceType": "com.harmony.umbrella.autoconfigure.web.WebProperties$View",
+      "name": "harmony.web.view.global-exclude-fields",
+      "type": "java.util.Set<java.lang.String>"
+    },
+    {
+      "sourceType": "com.harmony.umbrella.autoconfigure.web.WebProperties$View",
+      "name": "harmony.web.view.global-include-fields",
+      "type": "java.util.Set<java.lang.String>"
+    },
+    {
+      "sourceType": "com.harmony.umbrella.autoconfigure.web.WebProperties$View",
+      "name": "harmony.web.view.key-style",
+      "type": "com.harmony.umbrella.json.KeyStyle"
+    },
+    {
+      "sourceType": "com.harmony.umbrella.autoconfigure.wx.WxMpProperties",
+      "name": "weixin.mp.aes-key",
+      "type": "java.lang.String"
+    },
+    {
+      "sourceType": "com.harmony.umbrella.autoconfigure.wx.WxMpProperties",
+      "defaultValue": false,
+      "name": "weixin.mp.auto-refresh-token",
+      "type": "java.lang.Boolean"
+    },
+    {
+      "sourceType": "com.harmony.umbrella.autoconfigure.wx.WxMpProperties",
+      "name": "weixin.mp.id",
+      "type": "java.lang.String"
+    },
+    {
+      "sourceType": "com.harmony.umbrella.autoconfigure.wx.WxMpProperties",
+      "defaultValue": 0,
+      "name": "weixin.mp.leading-seconds",
+      "type": "java.lang.Integer"
+    },
+    {
+      "sourceType": "com.harmony.umbrella.autoconfigure.wx.WxMpProperties$Proxy",
+      "name": "weixin.mp.proxy.host",
+      "type": "java.lang.String"
+    },
+    {
+      "sourceType": "com.harmony.umbrella.autoconfigure.wx.WxMpProperties$Proxy",
+      "name": "weixin.mp.proxy.password",
+      "type": "java.lang.String"
+    },
+    {
+      "sourceType": "com.harmony.umbrella.autoconfigure.wx.WxMpProperties$Proxy",
+      "defaultValue": 0,
+      "name": "weixin.mp.proxy.port",
+      "type": "java.lang.Integer"
+    },
+    {
+      "sourceType": "com.harmony.umbrella.autoconfigure.wx.WxMpProperties$Proxy",
+      "name": "weixin.mp.proxy.username",
+      "type": "java.lang.String"
+    },
+    {
+      "sourceType": "com.harmony.umbrella.autoconfigure.wx.WxMpProperties",
+      "name": "weixin.mp.redirect-uri",
+      "type": "java.lang.String"
+    },
+    {
+      "sourceType": "com.harmony.umbrella.autoconfigure.wx.WxMpProperties$Redis",
+      "defaultValue": false,
+      "name": "weixin.mp.redis.clear-first",
+      "type": "java.lang.Boolean"
+    },
+    {
+      "sourceType": "com.harmony.umbrella.autoconfigure.wx.WxMpProperties$Redis",
+      "name": "weixin.mp.redis.prefix",
+      "type": "java.lang.String"
+    },
+    {
+      "sourceType": "com.harmony.umbrella.autoconfigure.wx.WxMpProperties",
+      "name": "weixin.mp.secret",
+      "type": "java.lang.String"
+    },
+    {
+      "sourceType": "com.harmony.umbrella.autoconfigure.wx.WxMpProperties",
+      "name": "weixin.mp.temp-dir-file",
+      "type": "java.lang.String"
+    },
+    {
+      "sourceType": "com.harmony.umbrella.autoconfigure.wx.WxMpProperties",
+      "name": "weixin.mp.template-id",
+      "type": "java.lang.String"
+    },
+    {
+      "sourceType": "com.harmony.umbrella.autoconfigure.wx.WxMpProperties",
+      "name": "weixin.mp.token",
+      "type": "java.lang.String"
+    }
+  ]
+}

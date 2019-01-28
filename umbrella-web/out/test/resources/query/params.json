@@ -1,0 +1,18 @@
+{
+	"name": "username",
+	"value": "wuxii",
+	"operator": "1",
+	"params": [
+		{
+			"name": "age",
+			"value": "18",
+			"operator": "2"
+		},
+		{
+			"name": "password",
+			"value": "abc123",
+			"operator": "2",
+			"composition": "OR"
+		}
+	]
+}

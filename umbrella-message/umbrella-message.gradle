@@ -1,0 +1,14 @@
+description = "Umbrella Message"
+
+dependencies {
+	compile project(":umbrella-core")
+	compile "javax:javaee-api:${javaeeApiVersion}"
+	compile "org.apache.activemq:activemq-client"
+	compile "org.apache.activemq:activemq-broker"
+	compile "org.apache.activemq:activemq-spring"
+	compile "org.apache.activemq:activemq-kahadb-store"
+	testCompile "org.springframework:spring-context"
+	testCompile "org.springframework:spring-test"
+	testCompile "junit:junit"
+	testRuntime "org.slf4j:slf4j-log4j12"
+}

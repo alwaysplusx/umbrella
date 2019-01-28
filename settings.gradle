@@ -1,9 +1,12 @@
 include "umbrella-core"
 include "umbrella-data"
 include "umbrella-json"
-//include "umbrella-message"
-//include "umbrella-web"
-//include "umbrella-weixin"
+include "umbrella-fs"
+include "umbrella-message"
+include "umbrella-security-jwt"
+include "umbrella-spring-boot-autoconfigure"
+include "umbrella-web"
+include "umbrella-weixin"
 
 rootProject.name = 'umbrella'
 rootProject.children.each { project ->

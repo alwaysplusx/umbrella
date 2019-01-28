@@ -1,0 +1,14 @@
+description = "Umbrella Web"
+
+dependencies {
+    compile project(":umbrella-data")
+    compile project(":umbrella-json")
+    compile "org.yaml:snakeyaml"
+    compile "org.springframework:spring-webmvc"
+    compile "org.springframework.security:spring-security-core"
+    compile "org.hibernate:hibernate-core"
+    compile "org.hibernate:hibernate-entitymanager"
+    compile "javax:javaee-api:${javaeeApiVersion}"
+    testCompile "junit:junit:4.11"
+    testRuntime "com.h2database:h2"
+}

@@ -19,6 +19,7 @@ ext {
     openejbVersion = "4.7.5"
     fastjsonVersion = "1.2.49"
     eclipselinkVersion = "2.7.4"
+    cxfVersion = "3.2.7"
 }
 
 allprojects {

@@ -1,0 +1,8 @@
+description = "Umbrella Weixin"
+
+dependencies {
+    compile project(":umbrella-core")
+    compile "com.github.binarywang:weixin-java-mp:3.2.0"
+    compile "org.springframework.data:spring-data-redis"
+    compile "org.projectlombok:lombok"
+}
