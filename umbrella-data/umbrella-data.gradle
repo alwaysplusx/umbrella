@@ -1,0 +1,13 @@
+description = "Umbrella Data"
+
+dependencies {
+    compile "org.springframework.data:spring-data-jpa"
+    compile "com.alibaba:fastjson:${fastjsonVersion}"
+    optional "org.eclipse.persistence:eclipselink:${eclipselinkVersion}"
+    optional "org.hibernate:hibernate-core"
+    testCompile "org.springframework:spring-test"
+    testCompile "junit:junit"
+    testRuntime "mysql:mysql-connector-java"
+    testRuntime "com.h2database:h2"
+    testRuntime "org.slf4j:slf4j-log4j12"
+}
