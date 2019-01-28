@@ -1,0 +1,16 @@
+description = "Umbrella Core"
+
+dependencies {
+    compile "org.springframework:spring-core"
+    optional "org.springframework:spring-webmvc"
+    optional "org.springframework:spring-aop"
+    optional "org.aspectj:aspectjweaver"
+    optional "org.apache.logging.log4j:log4j-api"
+    optional "org.apache.logging.log4j:log4j-core"
+    optional "org.slf4j:slf4j-api"
+    optional "log4j:log4j:${log4jVersion}"
+    optional "javax:javaee-api:${javaeeApiVersion}"
+    testCompile "org.apache.openejb:openejb-core:${openejbVersion}"
+    testCompile "junit:junit"
+    testCompile "org.slf4j:slf4j-log4j12"
+}
