@@ -1,0 +1,57 @@
+buildscript {
+    repositories {
+        mavenCentral()
+        maven { url "https://repo.spring.io/plugins-release" }
+    }
+    dependencies {
+        classpath "io.spring.gradle:dependency-management-plugin:1.0.6.RELEASE"
+        classpath "io.spring.gradle:propdeps-plugin:0.0.10.RELEASE"
+    }
+}
+
+plugins {
+    id "io.spring.dependency-management" version "1.0.6.RELEASE"
+}
+
+ext {
+    javaeeApiVersion = "8.0"
+    log4jVersion = "1.2.17"
+    openejbVersion = "4.7.5"
+    fastjsonVersion = "1.2.49"
+    eclipselinkVersion = "2.7.4"
+}
+
+allprojects {
+    group = "com.harmony.umbrella"
+    version = "0.0.5-SNAPSHOT"
+
+    apply plugin: "java"
+    apply plugin: "propdeps"
+    apply plugin: "io.spring.dependency-management"
+    
+    compileJava {
+        sourceCompatibility = 1.8
+        targetCompatibility = 1.8
+        options.encoding = "UTF-8"
+    }
+
+    repositories {
+        mavenLocal()
+    }
+
+    dependencyManagement {
+        imports {
+            mavenBom "org.springframework.boot:spring-boot-dependencies:2.0.0.RELEASE"
+        }
+    }
+}
+
+configure(subprojects) { subproject ->
+
+    jar {
+        manifest.attributes["Implementation-Title"] = subproject.name
+        manifest.attributes["Implementation-Version"] = subproject.version
+        manifest.attributes["Automatic-Module-Name"] = subproject.name.replace("-", ".")
+    }
+
+}

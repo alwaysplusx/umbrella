@@ -1,0 +1,9 @@
+description = "Umbrella JSON"
+
+dependencies {
+    compile project(":umbrella-core")
+    compile "com.alibaba:fastjson:${fastjsonVersion}"
+    optional "javax:javaee-api:${javaeeApiVersion}"
+    testCompile "com.fasterxml.jackson.core:jackson-core"
+    testCompile "junit:junit"
+}
