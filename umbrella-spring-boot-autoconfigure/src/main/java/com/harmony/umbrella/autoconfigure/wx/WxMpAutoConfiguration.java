@@ -25,8 +25,9 @@ import org.springframework.data.redis.core.StringRedisTemplate;
  */
 @Configuration
 @AutoConfigureAfter(RedisAutoConfiguration.class)
-@ConditionalOnClass(WxMpService.class)
+@ConditionalOnClass({WxMpService.class, WxMpApp.class})
 @EnableConfigurationProperties(WxMpProperties.class)
+@ConditionalOnProperty(prefix = "weixin.mp", name = {"id", "secret"})
 public class WxMpAutoConfiguration {
 
     @Bean
@@ -39,7 +40,6 @@ public class WxMpAutoConfiguration {
     }
 
     @Configuration
-    @ConditionalOnProperty(prefix = "weixin.mp", name = {"app-id", "secret"})
     @ConditionalOnMissingBean(WxMpConfigStorage.class)
     @Import({WxMpConfigStorageConfiguration.Memory.class, WxMpConfigStorageConfiguration.Redis.class})
     static class WxMpConfigStorageConfiguration {
@@ -100,7 +100,7 @@ public class WxMpAutoConfiguration {
 
     private static WxMpApp buildWxMpApp(WxMpProperties wxMpProps) {
         return WxMpApp.builder()
-                .appId(wxMpProps.getAppId())
+                .appId(wxMpProps.getId())
                 .secret(wxMpProps.getSecret())
                 .aesKey(wxMpProps.getAesKey())
                 .autoRefreshToken(wxMpProps.isAutoRefreshToken())

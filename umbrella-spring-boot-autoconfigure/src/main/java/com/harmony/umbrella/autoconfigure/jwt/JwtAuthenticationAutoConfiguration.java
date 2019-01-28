@@ -1,9 +1,8 @@
 package com.harmony.umbrella.autoconfigure.jwt;
 
 import com.auth0.jwt.JWT;
-import com.harmony.umbrella.jwt.JwtTokenHandler;
-import com.harmony.umbrella.jwt.security.web.JwtAuthenticationFilter;
-import com.harmony.umbrella.jwt.support.Auth0JwtTokenHandler;
+import com.harmony.umbrella.security.jwt.JwtTokenHandler;
+import com.harmony.umbrella.security.jwt.support.Auth0JwtTokenHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -21,7 +20,7 @@ import java.util.UUID;
  */
 @Configuration
 @ConditionalOnWebApplication
-@ConditionalOnClass({JWT.class, JwtAuthenticationFilter.class})
+@ConditionalOnClass({JWT.class, Auth0JwtTokenHandler.class})
 @EnableConfigurationProperties(JwtAuthenticationProperties.class)
 public class JwtAuthenticationAutoConfiguration {
 

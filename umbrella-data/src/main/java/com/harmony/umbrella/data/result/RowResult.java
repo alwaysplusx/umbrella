@@ -87,7 +87,7 @@ public class RowResult implements Streamable<CellValue> {
 
         @Override
         public boolean hasNext() {
-            return index == values.size();
+            return index < values.size();
         }
 
         @Override

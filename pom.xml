@@ -34,7 +34,7 @@
     <module>umbrella-fs</module>
     <module>umbrella-spring-boot-autoconfigure</module>
     <module>umbrella-weixin</module>
-    <module>umbrella-jwt</module>
+    <module>umbrella-security-jwt</module>
   </modules>
 
   <properties>
@@ -45,7 +45,7 @@
     <maven.compiler.source>${java.version}</maven.compiler.source>
     <maven.compiler.target>${java.version}</maven.compiler.target>
     <javax.ee.version>7.0</javax.ee.version>
-    <spring.boot.dependencies.version>2.0.0.RELEASE</spring.boot.dependencies.version>
+    <spring.boot.dependencies.version>2.1.2.RELEASE</spring.boot.dependencies.version>
     <apache.cxf.version>3.1.10</apache.cxf.version>
     <apache.openejb.version>4.7.1</apache.openejb.version>
     <apache.poi.version>3.14</apache.poi.version>
@@ -143,7 +143,12 @@
       </dependency>
       <dependency>
         <groupId>com.harmony.umbrella</groupId>
-        <artifactId>umbrella-jwt</artifactId>
+        <artifactId>umbrella-spring-boot-autoconfigure</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.harmony.umbrella</groupId>
+        <artifactId>umbrella-security-jwt</artifactId>
         <version>${project.version}</version>
       </dependency>
       <!-- cxf -->

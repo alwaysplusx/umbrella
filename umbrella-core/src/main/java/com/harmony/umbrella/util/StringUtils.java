@@ -6,10 +6,15 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import org.springframework.util.Assert;
 
 public class StringUtils extends org.springframework.util.StringUtils {
+
+    public static String getFirstNotBlank(String... ss) {
+        return Stream.of(ss).filter(StringUtils::isNotBlank).findFirst().orElse(null);
+    }
 
     /**
      * <p>

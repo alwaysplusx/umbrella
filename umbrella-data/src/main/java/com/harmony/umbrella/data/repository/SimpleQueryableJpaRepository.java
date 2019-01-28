@@ -4,6 +4,7 @@ import com.harmony.umbrella.data.JpaQueryBuilder;
 import com.harmony.umbrella.data.QueryBundle;
 import com.harmony.umbrella.data.QueryResult;
 import org.springframework.data.domain.Page;
+import org.springframework.data.jpa.repository.support.JpaEntityInformation;
 import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
 
 import javax.persistence.EntityManager;
@@ -18,6 +19,12 @@ public class SimpleQueryableJpaRepository<T, ID extends Serializable> extends Si
 
     protected final Class<T> domainClass;
     protected final EntityManager entityManager;
+
+    public SimpleQueryableJpaRepository(JpaEntityInformation<T, ID> entityInformation, EntityManager entityManager) {
+        super(entityInformation, entityManager);
+        this.domainClass = entityInformation.getJavaType();
+        this.entityManager = entityManager;
+    }
 
     public SimpleQueryableJpaRepository(Class<T> domainClass, EntityManager entityManager) {
         super(domainClass, entityManager);

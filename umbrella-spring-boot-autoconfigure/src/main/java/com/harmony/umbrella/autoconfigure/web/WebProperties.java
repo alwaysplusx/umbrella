@@ -1,10 +1,14 @@
 package com.harmony.umbrella.autoconfigure.web;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.PropertyNamingStrategy;
+import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.harmony.umbrella.json.KeyStyle;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @ConfigurationProperties(prefix = "harmony.web")
@@ -14,8 +18,17 @@ public class WebProperties {
     private CurrentFilter currentFilter = new CurrentFilter();
     private View view = new View();
     private boolean bundle;
+    private Fastjson fastjson = new Fastjson();
 
     public WebProperties() {
+    }
+
+    public Fastjson getFastjson() {
+        return fastjson;
+    }
+
+    public void setFastjson(Fastjson fastjson) {
+        this.fastjson = fastjson;
     }
 
     public String getIpHeader() {
@@ -133,6 +146,70 @@ public class WebProperties {
             this.excludes = excludes;
         }
 
+    }
+
+    public static class Fastjson {
+
+        private boolean enabled;
+        private String charset = "utf-8";
+        private PropertyNamingStrategy propertyNamingStrategy = PropertyNamingStrategy.CamelCase;
+        private List<SerializerFeature> serializerFeatures = new ArrayList<>();
+        private String dateFormat;
+        private boolean writeContentLength = true;
+
+        public boolean isEnabled() {
+            return enabled;
+        }
+
+        public Fastjson setEnabled(boolean enabled) {
+            this.enabled = enabled;
+            return this;
+        }
+
+        public PropertyNamingStrategy getPropertyNamingStrategy() {
+            return propertyNamingStrategy;
+        }
+
+        public Fastjson setPropertyNamingStrategy(PropertyNamingStrategy propertyNamingStrategy) {
+            this.propertyNamingStrategy = propertyNamingStrategy;
+            return this;
+        }
+
+        public String getCharset() {
+            return charset;
+        }
+
+        public Fastjson setCharset(String charset) {
+            this.charset = charset;
+            return this;
+        }
+
+        public List<SerializerFeature> getSerializerFeatures() {
+            return serializerFeatures;
+        }
+
+        public Fastjson setSerializerFeatures(List<SerializerFeature> serializerFeatures) {
+            this.serializerFeatures = serializerFeatures;
+            return this;
+        }
+
+        public String getDateFormat() {
+            return dateFormat;
+        }
+
+        public Fastjson setDateFormat(String dateFormat) {
+            this.dateFormat = dateFormat;
+            return this;
+        }
+
+        public boolean isWriteContentLength() {
+            return writeContentLength;
+        }
+
+        public Fastjson setWriteContentLength(boolean writeContentLength) {
+            this.writeContentLength = writeContentLength;
+            return this;
+        }
     }
 
 }

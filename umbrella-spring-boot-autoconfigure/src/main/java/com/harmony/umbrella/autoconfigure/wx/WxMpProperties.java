@@ -9,7 +9,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties(prefix = "weixin.mp")
 public class WxMpProperties {
 
-    private String appId;
+    private String id;
     private String secret;
     private String token;
     private String redirectUri;
@@ -24,12 +24,12 @@ public class WxMpProperties {
     private Proxy proxy;
     private HttpClient httpClient;
 
-    public String getAppId() {
-        return appId;
+    public String getId() {
+        return id;
     }
 
-    public void setAppId(String appId) {
-        this.appId = appId;
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getSecret() {

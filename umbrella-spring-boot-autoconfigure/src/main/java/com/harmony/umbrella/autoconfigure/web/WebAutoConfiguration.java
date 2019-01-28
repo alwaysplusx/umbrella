@@ -1,5 +1,7 @@
 package com.harmony.umbrella.autoconfigure.web;
 
+import com.alibaba.fastjson.serializer.SerializerFeature;
+import com.alibaba.fastjson.support.config.FastJsonConfig;
 import com.alibaba.fastjson.support.spring.FastJsonHttpMessageConverter;
 import com.harmony.umbrella.web.method.support.BundleModelMethodArgumentResolver;
 import com.harmony.umbrella.web.method.support.BundleParamMethodArgumentResolver;
@@ -19,6 +21,7 @@ import org.springframework.web.method.support.HandlerMethodReturnValueHandler;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import java.nio.charset.Charset;
 import java.util.List;
 
 /**
@@ -82,7 +85,17 @@ public class WebAutoConfiguration {
 
                 @Override
                 public void extendMessageConverters(List<HttpMessageConverter<?>> converters) {
-                    converters.add(new FastJsonHttpMessageConverter());
+                    WebProperties.Fastjson fastjson = webProperties.getFastjson();
+                    if (fastjson.isEnabled()) {
+                        FastJsonHttpMessageConverter fastJsonHttpMessageConverter = new FastJsonHttpMessageConverter();
+                        FastJsonConfig fastJsonConfig = fastJsonHttpMessageConverter.getFastJsonConfig();
+                        fastJsonConfig.setCharset(Charset.forName(fastjson.getCharset()));
+                        fastJsonConfig.setDateFormat(fastjson.getDateFormat());
+                        fastJsonConfig.getSerializeConfig().setPropertyNamingStrategy(fastjson.getPropertyNamingStrategy());
+                        fastJsonConfig.setSerializerFeatures(fastjson.getSerializerFeatures().toArray(new SerializerFeature[0]));
+                        fastJsonConfig.setWriteContentLength(fastjson.isWriteContentLength());
+                        converters.add(fastJsonHttpMessageConverter);
+                    }
                 }
 
                 @Override
