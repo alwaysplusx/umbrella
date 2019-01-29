@@ -26,6 +26,7 @@ hs_err_pid*
 .idea
 *.iml
 build
+out
 
 # eclipse
 .classpath
@@ -34,7 +35,6 @@ build
 
 # gradle
 .gradle
-/build/
 
 # Ignore Gradle GUI config
 gradle-app.setting
@@ -47,3 +47,9 @@ gradle-app.setting
 
 # # Work around https://youtrack.jetbrains.com/issue/IDEA-116898
 # gradle/wrapper/gradle-wrapper.properties
+
+# spring project
+.factorypath
+
+# maven
+target
