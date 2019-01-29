@@ -27,7 +27,6 @@ ext {
 
 configure(allprojects) {
     group = "com.harmony.umbrella"
-    version = "0.0.5-SNAPSHOT"
 
     apply plugin: "java"
     apply plugin: "maven"
