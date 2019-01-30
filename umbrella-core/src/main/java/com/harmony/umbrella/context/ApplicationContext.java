@@ -1,46 +1,32 @@
 package com.harmony.umbrella.context;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.ServiceLoader;
-import java.util.Set;
-import java.util.concurrent.CopyOnWriteArrayList;
-
-import javax.servlet.ServletContext;
-
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
-import org.springframework.core.io.support.ResourcePatternResolver;
-import org.springframework.util.ClassUtils;
-
-import com.harmony.umbrella.asm.ClassReader;
-import com.harmony.umbrella.context.metadata.ApplicationMetadata;
-import com.harmony.umbrella.context.metadata.DatabaseMetadata;
-import com.harmony.umbrella.context.metadata.JavaMetadata;
-import com.harmony.umbrella.context.metadata.OperatingSystemMetadata;
-import com.harmony.umbrella.context.metadata.ServerMetadata;
+import com.harmony.umbrella.context.metadata.*;
 import com.harmony.umbrella.core.BeanFactory;
-import com.harmony.umbrella.core.BeansException;
 import com.harmony.umbrella.core.ConnectionSource;
 import com.harmony.umbrella.core.SimpleBeanFactory;
 import com.harmony.umbrella.log.Log;
 import com.harmony.umbrella.log.Logs;
 import com.harmony.umbrella.util.ClassFilter;
 import com.harmony.umbrella.util.IOUtils;
+import org.springframework.asm.ClassReader;
+import org.springframework.beans.BeansException;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
+import org.springframework.core.io.support.ResourcePatternResolver;
+import org.springframework.util.ClassUtils;
+
+import javax.servlet.ServletContext;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.sql.SQLException;
+import java.util.*;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * 运行的应用的上下文
- * 
+ *
  * @author wuxii@foxmail.com
  */
 public abstract class ApplicationContext implements BeanFactory {
@@ -155,7 +141,7 @@ public abstract class ApplicationContext implements BeanFactory {
 
     /**
      * 获取应用的初始化配置, 必须在启动后才能获取
-     * 
+     *
      * @return 初始化配置
      */
     public static ApplicationConfiguration getApplicationConfiguration() throws ApplicationContextException {
@@ -165,7 +151,7 @@ public abstract class ApplicationContext implements BeanFactory {
 
     /**
      * 判断应用是否已经启动
-     * 
+     *
      * @return true is started
      */
     public static boolean isStarted() {
@@ -176,7 +162,7 @@ public abstract class ApplicationContext implements BeanFactory {
 
     /**
      * 判断应用是否未启动
-     * 
+     *
      * @return true is stopped
      */
     public static boolean isStopped() {
@@ -187,7 +173,7 @@ public abstract class ApplicationContext implements BeanFactory {
 
     /**
      * 应用上下文正在启动判断, 不会对锁进行竞争只读取当前应用的状态
-     * 
+     *
      * @return true is starting, false is not
      */
     public static boolean isStarting() {
@@ -196,7 +182,7 @@ public abstract class ApplicationContext implements BeanFactory {
 
     /**
      * 应用上下文正在停止判断, 不会对锁进行竞争只读取当前应用的状态
-     * 
+     *
      * @return true is stopping, false is not
      */
     public static boolean isStopping() {
@@ -242,8 +228,7 @@ public abstract class ApplicationContext implements BeanFactory {
     /**
      * 设置当前线程的用户环境
      *
-     * @param cc
-     *            用户环境
+     * @param cc 用户环境
      */
     static void setCurrentContext(CurrentContext cc) {
         current.set(cc);
@@ -294,7 +279,7 @@ public abstract class ApplicationContext implements BeanFactory {
 
     /**
      * 检查当前application是否是启动状态
-     * 
+     *
      * @throws ApplicationContextException
      */
     protected static final void checkApplicationState() throws ApplicationContextException {
@@ -474,13 +459,7 @@ public abstract class ApplicationContext implements BeanFactory {
             }
 
             ApplicationContext.classResources.addAll(result);
-            Collections.sort(ApplicationContext.classResources, new Comparator<ClassResource>() {
-
-                @Override
-                public int compare(ClassResource o1, ClassResource o2) {
-                    return o1.className.compareTo(o2.className);
-                }
-            });
+            ApplicationContext.classResources.sort(Comparator.comparing(o -> o.className));
 
         }
 

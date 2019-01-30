@@ -333,7 +333,7 @@ public class ApplicationConfigurationBuilder {
         @Override
         public Class<? extends Runnable>[] getShutdownHooks() {
             Class<? extends Runnable>[] hooks = cfg.getShutdownHooks();
-            Class<? extends Runnable>[] result = new Class[hooks.length];
+            Class[] result = new Class[hooks.length];
             System.arraycopy(hooks, 0, result, 0, hooks.length);
             return result;
         }
@@ -413,7 +413,7 @@ public class ApplicationConfigurationBuilder {
 
         @Override
         public Class<? extends Runnable>[] getShutdownHooks() {
-            return shutdownHookClasses.toArray(new Class[shutdownHookClasses.size()]);
+            return shutdownHookClasses.toArray(new Class[0]);
         }
 
         @Override

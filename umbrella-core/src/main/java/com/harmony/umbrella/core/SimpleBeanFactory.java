@@ -1,12 +1,15 @@
 package com.harmony.umbrella.core;
 
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
+
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
 /**
  * 通过类的反射{@linkplain Class#newInstance()}来创建Bean
- * 
+ *
  * @author wuxii@foxmail.com
  */
 public class SimpleBeanFactory extends AbstractBeanFactory implements Serializable {
@@ -39,7 +42,7 @@ public class SimpleBeanFactory extends AbstractBeanFactory implements Serializab
         try {
             return beanClass.newInstance();
         } catch (Exception e) {
-            throw new NoSuchBeanFoundException(e.getMessage(), e);
+            throw new NoSuchBeanDefinitionException(beanClass, e.getMessage());
         }
     }
 }

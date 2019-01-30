@@ -1,28 +1,5 @@
 package com.harmony.umbrella.util;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathException;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
-
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -31,22 +8,34 @@ import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+import javax.xml.parsers.*;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.xpath.*;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+
 /**
  * xml工具类
- * 
+ *
  * @author wuxii@foxmail.com
  */
-public class XmlUtils {
+public abstract class XmlUtils {
 
     /**
      * 检查xpath下是否存在element
-     * 
-     * @param document
-     *            xml node
-     * @param xpath
-     *            xpath expression
+     *
+     * @param node  xml node
+     * @param xpath xpath expression
      * @return
-     * @throws XPathExpressionException
      */
     public static boolean hasElement(Node node, String xpath) {
         return countElement(node, xpath) > 0;
@@ -54,9 +43,8 @@ public class XmlUtils {
 
     /**
      * 判断对象是否是element
-     * 
-     * @param node
-     *            节点
+     *
+     * @param node 节点
      * @return
      */
     public static boolean isElement(Object node) {
@@ -65,9 +53,8 @@ public class XmlUtils {
 
     /**
      * 判断节点是否是attribute
-     * 
-     * @param node
-     *            节点
+     *
+     * @param node 节点
      * @return
      */
     public static boolean isAttribute(Object node) {
@@ -76,9 +63,8 @@ public class XmlUtils {
 
     /**
      * 判断阶段是否是document
-     * 
-     * @param node
-     *            节点
+     *
+     * @param node 节点
      * @return
      */
     public static boolean isDocument(Object node) {
@@ -87,9 +73,8 @@ public class XmlUtils {
 
     /**
      * 获取element的所有下一级element
-     * 
-     * @param node
-     *            dom节点
+     *
+     * @param node dom节点
      * @return 所有下级子节点
      */
     public static Iterator<Element> getChildElements(Node node) {
@@ -97,24 +82,14 @@ public class XmlUtils {
     }
 
     public static List<Element> getChildElementList(Node node) {
-        NodeList nodes = node.getChildNodes();
-        List<Element> elements = new ArrayList<Element>();
-        for (int i = 0, max = nodes.getLength(); i < max; i++) {
-            Node item = nodes.item(i);
-            if (isElement(item)) {
-                elements.add((Element) item);
-            }
-        }
-        return elements;
+        return getElements(node.getChildNodes());
     }
 
     /**
      * 统计item下对应xpath的element一共有多少个
-     * 
-     * @param item
-     *            dom
-     * @param xpath
-     *            xpath expression
+     *
+     * @param node  dom
+     * @param xpath xpath expression
      * @return
      */
     public static int countElement(Node node, String xpath) {
@@ -137,7 +112,7 @@ public class XmlUtils {
 
     /**
      * 判断element是否是最终节点
-     * 
+     *
      * @param element
      * @return
      */
@@ -153,11 +128,9 @@ public class XmlUtils {
 
     /**
      * 获得dom指定xpath下的element
-     * 
-     * @param item
-     *            dom
-     * @param xpath
-     *            xpath expression
+     *
+     * @param item  dom
+     * @param xpath xpath expression
      * @return
      * @throws XPathExpressionException
      */
@@ -168,38 +141,26 @@ public class XmlUtils {
 
     /**
      * 获的dom下指定xpaht的所有element
-     * 
-     * @param item
-     *            dom
-     * @param xpath
-     *            xpath expression
+     *
+     * @param item  dom
+     * @param xpath xpath expression
      * @return
      * @throws XPathException
      */
-    public static Element[] getElements(Node item, String xpath) throws XPathException {
+    public static List<Element> getElements(Node item, String xpath) throws XPathException {
         Object obj = getXPath().evaluate(xpath, item, XPathConstants.NODESET);
-        List<Element> elements = new ArrayList<Element>();
+        List<Element> elements = Collections.emptyList();
         if (obj instanceof NodeList) {
-            NodeList nodeList = ((NodeList) obj);
-            if (nodeList.getLength() > 0) {
-                for (int i = 0, max = nodeList.getLength(); i < max; i++) {
-                    Node node = nodeList.item(i);
-                    if (isElement(node)) {
-                        elements.add((Element) node);
-                    }
-                }
-            }
+            elements = getElements((NodeList) obj);
         }
-        return elements.toArray(new Element[elements.size()]);
+        return elements;
     }
 
     /**
      * 根据xpath获取节点的属性值
-     * 
-     * @param item
-     *            节点
-     * @param xpath
-     *            xpath expression
+     *
+     * @param item  节点
+     * @param xpath xpath expression
      * @return
      * @throws XPathExpressionException
      */
@@ -218,11 +179,9 @@ public class XmlUtils {
 
     /**
      * 从指定路径中加载xml文件
-     * 
-     * @param pathname
-     *            指定路径
-     * @param ignore
-     *            是否忽略xml的校验
+     *
+     * @param pathname 指定路径
+     * @param ignore   是否忽略xml的校验
      * @return
      * @throws Exception
      */
@@ -232,11 +191,9 @@ public class XmlUtils {
 
     /**
      * 由字节数组构建xml document
-     * 
-     * @param buff
-     *            字节数组
-     * @param ignore
-     *            是否忽略dtd的校验
+     *
+     * @param buff   字节数组
+     * @param ignore 是否忽略dtd的校验
      * @return
      * @throws Exception
      */
@@ -246,11 +203,9 @@ public class XmlUtils {
 
     /**
      * 由输入流构建xml document
-     * 
-     * @param is
-     *            输入流
-     * @param ignore
-     *            属否忽略dtd文件头
+     *
+     * @param is     输入流
+     * @param ignore 属否忽略dtd文件头
      * @return
      */
     public static Document getDocument(InputStream is, boolean ignore) throws Exception {
@@ -259,9 +214,8 @@ public class XmlUtils {
 
     /**
      * 创建xml builder
-     * 
-     * @param ignore
-     *            忽略xml校验
+     *
+     * @param ignore 忽略xml校验
      * @return
      * @throws Exception
      */
@@ -275,7 +229,7 @@ public class XmlUtils {
 
     /**
      * 创建xpath工具
-     * 
+     *
      * @return
      */
     public static XPath getXPath() {
@@ -284,7 +238,7 @@ public class XmlUtils {
 
     /**
      * 创建saxParse工具
-     * 
+     *
      * @return
      * @throws SAXException
      * @throws ParserConfigurationException
@@ -299,6 +253,18 @@ public class XmlUtils {
         StringWriter writer = new StringWriter();
         transformer.transform(new DOMSource(node), new StreamResult(writer));
         return writer.toString();
+    }
+
+
+    private static List<Element> getElements(NodeList nodeList) {
+        List<Element> elements = new ArrayList<>();
+        for (int i = 0, max = nodeList.getLength(); i < max; i++) {
+            Node item = nodeList.item(i);
+            if (isElement(item)) {
+                elements.add((Element) item);
+            }
+        }
+        return elements;
     }
 
     private static final class IgnoreDTDEntityResolver implements EntityResolver {

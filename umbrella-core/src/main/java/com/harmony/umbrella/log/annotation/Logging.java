@@ -9,8 +9,6 @@ import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
-import javax.interceptor.InterceptorBinding;
-
 import com.harmony.umbrella.log.Level.StandardLevel;
 import com.harmony.umbrella.log.ProblemHandler;
 
@@ -20,7 +18,6 @@ import com.harmony.umbrella.log.ProblemHandler;
  * @author wuxii@foxmail.com
  */
 @Inherited
-@InterceptorBinding
 @Target({ METHOD, TYPE })
 @Retention(RUNTIME)
 public @interface Logging {
