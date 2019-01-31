@@ -16,7 +16,7 @@ import org.springframework.util.ReflectionUtils;
  */
 public abstract class AbstractBeanFactory implements BeanFactory {
 
-    private Class<? extends Annotation>[] autowrieAnnotations;
+    private Class<? extends Annotation>[] autowireAnnotations;
 
     public AbstractBeanFactory() {
     }
@@ -53,12 +53,12 @@ public abstract class AbstractBeanFactory implements BeanFactory {
         }
     }
 
-    public Class<? extends Annotation>[] getAutowrieAnnotations() {
-        return autowrieAnnotations;
+    public Class<? extends Annotation>[] getAutowireAnnotations() {
+        return autowireAnnotations;
     }
 
-    public void setAutowrieAnnotations(Class<? extends Annotation>[] autowrieAnnotations) {
-        this.autowrieAnnotations = autowrieAnnotations;
+    public void setAutowireAnnotations(Class<? extends Annotation>[] autowireAnnotations) {
+        this.autowireAnnotations = autowireAnnotations;
     }
 
     protected List<Method> getAutowireMethods(Class<?> clazz) {
@@ -102,7 +102,7 @@ public abstract class AbstractBeanFactory implements BeanFactory {
                 || !Modifier.isPublic(method.getModifiers())) {
             return false;
         }
-        for (Class<? extends Annotation> annCls : autowrieAnnotations) {
+        for (Class<? extends Annotation> annCls : autowireAnnotations) {
             if (method.getAnnotation(annCls) != null) {
                 return true;
             }
@@ -111,8 +111,8 @@ public abstract class AbstractBeanFactory implements BeanFactory {
     }
 
     protected boolean isAutowireField(Field field) {
-        if (autowrieAnnotations != null) {
-            for (Class<? extends Annotation> annCls : autowrieAnnotations) {
+        if (autowireAnnotations != null) {
+            for (Class<? extends Annotation> annCls : autowireAnnotations) {
                 if (!Modifier.isStatic(field.getModifiers()) && field.getAnnotation(annCls) != null) {
                     return true;
                 }

@@ -125,7 +125,7 @@ public class ContextHelper {
     }
 
     public static boolean isUnknowServer() {
-        return getServerMetadata().serverType == ServerMetadata.UNKNOW;
+        return getServerMetadata().serverType == ServerMetadata.UNKNOWS;
     }
 
     public static boolean isWeblogic() {
