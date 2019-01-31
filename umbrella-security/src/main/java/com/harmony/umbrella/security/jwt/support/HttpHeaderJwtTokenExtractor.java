@@ -1,6 +1,6 @@
-package com.harmony.umbrella.security.support;
+package com.harmony.umbrella.security.jwt.support;
 
-import com.harmony.umbrella.security.JwtTokenExtractor;
+import com.harmony.umbrella.security.jwt.JwtTokenExtractor;
 
 import javax.servlet.http.HttpServletRequest;
 

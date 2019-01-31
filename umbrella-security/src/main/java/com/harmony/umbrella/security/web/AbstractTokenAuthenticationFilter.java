@@ -1,4 +1,4 @@
-package com.harmony.umbrella.security.authentication.web;
+package com.harmony.umbrella.security.web;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.authentication.AuthenticationDetailsSource;

@@ -1,6 +1,6 @@
-package com.harmony.umbrella.security;
+package com.harmony.umbrella.security.jwt;
 
-import com.harmony.umbrella.security.userdetails.JwtUserDetails;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -16,6 +16,6 @@ public interface JwtTokenGenerator {
      * @param request     http request
      * @return
      */
-    String generate(JwtUserDetails userDetails, HttpServletRequest request);
+    String generate(UserDetails userDetails, HttpServletRequest request);
 
 }

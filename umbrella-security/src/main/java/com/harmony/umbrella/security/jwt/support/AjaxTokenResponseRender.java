@@ -1,4 +1,4 @@
-package com.harmony.umbrella.security.support;
+package com.harmony.umbrella.security.jwt.support;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;

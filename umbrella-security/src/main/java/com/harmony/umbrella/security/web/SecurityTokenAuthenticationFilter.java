@@ -1,4 +1,4 @@
-package com.harmony.umbrella.security.authentication.web;
+package com.harmony.umbrella.security.web;
 
 import com.harmony.umbrella.security.SecurityToken;
 import com.harmony.umbrella.security.SecurityTokenExtractor;

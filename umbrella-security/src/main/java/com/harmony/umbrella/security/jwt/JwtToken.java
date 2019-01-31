@@ -1,4 +1,4 @@
-package com.harmony.umbrella.security;
+package com.harmony.umbrella.security.jwt;
 
 import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;

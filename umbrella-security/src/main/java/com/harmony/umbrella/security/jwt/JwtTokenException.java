@@ -1,4 +1,4 @@
-package com.harmony.umbrella.security;
+package com.harmony.umbrella.security.jwt;
 
 import org.springframework.security.core.AuthenticationException;
 

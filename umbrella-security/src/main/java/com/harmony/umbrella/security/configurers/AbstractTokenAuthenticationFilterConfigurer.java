@@ -1,6 +1,6 @@
 package com.harmony.umbrella.security.configurers;
 
-import com.harmony.umbrella.security.authentication.web.AbstractTokenAuthenticationFilter;
+import com.harmony.umbrella.security.web.AbstractTokenAuthenticationFilter;
 import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;

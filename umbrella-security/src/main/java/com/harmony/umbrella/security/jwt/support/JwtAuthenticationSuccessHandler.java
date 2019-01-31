@@ -1,9 +1,9 @@
-package com.harmony.umbrella.security.support;
+package com.harmony.umbrella.security.jwt.support;
 
-import com.harmony.umbrella.security.JwtTokenException;
-import com.harmony.umbrella.security.JwtTokenGenerator;
-import com.harmony.umbrella.security.userdetails.JwtUserDetails;
+import com.harmony.umbrella.security.jwt.JwtTokenException;
+import com.harmony.umbrella.security.jwt.JwtTokenGenerator;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 
 import javax.servlet.ServletException;
@@ -32,11 +32,11 @@ public class JwtAuthenticationSuccessHandler implements AuthenticationSuccessHan
             throws IOException, ServletException {
         Object principal = authentication.getPrincipal();
 
-        if (!(principal instanceof JwtUserDetails)) {
+        if (!(principal instanceof UserDetails)) {
             throw new JwtTokenException("unsupported authentication type " + authentication);
         }
 
-        String tokenValue = jwtTokenGenerator.generate((JwtUserDetails) principal, request);
+        String tokenValue = jwtTokenGenerator.generate((UserDetails) principal, request);
         tokenResponseRender.render(tokenValue, request, response);
     }
 
