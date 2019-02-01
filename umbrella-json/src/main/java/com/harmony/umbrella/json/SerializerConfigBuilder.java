@@ -243,7 +243,13 @@ public class SerializerConfigBuilder {
         } else if (keyStyle != null) {
             filters.add(keyStyle);
         }
-        return new SerializerConfigImpl(filters, features, fastjsonSerializeConfig, dateFormat, defaultSerializerFeature);
+        return new SerializerConfigImpl(
+                filters,
+                features == null ? Collections.emptyList() : features,
+                fastjsonSerializeConfig,
+                dateFormat,
+                defaultSerializerFeature
+        );
     }
 
     private PatternResourceFilter<String> getResourceFilter() {
