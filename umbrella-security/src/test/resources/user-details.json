@@ -1,0 +1,8 @@
+{
+  "username": "bean",
+  "password": "mypassword",
+  "authorities": [],
+  "account_not_expired": false,
+  "account_not_locked": false,
+  "credentials_non_expired": false
+}

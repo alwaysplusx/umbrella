@@ -9,4 +9,5 @@ dependencies {
     compile "org.springframework.security:spring-security-config"
     compile "javax.servlet:javax.servlet-api"
     testCompile "junit:junit"
+    testRuntime "org.slf4j:slf4j-log4j12"
 }

@@ -12,33 +12,33 @@ import java.util.List;
  */
 public class JwtToken implements AuthenticatedPrincipal {
 
-    private DecodedJWT jwt;
+	private DecodedJWT jwt;
 
-    public JwtToken(DecodedJWT jwt) {
-        this.jwt = jwt;
-    }
+	public JwtToken(DecodedJWT jwt) {
+		this.jwt = jwt;
+	}
 
-    public String getTokenValue() {
-        return jwt.getToken();
-    }
+	public String getTokenValue() {
+		return jwt.getToken();
+	}
 
-    public Long getUId() {
-        Claim claim = jwt.getClaim("uid");
-        return claim != null ? claim.asLong() : null;
-    }
+	public Long getUId() {
+		Claim claim = jwt.getClaim("uid");
+		return claim != null ? claim.asLong() : null;
+	}
 
-    @Override
-    public String getName() {
-        List<String> audience = jwt.getAudience();
-        return audience != null && !audience.isEmpty() ? audience.get(0) : null;
-    }
+	@Override
+	public String getName() {
+		List<String> audience = jwt.getAudience();
+		return audience != null && !audience.isEmpty() ? audience.get(0) : null;
+	}
 
-    public boolean isExpired() {
-        return Instant.now().isBefore(jwt.getExpiresAt().toInstant());
-    }
+	public boolean isExpired() {
+		return Instant.now().isAfter(jwt.getExpiresAt().toInstant());
+	}
 
-    public DecodedJWT getJwt() {
-        return jwt;
-    }
+	public DecodedJWT getJwt() {
+		return jwt;
+	}
 
 }

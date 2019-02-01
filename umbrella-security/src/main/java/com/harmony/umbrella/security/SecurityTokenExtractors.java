@@ -1,7 +1,5 @@
 package com.harmony.umbrella.security;
 
-import com.harmony.umbrella.security.SecurityToken;
-import com.harmony.umbrella.security.SecurityTokenExtractor;
 import org.springframework.core.OrderComparator;
 
 import javax.servlet.http.HttpServletRequest;
@@ -26,7 +24,14 @@ public class SecurityTokenExtractors implements SecurityTokenExtractor {
 
 	@Override
 	public SecurityToken extract(HttpServletRequest request) {
-		return extractors.stream().map(e -> e.extract(request)).findAny().orElse(null);
+		SecurityToken securityToken = null;
+		for (SecurityTokenExtractor extractor : extractors) {
+			securityToken = extractor.extract(request);
+			if (securityToken != null) {
+				break;
+			}
+		}
+		return securityToken;
 	}
 
 	private void setSecurityTokenExtractors(List<SecurityTokenExtractor> extractors) {
