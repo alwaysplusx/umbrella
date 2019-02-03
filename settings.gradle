@@ -4,7 +4,6 @@ include "umbrella-json"
 include "umbrella-fs"
 include "umbrella-message"
 include "umbrella-security"
-include "umbrella-spring-boot-autoconfigure"
 include "umbrella-web"
 include "umbrella-weixin"
 

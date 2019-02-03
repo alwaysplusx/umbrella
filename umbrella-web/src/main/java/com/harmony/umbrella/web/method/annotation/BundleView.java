@@ -81,7 +81,7 @@ public @interface BundleView {
      *
      * @return
      */
-    Class<? extends PatternBehavior> patternBehaviorClass() default PatternBehavior.class;
+    Class<? extends PatternBehavior> behaviorClass() default PatternBehavior.class;
 
     /**
      * 对内容类型序列化的行为设置
@@ -90,9 +90,10 @@ public @interface BundleView {
      */
     public enum Behavior implements PatternBehavior {
 
-        AUTO(""), //
-        ARRAY("[*]."), //
-        PAGE("items[*]."), //
+        AUTO(""),
+        ARRAY("[*]."),
+        PAGE("items[*]."),
+        RESPONSE(""),
         NONE("");
 
         private String prefix;
@@ -103,7 +104,21 @@ public @interface BundleView {
 
         @Override
         public Set<String> convert(String... patterns) {
-            Set<String> result = new LinkedHashSet<>();
+            return PatternBehavior.concats(prefix, patterns);
+        }
+
+        public String prefix() {
+            return prefix;
+        }
+
+    }
+
+    public interface PatternBehavior {
+
+        Set<String> convert(String... patterns);
+
+        static Set<String> concats(String prefix, String[] patterns) {
+            Set<String> result = new LinkedHashSet<>(patterns.length);
             for (String s : patterns) {
                 if (s.startsWith("$.")) {
                     result.add(s.substring(2));
@@ -113,12 +128,6 @@ public @interface BundleView {
             }
             return result;
         }
-
-    }
-
-    public interface PatternBehavior {
-
-        Set<String> convert(String... patterns);
 
     }
 

@@ -1,20 +1,5 @@
 package com.harmony.umbrella.web.method.support;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.springframework.data.domain.Page;
-import org.springframework.http.MediaType;
-import org.springframework.http.server.ServletServerHttpResponse;
-import org.springframework.web.servlet.View;
-
 import com.alibaba.fastjson.serializer.SerializeFilter;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.harmony.umbrella.json.Json;
@@ -22,15 +7,23 @@ import com.harmony.umbrella.json.SerializerConfigBuilder;
 import com.harmony.umbrella.log.Log;
 import com.harmony.umbrella.log.Logs;
 import com.harmony.umbrella.util.IOUtils;
-import com.harmony.umbrella.web.Response;
 import com.harmony.umbrella.web.method.annotation.BundleView.Behavior;
 import com.harmony.umbrella.web.method.annotation.BundleView.PatternBehavior;
 import com.harmony.umbrella.web.util.WebUtils;
 import com.harmony.umbrella.web.util.WebUtils.PageWrapper;
+import org.springframework.data.domain.Page;
+import org.springframework.http.MediaType;
+import org.springframework.http.server.ServletServerHttpResponse;
+import org.springframework.web.servlet.View;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.*;
 
 /**
  * 待渲染的视图片段(用于配置视图)
- * 
+ *
  * @author wuxii@foxmail.com
  */
 public class ViewFragment {
@@ -47,7 +40,7 @@ public class ViewFragment {
     protected final Map<String, List<String>> headers;
     protected String encoding = ENCODING;
     protected String contentType = MediaType.APPLICATION_JSON_UTF8_VALUE;
-    private Behavior behavior;
+    private PatternBehavior behavior;
 
     protected ViewFragment() {
         this.headers = new LinkedHashMap<>();
@@ -90,7 +83,7 @@ public class ViewFragment {
     }
 
     public ViewFragment setHeader(String name, String value) {
-        return setHeader(name, new String[] { value });
+        return setHeader(name, new String[]{value});
     }
 
     public ViewFragment setHeader(String name, String... value) {
@@ -101,7 +94,7 @@ public class ViewFragment {
     }
 
     public ViewFragment addHeader(String name, String value) {
-        return addHeader(name, new String[] { value });
+        return addHeader(name, new String[]{value});
     }
 
     public ViewFragment addHeader(String name, String... value) {
@@ -109,7 +102,7 @@ public class ViewFragment {
         return this;
     }
 
-    public ViewFragment setRenderBehavior(Behavior behavior) {
+    public ViewFragment setRenderBehavior(PatternBehavior behavior) {
         this.behavior = behavior;
         return this;
     }
@@ -176,10 +169,6 @@ public class ViewFragment {
                 && !(o instanceof PageWrapper)//
                 && Behavior.PAGE.equals(behavior)) {
             o = WebUtils.frontendPage((Page<?>) o);
-        }
-
-        if (o instanceof Response) {
-            o = ((Response) o).toJson();
         }
 
         String text = o instanceof String ? (String) o : Json.toJson(o, serializerBuilder.build());

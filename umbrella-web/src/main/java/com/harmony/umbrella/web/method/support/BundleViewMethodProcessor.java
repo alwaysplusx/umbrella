@@ -3,6 +3,7 @@ package com.harmony.umbrella.web.method.support;
 import com.alibaba.fastjson.serializer.SerializeFilter;
 import com.harmony.umbrella.json.KeyStyle;
 import com.harmony.umbrella.json.SerializerConfigBuilder;
+import com.harmony.umbrella.web.Response;
 import com.harmony.umbrella.web.method.annotation.BundleView;
 import com.harmony.umbrella.web.method.annotation.BundleView.Behavior;
 import com.harmony.umbrella.web.method.annotation.BundleView.PatternBehavior;
@@ -77,27 +78,28 @@ public class BundleViewMethodProcessor implements HandlerMethodReturnValueHandle
                     .addFilters(instanceFilters(viewConfig.filters()))
                     .setKeyStyle(keyStyle);
 
-            Behavior behavior = viewConfig.behavior();
-            if (Behavior.AUTO == behavior) {
-                behavior = findTypeBehavior(parameter.getMethod());
+            PatternBehavior behavior;
+            if (viewConfig.behaviorClass() != PatternBehavior.class) {
+                // 自定义behavior
+                behavior = viewConfig.behaviorClass().newInstance();
+            } else {
+                behavior = viewConfig.behavior();
+                if (Behavior.AUTO == behavior) {
+                    behavior = detachBehavior(parameter.getMethod());
+                }
             }
             viewFragment.setRenderBehavior(behavior);
-
-            PatternBehavior patternBehavior = behavior;
-            if (viewConfig.patternBehaviorClass() != PatternBehavior.class) {
-                patternBehavior = viewConfig.patternBehaviorClass().newInstance();
-            }
 
             merge(this.globalIncludeFields, viewConfig.includes())
                     .stream()
                     .map(e -> keyStyle.namingStrategy().translate(e))
-                    .map(patternBehavior::convert)
+                    .map(behavior::convert)
                     .forEach(scb::addIncludePatterns);
 
             merge(this.globalExcludeFields, viewConfig.excludes())
                     .stream()
                     .map(e -> keyStyle.namingStrategy().translate(e))
-                    .map(patternBehavior::convert)
+                    .map(behavior::convert)
                     .forEach(scb::addExcludePatterns);
         }
 
@@ -133,19 +135,20 @@ public class BundleViewMethodProcessor implements HandlerMethodReturnValueHandle
         return result;
     }
 
-    private Behavior findTypeBehavior(Method method) {
+    private PatternBehavior detachBehavior(Method method) {
         if (method == null) {
             return Behavior.NONE;
         }
         Class<?> returnType = method.getReturnType();
-        if (Page.class.isAssignableFrom(returnType)) {
-            return Behavior.PAGE;
-        } else if (Collection.class.isAssignableFrom(returnType) || returnType.isArray()) {
-            return Behavior.ARRAY;
-        } else if (Persistable.class.isAssignableFrom(returnType)) {
-            return Behavior.AUTO;
+        Behavior behavior = findBehaviorByType(returnType);
+        if (behavior != Behavior.RESPONSE) {
+            return behavior;
         }
-        return Behavior.NONE;
+        Behavior dataBehavior = Behavior.NONE;
+        if (method.getGenericParameterTypes()[0] instanceof Class) {
+            dataBehavior = findBehaviorByType((Class) method.getGenericParameterTypes()[0]);
+        }
+        return new ResponseBehavior(dataBehavior);
     }
 
     public void setKeyStyle(KeyStyle keyStyle) {
@@ -167,4 +170,33 @@ public class BundleViewMethodProcessor implements HandlerMethodReturnValueHandle
     public void setDateFormat(String dateFormat) {
         this.dateFormat = dateFormat;
     }
+
+    private static Behavior findBehaviorByType(Class<?> type) {
+        if (Page.class.isAssignableFrom(type)) {
+            return Behavior.PAGE;
+        } else if (Collection.class.isAssignableFrom(type) || type.isArray()) {
+            return Behavior.ARRAY;
+        } else if (Response.class.isAssignableFrom(type)) {
+            return Behavior.RESPONSE;
+        } else if (Persistable.class.isAssignableFrom(type)) {
+            return Behavior.AUTO;
+        }
+        return Behavior.NONE;
+    }
+
+    private static class ResponseBehavior implements PatternBehavior {
+
+        private final String prefix;
+
+        private ResponseBehavior(Behavior dataBehavior) {
+            this.prefix = "data." + dataBehavior.prefix();
+        }
+
+        @Override
+        public Set<String> convert(String... patterns) {
+            return PatternBehavior.concats(prefix, patterns);
+        }
+
+    }
+
 }
