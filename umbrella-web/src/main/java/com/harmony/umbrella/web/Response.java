@@ -2,7 +2,6 @@ package com.harmony.umbrella.web;
 
 import com.harmony.umbrella.context.ContextHelper;
 import com.harmony.umbrella.json.Json;
-import org.springframework.http.HttpStatus;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.Serializable;
@@ -14,7 +13,7 @@ import java.util.function.Function;
 /**
  * @author wuxii@foxmail.com
  */
-public final class Response<T> implements Serializable {
+public final class Response<T> implements ResponseDetails, Serializable {
 
     private static final long serialVersionUID = 1655555210935131563L;
 
@@ -28,7 +27,7 @@ public final class Response<T> implements Serializable {
     /**
      * 返回编码
      */
-    protected final int code;
+    protected int code;
     /**
      * 异常的信息
      */
@@ -50,7 +49,8 @@ public final class Response<T> implements Serializable {
      */
     protected String request;
 
-    protected HttpStatus httpStatus = HttpStatus.OK;
+    public Response() {
+    }
 
     protected Response(int code) {
         this.code = code;
@@ -69,10 +69,12 @@ public final class Response<T> implements Serializable {
         return data;
     }
 
+    @Override
     public int getCode() {
         return code;
     }
 
+    @Override
     public String getMsg() {
         return msg;
     }
@@ -81,16 +83,36 @@ public final class Response<T> implements Serializable {
         return trace;
     }
 
-    public HttpStatus getHttpStatus() {
-        return httpStatus;
-    }
-
     public String getDesc() {
         return desc;
     }
 
     public String getRequest() {
         return request;
+    }
+
+    public void setCode(int code) {
+        this.code = code;
+    }
+
+    public void setMsg(String msg) {
+        this.msg = msg;
+    }
+
+    public void setDesc(String desc) {
+        this.desc = desc;
+    }
+
+    public void setTrace(String trace) {
+        this.trace = trace;
+    }
+
+    public void setData(T data) {
+        this.data = data;
+    }
+
+    public void setRequest(String request) {
+        this.request = request;
     }
 
     public String toJson() {
@@ -138,12 +160,9 @@ public final class Response<T> implements Serializable {
         return data;
     }
 
-    public T orElseThrow(Function<Response, ResponseException> fun) {
+    public T orElseThrow(Function<ResponseException, ? extends RuntimeException> fun) {
         if (!isOk()) {
-            throw fun.apply(this);
-        }
-        if (data == null) {
-            throw new ResponseException(ERROR, "data not found");
+            throw fun.apply(new ResponseException(this));
         }
         return data;
     }
@@ -157,6 +176,10 @@ public final class Response<T> implements Serializable {
 
     public static <T> Response<T> of(ResponseDetails r) {
         return newBuilder(r).build();
+    }
+
+    public static <T> Response<T> of(ResponseDetails r, String desc) {
+        return newBuilder(r).desc(desc).build();
     }
 
     public static <T> Response<T> ok() {
@@ -179,7 +202,6 @@ public final class Response<T> implements Serializable {
         return newBuilder(error.getCode())
                 .msg(error.getMessage())
                 .desc(error.getDescription())
-                .httpStatus(error.getHttpStatus())
                 .build();
     }
 
@@ -189,8 +211,7 @@ public final class Response<T> implements Serializable {
 
     public static ResponseBuilder newBuilder(ResponseDetails r) {
         return newBuilder(r.getCode())
-                .msg(r.getMessage())
-                .httpStatus(r.getHttpStatus());
+                .msg(r.getMsg());
     }
 
     // builder
@@ -216,11 +237,6 @@ public final class Response<T> implements Serializable {
 
         public ResponseBuilder desc(String desc) {
             this.response.desc = desc;
-            return this;
-        }
-
-        public ResponseBuilder httpStatus(HttpStatus httpStatus) {
-            this.response.httpStatus = httpStatus;
             return this;
         }
 

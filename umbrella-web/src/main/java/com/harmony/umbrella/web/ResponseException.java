@@ -1,7 +1,5 @@
 package com.harmony.umbrella.web;
 
-import org.springframework.http.HttpStatus;
-
 /**
  * @author wuxii
  */
@@ -9,39 +7,37 @@ public class ResponseException extends RuntimeException implements ResponseDetai
 
     private final int code;
     private String description;
-    private final HttpStatus httpStatus;
 
     public ResponseException(int code) {
         this(code, null);
     }
 
-    public ResponseException(ResponseDetails responseDetails) {
-        this(responseDetails, null, null);
+    public ResponseException(ResponseDetails r) {
+        this(r, null, null);
     }
 
-    public ResponseException(ResponseDetails responseDetails, String description) {
-        this(responseDetails, description, null);
+    public ResponseException(ResponseDetails r, String description) {
+        this(r, description, null);
     }
 
-    public ResponseException(ResponseDetails responseDetails, String description, Throwable cause) {
-        super(responseDetails.getMessage(), cause);
-        this.code = responseDetails.getCode();
-        this.httpStatus = responseDetails.getHttpStatus();
+    public ResponseException(ResponseDetails r, Throwable cause) {
+        this(r, cause.getMessage(), cause);
+    }
+
+    public ResponseException(ResponseDetails r, String description, Throwable cause) {
+        super(r.getMsg(), cause);
+        this.code = r.getCode();
         this.description = description;
     }
+
 
     public ResponseException(int code, String message) {
         this(code, message, null);
     }
 
-    public ResponseException(int code, String message, Throwable cause) {
-        this(code, message, HttpStatus.OK, cause);
-    }
-
-    protected ResponseException(int code, String message, HttpStatus httpStatus, Throwable cause) {
+    protected ResponseException(int code, String message, Throwable cause) {
         super(message, cause);
         this.code = code;
-        this.httpStatus = httpStatus;
     }
 
     public int getCode() {
@@ -49,12 +45,12 @@ public class ResponseException extends RuntimeException implements ResponseDetai
     }
 
     @Override
-    public HttpStatus getHttpStatus() {
-        return httpStatus;
+    public String getMsg() {
+        return getMessage();
     }
 
     public String getDescription() {
         return this.description;
     }
-    
+
 }
