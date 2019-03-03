@@ -54,17 +54,16 @@ public class Auth0JwtTokenHandler implements JwtTokenHandler {
     }
 
     @Override
-    public JwtToken decode(String token) throws JwtDecodeException {
-        DecodedJWT jwt;
+    public JwtToken decode(String token) {
         try {
-            jwt = JWT
+            DecodedJWT jwt = JWT
                     .require(Algorithm.HMAC512(signature))
                     .build()
                     .verify(token);
+            return new JwtToken(jwt);
         } catch (JWTVerificationException e) {
-            throw new JwtDecodeException("jwt verification failed", e);
+            throw new JwtDecodeException("token decode failed", e);
         }
-        return new JwtToken(jwt);
     }
 
     public void setIssuer(String issuer) {

@@ -5,6 +5,6 @@ package com.harmony.umbrella.security.jwt;
  */
 public interface JwtTokenDecoder {
 
-    JwtToken decode(String tokenValue) throws JwtDecodeException;
+    JwtToken decode(String tokenValue);
 
 }

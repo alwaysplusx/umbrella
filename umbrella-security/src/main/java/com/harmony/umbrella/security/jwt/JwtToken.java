@@ -8,37 +8,49 @@ import java.time.Instant;
 import java.util.List;
 
 /**
+ * TODO change to jwt token interface
+ *
  * @author wuxii
  */
 public class JwtToken implements AuthenticatedPrincipal {
 
-	private DecodedJWT jwt;
+    private DecodedJWT jwt;
+    private Exception jwtDecodeException;
 
-	public JwtToken(DecodedJWT jwt) {
-		this.jwt = jwt;
-	}
+    public JwtToken(DecodedJWT jwt) {
+        this.jwt = jwt;
+    }
 
-	public String getTokenValue() {
-		return jwt.getToken();
-	}
+    public JwtToken(DecodedJWT jwt, Exception jwtDecodeException) {
+        this.jwt = jwt;
+        this.jwtDecodeException = jwtDecodeException;
+    }
 
-	public Long getUId() {
-		Claim claim = jwt.getClaim("uid");
-		return claim != null ? claim.asLong() : null;
-	}
+    public String getTokenValue() {
+        return jwt.getToken();
+    }
 
-	@Override
-	public String getName() {
-		List<String> audience = jwt.getAudience();
-		return audience != null && !audience.isEmpty() ? audience.get(0) : null;
-	}
+    public Long getUId() {
+        Claim claim = jwt.getClaim("uid");
+        return claim != null ? claim.asLong() : null;
+    }
 
-	public boolean isExpired() {
-		return Instant.now().isAfter(jwt.getExpiresAt().toInstant());
-	}
+    @Override
+    public String getName() {
+        List<String> audience = jwt.getAudience();
+        return audience != null && !audience.isEmpty() ? audience.get(0) : null;
+    }
 
-	public DecodedJWT getJwt() {
-		return jwt;
-	}
+    public boolean isExpired() {
+        return Instant.now().isAfter(jwt.getExpiresAt().toInstant());
+    }
+
+    public Exception getJwtDecodeException() {
+        return jwtDecodeException;
+    }
+
+    public DecodedJWT getJwt() {
+        return jwt;
+    }
 
 }

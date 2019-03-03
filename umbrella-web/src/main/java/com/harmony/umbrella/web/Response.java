@@ -2,15 +2,14 @@ package com.harmony.umbrella.web;
 
 import com.harmony.umbrella.context.ContextHelper;
 import com.harmony.umbrella.json.Json;
-import org.springframework.http.MediaType;
-import org.springframework.web.servlet.View;
+import org.springframework.http.HttpStatus;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.Serializable;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 
 /**
  * @author wuxii@foxmail.com
@@ -29,11 +28,15 @@ public final class Response<T> implements Serializable {
     /**
      * 返回编码
      */
-    protected int code;
+    protected final int code;
     /**
      * 异常的信息
      */
     protected String msg;
+    /**
+     * 异常的描述信息
+     */
+    protected String desc;
     /**
      * 日志追踪码
      */
@@ -47,12 +50,15 @@ public final class Response<T> implements Serializable {
      */
     protected String request;
 
-    protected Response() {
-        this(getCurrentRequestUrl());
+    protected HttpStatus httpStatus = HttpStatus.OK;
+
+    protected Response(int code) {
+        this.code = code;
     }
 
-    Response(String request) {
-        this.request = request;
+    private Response(int code, T data) {
+        this.code = code;
+        this.data = data;
     }
 
     public boolean isOk() {
@@ -75,11 +81,19 @@ public final class Response<T> implements Serializable {
         return trace;
     }
 
+    public HttpStatus getHttpStatus() {
+        return httpStatus;
+    }
+
+    public String getDesc() {
+        return desc;
+    }
+
     public String getRequest() {
         return request;
     }
 
-    private String toJson() {
+    public String toJson() {
         return isOk() ? okJson() : errorJson();
     }
 
@@ -124,6 +138,16 @@ public final class Response<T> implements Serializable {
         return data;
     }
 
+    public T orElseThrow(Function<Response, ResponseException> fun) {
+        if (!isOk()) {
+            throw fun.apply(this);
+        }
+        if (data == null) {
+            throw new ResponseException(ERROR, "data not found");
+        }
+        return data;
+    }
+
     // static
 
     private static String getCurrentRequestUrl() {
@@ -131,186 +155,124 @@ public final class Response<T> implements Serializable {
         return request != null ? request.getRequestURI() : null;
     }
 
+    public static <T> Response<T> of(ResponseDetails r) {
+        return newBuilder(r).build();
+    }
+
     public static <T> Response<T> ok() {
-        return okBuilder().build();
+        return ok(null);
     }
 
     public static <T> Response<T> ok(T data) {
-        return okBuilder().setData(data).build();
-    }
-
-    public static <T> Response<T> error(int code, String msg) {
-        return errorBuilder().code(code).msg(msg).build();
+        return new Response<>(OK, data);
     }
 
     public static <T> Response<T> error(String msg) {
-        return errorBuilder().code(ERROR).msg(msg).build();
+        return error(ERROR, msg);
     }
 
-    public static OKResponseBuilder okBuilder() {
-        return new OKResponseBuilder();
+    public static <T> Response<T> error(int code, String msg) {
+        return newBuilder(code).msg(msg).build();
     }
 
-    public static ErrorResponseBuilder errorBuilder() {
-        return new ErrorResponseBuilder();
+    public static <T> Response<T> error(ResponseException error) {
+        return newBuilder(error.getCode())
+                .msg(error.getMessage())
+                .desc(error.getDescription())
+                .httpStatus(error.getHttpStatus())
+                .build();
     }
 
-    public static ParamResponseBuilder newBuilder(int code) {
-        return new ParamResponseBuilder(code);
+    public static ResponseBuilder newBuilder(int code) {
+        return new ResponseBuilder(code);
+    }
+
+    public static ResponseBuilder newBuilder(ResponseDetails r) {
+        return newBuilder(r.getCode())
+                .msg(r.getMessage())
+                .httpStatus(r.getHttpStatus());
     }
 
     // builder
 
-    public static final class ErrorResponseBuilder {
+    public static class ResponseBuilder {
 
-        private Response response = new Response();
+        final Response response;
 
-        private ErrorResponseBuilder() {
+        private ResponseBuilder(int code) {
+            this.response = new Response(code);
+            this.response.request = getCurrentRequestUrl();
         }
 
-        public ErrorResponseBuilder code(int code) {
-            this.response.code = code;
-            return this;
-        }
-
-        public ErrorResponseBuilder msg(String msg) {
+        public ResponseBuilder msg(String msg) {
             this.response.msg = msg;
             return this;
         }
 
-        public ErrorResponseBuilder trace(String trace) {
+        public ResponseBuilder trace(String trace) {
             this.response.trace = trace;
             return this;
         }
 
-        public ErrorResponseBuilder request(String request) {
+        public ResponseBuilder desc(String desc) {
+            this.response.desc = desc;
+            return this;
+        }
+
+        public ResponseBuilder httpStatus(HttpStatus httpStatus) {
+            this.response.httpStatus = httpStatus;
+            return this;
+        }
+
+        public ResponseBuilder request(String request) {
             this.response.request = request;
             return this;
         }
 
-        public <T> Response<T> build() {
-            Response result = this.response;
-            this.response = new Response();
-            return result;
-        }
-
-        public View toView() {
-            return new ResponseView(build());
-        }
-    }
-
-    public static final class OKResponseBuilder {
-
-        private Response response = new Response();
-        private Object data;
-
-        private OKResponseBuilder() {
-        }
-
-        public OKResponseBuilder msg(String msg) {
-            this.response.msg = msg;
+        public ResponseBuilder data(Object data) {
+            this.response.data = data;
             return this;
         }
 
-        public OKResponseBuilder trace(String trace) {
-            this.response.trace = trace;
-            return this;
-        }
-
-        public OKResponseBuilder request(String request) {
-            this.response.request = request;
-            return this;
-        }
-
-        public OKResponseBuilder setData(Object data) {
-            this.data = data;
-            return this;
+        public MapResponseBodyBuilder mapBodyBuilder() {
+            return new MapResponseBodyBuilder(this);
         }
 
         public <T> Response<T> build(T data) {
-            Response response = new Response();
-            response.code = OK;
-            response.data = data;
-            return response;
+            return data(data).build();
         }
 
         public <T> Response<T> build() {
-            return (Response<T>) build(data);
-        }
-
-        public View toView() {
-            return new ResponseView(build());
-        }
-
-    }
-
-    public static final class ParamResponseBuilder {
-
-        private Response response = new Response();
-        private Map<String, Object> data;
-
-        private ParamResponseBuilder(int code) {
-            this.response.code = code;
-        }
-
-        public ParamResponseBuilder msg(String msg) {
-            this.response.msg = msg;
-            return this;
-        }
-
-        public ParamResponseBuilder trace(String trace) {
-            this.response.trace = trace;
-            return this;
-        }
-
-        public ParamResponseBuilder request(String request) {
-            this.response.request = request;
-            return this;
-        }
-
-        public ParamResponseBuilder param(String key, Object value) {
-            if (data == null) {
-                data = new LinkedHashMap<>();
-            }
-            this.data.put(key, value);
-            return this;
-        }
-
-        public Response<Map<String, Object>> build(Map<String, Object> data) {
-            Response response = new Response();
-            response.code = OK;
-            response.data = data;
             return response;
         }
 
-        public Response<Map<String, Object>> build() {
-            return build(data);
-        }
-
-        public View toView() {
-            return new ResponseView(build());
-        }
-
     }
 
-    private static class ResponseView implements View {
+    public static class MapResponseBodyBuilder {
 
-        private Response response;
+        private ResponseBuilder parent;
+        private Map<String, Object> body = new LinkedHashMap<>();
 
-        public ResponseView(Response response) {
-            this.response = response;
+        private MapResponseBodyBuilder(ResponseBuilder parent) {
+            this.parent = parent;
         }
 
-        @Override
-        public String getContentType() {
-            return MediaType.APPLICATION_JSON_UTF8_VALUE;
+        public MapResponseBodyBuilder put(String key, Object val) {
+            body.put(key, val);
+            return this;
         }
 
-        @Override
-        public void render(Map<String, ?> model, HttpServletRequest request, HttpServletResponse response) throws Exception {
-            String responseText = this.response.toJson();
-            response.setContentType(getContentType());
-            response.getWriter().write(responseText);
+        public MapResponseBodyBuilder putAll(Map<String, Object> bodyMap) {
+            body.putAll(bodyMap);
+            return this;
+        }
+
+        public ResponseBuilder apply() {
+            return parent.data(body);
+        }
+
+        public Response<Map<String, Object>> build() {
+            return parent.data(body).build();
         }
 
     }
