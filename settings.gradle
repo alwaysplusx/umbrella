@@ -6,6 +6,7 @@ include "umbrella-message"
 include "umbrella-security"
 include "umbrella-web"
 include "umbrella-weixin"
+include 'umbrella-lock'
 
 rootProject.name = 'umbrella'
 rootProject.children.each { project ->

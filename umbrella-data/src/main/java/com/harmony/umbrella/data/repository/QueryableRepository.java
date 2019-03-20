@@ -6,6 +6,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.repository.NoRepositoryBean;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import java.io.Serializable;
@@ -32,6 +34,7 @@ public interface QueryableRepository<T, ID extends Serializable> extends JpaRepo
 
     EntityManager getEntityManager();
 
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
     Class<T> getDomainClass();
 
 }

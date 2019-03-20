@@ -6,6 +6,8 @@ import com.harmony.umbrella.data.QueryResult;
 import org.springframework.data.domain.Page;
 import org.springframework.data.jpa.repository.support.JpaEntityInformation;
 import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import java.io.Serializable;
@@ -15,6 +17,7 @@ import java.util.Optional;
 /**
  * @author wuxii@foxmail.com
  */
+@Transactional(propagation = Propagation.NOT_SUPPORTED)
 public class SimpleQueryableJpaRepository<T, ID extends Serializable> extends SimpleJpaRepository<T, ID> implements QueryableRepository<T, ID> {
 
     protected final Class<T> domainClass;

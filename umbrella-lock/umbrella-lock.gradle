@@ -1,0 +1,5 @@
+description = "Umbrella Lock"
+
+dependencies {
+    compile "org.springframework.integration:spring-integration-core"
+}
