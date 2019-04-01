@@ -12,6 +12,6 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 public @interface WebUser {
 
-    boolean required() default true;
+    boolean allowAnonymous() default false;
 
 }

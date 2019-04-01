@@ -6,32 +6,42 @@ import java.util.Map;
 /**
  * @author wuxii
  */
-public final class CurrentUser {
+public interface CurrentUser {
 
-    private final Long userId;
-    private final String username;
-    private final Map<String, Object> userProperties;
+    long getUserId();
 
-    public CurrentUser(Long userId, String username, Map<String, Object> userProperties) {
-        this.userId = userId;
-        this.username = username;
-        this.userProperties = Collections.unmodifiableMap(userProperties);
+    default boolean isAnonymous() {
+        return getUserId() <= 0;
     }
 
-    public Long getUserId() {
-        return userId;
+    String getUsername();
+
+    default Object getUserProperty(Object key) {
+        return getUserProperty(key);
     }
 
-    public String getUsername() {
-        return username;
+    Map<Object, Object> getUserProperties();
+
+    static CurrentUser anonymous() {
+        return ANONYMOUS;
     }
 
-    public Map<String, Object> getUserProperties() {
-        return userProperties;
-    }
+    CurrentUser ANONYMOUS = new CurrentUser() {
 
-    public Object getUserProperty(String name) {
-        return userProperties.get(name);
-    }
+        @Override
+        public long getUserId() {
+            return 0L;
+        }
+
+        @Override
+        public String getUsername() {
+            return "anonymous";
+        }
+
+        @Override
+        public Map<Object, Object> getUserProperties() {
+            return Collections.emptyMap();
+        }
+    };
 
 }

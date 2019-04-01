@@ -2,9 +2,12 @@ description = "Umbrella Core"
 
 dependencies {
     compile "org.springframework:spring-beans"
+    optional "org.springframework:spring-expression"
     optional "org.apache.logging.log4j:log4j-api"
     optional "org.apache.logging.log4j:log4j-core"
     optional "org.slf4j:slf4j-api"
+    optional "org.aspectj:aspectjweaver"
+    optional "javax:javaee-api:8.0"
     optional "log4j:log4j:${log4jVersion}"
     optional "javax.servlet:javax.servlet-api"
     testCompile "junit:junit"

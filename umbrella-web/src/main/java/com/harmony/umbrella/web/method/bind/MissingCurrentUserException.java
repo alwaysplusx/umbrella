@@ -5,13 +5,13 @@ import org.springframework.web.bind.ServletRequestBindingException;
 /**
  * @author wuxii
  */
-public class MissingWebUserException extends ServletRequestBindingException {
+public class MissingCurrentUserException extends ServletRequestBindingException {
 
-    public MissingWebUserException(String msg) {
+    public MissingCurrentUserException(String msg) {
         super(msg);
     }
 
-    public MissingWebUserException(String msg, Throwable cause) {
+    public MissingCurrentUserException(String msg, Throwable cause) {
         super(msg, cause);
     }
 

@@ -9,6 +9,7 @@ dependencies {
     compile "org.hibernate:hibernate-core"
     compile "org.hibernate:hibernate-entitymanager"
     compile "javax:javaee-api:${javaeeApiVersion}"
+    optional project(":umbrella-security")
     testCompile "junit:junit:4.11"
     testRuntime "com.h2database:h2"
 }
