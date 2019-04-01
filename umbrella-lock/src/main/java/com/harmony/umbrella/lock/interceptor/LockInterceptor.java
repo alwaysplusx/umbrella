@@ -4,9 +4,9 @@ import com.harmony.umbrella.lock.ConfigurableLockRegistry;
 import com.harmony.umbrella.lock.annotation.Lock;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
+import org.springframework.core.annotation.AnnotationUtils;
 
 import java.lang.reflect.Method;
-import java.util.function.Supplier;
 
 /**
  * @author wuxii
@@ -36,17 +36,15 @@ public class LockInterceptor implements MethodInterceptor {
         }
     }
 
-    private Object invokeWithinLock(Method method, Supplier proceed) throws Throwable {
-        return null;
-    }
-
     protected Object lockIdentificationKey(Lock lock) {
+        // TODO SpEL使用
+        String key = lock.key();
         return null;
     }
 
     private Lock getLockAttribute(Method method) {
         // TODO 使用注解来获取锁
-        return null;
+        return AnnotationUtils.findAnnotation(method, Lock.class);
     }
 
     public void setLockRegistry(ConfigurableLockRegistry lockRegistry) {

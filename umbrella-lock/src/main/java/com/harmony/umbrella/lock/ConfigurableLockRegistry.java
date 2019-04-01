@@ -9,7 +9,7 @@ import java.util.concurrent.locks.Lock;
  */
 public interface ConfigurableLockRegistry extends LockRegistry {
 
-    int DEFAULT_TIMEOUT = 6000;
+    int DEFAULT_TIMEOUT = 60000;
 
     @Override
     default Lock obtain(Object lockKey) {

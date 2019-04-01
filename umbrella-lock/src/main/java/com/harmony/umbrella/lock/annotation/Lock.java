@@ -8,11 +8,15 @@ import org.springframework.core.annotation.AliasFor;
 public @interface Lock {
 
     @AliasFor("value")
-    String key();
+    String name() default "";
 
-    @AliasFor("key")
-    String value();
+    @AliasFor("name")
+    String value() default "";
 
-    int timeout() default 3000;
+    String key() default "";
+
+    String keyGenerator() default "";
+
+    int timeout() default 60000;
 
 }
