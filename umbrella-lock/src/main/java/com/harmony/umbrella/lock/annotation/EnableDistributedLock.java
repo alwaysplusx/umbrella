@@ -11,13 +11,13 @@ import java.lang.annotation.*;
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-// TODO 添加import
-public @interface EnabledDistributedLock {
+// @Import(LockConfigurationSelector.class)
+public @interface EnableDistributedLock {
 
-	boolean proxyTargetClass() default false;
+    boolean proxyTargetClass() default false;
 
-	AdviceMode mode() default AdviceMode.PROXY;
+    AdviceMode mode() default AdviceMode.PROXY;
 
-	int order() default Ordered.LOWEST_PRECEDENCE;
+    int order() default Ordered.LOWEST_PRECEDENCE;
 
 }

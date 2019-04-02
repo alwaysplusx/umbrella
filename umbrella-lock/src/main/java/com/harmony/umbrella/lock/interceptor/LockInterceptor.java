@@ -7,6 +7,8 @@ import org.aopalliance.intercept.MethodInvocation;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
+import org.springframework.core.DefaultParameterNameDiscoverer;
+import org.springframework.core.ParameterNameDiscoverer;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
@@ -19,71 +21,79 @@ import java.lang.reflect.Method;
  */
 public class LockInterceptor implements MethodInterceptor, BeanFactoryAware {
 
-	private ConfigurableLockRegistry lockRegistry;
+    private ConfigurableLockRegistry lockRegistry;
 
-	private ExpressionParser expressionParser = new SpelExpressionParser();
+    private ExpressionParser expressionParser = new SpelExpressionParser();
 
-	private BeanFactory beanFactory;
+    private BeanFactory beanFactory;
 
-	public LockInterceptor() {
-	}
+    private ParameterNameDiscoverer parameterNameDiscoverer = new DefaultParameterNameDiscoverer();
 
-	public LockInterceptor(ConfigurableLockRegistry lockRegistry) {
-		this.lockRegistry = lockRegistry;
-	}
+    public LockInterceptor() {
+    }
 
-	@Override
-	public Object invoke(MethodInvocation invocation) throws Throwable {
-		LockOperation lockAttribute = getLockAttribute(invocation.getMethod());
-		if (lockAttribute == null) {
-			return invocation.proceed();
-		}
-		Object lockKey = lockIdentificationKey(lockAttribute, invocation);
-		int timeout = lockAttribute.getTimeout();
-		java.util.concurrent.locks.Lock lock = lockRegistry.obtain(lockKey, timeout);
-		try {
-			lock.lock();
-			return invocation.proceed();
-		} finally {
-			lock.unlock();
-		}
-	}
+    public LockInterceptor(ConfigurableLockRegistry lockRegistry) {
+        this.lockRegistry = lockRegistry;
+    }
 
-	protected Object lockIdentificationKey(LockOperation lockOperation, MethodInvocation invocation) {
-		// TODO beanFactory to load keyGenerate bean
-		StringBuilder lockKeyBuf = new StringBuilder(lockOperation.getName());
-		String key = lockOperation.getKey();
-		if (StringUtils.hasText(key)) {
-			// TODO create EvaluationContext
-			lockKeyBuf.append(expressionParser.parseExpression(key).getValue());
-		}
-		return lockKeyBuf.toString();
-	}
+    @Override
+    public Object invoke(MethodInvocation invocation) throws Throwable {
+        LockOperation lockAttribute = getLockAttribute(invocation.getMethod());
+        if (lockAttribute == null) {
+            return invocation.proceed();
+        }
+        Object lockKey = lockIdentificationKey(lockAttribute, invocation);
+        int timeout = lockAttribute.getTimeout();
+        java.util.concurrent.locks.Lock lock = lockRegistry.obtain(lockKey, timeout);
+        try {
+            lock.lock();
+            return invocation.proceed();
+        } finally {
+            lock.unlock();
+        }
+    }
 
-	private LockOperation getLockAttribute(Method method) {
-		Lock ann = AnnotationUtils.findAnnotation(method, Lock.class);
-		if (ann == null) {
-			return null;
-		}
-		return LockOperation
-				.builder()
-				.name(ann.name())
-				.key(ann.key())
-				.timeout(ann.timeout())
-				.keyGenerator(ann.keyGenerator())
-				.build();
-	}
+    protected Object lockIdentificationKey(LockOperation lockOperation, MethodInvocation invocation) {
+        // TODO beanFactory to load keyGenerate bean
+        StringBuilder lockKeyBuf = new StringBuilder(lockOperation.getName());
+        String key = lockOperation.getKey();
+        if (StringUtils.hasText(key)) {
+            // TODO create EvaluationContext
+            Method method = invocation.getMethod();
+            Object[] arguments = invocation.getArguments();
+            Object target = invocation.getThis();
+            Class<?> targetClass = target.getClass();
+            LockExpressionRootObject rootObject = new LockExpressionRootObject(method, arguments, target, targetClass);
+            LockEvaluationContext evaluationContext = new LockEvaluationContext(rootObject, method, arguments, parameterNameDiscoverer);
+            lockKeyBuf.append(expressionParser.parseExpression(key).getValue(evaluationContext));
+        }
+        return lockKeyBuf.toString();
+    }
 
-	public void setLockRegistry(ConfigurableLockRegistry lockRegistry) {
-		this.lockRegistry = lockRegistry;
-	}
+    private LockOperation getLockAttribute(Method method) {
+        Lock ann = AnnotationUtils.findAnnotation(method, Lock.class);
+        if (ann == null) {
+            return null;
+        }
+        return LockOperation
+                .builder()
+                .name(ann.name())
+                .key(ann.key())
+                .timeout(ann.timeout())
+                .keyGenerator(ann.keyGenerator())
+                .build();
+    }
 
-	public void setExpressionParser(ExpressionParser expressionParser) {
-		this.expressionParser = expressionParser;
-	}
+    public void setLockRegistry(ConfigurableLockRegistry lockRegistry) {
+        this.lockRegistry = lockRegistry;
+    }
 
-	@Override
-	public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
-		this.beanFactory = beanFactory;
-	}
+    public void setExpressionParser(ExpressionParser expressionParser) {
+        this.expressionParser = expressionParser;
+    }
+
+    @Override
+    public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
+        this.beanFactory = beanFactory;
+    }
 }
