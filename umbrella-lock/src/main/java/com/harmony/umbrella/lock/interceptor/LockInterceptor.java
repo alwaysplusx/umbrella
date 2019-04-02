@@ -4,51 +4,86 @@ import com.harmony.umbrella.lock.ConfigurableLockRegistry;
 import com.harmony.umbrella.lock.annotation.Lock;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.core.annotation.AnnotationUtils;
+import org.springframework.expression.ExpressionParser;
+import org.springframework.expression.spel.standard.SpelExpressionParser;
+import org.springframework.util.StringUtils;
 
 import java.lang.reflect.Method;
 
 /**
  * @author wuxii
  */
-public class LockInterceptor implements MethodInterceptor {
+public class LockInterceptor implements MethodInterceptor, BeanFactoryAware {
 
-    private ConfigurableLockRegistry lockRegistry;
+	private ConfigurableLockRegistry lockRegistry;
 
-    public LockInterceptor() {
-    }
+	private ExpressionParser expressionParser = new SpelExpressionParser();
 
-    public LockInterceptor(ConfigurableLockRegistry lockRegistry) {
-        this.lockRegistry = lockRegistry;
-    }
+	private BeanFactory beanFactory;
 
-    @Override
-    public Object invoke(MethodInvocation invocation) throws Throwable {
-        Lock lockAttribute = getLockAttribute(invocation.getMethod());
-        int timeout = lockAttribute.timeout();
-        Object lockKey = lockIdentificationKey(lockAttribute);
-        java.util.concurrent.locks.Lock lock = lockRegistry.obtain(lockKey, timeout);
-        try {
-            lock.lock();
-            return invocation.proceed();
-        } finally {
-            lock.unlock();
-        }
-    }
+	public LockInterceptor() {
+	}
 
-    protected Object lockIdentificationKey(Lock lock) {
-        // TODO SpEL使用
-        String key = lock.key();
-        return null;
-    }
+	public LockInterceptor(ConfigurableLockRegistry lockRegistry) {
+		this.lockRegistry = lockRegistry;
+	}
 
-    private Lock getLockAttribute(Method method) {
-        // TODO 使用注解来获取锁
-        return AnnotationUtils.findAnnotation(method, Lock.class);
-    }
+	@Override
+	public Object invoke(MethodInvocation invocation) throws Throwable {
+		LockOperation lockAttribute = getLockAttribute(invocation.getMethod());
+		if (lockAttribute == null) {
+			return invocation.proceed();
+		}
+		Object lockKey = lockIdentificationKey(lockAttribute, invocation);
+		int timeout = lockAttribute.getTimeout();
+		java.util.concurrent.locks.Lock lock = lockRegistry.obtain(lockKey, timeout);
+		try {
+			lock.lock();
+			return invocation.proceed();
+		} finally {
+			lock.unlock();
+		}
+	}
 
-    public void setLockRegistry(ConfigurableLockRegistry lockRegistry) {
-        this.lockRegistry = lockRegistry;
-    }
+	protected Object lockIdentificationKey(LockOperation lockOperation, MethodInvocation invocation) {
+		// TODO beanFactory to load keyGenerate bean
+		StringBuilder lockKeyBuf = new StringBuilder(lockOperation.getName());
+		String key = lockOperation.getKey();
+		if (StringUtils.hasText(key)) {
+			// TODO create EvaluationContext
+			lockKeyBuf.append(expressionParser.parseExpression(key).getValue());
+		}
+		return lockKeyBuf.toString();
+	}
 
+	private LockOperation getLockAttribute(Method method) {
+		Lock ann = AnnotationUtils.findAnnotation(method, Lock.class);
+		if (ann == null) {
+			return null;
+		}
+		return LockOperation
+				.builder()
+				.name(ann.name())
+				.key(ann.key())
+				.timeout(ann.timeout())
+				.keyGenerator(ann.keyGenerator())
+				.build();
+	}
+
+	public void setLockRegistry(ConfigurableLockRegistry lockRegistry) {
+		this.lockRegistry = lockRegistry;
+	}
+
+	public void setExpressionParser(ExpressionParser expressionParser) {
+		this.expressionParser = expressionParser;
+	}
+
+	@Override
+	public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
+		this.beanFactory = beanFactory;
+	}
 }
