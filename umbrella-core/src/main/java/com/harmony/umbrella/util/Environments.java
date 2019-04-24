@@ -1,6 +1,7 @@
 package com.harmony.umbrella.util;
 
-import com.harmony.umbrella.context.metadata.ApplicationMetadata;
+import com.harmony.umbrella.context.metadata.JavaMetadata;
+import com.harmony.umbrella.context.metadata.OperatingSystemMetadata;
 
 /**
  * @author wuxii@foxmail.com
@@ -45,12 +46,12 @@ public final class Environments {
     /**
      * java版本
      */
-    private static final String javaVersion = ApplicationMetadata.getJavaMetadata().javaVersion;
+    private static final String javaVersion = JavaMetadata.INSTANCE.javaVersion;
 
     /**
      * 操作系统名称
      */
-    private static final String operatingSystemName = ApplicationMetadata.getOperatingSystemMetadata().osName;
+    private static final String operatingSystemName = OperatingSystemMetadata.INSTANCE.osName;
 
     /**
      * java大版本号
@@ -110,7 +111,7 @@ public final class Environments {
     /**
      * Return the full Java version string, as returned by
      * {@code System.getProperty("java.version")}.
-     * 
+     *
      * @return the full Java version string
      * @see System#getProperty(String)
      */
@@ -121,7 +122,7 @@ public final class Environments {
     /**
      * Get the major version code. This means we can do things like
      * {@code if (getMajorJavaVersion() >= JAVA_17)}.
-     * 
+     *
      * @return a code comparable to the {@code JAVA_XX} codes in this class
      * @see #JAVA_16
      * @see #JAVA_17

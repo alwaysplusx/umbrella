@@ -62,12 +62,12 @@ import com.harmony.umbrella.core.ConnectionSource;
  * </tr>
  * </tbody>
  * </table>
- * 
+ *
  * @author wuxii@foxmail.com
  */
-public final class DatabaseMetadata {
+public final class DataSourceMetadata {
 
-    static final DatabaseMetadata EMPTY_DATABASE_METADATA = new DatabaseMetadata();
+    static final DataSourceMetadata EMPTY_DATABASE_METADATA = new DataSourceMetadata();
 
     /**
      * 数据库的名称
@@ -109,7 +109,7 @@ public final class DatabaseMetadata {
     public static final int SQLSERVER = 6;
     public static final int POSTGRESQL = 7;
 
-    public DatabaseMetadata(ConnectionSource connectionSource) throws SQLException {
+    public DataSourceMetadata(ConnectionSource connectionSource) throws SQLException {
         this.connectionSource = connectionSource;
         Connection conn = null;
         try {
@@ -129,7 +129,7 @@ public final class DatabaseMetadata {
         }
     }
 
-    private DatabaseMetadata() {
+    private DataSourceMetadata() {
         this.productName = "";
         this.productVersion = "";
         this.url = "";
@@ -139,24 +139,24 @@ public final class DatabaseMetadata {
         this.databaseType = UNKNOW;
     }
 
-    private final int databaseType(String databaseName) {
+    private int databaseType(String databaseName) {
         if (databaseName == null) {
             return UNKNOW;
         }
         databaseName = databaseName.toLowerCase();
-        if (databaseName.indexOf("oracle") != -1) {
+        if (databaseName.contains("oracle")) {
             return ORACLE;
-        } else if (databaseName.indexOf("postgresql") != -1) {
+        } else if (databaseName.contains("postgresql")) {
             return POSTGRESQL;
-        } else if (databaseName.indexOf("db2") != -1) {
+        } else if (databaseName.contains("db2")) {
             return DB2;
-        } else if (databaseName.indexOf("sql server") != -1) {
+        } else if (databaseName.contains("sql server")) {
             return SQLSERVER;
-        } else if (databaseName.indexOf("mysql") != -1) {
+        } else if (databaseName.contains("mysql")) {
             return MYSQL;
-        } else if (databaseName.indexOf("hsql") != -1) {
+        } else if (databaseName.contains("hsql")) {
             return HSQL;
-        } else if (databaseName.indexOf("h2") != -1) {
+        } else if (databaseName.contains("h2")) {
             return H2;
         }
         return UNKNOW;

@@ -16,7 +16,6 @@ public class ActiveMQBootstrap implements ApplicationListener {
 
     @Override
     public void onStartup(ApplicationConfiguration appConfig) {
-        appConfig.getStringProperty("activemq.connector");
         try {
             brokerService.start();
         } catch (Exception e) {

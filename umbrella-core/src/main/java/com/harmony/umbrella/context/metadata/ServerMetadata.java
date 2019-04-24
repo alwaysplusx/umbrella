@@ -1,7 +1,5 @@
 package com.harmony.umbrella.context.metadata;
 
-import javax.servlet.ServletContext;
-
 /**
  * 应用的web服务信息
  *
@@ -58,92 +56,54 @@ import javax.servlet.ServletContext;
  */
 public final class ServerMetadata {
 
-	static final ServerMetadata EMPTY_SERVER_METADATA = new ServerMetadata();
+    static final ServerMetadata EMPTY_SERVER_METADATA = new ServerMetadata();
 
-	public static final int UNKNOWS = 0;
-	public static final int WEBLOGIC = 1;
-	public static final int WEBSPHERE = 2;
-	public static final int GLASSFISH = 3;
-	public static final int JBOSS = 4;
-	public static final int TOMCAT = 5;
-	public static final int WILDFLY = 6;
-	public static final int JETTY = 7;
+    public static final int UNKNOWS = 0;
+    public static final int WEBLOGIC = 1;
+    public static final int WEBSPHERE = 2;
+    public static final int GLASSFISH = 3;
+    public static final int JBOSS = 4;
+    public static final int TOMCAT = 5;
+    public static final int WILDFLY = 6;
+    public static final int JETTY = 7;
+    public static final int NETTY = 8;
 
-	/**
-	 * servlet 的版本e.g:3.1
-	 */
-	public final String servletVersion;
-	/**
-	 * web application server 的服务名e.g:tomcat. 名称小写
-	 */
-	public final String serverName;
-	/**
-	 * 服务信息
-	 */
-	public final String serverInfo;
-	/**
-	 * server的类型
-	 */
-	public final int serverType;
-	/**
-	 * 服务的上下文路径
-	 */
-	public final String contextPath;
+    /**
+     * servlet 的版本e.g:3.1
+     */
+    public final String servletVersion;
+    /**
+     * web application server 的服务名e.g:tomcat. 名称小写
+     */
+    public final String serverName;
+    /**
+     * 服务信息
+     */
+    public final String serverInfo;
+    /**
+     * server的类型
+     */
+    public final int serverType;
+    /**
+     * 服务的上下文路径
+     */
+    public final String contextPath;
 
-	public ServerMetadata(ServletContext context) {
-		this.serverInfo = context.getServerInfo();
-		this.serverName = getServerName(serverInfo);
-		this.serverType = serverType(serverName);
-		this.servletVersion = context.getMajorVersion() + "." + context.getMinorVersion();
-		this.contextPath = context.getContextPath();
-	}
+    public ServerMetadata(String servletVersion, String serverName, String serverInfo, int serverType, String contextPath) {
+        this.servletVersion = servletVersion;
+        this.serverName = serverName;
+        this.serverInfo = serverInfo;
+        this.serverType = serverType;
+        this.contextPath = contextPath;
+    }
 
-	private ServerMetadata() {
-		this.serverName = "";
-		this.serverInfo = "";
-		this.servletVersion = "";
-		this.contextPath = "";
-		this.serverType = UNKNOWS;
-	}
+    private ServerMetadata() {
+        this.serverName = "";
+        this.serverInfo = "";
+        this.servletVersion = "";
+        this.contextPath = "";
+        this.serverType = UNKNOWS;
+    }
 
-	private String getServerName(String serverName) {
-		serverName = serverName.toLowerCase();
-		if (serverName.contains("weblogic")) {
-			return "weblogic";
-		} else if (serverName.contains("websphere")) {
-			return "websphere";
-		} else if (serverName.contains("glassfish")) {
-			return "glassfish";
-		} else if (serverName.contains("jboss")) {
-			return "jboss";
-		} else if (serverName.contains("tomcat")) {
-			return "tomcat";
-		} else if (serverName.contains("wildfly")) {
-			return "wildfly";
-		} else if (serverName.contains("jetty")) {
-			return "jetty";
-		}
-		return "unknow";
-	}
-
-	private int serverType(String serverName) {
-		serverName = serverName.toLowerCase();
-		if (serverName.contains("weblogic")) {
-			return WEBLOGIC;
-		} else if (serverName.contains("websphere")) {
-			return WEBSPHERE;
-		} else if (serverName.contains("glassfish")) {
-			return GLASSFISH;
-		} else if (serverName.contains("jboss")) {
-			return JBOSS;
-		} else if (serverName.contains("tomcat")) {
-			return TOMCAT;
-		} else if (serverName.contains("wildfly")) {
-			return WILDFLY;
-		} else if (serverName.contains("jetty")) {
-			return JETTY;
-		}
-		return UNKNOWS;
-	}
 
 }

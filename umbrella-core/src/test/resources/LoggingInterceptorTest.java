@@ -1,5 +1,3 @@
-package com.harmony.umbrella.log;
-
 import static org.junit.Assert.*;
 
 import javax.ejb.EJB;

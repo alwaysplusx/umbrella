@@ -21,7 +21,7 @@ public class StorageManagerFactory {
     public static final String DEFAULT_BUCKET_NAME;
 
     static {
-        OperatingSystemMetadata osm = ApplicationMetadata.getOperatingSystemMetadata();
+        OperatingSystemMetadata osm = OperatingSystemMetadata.INSTANCE;
         DEFAULT_ROOT_DIR = osm.userHome + File.separator + "upload";
         DEFAULT_BUCKET_NAME = osm.userName;
     }

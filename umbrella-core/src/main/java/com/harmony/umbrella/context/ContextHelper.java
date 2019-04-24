@@ -1,17 +1,15 @@
 package com.harmony.umbrella.context;
 
+import com.harmony.umbrella.log.Log;
+import com.harmony.umbrella.log.Logs;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import com.harmony.umbrella.context.metadata.ApplicationMetadata;
-import com.harmony.umbrella.context.metadata.ServerMetadata;
-import com.harmony.umbrella.log.Log;
-import com.harmony.umbrella.log.Logs;
-
 /**
  * 上下文的助手类
- * 
+ *
  * @author wuxii@foxmail.com
  */
 public class ContextHelper {
@@ -20,7 +18,7 @@ public class ContextHelper {
 
     /**
      * 获取应用程序名称
-     * 
+     *
      * @return 应用程序名称
      */
     public static String getApplicationName() {
@@ -34,31 +32,18 @@ public class ContextHelper {
 
     /**
      * 获取应用的上下文
-     * 
+     *
      * @return application context
      */
     public static ApplicationContext getApplicationContext() {
         return ApplicationContext.getApplicationContext();
     }
 
-    /**
-     * 获取当前服务器的元信息
-     * 
-     * @return server metadata
-     */
-    public static ServerMetadata getServerMetadata() {
-        try {
-            return ApplicationContext.getServerMetadata();
-        } catch (ApplicationContextException e) {
-            return ApplicationMetadata.EMPTY_SERVER_METADATA;
-        }
-    }
-
     // current scope
 
     /**
      * 获取用户环境的上下文
-     * 
+     *
      * @return user current context
      */
     public static CurrentContext getCurrentContext() {
@@ -73,7 +58,7 @@ public class ContextHelper {
 
     /**
      * 获取用户线程的http request, 如果未找到用户context返回null
-     * 
+     *
      * @return user http request
      */
     public static HttpServletRequest getHttpRequest() {
@@ -83,7 +68,7 @@ public class ContextHelper {
 
     /**
      * 获取用户当前线程的http response, 如果未找到用户context返回null
-     * 
+     *
      * @return user http response
      */
     public static HttpServletResponse getHttpResponse() {
@@ -93,7 +78,7 @@ public class ContextHelper {
 
     /**
      * 获取用户当前线程的http session, 如果未找到用户context返回null
-     * 
+     *
      * @return http session
      */
     public static HttpSession getHttpSession() {
@@ -102,9 +87,8 @@ public class ContextHelper {
 
     /**
      * 获取当前用户线程中的http session
-     * 
-     * @param create
-     *            session 尚未创建时候自动创建
+     *
+     * @param create session 尚未创建时候自动创建
      * @return http session
      */
     public static HttpSession getHttpSession(boolean create) {
@@ -122,34 +106,6 @@ public class ContextHelper {
     public static String getRequestUrl(HttpServletRequest request) {
         String uri = request.getRequestURI();
         return uri.substring(request.getContextPath().length());
-    }
-
-    public static boolean isUnknowServer() {
-        return getServerMetadata().serverType == ServerMetadata.UNKNOWS;
-    }
-
-    public static boolean isWeblogic() {
-        return getServerMetadata().serverType == ServerMetadata.WEBLOGIC;
-    }
-
-    public static boolean isWebsphere() {
-        return getServerMetadata().serverType == ServerMetadata.WEBSPHERE;
-    }
-
-    public static boolean isGlassfish() {
-        return getServerMetadata().serverType == ServerMetadata.GLASSFISH;
-    }
-
-    public static boolean isJboss() {
-        return getServerMetadata().serverType == ServerMetadata.JBOSS;
-    }
-
-    public static boolean isWildfly() {
-        return getServerMetadata().serverType == ServerMetadata.WILDFLY;
-    }
-
-    public static boolean isTomcate() {
-        return getServerMetadata().serverType == ServerMetadata.TOMCAT;
     }
 
 }

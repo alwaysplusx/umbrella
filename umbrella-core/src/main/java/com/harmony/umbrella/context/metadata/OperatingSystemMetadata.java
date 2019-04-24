@@ -1,11 +1,15 @@
 package com.harmony.umbrella.context.metadata;
 
+import static java.lang.System.getProperty;
+
 /**
  * 操作系统信息
- * 
+ *
  * @author wuxii@foxmail.com
  */
 public final class OperatingSystemMetadata {
+
+    public static final OperatingSystemMetadata INSTANCE = new OperatingSystemMetadata();
 
     public final String osName;
     public final String osVersion;
@@ -19,21 +23,18 @@ public final class OperatingSystemMetadata {
     public final String cpu;
     public final String cpuModel;
 
-    OperatingSystemMetadata() {
-        this.osName = getSystemProperty("os.name");
-        this.osVersion = getSystemProperty("os.version");
-        this.osPatchLevel = getSystemProperty("sun.os.patch.level");
-        this.userHome = getSystemProperty("user.home");
-        this.userName = getSystemProperty("user.name");
-        this.language = getSystemProperty("user.language");
-        this.timeZone = getSystemProperty("user.timezone");
-        this.fileEncoding = getSystemProperty("file.encoding");
-        this.fileSeparator = getSystemProperty("file.separator");
-        this.cpu = getSystemProperty("sun.cpu.isalist");
-        this.cpuModel = getSystemProperty("sun.arch.data.model");
+    private OperatingSystemMetadata() {
+        this.osName = getProperty("os.name");
+        this.osVersion = getProperty("os.version");
+        this.osPatchLevel = getProperty("sun.os.patch.level");
+        this.userHome = getProperty("user.home");
+        this.userName = getProperty("user.name");
+        this.language = getProperty("user.language");
+        this.timeZone = getProperty("user.timezone");
+        this.fileEncoding = getProperty("file.encoding");
+        this.fileSeparator = getProperty("file.separator");
+        this.cpu = getProperty("sun.cpu.isalist");
+        this.cpuModel = getProperty("sun.arch.data.model");
     }
 
-    private static String getSystemProperty(String key) {
-        return System.getProperty(key);
-    }
 }

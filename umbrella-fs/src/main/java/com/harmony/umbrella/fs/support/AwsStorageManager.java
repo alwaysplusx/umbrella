@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
+import com.harmony.umbrella.context.metadata.OperatingSystemMetadata;
 import org.springframework.core.io.Resource;
 
 import com.amazonaws.services.s3.AmazonS3;
@@ -24,7 +25,7 @@ public class AwsStorageManager extends AbstractStorageManager {
     public static final String DEFAULT_BUCKET_NAME;
 
     static {
-        DEFAULT_BUCKET_NAME = ApplicationMetadata.getOperatingSystemMetadata().userName.replace(" ", "_");
+        DEFAULT_BUCKET_NAME = OperatingSystemMetadata.INSTANCE.userName.replace(" ", "_");
     }
 
     private AmazonS3 client;
