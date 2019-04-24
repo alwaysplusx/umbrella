@@ -1,5 +1,7 @@
 package com.harmony.umbrella.security;
 
+import org.springframework.beans.factory.annotation.Qualifier;
+
 /**
  * @author wuxii
  */
@@ -13,12 +15,17 @@ public class SecurityToken {
 		this.token = token;
 	}
 
+	@Qualifier
 	public String getSchema() {
 		return schema;
 	}
 
 	public String getToken() {
 		return token;
+	}
+
+	public String getQualifierToken() {
+		return schema + " " + token;
 	}
 
 }

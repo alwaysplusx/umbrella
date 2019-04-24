@@ -9,6 +9,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
  */
 public interface SecurityTokenUserDetailsService {
 
-    UserDetails loadUserBySecurityToken(SecurityToken securityToken) throws UsernameNotFoundException;
+	UserDetails loadUserBySecurityToken(SecurityToken securityToken) throws UsernameNotFoundException;
 
 }

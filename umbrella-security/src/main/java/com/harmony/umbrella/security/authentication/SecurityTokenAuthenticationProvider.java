@@ -34,14 +34,14 @@ public class SecurityTokenAuthenticationProvider implements AuthenticationProvid
 		SecurityToken securityToken = authRequest.getSecurityToken();
 		UserDetails userDetails = securityTokenUserDetailsService.loadUserBySecurityToken(securityToken);
 
-		UsernamePasswordAuthenticationToken authResult = new UsernamePasswordAuthenticationToken(
+		SecurityTokenAuthenticationToken authResult = new SecurityTokenAuthenticationToken(
 				userDetails.getUsername(),
-				ValueConstants.DEFAULT_NONE,
-				userDetails.getAuthorities()
-		);
-		
-		authRequest.setAuthenticated(true);
-		authRequest.setDetails(userDetails);
+				userDetails.getPassword(),
+				securityToken,
+				userDetails.getAuthorities());
+
+		authResult.setAuthenticated(true);
+		authResult.setDetails(authRequest.getDetails());
 
 		return authResult;
 	}

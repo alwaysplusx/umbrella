@@ -10,29 +10,36 @@ import java.util.Collections;
 /**
  * @author wuxii
  */
-public class SecurityTokenAuthenticationToken extends AbstractAuthenticationToken {
+public class SecurityTokenAuthenticationToken extends AbstractAuthenticationToken implements SecurityTokenAuthentication {
 
+	private final Object principal;
 	private final SecurityToken securityToken;
+	private final Object credentials;
 
 	public SecurityTokenAuthenticationToken(SecurityToken securityToken) {
-		this(securityToken, Collections.emptyList());
+		this(null, null, securityToken, Collections.emptyList());
 	}
 
-	public SecurityTokenAuthenticationToken(SecurityToken securityToken, Collection<? extends GrantedAuthority> authorities) {
+	public SecurityTokenAuthenticationToken(Object principal, Object credentials,
+											SecurityToken securityToken,
+											Collection<? extends GrantedAuthority> authorities) {
 		super(authorities);
+		this.principal = principal;
+		this.credentials = credentials;
 		this.securityToken = securityToken;
 	}
 
 	@Override
 	public Object getPrincipal() {
-		return securityToken;
+		return principal;
 	}
 
 	@Override
 	public Object getCredentials() {
-		return null;
+		return credentials;
 	}
 
+	@Override
 	public SecurityToken getSecurityToken() {
 		return securityToken;
 	}
