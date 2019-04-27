@@ -41,7 +41,7 @@ public class SimplePropertyManager extends AbstractPropertyManager {
 
     @Override
     public List<Property> getStartWith(String prefix) {
-        List<Property> params = new ArrayList<Property>();
+        List<Property> params = new ArrayList<>();
         Map<String, ?> p = PropertiesUtils.filterStartWith(prefix, properties);
         for (String name : p.keySet()) {
             PropertyEntry param = get(name);

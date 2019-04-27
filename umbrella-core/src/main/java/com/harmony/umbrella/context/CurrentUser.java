@@ -1,12 +1,13 @@
 package com.harmony.umbrella.context;
 
+import java.security.Principal;
 import java.util.Collections;
 import java.util.Map;
 
 /**
  * @author wuxii
  */
-public interface CurrentUser {
+public interface CurrentUser extends Principal {
 
     long getUserId();
 
@@ -15,6 +16,11 @@ public interface CurrentUser {
     }
 
     String getUsername();
+
+    @Override
+    default String getName() {
+        return getUsername();
+    }
 
     default Object getUserProperty(Object key) {
         return getUserProperty(key);

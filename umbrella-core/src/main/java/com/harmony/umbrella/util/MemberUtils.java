@@ -15,7 +15,7 @@ import com.harmony.umbrella.core.Member;
  * 字段或getter/setter的获取工具类
  * <p>
  * 注:getter/setter优先
- * 
+ *
  * @author wuxii@foxmail.com
  */
 public class MemberUtils {
@@ -44,7 +44,7 @@ public class MemberUtils {
         String methodName = method.getName();
         return method.getParameterTypes().length == 0//
                 && ((methodName.length() > 3 && methodName.startsWith("get")) //
-                        || (methodName.length() > 2 && methodName.startsWith("is")));
+                || (methodName.length() > 2 && methodName.startsWith("is")));
     }
 
     public static boolean isWriteMethod(Method method) {
@@ -57,11 +57,9 @@ public class MemberUtils {
 
     /**
      * 通过field名称查找对应的getter方法
-     * 
-     * @param clazz
-     *            目标类
-     * @param fieldName
-     *            字段名称
+     *
+     * @param clazz     目标类
+     * @param fieldName 字段名称
      * @return 字段对应的getter方法
      */
     public static Method findReadMethod(Class<?> clazz, String fieldName) {
@@ -77,26 +75,21 @@ public class MemberUtils {
 
     /**
      * 通过field名称查找对应的setter方法
-     * 
-     * @param clazz
-     *            目标类
-     * @param fieldName
-     *            字段名称
+     *
+     * @param clazz     目标类
+     * @param fieldName 字段名称
      * @return 字段对应的setter方法
-     * @throws NoSuchMethodException
-     *             如果未找到getter方法
+     * @throws NoSuchMethodException 如果未找到getter方法
      */
     public static Method findWriterMethod(Class<?> clazz, String fieldName) {
-        return ReflectionUtils.findMethod(clazz, writerMethodName(fieldName), new Class[] { Object.class });
+        return ReflectionUtils.findMethod(clazz, writerMethodName(fieldName), Object.class);
     }
 
     /**
      * 判断字段是否可读
-     * 
-     * @param clazz
-     *            root类
-     * @param name
-     *            字段
+     *
+     * @param clazz root类
+     * @param name  字段
      * @return true 可读, false不可读
      */
     public static boolean isReadable(Class<?> clazz, String name) {
@@ -105,11 +98,9 @@ public class MemberUtils {
 
     /**
      * 判断字段是否可写
-     * 
-     * @param clazz
-     *            root类
-     * @param name
-     *            字段
+     *
+     * @param clazz root类
+     * @param name  字段
      * @return true可写, false不可写
      */
     public static boolean isWriteable(Class<?> clazz, String name) {
@@ -118,11 +109,9 @@ public class MemberUtils {
 
     /**
      * 强制获取target中对应的field的值
-     * 
-     * @param field
-     *            需要获取的字段
-     * @param target
-     *            目标对象
+     *
+     * @param field  需要获取的字段
+     * @param target 目标对象
      * @return 字段值
      */
     public static Object getFieldValue(Field field, Object target) {
@@ -147,11 +136,9 @@ public class MemberUtils {
 
     /**
      * 获取val中对应属性名称为name的值, 优先通过getter方法来取值
-     * 
-     * @param name
-     *            属性名称
-     * @param val
-     *            目标对象
+     *
+     * @param name 属性名称
+     * @param val  目标对象
      * @return 属性值
      */
     public static Object getMemberValue(String name, Object val) {
@@ -172,13 +159,10 @@ public class MemberUtils {
 
     /**
      * 设置目标对象target的属性name的值, 优先通过setter方法来设值
-     * 
-     * @param name
-     *            属性名称
-     * @param target
-     *            目标对象
-     * @param val
-     *            属性值
+     *
+     * @param name   属性名称
+     * @param target 目标对象
+     * @param val    属性值
      */
     public static void setMemberValue(String name, Object target, Object val) {
         Assert.notNull(name, "fieldName not allow null");
@@ -198,7 +182,7 @@ public class MemberUtils {
 
     /**
      * 将字段名转为getter的方法名
-     * 
+     *
      * @param fieldName
      * @return
      */
@@ -207,12 +191,12 @@ public class MemberUtils {
             throw new IllegalArgumentException("field name is blank");
         }
         String name = Character.toUpperCase(fieldName.charAt(0)) + fieldName.substring(1);
-        return new String[] { "get" + name, "is" + name };
+        return new String[]{"get" + name, "is" + name};
     }
 
     /**
      * 将字段名转为setter的方法名
-     * 
+     *
      * @param fieldName
      * @return
      */
@@ -232,7 +216,7 @@ public class MemberUtils {
         private Method readMethod;
         private Method writeMethod;
 
-        public MemberImpl(String name, Class<?> targetType, Class<?> memberType, Field field, Method reader, Method writer) {
+        private MemberImpl(String name, Class<?> targetType, Class<?> memberType, Field field, Method reader, Method writer) {
             this.name = name;
             this.ownerType = targetType;
             this.memberType = memberType;

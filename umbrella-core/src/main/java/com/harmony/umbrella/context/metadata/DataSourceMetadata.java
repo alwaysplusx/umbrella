@@ -100,7 +100,7 @@ public final class DataSourceMetadata {
 
     private ConnectionSource connectionSource;
 
-    public static final int UNKNOW = 0;
+    public static final int UNKNOWN = 0;
     public static final int ORACLE = 1;
     public static final int MYSQL = 2;
     public static final int DB2 = 3;
@@ -136,12 +136,12 @@ public final class DataSourceMetadata {
         this.userName = "";
         this.driverName = "";
         this.driverVersion = "";
-        this.databaseType = UNKNOW;
+        this.databaseType = UNKNOWN;
     }
 
     private int databaseType(String databaseName) {
         if (databaseName == null) {
-            return UNKNOW;
+            return UNKNOWN;
         }
         databaseName = databaseName.toLowerCase();
         if (databaseName.contains("oracle")) {
@@ -159,7 +159,7 @@ public final class DataSourceMetadata {
         } else if (databaseName.contains("h2")) {
             return H2;
         }
-        return UNKNOW;
+        return UNKNOWN;
     }
 
     public Connection getConnection() throws SQLException {

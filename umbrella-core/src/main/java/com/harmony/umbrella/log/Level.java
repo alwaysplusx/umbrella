@@ -94,9 +94,15 @@ public class Level implements Serializable {
         return null;
     }
 
-    public static enum StandardLevel {
+    public enum StandardLevel {
 
-        OFF(0), ERROR(100), WARN(200), INFO(300), DEBUG(400), TRACE(500), ALL(Integer.MAX_VALUE);
+        OFF(0),
+        ERROR(100),
+        WARN(200),
+        INFO(300),
+        DEBUG(400),
+        TRACE(500),
+        ALL(Integer.MAX_VALUE);
 
         private int intLevel;
 

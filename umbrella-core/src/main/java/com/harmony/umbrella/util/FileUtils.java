@@ -34,7 +34,7 @@ public class FileUtils {
      * 
      * @param src
      *            源文件
-     * @param newName
+     * @param to
      *            新文件名
      * @return 新文件
      */
@@ -47,7 +47,7 @@ public class FileUtils {
      * 
      * @param src
      *            源文件
-     * @param newName
+     * @param to
      *            新文件名
      * @return 新文件
      */
@@ -180,7 +180,7 @@ public class FileUtils {
      * <p>
      * 返回的扩展名均为小写
      * 
-     * @param fiel
+     * @param file
      *            文件
      * @return 扩展名
      */

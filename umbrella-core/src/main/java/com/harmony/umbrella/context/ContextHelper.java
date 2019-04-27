@@ -1,8 +1,5 @@
 package com.harmony.umbrella.context;
 
-import com.harmony.umbrella.log.Log;
-import com.harmony.umbrella.log.Logs;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -14,46 +11,13 @@ import javax.servlet.http.HttpSession;
  */
 public class ContextHelper {
 
-    private static final Log log = Logs.getLog(ContextHelper.class);
-
-    /**
-     * 获取应用程序名称
-     *
-     * @return 应用程序名称
-     */
-    public static String getApplicationName() {
-        try {
-            ApplicationConfiguration cfg = ApplicationContext.getApplicationConfiguration();
-            return cfg != null ? cfg.getApplicationName() : null;
-        } catch (ApplicationContextException e) {
-            return null;
-        }
-    }
-
-    /**
-     * 获取应用的上下文
-     *
-     * @return application context
-     */
-    public static ApplicationContext getApplicationContext() {
-        return ApplicationContext.getApplicationContext();
-    }
-
-    // current scope
-
     /**
      * 获取用户环境的上下文
      *
      * @return user current context
      */
     public static CurrentContext getCurrentContext() {
-        CurrentContext cc = ApplicationContext.getCurrentContext();
-        if (cc == null) {
-            if (log.isDebugEnabled()) {
-                log.warn("application not contain current context, please see {} for more detail", AbstractCurrentContextFilter.class.getName());
-            }
-        }
-        return cc;
+        return CurrentContext.get();
     }
 
     /**

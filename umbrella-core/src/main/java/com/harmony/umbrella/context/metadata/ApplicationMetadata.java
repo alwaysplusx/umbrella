@@ -1,6 +1,5 @@
 package com.harmony.umbrella.context.metadata;
 
-import com.harmony.umbrella.context.ClassResource;
 import com.harmony.umbrella.core.ConnectionSource;
 
 import javax.servlet.ServletContext;
@@ -15,8 +14,6 @@ import static com.harmony.umbrella.context.metadata.ServerMetadata.*;
  */
 public final class ApplicationMetadata {
 
-    public static final ServerMetadata EMPTY_SERVER_METADATA = ServerMetadata.EMPTY_SERVER_METADATA;
-
     public static DataSourceMetadata of(ConnectionSource connectionSource) throws SQLException {
         return new DataSourceMetadata(connectionSource);
     }
@@ -28,6 +25,40 @@ public final class ApplicationMetadata {
         String serverName = getServerName(serverInfo);
         int serverType = serverType(serverName);
         return new ServerMetadata(servletVersion, serverName, serverInfo, serverType, contextPath);
+    }
+
+    private ServerMetadata serverMetadata;
+    private List<DataSourceMetadata> dataSourceMetadata;
+    private JavaMetadata javaMetadata;
+    private OperatingSystemMetadata operatingSystemMetadata;
+
+    public ApplicationMetadata(ServerMetadata serverMetadata,
+                               List<DataSourceMetadata> dataSourceMetadata) {
+        this(serverMetadata, dataSourceMetadata, JavaMetadata.INSTANCE, OperatingSystemMetadata.INSTANCE);
+    }
+
+    public ApplicationMetadata(ServerMetadata serverMetadata, List<DataSourceMetadata> dataSourceMetadata,
+                               JavaMetadata javaMetadata, OperatingSystemMetadata operatingSystemMetadata) {
+        this.serverMetadata = serverMetadata;
+        this.dataSourceMetadata = Collections.unmodifiableList(dataSourceMetadata);
+        this.javaMetadata = javaMetadata;
+        this.operatingSystemMetadata = operatingSystemMetadata;
+    }
+
+    public JavaMetadata getJavaMetadata() {
+        return javaMetadata;
+    }
+
+    public OperatingSystemMetadata getOperatingSystemMetadata() {
+        return operatingSystemMetadata;
+    }
+
+    public ServerMetadata getServerMetadata() {
+        return serverMetadata;
+    }
+
+    public List<DataSourceMetadata> getDataSourceMetadata() {
+        return dataSourceMetadata;
     }
 
     private static String getServerName(String serverName) {
@@ -68,48 +99,6 @@ public final class ApplicationMetadata {
             return JETTY;
         }
         return UNKNOWS;
-    }
-
-    private ServerMetadata serverMetadata;
-    private List<DataSourceMetadata> dataSourceMetadata;
-    private JavaMetadata javaMetadata;
-    private OperatingSystemMetadata operatingSystemMetadata;
-    private List<ClassResource> classResources;
-
-    public ApplicationMetadata(ServerMetadata serverMetadata,
-                               List<DataSourceMetadata> dataSourceMetadata,
-                               List<ClassResource> classResources) {
-        this(serverMetadata, dataSourceMetadata, classResources, JavaMetadata.INSTANCE, OperatingSystemMetadata.INSTANCE);
-    }
-
-    public ApplicationMetadata(ServerMetadata serverMetadata, List<DataSourceMetadata> dataSourceMetadata,
-                               List<ClassResource> classResources, JavaMetadata javaMetadata,
-                               OperatingSystemMetadata operatingSystemMetadata) {
-        this.serverMetadata = serverMetadata;
-        this.classResources = Collections.unmodifiableList(classResources);
-        this.dataSourceMetadata = Collections.unmodifiableList(dataSourceMetadata);
-        this.javaMetadata = javaMetadata;
-        this.operatingSystemMetadata = operatingSystemMetadata;
-    }
-
-    public JavaMetadata getJavaMetadata() {
-        return javaMetadata;
-    }
-
-    public OperatingSystemMetadata getOperatingSystemMetadata() {
-        return operatingSystemMetadata;
-    }
-
-    public ServerMetadata getServerMetadata() {
-        return serverMetadata;
-    }
-
-    public List<DataSourceMetadata> getDataSourceMetadata() {
-        return dataSourceMetadata;
-    }
-
-    public List<ClassResource> getClassResources() {
-        return classResources;
     }
 
 }

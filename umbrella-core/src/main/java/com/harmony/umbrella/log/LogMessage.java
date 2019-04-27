@@ -68,8 +68,7 @@ public class LogMessage {
     /**
      * 设置业务数据的id
      *
-     * @param key
-     *            业务数据的id
+     * @param key 业务数据的id
      * @return current logMessage
      */
     public LogMessage key(Object key) {
@@ -106,8 +105,7 @@ public class LogMessage {
     /**
      * 设置日志所表示的动作
      *
-     * @param action
-     *            日志表示的动作
+     * @param action 日志表示的动作
      * @return current logMessage
      */
     public LogMessage action(String action) {
@@ -118,8 +116,7 @@ public class LogMessage {
     /**
      * 设置结果
      *
-     * @param result
-     *            结果
+     * @param result 结果
      * @return current logMessage
      */
     public LogMessage result(Object result) {
@@ -135,8 +132,7 @@ public class LogMessage {
     /**
      * 设置业务数据的操作人
      *
-     * @param username
-     *            操作人名称
+     * @param username 操作人名称
      * @return current logMessage
      */
     public LogMessage username(String username) {
@@ -172,8 +168,7 @@ public class LogMessage {
     /**
      * 设置开始时间
      *
-     * @param startTime
-     *            开始时间
+     * @param startTime 开始时间
      * @return current logMessage
      */
     public LogMessage start(Calendar startTime) {
@@ -204,8 +199,7 @@ public class LogMessage {
     /**
      * 设置结束时间
      *
-     * @param finishTime
-     *            结束时间
+     * @param finishTime 结束时间
      * @return current logMessage
      */
     public LogMessage finish(Calendar finishTime) {
@@ -229,7 +223,7 @@ public class LogMessage {
      */
     public LogMessage put(String key, Object value) {
         if (this.context == null) {
-            this.context = new HashMap<String, Object>();
+            this.context = new HashMap<>();
         }
         this.context.put(key, value);
         return this;
@@ -238,8 +232,7 @@ public class LogMessage {
     /**
      * 设置日志级别
      *
-     * @param level
-     *            日志级别
+     * @param level 日志级别
      * @return current logMessage
      */
     public LogMessage level(Level level) {
@@ -287,8 +280,7 @@ public class LogMessage {
     /**
      * 调用日志log记录本条日志
      *
-     * @param level
-     *            日志级别
+     * @param level 日志级别
      */
     public void log(Level level) {
         this.level = level;

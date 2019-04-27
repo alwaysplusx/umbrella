@@ -114,7 +114,7 @@ public final class Logs {
      * 在当前线程中查找对应类的stackTraceElement
      *
      * @param className
-     * @param reversal
+     * @param beforeIndex
      * @return
      */
     static StackTraceElement find(String className, int beforeIndex) {

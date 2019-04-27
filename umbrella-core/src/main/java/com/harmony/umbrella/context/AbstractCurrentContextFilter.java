@@ -1,14 +1,9 @@
 package com.harmony.umbrella.context;
 
-import java.io.IOException;
-
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
+import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 /**
  * add filter configuration in web.xml
@@ -28,27 +23,27 @@ import javax.servlet.http.HttpServletResponse;
  */
 public abstract class AbstractCurrentContextFilter implements Filter {
 
-	@Override
-	public final void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain)
-			throws IOException, ServletException {
-		HttpServletRequest request = (HttpServletRequest) req;
-		HttpServletResponse response = (HttpServletResponse) resp;
-		if (isCurrentContextRequest(request, response)) {
-			CurrentContext occ = ApplicationContext.getCurrentContext();
-			try {
-				CurrentContext ncc = createCurrentContext(request, response);
-				ApplicationContext.setCurrentContext(ncc);
-				chain.doFilter(request, response);
-			} finally {
-				ApplicationContext.setCurrentContext(occ);
-			}
-		} else {
-			chain.doFilter(request, response);
-		}
-	}
+    @Override
+    public final void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain)
+            throws IOException, ServletException {
+        HttpServletRequest request = (HttpServletRequest) req;
+        HttpServletResponse response = (HttpServletResponse) resp;
+        if (isCurrentContextRequest(request, response)) {
+            CurrentContext occ = CurrentContext.get();
+            try {
+                CurrentContext ncc = createCurrentContext(request, response);
+                CurrentContext.set(ncc);
+                chain.doFilter(request, response);
+            } finally {
+                CurrentContext.set(occ);
+            }
+        } else {
+            chain.doFilter(request, response);
+        }
+    }
 
-	protected abstract boolean isCurrentContextRequest(HttpServletRequest req, HttpServletResponse resp);
+    protected abstract boolean isCurrentContextRequest(HttpServletRequest req, HttpServletResponse resp);
 
-	protected abstract CurrentContext createCurrentContext(HttpServletRequest request, HttpServletResponse response);
+    protected abstract CurrentContext createCurrentContext(HttpServletRequest request, HttpServletResponse response);
 
 }
