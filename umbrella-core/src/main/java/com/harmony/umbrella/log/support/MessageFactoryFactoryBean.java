@@ -1,12 +1,11 @@
 package com.harmony.umbrella.log.support;
 
+import com.harmony.umbrella.log.Message;
+import com.harmony.umbrella.log.MessageFactory;
 import org.apache.logging.log4j.message.ParameterizedMessageFactory;
 import org.slf4j.helpers.FormattingTuple;
 import org.slf4j.helpers.MessageFormatter;
 import org.springframework.util.ClassUtils;
-
-import com.harmony.umbrella.log.Message;
-import com.harmony.umbrella.log.MessageFactory;
 
 /**
  * @author wuxii@foxmail.com
@@ -14,20 +13,20 @@ import com.harmony.umbrella.log.MessageFactory;
 public class MessageFactoryFactoryBean {
 
     public static MessageFactory getMessageFactory() {
-        if (isParameterizedMessageFactoryPresent()) {
+        if (isLog4j2ParameterizedMessageFactoryPresent()) {
             return parameterizedMessageFactory();
         }
-        if (isMessageFormatterPresent()) {
+        if (isSlf4jMessageFormatterPresent()) {
             return messageFormatterMessageFactory();
         }
         return SimpleMessageFactory.INSTANCE;
     }
 
-    private static boolean isParameterizedMessageFactoryPresent() {
+    private static boolean isLog4j2ParameterizedMessageFactoryPresent() {
         return ClassUtils.isPresent("org.apache.logging.log4j.message.ParameterizedMessageFactory", ClassUtils.getDefaultClassLoader());
     }
 
-    private static boolean isMessageFormatterPresent() {
+    private static boolean isSlf4jMessageFormatterPresent() {
         return ClassUtils.isPresent("org.slf4j.helpers.MessageFormatter", ClassUtils.getDefaultClassLoader());
     }
 
@@ -63,7 +62,7 @@ public class MessageFactoryFactoryBean {
         private String format;
         private FormattingTuple tuple;
 
-        public TupleMessage(String format, FormattingTuple tuple) {
+        private TupleMessage(String format, FormattingTuple tuple) {
             this.format = format;
             this.tuple = tuple;
         }

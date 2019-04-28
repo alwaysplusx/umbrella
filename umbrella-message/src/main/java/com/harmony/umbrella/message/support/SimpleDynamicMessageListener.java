@@ -1,21 +1,19 @@
 package com.harmony.umbrella.message.support;
 
+import com.harmony.umbrella.message.DynamicMessageListener;
+import com.harmony.umbrella.message.JmsTemplate.SessionPoint;
+import com.harmony.umbrella.message.MessageException;
+import lombok.extern.slf4j.Slf4j;
+
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageListener;
 
-import com.harmony.umbrella.log.Log;
-import com.harmony.umbrella.log.Logs;
-import com.harmony.umbrella.message.DynamicMessageListener;
-import com.harmony.umbrella.message.JmsTemplate.SessionPoint;
-import com.harmony.umbrella.message.MessageException;
-
 /**
  * @author wuxii@foxmail.com
  */
+@Slf4j
 public class SimpleDynamicMessageListener implements DynamicMessageListener {
-
-    private static final Log log = Logs.getLog();
 
     private MessageListener messageListener;
 

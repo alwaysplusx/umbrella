@@ -1,7 +1,0 @@
-description = "Umbrella Lock"
-
-dependencies {
-    compile "org.springframework.integration:spring-integration-core"
-    compile "org.springframework:spring-expression"
-    testCompile "junit:junit"
-}

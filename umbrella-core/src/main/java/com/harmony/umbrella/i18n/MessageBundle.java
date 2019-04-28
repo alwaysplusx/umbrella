@@ -7,7 +7,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -118,19 +117,6 @@ public class MessageBundle {
      * @return 语言包
      */
     public static LanguagePack pack(Locale locale, Map<String, String> props) {
-        return new LanguagePackImpl(locale, props);
-    }
-
-    /**
-     * 将资源打包成语言包
-     * 
-     * @param locale
-     *            资源所对应的语言
-     * @param props
-     *            资源
-     * @return 语言包
-     */
-    public static LanguagePack pack(Locale locale, Properties props) {
         return new LanguagePackImpl(locale, props);
     }
 
@@ -256,9 +242,9 @@ public class MessageBundle {
         private static final long serialVersionUID = 6825476784525171392L;
 
         private Locale locale;
-        private Map props;
+        private Map<String, String> props;
 
-        public LanguagePackImpl(Locale locale, Map props) {
+        public LanguagePackImpl(Locale locale, Map<String, String> props) {
             this.locale = locale;
             this.props = props;
         }

@@ -1,35 +1,25 @@
 package com.harmony.umbrella.core;
 
-import java.io.IOException;
+import com.harmony.umbrella.util.PropertiesUtils;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
-
-import com.harmony.umbrella.util.PropertiesUtils;
 
 /**
  * 基于配置文件的配置管理基础实现
- * 
+ *
  * @author wuxii@foxmail.com
  */
 public class SimplePropertyManager extends AbstractPropertyManager {
 
-    private Map properties = new HashMap();
+    private Map<String, Object> properties = new HashMap<>();
 
     public SimplePropertyManager() {
     }
 
-    public SimplePropertyManager(String fileLocation) throws IOException {
-        this.setPropertiesFile(fileLocation);
-    }
-
-    public SimplePropertyManager(Properties properties) {
-        this.properties = new HashMap<>(properties);
-    }
-
-    public SimplePropertyManager(Map<?, ?> properties) {
+    public SimplePropertyManager(Map<String, Object> properties) {
         this.properties = new HashMap<>(properties);
     }
 
@@ -57,16 +47,12 @@ public class SimplePropertyManager extends AbstractPropertyManager {
         properties.put(param.getKey(), param.getValue());
     }
 
-    public Map getProperties() {
+    public Map<String, Object> getProperties() {
         return properties;
     }
 
-    public void setProperties(Map properties) {
+    public void setProperties(Map<String, Object> properties) {
         this.properties = properties;
-    }
-
-    public void setPropertiesFile(String fileLocation) throws IOException {
-        this.properties = PropertiesUtils.loadProperties(fileLocation);
     }
 
 }

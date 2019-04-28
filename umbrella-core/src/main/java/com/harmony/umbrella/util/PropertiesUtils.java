@@ -1,5 +1,6 @@
 package com.harmony.umbrella.util;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -7,14 +8,19 @@ import org.springframework.util.Assert;
 
 import java.io.*;
 import java.net.URL;
-import java.util.*;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Properties;
+import java.util.Set;
+import java.util.function.Predicate;
 
 /**
  * 属性加载工具
  *
  * @author wuxii@foxmail.com
  */
+@Slf4j
 public class PropertiesUtils {
 
     /**
@@ -49,13 +55,10 @@ public class PropertiesUtils {
         DefaultResourceLoader loader = new DefaultResourceLoader();
         for (String path : paths) {
             Resource resource = loader.getResource(path);
-            InputStream is;
-            try {
-                is = resource.getInputStream();
+            try (InputStream is = resource.getInputStream()) {
                 props.load(is);
-                is.close();
             } catch (IOException e) {
-                // ignore
+                log.warn("{} property resource unload.", path, e);
             }
         }
         return props;
@@ -95,26 +98,6 @@ public class PropertiesUtils {
     }
 
     /**
-     * 从输入流中获取资源文件内容
-     *
-     * @param is    输入流
-     * @param close 是否自动关闭流
-     * @return
-     * @throws IOException
-     */
-    public static Properties loadProperties(InputStream is, boolean close) throws IOException {
-        Properties props = new Properties();
-        props.load(is);
-        if (close) {
-            try {
-                is.close();
-            } catch (Exception e) {
-            }
-        }
-        return props;
-    }
-
-    /**
      * 加载文件资源
      *
      * @param file 资源文件
@@ -148,41 +131,38 @@ public class PropertiesUtils {
         Properties props = new Properties();
         try {
             props.load(reader);
-        } catch (Exception e) {
-            if (close) {
-                try {
-                    reader.close();
-                } catch (Exception e1) {
-                }
-            }
+        } finally {
+            closeOrNot(reader, close);
         }
         return props;
     }
 
     /**
-     * 从属性中过滤出前缀为指定值的属性集合
+     * 从输入流中获取资源文件内容
      *
-     * @param prefix 前缀
-     * @param props  待过滤的属性
-     * @return 前缀符合要求的新属性集合
+     * @param is    输入流
+     * @param close 是否自动关闭流
+     * @return
+     * @throws IOException
      */
-    public static Properties filterStartWith(String prefix, Properties props) {
-        return filterStartWith(prefix, props, false);
+    public static Properties loadProperties(InputStream is, boolean close) throws IOException {
+        Properties props = new Properties();
+        try {
+            props.load(is);
+        } finally {
+            closeOrNot(is, close);
+        }
+        return props;
     }
 
-    /**
-     * 在属性集合中过滤出前缀相同的属性集合
-     *
-     * @param prefix     key的前缀
-     * @param props      属性集合
-     * @param ignoreCase 是否忽略大小写
-     * @return key前缀相同的属性集合
-     */
-    public static Properties filterStartWith(String prefix, Properties props, boolean ignoreCase) {
-        Assert.hasLength(prefix, "prefix not allow null or blank");
-        Properties result = new Properties();
-        result.putAll(filterStartWith(prefix, (Map) props, ignoreCase));
-        return result;
+    private static void closeOrNot(Closeable closeable, boolean close) {
+        if (close) {
+            try {
+                closeable.close();
+            } catch (IOException e) {
+                log.debug("close property failed, {}", closeable, e);
+            }
+        }
     }
 
     /**
@@ -219,15 +199,15 @@ public class PropertiesUtils {
     /**
      * 过滤属性
      *
-     * @param properties  带过来的属性
-     * @param entryFilter entry filter
+     * @param properties 带过来的属性
+     * @param filter     entry filter
      * @return
      */
-    public static Map filter(Map properties, EntryFilter entryFilter) {
-        Map result = new LinkedHashMap<>();
-        Set<Entry> entrySet = properties.entrySet();
-        for (Entry entry : entrySet) {
-            if (entryFilter.accept(entry)) {
+    public static <K, V> Map<K, V> filter(Map<K, V> properties, Predicate<Entry<K, V>> filter) {
+        Map<K, V> result = new LinkedHashMap<>();
+        Set<Entry<K, V>> entrySet = properties.entrySet();
+        for (Entry<K, V> entry : entrySet) {
+            if (filter.test(entry)) {
                 result.put(entry.getKey(), entry.getValue());
             }
         }
@@ -235,54 +215,34 @@ public class PropertiesUtils {
     }
 
     /**
-     * 合并properties(返回值为一个新的map对象)
+     * 取left + rigth的并集, 覆盖left中已经存在的key
      *
-     * @param properties 属性组
-     * @return 合并后的属性
+     * @param left
+     * @param right
+     * @return
      */
-    public static Map mergeProperties(Map... properties) {
-        Map<Object, Object> result = new HashMap<>();
-        for (Map map : properties) {
-            if (map != null) {
-                result.putAll(map);
-            }
-        }
-        return result;
-    }
-
-    public static Map apply(Map l, Map r) {
-        return apply(l, r, false);
-    }
-
-    public static Map applyIf(Map l, Map r) {
-        return apply(l, r, true);
-    }
-
-    public static Map apply(Map l, Map r, boolean ignoreExists) {
-        for (Object k : r.keySet()) {
-            if (ignoreExists && l.containsKey(k)) {
-                continue;
-            }
-            l.put(k, r.get(k));
-        }
-        return l;
+    public static void apply(Map<?, ?> left, Map<?, ?> right) {
+        apply(left, right, false);
     }
 
     /**
-     * 属性entry过滤器
+     * 取left + right的并集, 不覆盖left中已经存在的key
      *
-     * @author wuxii@foxmail.com
+     * @param left
+     * @param right
+     * @return
      */
-    public interface EntryFilter {
+    public static void applyIf(Map<?, ?> left, Map<?, ?> right) {
+        apply(left, right, true);
+    }
 
-        /**
-         * 属性过滤
-         *
-         * @param entry 属性entry
-         * @return true or false
-         */
-        boolean accept(Map.Entry<Object, Object> entry);
-
+    private static void apply(Map l, Map r, boolean ignoreExists) {
+        for (Object key : r.keySet()) {
+            if (ignoreExists && l.containsKey(key)) {
+                continue;
+            }
+            l.put(key, r.get(key));
+        }
     }
 
 }

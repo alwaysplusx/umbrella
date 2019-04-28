@@ -4,8 +4,7 @@ import com.alibaba.fastjson.serializer.JSONSerializer;
 import com.alibaba.fastjson.serializer.PropertyPreFilter;
 import com.alibaba.fastjson.serializer.SerialContext;
 import com.alibaba.fastjson.serializer.SerializerFeature;
-import com.harmony.umbrella.log.Log;
-import com.harmony.umbrella.log.Logs;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.Assert;
 
 import java.util.ArrayList;
@@ -42,11 +41,10 @@ import java.util.List;
  *
  * @author wuxii@foxmail.com
  */
+@Slf4j
 public abstract class PathPropertyPreFilter implements PropertyPreFilter {
 
     public static final int DEFAULT_MAX_HIERARCHICAL_LEVEL = 10;
-
-    private static final Log log = Logs.getLog(PathPropertyPreFilter.class);
 
     protected final int maxHierarchicalLevel;
 

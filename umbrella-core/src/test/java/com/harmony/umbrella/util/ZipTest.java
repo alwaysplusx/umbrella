@@ -24,7 +24,7 @@ public class ZipTest {
     public void testZipBuilder() throws IOException {
         ZipBuilder builder = ZipBuilder//
                 .newBuilder()//
-                .addSourceDirectory("target/classes")//
+                .addDir("target/classes")//
                 .setIncludeRoot(true)//
                 .up();
         //

@@ -1,41 +1,26 @@
 package com.harmony.umbrella.message;
 
+import com.harmony.umbrella.message.JmsTemplate.SessionPoint;
+import com.harmony.umbrella.message.MessageMonitor.EventPhase;
+import com.harmony.umbrella.message.MessageMonitor.MessageEvent;
+import com.harmony.umbrella.message.creator.*;
+import com.harmony.umbrella.message.support.MonitorMessageListener;
+import com.harmony.umbrella.message.support.SimpleDynamicMessageListener;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.util.ReflectionUtils;
+
+import javax.jms.*;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.util.Map;
 
-import javax.jms.ConnectionFactory;
-import javax.jms.Destination;
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.MessageConsumer;
-import javax.jms.MessageListener;
-import javax.jms.MessageProducer;
-import javax.jms.ObjectMessage;
-
-import org.springframework.util.ReflectionUtils;
-
-import com.harmony.umbrella.log.Log;
-import com.harmony.umbrella.log.Logs;
-import com.harmony.umbrella.message.JmsTemplate.SessionPoint;
-import com.harmony.umbrella.message.MessageMonitor.EventPhase;
-import com.harmony.umbrella.message.MessageMonitor.MessageEvent;
-import com.harmony.umbrella.message.creator.BytesMessageCreator;
-import com.harmony.umbrella.message.creator.MapMessageCreator;
-import com.harmony.umbrella.message.creator.ObjectMessageCreator;
-import com.harmony.umbrella.message.creator.StreamMessageCreator;
-import com.harmony.umbrella.message.creator.TextMessageCreator;
-import com.harmony.umbrella.message.support.MonitorMessageListener;
-import com.harmony.umbrella.message.support.SimpleDynamicMessageListener;
-
 /**
  * 消息发送helper
- * 
+ *
  * @author wuxii@foxmail.com
  */
+@Slf4j
 public class MessageHelper implements MessageTemplate {
-
-    private static final Log log = Logs.getLog(MessageHelper.class);
 
     private JmsTemplate jmsTemplate;
     private MessageMonitor messageMonitor;
@@ -49,9 +34,8 @@ public class MessageHelper implements MessageTemplate {
 
     /**
      * 发送bytes message
-     * 
-     * @param buf
-     *            bytes @
+     *
+     * @param buf bytes @
      */
     @Override
     public String sendBytesMessage(byte[] buf) {
@@ -85,9 +69,8 @@ public class MessageHelper implements MessageTemplate {
 
     /**
      * 发送消息, 通过定制的消息{@linkplain MessageCreator}creator来创建定制化的消息
-     * 
-     * @param creator
-     *            定制化消息创建器 @
+     *
+     * @param messageCreator 定制化消息创建器
      */
     @Override
     public String sendMessage(MessageCreator messageCreator) {

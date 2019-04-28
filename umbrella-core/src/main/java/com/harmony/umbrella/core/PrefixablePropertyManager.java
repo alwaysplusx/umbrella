@@ -13,7 +13,7 @@ import com.harmony.umbrella.util.StringUtils;
  */
 public class PrefixablePropertyManager extends AbstractPropertyManager {
 
-    private Map properties;
+    private Map<String, Object> properties;
 
     private String prefix;
 
@@ -26,7 +26,7 @@ public class PrefixablePropertyManager extends AbstractPropertyManager {
     public PrefixablePropertyManager() {
     }
 
-    public PrefixablePropertyManager(String prefix, Map properties) {
+    public PrefixablePropertyManager(String prefix, Map<String, Object> properties) {
         this.prefix = prefix;
         this.properties = properties;
     }
@@ -70,11 +70,11 @@ public class PrefixablePropertyManager extends AbstractPropertyManager {
         return prefix + "." + key;
     }
 
-    public Map getProperties() {
+    public Map<String, Object> getProperties() {
         return properties;
     }
 
-    public void setProperties(Map properties) {
+    public void setProperties(Map<String, Object> properties) {
         this.properties = properties;
     }
 

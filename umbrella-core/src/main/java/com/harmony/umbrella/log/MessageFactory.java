@@ -10,4 +10,5 @@ public interface MessageFactory {
     Message newMessage(String message);
 
     Message newMessage(String message, Object... params);
+
 }

@@ -1,17 +1,12 @@
 package com.harmony.umbrella.log;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-
-import com.harmony.umbrella.log.Level.StandardLevel;
+import com.harmony.umbrella.log.serializer.LogSerializer;
 import com.harmony.umbrella.log.support.MessageFactoryFactoryBean;
+import org.slf4j.Logger;
+
+import java.util.Calendar;
+import java.util.Date;
+import java.util.UUID;
 
 /**
  * 统一日志消息
@@ -20,14 +15,11 @@ import com.harmony.umbrella.log.support.MessageFactoryFactoryBean;
  */
 public class LogMessage {
 
-    public static final Level DEFAULT_LEVEL = Level.INFO;
+    private final MessageFactory messageFactory;
 
-    public static final String LOGMESSAGE_FQNC = LogMessage.class.getName();
+    private String traceId = messageId();
+    private String spanId = messageId();
 
-    private Log log;
-    private MessageFactory messageFactory;
-
-    private final String id;
     private String module;
     private String action;
 
@@ -46,23 +38,25 @@ public class LogMessage {
     private long startTime = -1;
     private long finishTime = -1;
 
-    private String location;
+    private String threadFrame;
     private String thread;
 
-    private Map<String, Object> context;
+    public LogMessage() {
+        this(MessageFactoryFactoryBean.getMessageFactory());
+    }
 
-    public LogMessage(Log log, MessageFactory messageFactory) {
-        this.setLog(log);
+    public LogMessage(MessageFactory messageFactory) {
         this.messageFactory = messageFactory;
-        this.id = messageId();
     }
 
-    public static LogMessage create(Log log) {
-        return new LogMessage(log, MessageFactoryFactoryBean.getMessageFactory());
+    public LogMessage spanId(String spanId) {
+        this.spanId = spanId;
+        return null;
     }
 
-    public static LogMessage create(Log log, MessageFactory messageFactory) {
-        return new LogMessage(log, messageFactory);
+    public LogMessage traceId(String traceId) {
+        this.traceId = traceId;
+        return null;
     }
 
     /**
@@ -113,18 +107,7 @@ public class LogMessage {
         return this;
     }
 
-    /**
-     * 设置结果
-     *
-     * @param result 结果
-     * @return current logMessage
-     */
-    public LogMessage result(Object result) {
-        this.result = result;
-        return this;
-    }
-
-    public LogMessage exception(Throwable exception) {
+    public LogMessage error(Throwable exception) {
         this.throwable = exception;
         return this;
     }
@@ -142,11 +125,6 @@ public class LogMessage {
 
     public LogMessage userId(Object userId) {
         this.userId = userId;
-        return this;
-    }
-
-    public LogMessage host(String host) {
-        this.host = host;
         return this;
     }
 
@@ -213,23 +191,6 @@ public class LogMessage {
     }
 
     /**
-     * 用于收集其他扩展属性
-     * <p>
-     * 当要记录http相关信息时使用
-     *
-     * @param key
-     * @param value
-     * @return
-     */
-    public LogMessage put(String key, Object value) {
-        if (this.context == null) {
-            this.context = new HashMap<>();
-        }
-        this.context.put(key, value);
-        return this;
-    }
-
-    /**
      * 设置日志级别
      *
      * @param level 日志级别
@@ -240,24 +201,13 @@ public class LogMessage {
         return this;
     }
 
-    public LogMessage level(StandardLevel level) {
-        this.level = Level.toLevel(level.name());
+    public LogMessage threadFrame(String stack) {
+        this.threadFrame = stack;
         return this;
     }
 
-    public LogMessage currentStack() {
-        this.location = Logs.fullyQualifiedClassName(LogMessage.LOGMESSAGE_FQNC, 1);
-        return this;
-    }
-
-    public LogMessage currentThread() {
-        this.thread = Thread.currentThread().getName();
-        return this;
-    }
-
-    public LogMessage stack(String stack) {
-        this.location = stack;
-        return this;
+    public LogMessage currentThreadFrame() {
+        return threadFrame(currentQualifiedClassName());
     }
 
     public LogMessage thread(Thread thread) {
@@ -270,28 +220,39 @@ public class LogMessage {
         return this;
     }
 
-    /**
-     * 调用日志log记录本条日志
-     */
-    public void log() {
-        log(level == null ? DEFAULT_LEVEL : level);
+    public LogMessage currentThread() {
+        this.thread = Thread.currentThread().getName();
+        return this;
     }
 
-    /**
-     * 调用日志log记录本条日志
-     *
-     * @param level 日志级别
-     */
-    public void log(Level level) {
-        this.level = level;
-        log.log(asInfo());
+    public LogInfo asInfo() {
+        return new LogInfoImpl(this);
     }
 
-    protected void setLog(Log log) {
-        if (log instanceof AbstractLog) {
-            this.log = ((AbstractLog) log).relative(LOGMESSAGE_FQNC);
-        } else {
-            this.log = log;
+    public void log(Logger log) {
+        log(log, null);
+    }
+
+    public void log(Logger log, LogSerializer serializer) {
+        level = level == null ? Level.INFO : level;
+        LogInfo info = asInfo();
+        String message = serializer != null ? serializer.serialize(info) : info.toString();
+        switch (level) {
+            case TRACE:
+                log.trace(message);
+                break;
+            case DEBUG:
+                log.debug(message);
+                break;
+            case INFO:
+                log.info(message);
+                break;
+            case WARN:
+                log.warn(message);
+                break;
+            case ERROR:
+                log.error(message);
+                break;
         }
     }
 
@@ -299,56 +260,68 @@ public class LogMessage {
         return UUID.randomUUID().toString().replace("-", "");
     }
 
-    public LogInfo asInfo() {
-        return new LogInfoImpl(this);
+    private static String currentQualifiedClassName() {
+        StackTraceElement current = null;
+        StackTraceElement[] stackTrace = new Throwable().getStackTrace();
+        for (int i = stackTrace.length - 1; i >= 0; i--) {
+            if (stackTrace[i].getClassName().equals(LOG_MESSAGE_CLASS_NAME)) {
+                break;
+            }
+            current = stackTrace[i];
+        }
+        return current == null ? "unknown" : current.toString();
     }
 
-    private static final class LogInfoImpl implements LogInfo {
+    private static final String LOG_MESSAGE_CLASS_NAME = LogMessage.class.getName();
 
-        private static final long serialVersionUID = 1L;
+    private static class LogInfoImpl implements LogInfo {
 
-        private String messageId;
+        private String traceId;
+        private String spanId;
+
         private String module;
         private String action;
-        private String message;
-        private Throwable throwable;
-        private StandardLevel level;
-        private Object result;
-        private long requestTime;
-        private long responseTime;
-        private String username;
-        private Object userId;
-        private String host;
-
-        private String location;
-        private String thread;
 
         private Object key;
 
-        private Map<String, Object> contextMap;
+        private String message;
+        private Throwable throwable;
+        private Level level;
 
-        LogInfoImpl(LogMessage m) {
-            this.messageId = m.id;
-            this.module = m.module;
-            this.action = m.action;
-            this.message = m.message == null ? null : m.message.getFormattedMessage();
-            this.throwable = m.throwable;
-            this.level = m.level == null ? null : m.level.standardLevel;
-            this.result = m.result;
-            this.requestTime = m.startTime;
-            this.responseTime = m.finishTime;
-            this.username = m.username;
-            this.userId = m.userId;
-            this.host = m.host;
-            this.key = m.key;
-            this.location = m.location;
-            this.thread = m.thread;
-            this.contextMap = m.context;
+        private Object userId;
+        private String username;
+
+        private long requestTime;
+        private long responseTime;
+
+        private String threadFrame;
+        private String thread;
+
+        LogInfoImpl(LogMessage logMessage) {
+            this.traceId = logMessage.traceId;
+            this.spanId = logMessage.spanId;
+            this.module = logMessage.module;
+            this.action = logMessage.action;
+            this.key = logMessage.key;
+            this.message = logMessage.message != null ? logMessage.message.getFormattedMessage() : "";
+            this.throwable = logMessage.throwable;
+            this.level = logMessage.level;
+            this.userId = logMessage.userId;
+            this.username = logMessage.username;
+            this.requestTime = logMessage.startTime;
+            this.responseTime = logMessage.finishTime;
+            this.threadFrame = logMessage.threadFrame;
+            this.thread = logMessage.thread;
         }
 
         @Override
-        public String getMessageId() {
-            return messageId;
+        public String getSpanId() {
+            return spanId;
+        }
+
+        @Override
+        public String getTraceId() {
+            return traceId;
         }
 
         @Override
@@ -372,11 +345,6 @@ public class LogMessage {
         }
 
         @Override
-        public Object getResult() {
-            return result;
-        }
-
-        @Override
         public Date getRequestTime() {
             return requestTime <= 0 ? null : new Date(requestTime);
         }
@@ -392,13 +360,8 @@ public class LogMessage {
         }
 
         @Override
-        public StandardLevel getLevel() {
+        public Level getLevel() {
             return level;
-        }
-
-        @Override
-        public String getUsername() {
-            return username;
         }
 
         @Override
@@ -407,13 +370,8 @@ public class LogMessage {
         }
 
         @Override
-        public String getHost() {
-            return host;
-        }
-
-        @Override
-        public String getLocation() {
-            return location;
+        public String getUsername() {
+            return username;
         }
 
         @Override
@@ -422,66 +380,32 @@ public class LogMessage {
         }
 
         @Override
-        public Map<String, Object> getContext() {
-            return Collections.unmodifiableMap(contextMap);
-        }
-
-        private void readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException {
-            this.action = ois.readUTF();
-            this.contextMap = (Map<String, Object>) ois.readObject();
-            this.key = ois.readObject();
-            this.level = (StandardLevel) ois.readObject();
-            this.message = ois.readUTF();
-            this.module = ois.readUTF();
-            this.host = ois.readUTF();
-            this.userId = ois.readObject();
-            this.username = ois.readUTF();
-            this.requestTime = ois.readLong();
-            this.responseTime = ois.readLong();
-            this.result = ois.readObject();
-            this.location = ois.readUTF();
-            this.thread = ois.readUTF();
-            this.throwable = (Throwable) ois.readObject();
-        }
-
-        private void writeObject(ObjectOutputStream oos) throws IOException {
-            oos.writeUTF(this.action);
-            oos.writeObject(this.contextMap);
-            oos.writeObject(this.key);
-            oos.writeObject(this.level);
-            oos.writeUTF(this.message);
-            oos.writeUTF(this.module);
-            oos.writeUTF(this.host);
-            oos.writeObject(this.userId);
-            oos.writeUTF(this.username);
-            oos.writeLong(this.requestTime);
-            oos.writeLong(this.responseTime);
-            oos.writeObject(this.result);
-            oos.writeUTF(this.location);
-            oos.writeUTF(this.thread);
-            oos.writeObject(this.throwable);
+        public String getThreadFrame() {
+            return threadFrame;
         }
 
         @Override
         public String toString() {
             StringBuilder out = new StringBuilder();
-            out.append("{\n        module : ").append(module)//
-                    .append("\n         level : ").append(level)//
-                    .append("\n           key : ").append(key)//
-                    .append("\n        result : ").append(result)//
-                    .append("\n        action : ").append(action)//
-                    .append("\n       message : ").append(message)//
-                    .append("\n      userhost : ").append(host)//
-                    .append("\n      username : ").append(username)//
-                    .append("\n      location : ").append(location)//
-                    .append("\n           use : ").append(interval(requestTime, responseTime)).append("(ms)")//
+            out.append("{\n        module : ").append(module)
+                    .append("\n      trace_id : ").append(traceId)
+                    .append("\n       span_id : ").append(spanId)
+                    .append("\n         level : ").append(level)
+                    .append("\n           key : ").append(key)
+                    .append("\n        action : ").append(action)
+                    .append("\n       message : ").append(message)
+                    .append("\n      username : ").append(username)
+                    .append("\n  thread_frame : ").append(threadFrame)
+                    .append("\n     has_error : ").append(throwable != null)
+                    .append("\n           use : ").append(interval(requestTime, responseTime)).append("(ms)")
                     .append("\n}");
             return out.toString();
         }
-    }
 
-    private static long interval(long start, long end) {
-        return (start == -1 || end == -1) ? -1 : end - start;
+        private static long interval(long start, long end) {
+            return (start == -1 || end == -1) ? -1 : end - start;
+        }
+
     }
 
 }

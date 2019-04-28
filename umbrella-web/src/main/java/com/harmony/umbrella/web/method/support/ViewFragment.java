@@ -4,13 +4,12 @@ import com.alibaba.fastjson.serializer.SerializeFilter;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.harmony.umbrella.json.Json;
 import com.harmony.umbrella.json.SerializerConfigBuilder;
-import com.harmony.umbrella.log.Log;
-import com.harmony.umbrella.log.Logs;
 import com.harmony.umbrella.util.IOUtils;
 import com.harmony.umbrella.web.method.annotation.BundleView.Behavior;
 import com.harmony.umbrella.web.method.annotation.BundleView.PatternBehavior;
 import com.harmony.umbrella.web.util.WebUtils;
 import com.harmony.umbrella.web.util.WebUtils.PageWrapper;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
 import org.springframework.http.server.ServletServerHttpResponse;
@@ -26,9 +25,8 @@ import java.util.*;
  *
  * @author wuxii@foxmail.com
  */
+@Slf4j
 public class ViewFragment {
-
-    private static final Log log = Logs.getLog(ViewFragment.class);
 
     /**
      * ModelAndViewContainer中的key

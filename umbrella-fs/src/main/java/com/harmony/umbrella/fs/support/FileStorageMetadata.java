@@ -17,7 +17,7 @@ final class FileStorageMetadata implements StorageMetadata {
     String path;
     long contentLength;
     String storageType;
-    Map<String, Object> properties = new HashMap<String, Object>();
+    Map<String, Object> properties = new HashMap<>();
 
     FileStorageMetadata(String storageType) {
         this.storageType = storageType;

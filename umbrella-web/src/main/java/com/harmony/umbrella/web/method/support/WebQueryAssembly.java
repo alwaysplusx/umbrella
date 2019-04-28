@@ -12,6 +12,7 @@ import java.util.StringTokenizer;
 
 import javax.servlet.http.HttpServletRequest;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.TypeMismatchException;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.context.request.NativeWebRequest;
@@ -21,8 +22,6 @@ import com.harmony.umbrella.data.Operator;
 import com.harmony.umbrella.data.JpaQueryBuilder;
 import com.harmony.umbrella.data.QueryFeature;
 import com.harmony.umbrella.json.Json;
-import com.harmony.umbrella.log.Log;
-import com.harmony.umbrella.log.Logs;
 import com.harmony.umbrella.util.IOUtils;
 import com.harmony.umbrella.util.PropertiesUtils;
 import com.harmony.umbrella.util.StringUtils;
@@ -36,9 +35,8 @@ import com.harmony.umbrella.web.method.support.BundleQueryMethodArgumentResolver
  * @see BundleQuery
  * @see JpaQueryBuilder
  */
+@Slf4j
 class WebQueryAssembly {
-
-    private static final Log log = Logs.getLog(WebQueryAssembly.class);
 
     protected BundleQueryAnnotation ann;
     protected Class<?> domainClass;

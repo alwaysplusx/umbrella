@@ -1,43 +1,41 @@
 package com.harmony.umbrella.util;
 
-import java.io.File;
-import java.io.FileFilter;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import org.springframework.core.convert.converter.Converter;
+
+import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.zip.GZIPOutputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import org.springframework.core.convert.converter.Converter;
-
 /**
  * Zip压缩、解压工具类.
- * 
+ *
  * @author wuxii@foxmail.com
  */
 public class Zip {
 
     /**
      * 压缩文件或者目录
-     * 
-     * @param dirOrFile
-     *            文件或者目录
-     * @param output
-     *            输出文件
+     *
+     * @param dirOrFile 文件或者目录
+     * @param output    输出文件
      * @throws IOException
      */
     public static void zip(String dirOrFile, String output) throws IOException {
         zip(new File(dirOrFile), new File(output));
     }
 
+    /**
+     * 将目录或文件压缩到置顶文件中
+     *
+     * @param dirOrFile 待压缩的文件或目录
+     * @param output    压缩完后的文件
+     * @throws IOException
+     */
     public static void zip(File dirOrFile, File output) throws IOException {
         if (!dirOrFile.exists()) {
             throw new IOException("source " + dirOrFile.getPath() + " not exists");
@@ -47,14 +45,18 @@ public class Zip {
         }
         ZipBuilder builder = newBuilder();
         if (dirOrFile.isDirectory()) {
-            builder.addSourceDirectory(dirOrFile);
+            builder.addDir(dirOrFile);
         } else {
-            builder.addSourceFile(dirOrFile);
+            builder.addFile(dirOrFile);
         }
-        builder.setAutoClose(true)//
-                .zip(new FileOutputStream(output));
+        builder.setAutoClose(true).zip(new FileOutputStream(output));
     }
 
+    /**
+     * 压缩构建器
+     *
+     * @return
+     */
     public static ZipBuilder newBuilder() {
         return new ZipBuilder();
     }
@@ -69,7 +71,7 @@ public class Zip {
 
     /**
      * 压缩的配置创建工具
-     * 
+     *
      * @author wuxii@foxmail.com
      */
     public static class ZipBuilder {
@@ -85,9 +87,13 @@ public class Zip {
          * 当添加当前资源的父目录为资源时候自动替换为父资源的配置(原配置无效化)
          */
         private boolean replaceable = true;
+        /**
+         * TODO 是否在压缩文件中包括空的文件夹
+         */
+        private boolean includeEmptyDirectory = true;
         private boolean autoClose = true;
 
-        private Map<String, SourceZip> sources = new HashMap();
+        private Map<String, Source> sources = new HashMap<>();
 
         public ZipBuilder setReplaceable(boolean replaceable) {
             this.replaceable = replaceable;
@@ -99,84 +105,76 @@ public class Zip {
             return this;
         }
 
-        public DirZipConfigBuilder addSourceDirectory(File dir) {
-            checkSource(dir, true);
-            String path = qualifiedPath(dir);
-            DirZipConfigBuilder builder = (DirZipConfigBuilder) sources.get(path);
-            if (builder == null) {
-                builder = new DirZipConfigBuilder(dir);
-                sources.put(path, builder);
-            }
-            return builder;
+        public ZipBuilder setIncludeEmptyDirectory(boolean includeEmptyDirectory) {
+            this.includeEmptyDirectory = includeEmptyDirectory;
+            return this;
         }
 
-        public DirZipConfigBuilder addSourceDirectory(String directory) {
-            return addSourceDirectory(new File(directory));
+        public DirZipConfigBuilder addDir(String directory) {
+            return addDir(new File(directory));
         }
 
-        public FileZipConfigBuilder addSourceFile(String file) {
-            return addSourceFile(new File(file));
+        public FileZipConfigBuilder addFile(String file) {
+            return addFile(new File(file));
         }
 
-        public FileZipConfigBuilder addSourceFile(File file) {
-            checkSource(file, false);
-            String path = qualifiedPath(file);
-            FileZipConfigBuilder builder = (FileZipConfigBuilder) sources.get(path);
-            if (builder == null) {
-                builder = new FileZipConfigBuilder(file);
-                sources.put(path, builder);
-            }
-            return builder;
+        public DirZipConfigBuilder addDir(File dir) {
+            String qualifiedPath = qualifiedPath(dir);
+            checkAndRemoveChildren(qualifiedPath, dir, true);
+            return (DirZipConfigBuilder) sources.computeIfAbsent(qualifiedPath, k -> new DirZipConfigBuilder(dir));
         }
 
-        protected void checkSource(File source, boolean dir) {
+        public FileZipConfigBuilder addFile(File file) {
+            String qualifiedPath = qualifiedPath(file);
+            checkAndRemoveChildren(qualifiedPath, file, false);
+            return (FileZipConfigBuilder) sources.computeIfAbsent(qualifiedPath, k -> new FileZipConfigBuilder(file));
+        }
+
+        protected void checkAndRemoveChildren(String qualifiedPath, File source, boolean dir) {
             if (source == null) {
                 throw new IllegalArgumentException("source must not null");
             }
             if (!source.exists()) {
-                throw new IllegalArgumentException("source is not exists");
+                throw new IllegalArgumentException(source.getPath() + " source is not exists");
             }
             if (dir && !source.isDirectory()) {
                 throw new IllegalArgumentException(source.getPath() + " is not directory");
             }
-
-            String path = qualifiedPath(source);
+            if (!dir && !source.isFile()) {
+                throw new IllegalArgumentException(source.getPath() + " is not file");
+            }
             List<String> willRemoved = new ArrayList<>();
-
             for (String s : sources.keySet()) {
-                if (s.equals(path)) {
+                if (s.equals(qualifiedPath)) {
                     return;
                 }
-                if (path.startsWith(s)) {
+                if (qualifiedPath.startsWith(s)) {
                     throw new IllegalArgumentException(source.getPath() + " is already under " + s);
                 }
-                if (s.startsWith(path) && !replaceable) {
-                    throw new IllegalArgumentException(source.getPath() + " is parent source of " + s);
-                }
-                if (path.startsWith(s)) {
-                    willRemoved.add(s);
+                if (s.startsWith(qualifiedPath)) {
+                    if (!replaceable) {
+                        throw new IllegalArgumentException(source.getPath() + " is parent source of " + s);
+                    } else {
+                        willRemoved.add(s);
+                    }
                 }
             }
-
             if (!willRemoved.isEmpty()) {
-                for (String key : willRemoved) {
-                    sources.remove(key);
-                }
+                willRemoved.forEach(sources::remove);
             }
-
         }
 
-        public File zip(String name) throws IOException {
-            File dest = new File(name);
+        public File zip(String output) throws IOException {
+            File dest = new File(output);
             zip(dest);
             return dest;
         }
 
-        public void zip(File file) throws IOException {
-            if (!FileUtils.createFile(file)) {
-                throw new IOException(file + " file not exists");
+        public void zip(File output) throws IOException {
+            if (!FileUtils.createFile(output)) {
+                throw new IOException(output + " file not exists");
             }
-            FileOutputStream fos = new FileOutputStream(file);
+            FileOutputStream fos = new FileOutputStream(output);
             zip(fos, true);
         }
 
@@ -186,7 +184,7 @@ public class Zip {
 
         protected void zip(OutputStream os, boolean autoClose) throws IOException {
             ZipOutputStream zos = os instanceof ZipOutputStream ? (ZipOutputStream) os : new ZipOutputStream(os);
-            for (SourceZip source : sources.values()) {
+            for (Source source : sources.values()) {
                 source.zip(zos);
             }
             if (autoClose) {
@@ -194,17 +192,17 @@ public class Zip {
             }
         }
 
-        public File gzip(String name) throws IOException {
-            File dest = new File(name);
+        public File gzip(String output) throws IOException {
+            File dest = new File(output);
             gzip(dest);
             return dest;
         }
 
-        public void gzip(File file) throws IOException {
-            if (!FileUtils.createFile(file)) {
-                throw new IOException(file + " file not exists");
+        public void gzip(File output) throws IOException {
+            if (!FileUtils.createFile(output)) {
+                throw new IOException(output + " file not exists");
             }
-            FileOutputStream fos = new FileOutputStream(file);
+            FileOutputStream fos = new FileOutputStream(output);
             gzip(fos, true);
         }
 
@@ -230,16 +228,26 @@ public class Zip {
             }
         }
 
-        protected abstract class SourceZip<T extends SourceZip<T>> {
+        protected abstract class Source<T extends Source<T>> {
             /**
              * 文件与zipEntry只间的转换器
              */
-            protected Converter<File, ZipEntry> fileEntryConverter;
+            protected Converter<File, ZipEntry> converter;
+
+            /**
+             * 输出目录前缀
+             */
+            protected String destPrefix;
 
             protected abstract void zip(ZipOutputStream os) throws IOException;
 
-            public T setFileEntryConverter(Converter<File, ZipEntry> fileEntryConverter) {
-                this.fileEntryConverter = fileEntryConverter;
+            public T setConverter(Converter<File, ZipEntry> converter) {
+                this.converter = converter;
+                return (T) this;
+            }
+
+            public T setDestPrefix(String prefix) {
+                this.destPrefix = prefix;
                 return (T) this;
             }
 
@@ -255,6 +263,7 @@ public class Zip {
                         try {
                             in.close();
                         } catch (Exception e) {
+                            // ignore
                         }
                     }
                 }
@@ -262,13 +271,12 @@ public class Zip {
 
             /**
              * 将文件转为zipEntry, 如果fileEntryConverter为空则返回null
-             * 
-             * @param file
-             *            文件
+             *
+             * @param file 文件
              * @return zip entry
              */
             protected ZipEntry convert(File file) {
-                return fileEntryConverter == null ? null : fileEntryConverter.convert(file);
+                return converter == null ? null : converter.convert(file);
             }
 
             public final ZipBuilder up() {
@@ -277,37 +285,17 @@ public class Zip {
 
         }
 
-        public class FileZipConfigBuilder extends SourceZip {
+        public class FileZipConfigBuilder extends Source<FileZipConfigBuilder> {
 
-            private File file;
-            /**
-             * 放置在压缩文件中的目录前缀
-             */
-            private String entryDir;
+            private File source;
 
             protected FileZipConfigBuilder(File file) {
-                this.file = file;
-            }
-
-            /**
-             * 放置在压缩文件中的目录前缀
-             * 
-             * @param entryDir
-             *            压缩文件中的文件前缀
-             * @return this builder
-             */
-            public FileZipConfigBuilder setZipEntryDirectory(String entryDir) {
-                entryDir = new File(entryDir).getPath();
-                if (entryDir.startsWith(File.separator)) {
-                    entryDir = entryDir.substring(1);
-                }
-                this.entryDir = entryDir;
-                return this;
+                this.source = file;
             }
 
             @Override
             protected void zip(ZipOutputStream os) throws IOException {
-                zipFile(toZipEntry(file), file, os);
+                zipFile(toZipEntry(source), source, os);
             }
 
             protected ZipEntry toZipEntry(File file) {
@@ -320,54 +308,28 @@ public class Zip {
 
             protected String toZipEntryName(File file) {
                 String entryName = file.getName();
-                return entryDir == null ? entryName : entryDir + File.separator + entryName;
+                return destPrefix == null ? entryName : destPrefix + File.separator + entryName;
             }
         }
 
-        public class DirZipConfigBuilder extends SourceZip {
+        public class DirZipConfigBuilder extends Source<DirZipConfigBuilder> {
 
             /**
              * 自定义的文件过滤器
              */
-            private List<FileFilter> filters;
+            private FileFilter filter;
 
             /**
-             * 路径过滤器(可以设置需要排除或者include的文件或者目录)
+             * 待压缩的目录
              */
-            private PatternResourceFilter<String> resourceFilter;
-
-            /**
-             * 压缩的目录
-             */
-            private File dir;
+            private File source;
             /**
              * 是否包含当前路径在压缩文件中
              */
             private boolean includeRoot = false;
-            /**
-             * 放置在压缩文件中的目录前缀
-             */
-            private String entryDir;
-            /**
-             * 当前文件所在的基础目录, 转化为entry名称时需要将此部分去除
-             */
-            private String willRemoved;
 
-            protected DirZipConfigBuilder(File dir) {
-                this.dir = dir;
-            }
-
-            public DirZipConfigBuilder addFileFilter(FileFilter filter) {
-                if (filters == null) {
-                    this.filters = new ArrayList<>();
-                }
-                this.filters.add(filter);
-                return this;
-            }
-
-            public DirZipConfigBuilder setFileFilter(List<FileFilter> filters) {
-                this.filters = filters;
-                return this;
+            protected DirZipConfigBuilder(File source) {
+                this.source = source;
             }
 
             public DirZipConfigBuilder setIncludeRoot(boolean include) {
@@ -375,57 +337,26 @@ public class Zip {
                 return this;
             }
 
-            public DirZipConfigBuilder addExcludes(String... excludes) {
-                this.getResourceFilter().addExcludes(excludes);
-                return this;
-            }
-
-            public DirZipConfigBuilder setExcludes(Set<String> excludes) {
-                this.getResourceFilter().setExcludes(excludes);
-                return this;
-            }
-
-            public DirZipConfigBuilder addIncludes(String... includes) {
-                this.getResourceFilter().addIncludes(includes);
-                return this;
-            }
-
-            public DirZipConfigBuilder setIncludes(Set<String> includes) {
-                this.getResourceFilter().setIncludes(includes);
-                return this;
-            }
-
-            /**
-             * 放置在压缩文件中的目录前缀
-             * 
-             * @param entryDir
-             *            压缩文件中的文件前缀
-             * @return this builder
-             */
-            public DirZipConfigBuilder setZipEntryDirectory(String entryDir) {
-                entryDir = new File(entryDir).getPath();
-                if (entryDir.startsWith(File.separator)) {
-                    entryDir = entryDir.substring(1);
-                }
-                // if (entryDir.endsWith(File.separator)) {
-                // entryDir = entryDir.substring(0, entryDir.length() - 1);
-                // }
-                this.entryDir = entryDir;
+            public DirZipConfigBuilder setFileFilter(FileFilter fileFilter) {
+                this.filter = fileFilter;
                 return this;
             }
 
             @Override
             protected void zip(ZipOutputStream os) throws IOException {
-                zip(dir, os);
+                zip(source, os);
             }
 
-            private final void zip(File file, ZipOutputStream os) throws IOException {
+            private void zip(File file, ZipOutputStream os) throws IOException {
                 if (!accept(file)) {
                     return;
                 }
                 if (file.isDirectory()) {
-                    for (File f : file.listFiles()) {
-                        zip(f, os);
+                    File[] files = file.listFiles();
+                    if (files != null) {
+                        for (File f : files) {
+                            zip(f, os);
+                        }
                     }
                 } else {
                     zipFile(toZipEntry(file), file, os);
@@ -441,50 +372,18 @@ public class Zip {
             }
 
             protected String toZipEntryName(File file) {
-                if (willRemoved == null) {
-                    willRemoved = !includeRoot || dir.getParentFile() == null //
-                            ? dir.getPath() //
-                            : dir.getParentFile().getPath();
-                }
+                String willRemoved = !includeRoot || source.getParentFile() == null
+                        ? source.getPath()
+                        : source.getParentFile().getPath();
                 String entryName = file.getPath().substring(willRemoved.length());
                 if (entryName.startsWith(File.separator)) {
                     entryName = entryName.substring(1);
                 }
-                return entryDir == null ? entryName : entryDir + File.separator + entryName;
+                return destPrefix == null ? entryName : destPrefix + File.separator + entryName;
             }
 
             private boolean accept(File file) {
-
-                // filters具有一票否决权, filters == null = accept
-                if (filters != null) {
-                    for (FileFilter filter : filters) {
-                        if (!filter.accept(file)) {
-                            return false;
-                        }
-                    }
-                }
-
-                // include == null, exclude != null: 纯exclude模式
-                // include == null, exclude == null: 全量接收模式
-                // include != null, exclude == null: 纯include模式
-                // include != null, exclude != null: 取并集
-                if (resourceFilter != null) {
-                    // 构建include/exclude计算所需要的路径
-                    String path = file.getPath().substring(dir.getPath().length());
-                    if (path.startsWith(File.separator)) {
-                        path = path.substring(1);
-                    }
-                    return StringUtils.isBlank(path) || resourceFilter.accept(path);
-                }
-
-                return true;
-            }
-
-            private PatternResourceFilter<String> getResourceFilter() {
-                if (resourceFilter == null) {
-                    this.resourceFilter = new PatternResourceFilter<>();
-                }
-                return resourceFilter;
+                return filter == null || filter.accept(file);
             }
 
         }
