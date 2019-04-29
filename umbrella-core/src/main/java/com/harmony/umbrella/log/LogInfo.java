@@ -11,14 +11,14 @@ import java.util.Date;
 public interface LogInfo extends Serializable {
 
     /**
-     * openTrace spanId
+     * 消息唯一键
      *
      * @return
      */
-    String getSpanId();
+    String getMessageId();
 
     /**
-     * openTrace traceId
+     * traceId
      *
      * @return
      */

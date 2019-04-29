@@ -17,8 +17,8 @@ public class LogMessage {
 
     private final MessageFactory messageFactory;
 
+    private String messageId = messageId();
     private String traceId = messageId();
-    private String spanId = messageId();
 
     private String module;
     private String action;
@@ -31,9 +31,6 @@ public class LogMessage {
 
     private Object userId;
     private String username;
-    private String host;
-
-    private Object result;
 
     private long startTime = -1;
     private long finishTime = -1;
@@ -47,16 +44,13 @@ public class LogMessage {
 
     public LogMessage(MessageFactory messageFactory) {
         this.messageFactory = messageFactory;
-    }
-
-    public LogMessage spanId(String spanId) {
-        this.spanId = spanId;
-        return null;
+        this.currentThread();
+        this.start();
     }
 
     public LogMessage traceId(String traceId) {
         this.traceId = traceId;
-        return null;
+        return this;
     }
 
     /**
@@ -256,7 +250,7 @@ public class LogMessage {
         }
     }
 
-    private static String messageId() {
+    public static String messageId() {
         return UUID.randomUUID().toString().replace("-", "");
     }
 
@@ -276,9 +270,8 @@ public class LogMessage {
 
     private static class LogInfoImpl implements LogInfo {
 
+        private String messageId;
         private String traceId;
-        private String spanId;
-
         private String module;
         private String action;
 
@@ -298,8 +291,8 @@ public class LogMessage {
         private String thread;
 
         LogInfoImpl(LogMessage logMessage) {
+            this.messageId = logMessage.messageId;
             this.traceId = logMessage.traceId;
-            this.spanId = logMessage.spanId;
             this.module = logMessage.module;
             this.action = logMessage.action;
             this.key = logMessage.key;
@@ -315,8 +308,8 @@ public class LogMessage {
         }
 
         @Override
-        public String getSpanId() {
-            return spanId;
+        public String getMessageId() {
+            return messageId;
         }
 
         @Override
@@ -387,17 +380,17 @@ public class LogMessage {
         @Override
         public String toString() {
             StringBuilder out = new StringBuilder();
-            out.append("{\n        module : ").append(module)
-                    .append("\n      trace_id : ").append(traceId)
-                    .append("\n       span_id : ").append(spanId)
-                    .append("\n         level : ").append(level)
-                    .append("\n           key : ").append(key)
-                    .append("\n        action : ").append(action)
-                    .append("\n       message : ").append(message)
-                    .append("\n      username : ").append(username)
-                    .append("\n  thread_frame : ").append(threadFrame)
-                    .append("\n     has_error : ").append(throwable != null)
-                    .append("\n           use : ").append(interval(requestTime, responseTime)).append("(ms)")
+            out.append("{\n        'module':'").append(module).append("',")
+                    .append("\n    'message_id':'").append(messageId).append("',")
+                    .append("\n      'trace_id':'").append(traceId).append("',")
+                    .append("\n         'level':'").append(level).append("',")
+                    .append("\n           'key':'").append(key).append("',")
+                    .append("\n        'action':'").append(action).append("',")
+                    .append("\n       'message':'").append(message).append("',")
+                    .append("\n      'username':'").append(username).append("',")
+                    .append("\n  'thread_frame':'").append(threadFrame).append("',")
+                    .append("\n     'has_error':").append(throwable != null).append(",")
+                    .append("\n           'use':").append(interval(requestTime, responseTime))
                     .append("\n}");
             return out.toString();
         }

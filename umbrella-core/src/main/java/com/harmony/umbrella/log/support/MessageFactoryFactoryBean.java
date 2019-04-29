@@ -23,7 +23,10 @@ public class MessageFactoryFactoryBean {
     }
 
     private static boolean isLog4j2ParameterizedMessageFactoryPresent() {
-        return ClassUtils.isPresent("org.apache.logging.log4j.message.ParameterizedMessageFactory", ClassUtils.getDefaultClassLoader());
+        return ClassUtils.isPresent(
+                "org.apache.logging.log4j.message.ParameterizedMessageFactory",
+                ClassUtils.getDefaultClassLoader()
+        );
     }
 
     private static boolean isSlf4jMessageFormatterPresent() {
@@ -43,14 +46,7 @@ public class MessageFactoryFactoryBean {
         private static final MessageFormatterMessageFactory INSTANCE = new MessageFormatterMessageFactory();
 
         @Override
-        public Message newMessage(String message, Object... params) {
-            if (params.length == 0) {
-                return newMessage(message);
-            }
-            Throwable throwable = null;
-            if (params[params.length - 1] instanceof Throwable) {
-                throwable = (Throwable) params[params.length - 1];
-            }
+        protected Message buildMessage(String message, Object[] params, Throwable throwable) {
             return new TupleMessage(message, MessageFormatter.arrayFormat(message, params, throwable));
         }
 

@@ -6,7 +6,7 @@ import com.harmony.umbrella.log.MessageFactory;
 /**
  * @author wuxii@foxmail.com
  */
-public class SimpleMessageFactory implements MessageFactory {
+class SimpleMessageFactory implements MessageFactory {
 
     public static final SimpleMessageFactory INSTANCE = new SimpleMessageFactory();
 
@@ -32,6 +32,10 @@ public class SimpleMessageFactory implements MessageFactory {
         if (params[params.length - 1] instanceof Throwable) {
             throwable = (Throwable) params[params.length - 1];
         }
+        return buildMessage(message, params, throwable);
+    }
+
+    protected Message buildMessage(String message, Object[] params, Throwable throwable) {
         return new SimpleMessage(message, params, throwable);
     }
 

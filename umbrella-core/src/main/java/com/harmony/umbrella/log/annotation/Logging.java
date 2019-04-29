@@ -1,7 +1,6 @@
 package com.harmony.umbrella.log.annotation;
 
 import com.harmony.umbrella.log.Level;
-import org.springframework.core.annotation.AliasFor;
 
 import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
@@ -42,7 +41,7 @@ public @interface Logging {
     String key() default "";
 
     /**
-     * key的获取的域
+     * key的获取时段
      *
      * @return key scope
      */
@@ -88,39 +87,19 @@ public @interface Logging {
         String bind() default "";
 
         /**
-         * 表达式值, 优先级text > value
-         *
-         * @return 表达式
-         */
-        @AliasFor("text")
-        String value() default "";
-
-        /**
-         * 表达式值, 优先级比较value要大
+         * 实际的表达式值
          *
          * @return 表达式值
          */
-        @AliasFor("value")
-        String text() default "";
+        String text();
 
         /**
-         * 表达式所代表的值所属的scope, default is Scope.OUT
+         * 表达式所代表的值所属的scope
          *
          * @return scope
          */
-        Scope scope() default Scope.OUT;
+        Scope scope();
 
-    }
-
-    enum Scope {
-        /**
-         * 请求阶段
-         */
-        IN,
-        /**
-         * 应答阶段
-         */
-        OUT;
     }
 
 }
