@@ -1,16 +1,12 @@
 package com.harmony.umbrella.template;
 
-import java.util.List;
-
 /**
  * @author wuxii
  */
-public interface Template {
+public interface Template<T extends Expression> {
 
-    Expressions getExpressions();
+    T getExpression();
 
-    String getValue(Object rootObject);
-
-    List<TemplateItem> getTemplateItems();
+    Object getValue(Object rootObject);
 
 }

@@ -5,6 +5,8 @@ import org.aopalliance.intercept.MethodInvocation;
 import java.lang.reflect.Method;
 
 /**
+ * 方法执行的日志拦截上下文
+ *
  * @author wuxii
  */
 public class LogInterceptorContext {

@@ -1,29 +1,29 @@
 package com.harmony.umbrella.template;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-
-import java.io.Serializable;
-
 /**
  * @author wuxii
  */
-@Getter
-@Setter
-@NoArgsConstructor
-public class Expression implements Serializable {
+public interface Expression {
 
-    private String text;
-    private boolean plainText;
+    /**
+     * 原文本, 如${#foo.bar}
+     *
+     * @return 原文本
+     */
+    String getText();
 
-    public Expression(String text, boolean plainText) {
-        this.text = text;
-        this.plainText = plainText;
-    }
+    /**
+     * 去除表达式符号的文本, 如#foo.bar
+     *
+     * @return 表达式
+     */
+    String getExpression();
 
-    @Override
-    public String toString() {
-        return text;
-    }
+    /**
+     * 表达式是否是纯文本的表达式
+     *
+     * @return 是否是纯文本
+     */
+    boolean isPlainText();
+
 }

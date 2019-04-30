@@ -1,17 +1,17 @@
 package com.harmony.umbrella.log.interceptor;
 
-import com.harmony.umbrella.log.annotation.KeyExpression;
+import com.harmony.umbrella.log.annotation.Binding;
 import com.harmony.umbrella.log.annotation.Logging;
 import com.harmony.umbrella.log.annotation.Module;
+import com.harmony.umbrella.log.annotation.Scope;
+import com.harmony.umbrella.util.StringUtils;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.springframework.core.annotation.AnnotationUtils;
-import org.springframework.util.StringUtils;
 
 import java.lang.reflect.Method;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * @author wuxii
@@ -23,8 +23,7 @@ public abstract class AbstractLogInterceptor implements MethodInterceptor {
     @Override
     public Object invoke(MethodInvocation invocation) throws Throwable {
         LoggingOperation loggingOperation;
-        if (logInterceptorFilter == null
-                || !logInterceptorFilter.accept(invocation)
+        if ((logInterceptorFilter != null && !logInterceptorFilter.accept(invocation))
                 || (loggingOperation = getLoggingOperation(invocation)) == null) {
             return invocation.proceed();
         }
@@ -35,38 +34,45 @@ public abstract class AbstractLogInterceptor implements MethodInterceptor {
 
     protected LoggingOperation getLoggingOperation(MethodInvocation invocation) {
         Method method = invocation.getMethod();
-        Logging loggingAnn = AnnotationUtils.getAnnotation(method, Logging.class);
+        Logging loggingAnn = AnnotationUtils.findAnnotation(method, Logging.class);
         if (loggingAnn == null) {
             return null;
         }
 
-        Module moduleAnn = AnnotationUtils.getAnnotation(method, Module.class);
-        String module = StringUtils.hasText(loggingAnn.module())
-                ? loggingAnn.module()
-                : moduleAnn != null
-                ? moduleAnn.value()
+        String module = loggingAnn.module();
+        if (StringUtils.isBlank(module)) {
+            Module moduleAnn = AnnotationUtils.findAnnotation(method, Module.class);
+            if (moduleAnn != null) {
+                module = moduleAnn.value();
+            }
+        }
+
+        ExpressionOperation keyExpression = StringUtils.isNotBlank(loggingAnn.key())
+                ? new ExpressionOperation(loggingAnn.key(), loggingAnn.keyScope())
                 : null;
 
-        KeyExpression keyAnn = AnnotationUtils.getAnnotation(method, KeyExpression.class);
-        ExpressionOperation keyExpressionOperation = keyAnn != null
-                ? new ExpressionOperation(keyAnn)
-                : StringUtils.hasText(loggingAnn.key())
-                ? new ExpressionOperation(loggingAnn.key(), loggingAnn.keyScope(), loggingAnn.key())
-                : null;
+        Map<String, ExpressionOperation> bindings = buildBindings(loggingAnn.bindings());
 
         return LoggingOperation
                 .builder()
-                .keyExpression(keyExpressionOperation)
+                .keyExpression(keyExpression)
                 .module(module)
                 .action(loggingAnn.action())
                 .message(loggingAnn.message())
                 .level(loggingAnn.level())
-                .binds(buildBinds(loggingAnn.binds()))
+                .bindings(bindings)
                 .build();
     }
 
-    private Map<String, ExpressionOperation> buildBinds(Logging.Expression[] binds) {
-        return Stream.of(binds).collect(Collectors.toMap(Logging.Expression::bind, ExpressionOperation::new));
+    private Map<String, ExpressionOperation> buildBindings(Binding[] bindings) {
+        Map<String, ExpressionOperation> result = new HashMap<>();
+        for (Binding binding : bindings) {
+            String key = binding.key();
+            String exp = binding.expression();
+            Scope scope = binding.scope();
+            result.put(key, new ExpressionOperation(exp, scope));
+        }
+        return result;
     }
 
     public void setLogInterceptorFilter(LogInterceptorFilter logInterceptorFilter) {

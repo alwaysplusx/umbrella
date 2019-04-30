@@ -1,4 +1,7 @@
-package com.harmony.umbrella.template;
+package com.harmony.umbrella.template.support;
+
+import com.harmony.umbrella.template.Expressions;
+import com.harmony.umbrella.template.ExpressionsCache;
 
 /**
  * @author wuxii
@@ -13,6 +16,11 @@ public class NoneExpressionsCache implements ExpressionsCache {
     @Override
     public Expressions getExpressionsFromCache(String text) {
         return null;
+    }
+
+    @Override
+    public void removeExpressionsFromCache(String text) {
+
     }
 
     @Override

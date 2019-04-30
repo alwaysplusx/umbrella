@@ -1,41 +1,45 @@
 package com.harmony.umbrella.template.spel;
 
-import com.harmony.umbrella.template.Expressions;
+import com.harmony.umbrella.template.Expression;
 import com.harmony.umbrella.template.Template;
-import com.harmony.umbrella.template.TemplateItem;
-
-import java.util.List;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.expression.EvaluationException;
 
 /**
  * @author wuxii
  */
-class SpelTemplate implements Template {
+@Slf4j
+public class SpelTemplate<T extends Expression> implements Template<T> {
 
-    private Expressions expressions;
-    private List<TemplateItem> items;
+    private T expression;
+    private org.springframework.expression.Expression spel;
 
-    public SpelTemplate(Expressions expressions, List<TemplateItem> items) {
-        this.expressions = expressions;
-        this.items = items;
+    public SpelTemplate(T expression, org.springframework.expression.Expression spel) {
+        this.expression = expression;
+        this.spel = spel;
     }
 
     @Override
-    public Expressions getExpressions() {
-        return expressions;
+    public T getExpression() {
+        return expression;
     }
 
     @Override
-    public String getValue(Object rootObject) {
-        StringBuilder out = new StringBuilder();
-        for (TemplateItem item : items) {
-            out.append(item.getValue(rootObject));
+    public Object getValue(Object rootObject) {
+        try {
+            return spel.getValue(rootObject);
+        } catch (EvaluationException e) {
+            if (log.isDebugEnabled()) {
+                log.warn("{}, evaluation expression failed", expression, e);
+            }
+            return "${" + expression.getText() + "}";
         }
-        return out.toString();
     }
 
     @Override
-    public List<TemplateItem> getTemplateItems() {
-        return items;
+    public String toString() {
+        return "SpelTemplate{" +
+                "expression=" + expression +
+                '}';
     }
-
 }

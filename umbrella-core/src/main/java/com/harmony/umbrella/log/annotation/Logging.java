@@ -1,12 +1,14 @@
 package com.harmony.umbrella.log.annotation;
 
 import com.harmony.umbrella.log.Level;
+import org.springframework.core.annotation.AliasFor;
 
 import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
-import static java.lang.annotation.ElementType.*;
+import static java.lang.annotation.ElementType.METHOD;
+import static java.lang.annotation.ElementType.TYPE;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
@@ -54,14 +56,23 @@ public @interface Logging {
      *
      * @return 消息内容
      */
+    @AliasFor("value")
     String message() default "";
+
+    /**
+     * alias for message
+     *
+     * @return alias for message
+     */
+    @AliasFor("message")
+    String value() default "";
 
     /**
      * 于message中的表达式的相关绑定, 增加message中的表达式的可配置项
      *
      * @return expression annotation
      */
-    Expression[] binds() default {};
+    Binding[] bindings() default {};
 
     /**
      * 日志级别
@@ -69,37 +80,5 @@ public @interface Logging {
      * @return 日志级别
      */
     Level level() default Level.INFO;
-
-    /**
-     * 日志表达式中的表达式详细配置注解
-     *
-     * @author wuxii@foxmail.com
-     */
-    @Retention(RUNTIME)
-    @Target(ANNOTATION_TYPE)
-    @interface Expression {
-
-        /**
-         * 与表达式中绑定的值
-         *
-         * @return 绑定的文本值
-         */
-        String bind() default "";
-
-        /**
-         * 实际的表达式值
-         *
-         * @return 表达式值
-         */
-        String text();
-
-        /**
-         * 表达式所代表的值所属的scope
-         *
-         * @return scope
-         */
-        Scope scope();
-
-    }
 
 }
