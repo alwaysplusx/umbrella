@@ -9,7 +9,7 @@ import java.lang.reflect.Method;
  *
  * @author wuxii
  */
-public class LogInterceptorContext {
+public final class LogInterceptorContext {
 
     private MethodInvocation invocation;
     private Object result;
@@ -22,14 +22,13 @@ public class LogInterceptorContext {
         this.invocation = invocation;
     }
 
-    final Object proceed() throws Throwable {
+    public void proceed() {
         traceContext = LogTraceContext.push();
         try {
             requestTime = System.currentTimeMillis();
-            return result = invocation.proceed();
+            result = invocation.proceed();
         } catch (Throwable e) {
             error = e;
-            throw e;
         } finally {
             responseTime = System.currentTimeMillis();
             LogTraceContext.pop();

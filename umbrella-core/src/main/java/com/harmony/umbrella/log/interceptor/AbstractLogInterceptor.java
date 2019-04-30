@@ -27,10 +27,17 @@ public abstract class AbstractLogInterceptor implements MethodInterceptor {
                 || (loggingOperation = getLoggingOperation(invocation)) == null) {
             return invocation.proceed();
         }
-        return invokeWithLogging(loggingOperation, new LogInterceptorContext(invocation));
+
+        LogInterceptorContext logInterceptorContext = new LogInterceptorContext(invocation);
+        invokeWithLogging(loggingOperation, logInterceptorContext);
+
+        if (logInterceptorContext.getError() != null) {
+            throw logInterceptorContext.getError();
+        }
+        return logInterceptorContext.getResult();
     }
 
-    protected abstract Object invokeWithLogging(LoggingOperation loggingOperation, LogInterceptorContext logInterceptorContext);
+    protected abstract void invokeWithLogging(LoggingOperation loggingOperation, LogInterceptorContext logInterceptorContext);
 
     protected LoggingOperation getLoggingOperation(MethodInvocation invocation) {
         Method method = invocation.getMethod();
@@ -55,7 +62,7 @@ public abstract class AbstractLogInterceptor implements MethodInterceptor {
 
         return LoggingOperation
                 .builder()
-                .keyExpression(keyExpression)
+                .keyExpressionOperation(keyExpression)
                 .module(module)
                 .action(loggingAnn.action())
                 .message(loggingAnn.message())

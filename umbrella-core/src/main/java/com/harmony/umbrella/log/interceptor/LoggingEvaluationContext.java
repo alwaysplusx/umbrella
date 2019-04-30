@@ -9,7 +9,7 @@ import java.lang.reflect.Method;
 /**
  * @author wuxii
  */
-public class LoggingEvaluationContext extends MethodBasedEvaluationContext {
+class LoggingEvaluationContext extends MethodBasedEvaluationContext {
 
     public LoggingEvaluationContext(Object rootObject, Method method,
                                     Object[] arguments, ParameterNameDiscoverer parameterNameDiscoverer) {

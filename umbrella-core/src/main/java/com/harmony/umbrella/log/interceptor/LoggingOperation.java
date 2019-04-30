@@ -25,7 +25,7 @@ public class LoggingOperation {
     private String action;
     private String message;
     private Level level;
-    private ExpressionOperation keyExpression;
+    private ExpressionOperation keyExpressionOperation;
     /**
      * 来自{@link Logging#bindings()}
      */
@@ -38,6 +38,10 @@ public class LoggingOperation {
             result.add(getBindingOrDefault(exp));
         }
         return result;
+    }
+
+    public ScopeExpression getKeyExpression() {
+        return null;
     }
 
     protected ScopeExpression getBindingOrDefault(Expression exp) {

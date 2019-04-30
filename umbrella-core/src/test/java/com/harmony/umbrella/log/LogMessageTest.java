@@ -3,19 +3,11 @@ package com.harmony.umbrella.log;
 import com.harmony.umbrella.log.annotation.Binding;
 import com.harmony.umbrella.log.annotation.Logging;
 import com.harmony.umbrella.log.annotation.Scope;
-import com.harmony.umbrella.log.interceptor.AbstractLogInterceptor;
-import com.harmony.umbrella.log.interceptor.LogInterceptorContext;
-import com.harmony.umbrella.log.interceptor.LoggingOperation;
-import com.harmony.umbrella.log.interceptor.ScopeExpression;
-import com.harmony.umbrella.template.ExpressionParser;
-import com.harmony.umbrella.template.support.DefaultExpressionParser;
 import lombok.extern.slf4j.Slf4j;
-import org.aopalliance.intercept.MethodInvocation;
 import org.junit.Test;
+import org.springframework.core.annotation.AnnotationUtils;
 
-import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Method;
-import java.util.List;
 
 /**
  * @author wuxii
@@ -43,38 +35,12 @@ public class LogMessageTest {
     @Test
     public void test() throws Throwable {
         Method[] methods = AImpl.class.getDeclaredMethods();
-//        for (Method method : methods) {
-//            // not null
-//            System.out.println(AnnotationUtils.findAnnotation(method, Logging.class));
-//            // null
-//            System.out.println(AnnotationUtils.getAnnotation(method, Logging.class));
-//        }
-        new TestLogInterceptor().invoke(new MethodInvocation() {
-            @Override
-            public Method getMethod() {
-                return methods[0];
-            }
-
-            @Override
-            public Object[] getArguments() {
-                return new Object[0];
-            }
-
-            @Override
-            public Object proceed() throws Throwable {
-                return null;
-            }
-
-            @Override
-            public Object getThis() {
-                return null;
-            }
-
-            @Override
-            public AccessibleObject getStaticPart() {
-                return null;
-            }
-        });
+        for (Method method : methods) {
+            // not null
+            System.out.println(AnnotationUtils.findAnnotation(method, Logging.class));
+            // null
+            System.out.println(AnnotationUtils.getAnnotation(method, Logging.class));
+        }
     }
 
     public interface A {
@@ -94,19 +60,6 @@ public class LogMessageTest {
         public String greeting(String name) {
             return "Hi " + name;
         }
-    }
-
-    public static class TestLogInterceptor extends AbstractLogInterceptor {
-
-        private ExpressionParser expressionParser = new DefaultExpressionParser();
-
-        @Override
-        protected Object invokeWithLogging(LoggingOperation loggingOperation, LogInterceptorContext logInterceptorContext) {
-            List<ScopeExpression> expressions = loggingOperation.parseMessage(expressionParser);
-            expressions.forEach(System.out::println);
-            return null;
-        }
-
     }
 
 
