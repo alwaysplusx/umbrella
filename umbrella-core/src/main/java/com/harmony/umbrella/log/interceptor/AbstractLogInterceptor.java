@@ -16,12 +16,17 @@ import java.util.Map;
 /**
  * @author wuxii
  */
-public abstract class AbstractLogInterceptor implements MethodInterceptor {
+public abstract class AbstractLogInterceptor implements MethodInterceptor, LogInterceptor<MethodInvocation> {
 
     private LogInterceptorFilter logInterceptorFilter;
 
     @Override
     public Object invoke(MethodInvocation invocation) throws Throwable {
+        return this.interceptor(invocation);
+    }
+
+    @Override
+    public Object interceptor(MethodInvocation invocation) throws Throwable {
         LoggingOperation loggingOperation;
         if ((logInterceptorFilter != null && !logInterceptorFilter.accept(invocation))
                 || (loggingOperation = getLoggingOperation(invocation)) == null) {
