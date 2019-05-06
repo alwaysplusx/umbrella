@@ -1,7 +1,6 @@
 package com.harmony.umbrella.autoconfigure.log;
 
 import com.harmony.umbrella.log.interceptor.LogInterceptor;
-import com.harmony.umbrella.log.interceptor.LoggingInterceptor;
 import org.springframework.aop.PointcutAdvisor;
 import org.springframework.aop.aspectj.AspectJExpressionPointcut;
 import org.springframework.aop.support.DefaultPointcutAdvisor;
@@ -20,7 +19,7 @@ import org.springframework.context.annotation.Import;
 public class LogAutoConfiguration {
 
     @ConditionalOnClass({
-            com.harmony.umbrella.log.interceptor.LoggingInterceptor.class,
+            LogInterceptor.class,
             org.springframework.aop.support.DefaultPointcutAdvisor.class,
             org.springframework.aop.aspectj.AspectJExpressionPointcut.class
     })
@@ -35,17 +34,17 @@ public class LogAutoConfiguration {
 
         @Bean
         @ConditionalOnProperty(prefix = "harmony.log.interceptor", name = "pointcut")
-        PointcutAdvisor loggingAdvisor(LogInterceptor<?> logInterceptor) {
+        PointcutAdvisor loggingAdvisor(LogInterceptor logInterceptor) {
             LogProperties.Interceptor interceptorProps = logProperties.getInterceptor();
-            LoggingInterceptor advisor = new LoggingInterceptor();
             AspectJExpressionPointcut pointcut = new AspectJExpressionPointcut();
             pointcut.setExpression(interceptorProps.getPointcut());
-            return new DefaultPointcutAdvisor(pointcut, advisor);
+            return new DefaultPointcutAdvisor(pointcut, logInterceptor);
         }
 
+        @Bean
         @ConditionalOnMissingBean(LogInterceptor.class)
-        private LoggingInterceptor loggingInterceptor() {
-            return null;
+        LogInterceptor logInterceptor() {
+            return new LogInterceptor();
         }
 
     }

@@ -9,14 +9,14 @@ import java.lang.reflect.Method;
 /**
  * @author wuxii
  */
-class LoggingEvaluationContext extends MethodBasedEvaluationContext {
+class LogEvaluationContext extends MethodBasedEvaluationContext {
 
-    public LoggingEvaluationContext(Object rootObject, Method method,
-                                    Object[] arguments, ParameterNameDiscoverer parameterNameDiscoverer) {
+    public LogEvaluationContext(Object rootObject, Method method,
+                                Object[] arguments, ParameterNameDiscoverer parameterNameDiscoverer) {
         super(rootObject, method, arguments, parameterNameDiscoverer);
     }
 
-    public LoggingEvaluationContext(Object rootObject, Method method, Object[] arguments) {
+    public LogEvaluationContext(Object rootObject, Method method, Object[] arguments) {
         super(rootObject, method, arguments, new DefaultParameterNameDiscoverer());
     }
 

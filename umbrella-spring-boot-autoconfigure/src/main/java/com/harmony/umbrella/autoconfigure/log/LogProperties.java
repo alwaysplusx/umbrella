@@ -34,16 +34,15 @@ public class LogProperties {
          * 日志拦截的切点
          */
         String pointcut;
+
         /**
          * 只拦截含有{@linkplain com.harmony.umbrella.log.annotation.Logging}注解的方法模式
          */
-        boolean annotationMode;
+        // boolean annotationMode;
 
         // Class<?> serializer;
 
         // Class<?> formatter;
-
-
         public String getPointcut() {
             return pointcut;
         }
@@ -52,13 +51,6 @@ public class LogProperties {
             this.pointcut = pointcut;
         }
 
-        public boolean isAnnotationMode() {
-            return annotationMode;
-        }
-
-        public void setAnnotationMode(boolean annotationMode) {
-            this.annotationMode = annotationMode;
-        }
     }
 
 }

@@ -18,7 +18,7 @@ import java.util.Map;
  */
 @Getter
 @Builder
-public class LoggingOperation {
+public class LogOperation {
 
     private Scope defaultScope;
     private String module;

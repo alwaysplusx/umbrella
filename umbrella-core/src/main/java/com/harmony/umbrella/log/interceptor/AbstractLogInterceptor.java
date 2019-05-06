@@ -16,25 +16,20 @@ import java.util.Map;
 /**
  * @author wuxii
  */
-public abstract class AbstractLogInterceptor implements MethodInterceptor, LogInterceptor<MethodInvocation> {
+public abstract class AbstractLogInterceptor implements MethodInterceptor {
 
     private LogInterceptorFilter logInterceptorFilter;
 
     @Override
     public Object invoke(MethodInvocation invocation) throws Throwable {
-        return this.interceptor(invocation);
-    }
-
-    @Override
-    public Object interceptor(MethodInvocation invocation) throws Throwable {
-        LoggingOperation loggingOperation;
+        LogOperation logOperation;
         if ((logInterceptorFilter != null && !logInterceptorFilter.accept(invocation))
-                || (loggingOperation = getLoggingOperation(invocation)) == null) {
+                || (logOperation = getLoggingOperation(invocation)) == null) {
             return invocation.proceed();
         }
 
         LogInterceptorContext logInterceptorContext = new LogInterceptorContext(invocation);
-        invokeWithLogging(loggingOperation, logInterceptorContext);
+        invokeWithLogging(logOperation, logInterceptorContext);
 
         if (logInterceptorContext.getError() != null) {
             throw logInterceptorContext.getError();
@@ -42,9 +37,9 @@ public abstract class AbstractLogInterceptor implements MethodInterceptor, LogIn
         return logInterceptorContext.getResult();
     }
 
-    protected abstract void invokeWithLogging(LoggingOperation loggingOperation, LogInterceptorContext logInterceptorContext);
+    protected abstract void invokeWithLogging(LogOperation logOperation, LogInterceptorContext logInterceptorContext);
 
-    protected LoggingOperation getLoggingOperation(MethodInvocation invocation) {
+    protected LogOperation getLoggingOperation(MethodInvocation invocation) {
         Method method = invocation.getMethod();
         Logging loggingAnn = AnnotationUtils.findAnnotation(method, Logging.class);
         if (loggingAnn == null) {
@@ -65,7 +60,7 @@ public abstract class AbstractLogInterceptor implements MethodInterceptor, LogIn
 
         Map<String, ExpressionOperation> bindings = buildBindings(loggingAnn.bindings());
 
-        return LoggingOperation
+        return LogOperation
                 .builder()
                 .keyExpressionOperation(keyExpression)
                 .module(module)

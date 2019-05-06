@@ -12,7 +12,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.harmony.umbrella.log.annotation.Logging;
-import com.harmony.umbrella.log.interceptor.LoggingInterceptor;
+import com.harmony.umbrella.log.interceptor.LogInterceptor;
 
 /**
  * @author wuxii@foxmail.com
@@ -55,7 +55,7 @@ public class LoggingInterceptorTest {
     @Stateless
     public static class LoggerBean implements LoggerRemote {
 
-        @Interceptors(LoggingInterceptor.class)
+        @Interceptors(LogInterceptor.class)
         @Logging(message = "say hi to user {args[3]}")
         public String sayHi(String name) {
             return "Hi " + name;
