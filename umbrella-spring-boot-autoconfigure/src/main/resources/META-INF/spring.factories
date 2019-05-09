@@ -1,5 +1,4 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-com.harmony.umbrella.autoconfigure.core.AppAutoConfiguration,\
 com.harmony.umbrella.autoconfigure.web.WebAutoConfiguration,\
 com.harmony.umbrella.autoconfigure.lock.LockAutoConfiguration,\
 com.harmony.umbrella.autoconfigure.team.GitVersionAutoConfiguration,\
