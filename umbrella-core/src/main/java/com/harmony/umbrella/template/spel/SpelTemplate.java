@@ -3,6 +3,7 @@ package com.harmony.umbrella.template.spel;
 import com.harmony.umbrella.template.Expression;
 import com.harmony.umbrella.template.Template;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.EvaluationException;
 
 /**
@@ -27,7 +28,9 @@ public class SpelTemplate<T extends Expression> implements Template<T> {
     @Override
     public Object getValue(Object rootObject) {
         try {
-            return spel.getValue(rootObject);
+            return rootObject instanceof EvaluationContext
+                    ? spel.getValue((EvaluationContext) rootObject)
+                    : spel.getValue(rootObject);
         } catch (EvaluationException e) {
             if (log.isDebugEnabled()) {
                 log.warn("{}, evaluation expression failed", expression, e);

@@ -36,7 +36,7 @@ public class ScopeExpression implements Expression {
 
     @Override
     public boolean isPlainText() {
-        return false;
+        return expression.isPlainText();
     }
 
     public Scope getScope() {

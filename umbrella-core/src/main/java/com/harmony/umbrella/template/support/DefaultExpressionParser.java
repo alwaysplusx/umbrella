@@ -74,7 +74,7 @@ public class DefaultExpressionParser implements ExpressionParser {
             SimpleExpression exp = new SimpleExpression();
             exp.setExpression(token);
             exp.setPlainText(plainText);
-            exp.setText(plainText ? start + token + end : token);
+            exp.setText(plainText ? token : start + token + end);
             expressions.addExpression(exp);
 
             delimiter = (plainText = !plainText) ? start : end;
