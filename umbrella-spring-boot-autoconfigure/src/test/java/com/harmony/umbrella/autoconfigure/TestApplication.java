@@ -1,5 +1,6 @@
 package com.harmony.umbrella.autoconfigure;
 
+import com.harmony.umbrella.autoconfigure.wx.WxMpAutoConfiguration;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.data.jpa.JpaRepositoriesAutoConfiguration;

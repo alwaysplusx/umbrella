@@ -13,6 +13,7 @@
   <name>Harmony Umbrella :: Autoconfig</name>
   <properties>
     <spring.cloud.version>Greenwich.RELEASE</spring.cloud.version>
+    <vertx.version>4.0.0-milestone2</vertx.version>
   </properties>
   <dependencies>
     <dependency>
@@ -79,6 +80,18 @@
       <artifactId>spring-data-redis</artifactId>
       <optional>true</optional>
     </dependency>
+    <!-- vertx -->
+    <dependency>
+      <groupId>io.vertx</groupId>
+      <artifactId>vertx-core</artifactId>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>io.vertx</groupId>
+      <artifactId>vertx-hazelcast</artifactId>
+      <optional>true</optional>
+    </dependency>
+
     <!-- starter -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
@@ -120,6 +133,13 @@
         <version>${spring.cloud.version}</version>
         <type>pom</type>
         <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>io.vertx</groupId>
+        <artifactId>vertx-stack-depchain</artifactId>
+        <version>${vertx.version}</version>
+        <scope>import</scope>
+        <type>pom</type>
       </dependency>
     </dependencies>
   </dependencyManagement>

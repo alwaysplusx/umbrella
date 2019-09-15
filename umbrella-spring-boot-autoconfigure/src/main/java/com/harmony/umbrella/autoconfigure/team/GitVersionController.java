@@ -24,6 +24,10 @@ public class GitVersionController implements VersionController {
 
     private Properties gitProperties;
 
+    public GitVersionController() {
+        this("/META-INF/git.properties");
+    }
+
     public GitVersionController(String location) {
         this.location = location;
     }

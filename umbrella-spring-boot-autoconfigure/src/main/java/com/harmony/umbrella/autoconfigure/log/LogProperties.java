@@ -30,14 +30,9 @@ public class LogProperties {
 
     public static class Interceptor {
 
-        /**
-         * 日志拦截的切点
-         */
+        // 日志拦截的切点
         String pointcut;
-
-        /**
-         * 只拦截含有{@linkplain com.harmony.umbrella.log.annotation.Logging}注解的方法模式
-         */
+        
         // boolean annotationMode;
 
         // Class<?> serializer;

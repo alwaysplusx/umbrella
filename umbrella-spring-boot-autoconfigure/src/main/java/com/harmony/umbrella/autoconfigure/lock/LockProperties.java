@@ -191,7 +191,7 @@ public class LockProperties {
 
     }
 
-    public static enum RetryType {
+    public enum RetryType {
 
         Forever, NTimes, UntilElapsed;
 

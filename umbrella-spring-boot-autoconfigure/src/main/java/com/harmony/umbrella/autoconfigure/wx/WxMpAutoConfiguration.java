@@ -1,5 +1,6 @@
 package com.harmony.umbrella.autoconfigure.wx;
 
+import com.harmony.umbrella.autoconfigure.wx.WxMpAutoConfiguration.WxMpConfigStorageConfiguration;
 import com.harmony.umbrella.wx.WxHttpProxy;
 import com.harmony.umbrella.wx.mp.WxMpApp;
 import com.harmony.umbrella.wx.mp.WxMpInMemoryConfigStorage;
@@ -28,20 +29,18 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 @ConditionalOnClass({WxMpService.class, WxMpApp.class})
 @EnableConfigurationProperties(WxMpProperties.class)
 @ConditionalOnProperty(prefix = "weixin.mp", name = {"id", "secret"})
+@Import(WxMpConfigStorageConfiguration.class)
 public class WxMpAutoConfiguration {
 
     @Bean
     @ConditionalOnBean(WxMpConfigStorage.class)
-    @ConditionalOnMissingBean(name = "wxMpService")
+    @ConditionalOnMissingBean(WxMpService.class)
     WxMpService wxMpService(WxMpConfigStorage wxMpConfigStorage) {
         WxMpServiceImpl service = new WxMpServiceImpl();
         service.setWxMpConfigStorage(wxMpConfigStorage);
         return service;
     }
 
-    @Configuration
-    @ConditionalOnMissingBean(WxMpConfigStorage.class)
-    @Import({WxMpConfigStorageConfiguration.Memory.class, WxMpConfigStorageConfiguration.Redis.class})
     static class WxMpConfigStorageConfiguration {
 
         @Order(1)

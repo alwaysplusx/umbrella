@@ -1,4 +1,4 @@
-#debug: true
+debug: true
 spring:
   application:
     admin:
@@ -11,11 +11,11 @@ spring:
     console:
       path: /h2
 harmony:
-  app:
-    properties:
-      scan-init: true
-      scan-async: true
-      show-info: true
+#  app:
+#    properties:
+#      scan-init: true
+#      scan-async: true
+#      show-info: true
 #  ejb:
 #    enabled: true
 #    contextProperties:
@@ -28,24 +28,12 @@ harmony:
 #    interceptor:
 #      enabled: true
 #      pointcut: execution(* com.harmony.meerkat.controller..*.*(..))
-  web:
-    enabled: false
-    current-filter:
-      url-patterns: /*
+#  web:
+#    enabled: false
+#    current-filter:
+#      url-patterns: /*
 #  lock:
 #    type: zookeeper
 #    zookeeper:
 #      address: localhost:9092
 #      auto-start: false
-#  message:
-#    broker:
-#      connector: tcp://localhost:61616
-#      ssl: false
-#      persistent: true
-#      tmp-data-directory: ./target/activemq
-#    queueTemplate:
-#      connector: ${harmony.message.broker.connector}
-#      queue: m3.queue
-#      session-mode: 1
-#      transacted: true
-#      session-auto-commit: true
