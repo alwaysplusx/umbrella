@@ -91,7 +91,21 @@
       <artifactId>vertx-hazelcast</artifactId>
       <optional>true</optional>
     </dependency>
-
+    <dependency>
+      <groupId>io.vertx</groupId>
+      <artifactId>vertx-sql-client</artifactId>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>io.vertx</groupId>
+      <artifactId>vertx-pg-client</artifactId>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>io.vertx</groupId>
+      <artifactId>vertx-mysql-client</artifactId>
+      <optional>true</optional>
+    </dependency>
     <!-- starter -->
     <dependency>
       <groupId>org.springframework.boot</groupId>

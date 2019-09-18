@@ -72,8 +72,14 @@ public class VertxAutoConfiguration {
     @ConditionalOnProperty(prefix = "harmony.vertx", name = "cluster", havingValue = "false", matchIfMissing = true)
     static class NoClusterManagerVertxOptionsConfiguration {
 
+        private final VertxProperties vertxProperties;
+
+        NoClusterManagerVertxOptionsConfiguration(VertxProperties vertxProperties) {
+            this.vertxProperties = vertxProperties;
+        }
+
         @Bean
-        public VertxOptions vertxOptions(VertxProperties vertxProperties) {
+        public VertxOptions vertxOptions() {
             return getOrCreateVertxOptions(vertxProperties);
         }
 
@@ -84,6 +90,12 @@ public class VertxAutoConfiguration {
     @ConditionalOnClass(HazelcastClusterManager.class)
     @ConditionalOnProperty(prefix = "harmony.vertx", name = "cluster", havingValue = "true", matchIfMissing = true)
     static class ClusterManagerVertxOptionsConfiguration {
+
+        private final VertxProperties vertxProperties;
+
+        ClusterManagerVertxOptionsConfiguration(VertxProperties vertxProperties) {
+            this.vertxProperties = vertxProperties;
+        }
 
         @Bean
         @ConditionalOnMissingBean(ClusterManager.class)
