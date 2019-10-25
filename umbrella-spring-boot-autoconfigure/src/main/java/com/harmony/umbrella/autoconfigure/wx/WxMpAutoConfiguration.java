@@ -1,6 +1,7 @@
 package com.harmony.umbrella.autoconfigure.wx;
 
-import com.harmony.umbrella.autoconfigure.wx.WxMpAutoConfiguration.WxMpConfigStorageConfiguration;
+import com.harmony.umbrella.autoconfigure.wx.WxMpAutoConfiguration.WxMpMemoryConfigStorageConfiguration;
+import com.harmony.umbrella.autoconfigure.wx.WxMpAutoConfiguration.WxMpRedisConfigStorageConfiguration;
 import com.harmony.umbrella.wx.WxHttpProxy;
 import com.harmony.umbrella.wx.mp.WxMpApp;
 import com.harmony.umbrella.wx.mp.WxMpInMemoryConfigStorage;
@@ -8,6 +9,8 @@ import com.harmony.umbrella.wx.mp.WxMpInRedisConfigStorage;
 import me.chanjar.weixin.mp.api.WxMpConfigStorage;
 import me.chanjar.weixin.mp.api.WxMpService;
 import me.chanjar.weixin.mp.api.impl.WxMpServiceImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -29,8 +32,10 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 @ConditionalOnClass({WxMpService.class, WxMpApp.class})
 @EnableConfigurationProperties(WxMpProperties.class)
 @ConditionalOnProperty(prefix = "weixin.mp", name = {"id", "secret"})
-@Import(WxMpConfigStorageConfiguration.class)
+@Import({WxMpRedisConfigStorageConfiguration.class, WxMpMemoryConfigStorageConfiguration.class})
 public class WxMpAutoConfiguration {
+
+    private static final Logger log = LoggerFactory.getLogger(WxMpAutoConfiguration.class);
 
     @Bean
     @ConditionalOnBean(WxMpConfigStorage.class)
@@ -41,46 +46,43 @@ public class WxMpAutoConfiguration {
         return service;
     }
 
-    static class WxMpConfigStorageConfiguration {
+    @Order(1)
+    @ConditionalOnBean(StringRedisTemplate.class)
+    @ConditionalOnMissingBean(WxMpConfigStorage.class)
+    static class WxMpRedisConfigStorageConfiguration {
 
-        @Order(1)
-        @ConditionalOnBean(StringRedisTemplate.class)
-        @ConditionalOnMissingBean(WxMpConfigStorage.class)
-        static class Redis {
-
-            @Bean
-            WxMpConfigStorage wxMpInRedisConfigStorage(WxMpProperties wxMpProperties, StringRedisTemplate stringRedisTemplate) {
-                WxMpApp wxMpApp = buildWxMpApp(wxMpProperties);
-                WxHttpProxy httpProxy = buildWxHttpProxy(wxMpProperties.getProxy());
-                WxMpProperties.Redis redis = wxMpProperties.getRedis();
-                WxMpInRedisConfigStorage storage = new WxMpInRedisConfigStorage(wxMpApp,
-                        redis.getPrefix(),
-                        wxMpProperties.getLeadingSeconds(),
-                        stringRedisTemplate
-                );
-                storage.setHttpProxy(httpProxy);
-                if (redis.isClearFirst()) {
-                    storage.clear();
-                }
-                return storage;
+        @Bean
+        WxMpConfigStorage wxMpInRedisConfigStorage(WxMpProperties wxMpProperties, StringRedisTemplate stringRedisTemplate) {
+            WxMpApp wxMpApp = buildWxMpApp(wxMpProperties);
+            WxHttpProxy httpProxy = buildWxHttpProxy(wxMpProperties.getProxy());
+            WxMpProperties.Redis redis = wxMpProperties.getRedis();
+            WxMpInRedisConfigStorage storage = new WxMpInRedisConfigStorage(wxMpApp,
+                    redis.getPrefix(),
+                    wxMpProperties.getLeadingSeconds(),
+                    stringRedisTemplate
+            );
+            storage.setHttpProxy(httpProxy);
+            if (redis.isClearFirst()) {
+                storage.clear();
             }
-
+            return storage;
         }
 
-        @Order(2)
-        @ConditionalOnMissingBean(WxMpConfigStorage.class)
-        static class Memory {
+    }
 
-            @Bean
-            WxMpConfigStorage wxMpInMemoryConfigStorage(WxMpProperties wxMpProperties) {
-                WxMpApp wxMpApp = buildWxMpApp(wxMpProperties);
-                WxHttpProxy httpProxy = buildWxHttpProxy(wxMpProperties.getProxy());
-                int leadingSeconds = wxMpProperties.getLeadingSeconds();
-                WxMpInMemoryConfigStorage storage = new WxMpInMemoryConfigStorage(wxMpApp, leadingSeconds);
-                storage.setHttpProxy(httpProxy);
-                return storage;
-            }
+    @Order(2)
+    @ConditionalOnMissingBean(WxMpConfigStorage.class)
+    static class WxMpMemoryConfigStorageConfiguration {
 
+        @Bean
+        WxMpConfigStorage wxMpInMemoryConfigStorage(WxMpProperties wxMpProperties) {
+            log.warn("not use in memory config storage in production");
+            WxMpApp wxMpApp = buildWxMpApp(wxMpProperties);
+            WxHttpProxy httpProxy = buildWxHttpProxy(wxMpProperties.getProxy());
+            int leadingSeconds = wxMpProperties.getLeadingSeconds();
+            WxMpInMemoryConfigStorage storage = new WxMpInMemoryConfigStorage(wxMpApp, leadingSeconds);
+            storage.setHttpProxy(httpProxy);
+            return storage;
         }
 
     }
