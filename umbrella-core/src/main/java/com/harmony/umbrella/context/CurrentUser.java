@@ -23,7 +23,7 @@ public interface CurrentUser extends Principal {
     }
 
     default Object getUserProperty(Object key) {
-        return getUserProperty(key);
+        return getUserProperties().get(key);
     }
 
     Map<Object, Object> getUserProperties();

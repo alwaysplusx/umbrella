@@ -1,53 +1,59 @@
 package com.harmony.umbrella.security.authentication;
 
 import com.harmony.umbrella.security.SecurityToken;
-import com.harmony.umbrella.security.userdetails.SecurityTokenUserDetailsService;
+import com.harmony.umbrella.security.SecurityTokenUsernameResolver;
 import org.springframework.security.authentication.AuthenticationProvider;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.ValueConstants;
+import org.springframework.security.core.userdetails.UserDetailsService;
 
 /**
  * @author wuxii
  */
 public class SecurityTokenAuthenticationProvider implements AuthenticationProvider {
 
-	private SecurityTokenUserDetailsService securityTokenUserDetailsService;
+    private UserDetailsService userDetailsService;
 
-	public SecurityTokenAuthenticationProvider() {
-	}
+    private SecurityTokenUsernameResolver usernameResolver;
 
-	public SecurityTokenAuthenticationProvider(SecurityTokenUserDetailsService securityTokenUserDetailsService) {
-		this.securityTokenUserDetailsService = securityTokenUserDetailsService;
-	}
+    public SecurityTokenAuthenticationProvider() {
+    }
 
-	@Override
-	public boolean supports(Class<?> authentication) {
-		return SecurityTokenAuthenticationToken.class.isAssignableFrom(authentication);
-	}
+    public SecurityTokenAuthenticationProvider(UserDetailsService userDetailsService) {
+        this.userDetailsService = userDetailsService;
+    }
 
-	@Override
-	public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-		SecurityTokenAuthenticationToken authRequest = (SecurityTokenAuthenticationToken) authentication;
-		SecurityToken securityToken = authRequest.getSecurityToken();
-		UserDetails userDetails = securityTokenUserDetailsService.loadUserBySecurityToken(securityToken);
+    @Override
+    public boolean supports(Class<?> authentication) {
+        return SecurityTokenAuthenticationToken.class.isAssignableFrom(authentication);
+    }
 
-		SecurityTokenAuthenticationToken authResult = new SecurityTokenAuthenticationToken(
-				userDetails.getUsername(),
-				userDetails.getPassword(),
-				securityToken,
-				userDetails.getAuthorities());
+    @Override
+    public Authentication authenticate(Authentication authentication) throws AuthenticationException {
+        SecurityTokenAuthenticationToken authRequest = (SecurityTokenAuthenticationToken) authentication;
+        SecurityToken securityToken = authRequest.getSecurityToken();
 
-		authResult.setAuthenticated(true);
-		authResult.setDetails(authRequest.getDetails());
+        UserDetails userDetails = userDetailsService.loadUserByUsername(usernameResolver.resolve(securityToken));
 
-		return authResult;
-	}
+        SecurityTokenAuthenticationToken authResult = new SecurityTokenAuthenticationToken(
+                userDetails.getUsername(),
+                userDetails.getPassword(),
+                securityToken,
+                userDetails.getAuthorities());
 
-	public void setSecurityTokenUserDetailsService(SecurityTokenUserDetailsService securityTokenUserDetailsService) {
-		this.securityTokenUserDetailsService = securityTokenUserDetailsService;
-	}
+        authResult.setAuthenticated(true);
+        authResult.setDetails(authRequest.getDetails());
 
+        return authResult;
+    }
+
+    public void setUserDetailsService(UserDetailsService userDetailsService) {
+        this.userDetailsService = userDetailsService;
+    }
+
+    public void setUsernameResolver(SecurityTokenUsernameResolver usernameResolver) {
+        this.usernameResolver = usernameResolver;
+    }
+    
 }

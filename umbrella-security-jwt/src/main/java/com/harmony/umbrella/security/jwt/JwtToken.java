@@ -5,7 +5,6 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import org.springframework.security.core.AuthenticatedPrincipal;
 
 import java.time.Instant;
-import java.util.List;
 
 /**
  * TODO change to jwt token interface
@@ -30,15 +29,14 @@ public class JwtToken implements AuthenticatedPrincipal {
         return jwt.getToken();
     }
 
-    public Long getUId() {
+    public String getUID() {
         Claim claim = jwt.getClaim("uid");
-        return claim != null ? claim.asLong() : null;
+        return claim != null ? claim.asString() : null;
     }
 
     @Override
     public String getName() {
-        List<String> audience = jwt.getAudience();
-        return audience != null && !audience.isEmpty() ? audience.get(0) : null;
+        return getUID();
     }
 
     public boolean isExpired() {

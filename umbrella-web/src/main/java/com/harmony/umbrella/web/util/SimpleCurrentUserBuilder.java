@@ -2,7 +2,6 @@ package com.harmony.umbrella.web.util;
 
 import com.harmony.umbrella.context.CurrentUser;
 import com.harmony.umbrella.context.SimpleCurrentUser;
-import com.harmony.umbrella.security.userdetails.IdentityUserDetails;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -25,10 +24,6 @@ public class SimpleCurrentUserBuilder implements CurrentUserBuilder {
         if (details instanceof UserDetails) {
             builder.setUsername(((UserDetails) details).getUsername())
                     .addProperty(UserDetails.class, details);
-        }
-        if (details instanceof IdentityUserDetails) {
-            builder.setUserId(((IdentityUserDetails) details).getUserId())
-                    .addProperty(IdentityUserDetails.class, details);
         }
         return builder
                 .addProperty(SecurityContext.class, securityContext)

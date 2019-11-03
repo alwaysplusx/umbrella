@@ -27,11 +27,12 @@ public class AjaxTokenResponseRender implements TokenResponseRender {
         response.getWriter().write(buildResponseText(token));
     }
 
-    private String buildResponseText(String token) {
+    protected String buildResponseText(String token) {
         return tokenName == null ? token : String.format(TEMPLATE, tokenName, token);
     }
 
     public void setContentType(String contentType) {
         this.contentType = contentType;
     }
+
 }

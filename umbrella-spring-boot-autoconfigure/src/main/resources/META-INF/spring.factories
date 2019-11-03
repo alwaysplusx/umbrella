@@ -6,4 +6,5 @@ com.harmony.umbrella.autoconfigure.wx.WxMpAutoConfiguration,\
 com.harmony.umbrella.autoconfigure.jwt.JwtHandlerAutoConfiguration,\
 com.harmony.umbrella.autoconfigure.log.LogAutoConfiguration,\
 com.harmony.umbrella.autoconfigure.vertx.VertxAutoConfiguration,\
-com.harmony.umbrella.autoconfigure.vertx.VertxSqlClientAutoConfiguration
+com.harmony.umbrella.autoconfigure.vertx.VertxSqlClientAutoConfiguration,\
+com.harmony.umbrella.autoconfigure.id.SnowflakeAutoConfiguration

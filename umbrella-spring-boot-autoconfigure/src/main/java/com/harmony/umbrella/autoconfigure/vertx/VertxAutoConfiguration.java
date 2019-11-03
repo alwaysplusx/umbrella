@@ -11,6 +11,7 @@ import io.vertx.spi.cluster.hazelcast.ConfigUtil;
 import io.vertx.spi.cluster.hazelcast.HazelcastClusterManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -33,25 +34,25 @@ public class VertxAutoConfiguration {
     private static final Logger log = LoggerFactory.getLogger(VertxAutoConfiguration.class);
 
     private final VertxProperties vertxProperties;
-    private final ApplicationContext applicationContext;
 
-    public VertxAutoConfiguration(VertxProperties vertxProperties, ApplicationContext applicationContext) {
+    public VertxAutoConfiguration(VertxProperties vertxProperties) {
         this.vertxProperties = vertxProperties;
-        this.applicationContext = applicationContext;
     }
 
     @Bean
     @ConditionalOnMissingBean(Vertx.class)
     @ConditionalOnBean(VertxOptions.class)
     public Vertx vertx(VertxOptions vertxOptions) {
-        Vertx vertx = Vertx.vertx(vertxOptions);
-        if (vertxProperties.isAutoDeploy()) {
-            doDeployVerticles(vertx);
-        }
-        return vertx;
+        return Vertx.vertx(vertxOptions);
     }
 
-    private void doDeployVerticles(Vertx vertx) {
+    @Bean
+    @ConditionalOnProperty(prefix = "harmony.vertx", name = "auto-deploy", havingValue = "true", matchIfMissing = true)
+    public CommandLineRunner deploy(Vertx vertx, ApplicationContext applicationContext) {
+        return (arg) -> doDeployVerticles(vertx, applicationContext);
+    }
+
+    private void doDeployVerticles(Vertx vertx, ApplicationContext applicationContext) {
         Map<String, DeployOptions> deployOptions = vertxProperties.getDeployOptions();
         Map<String, Verticle> verticles = applicationContext.getBeansOfType(Verticle.class);
         DeployOptions defaultDeployOption = deployOptions.getOrDefault("default", new DeployOptions());

@@ -36,7 +36,7 @@ public class JwtAuthenticationSuccessHandler implements AuthenticationSuccessHan
             throw new JwtTokenException("unsupported authentication type " + authentication);
         }
 
-        String tokenValue = jwtTokenGenerator.generate((UserDetails) principal, request);
+        String tokenValue = jwtTokenGenerator.generate((UserDetails) principal);
         tokenResponseRender.render(tokenValue, request, response);
     }
 

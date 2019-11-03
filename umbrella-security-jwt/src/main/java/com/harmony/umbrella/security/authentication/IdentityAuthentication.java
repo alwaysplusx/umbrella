@@ -6,7 +6,7 @@ import org.springframework.security.core.Authentication;
 /**
  * @author wuxii
  */
-public interface SecurityTokenAuthentication extends Authentication {
+public interface IdentityAuthentication extends Authentication {
 
 	SecurityToken getSecurityToken();
 

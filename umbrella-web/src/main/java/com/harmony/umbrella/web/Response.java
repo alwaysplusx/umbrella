@@ -1,14 +1,10 @@
 package com.harmony.umbrella.web;
 
-import com.harmony.umbrella.context.ContextHelper;
 import com.harmony.umbrella.json.Json;
 
-import javax.servlet.http.HttpServletRequest;
 import java.io.Serializable;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Optional;
-import java.util.function.Function;
 
 /**
  * @author wuxii@foxmail.com
@@ -27,36 +23,36 @@ public final class Response<T> implements ResponseDetails, Serializable {
     /**
      * 返回编码
      */
-    protected int code;
+    private int code;
     /**
      * 异常的信息
      */
-    protected String msg;
+    private String msg;
     /**
      * 异常的描述信息
      */
-    protected String desc;
+    private String desc;
     /**
      * 日志追踪码
      */
-    protected String trace;
+    private String trace;
     /**
      * Response的数据
      */
-    protected T data;
+    private T data;
     /**
      * 请求的资源
      */
-    protected String request;
+    private String request;
 
     public Response() {
     }
 
-    protected Response(int code) {
+    public Response(int code) {
         this.code = code;
     }
 
-    private Response(int code, T data) {
+    public Response(int code, T data) {
         this.code = code;
         this.data = data;
     }
@@ -115,63 +111,10 @@ public final class Response<T> implements ResponseDetails, Serializable {
         this.request = request;
     }
 
-    public String toJson() {
-        return isOk() ? okJson() : errorJson();
-    }
-
-    private String okJson() {
-        if (data != null) {
-            return Json.toJson(data);
-        }
-        Map<String, Object> resp = new LinkedHashMap<>();
-        resp.put("code", code);
-        if (msg != null) {
-            resp.put("msg", msg);
-        }
-        return Json.toJson(resp);
-    }
-
-    private String errorJson() {
-        Map<String, Object> resp = new LinkedHashMap<>();
-        resp.put("code", code);
-        if (msg != null) {
-            resp.put("msg", msg);
-        }
-        if (trace != null) {
-            resp.put("trace", trace);
-        }
-        if (request != null) {
-            resp.put("request", request);
-        }
-        return Json.toJson(resp);
-    }
-
-    public Optional<T> optionalData() {
-        return Optional.ofNullable(data);
-    }
-
-    public T orElseThrow() {
-        if (!isOk()) {
-            throw new ResponseException(code, msg);
-        }
-        if (data == null) {
-            throw new ResponseException(ERROR, "data not found");
-        }
-        return data;
-    }
-
-    public T orElseThrow(Function<ResponseException, ? extends RuntimeException> fun) {
-        if (!isOk()) {
-            throw fun.apply(new ResponseException(this));
-        }
-        return data;
-    }
-
     // static
 
-    private static String getCurrentRequestUrl() {
-        HttpServletRequest request = ContextHelper.getHttpRequest();
-        return request != null ? request.getRequestURI() : null;
+    public static <T> Response<T> fromJson(String text, Class<T> dataType) {
+        return Json.parse(text, null);
     }
 
     public static <T> Response<T> of(ResponseDetails r) {
@@ -222,7 +165,6 @@ public final class Response<T> implements ResponseDetails, Serializable {
 
         private ResponseBuilder(int code) {
             this.response = new Response(code);
-            this.response.request = getCurrentRequestUrl();
         }
 
         public ResponseBuilder msg(String msg) {

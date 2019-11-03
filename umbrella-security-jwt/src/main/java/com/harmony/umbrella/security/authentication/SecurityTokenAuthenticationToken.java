@@ -10,7 +10,7 @@ import java.util.Collections;
 /**
  * @author wuxii
  */
-public class SecurityTokenAuthenticationToken extends AbstractAuthenticationToken implements SecurityTokenAuthentication {
+public class SecurityTokenAuthenticationToken extends AbstractAuthenticationToken implements IdentityAuthentication {
 
 	private final Object principal;
 	private final SecurityToken securityToken;

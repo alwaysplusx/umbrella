@@ -25,6 +25,11 @@
       <artifactId>spring-cloud-context</artifactId>
     </dependency>
     <dependency>
+      <groupId>xyz.downgoon</groupId>
+      <artifactId>snowflake</artifactId>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
       <groupId>org.springframework.integration</groupId>
       <artifactId>spring-integration-zookeeper</artifactId>
       <optional>true</optional>

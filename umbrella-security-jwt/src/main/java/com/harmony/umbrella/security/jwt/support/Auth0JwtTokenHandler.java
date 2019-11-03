@@ -8,13 +8,11 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import com.harmony.umbrella.security.jwt.JwtDecodeException;
 import com.harmony.umbrella.security.jwt.JwtToken;
 import com.harmony.umbrella.security.jwt.JwtTokenHandler;
-import com.harmony.umbrella.security.userdetails.IdentityUserDetails;
 import com.harmony.umbrella.util.TimeUtils;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
 
 /**
@@ -34,7 +32,7 @@ public class Auth0JwtTokenHandler implements JwtTokenHandler {
     }
 
     @Override
-    public String generate(UserDetails userDetails, HttpServletRequest request) {
+    public String generate(UserDetails userDetails) {
         String username = userDetails.getUsername();
         Date now = new Date();
         Date expiresTime = TimeUtils.addSeconds(now, expiresIn);
@@ -42,9 +40,7 @@ public class Auth0JwtTokenHandler implements JwtTokenHandler {
         if (StringUtils.hasText(issuer)) {
             builder.withIssuer(issuer);
         }
-        if (userDetails instanceof IdentityUserDetails) {
-            builder.withClaim("uid", ((IdentityUserDetails) userDetails).getUserId());
-        }
+        builder.withClaim("uid", userDetails.getUsername());
         return builder
                 .withAudience(username)
                 .withIssuedAt(new Date())
