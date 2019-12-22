@@ -289,7 +289,7 @@ public enum Operator implements ExpressionOperator {
     private String symbol;
     private String qualifiedName;
 
-    private Operator(String symbol, String qualifiedName) {
+    Operator(String symbol, String qualifiedName) {
         this.symbol = symbol;
         this.qualifiedName = qualifiedName;
     }

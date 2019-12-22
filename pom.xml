@@ -26,6 +26,7 @@
     <module>umbrella-weixin</module>
     <module>umbrella-spring-boot-autoconfigure</module>
     <module>umbrella-data-r2dbc</module>
+    <module>umbrella-graphql</module>
   </modules>
 
   <properties>
