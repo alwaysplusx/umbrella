@@ -56,4 +56,8 @@ public class GraphqlMethodMetadata {
         return parameterMetadataMap.get(name);
     }
 
+    public Class<?> getActualReturnAcType() {
+        return method.getReturnType();
+    }
+
 }
