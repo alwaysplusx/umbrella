@@ -56,6 +56,11 @@ public class GraphqlUtils {
         return type.isArray() || Collection.class.isAssignableFrom(type);
     }
 
+    public static boolean isPrimitiveType(Class<?> typeClass) {
+        return primitiveType(typeClass) != null;
+    }
+
+
     public static GraphQLScalarType primitiveType(Class<?> typeClass) {
         return PRIMITIVE_TYPES.get(typeClass);
     }

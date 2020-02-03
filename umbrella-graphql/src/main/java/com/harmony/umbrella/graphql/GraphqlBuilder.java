@@ -39,9 +39,11 @@ public class GraphqlBuilder implements BeanFactoryAware {
 
     private DataFetcher<Object> objectDataFetcher;
 
-    private BeanFactory beanFactory;
-
     private Map<Class<?>, GraphQLObjectType> resolvedTypes = new ConcurrentHashMap<>();
+
+    private List<GraphqlTypeParser> graphqlTypeParsers;
+
+    private BeanFactory beanFactory;
 
     private MetadataReaderFactory metadataReaderFactory = new CachingMetadataReaderFactory();
 
@@ -87,7 +89,7 @@ public class GraphqlBuilder implements BeanFactoryAware {
     private DataFetcher buildGraphqlDataFetcher(GraphqlFetcher ann) {
         String beanName = ann.name();
         Class<? extends DataFetcher> fetcherBeanClass = ann.value();
-        DataFetcher dataFetcher = null;
+        DataFetcher dataFetcher;
         if (StringUtils.hasText(beanName) && fetcherBeanClass != DataFetcher.class) {
             dataFetcher = beanFactory.getBean(beanName, fetcherBeanClass);
         } else if (StringUtils.hasText(beanName)) {

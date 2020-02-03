@@ -11,3 +11,7 @@ type User {
     id: Int
     username: String
 }
+
+type Page {
+
+}
