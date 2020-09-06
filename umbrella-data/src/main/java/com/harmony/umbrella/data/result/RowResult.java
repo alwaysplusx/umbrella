@@ -1,7 +1,5 @@
 package com.harmony.umbrella.data.result;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import com.harmony.umbrella.data.Column;
 import org.springframework.data.util.Streamable;
 import org.springframework.util.Assert;
@@ -15,10 +13,6 @@ import java.util.function.Function;
  * @author wuxii
  */
 public class RowResult implements Streamable<CellValue> {
-
-    public static <T> Function<RowResult, T> defaultRowResultConverter(Class<T> targetClass) {
-        return new RowResultMapper<>(targetClass);
-    }
 
     private static final RowResult EMPTY = new RowResult();
 
@@ -56,12 +50,12 @@ public class RowResult implements Streamable<CellValue> {
         return new CellValue(index, columns.get(index), values.get(index));
     }
 
-    public <T> T toEntity(Class<T> resultClass) {
-        return hasCellResult() ? defaultRowResultConverter(resultClass).apply(this) : null;
+    public <T> T toEntity(Function<RowResult, T> converter) {
+        return hasCellResult() ? converter.apply(this) : null;
     }
 
-    public <T> Optional<T> mapToEntity(Class<T> resultClass) {
-        return Optional.ofNullable(toEntity(resultClass));
+    public <T> Optional<T> mapToEntity(Function<RowResult, T> rowConverter) {
+        return Optional.ofNullable(toEntity(rowConverter));
     }
 
     public boolean hasCellResult() {
@@ -95,48 +89,6 @@ public class RowResult implements Streamable<CellValue> {
             int index = this.index++;
             return new CellValue(index, columns.get(index), values.get(index));
         }
-
-    }
-
-    static class RowResultMapper<T> implements Function<RowResult, T> {
-
-        private final Class<T> resultClass;
-
-        private RowResultMapper(Class<T> resultClass) {
-            this.resultClass = resultClass;
-        }
-
-        @Override
-        public T apply(RowResult row) {
-            if (!row.hasCellResult()) {
-                return null;
-            }
-            if (row.isRootResult(resultClass)) {
-                return (T) firstCellResult(row).getValue();
-            }
-            Map<String, Object> map = new HashMap<>();
-            for (CellValue cell : row) {
-                String name = cell.getName();
-                applyValue(map, name, cell.getValue());
-            }
-            return JSON.toJavaObject(new JSONObject(map), resultClass);
-        }
-
-        private void applyValue(Map<String, Object> map, String path, Object value) {
-            String[] names = path.split("\\.");
-            Map<String, Object> current = map;
-            for (int i = 0; i < names.length - 1; i++) {
-                String name = names[i];
-                Map<String, Object> temp = (Map<String, Object>) current.get(name);
-                if (temp == null) {
-                    temp = new HashMap<>();
-                    current.put(name, temp);
-                }
-                current = temp;
-            }
-            current.put(names[names.length - 1], value);
-        }
-
 
     }
 

@@ -9,6 +9,7 @@ import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 
 /**
  * @author wuxii
@@ -17,6 +18,7 @@ public abstract class AbstractQueryResult<T> implements QueryResult<T> {
 
     protected final QueryBundle<T> bundle;
     protected final Class<T> domainClass;
+    protected Function<RowResult, T> rowConverter;
 
     public AbstractQueryResult(QueryBundle<T> bundle) {
         this.bundle = bundle;
@@ -29,22 +31,22 @@ public abstract class AbstractQueryResult<T> implements QueryResult<T> {
 
     @Override
     public Optional<T> getSingleResult() {
-        return Optional.ofNullable(getSingleResult(Selections.ofRoot()).toEntity(domainClass));
+        return Optional.ofNullable(getSingleResult(Selections.ofRoot()).toEntity(rowConverter));
     }
 
     @Override
     public Optional<T> getFirstResult() {
-        return Optional.ofNullable(getFirstResult(Selections.ofRoot()).toEntity(domainClass));
+        return Optional.ofNullable(getFirstResult(Selections.ofRoot()).toEntity(rowConverter));
     }
 
     @Override
     public List<T> getListResult() {
-        return getListResult(Selections.ofRoot()).toList(domainClass);
+        return getListResult(Selections.ofRoot()).toList(rowConverter);
     }
 
     @Override
     public List<T> getAllResult() {
-        return getAllResult(Selections.ofRoot()).toList(domainClass);
+        return getAllResult(Selections.ofRoot()).toList(rowConverter);
     }
 
     @Override
@@ -54,7 +56,7 @@ public abstract class AbstractQueryResult<T> implements QueryResult<T> {
 
     @Override
     public Page<T> getPageResult(Pageable pageable) {
-        return getPageResult(Selections.ofRoot(), pageable).toPage(domainClass);
+        return getPageResult(Selections.ofRoot(), pageable).toPage(rowConverter);
     }
 
 }

@@ -212,7 +212,7 @@ public class QueryBuilderTest {
         List<Student> result = studentQueryBuilder
                 .execute()
                 .getAllResult(Selections.of("gender", "classRoom.room", "name"))
-                .toList(Student.class);
+                .toList(e -> new Student());
         System.out.println(result);
     }
 

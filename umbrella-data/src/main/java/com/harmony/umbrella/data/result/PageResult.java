@@ -4,6 +4,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.util.Streamable;
 
 import java.util.Iterator;
+import java.util.function.Function;
 
 /**
  * @author wuxii
@@ -16,8 +17,8 @@ public class PageResult implements Streamable<RowResult> {
         this.rowPage = rowPage;
     }
 
-    public <T> Page<T> toPage(Class<T> resultClass) {
-        return rowPage.map(e -> e.toEntity(resultClass));
+    public <T> Page<T> toPage(Function<RowResult, T> converter) {
+        return rowPage.map(e -> e.toEntity(converter));
     }
 
     @Override

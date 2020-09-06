@@ -1,21 +1,31 @@
 package com.harmony.umbrella.graphql.parser;
 
-import com.harmony.umbrella.graphql.GraphqlTypeParser;
+import com.harmony.umbrella.graphql.metadata.GraphqlFieldMetadata;
+import com.harmony.umbrella.graphql.metadata.GraphqlParameterMetadata;
+import com.harmony.umbrella.graphql.query.GraphqlInputParser;
+import com.harmony.umbrella.graphql.query.GraphqlOutputParser;
 import com.harmony.umbrella.graphql.utils.GraphqlUtils;
-import graphql.schema.GraphQLType;
+import graphql.schema.GraphQLInputType;
+import graphql.schema.GraphQLOutputType;
 
 /**
  * @author wuxin
  */
-public class PrimitiveGraphqlObjectParser implements GraphqlTypeParser {
+public class PrimitiveGraphqlObjectParser implements GraphqlInputParser, GraphqlOutputParser {
 
     @Override
-    public boolean support(Class<?> clazz) {
-        return GraphqlUtils.isPrimitiveType(clazz);
+    public GraphQLInputType parse(GraphqlParameterMetadata parameterMetadata) {
+        return null;
     }
 
     @Override
-    public GraphQLType parse(Class<?> clazz) {
-        return GraphqlUtils.primitiveType(clazz);
+    public boolean support(GraphqlFieldMetadata fieldMetadata) {
+        return GraphqlUtils.isPrimitiveType(fieldMetadata.getActualType());
     }
+
+    @Override
+    public GraphQLOutputType parse(GraphqlFieldMetadata metadata) {
+        return null;
+    }
+
 }

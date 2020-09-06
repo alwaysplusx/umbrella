@@ -80,7 +80,6 @@ public class WebAutoConfiguration {
                     argumentResolvers.add(new BundleParamMethodArgumentResolver());
                     argumentResolvers.add(new BundleModelMethodArgumentResolver());
                     argumentResolvers.add(new BundleQueryMethodArgumentResolver());
-                    argumentResolvers.add(new CurrentUserMethodArgumentResolver());
                     argumentResolvers.add(bundleViewMethodProcessor);
                 }
 

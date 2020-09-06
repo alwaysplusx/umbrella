@@ -23,10 +23,6 @@
       <artifactId>umbrella-json</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.harmony.umbrella</groupId>
-      <artifactId>umbrella-security-jwt</artifactId>
-    </dependency>
-    <dependency>
       <groupId>javax.servlet</groupId>
       <artifactId>javax.servlet-api</artifactId>
       <scope>provided</scope>

@@ -7,6 +7,7 @@ import com.harmony.umbrella.graphql.metadata.GraphqlFieldMetadata;
 import com.harmony.umbrella.graphql.metadata.GraphqlMetadata;
 import com.harmony.umbrella.graphql.metadata.GraphqlMethodMetadata;
 import com.harmony.umbrella.graphql.metadata.GraphqlParameterMetadata;
+import com.harmony.umbrella.graphql.query.GraphqlInputParser;
 import graphql.schema.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeansException;
@@ -41,7 +42,7 @@ public class GraphqlBuilder implements BeanFactoryAware {
 
     private Map<Class<?>, GraphQLObjectType> resolvedTypes = new ConcurrentHashMap<>();
 
-    private List<GraphqlTypeParser> graphqlTypeParsers;
+    private List<GraphqlInputParser> graphqlTypeParsers;
 
     private BeanFactory beanFactory;
 

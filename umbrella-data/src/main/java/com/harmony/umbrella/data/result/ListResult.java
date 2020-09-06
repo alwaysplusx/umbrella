@@ -33,8 +33,7 @@ public class ListResult implements Streamable<RowResult> {
         return rows.isEmpty();
     }
 
-    public <T> List<T> toList(Class<T> resultClass) {
-        Function<RowResult, T> converter = RowResult.defaultRowResultConverter(resultClass);
+    public <T> List<T> toList(Function<RowResult, T> converter) {
         return this.stream().map(converter).collect(Collectors.toList());
     }
 

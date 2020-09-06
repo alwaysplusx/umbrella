@@ -5,6 +5,7 @@ import com.harmony.umbrella.graphql.metadata.GraphqlFieldMetadata;
 import com.harmony.umbrella.graphql.metadata.GraphqlMetadata;
 import com.harmony.umbrella.graphql.metadata.GraphqlMethodMetadata;
 import com.harmony.umbrella.graphql.metadata.GraphqlParameterMetadata;
+import com.harmony.umbrella.graphql.query.annotation.Form;
 import com.harmony.umbrella.graphql.type.FieldType;
 import com.harmony.umbrella.graphql.type.MethodType;
 import com.harmony.umbrella.graphql.type.ParameterType;
@@ -16,16 +17,29 @@ import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.core.annotation.AnnotationUtils;
+import org.springframework.util.ReflectionUtils;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.*;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 @Slf4j
 public class GraphqlUtils {
+
+    public static final Predicate<Method> IS_GRAPHQL_METHOD_PREDICATE =
+            e -> !hasGraphqlIgnoreAnnotation(e)
+                    && !ReflectionUtils.isObjectMethod(e)
+                    && hasGraphqlQueryAnnotation(e)
+                    && !Modifier.isStatic(e.getModifiers())
+                    && Modifier.isAbstract(e.getModifiers());
+
+    public static final Predicate<Field> IS_GRAPHQL_FIELD_PREDICATE =
+            e -> !Modifier.isStatic(e.getModifiers())
+                    && !hasGraphqlIgnoreAnnotation(e);
 
     private static final Map<Class, GraphQLScalarType> PRIMITIVE_TYPES = new HashMap<>();
 
@@ -59,7 +73,6 @@ public class GraphqlUtils {
     public static boolean isPrimitiveType(Class<?> typeClass) {
         return primitiveType(typeClass) != null;
     }
-
 
     public static GraphQLScalarType primitiveType(Class<?> typeClass) {
         return PRIMITIVE_TYPES.get(typeClass);

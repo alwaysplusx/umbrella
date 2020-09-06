@@ -21,12 +21,12 @@
     <module>umbrella-json</module>
     <module>umbrella-lock</module>
     <module>umbrella-message</module>
-    <module>umbrella-security-jwt</module>
     <module>umbrella-web</module>
     <module>umbrella-weixin</module>
     <module>umbrella-spring-boot-autoconfigure</module>
     <module>umbrella-data-r2dbc</module>
     <module>umbrella-graphql</module>
+    <module>umbrella-query</module>
   </modules>
 
   <properties>
@@ -40,6 +40,14 @@
     <fastjson.version>1.2.60</fastjson.version>
     <snowflake.version>1.0.0</snowflake.version>
   </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.projectlombok</groupId>
+      <artifactId>lombok</artifactId>
+      <scope>provided</scope>
+    </dependency>
+  </dependencies>
 
   <dependencyManagement>
     <dependencies>
@@ -86,11 +94,13 @@
         <artifactId>umbrella-message</artifactId>
         <version>${project.version}</version>
       </dependency>
+      <!--
       <dependency>
         <groupId>com.harmony.umbrella</groupId>
         <artifactId>umbrella-security-jwt</artifactId>
         <version>${project.version}</version>
       </dependency>
+      -->
       <dependency>
         <groupId>com.harmony.umbrella</groupId>
         <artifactId>umbrella-web</artifactId>
