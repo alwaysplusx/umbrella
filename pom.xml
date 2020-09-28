@@ -26,7 +26,6 @@
     <module>umbrella-spring-boot-autoconfigure</module>
     <module>umbrella-data-r2dbc</module>
     <module>umbrella-graphql</module>
-    <module>umbrella-query</module>
   </modules>
 
   <properties>
