@@ -7,7 +7,7 @@ import org.springframework.data.jpa.domain.Specification;
 
 /**
  * Enum for the composition types for {@link Predicate}s.
- * 
+ *
  * @author Thomas Darimont
  */
 public enum CompositionType {

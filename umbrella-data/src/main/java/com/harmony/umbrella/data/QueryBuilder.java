@@ -144,7 +144,7 @@ public class QueryBuilder<T extends QueryBuilder<T, M>, M> implements Serializab
      * @param strictMode 严格校验模式flag
      * @return true is strictMode
      */
-    public T strictMode(boolean strictMode) {
+    public T withStrictMode(boolean strictMode) {
         this.strictMode = strictMode;
         return (T) this;
     }

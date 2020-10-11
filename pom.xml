@@ -26,6 +26,7 @@
     <module>umbrella-spring-boot-autoconfigure</module>
     <module>umbrella-data-r2dbc</module>
     <module>umbrella-graphql</module>
+    <module>umbrella-query</module>
   </modules>
 
   <properties>
@@ -35,7 +36,7 @@
     <project.reporting.outputEncoding>${encoding}</project.reporting.outputEncoding>
     <maven.compiler.source>${java.version}</maven.compiler.source>
     <maven.compiler.target>${java.version}</maven.compiler.target>
-    <spring.boot.version>2.2.3.RELEASE</spring.boot.version>
+    <spring-boot.version>2.3.4.RELEASE</spring-boot.version>
     <fastjson.version>1.2.60</fastjson.version>
     <snowflake.version>1.0.0</snowflake.version>
   </properties>
@@ -53,7 +54,7 @@
       <dependency>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-dependencies</artifactId>
-        <version>${spring.boot.version}</version>
+        <version>${spring-boot.version}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
