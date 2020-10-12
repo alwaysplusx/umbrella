@@ -6,7 +6,6 @@ import com.harmony.umbrella.query.CriteriaDefinition.Comparator;
 import com.harmony.umbrella.query.specs.CombinatorSpecificationSupplier;
 import com.harmony.umbrella.query.specs.PathSpecificationSupplier;
 import org.springframework.data.jpa.domain.Specification;
-import sun.plugin.com.event.COMEventHandler;
 
 public class JpaCriteriaBuilder<DOMAIN> implements CriteriaBuilder<DOMAIN, JpaCriteriaBuilder<DOMAIN>>, SpecificationSupplier<DOMAIN> {
 

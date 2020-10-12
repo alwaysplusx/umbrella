@@ -1,10 +1,9 @@
 package com.harmony.umbrella.query.result;
 
+import com.harmony.umbrella.query.SpecificationSupplier;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Setter;
 import lombok.experimental.Accessors;
-import org.springframework.data.jpa.domain.Specification;
 
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
@@ -22,7 +21,7 @@ public class QueryResult<T> {
     @Setter(AccessLevel.NONE)
     private CriteriaBuilder criteriaBuilder;
 
-    private Specification<T> specification;
+    private SpecificationSupplier<T> specification;
     private Class<T> domainClass;
 
     public QueryResult(EntityManager entityManager) {
@@ -33,7 +32,7 @@ public class QueryResult<T> {
     public Optional<T> getSingleResult() {
         CriteriaQuery<T> query = criteriaBuilder.createQuery(domainClass);
         Root<T> root = query.from(domainClass);
-        Predicate predicate = specification.toPredicate(root, query, criteriaBuilder);
+        Predicate predicate = specification.get().toPredicate(root, query, criteriaBuilder);
         query.select(root).where(predicate);
         return Optional.ofNullable(entityManager.createQuery(query).getSingleResult());
     }

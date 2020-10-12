@@ -12,13 +12,15 @@ public class QueryTest {
             .createEntityManager();
 
     public static void main(String[] args) {
+        PathFunction<User, String> name = User::getName;
         from(User.class)
                 .withEntityManager(entityManager)
                 .where(e ->
-                        e.equal(User::getName, "david")
+                        e.equal(name, "david")
                                 .or()
-                                .equal(User::getName, "mary")
+                                .equal(name, "mary")
                 )
+                .orderBy(e -> e.desc(User::getName))
                 .execute()
                 .getSingleResult()
                 .ifPresent(System.out::println);
