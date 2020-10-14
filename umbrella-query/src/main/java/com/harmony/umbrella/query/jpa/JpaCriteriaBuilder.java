@@ -7,6 +7,8 @@ import com.harmony.umbrella.query.specs.CombinatorSpecificationSupplier;
 import com.harmony.umbrella.query.specs.PathSpecificationSupplier;
 import org.springframework.data.jpa.domain.Specification;
 
+import java.util.Collection;
+
 public class JpaCriteriaBuilder<DOMAIN> implements CriteriaBuilder<DOMAIN, JpaCriteriaBuilder<DOMAIN>>, SpecificationSupplier<DOMAIN> {
 
     private Combinator combinator = Combinator.INITIAL;
@@ -37,6 +39,36 @@ public class JpaCriteriaBuilder<DOMAIN> implements CriteriaBuilder<DOMAIN, JpaCr
     @Override
     public <T> JpaCriteriaBuilder<DOMAIN> equal(PathFunction<DOMAIN, T> column, T value) {
         return nextBuilder(newCriteria(column, value, Comparator.EQ), combinator);
+    }
+
+    @Override
+    public <T> JpaCriteriaBuilder<DOMAIN> notEqual(Path<DOMAIN> column, Object value) {
+        return nextBuilder(newCriteria(column, value, Comparator.NEQ), combinator);
+    }
+
+    @Override
+    public <T> JpaCriteriaBuilder<DOMAIN> notEqual(PathFunction<DOMAIN, T> column, T value) {
+        return nextBuilder(newCriteria(column, value, Comparator.NEQ), combinator);
+    }
+
+    @Override
+    public <T> JpaCriteriaBuilder<DOMAIN> in(PathFunction<DOMAIN, T> column, T... values) {
+        return nextBuilder(newCriteria(column, values, Comparator.IN), combinator);
+    }
+
+    @Override
+    public <T> JpaCriteriaBuilder<DOMAIN> in(PathFunction<DOMAIN, T> column, Collection<T> values) {
+        return nextBuilder(newCriteria(column, values, Comparator.IN), combinator);
+    }
+
+    @Override
+    public <T> JpaCriteriaBuilder<DOMAIN> notIn(PathFunction<DOMAIN, T> column, T... values) {
+        return nextBuilder(newCriteria(column, values, Comparator.NOT_IN), combinator);
+    }
+
+    @Override
+    public <T> JpaCriteriaBuilder<DOMAIN> notIn(PathFunction<DOMAIN, T> column, Collection<T> values) {
+        return nextBuilder(newCriteria(column, values, Comparator.NOT_IN), combinator);
     }
 
     public JpaCriteriaBuilder<DOMAIN> and() {
