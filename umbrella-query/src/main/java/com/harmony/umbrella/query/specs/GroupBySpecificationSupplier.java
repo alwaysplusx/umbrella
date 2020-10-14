@@ -4,6 +4,7 @@ import com.harmony.umbrella.query.Path;
 import com.harmony.umbrella.query.SpecificationSupplier;
 import com.harmony.umbrella.query.jpa.JpaPath;
 import com.harmony.umbrella.query.jpa.PathExpressionResolver;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.data.jpa.domain.Specification;
 
 import javax.persistence.criteria.Expression;
@@ -17,6 +18,7 @@ public class GroupBySpecificationSupplier<T> implements SpecificationSupplier<T>
 
     private PathExpressionResolver pathExpressionResolver = PathExpressionResolver.defaultResolver;
 
+    @NotNull
     @Override
     public Specification<T> get() {
         return (Specification<T>) (root, query, cb) -> {

@@ -1,5 +1,6 @@
 package com.harmony.umbrella.query;
 
+import org.jetbrains.annotations.NotNull;
 import org.springframework.data.jpa.domain.Specification;
 
 import javax.persistence.criteria.CriteriaBuilder;
@@ -42,6 +43,7 @@ public interface SpecificationSupplier<T> extends Supplier<Specification<T>> {
         return () -> spec;
     }
 
+    @NotNull
     @Override
     Specification<T> get();
 

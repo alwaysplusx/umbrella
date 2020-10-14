@@ -3,6 +3,7 @@ package com.harmony.umbrella.query.specs;
 import com.harmony.umbrella.query.CriteriaDefinition.Comparator;
 import com.harmony.umbrella.query.Path;
 import com.harmony.umbrella.query.SpecificationSupplier;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.util.StringUtils;
 
@@ -23,6 +24,7 @@ public class PathSpecificationSupplier<T> implements SpecificationSupplier<T> {
         this.comparatorResolver = ComparatorResolver.of(comparator);
     }
 
+    @NotNull
     @Override
     public Specification<T> get() {
         return (Specification<T>) (root, query, cb) -> comparatorResolver.resolve(root.get(path.getColumn()), value, cb);

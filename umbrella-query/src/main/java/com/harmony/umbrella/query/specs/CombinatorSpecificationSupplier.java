@@ -2,6 +2,7 @@ package com.harmony.umbrella.query.specs;
 
 import com.harmony.umbrella.query.CriteriaDefinition.Combinator;
 import com.harmony.umbrella.query.SpecificationSupplier;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.data.jpa.domain.Specification;
 
 public class CombinatorSpecificationSupplier<T> implements SpecificationSupplier<T> {
@@ -16,6 +17,7 @@ public class CombinatorSpecificationSupplier<T> implements SpecificationSupplier
         this.combinator = combinator;
     }
 
+    @NotNull
     @Override
     public Specification<T> get() {
         switch (combinator) {

@@ -2,6 +2,7 @@ package com.harmony.umbrella.query.specs;
 
 import com.harmony.umbrella.query.SortSupplier;
 import com.harmony.umbrella.query.SpecificationSupplier;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.query.QueryUtils;
 
@@ -16,6 +17,7 @@ public class SortSpecificationSupplier<T> implements SpecificationSupplier<T> {
         this.sortSupplier = sortSupplier;
     }
 
+    @NotNull
     @Override
     public Specification<T> get() {
         return (Specification<T>) (root, query, cb) -> {

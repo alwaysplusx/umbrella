@@ -5,6 +5,7 @@ import com.harmony.umbrella.query.CriteriaDefinition.Combinator;
 import com.harmony.umbrella.query.CriteriaDefinition.Comparator;
 import com.harmony.umbrella.query.specs.CombinatorSpecificationSupplier;
 import com.harmony.umbrella.query.specs.PathSpecificationSupplier;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.util.Collection;
@@ -107,6 +108,7 @@ public class JpaCriteriaBuilder<DOMAIN> implements CriteriaBuilder<DOMAIN, JpaCr
         return new PathSpecificationSupplier<>(column, value, comparator);
     }
 
+    @NotNull
     @Override
     public Specification<DOMAIN> get() {
         return specificationSupplier == null ? Specification.where(null) : specificationSupplier.get();
